@@ -26,7 +26,7 @@ DATA_DIR = ROOT / "data"
 SCHEMA_PATH = ROOT / "schema" / "fund.schema.json"
 DATA_DIR.mkdir(exist_ok=True)
 
-from sources.cnmv_meta import resolve_isin, get_gestora_url
+from sources.cnmv_meta import resolve_isin, get_gestora_web
 from sources.cnmv_xml import extract_serie_historica
 from sources.cartas import extract_all_cartas
 
@@ -214,9 +214,8 @@ def run(isin: str, gestora_web: str | None = None, force: bool = False):
     meta = resolve_isin(isin)
     
     if not meta.get("nif"):
-        print(f"[ERROR] No se pudo resolver el ISIN {isin} en la CNMV.")
-        print("Verifica que el ISIN es correcto y es un fondo español (ES...).")
-        sys.exit(1)
+        print(f"[AVISO] NIF no resuelto para {isin}. Continuando sin él.")
+        print(f"        Los datos cuantitativos se extraerán filtrando por ISIN directamente.")
 
     # 3. Construir base si es nuevo
     if is_new:
@@ -228,7 +227,7 @@ def run(isin: str, gestora_web: str | None = None, force: bool = False):
 
     # 4. Detectar web gestora si no se proporcionó
     if not gestora_web:
-        gestora_web = get_gestora_url(meta["nif"])
+        gestora_web = get_gestora_web(meta.get("nif"))
         if gestora_web:
             print(f"[meta] Web gestora detectada: {gestora_web}")
         else:

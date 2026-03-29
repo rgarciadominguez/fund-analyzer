@@ -1,103 +1,91 @@
 """
 cnmv_meta.py
-Resuelve ISIN → NIF, nombre, gestora y URL gestora desde CNMV.
-Sin JavaScript, sin Chrome. Usa requests + BeautifulSoup sobre la página pública.
+Resuelve metadatos de un fondo desde la CNMV dado su ISIN.
+Diseño: best-effort. Nunca bloquea el extractor principal.
 """
-
 import re
 import requests
 from bs4 import BeautifulSoup
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; FundAnalyzer/1.0)",
-    "Accept-Language": "es-ES,es;q=0.9"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Accept-Language": "es-ES,es;q=0.9",
 }
 
 def resolve_isin(isin: str) -> dict:
     """
-    Dado un ISIN, devuelve:
-    {
-        "isin": "ES0112231008",
-        "nif": "V87077459",
-        "nombre": "AVANTAGE FUND, FI",
-        "registro_cnmv": 4791,
-        "gestora": "RENTA 4 GESTORA, S.G.I.I.C., S.A.",
-        "depositario": "RENTA 4 BANCO, S.A.",
-        "fecha_creacion": "2014-07-31",
-        "url_cnmv": "https://www.cnmv.es/portal/consultas/iic/fondo?nif=V87077459"
+    Dado un ISIN devuelve dict con NIF y metadatos.
+    Si algo falla devuelve campos en None. NUNCA lanza excepciones.
+    """
+    result = {
+        "isin": isin, "nif": None, "nombre": None,
+        "registro_cnmv": None, "gestora": None,
+        "depositario": None, "fecha_creacion": None, "url_cnmv": None,
     }
-    """
-    print(f"[cnmv_meta] Resolviendo ISIN {isin}...")
-
-    # Intentar primero búsqueda directa por ISIN
-    url = f"https://www.cnmv.es/portal/consultas/iic/fondo?isin={isin}&lang=es"
+    print(f"[cnmv_meta] Buscando {isin} en CNMV...")
     try:
+        url = f"https://www.cnmv.es/portal/consultas/iic/fondo?isin={isin}&lang=es"
         r = requests.get(url, headers=HEADERS, timeout=15, allow_redirects=True)
-        r.raise_for_status()
-        
-        soup = BeautifulSoup(r.text, "html.parser")
-        
-        # Extraer NIF de la URL final o de la página
-        final_url = r.url
-        nif_match = re.search(r"nif=([A-Z]\d+)", final_url)
-        nif = nif_match.group(1) if nif_match else None
-        
-        # Intentar extraer datos básicos de la página
-        result = {
-            "isin": isin,
-            "nif": nif,
-            "nombre": None,
-            "registro_cnmv": None,
-            "gestora": None,
-            "depositario": None,
-            "fecha_creacion": None,
-            "url_cnmv": f"https://www.cnmv.es/portal/consultas/iic/fondo?nif={nif}" if nif else None
-        }
-        
-        # Buscar en texto de la página datos del fondo
-        page_text = soup.get_text()
-        
-        # Registro CNMV
-        reg_match = re.search(r"Nº\s*Registro\s*CNMV[:\s]*(\d+)", page_text, re.IGNORECASE)
-        if not reg_match:
-            reg_match = re.search(r"número\s*(\d+)\b", page_text, re.IGNORECASE)
-        if reg_match:
-            result["registro_cnmv"] = int(reg_match.group(1))
-        
-        print(f"[cnmv_meta] NIF: {nif}")
-        return result
-
+        nif = _extract_nif(r.url, r.text)
+        if nif:
+            result["nif"] = nif
+            result["url_cnmv"] = f"https://www.cnmv.es/portal/consultas/iic/fondo?nif={nif}&lang=es"
+            print(f"[cnmv_meta] NIF: {nif}")
+            _enrich(result, r.text)
+        else:
+            print("[cnmv_meta] NIF no encontrado — continuando sin él")
     except Exception as e:
-        print(f"[cnmv_meta] Error resolviendo ISIN: {e}")
-        return {
-            "isin": isin,
-            "nif": None,
-            "nombre": None,
-            "registro_cnmv": None,
-            "gestora": None,
-            "depositario": None,
-            "fecha_creacion": None,
-            "url_cnmv": None
-        }
+        print(f"[cnmv_meta] Sin acceso a CNMV ({e}) — continuando")
+    return result
 
+def _extract_nif(url: str, html: str) -> str | None:
+    for text in [url, html]:
+        m = re.search(r"nif=([A-Z]\d{7,9})", text, re.IGNORECASE)
+        if m:
+            return m.group(1).upper()
+    return None
 
-def get_gestora_url(nif: str) -> str | None:
-    """
-    Intenta extraer la URL de la web de la gestora/asesor desde el folleto CNMV.
-    """
-    # Buscar en hechos relevantes o datos generales
-    urls_a_probar = [
-        f"https://www.cnmv.es/portal/consultas/iic/fondo?nif={nif}&vista=0&lang=es",
-    ]
-    for url in urls_a_probar:
-        try:
-            r = requests.get(url, headers=HEADERS, timeout=15)
-            soup = BeautifulSoup(r.text, "html.parser")
-            # Buscar enlaces externos que no sean de la CNMV
-            for a in soup.find_all("a", href=True):
-                href = a["href"]
-                if href.startswith("http") and "cnmv.es" not in href:
-                    return href
-        except Exception:
-            continue
+def _enrich(result: dict, html: str):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        text = soup.get_text(" ", strip=True)
+        if not result["nombre"]:
+            t = soup.find("title")
+            if t:
+                parts = t.text.split(" - ")
+                if len(parts) >= 3:
+                    result["nombre"] = parts[2].strip()
+        if not result["registro_cnmv"]:
+            m = re.search(r"[Rr]egistro[:\s]+(\d{3,5})", text)
+            if m:
+                result["registro_cnmv"] = int(m.group(1))
+        if not result["gestora"]:
+            m = re.search(r"Gestora:\s*([^\n\r,]{5,80})", text)
+            if m:
+                result["gestora"] = m.group(1).strip()
+        if not result["depositario"]:
+            m = re.search(r"Depositario:\s*([^\n\r,]{5,80})", text)
+            if m:
+                result["depositario"] = m.group(1).strip()
+        if not result["fecha_creacion"]:
+            m = re.search(r"constituci[oó]n[:\s]+(\d{2}/\d{2}/\d{4})", text, re.IGNORECASE)
+            if m:
+                d, mo, y = m.group(1).split("/")
+                result["fecha_creacion"] = f"{y}-{mo}-{d}"
+    except Exception:
+        pass
+
+def get_gestora_web(nif: str) -> str | None:
+    if not nif:
+        return None
+    try:
+        url = f"https://www.cnmv.es/portal/consultas/iic/fondo?nif={nif}&lang=es"
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        soup = BeautifulSoup(r.text, "html.parser")
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if href.startswith("http") and "cnmv.es" not in href and "google" not in href:
+                return href.rstrip("/")
+    except Exception:
+        pass
     return None
