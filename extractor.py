@@ -59,7 +59,7 @@ def save(isin: str, data: dict):
 def load_existing(isin: str) -> dict | None:
     path = DATA_DIR / f"{isin}.json"
     if path.exists():
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     return None
 
