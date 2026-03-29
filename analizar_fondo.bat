@@ -1,114 +1,90 @@
 @echo off
-chcp 65001 > nul
+chcp 65001 > nul 2>&1
 title Fund Analyzer
+color 0A
 
-:menu
+:inicio
 cls
 echo.
-echo ╔════════════════════════════════════════════════╗
-echo ║           FUND ANALYZER - FONDOS ES           ║
-echo ╚════════════════════════════════════════════════╝
+echo  ================================================
+echo   FUND ANALYZER
+echo  ================================================
 echo.
 
-REM ── Verificar que estamos en la carpeta correcta ─────────────
+REM Verificar carpeta correcta
 if not exist "extractor.py" (
-    echo [ERROR] No se encuentra extractor.py
-    echo Asegurate de ejecutar este script desde la carpeta fund-analyzer\
+    echo  [ERROR] Ejecuta desde la carpeta fund-analyzer\
     pause
     exit /b 1
 )
 
-REM ── Mostrar fondos ya analizados ─────────────────────────────
-echo Fondos ya analizados:
-echo.
-set COUNT=0
-for %%f in (data\ES*.json) do (
-    set /a COUNT+=1
-    for /f "tokens=*" %%a in ('python -c "import json; d=json.load(open('%%f')); print(f'  %%f  ^|  {d[\"meta\"].get(\"nombre\",\"\")}  ^|  {d[\"meta\"][\"extraccion_estado\"][\"cualitativo\"]}')" 2^>nul') do echo %%a
-)
-if %COUNT%==0 echo   (ninguno todavia)
-echo.
-echo ─────────────────────────────────────────────────────────────
-echo.
-
-REM ── Pedir ISIN ───────────────────────────────────────────────
-set /p ISIN="Introduce el ISIN del fondo (ESxxxxxxxxxx) o ENTER para salir: "
-
-if "%ISIN%"=="" (
-    echo Saliendo...
-    exit /b 0
-)
-
-REM Convertir a mayusculas y limpiar espacios
-set ISIN=%ISIN: =%
-
-REM Validar formato basico ES + 10 caracteres
-echo %ISIN% | findstr /r "^ES[A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9]$" > nul
-if errorlevel 1 (
-    echo.
-    echo [ERROR] ISIN invalido: %ISIN%
-    echo El ISIN debe empezar por ES y tener 12 caracteres en total.
-    echo Ejemplo: ES0112231008
+REM Verificar .env
+if not exist ".env" (
+    echo  [AVISO] No hay .env con API Key.
+    echo  Ejecuta primero setup.bat
     echo.
     pause
-    goto :menu
+    exit /b 1
 )
 
-REM ── Preguntar URL gestora (opcional) ─────────────────────────
+REM Mostrar fondos ya analizados
+echo  Fondos ya analizados:
 echo.
-echo URL de la web de la gestora (opcional, mejora la extraccion):
-echo Ejemplo: https://www.avantagecapital.com
-echo Pulsa ENTER para detectar automaticamente.
-echo.
-set /p GESTORA_URL="URL gestora: "
-
-REM ── Preguntar si forzar re-extraccion ────────────────────────
-set FORCE_FLAG=
-if exist "data\%ISIN%.json" (
-    echo.
-    echo [AVISO] Ya existe un analisis para %ISIN%.
-    set /p FORCE="Quieres actualizar los datos existentes? (s/n): "
-    if /i "%FORCE%"=="s" set FORCE_FLAG=--force
-)
-
-REM ── Ejecutar extractor ───────────────────────────────────────
-echo.
-echo ════════════════════════════════════════════════
-echo  Analizando fondo: %ISIN%
-echo ════════════════════════════════════════════════
-echo.
-
-if "%GESTORA_URL%"=="" (
-    python extractor.py %ISIN% %FORCE_FLAG%
-) else (
-    python extractor.py %ISIN% --gestora-web %GESTORA_URL% %FORCE_FLAG%
-)
-
-echo.
+dir /b data\ES*.json 2>nul | findstr /r "." > nul
 if errorlevel 1 (
-    echo [ERROR] La extraccion fallo. Revisa los mensajes de error arriba.
+    echo    (ninguno todavia)
 ) else (
-    echo ════════════════════════════════════════════════
-    echo  JSON guardado en: data\%ISIN%.json
-    echo ════════════════════════════════════════════════
-    echo.
-
-    REM Ofrecer abrir el JSON
-    set /p OPEN="Quieres abrir el JSON resultante? (s/n): "
-    if /i "%OPEN%"=="s" start notepad "data\%ISIN%.json"
-
-    REM Ofrecer subir a GitHub
-    echo.
-    set /p PUSH="Quieres subir el resultado a GitHub? (s/n): "
-    if /i "%PUSH%"=="s" (
-        call push_github.bat %ISIN%
+    for %%f in (data\ES*.json) do (
+        python -c "import json,sys; d=json.load(open('%%f')); m=d['meta']; print(f'   {m[\"isin\"]}  {m.get(\"nombre\",\"\")[:40]:<40}  [{m[\"extraccion_estado\"][\"cualitativo\"]}]')" 2>nul
     )
 )
 
 echo.
-set /p OTRO="Analizar otro fondo? (s/n): "
-if /i "%OTRO%"=="s" goto :menu
+echo  ------------------------------------------------
+echo.
+set /p ISIN="  ISIN del fondo a analizar (Enter para salir): "
+
+if "%ISIN%"=="" (
+    echo.
+    echo  Saliendo...
+    timeout /t 2 > nul
+    exit /b 0
+)
+
+REM Limpiar espacios
+set ISIN=%ISIN: =%
 
 echo.
-echo Hasta luego.
-timeout /t 2 > nul
+echo  URL de la gestora (opcional, Enter para saltar):
+set /p GESTORA="  URL: "
+
+echo.
+echo  ================================================
+echo   Analizando: %ISIN%
+echo  ================================================
+echo.
+
+if "%GESTORA%"=="" (
+    python extractor.py %ISIN%
+) else (
+    python extractor.py %ISIN% --gestora-web %GESTORA%
+)
+
+echo.
+if errorlevel 1 (
+    echo  [ERROR] Revisa los mensajes de error arriba.
+) else (
+    echo  ================================================
+    echo   Completado. JSON en: data\%ISIN%.json
+    echo  ================================================
+    echo.
+    set /p ABRIR="  Abrir el JSON? (s/n): "
+    if /i "%ABRIR%"=="s" start notepad "data\%ISIN%.json"
+)
+
+echo.
+set /p OTRO="  Analizar otro fondo? (s/n): "
+if /i "%OTRO%"=="s" goto :inicio
+
+echo.
+pause

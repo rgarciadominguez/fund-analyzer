@@ -1,94 +1,75 @@
 @echo off
-chcp 65001 > nul
+chcp 65001 > nul 2>&1
 title Fund Analyzer - Setup
+color 0A
 
 echo.
-echo ╔════════════════════════════════════════╗
-echo ║     FUND ANALYZER - SETUP INICIAL      ║
-echo ╚════════════════════════════════════════╝
+echo  ================================================
+echo   FUND ANALYZER - SETUP INICIAL
+echo  ================================================
 echo.
 
-REM ── Verificar Python ─────────────────────────────────────────
-python --version > nul 2>&1
-if errorlevel 1 (
-    echo [ERROR] Python no encontrado.
-    echo.
-    echo Instala Python desde: https://www.python.org/downloads/
-    echo Asegurate de marcar "Add Python to PATH" durante la instalacion.
+REM Verificar carpeta correcta
+if not exist "requirements.txt" (
+    echo  [ERROR] Ejecuta este script desde dentro de la carpeta fund-analyzer\
     echo.
     pause
     exit /b 1
 )
-echo [OK] Python detectado.
 
-REM ── Descargar repo desde GitHub ──────────────────────────────
-echo.
-echo [1/4] Descargando Fund Analyzer desde GitHub...
-powershell -Command "Invoke-WebRequest -Uri 'https://github.com/rgarciadominguez/fund-analyzer/archive/refs/heads/main.zip' -OutFile 'fund-analyzer.zip'" 2>nul
+REM Verificar Python
+echo  Verificando Python...
+python --version
 if errorlevel 1 (
-    echo [ERROR] No se pudo descargar. Verifica tu conexion a internet.
+    echo.
+    echo  [ERROR] Python no encontrado.
+    echo  Instala desde: https://www.python.org/downloads/
+    echo  Marca "Add Python to PATH" durante la instalacion.
+    echo.
     pause
     exit /b 1
 )
-echo [OK] Descargado.
-
-REM ── Extraer ZIP ──────────────────────────────────────────────
+echo  [OK] Python encontrado.
 echo.
-echo [2/4] Extrayendo archivos...
-powershell -Command "Expand-Archive -Path 'fund-analyzer.zip' -DestinationPath '.' -Force" 2>nul
-if exist "fund-analyzer-main" (
-    if exist "fund-analyzer" rmdir /s /q "fund-analyzer"
-    rename "fund-analyzer-main" "fund-analyzer"
-)
-del "fund-analyzer.zip" > nul 2>&1
-echo [OK] Extraido en carpeta fund-analyzer\
 
-REM ── Instalar dependencias Python ─────────────────────────────
+REM Instalar dependencias
+echo  Instalando dependencias (1-2 min la primera vez)...
 echo.
-echo [3/4] Instalando dependencias Python...
-cd fund-analyzer
-pip install -r requirements.txt -q
+python -m pip install -r requirements.txt
 if errorlevel 1 (
-    echo [ERROR] Fallo al instalar dependencias.
+    echo.
+    echo  [ERROR] Fallo instalacion. Ejecuta manualmente:
+    echo    python -m pip install -r requirements.txt
+    echo.
     pause
     exit /b 1
 )
-echo [OK] Dependencias instaladas.
-
-REM ── Configurar API Key ───────────────────────────────────────
 echo.
-echo [4/4] Configuracion API Key de Anthropic
+echo  [OK] Dependencias instaladas.
 echo.
 
+REM Configurar API Key
 if exist ".env" (
-    echo [OK] Archivo .env ya existe. Saltando.
-    goto :done
+    echo  [OK] .env ya existe. Saltando configuracion.
+    goto :fin
 )
 
-echo Necesitas tu API Key de Anthropic para extraer datos cualitativos.
-echo Consiguelo en: https://console.anthropic.com/
+echo  ------------------------------------------------
+echo   ANTHROPIC API KEY
+echo  ------------------------------------------------
 echo.
-set /p APIKEY="Pega tu Anthropic API Key (sk-ant-...): "
-
-if "%APIKEY%"=="" (
-    echo [AVISO] No se configuro API Key. La extraccion cualitativa no funcionara.
-    echo          Puedes configurarla despues editando el archivo .env
-    echo ANTHROPIC_API_KEY=sk-ant-TU_KEY_AQUI > .env
-) else (
-    echo ANTHROPIC_API_KEY=%APIKEY%> .env
-    echo [OK] API Key guardada en .env
-)
-
-:done
+echo  Obtenla en: https://console.anthropic.com/
 echo.
-echo ╔════════════════════════════════════════╗
-echo ║            SETUP COMPLETADO            ║
-echo ║                                        ║
-echo ║  Ahora ejecuta: analizar_fondo.bat     ║
-echo ╚════════════════════════════════════════╝
+set /p APIKEY="Pega tu API Key (sk-ant-...): "
+echo ANTHROPIC_API_KEY=%APIKEY%> .env
+echo  [OK] Guardada en .env
 echo.
 
-REM Copiar el script de analisis a la carpeta raiz
-copy "..\analizar_fondo.bat" "analizar_fondo.bat" > nul 2>&1
-
+:fin
+echo  ================================================
+echo   SETUP COMPLETADO
+echo  ================================================
+echo.
+echo  Siguiente paso: doble clic en analizar_fondo.bat
+echo.
 pause
