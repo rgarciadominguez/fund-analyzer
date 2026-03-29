@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FundData",
+  "type": "object",
+  "required": ["meta", "ficha", "cuantitativo", "estrategia", "cambios_relevantes", "lecturas_recomendadas"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["isin", "nombre", "gestora", "fecha_creacion", "ultima_extraccion", "extraccion_estado"],
+      "properties": {
+        "isin":               { "type": "string" },
+        "nombre":             { "type": "string" },
+        "gestora":            { "type": "string" },
+        "asesor":             { "type": ["string", "null"] },
+        "nif_fondo":          { "type": ["string", "null"] },
+        "registro_cnmv":      { "type": ["integer", "null"] },
+        "fecha_creacion":     { "type": "string", "format": "date" },
+        "ultima_extraccion":  { "type": "string", "format": "date" },
+        "fuentes_procesadas": { "type": "array", "items": { "type": "string" } },
+        "extraccion_estado": {
+          "type": "object",
+          "properties": {
+            "cualitativo":           { "type": "string", "enum": ["completo", "parcial", "pendiente"] },
+            "cuantitativo_serie":    { "type": "string", "enum": ["completo", "parcial", "pendiente"] },
+            "rentabilidades":        { "type": "string", "enum": ["completo", "parcial", "pendiente"] }
+          }
+        }
+      }
+    },
+    "ficha": {
+      "type": "object",
+      "required": ["descripcion", "tipo", "clases", "personas_clave"],
+      "properties": {
+        "descripcion":    { "type": "string" },
+        "tipo":           { "type": "string" },
+        "sfdr":           { "type": ["string", "null"] },
+        "depositario":    { "type": ["string", "null"] },
+        "auditora":       { "type": ["string", "null"] },
+        "clases":         { "type": "object" },
+        "personas_clave": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["nombre", "rol", "desde"],
+            "properties": {
+              "nombre":   { "type": "string" },
+              "rol":      { "type": "string" },
+              "desde":    { "type": ["string", "null"] },
+              "hasta":    { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "cuantitativo": {
+      "type": "object",
+      "required": ["snapshot_actual", "serie_historica", "rentabilidades_anuales"],
+      "properties": {
+        "snapshot_actual": {
+          "type": "object",
+          "properties": {
+            "fecha":                      { "type": ["string", "null"] },
+            "aum_meur":                   { "type": ["number", "null"] },
+            "participes":                 { "type": ["integer", "null"] },
+            "cagr_desde_inicio_pct":      { "type": ["number", "null"] },
+            "rentabilidad_acumulada_pct": { "type": ["number", "null"] }
+          }
+        },
+        "serie_historica": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["periodo"],
+            "properties": {
+              "periodo":       { "type": "string" },
+              "aum_meur":      { "type": ["number", "null"] },
+              "participes":    { "type": ["integer", "null"] },
+              "ter_pct":       { "type": ["number", "null"] },
+              "rv_pct":        { "type": ["number", "null"] },
+              "rf_pct":        { "type": ["number", "null"] },
+              "liquidez_pct":  { "type": ["number", "null"] },
+              "fuente":        { "type": ["string", "null"] }
+            }
+          }
+        },
+        "rentabilidades_anuales": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["año"],
+            "properties": {
+              "año":    { "type": "integer" },
+              "pct":    { "type": ["number", "null"] },
+              "fuente": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "estrategia": {
+      "type": "object",
+      "required": ["filosofia", "evolucion_por_periodo"],
+      "properties": {
+        "filosofia":            { "type": "object" },
+        "proceso":              { "type": ["string", "null"] },
+        "vision_actual":        { "type": ["object", "null"] },
+        "evolucion_por_periodo": { "type": "array" }
+      }
+    },
+    "cambios_relevantes":    { "type": "array" },
+    "lecturas_recomendadas": { "type": "array" }
+  }
+}
