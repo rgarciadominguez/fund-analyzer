@@ -1,7 +1,9 @@
 """
 Fund Analyzer — Streamlit Dashboard v2
 """
+import hashlib
 import json
+import re
 from pathlib import Path
 
 import plotly.graph_objects as go
@@ -434,7 +436,6 @@ with tab1:
         if gestores:
             st.markdown('<div class="sec">Equipo gestor</div>', unsafe_allow_html=True)
             for g in gestores:
-                bg_card = cual.get("contexto_mercado", "")
                 st.markdown(f"""
                 <div class="card" style="margin-bottom:8px">
                   <div style="font-size:14px;font-weight:700;color:{TEXT}">👤 {g.get('nombre','')}</div>
@@ -447,7 +448,6 @@ with tab1:
         if historia:
             st.markdown('<div class="sec">Historia del fondo</div>', unsafe_allow_html=True)
             # Intentar dividir por párrafos / frases relevantes
-            import re
             partes = [p.strip() for p in re.split(r'\n{2,}|(?<=[.!?])\s{2,}', historia) if len(p.strip()) > 30]
             if not partes:
                 partes = [historia]
@@ -531,8 +531,8 @@ with tab2:
                 line=dict(color=PURPLE, width=2),
                 marker=dict(size=8, color=PURPLE),
                 fill="tozeroy",
-                fillcolor=f"{PURPLE}22",
-                hovertemplate="<b>%{x}</b><br>Partícipes: %{y:,.0f}<extra></extra>",
+                fillcolor="rgba(139,92,246,0.13)",
+                hovertemplate="<b>%{x}</b><br>Partícipes: %{y:.0f}<extra></extra>",
             ))
             fig_p.update_layout(**chart_layout(240, legend=False))
             st.plotly_chart(fig_p, use_container_width=True)
@@ -698,8 +698,6 @@ with tab3:
         top_tickers = sorted(all_tickers.items(), key=lambda x: sum(x[1]["periodos"].values()), reverse=True)[:10]
         xlabels = [h["periodo"] for h in hist_s]
 
-        import hashlib
-
         def ticker_color(t):
             h = int(hashlib.md5(t.encode()).hexdigest()[:6], 16)
             hue = h % 360
@@ -832,7 +830,6 @@ with tab4:
     historia = cual.get("historia_fondo", "")
     if historia:
         st.markdown('<div class="sec">Hechos relevantes</div>', unsafe_allow_html=True)
-        import re
         # Dividir por líneas / bloques
         bloques = [b.strip() for b in re.split(r'\n{1,}', historia) if len(b.strip()) > 20]
         for b in bloques:
@@ -1004,7 +1001,7 @@ with tab6:
       <table style="width:100%;font-size:13px;border-collapse:collapse">
         <tr><td style="color:{TEXT3};padding:4px 0;width:160px">ISIN</td><td style="color:{TEXT}">{st.session_state.selected_isin}</td></tr>
         <tr><td style="color:{TEXT3};padding:4px 0">Tipo</td><td style="color:{TEXT}">{d.get('tipo','—')}</td></tr>
-        <tr><td style="color:{TEXT3};padding:4px 0">Última actualización</td><td style="color:{TEXT}">{d.get('ultima_actualizacion','—')[:19].replace('T',' ')}</td></tr>
+        <tr><td style="color:{TEXT3};padding:4px 0">Última actualización</td><td style="color:{TEXT}">{str(d.get('ultima_actualizacion') or '—')[:19].replace('T',' ')}</td></tr>
         <tr><td style="color:{TEXT3};padding:4px 0">XMLs procesados</td><td style="color:{TEXT}">{len(xmls)}</td></tr>
         <tr><td style="color:{TEXT3};padding:4px 0">PDFs procesados</td><td style="color:{TEXT}">{len(pdfs)}</td></tr>
         <tr><td style="color:{TEXT3};padding:4px 0">Periodos consistencia</td><td style="color:{TEXT}">{len(periodos)}</td></tr>
