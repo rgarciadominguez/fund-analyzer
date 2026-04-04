@@ -199,12 +199,16 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
         ("Agente CNMV", "Descargando datos CNMV"),
         ("Letters Agent", "Buscando cartas trimestrales"),
         ("Analyst Agent", "Sintetizando y llamando a Claude"),
+        ("Readings Agent", "Buscando lecturas y análisis externos"),
+        ("Meta Agent", "Revisión de calidad del pipeline"),
     ]
     steps_lu = [
         ("CSSF Agent", "Consultando regulador CSSF Luxembourg"),
         ("Intl Agent", "Descargando annual report"),
         ("Letters Agent", "Buscando cartas trimestrales"),
         ("Analyst Agent", "Sintetizando y llamando a Claude"),
+        ("Readings Agent", "Buscando lecturas y análisis externos"),
+        ("Meta Agent", "Revisión de calidad del pipeline"),
     ]
     steps = steps_lu if is_lu else steps_es
 
@@ -268,7 +272,30 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
             else:
                 gestora_url = config.get("gestora_url", "")
 
-            letters = LettersAgent(isin, config, gestora_url=gestora_url)
+            # Pasar nombre, gestora y anio_creacion para DDG search
+            output_so_far = results.get("output") or {}
+            kpis_so_far = output_so_far.get("kpis", {}) if isinstance(output_so_far, dict) else {}
+            # Intentar leer output parcial si analyst no ha corrido aún
+            partial_out_path = fund_dir / "output.json"
+            if partial_out_path.exists():
+                try:
+                    partial = json.loads(partial_out_path.read_text(encoding="utf-8"))
+                    fund_name_hint = partial.get("nombre", "")
+                    gestora_hint   = partial.get("gestora", "")
+                    anio_creacion_hint = (partial.get("kpis") or {}).get("anio_creacion")
+                except Exception:
+                    fund_name_hint = gestora_hint = ""
+                    anio_creacion_hint = None
+            else:
+                fund_name_hint = gestora_hint = ""
+                anio_creacion_hint = None
+
+            letters = LettersAgent(
+                isin, config, gestora_url=gestora_url,
+                fund_name=fund_name_hint,
+                gestora=gestora_hint,
+                anio_creacion=anio_creacion_hint,
+            )
             results["letters"] = await letters.run()
             n_cartas = len(results["letters"].get("cartas", []))
             log("LETTERS", "OK", f"{n_cartas} cartas procesadas")
@@ -296,6 +323,48 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
             output = {"isin": isin, "error": str(exc)}
             out_path = fund_dir / "output.json"
             out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        progress.advance(main_task)
+
+        # ── Paso 4: Readings Agent ────────────────────────────────────────────
+        readings_step_idx = 4 if is_lu else 3
+        progress.update(main_task, description=steps[readings_step_idx][1])
+        log("ORCHESTRATOR", "START", "Paso 4: Readings Agent")
+
+        try:
+            from agents.readings_agent import ReadingsAgent
+            out_for_readings = results.get("output", {})
+            if isinstance(out_for_readings, dict):
+                r_nombre  = out_for_readings.get("nombre", "")
+                r_gestora = out_for_readings.get("gestora", "")
+                r_gestores = [g.get("nombre", "") for g in
+                              out_for_readings.get("cualitativo", {}).get("gestores", []) if g.get("nombre")]
+            else:
+                r_nombre = r_gestora = ""
+                r_gestores = []
+            readings = ReadingsAgent(isin, fund_name=r_nombre, gestora=r_gestora, gestores=r_gestores)
+            results["readings"] = await readings.run()
+            log("READINGS", "OK",
+                f"Lecturas: {len(results['readings'].get('lecturas', []))} | "
+                f"Externos: {len(results['readings'].get('analisis_externos', []))}")
+        except Exception as exc:
+            log("READINGS", "ERROR", f"Paso 4 falló: {exc}")
+
+        progress.advance(main_task)
+
+        # ── Paso 5: Meta Agent ────────────────────────────────────────────────
+        meta_step_idx = 5 if is_lu else 4
+        progress.update(main_task, description=steps[meta_step_idx][1])
+        log("ORCHESTRATOR", "START", "Paso 5: Meta Agent")
+
+        try:
+            from agents.meta_agent import MetaAgent
+            meta = MetaAgent(isin, fund_dir=fund_dir, config=config)
+            results["meta"] = await meta.run()
+            n_issues = len(results["meta"].get("issues", []))
+            log("META", "OK", f"Meta-QA completado: {n_issues} issues detectados")
+        except Exception as exc:
+            log("META", "ERROR", f"Paso 5 falló: {exc}")
 
         progress.advance(main_task)
 
@@ -331,6 +400,11 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
     if null_fields:
         console.print(f"[yellow]Campos null: {', '.join(null_fields[:15])}"
                       + (f" (+{len(null_fields)-15} más)" if len(null_fields) > 15 else ""))
+
+    # Meta-QA issues
+    meta_result = results.get("meta", {})
+    if meta_result.get("issues"):
+        console.print(f"\n[bold yellow]⚠ Meta-QA: {len(meta_result['issues'])} issues detectados[/bold yellow]")
 
     separator = "=" * 48
     summary = (

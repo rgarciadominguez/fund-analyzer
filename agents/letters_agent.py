@@ -15,6 +15,7 @@ import asyncio
 import json
 import re
 import sys
+import urllib.parse
 from datetime import datetime
 from pathlib import Path
 
@@ -24,7 +25,7 @@ from rich.panel import Panel
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from tools.http_client import get, get_bytes
+from tools.http_client import get, get_bytes, get_with_headers
 from tools.pdf_extractor import extract_pages_by_keyword, get_pdf_metadata
 from tools.claude_extractor import extract_structured_data
 
@@ -74,11 +75,23 @@ class LettersAgent:
     Clase con async def run() -> dict según convenio del proyecto.
     """
 
-    def __init__(self, isin: str, config: dict, gestora_url: str = ""):
-        self.isin = isin.strip().upper()
-        self.config = config
-        self.gestora_url = gestora_url
-        self.prefix = self.isin[:2].upper()
+    DDG_HEADERS = {
+        "Accept-Language": "es-ES,es;q=0.9",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml",
+        "Referer": "https://duckduckgo.com/",
+    }
+
+    def __init__(self, isin: str, config: dict = None, gestora_url: str = "",
+                 fund_name: str = "", gestora: str = "", anio_creacion: int | None = None):
+        self.isin         = isin.strip().upper()
+        self.config       = config or {"fuentes": "1"}
+        self.gestora_url  = gestora_url
+        self.prefix       = self.isin[:2].upper()
+        self.fund_name    = fund_name
+        self.gestora      = gestora
+        self.anio_creacion = anio_creacion or (datetime.now().year - 5)
+        self.current_year = datetime.now().year
 
         root = Path(__file__).parent.parent
         self.fund_dir = root / "data" / "funds" / self.isin
@@ -136,6 +149,15 @@ class LettersAgent:
             except Exception as exc:
                 self._log("WARN", f"URL no accesible {url}: {exc}")
 
+        # DuckDuckGo search por año si no hay cartas de URLs conocidas
+        if len(letters_found) < 2 and (self.fund_name or self.gestora):
+            self._log("INFO", f"Sin cartas desde URLs, buscando en DDG año a año ({self.anio_creacion}-{self.current_year})")
+            ddg_links = await self._search_letters_ddg_all_years()
+            letters_found.extend(ddg_links)
+            result["fuentes"]["urls_consultadas"].extend(
+                [f"DDG:{l['titulo']}" for l in ddg_links[:5]]
+            )
+
         if not letters_found:
             self._log("WARN", "No se encontraron cartas. Guardando JSON vacío.")
             self._save(result)
@@ -154,6 +176,77 @@ class LettersAgent:
         self._log("OK", f"{len(result['cartas'])} cartas procesadas")
         self._save(result)
         return result
+
+    # ── DuckDuckGo search por año ─────────────────────────────────────────────
+
+    async def _search_letters_ddg_all_years(self) -> list[dict]:
+        """Busca cartas de gestores en DDG para cada año desde anio_creacion."""
+        all_results: list[dict] = []
+        seen_urls: set[str] = set()
+
+        for year in range(self.anio_creacion, self.current_year + 1):
+            year_results = await self._search_letters_ddg(year)
+            for r in year_results:
+                url = r.get("url", "")
+                if url and url not in seen_urls:
+                    seen_urls.add(url)
+                    all_results.append(r)
+            await asyncio.sleep(1.5)  # respetar rate limit
+
+        self._log("INFO", f"DDG total: {len(all_results)} links únicos encontrados")
+        return all_results[:MAX_LETTERS * 2]
+
+    async def _search_letters_ddg(self, year: int) -> list[dict]:
+        """Busca cartas de gestores en DDG para un año concreto."""
+        queries = []
+        if self.fund_name:
+            queries.append(f'"{self.fund_name}" carta trimestral {year}')
+            queries.append(f'"{self.fund_name}" carta gestores {year}')
+        if self.gestora:
+            queries.append(f'"{self.gestora}" carta gestores {year}')
+
+        found: list[dict] = []
+        for query in queries[:2]:  # máx 2 queries por año para no saturar
+            enc_q = urllib.parse.quote_plus(query)
+            ddg_url = f"https://html.duckduckgo.com/html/?q={enc_q}"
+            try:
+                html = await get_with_headers(ddg_url, self.DDG_HEADERS)
+                soup = BeautifulSoup(html, "lxml")
+                for a_tag in soup.select(".result__a"):
+                    href = a_tag.get("href", "")
+                    titulo = a_tag.get_text(strip=True)
+                    url = self._extract_ddg_url(href)
+                    if not url:
+                        continue
+                    combined = (url + " " + titulo).lower()
+                    # Filtrar: debe ser PDF o mencionar carta/letter/trimestral
+                    if not re.search(r"\.pdf|carta|letter|trimestral|quarterly|comentario", combined):
+                        continue
+                    fecha_hint = self._extract_date_hint(titulo + " " + url)
+                    found.append({"url": url, "title": titulo, "fecha_estimada": fecha_hint or str(year)})
+                    if len(found) >= 3:
+                        break
+                await asyncio.sleep(1)
+            except Exception as exc:
+                self._log("WARN", f"DDG error year {year} query '{query[:40]}': {exc}")
+
+        if found:
+            self._log("INFO", f"DDG {year}: {len(found)} cartas → {found[0].get('title','')[:50]}")
+        else:
+            self._log("INFO", f"[yellow]DDG {year}: sin cartas encontradas")
+        return found
+
+    def _extract_ddg_url(self, href: str) -> str:
+        """Extrae URL real del redirect de DuckDuckGo."""
+        if href.startswith("http") and "duckduckgo" not in href:
+            return href
+        m = re.search(r"uddg=([^&]+)", href)
+        if m:
+            return urllib.parse.unquote(m.group(1))
+        m2 = re.search(r"\bu=([^&]+)", href)
+        if m2:
+            return urllib.parse.unquote(m2.group(1))
+        return ""
 
     # ── URL building ─────────────────────────────────────────────────────────
 
