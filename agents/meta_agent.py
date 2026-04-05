@@ -21,7 +21,7 @@ from rich.table import Table
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-console = Console()
+console = Console(highlight=False, force_terminal=False)
 
 
 class MetaAgent:
@@ -43,7 +43,8 @@ class MetaAgent:
     def _log(self, level: str, msg: str):
         ts = datetime.now().strftime("%H:%M:%S")
         line = f"[{ts}] [META] [{level}] {msg}"
-        console.log(line)
+        safe_line = line.encode("cp1252", errors="replace").decode("cp1252")
+        print(safe_line, flush=True)
         with open(self._log_path, "a", encoding="utf-8") as f:
             f.write(line + "\n")
 
@@ -146,24 +147,25 @@ class MetaAgent:
             if years_missing:
                 suggestions.append(
                     f"Años sin datos AUM: {', '.join(map(str, years_missing))} "
-                    f"→ descargar XMLs CNMV de esos años"
+                    f"-> descargar XMLs CNMV de esos años"
                 )
 
         # Sugerencia: gestores sin background
         cual = output.get("cualitativo", {})
-        gestores_sin_bg = [g["nombre"] for g in cual.get("gestores", []) if not g.get("background")]
+        gestores_sin_bg = [g.get("nombre", "") for g in cual.get("gestores", [])
+                           if not g.get("background") and g.get("nombre")]
         if gestores_sin_bg:
             suggestions.append(
                 f"Gestores sin background: {', '.join(gestores_sin_bg)} "
-                f"→ buscar en Citywire / Trustnet"
+                f"-> buscar en Citywire / Trustnet"
             )
 
         # Sugerencia general por cada issue
         for issue in issues:
             if "XML" in issue or "XMLs" in issue:
-                suggestions.append(f"→ Descargar XMLs faltantes: python -m agents.orchestrator --isin {self.isin} --auto")
+                suggestions.append(f"-> Descargar XMLs faltantes: python -m agents.orchestrator --isin {self.isin} --auto")
             elif "PDFs" in issue or "PDFs" in issue:
-                suggestions.append("→ Añadir más PDFs semestrales en raw/reports/")
+                suggestions.append("-> Anadir más PDFs semestrales en raw/reports/")
 
         return list(dict.fromkeys(suggestions))  # dedup manteniendo orden
 
@@ -239,27 +241,23 @@ class MetaAgent:
         completeness = report["completeness_pct"]
         color = "green" if completeness >= 70 else "yellow" if completeness >= 40 else "red"
 
-        table = Table(title=f"Meta-QA: {report.get('nombre', self.isin)}", show_header=True)
-        table.add_column("Campo", style="dim")
-        table.add_column("Valor")
-
-        table.add_row("Completitud", f"[{color}]{completeness}%[/]")
+        # Use print() instead of console.print() to avoid cp1252 encoding errors on Windows
+        safe_nombre = report.get('nombre', self.isin).encode("cp1252", errors="replace").decode("cp1252")
+        print(f"\nMeta-QA: {safe_nombre}")
+        print(f"  Completitud: {completeness}%")
         for k, v in report.get("stats", {}).items():
-            table.add_row(k.replace("_", " ").title(), str(v))
-        console.print(table)
+            print(f"  {k.replace('_', ' ').title()}: {v}")
 
         if report["issues"]:
-            console.print(Panel(
-                "\n".join(f"[yellow]⚠[/] {i}" for i in report["issues"]),
-                title="Issues detectados",
-                border_style="yellow",
-            ))
+            print("\nIssues detectados:")
+            for i in report["issues"]:
+                safe_i = i.encode("cp1252", errors="replace").decode("cp1252")
+                print(f"  ! {safe_i}")
         if report["suggestions"]:
-            console.print(Panel(
-                "\n".join(f"[blue]→[/] {s}" for s in report["suggestions"]),
-                title="Sugerencias de mejora",
-                border_style="blue",
-            ))
+            print("\nSugerencias de mejora:")
+            for s in report["suggestions"]:
+                safe_s = s.encode("cp1252", errors="replace").decode("cp1252")
+                print(f"  -> {safe_s}")
 
     def _save_report(self, report: dict):
         p = self.fund_dir / "meta_report.json"
@@ -313,7 +311,7 @@ class MetaAgent:
             existing.append(feedback)
             fb_path.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
             self._log("OK", f"Feedback guardado: {fb_path}")
-            console.print("[green]✓ Gracias por tu feedback![/]")
+            console.print("[green]OK Gracias por tu feedback![/]")
         else:
             console.print("[dim]Sin feedback registrado.[/]")
 

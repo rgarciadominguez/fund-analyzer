@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.http_client import get, get_with_headers
 
-console = Console()
+console = Console(highlight=False, force_terminal=False)
 
 SOURCES_ANALYSIS = [
     "saludfinanciera.es",
@@ -67,7 +67,9 @@ class ReadingsAgent:
     def _log(self, level: str, msg: str):
         ts = datetime.now().strftime("%H:%M:%S")
         line = f"[{ts}] [READINGS] [{level}] {msg}"
-        console.log(line)
+        # Use print for Windows console safety (avoids cp1252 UnicodeEncodeError from rich)
+        safe_line = line.encode("cp1252", errors="replace").decode("cp1252")
+        print(safe_line, flush=True)
         with open(self._log_path, "a", encoding="utf-8") as f:
             f.write(line + "\n")
 
@@ -104,7 +106,7 @@ class ReadingsAgent:
             if len(results) >= max_results:
                 break
 
-        self._log("INFO", f"DDG '{query}' → {len(results)} resultados")
+        self._log("INFO", f"DDG '{query}' -> {len(results)} resultados")
         return results
 
     def _extract_ddg_url(self, href: str) -> str:
@@ -264,7 +266,7 @@ class ReadingsAgent:
         lecturas_path.write_text(json.dumps(lecturas_out, ensure_ascii=False, indent=2), encoding="utf-8")
         analisis_path.write_text(json.dumps(analisis_out, ensure_ascii=False, indent=2), encoding="utf-8")
 
-        self._log("INFO", f"✓ Lecturas: {len(lecturas_dedup)} | Análisis externos: {len(analisis_dedup)}")
+        self._log("INFO", f"OK Lecturas: {len(lecturas_dedup)} | Analisis externos: {len(analisis_dedup)}")
         return {"lecturas": lecturas_dedup, "analisis_externos": analisis_dedup}
 
     def _is_substantial(self, result: dict) -> bool:

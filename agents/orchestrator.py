@@ -404,7 +404,7 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
     # Meta-QA issues
     meta_result = results.get("meta", {})
     if meta_result.get("issues"):
-        console.print(f"\n[bold yellow]⚠ Meta-QA: {len(meta_result['issues'])} issues detectados[/bold yellow]")
+        console.print(f"\n[bold yellow]! Meta-QA: {len(meta_result['issues'])} issues detectados[/bold yellow]")
 
     separator = "=" * 48
     summary = (
