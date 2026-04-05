@@ -31,7 +31,21 @@ from tools.claude_extractor import extract_structured_data
 
 console = Console()
 
-# URLs conocidas por ISIN o gestora
+# URLs específicas por ISIN (fuentes confirmadas por el usuario)
+_ISIN_LETTERS_URLS: dict[str, list[str]] = {
+    "ES0156572002": [  # MyInvestor Cartera Permanente
+        "https://www.riverpatrimonio.com/post/carta-1s-2025-myinvestor-cartera-permanente-fi",
+        "https://www.riverpatrimonio.com/tag/myinvestor",
+        "https://www.riverpatrimonio.com/blog",
+    ],
+    "ES0175316001": [  # Dunas Valor Flexible
+        "https://dunascapital.com/publicaciones/",
+        "https://www.dunas.es/publicaciones/",
+        "https://dunascapital.com/",
+    ],
+}
+
+# URLs conocidas por prefijo ISIN / gestora
 _GESTORA_LETTERS_URLS: dict[str, list[str]] = {
     # Avantage Capital / Renta 4 (ES0112231008)
     "ES": [
@@ -198,15 +212,16 @@ class LettersAgent:
 
     async def _search_letters_ddg(self, year: int) -> list[dict]:
         """Busca cartas de gestores en DDG para un año concreto."""
+        fund_short = re.sub(r'\b(FI|SICAV|FP|SIL)\b', '', self.fund_name, flags=re.IGNORECASE).strip()
         queries = []
-        if self.fund_name:
-            queries.append(f'"{self.fund_name}" carta trimestral {year}')
-            queries.append(f'"{self.fund_name}" carta gestores {year}')
+        if fund_short:
+            queries.append(f'"{fund_short}" carta {year} site:riverpatrimonio.com')
+            queries.append(f'"{fund_short}" carta trimestral {year}')
         if self.gestora:
             queries.append(f'"{self.gestora}" carta gestores {year}')
 
         found: list[dict] = []
-        for query in queries[:2]:  # máx 2 queries por año para no saturar
+        for query in queries[:2]:
             enc_q = urllib.parse.quote_plus(query)
             ddg_url = f"https://html.duckduckgo.com/html/?q={enc_q}"
             try:
@@ -219,11 +234,12 @@ class LettersAgent:
                     if not url:
                         continue
                     combined = (url + " " + titulo).lower()
-                    # Filtrar: debe ser PDF o mencionar carta/letter/trimestral
                     if not re.search(r"\.pdf|carta|letter|trimestral|quarterly|comentario", combined):
                         continue
                     fecha_hint = self._extract_date_hint(titulo + " " + url)
-                    found.append({"url": url, "title": titulo, "fecha_estimada": fecha_hint or str(year)})
+                    found.append({"url": url, "titulo": titulo,
+                                  "fecha_estimada": fecha_hint or str(year),
+                                  "is_html": not url.lower().endswith(".pdf")})
                     if len(found) >= 3:
                         break
                 await asyncio.sleep(1)
@@ -231,9 +247,9 @@ class LettersAgent:
                 self._log("WARN", f"DDG error year {year} query '{query[:40]}': {exc}")
 
         if found:
-            self._log("INFO", f"DDG {year}: {len(found)} cartas → {found[0].get('title','')[:50]}")
+            self._log("INFO", f"DDG {year}: {len(found)} cartas -> {found[0].get('titulo','')[:50]}")
         else:
-            self._log("INFO", f"[yellow]DDG {year}: sin cartas encontradas")
+            self._log("INFO", f"DDG {year}: sin cartas encontradas")
         return found
 
     def _extract_ddg_url(self, href: str) -> str:
@@ -251,18 +267,23 @@ class LettersAgent:
     # ── URL building ─────────────────────────────────────────────────────────
 
     def _build_url_list(self) -> list[str]:
-        """Construye lista de URLs a intentar."""
+        """Construye lista de URLs a intentar (ISIN-specific first, then prefix)."""
         urls = []
+
+        # ISIN-specific URLs (highest priority — user-confirmed sources)
+        isin_urls = _ISIN_LETTERS_URLS.get(self.isin, [])
+        urls.extend(isin_urls)
+
         if self.gestora_url:
             urls.append(self.gestora_url)
+
+        # Config URL
+        if self.config.get("gestora_url"):
+            urls.insert(0, self.config["gestora_url"])
 
         # URLs conocidas por prefijo
         prefix_urls = _GESTORA_LETTERS_URLS.get(self.prefix, [])
         urls.extend(prefix_urls)
-
-        # Si hay config con URL de la gestora
-        if self.config.get("gestora_url"):
-            urls.insert(0, self.config["gestora_url"])
 
         return urls
 
@@ -270,12 +291,22 @@ class LettersAgent:
 
     async def _scrape_letter_links(self, base_url: str) -> list[dict]:
         """
-        Scrapea una página buscando links a PDFs de cartas trimestrales.
-        Devuelve lista de {url, title, fecha_estimada}.
+        Scrapea una página buscando links a PDFs o artículos HTML de cartas.
+        Si la URL es en sí misma un artículo (no un índice), lo devuelve directamente.
+        Devuelve lista de {url, title, fecha_estimada, is_html}.
         """
-        html = await get(base_url)
+        html = await get_with_headers(base_url, self.DDG_HEADERS)
         soup = BeautifulSoup(html, "lxml")
         links: list[dict] = []
+
+        # Check if this URL is itself an article (has substantial content)
+        paragraphs = [p.get_text(strip=True) for p in soup.find_all("p") if len(p.get_text(strip=True)) > 80]
+        if len(paragraphs) >= 3:
+            # Looks like a standalone article — treat the URL itself as the carta
+            title_tag = soup.find("h1") or soup.find("title")
+            title = title_tag.get_text(strip=True) if title_tag else base_url
+            fecha = self._extract_date_hint(title + " " + base_url)
+            return [{"url": base_url, "titulo": title[:120], "fecha_estimada": fecha, "is_html": True}]
 
         for a in soup.find_all("a", href=True):
             href = a["href"]
@@ -286,12 +317,14 @@ class LettersAgent:
             if not LETTER_LINK_KEYWORDS.search(combined):
                 continue
 
-            # PDF o link a página de descarga
+            # PDF, HTML article, or doc link
             is_pdf = ".pdf" in href.lower()
+            is_html_article = any(kw in combined for kw in
+                                  ("carta", "letter", "trimestral", "quarterly", "comment", "post"))
             is_doc_link = any(kw in href.lower() for kw in
                               ("download", "document", "verdocumento", "fichero"))
 
-            if not (is_pdf or is_doc_link):
+            if not (is_pdf or is_html_article or is_doc_link):
                 continue
 
             # Construir URL absoluta
@@ -304,13 +337,12 @@ class LettersAgent:
             else:
                 full_url = base_url.rstrip("/") + "/" + href
 
-            # Extraer fecha del texto o href (patrón Q1 2024, 1T2024, etc.)
             fecha = self._extract_date_hint(text + " " + href)
-
             links.append({
                 "url": full_url,
-                "title": text[:120],
+                "titulo": text[:120],
                 "fecha_estimada": fecha,
+                "is_html": not is_pdf,
             })
 
         return links
@@ -333,9 +365,41 @@ class LettersAgent:
     # ── Procesamiento de cada carta ───────────────────────────────────────────
 
     async def _process_letter(self, entry: dict) -> dict | None:
-        """Descarga y extrae contenido de una carta trimestral."""
+        """Descarga y extrae contenido de una carta trimestral (PDF o HTML)."""
+        url = entry.get("url", "")
+        is_html = entry.get("is_html", False) or not url.lower().endswith(".pdf")
+
+        if is_html:
+            return await self._process_html_letter(entry)
+        return await self._process_pdf_letter(entry)
+
+    async def _process_html_letter(self, entry: dict) -> dict | None:
+        """Extrae contenido de una carta en formato HTML (blog post, artículo web)."""
+        url = entry.get("url", "")
+        self._log("INFO", f"Procesando carta HTML: {url[:60]}")
+        try:
+            html = await get_with_headers(url, self.DDG_HEADERS)
+            soup = BeautifulSoup(html, "lxml")
+            for tag in soup(["script", "style", "nav", "footer", "aside", "header"]):
+                tag.decompose()
+            paragraphs = [
+                p.get_text(strip=True)
+                for p in soup.find_all(["p", "h2", "h3"])
+                if len(p.get_text(strip=True)) > 40
+            ]
+            text = " ".join(paragraphs)
+            if len(text) < 200:
+                self._log("WARN", f"Contenido HTML insuficiente: {url[:60]}")
+                return None
+            return await self._extract_letter_content(text[:5000], entry)
+        except Exception as exc:
+            self._log("WARN", f"Error procesando HTML {url[:60]}: {exc}")
+            return None
+
+    async def _process_pdf_letter(self, entry: dict) -> dict | None:
+        """Descarga y extrae una carta en PDF."""
         url = entry["url"]
-        safe_name = re.sub(r'[^\w\-]', '_', entry.get("title", "carta"))[:50]
+        safe_name = re.sub(r'[^\w\-]', '_', entry.get("titulo", entry.get("title", "carta")))[:50]
         filename = f"letter_{safe_name}.pdf"
         target = self.letters_dir / filename
 
@@ -363,7 +427,6 @@ class LettersAgent:
                 context_pages=1,
             )
             if not text.strip():
-                # Si no hay keywords, extraer primeras páginas
                 from tools.pdf_extractor import extract_page_range
                 text = extract_page_range(str(target), 0, min(5, meta["num_pages"]))
         except Exception as exc:
@@ -373,7 +436,12 @@ class LettersAgent:
         if not text.strip():
             return None
 
-        # Extraer estructura con Claude (si hay API key)
+        entry_with_file = {**entry, "archivo": filename}
+        return await self._extract_letter_content(text[:4000], entry_with_file)
+
+    async def _extract_letter_content(self, text: str, entry: dict) -> dict | None:
+        """Usa Claude para extraer la estructura de una carta (PDF o HTML)."""
+        url = entry.get("url", "")
         schema = {
             "fecha": "fecha de la carta o periodo que cubre (ej. 'Q1 2024', '1T2024')",
             "periodo": "trimestre y año en formato normalizado (ej. '2024-Q1')",
@@ -390,21 +458,21 @@ class LettersAgent:
             "decisiones_cartera": "resumen de cambios realizados en la cartera",
         }
 
+        archivo = entry.get("archivo", "")
         try:
             extracted = extract_structured_data(
-                text[:4000],  # limitar tokens
+                text,
                 schema,
                 context=f"Carta trimestral del fondo {self.isin}",
             )
-            extracted["archivo"] = filename
+            extracted["archivo"] = archivo
             extracted["url_fuente"] = url
-            self._log("OK", f"Carta extraída: {filename}")
+            self._log("OK", f"Carta extraída: {url[:60]}")
             return extracted
         except Exception as exc:
-            self._log("WARN", f"Claude no disponible para {filename}: {exc}")
-            # Devolver estructura mínima sin Claude
+            self._log("WARN", f"Claude no disponible para {url[:60]}: {exc}")
             return {
-                "archivo": filename,
+                "archivo": archivo,
                 "url_fuente": url,
                 "fecha": entry.get("fecha_estimada", ""),
                 "periodo": entry.get("fecha_estimada", ""),

@@ -1,17 +1,42 @@
 {
   "isin": "ES0156572002",
   "nombre": "MYINVESTOR CARTERA PERMANENTE, FI",
-  "timestamp": "2026-04-05T02:05:43.663343",
+  "timestamp": "2026-04-05T09:50:29.466178",
   "completeness_pct": 100.0,
   "issues": [
     "mix_activos 2019 suma 87.1% (esperado ~100%)",
     "mix_activos 2018 suma 84.0% (esperado ~100%)",
     "mix_activos 2017 suma 157.2% (esperado ~100%)",
-    "sin cartas de gestores — ejecutar letters_agent con DuckDuckGo"
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)"
   ],
   "suggestions": [
     "Años sin datos AUM: 2017, 2018, 2019, 2020, 2021, 2026 -> descargar XMLs CNMV de esos años",
-    "Gestores sin background: Rafael Ortega Salvador, Carlos Santiso Pombo -> buscar en Citywire / Trustnet"
+    "Gestores sin background: Rafael Ortega Salvador, Carlos Santiso Pombo -> buscar en Citywire / Trustnet",
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0156572002 --auto"
+  ],
+  "feedback_previo": [
+    {
+      "timestamp": "2026-04-05T02:30:00",
+      "fuente": "usuario",
+      "fondo": "ES0156572002",
+      "respuestas": {
+        "resumen_gestores": "equipo gestor sin texto resumen; URLs de Citywire/Trustnet no llevan a ninguna pagina real",
+        "historia_fondo": "excepto 2017, 2018 y 2025 (mal colocado al inicio) lo que se muestra es la estrategia de inversion y no un resumen de cambios; si todo sigue igual omitir ese año",
+        "vision_gestores": "hay que hacerla mas visual con un timeline mostrando vision y output de rendimiento/volatilidad desde inicio hasta actual",
+        "evolutivo_aum_vl": "poner AUM y VL en misma escala (eje y)",
+        "evolutivo_participes": "columna por año desde el inicio aunque no hayan cambiado",
+        "evolutivo_ter": "poner tambien columna de comision de gestion como barra apilada (no agrupada)",
+        "evolutivo_mix_activos": "grafico stacked 100% indicando % que representa cada tipo cada año",
+        "evolutivo_geografia": "grafico stacked 100% indicando % peso de cada pais",
+        "evolutivo_divisa": "falta grafico evolutivo de exposicion de divisa stacked 100%",
+        "cartera_agrupacion": "eliminar la separacion por tipo de activo (ya hay columna tipo)",
+        "cartera_evolucion": "mostrar suma del peso de las 15 primeras posiciones cada año, no lineas individuales; indicar abajo top 5 con su peso",
+        "consistencia": "tiene que ser mas visual y modo timeline desde inicio hasta actual con rentabilidad/volatilidad",
+        "lecturas": "error en lo mostrado; solo hay temas de gestores no del fondo en general",
+        "analisis_externos": "URLs de busqueda Google en lugar de articulos reales; necesita URL del articulo y resumen de 10-15 lineas",
+        "cartas_trimestrales": "no hay nada; fuente confirmada: https://www.riverpatrimonio.com/post/carta-1s-2025-myinvestor-cartera-permanente-fi"
+      }
+    }
   ],
   "stats": {
     "periodos_consistencia": 9,

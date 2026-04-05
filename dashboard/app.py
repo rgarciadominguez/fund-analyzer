@@ -537,10 +537,12 @@ with tab1:
         if gestores:
             st.markdown('<div class="sec">Equipo gestor</div>', unsafe_allow_html=True)
             for g in gestores:
-                nombre_g   = g.get("nombre", "")
-                cargo_g    = g.get("cargo", "")
-                back_g     = g.get("background", "")
-                anio_g     = g.get("anio_incorporacion", "")
+                nombre_g   = g.get("nombre") or ""
+                if not nombre_g:
+                    continue
+                cargo_g    = g.get("cargo") or ""
+                back_g     = g.get("background") or ""
+                anio_g     = g.get("anio_incorporacion") or ""
                 slug       = manager_slug(nombre_g)
                 q_enc      = urllib.parse.quote(f'"{nombre_g}" gestor fondo')
 
@@ -577,12 +579,15 @@ with tab1:
                 yr = year_m.group(1) if year_m else ""
                 timeline_events.append({"year": yr, "text": frag, "type": "regulatory"})
 
-        # 2. Periodos de consistencia → un evento por año
+        # 2. Periodos de consistencia → un evento por año (solo si hay decisiones reales)
         for p in periodos_asc:
             yr = normalize_year(str(p.get("periodo", "")))
-            tesis_p   = (p.get("tesis_gestora", "") or "")[:200]
-            contexto_p = (p.get("contexto_mercado", "") or "")[:200]
+            tesis_p      = (p.get("tesis_gestora", "") or "")[:200]
+            contexto_p   = (p.get("contexto_mercado", "") or "")[:200]
             decisiones_p = (p.get("decisiones_tomadas", "") or "")[:150]
+            # Omitir años sin decisiones reales (>30 chars significa algo concreto)
+            if len(decisiones_p) < 30:
+                continue
             short_text = tesis_p or contexto_p
             if not short_text:
                 continue
@@ -641,27 +646,36 @@ with tab2:
         values = [s["valor_meur"] for s in deduped]
         vls    = [s.get("vl") for s in deduped]
 
-        fig = go.Figure()
+        from plotly.subplots import make_subplots
+        vl_x = [labels[i] for i, v in enumerate(vls) if v]
+        vl_y = [v for v in vls if v]
+        has_vl = bool(vl_y)
+        rows = 2 if has_vl else 1
+        row_heights = [0.6, 0.4] if has_vl else [1.0]
+        fig = make_subplots(rows=rows, cols=1, shared_xaxes=True,
+                            row_heights=row_heights, vertical_spacing=0.05)
         fig.add_trace(go.Bar(
             x=labels, y=values, name="AUM (M€)",
             marker_color=ACCENT,
             hovertemplate="<b>%{x}</b><br>AUM: %{y:.3f} M€<extra></extra>",
-        ))
-        vl_x = [labels[i] for i, v in enumerate(vls) if v]
-        vl_y = [v for v in vls if v]
-        if vl_y:
+        ), row=1, col=1)
+        if has_vl:
             fig.add_trace(go.Scatter(
                 x=vl_x, y=vl_y, mode="lines+markers", name="VL",
-                yaxis="y2", line=dict(color=GREEN, width=2),
+                line=dict(color=GREEN, width=2),
                 marker=dict(size=7, color=GREEN),
                 hovertemplate="<b>%{x}</b><br>VL: %{y:.4f}<extra></extra>",
-            ))
-        ly = chart_layout(300)
-        ly["yaxis2"] = dict(overlaying="y", side="right", title="VL",
-                             title_font=dict(color=GREEN), tickfont=dict(color=GREEN),
-                             showgrid=False)
-        ly["yaxis"]["title"] = "M€"
-        fig.update_layout(**ly)
+            ), row=2, col=1)
+        fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color=TEXT2, size=12), height=320 if has_vl else 240,
+            margin=dict(l=0, r=0, t=10, b=40), showlegend=True,
+            legend=dict(orientation="h", yanchor="bottom", y=1.02,
+                        bgcolor="rgba(0,0,0,0)", font=dict(size=11, color=TEXT2)),
+        )
+        fig.update_xaxes(showgrid=False, tickfont=dict(color=TEXT2, size=11),
+                         linecolor=BORDER, tickangle=-30)
+        fig.update_yaxes(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2))
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Sin datos de AUM histórico")
@@ -673,16 +687,12 @@ with tab2:
         st.markdown('<div class="sec">Evolución de partícipes</div>', unsafe_allow_html=True)
         serie_p = cuant.get("serie_participes", [])
         part_points = [{"periodo": s["periodo"], "valor": s["valor"]} for s in serie_p if s.get("valor")]
-        if part and not any(normalize_year(str(p["periodo"])) == "2025" for p in part_points):
-            part_points.append({"periodo": "2025", "valor": part})
-        if part_ant and not any(normalize_year(str(p["periodo"])) == "2024" for p in part_points):
-            part_points.append({"periodo": "2024", "valor": part_ant})
 
-        # Dedup by year
+        # Dedup by year: take the max (most recent semi-annual report for that year)
         yr_map_p: dict[str, float] = {}
         for p in part_points:
             yr = normalize_year(str(p["periodo"]))
-            if yr not in yr_map_p:
+            if yr not in yr_map_p or p["valor"] > yr_map_p[yr]:
                 yr_map_p[yr] = p["valor"]
         part_sorted = sorted(yr_map_p.items())
 
@@ -715,23 +725,30 @@ with tab2:
         ter_sorted = sorted(yr_map_ter.items())
 
         if ter_sorted:
-            xlabels = [x[0] for x in ter_sorted]
-            ter_y   = [x[1].get("ter_pct") for x in ter_sorted]
-            gest_y  = [x[1].get("coste_gestion_pct") for x in ter_sorted]
+            xlabels  = [x[0] for x in ter_sorted]
+            gest_y   = [x[1].get("coste_gestion_pct") or 0 for x in ter_sorted]
+            dep_y    = [x[1].get("coste_deposito_pct") or 0 for x in ter_sorted]
+            # Deposito = TER - gestion (when deposit not stored separately)
+            ter_y_raw = [x[1].get("ter_pct") or 0 for x in ter_sorted]
+            dep_computed = [
+                round(max(t - g, 0), 3)
+                for t, g in zip(ter_y_raw, gest_y)
+            ]
+            dep_final = [d if d > 0 else dep_y[i] for i, d in enumerate(dep_computed)]
             fig_ter = go.Figure()
-            if any(v for v in ter_y):
-                fig_ter.add_trace(go.Bar(
-                    x=xlabels, y=ter_y, name="TER %",
-                    marker_color=RED,
-                    hovertemplate="TER: %{y:.2f}%<extra></extra>",
-                ))
-            if any(v for v in gest_y):
+            if any(v > 0 for v in gest_y):
                 fig_ter.add_trace(go.Bar(
                     x=xlabels, y=gest_y, name="Gestión %",
                     marker_color=YELLOW,
-                    hovertemplate="Gestión: %{y:.2f}%<extra></extra>",
+                    hovertemplate="Gestión: %{y:.3f}%<extra></extra>",
                 ))
-            fig_ter.update_layout(barmode="group", **chart_layout(240))
+            if any(v > 0 for v in dep_final):
+                fig_ter.add_trace(go.Bar(
+                    x=xlabels, y=dep_final, name="Depósito / Otros %",
+                    marker_color=RED,
+                    hovertemplate="Depósito: %{y:.3f}%<extra></extra>",
+                ))
+            fig_ter.update_layout(barmode="stack", **chart_layout(240))
             st.plotly_chart(fig_ter, use_container_width=True)
         else:
             if ter:
@@ -753,16 +770,32 @@ with tab2:
         mix_s = sorted(yr_map_mix.items())
         xlabels = [x[0] for x in mix_s]
         mix_rows = [x[1] for x in mix_s]
+
+        # Normalize each row to 100% (stacked 100% chart)
+        mix_keys = list(MIX_LABELS.keys())
+        norm_rows = []
+        for m in mix_rows:
+            total = sum(m.get(k, 0) or 0 for k in mix_keys)
+            if total > 0:
+                norm_rows.append({k: round((m.get(k, 0) or 0) / total * 100, 1) for k in mix_keys})
+            else:
+                norm_rows.append({k: 0 for k in mix_keys})
+
         fig_mix = go.Figure()
         for key, label in MIX_LABELS.items():
-            vals = [min(m.get(key, 0) or 0, 100) for m in mix_rows]
+            vals = [r[key] for r in norm_rows]
             if any(v > 0 for v in vals):
                 fig_mix.add_trace(go.Bar(
                     x=xlabels, y=vals, name=label,
                     marker_color=MIX_COLORS[key],
                     hovertemplate=f"<b>{label}</b>: %{{y:.1f}}%<extra></extra>",
+                    text=[f"{v:.0f}%" if v >= 5 else "" for v in vals],
+                    textposition="inside",
                 ))
-        fig_mix.update_layout(barmode="stack", **chart_layout(260))
+        ly_mix = chart_layout(260)
+        ly_mix["yaxis"] = dict(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
+                               range=[0, 100], ticksuffix="%")
+        fig_mix.update_layout(barmode="stack", **ly_mix)
         st.plotly_chart(fig_mix, use_container_width=True)
 
     # ── Geografía por país — stacked bars evolutivo ───────────────────────────
@@ -798,32 +831,96 @@ with tab2:
                 all_countries[c] = all_countries.get(c, 0) + w
         top_countries = [c for c, _ in sorted(all_countries.items(), key=lambda x: x[1], reverse=True)[:8]]
 
-        xlabels_geo = [yr for yr, _ in geo_series]
+        # Normalize each year to 100% for stacked 100% chart
+        geo_norm = []
+        for yr, cw in geo_series:
+            total_w = sum(cw.values())
+            if total_w > 0:
+                geo_norm.append((yr, {c: round(w / total_w * 100, 1) for c, w in cw.items()}))
+            else:
+                geo_norm.append((yr, cw))
+
+        xlabels_geo = [yr for yr, _ in geo_norm]
         fig_geo = go.Figure()
         for i, country in enumerate(top_countries):
-            vals = []
-            for _, cw in geo_series:
-                vals.append(cw.get(country, 0))
+            vals = [cw.get(country, 0) for _, cw in geo_norm]
             color = GEO_COLORS[i % len(GEO_COLORS)]
             fig_geo.add_trace(go.Bar(
                 x=xlabels_geo, y=vals, name=country,
                 marker_color=color,
+                text=[f"{v:.0f}%" if v >= 5 else "" for v in vals],
+                textposition="inside",
                 hovertemplate=f"<b>{country}</b>: %{{y:.1f}}%<extra></extra>",
             ))
         # "Otros" bucket
-        otros_vals = []
-        for _, cw in geo_series:
-            rest = sum(w for c, w in cw.items() if c not in top_countries)
-            otros_vals.append(rest)
+        otros_vals = [sum(v for c, v in cw.items() if c not in top_countries) for _, cw in geo_norm]
         if any(v > 0 for v in otros_vals):
             fig_geo.add_trace(go.Bar(
                 x=xlabels_geo, y=otros_vals, name="Otros",
                 marker_color="#6b7280",
+                text=[f"{v:.0f}%" if v >= 5 else "" for v in otros_vals],
+                textposition="inside",
                 hovertemplate="<b>Otros</b>: %{y:.1f}%<extra></extra>",
             ))
-        fig_geo.update_layout(barmode="stack", **chart_layout(280))
+        ly_geo = chart_layout(280)
+        ly_geo["yaxis"] = dict(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
+                                range=[0, 100], ticksuffix="%")
+        fig_geo.update_layout(barmode="stack", **ly_geo)
         st.caption("País inferido por prefijo ISIN del instrumento / nombre del emisor / divisa")
         st.plotly_chart(fig_geo, use_container_width=True)
+
+    # ── Divisa — stacked 100% evolutivo ──────────────────────────────────────
+    divisa_series: list[tuple[str, dict]] = []
+    for h in sorted(historicas_pos, key=lambda x: str(x.get("periodo", ""))):
+        yr = normalize_year(str(h.get("periodo", "")))
+        divisa_weights: dict[str, float] = {}
+        for p in h.get("top10", []):
+            div = str(p.get("divisa", "") or "").upper()
+            if div:
+                divisa_weights[div] = divisa_weights.get(div, 0) + (p.get("peso_pct") or 0)
+        if divisa_weights:
+            divisa_series.append((yr, divisa_weights))
+
+    if divisa_series:
+        st.markdown('<div class="sec">Evolución de exposición por divisa</div>', unsafe_allow_html=True)
+        all_divisas: dict[str, float] = {}
+        for _, dw in divisa_series:
+            for d, w in dw.items():
+                all_divisas[d] = all_divisas.get(d, 0) + w
+        top_divisas = [d for d, _ in sorted(all_divisas.items(), key=lambda x: x[1], reverse=True)[:8]]
+
+        div_norm = []
+        for yr, dw in divisa_series:
+            total_w = sum(dw.values())
+            if total_w > 0:
+                div_norm.append((yr, {d: round(w / total_w * 100, 1) for d, w in dw.items()}))
+            else:
+                div_norm.append((yr, dw))
+
+        xlabels_div = [yr for yr, _ in div_norm]
+        fig_div = go.Figure()
+        for i, div in enumerate(top_divisas):
+            vals = [dw.get(div, 0) for _, dw in div_norm]
+            color = GEO_COLORS[i % len(GEO_COLORS)]
+            fig_div.add_trace(go.Bar(
+                x=xlabels_div, y=vals, name=div,
+                marker_color=color,
+                text=[f"{v:.0f}%" if v >= 5 else "" for v in vals],
+                textposition="inside",
+                hovertemplate=f"<b>{div}</b>: %{{y:.1f}}%<extra></extra>",
+            ))
+        otros_div = [sum(v for d, v in dw.items() if d not in top_divisas) for _, dw in div_norm]
+        if any(v > 0 for v in otros_div):
+            fig_div.add_trace(go.Bar(
+                x=xlabels_div, y=otros_div, name="Otras",
+                marker_color="#6b7280",
+                hovertemplate="<b>Otras</b>: %{y:.1f}%<extra></extra>",
+            ))
+        ly_div = chart_layout(260)
+        ly_div["yaxis"] = dict(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
+                                range=[0, 100], ticksuffix="%")
+        fig_div.update_layout(barmode="stack", **ly_div)
+        st.plotly_chart(fig_div, use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -848,19 +945,13 @@ with tab3:
         for col, lbl in zip([h1, h2, h3, h4, h5, h6], ["Nombre / ISIN", "Tipo", "País", "Divisa", "Valor (M€)", "Peso %"]):
             col.markdown(f'<div style="font-size:10px;color:{TEXT3};text-transform:uppercase;font-weight:600">{lbl}</div>', unsafe_allow_html=True)
 
-        current_tipo = None
         for pos in top25:
-            tipo_p = pos.get("tipo", "")
+            tipo_p = pos.get("tipo", "") or ""
             color  = TIPO_COLOR.get(tipo_p, "#6b7280")
             peso   = pos.get("peso_pct", 0) or 0
             val_m  = (pos.get("valor_mercado_miles", 0) or 0) / 1000
             bar    = int(peso / max_peso * 100)
             pais_p = infer_country(pos)
-
-            if tipo_p != current_tipo:
-                current_tipo = tipo_p
-                st.markdown(f'<div style="font-size:10px;color:{color};font-weight:700;text-transform:uppercase;'
-                            f'margin:8px 0 4px 0;padding-left:2px">{tipo_p}</div>', unsafe_allow_html=True)
 
             c1, c2, c3, c4, c5, c6 = st.columns([4, 1, 1, 1, 1, 2])
             with c1:
@@ -890,40 +981,44 @@ with tab3:
         if len(actuales) > 25:
             st.caption(f"+ {len(actuales) - 25} posiciones adicionales")
 
-    # ── Evolución peso top posiciones (líneas) ────────────────────────────────
+    # ── Evolución concentración top-15 (peso total acumulado por año) ─────────
     if len(historicas) >= 2:
-        st.markdown('<div class="sec">Evolución del peso de las principales posiciones</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec">Concentración top-15 posiciones por año</div>', unsafe_allow_html=True)
         hist_s = sorted(historicas, key=lambda h: str(h.get("periodo", "")))
 
-        all_tickers: dict[str, dict] = {}
+        top15_data = []
         for h in hist_s:
-            for p in h.get("top10", []):
-                key = p.get("ticker") or p.get("nombre", "")
-                if key not in all_tickers:
-                    all_tickers[key] = {"nombre": p.get("nombre", key), "periodos": {}}
-                all_tickers[key]["periodos"][h["periodo"]] = p.get("peso_pct", 0) or 0
+            yr = normalize_year(str(h.get("periodo", "")))
+            sorted_top = sorted(h.get("top10", []), key=lambda p: p.get("peso_pct") or 0, reverse=True)[:15]
+            total_w = sum(p.get("peso_pct") or 0 for p in sorted_top)
+            top5 = [(p.get("nombre", "")[:18], p.get("peso_pct") or 0) for p in sorted_top[:5]]
+            top15_data.append({"yr": yr, "total_w": round(total_w, 1), "top5": top5})
 
-        top_tickers = sorted(all_tickers.items(), key=lambda x: sum(x[1]["periodos"].values()), reverse=True)[:10]
-        xlabels = [normalize_year(str(h["periodo"])) for h in hist_s]
-
-        def ticker_color(t):
-            h_val = int(hashlib.md5(t.encode()).hexdigest()[:6], 16)
-            hue = h_val % 360
-            return f"hsl({hue},65%,55%)"
-
-        fig_evol = go.Figure()
-        for ticker, info in top_tickers:
-            y = [info["periodos"].get(h["periodo"], None) for h in hist_s]
-            fig_evol.add_trace(go.Scatter(
-                x=xlabels, y=y, mode="lines+markers",
-                name=info["nombre"][:25],
-                line=dict(width=2, color=ticker_color(ticker)),
-                marker=dict(size=6),
-                connectgaps=False,
-                hovertemplate=f"<b>{info['nombre'][:30]}</b><br>%{{y:.2f}}%<extra></extra>",
+        if top15_data:
+            fig_evol = go.Figure(go.Bar(
+                x=[d["yr"] for d in top15_data],
+                y=[d["total_w"] for d in top15_data],
+                marker_color=ACCENT,
+                hovertemplate="<b>%{x}</b><br>Top-15 peso: %{y:.1f}%<extra></extra>",
             ))
-        fig_evol.update_layout(**chart_layout(300))
-        st.plotly_chart(fig_evol, use_container_width=True)
+            fig_evol.update_layout(**chart_layout(220, legend=False))
+            st.plotly_chart(fig_evol, use_container_width=True)
+
+            # Top-5 por año debajo del gráfico
+            cols_t5 = st.columns(min(len(top15_data), 6))
+            for i, d in enumerate(top15_data[-6:]):
+                with cols_t5[i % len(cols_t5)]:
+                    top5_html = "".join(
+                        f'<div style="font-size:11px;color:{TEXT};padding:1px 0">'
+                        f'<span style="color:{TEXT3}">{j+1}.</span> {nm} '
+                        f'<span style="color:{ACCENT};font-weight:700">{es(w,1)}%</span></div>'
+                        for j, (nm, w) in enumerate(d["top5"])
+                    )
+                    st.markdown(
+                        f'<div style="background:{BG3};border-radius:8px;padding:8px 10px;border:1px solid {BORDER}">'
+                        f'<div style="font-size:11px;font-weight:700;color:{TEXT2};margin-bottom:4px">{d["yr"]}</div>'
+                        f'{top5_html}</div>',
+                        unsafe_allow_html=True)
 
     # ── Cambios relevantes año a año ─────────────────────────────────────────
     if len(historicas) >= 2:
@@ -1088,7 +1183,7 @@ with tab4:
     else:
         st.markdown('<div class="sec">Cartas trimestrales</div>', unsafe_allow_html=True)
         nombre_f = d.get("nombre", "")
-        gestores_ns = [g.get("nombre","") for g in cual.get("gestores",[])]
+        gestores_ns = [g.get("nombre","") for g in cual.get("gestores",[]) if g.get("nombre")]
         st.markdown(f"""
         <div class="card" style="border:1px dashed {BORDER}">
           <div style="font-size:13px;color:{TEXT2};line-height:1.7">
@@ -1145,7 +1240,7 @@ with tab5:
             </div>""", unsafe_allow_html=True)
     else:
         nombre_fondo = d.get("nombre", "")
-        gestores_names = [g.get("nombre","") for g in cual.get("gestores",[])]
+        gestores_names = [g.get("nombre","") for g in cual.get("gestores",[]) if g.get("nombre")]
         st.markdown(f"""
         <div class="card" style="border:1px dashed {BORDER}">
           <div style="font-size:14px;font-weight:600;color:{TEXT};margin-bottom:10px">
@@ -1192,13 +1287,20 @@ with tab6:
         "elblogsalmon.com": "🐟", "expansión": "📰", "cinco dias": "📰",
     }
 
-    if ext_list:
-        for item in ext_list:
+    # Filter out search engine URLs (not real articles)
+    SEARCH_DOMAINS = ("google.com", "duckduckgo.com", "bing.com", "yahoo.com")
+    ext_real = [
+        it for it in ext_list
+        if not any(d in (it.get("url", "") or "") for d in SEARCH_DOMAINS)
+    ]
+
+    if ext_real:
+        for item in ext_real:
             fuente = item.get("fuente", "") or item.get("source", "")
             titulo = item.get("titulo", item.get("title", "Sin título"))
             url    = item.get("url", "#")
             fecha  = item.get("fecha", "")
-            resumen_e = item.get("resumen", "") or item.get("snippet", "")
+            resumen_e = item.get("resumen_generado", "") or item.get("resumen", "") or item.get("snippet", "")
             palabras = item.get("palabras_estimadas", "")
 
             icon = "🔍"
@@ -1226,6 +1328,8 @@ with tab6:
               {f'<div style="font-size:13px;color:{TEXT};margin-top:8px;line-height:1.65">{resumen_e}</div>' if resumen_e else ""}
             </div>""", unsafe_allow_html=True)
 
+    elif ext_list and not ext_real:
+        st.info("Los análisis encontrados son URLs de búsqueda (no artículos reales). Re-ejecuta el pipeline para obtener artículos directos.")
     else:
         # Mostrar búsquedas sugeridas para el usuario
         nombre_fondo = d.get("nombre", "")

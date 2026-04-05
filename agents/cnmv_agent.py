@@ -1046,26 +1046,26 @@ class CNMVAgent:
 
             posiciones.append(entry)
 
-        # Mix activos — sum RF from two TOTAL RENTA FIJA rows (interior + exterior)
+        # Mix activos — take LAST match (global total row), not sum (avoids double-counting
+        # interior subtotal + exterior total which appeared as >180% bug)
         rf_pcts = re.findall(
             r'TOTAL\s+RENTA\s+FIJA\s+[\d.]+\s+([\d,]+)',
             sec10, re.IGNORECASE,
         )
         if rf_pcts:
-            mix["renta_fija_pct"] = round(
-                sum(float(p.replace(",", ".")) for p in rf_pcts), 2
-            )
+            mix["renta_fija_pct"] = round(float(rf_pcts[-1].replace(",", ".")), 2)
 
-        # For RV and IIC: sum all non-zero values (interior=0 + exterior=real)
         rv_pcts = re.findall(r'TOTAL\s+RENTA\s+VARIABLE\s+[\d.]+\s+([\d,]+)', sec10, re.IGNORECASE)
-        rv_total = sum(float(p.replace(",", ".")) for p in rv_pcts)
-        if rv_total > 0:
-            mix["rv_pct"] = round(rv_total, 2)
+        if rv_pcts:
+            rv_val = float(rv_pcts[-1].replace(",", "."))
+            if rv_val > 0:
+                mix["rv_pct"] = round(rv_val, 2)
 
         iic_pcts = re.findall(r'TOTAL\s+IIC\s+[\d.]+\s+([\d,]+)', sec10, re.IGNORECASE)
-        iic_total = sum(float(p.replace(",", ".")) for p in iic_pcts)
-        if iic_total > 0:
-            mix["iic_pct"] = round(iic_total, 2)
+        if iic_pcts:
+            iic_val = float(iic_pcts[-1].replace(",", "."))
+            if iic_val > 0:
+                mix["iic_pct"] = round(iic_val, 2)
 
         m2 = re.search(r'TOTAL\s+DEP[ÓO]SITOS?\s+[\d.]+\s+([\d,]+)', sec10, re.IGNORECASE)
         if m2:

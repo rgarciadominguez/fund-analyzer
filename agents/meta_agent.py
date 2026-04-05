@@ -24,6 +24,42 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 console = Console(highlight=False, force_terminal=False)
 
 
+MIX_KEYS = ["renta_fija_pct", "rv_pct", "iic_pct", "liquidez_pct", "depositos_pct"]
+
+
+# Patrones de issues conocidos aprendidos del feedback del usuario
+KNOWN_ISSUES_PATTERNS = {
+    "mix_activos_suma_incorrecta": {
+        "check": lambda output: any(
+            abs(sum((m.get(k) or 0) for k in MIX_KEYS) - 100) > 15
+            for m in output.get("cuantitativo", {}).get("mix_activos_historico", [])
+            if sum((m.get(k) or 0) for k in MIX_KEYS) > 5
+        ),
+        "mensaje": "mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 "
+                   "(se deben tomar solo los valores TOTAL globales, no sumas de subtotales)",
+        "accion": "verificar cnmv_agent: usar rf_pcts[-1] en vez de sum(rf_pcts)",
+    },
+    "gestores_todos_null": {
+        "check": lambda output: bool(output.get("cualitativo", {}).get("gestores")) and all(
+            g.get("nombre") is None
+            for g in output.get("cualitativo", {}).get("gestores", [])
+        ),
+        "mensaje": "todos los gestores tienen nombre=null — extraccion PDF cualitativo fallida o sin PDFs cualitativos",
+        "accion": "re-ejecutar analyst_agent con PDF semestral mas reciente disponible",
+    },
+    "serie_aum_muy_corta": {
+        "check": lambda output: len(output.get("cuantitativo", {}).get("serie_aum", [])) < 4,
+        "mensaje": "serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo",
+        "accion": "verificar que cnmv_agent itera todos los XMLs desde anio_creacion hasta hoy",
+    },
+    "analisis_externos_google_urls": {
+        "check": lambda _: False,  # Checked via file, not output
+        "mensaje": "analisis_externos contiene URLs de busqueda Google en vez de articulos reales",
+        "accion": "re-ejecutar readings_agent — ahora fetchea articulos reales y genera resumen con Claude",
+    },
+}
+
+
 class MetaAgent:
     """
     Agente meta-QA: revisa calidad del output de todos los agentes.
@@ -123,6 +159,27 @@ class MetaAgent:
         # 7. Sin análisis externos
         if not (self.fund_dir / "analisis_externos.json").exists():
             issues.append("sin análisis externos — ejecutar readings_agent")
+        else:
+            # Check if analisis_externos has only search URLs (not real articles)
+            try:
+                ext_data = json.loads((self.fund_dir / "analisis_externos.json").read_text(encoding="utf-8"))
+                ext_list = ext_data if isinstance(ext_data, list) else ext_data.get("analisis_externos", [])
+                search_domains = ("google.com", "duckduckgo.com", "bing.com")
+                bad_urls = [it for it in ext_list if any(d in (it.get("url", "") or "") for d in search_domains)]
+                if bad_urls and len(bad_urls) == len(ext_list):
+                    issues.append("analisis_externos contiene solo URLs de busqueda Google — re-ejecutar readings_agent")
+            except Exception:
+                pass
+
+        # 8. Check learned patterns from user feedback
+        for pattern_id, pattern in KNOWN_ISSUES_PATTERNS.items():
+            if pattern_id == "analisis_externos_google_urls":
+                continue  # Already checked above
+            try:
+                if pattern["check"](output):
+                    issues.append(f"[patron_conocido:{pattern_id}] {pattern['mensaje']}")
+            except Exception:
+                pass
 
         return issues
 
@@ -194,6 +251,21 @@ class MetaAgent:
         filled = sum(1 for f in fields if f)
         return round(filled / len(fields) * 100, 1)
 
+    def _load_prior_feedback(self) -> list[dict]:
+        """Carga feedback previo del usuario para incluirlo en el reporte."""
+        fb_path = self.fund_dir / "feedback.json"
+        if not fb_path.exists():
+            return []
+        try:
+            data = json.loads(fb_path.read_text(encoding="utf-8"))
+            if isinstance(data, list):
+                return data
+            if isinstance(data, dict):
+                return [data]
+        except Exception:
+            pass
+        return []
+
     # ── Run ───────────────────────────────────────────────────────────────────
 
     async def run(self) -> dict:
@@ -216,6 +288,9 @@ class MetaAgent:
         suggestions = self._suggest_improvements(issues, output)
         completeness = self._calculate_completeness(output)
 
+        # Load prior user feedback to include in report
+        prior_feedback = self._load_prior_feedback()
+
         report = {
             "isin":             self.isin,
             "nombre":           output.get("nombre", ""),
@@ -223,6 +298,7 @@ class MetaAgent:
             "completeness_pct": completeness,
             "issues":           issues,
             "suggestions":      suggestions,
+            "feedback_previo":  prior_feedback,
             "stats": {
                 "periodos_consistencia": len(output.get("analisis_consistencia", {}).get("periodos", [])),
                 "posiciones_actuales":   len(output.get("posiciones", {}).get("actuales", [])),
@@ -252,12 +328,20 @@ class MetaAgent:
             print("\nIssues detectados:")
             for i in report["issues"]:
                 safe_i = i.encode("cp1252", errors="replace").decode("cp1252")
-                print(f"  ! {safe_i}")
+                prefix = "  [patron] " if "[patron_conocido:" in i else "  ! "
+                print(f"{prefix}{safe_i}")
         if report["suggestions"]:
             print("\nSugerencias de mejora:")
             for s in report["suggestions"]:
                 safe_s = s.encode("cp1252", errors="replace").decode("cp1252")
                 print(f"  -> {safe_s}")
+        prior = report.get("feedback_previo", [])
+        if prior:
+            print(f"\nFeedback previo del usuario: {len(prior)} entradas registradas")
+            for fb in prior[-2:]:  # Show last 2
+                ts = str(fb.get("timestamp", ""))[:10]
+                resp = fb.get("respuestas", {})
+                print(f"  [{ts}] {len(resp)} respuestas")
 
     def _save_report(self, report: dict):
         p = self.fund_dir / "meta_report.json"

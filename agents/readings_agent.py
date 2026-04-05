@@ -168,6 +168,37 @@ class ReadingsAgent:
         except Exception:
             return ""
 
+    async def _fetch_and_summarize(self, url: str) -> str:
+        """Fetches a real article URL and generates a Claude summary of 10-15 lines."""
+        search_domains = ("google.com", "duckduckgo.com", "bing.com", "yahoo.com",
+                          "twitter.com", "x.com", "linkedin.com")
+        if any(d in url for d in search_domains):
+            return ""
+        try:
+            html = await get_with_headers(url, DDG_HEADERS)
+            from bs4 import BeautifulSoup as _BS
+            soup = _BS(html, "lxml")
+            for tag in soup(["script", "style", "nav", "footer", "aside", "header"]):
+                tag.decompose()
+            paragraphs = [
+                p.get_text(strip=True)
+                for p in soup.find_all(["p", "h2", "h3"])
+                if len(p.get_text(strip=True)) > 50
+            ]
+            text = " ".join(paragraphs)
+            if len(text) < 300:
+                return ""
+            from tools.claude_extractor import extract_structured_data
+            result = extract_structured_data(
+                text[:5000],
+                {"resumen": "resumen del análisis en 10-15 líneas, en español, sobre el fondo de inversión"},
+                context=f"Análisis del fondo {self.fund_name} ({self.isin})",
+            )
+            return result.get("resumen", "")
+        except Exception as exc:
+            self._log("WARN", f"fetch_summarize error {url}: {exc}")
+            return ""
+
     async def _get_citywire_profile(self, gestor: str) -> dict | None:
         """Intenta obtener perfil de Citywire del gestor."""
         slug = re.sub(r"[^a-z0-9]+", "-", gestor.lower().strip()).strip("-")
@@ -193,50 +224,64 @@ class ReadingsAgent:
         except Exception:
             return None
 
+    def _short_fund_name(self) -> str:
+        """Strip legal suffixes for better search results."""
+        s = re.sub(r'\b(FI|SICAV|FP|SIL|FUND|FONDO)\b', '', self.fund_name, flags=re.IGNORECASE)
+        return s.strip().strip(",").strip()
+
     async def run(self) -> dict:
         self._log("INFO", f"ReadingsAgent iniciando para {self.isin} — {self.fund_name}")
         lecturas: list[dict] = []
         analisis: list[dict] = []
+        fund_short = self._short_fund_name() or self.isin
 
         # 1. Gestores: entrevistas + vídeos + perfiles
-        for gestor in self.gestores[:4]:  # máx 4 gestores
+        for gestor in self.gestores[:4]:  # max 4 gestores
             self._log("INFO", f"Buscando entrevistas para gestor: {gestor}")
             results = await self._ddg_search(f'"{gestor}" entrevista inversión fondo', max_results=4)
             results += await self._ddg_search(f'"{gestor}" youtube podcast inversión', max_results=3)
             lecturas.extend(self._classify(results, source_type="gestor"))
-            await asyncio.sleep(1.5)  # Respetar rate limit DDG
+            await asyncio.sleep(1.5)
 
-            # Perfil Citywire
             cw = await self._get_citywire_profile(gestor)
             if cw:
                 lecturas.append(cw)
             await asyncio.sleep(1)
 
-        # 2. Análisis en webs especializadas
+        # 2. Análisis en webs especializadas — fetch + summarize cada artículo real
         for site in SOURCES_ANALYSIS:
             self._log("INFO", f"Buscando en {site}")
-            query = f'site:{site} "{self.fund_name}"' if self.fund_name else f'site:{site} {self.isin}'
-            results = await self._ddg_search(query, max_results=5)
+            query = f'site:{site} "{fund_short}"' if fund_short else f'site:{site} {self.isin}'
+            results = await self._ddg_search(query, max_results=4)
             for r in results:
-                if self._is_substantial(r):
-                    analisis.append({
-                        "fuente":            site,
-                        "titulo":            r.get("titulo", ""),
-                        "url":               r.get("url", ""),
-                        "fecha":             "",
-                        "resumen":           r.get("snippet", ""),
-                        "palabras_estimadas": self._estimate_words(r.get("snippet", "")),
-                    })
+                url = r.get("url", "")
+                # Skip search engine redirect URLs
+                if any(d in url for d in ("google.com", "duckduckgo.com", "bing.com")):
+                    continue
+                if not self._is_substantial(r):
+                    continue
+                self._log("INFO", f"Fetching article: {url[:60]}")
+                resumen_generado = await self._fetch_and_summarize(url)
+                analisis.append({
+                    "fuente":            site,
+                    "titulo":            r.get("titulo", ""),
+                    "url":               url,
+                    "fecha":             "",
+                    "resumen":           r.get("snippet", ""),
+                    "resumen_generado":  resumen_generado,
+                    "palabras_estimadas": self._estimate_words(r.get("snippet", "")),
+                })
+                await asyncio.sleep(1)
             await asyncio.sleep(1.5)
 
-        # 3. Artículos generales sobre el fondo
-        if self.fund_name:
+        # 3. Artículos generales del fondo (sin site: filter)
+        if fund_short:
             self._log("INFO", "Buscando artículos generales del fondo")
-            results = await self._ddg_search(f'"{self.fund_name}" análisis reseña')
+            results = await self._ddg_search(f'"{fund_short}" análisis reseña fondo')
             lecturas.extend(self._classify(results, source_type="fondo"))
             await asyncio.sleep(1)
 
-            results2 = await self._ddg_search(f'"{self.fund_name}" fondo inversión opinión')
+            results2 = await self._ddg_search(f'"{fund_short}" fondo inversión opinión')
             lecturas.extend(self._classify(results2, source_type="fondo"))
             await asyncio.sleep(1)
 

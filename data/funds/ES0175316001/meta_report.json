@@ -1,9 +1,10 @@
 {
   "isin": "ES0175316001",
   "nombre": "DUNAS VALOR FLEXIBLE FI",
-  "timestamp": "2026-04-05T02:06:53.999415",
-  "completeness_pct": 100.0,
+  "timestamp": "2026-04-05T09:45:41.270099",
+  "completeness_pct": 94.4,
   "issues": [
+    "gestores vacíos — buscar en Citywire / Finect",
     "serie AUM muy corta (2 puntos) — añadir XMLs históricos",
     "mix_activos 2018 suma 188.8% (esperado ~100%)",
     "mix_activos 2017 suma 183.3% (esperado ~100%)",
@@ -12,16 +13,31 @@
     "mix_activos 2014 suma 186.7% (esperado ~100%)",
     "mix_activos 2013 suma 182.2% (esperado ~100%)",
     "mix_activos 2012 suma 185.2% (esperado ~100%)",
-    "sin cartas de gestores — ejecutar letters_agent con DuckDuckGo"
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)",
+    "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
   ],
   "suggestions": [
     "Años sin datos AUM: 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2026 -> descargar XMLs CNMV de esos años",
     "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0175316001 --auto"
   ],
+  "feedback_previo": [
+    {
+      "timestamp": "2026-04-05T02:30:00",
+      "fuente": "usuario",
+      "fondo": "ES0175316001",
+      "respuestas": {
+        "error_general": "casi todo el dashboard muestra AttributeError; los datos del fondo aparecen muy incompletos",
+        "gestores": "equipo gestor vacio; gestores[0].nombre es null en output.json",
+        "mix_activos": "mix_activos suma >180% en varios años (bug doble conteo en extraccion XML CNMV)",
+        "serie_aum": "solo 2 puntos en serie AUM; los XMLs deberian tener datos desde 2012",
+        "accion": "revisar feedback de MyInvestor primero; luego re-ejecutar pipeline completo para Dunas"
+      }
+    }
+  ],
   "stats": {
     "periodos_consistencia": 14,
     "posiciones_actuales": 101,
     "puntos_aum": 2,
-    "gestores": 1
+    "gestores": 0
   }
 }
