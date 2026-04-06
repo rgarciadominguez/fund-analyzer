@@ -31,6 +31,7 @@ console = Console(highlight=False, force_terminal=False)
 SOURCES_ANALYSIS = [
     "saludfinanciera.substack.com",   # Substack newsletter de análisis de fondos ES
     "saludfinanciera.es",
+    "astralisfundsacademy.com",       # Astralis — entrevistas y análisis detallados
     "astralis.es",
     "morningstar.es",
     "rankia.com",
@@ -41,6 +42,13 @@ SOURCES_ANALYSIS = [
     "inversor-tranquilo.com",
     "valueschool.es",
     "masdividendos.com",
+]
+
+# Dominios donde la query con site: no funciona bien (subdominios, SPAs)
+# → usar búsqueda amplia "{fund}" + nombre del sitio como keyword
+BROAD_SEARCH_SOURCES = [
+    "saludfinanciera.substack.com",
+    "astralisfundsacademy.com",
 ]
 
 # Para Substack usamos búsqueda amplia (no site:) porque los perfiles son subdominios
@@ -283,22 +291,36 @@ class ReadingsAgent:
 
         for site in SOURCES_ANALYSIS:
             self._log("INFO", f"Buscando en {site}")
-            # Substack — usar site:substack.com para capturar todos los subdominios
+            # Substack: usar site:substack.com (captura todos los subdominios)
             if site.endswith(".substack.com"):
                 query = f'"{fund_short}" site:substack.com' if fund_short else f'{self.isin} site:substack.com'
+            # Sitios donde site: falla (SPAs, subdominios complejos): buscar nombre del sitio + fondo
+            elif site in BROAD_SEARCH_SOURCES:
+                site_kw = site.split(".")[0]  # "astralisfundsacademy" → "astralis"
+                query = f'"{fund_short}" {site_kw}' if fund_short else f'{self.isin} {site_kw}'
             else:
                 query = f'site:{site} "{fund_short}"' if fund_short else f'site:{site} {self.isin}'
             results = await self._ddg_search(query, max_results=4)
             for r in results:
+                # Para broad search: filtrar que la URL pertenezca al dominio correcto
+                if site in BROAD_SEARCH_SOURCES:
+                    url = r.get("url", "")
+                    if site not in url and site.split(".")[0] not in url:
+                        continue
                 await _process_analysis_result(r, site)
             await asyncio.sleep(1.5)
 
         # 3. Búsqueda amplia: cualquier dominio que analice este fondo
+        #    Estrategia: buscar como lo haría un usuario manualmente — nombre del fondo
+        #    + nombre de la web de análisis como keyword (sin site:)
         if fund_short:
             self._log("INFO", "Búsqueda amplia de análisis (cualquier dominio)")
             broad_queries = [
                 f'"{fund_short}" análisis fondo inversión',
                 f'"{fund_short}" reseña opinión cartera',
+                f'"{fund_short}" astralis',          # usuarios buscan: "avantage fund astralis"
+                f'"{fund_short}" rankia análisis',   # usuarios buscan: "avantage fund rankia"
+                f'"{fund_short}" salud financiera',
             ]
             if self.gestora:
                 broad_queries.append(f'"{fund_short}" "{self.gestora}"')

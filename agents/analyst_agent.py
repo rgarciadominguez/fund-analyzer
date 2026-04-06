@@ -348,6 +348,88 @@ class AnalystAgent:
 
         self._log("OK", "Enriquecimiento Claude completado")
 
+        # ── Historia del fondo ────────────────────────────────────────────────
+        # Generate rich narrative if historia_fondo is empty
+        if not output.get("cualitativo", {}).get("historia_fondo"):
+            self._generate_historia_fondo(output)
+
+    def _generate_historia_fondo(self, output: dict) -> None:
+        """
+        Genera narrativa histórica del fondo con Claude (400-600 palabras).
+        Combina: hechos_relevantes, kpis, gestores, periodos de consistencia.
+        Solo ejecuta si hay API key.
+        """
+        import os
+        if not os.getenv("ANTHROPIC_API_KEY", ""):
+            return
+
+        nombre = output.get("nombre", self.isin)
+        kpis = output.get("kpis", {})
+        cual = output.get("cualitativo", {})
+        gestores = cual.get("gestores", [])
+        hechos = cual.get("hechos_relevantes", [])
+        periodos = output.get("analisis_consistencia", {}).get("periodos", [])
+        aum_series = output.get("cuantitativo", {}).get("serie_aum", [])
+
+        # Build rich context from all available data
+        ctx_parts = [
+            f"Fondo: {nombre} ({self.isin})",
+            f"Gestora: {output.get('gestora', '')}",
+            f"Año creación: {kpis.get('anio_creacion', '')}",
+            f"Fecha registro: {kpis.get('fecha_registro', '')}",
+            f"AUM actual: {kpis.get('aum_actual_meur', '')} M€",
+            f"Partícipes: {kpis.get('num_participes', '')}",
+            f"Estrategia: {(cual.get('estrategia') or cual.get('filosofia_inversion') or '')[:500]}",
+        ]
+        if gestores:
+            g_names = [g.get("nombre") for g in gestores if g.get("nombre")]
+            ctx_parts.append(f"Gestores: {', '.join(g_names)}")
+        if hechos:
+            hechos_txt = "\n".join(
+                f"[{h.get('periodo', '')}] {h.get('epigrafe', '')} — {h.get('detalle', '')[:300]}"
+                for h in sorted(hechos, key=lambda x: x.get("periodo", ""))
+                if h.get("detalle") or h.get("epigrafe")
+            )
+            ctx_parts.append(f"Hechos relevantes registrados:\n{hechos_txt}")
+        if aum_series:
+            aum_summary = ", ".join(
+                f"{e['periodo']}: {e.get('valor_meur', '')} M€"
+                for e in sorted(aum_series, key=lambda x: x.get("periodo", ""))
+            )
+            ctx_parts.append(f"Evolución patrimonio: {aum_summary}")
+        if periodos:
+            per_summary = "\n".join(
+                f"[{p.get('periodo', '')}] {(p.get('tesis_gestora') or p.get('contexto_mercado') or '')[:200]}"
+                for p in sorted(periodos, key=lambda x: x.get("periodo", ""))[-6:]
+                if p.get("tesis_gestora") or p.get("contexto_mercado")
+            )
+            ctx_parts.append(f"Visión gestores por periodo:\n{per_summary}")
+
+        context_text = "\n".join(ctx_parts)
+
+        try:
+            result = extract_structured_data(
+                context_text,
+                {
+                    "historia_fondo": (
+                        "Narrativa detallada de 400-600 palabras sobre la historia del fondo. "
+                        "Incluir: origen y motivación del fundador, estructura inicial (SICAV/FI), "
+                        "estrategia de inversión y sus pilares, transformaciones clave (cambios regulatorios, "
+                        "de estructura, de comisiones, lanzamientos de nuevos vehículos), "
+                        "comportamiento en momentos de mercado relevantes, estado actual. "
+                        "Tono profesional e informativo. En español. "
+                        "Basarte SOLO en los datos proporcionados, no inventes hechos."
+                    )
+                },
+                context=f"Historia del fondo de inversión {nombre} ({self.isin}). "
+                        f"Analiza los datos disponibles y construye una narrativa cronológica y coherente.",
+            )
+            if isinstance(result, dict) and result.get("historia_fondo"):
+                output.setdefault("cualitativo", {})["historia_fondo"] = result["historia_fondo"]
+                self._log("OK", "Historia del fondo generada con Claude")
+        except Exception as exc:
+            self._log("WARN", f"Error generando historia_fondo: {exc}")
+
     # ── Análisis de consistencia ───────────────────────────────────────────────
 
     def _build_consistency_analysis(self, output: dict) -> None:

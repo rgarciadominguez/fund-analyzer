@@ -9,6 +9,7 @@ from pathlib import Path
 
 import plotly.graph_objects as go
 import streamlit as st
+from datetime import datetime
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -521,32 +522,7 @@ with tab1:
             st.markdown('<div class="sec">Proceso de selección</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="card"><div class="sbox" style="max-height:130px">{proceso}</div></div>', unsafe_allow_html=True)
 
-        # Visión gestora año a año
-        if periodos:
-            st.markdown('<div class="sec">Visión de los gestores — año a año</div>', unsafe_allow_html=True)
-            periodo_labels = [p.get("periodo", "—") for p in periodos]
-            sel_period = st.selectbox("Periodo", periodo_labels, key="vision_period", label_visibility="collapsed")
-            pdata = next((p for p in periodos if p.get("periodo") == sel_period), {})
-
-            tesis      = pdata.get("tesis_gestora", "")
-            decisiones = pdata.get("decisiones_tomadas", "")
-            contexto   = pdata.get("contexto_mercado", "")
-
-            if tesis:
-                st.markdown(f"""
-                <div class="card" style="border-left:3px solid {ACCENT};margin-bottom:8px">
-                  <div style="font-size:11px;font-weight:700;color:{ACCENT};text-transform:uppercase;margin-bottom:6px">Tesis gestora</div>
-                  <div class="sbox" style="max-height:150px;border:none;padding:0;background:transparent">{tesis}</div>
-                </div>""", unsafe_allow_html=True)
-            if decisiones:
-                st.markdown(f"""
-                <div class="card" style="border-left:3px solid {GREEN};margin-bottom:8px">
-                  <div style="font-size:11px;font-weight:700;color:{GREEN};text-transform:uppercase;margin-bottom:6px">Decisiones tomadas</div>
-                  <div class="sbox" style="max-height:130px;border:none;padding:0;background:transparent">{decisiones}</div>
-                </div>""", unsafe_allow_html=True)
-            if contexto:
-                with st.expander("Ver contexto de mercado completo"):
-                    st.markdown(f'<div style="font-size:13px;color:{TEXT};line-height:1.7">{contexto}</div>', unsafe_allow_html=True)
+        # Visión gestores: moved to full-width section below the two columns
 
     with c_right:
         # ── Gestores con links externos ───────────────────────────────────────
@@ -579,67 +555,77 @@ with tab1:
                   {links_html}
                 </div>""", unsafe_allow_html=True)
 
-        # ── Historia del fondo — timeline visual completo ─────────────────────
-        historia = cual.get("historia_fondo", "")
-        periodos_asc = sorted(consist.get("periodos", []), key=lambda p: str(p.get("periodo", "")))
-
-        # Construir eventos del timeline
-        timeline_events = []
-
-        # 1. Historia fondo (eventos regulatorios / fundacionales)
-        if historia:
-            for frag in re.split(r"\n+", historia):
-                frag = frag.strip()
-                if len(frag) < 20:
-                    continue
-                year_m = re.search(r"\b(20\d{2}|19\d{2})\b", frag)
-                yr = year_m.group(1) if year_m else ""
-                timeline_events.append({"year": yr, "text": frag, "type": "regulatory"})
-
-        # 2. Periodos de consistencia → un evento por año (solo si hay decisiones reales)
-        for p in periodos_asc:
-            yr = normalize_year(str(p.get("periodo", "")))
-            tesis_p      = (p.get("tesis_gestora", "") or "")[:200]
-            contexto_p   = (p.get("contexto_mercado", "") or "")[:200]
-            decisiones_p = (p.get("decisiones_tomadas", "") or "")[:150]
-            # Omitir años sin decisiones reales (>30 chars significa algo concreto)
-            if len(decisiones_p) < 30:
-                continue
-            short_text = tesis_p or contexto_p
-            if not short_text:
-                continue
-            timeline_events.append({
-                "year": yr,
-                "text": short_text,
-                "decisions": decisiones_p,
-                "type": "annual",
-            })
-
-        if timeline_events:
-            st.markdown('<div class="sec">Historia del fondo — timeline</div>', unsafe_allow_html=True)
-            st.markdown('<div class="tl-wrap"><div class="tl-line"></div>', unsafe_allow_html=True)
-            for ev in timeline_events:
-                is_reg  = ev["type"] == "regulatory"
-                dot_cls = "tl-dot tl-dot-reg" if is_reg else "tl-dot"
-                yr_cls  = "tl-year tl-year-reg" if is_reg else "tl-year"
-                yr_badge = f'<span class="{yr_cls}">{ev["year"]}</span>' if ev["year"] else ""
-                decisions_html = ""
-                if ev.get("decisions"):
-                    decisions_html = f'<div class="tl-label" style="color:{GREEN};margin-top:4px">📌 {ev["decisions"][:120]}</div>'
-                st.markdown(f"""
-                <div class="tl-item">
-                  <div class="{dot_cls}"></div>
-                  {yr_badge}
-                  <div class="tl-text">{ev["text"]}</div>
-                  {decisions_html}
-                </div>""", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
         # Tipo de activos
         tipo_activos = cual.get("tipo_activos", "")
         if tipo_activos:
             st.markdown('<div class="sec">Universo de inversión</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="card" style="font-size:13px;color:{TEXT};line-height:1.6">{tipo_activos}</div>', unsafe_allow_html=True)
+
+    # ── Hechos relevantes — sección propia, full width ────────────────────────
+    hechos_relevantes = cual.get("hechos_relevantes", [])
+    hechos_con_contenido = [h for h in hechos_relevantes if h.get("epigrafe") or h.get("detalle")]
+    if hechos_con_contenido:
+        st.markdown('<div class="sec">Hechos relevantes</div>', unsafe_allow_html=True)
+        for hr in sorted(hechos_con_contenido, key=lambda x: x.get("periodo", "")):
+            periodo_hr = hr.get("periodo", "")
+            epigrafe_hr = hr.get("epigrafe", "")
+            detalle_hr = hr.get("detalle", "")
+            st.markdown(f"""
+            <div class="card" style="margin-bottom:8px;border-left:3px solid {YELLOW}">
+              <div style="font-size:12px;font-weight:700;color:{YELLOW};margin-bottom:4px">
+                {periodo_hr}{"  ·  " if periodo_hr and epigrafe_hr else ""}{epigrafe_hr}
+              </div>
+              {"<div style='font-size:13px;color:"+TEXT+";line-height:1.6'>"+detalle_hr+"</div>" if detalle_hr else ""}
+            </div>""", unsafe_allow_html=True)
+
+    # ── Visión gestores año a año — timeline 2 columnas, full width ───────────
+    if periodos:
+        st.markdown('<div class="sec">Visión de los gestores — año a año</div>', unsafe_allow_html=True)
+        periodos_asc_vision = sorted(periodos, key=lambda p: str(p.get("periodo", "")), reverse=True)
+        for pdata in periodos_asc_vision[:10]:
+            yr_label   = pdata.get("periodo", "—")
+            tesis      = (pdata.get("tesis_gestora", "") or "")[:400]
+            decisiones = (pdata.get("decisiones_tomadas", "") or "")[:400]
+            contexto   = (pdata.get("contexto_mercado", "") or "")[:200]
+            if not tesis and not decisiones:
+                continue
+            st.markdown(f'<div style="font-size:12px;font-weight:700;color:{ACCENT};margin:12px 0 4px">{yr_label}</div>', unsafe_allow_html=True)
+            col_v, col_d = st.columns(2)
+            with col_v:
+                if tesis:
+                    st.markdown(f"""
+                    <div class="card" style="border-left:3px solid {ACCENT};height:100%">
+                      <div style="font-size:10px;font-weight:700;color:{ACCENT};text-transform:uppercase;margin-bottom:4px">Tesis / Visión</div>
+                      <div style="font-size:12px;color:{TEXT};line-height:1.6">{tesis}</div>
+                    </div>""", unsafe_allow_html=True)
+                if contexto:
+                    st.markdown(f'<div style="font-size:11px;color:{TEXT3};margin-top:4px;line-height:1.5">{contexto[:150]}</div>', unsafe_allow_html=True)
+            with col_d:
+                if decisiones:
+                    st.markdown(f"""
+                    <div class="card" style="border-left:3px solid {GREEN};height:100%">
+                      <div style="font-size:10px;font-weight:700;color:{GREEN};text-transform:uppercase;margin-bottom:4px">Decisiones tomadas</div>
+                      <div style="font-size:12px;color:{TEXT};line-height:1.6">{decisiones}</div>
+                    </div>""", unsafe_allow_html=True)
+
+    # ── Historia del fondo — timeline visual, full width ─────────────────────
+    historia = cual.get("historia_fondo", "")
+    if historia:
+        st.markdown('<div class="sec">Historia del fondo</div>', unsafe_allow_html=True)
+        # Split into paragraphs for visual display
+        paragraphs = [p.strip() for p in re.split(r"\n{2,}|\n(?=\d+\.)", historia) if len(p.strip()) > 30]
+        if paragraphs:
+            # Show as numbered cards
+            for i, para in enumerate(paragraphs):
+                year_m = re.search(r"\b(20\d{2}|19\d{2})\b", para)
+                yr = year_m.group(1) if year_m else ""
+                st.markdown(f"""
+                <div class="card" style="margin-bottom:8px;border-left:3px solid {'#3b82f6' if yr else BORDER}">
+                  {"<span style='font-size:11px;font-weight:700;color:"+ACCENT+";margin-bottom:4px;display:block'>"+yr+"</span>" if yr else ""}
+                  <div style="font-size:13px;color:{TEXT};line-height:1.7">{para}</div>
+                </div>""", unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="card" style="font-size:13px;color:{TEXT};line-height:1.7">{historia}</div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -661,7 +647,10 @@ with tab2:
         deduped = sorted(year_map.values(), key=lambda x: normalize_year(str(x["periodo"])))
         labels = [normalize_year(str(s["periodo"])) for s in deduped]
         values = [s["valor_meur"] for s in deduped]
-        vls    = [s.get("vl") for s in deduped]
+        # Only use VL if the value is clearly a NAV (>1 and <100000, not a year number)
+        vls    = [s.get("vl") if (s.get("vl") and 1 < (s.get("vl") or 0) < 100000
+                                  and (s.get("vl") or 0) < 2010) else None
+                  for s in deduped]
 
         from plotly.subplots import make_subplots
         vl_x = [labels[i] for i, v in enumerate(vls) if v]
@@ -669,12 +658,16 @@ with tab2:
         has_vl = bool(vl_y)
         rows = 2 if has_vl else 1
         row_heights = [0.6, 0.4] if has_vl else [1.0]
-        fig = make_subplots(rows=rows, cols=1, shared_xaxes=True,
-                            row_heights=row_heights, vertical_spacing=0.05)
+        # shared_yaxes=False is critical — prevents VL scale (e.g. 2022) contaminating AUM y-axis
+        fig = make_subplots(rows=rows, cols=1, shared_xaxes=True, shared_yaxes=False,
+                            row_heights=row_heights, vertical_spacing=0.08)
         fig.add_trace(go.Bar(
             x=labels, y=values, name="AUM (M€)",
             marker_color=ACCENT,
-            hovertemplate="<b>%{x}</b><br>AUM: %{y:.3f} M€<extra></extra>",
+            text=[f"{v:.1f}" for v in values],
+            textposition="outside",
+            textfont=dict(size=11, color=TEXT2),
+            hovertemplate="<b>%{x}</b><br>AUM: %{y:.2f} M€<extra></extra>",
         ), row=1, col=1)
         if has_vl:
             fig.add_trace(go.Scatter(
@@ -685,14 +678,18 @@ with tab2:
             ), row=2, col=1)
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color=TEXT2, size=12), height=320 if has_vl else 240,
-            margin=dict(l=0, r=0, t=10, b=40), showlegend=True,
+            font=dict(color=TEXT2, size=12), height=300 if has_vl else 260,
+            margin=dict(l=0, r=0, t=30, b=40), showlegend=True,
             legend=dict(orientation="h", yanchor="bottom", y=1.02,
                         bgcolor="rgba(0,0,0,0)", font=dict(size=11, color=TEXT2)),
         )
         fig.update_xaxes(showgrid=False, tickfont=dict(color=TEXT2, size=11),
-                         linecolor=BORDER, tickangle=-30)
-        fig.update_yaxes(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2))
+                         linecolor=BORDER, tickangle=-30, type="category")
+        fig.update_yaxes(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
+                         row=1, col=1)
+        if has_vl:
+            fig.update_yaxes(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
+                             row=2, col=1)
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Sin datos de AUM histórico")
@@ -718,20 +715,25 @@ with tab2:
                 x=[x[0] for x in part_sorted],
                 y=[x[1] for x in part_sorted],
                 marker_color=PURPLE,
+                text=[f"{int(x[1])}" for x in part_sorted],
+                textposition="outside",
+                textfont=dict(size=11, color=TEXT2),
+                width=[0.5] * len(part_sorted),
                 hovertemplate="<b>%{x}</b><br>Partícipes: %{y:.0f}<extra></extra>",
             ))
-            fig_p.update_layout(**chart_layout(240, legend=False))
+            fig_p.update_layout(**chart_layout(260, legend=False))
+            fig_p.update_xaxes(type="category")
             st.plotly_chart(fig_p, use_container_width=True)
         else:
             st.info("Sin datos de partícipes históricos")
 
-    # ── TER — barras agrupadas ────────────────────────────────────────────────
+    # ── TER — por clase (si disponible) o agregado apilado ───────────────────
     with col_ter:
         st.markdown('<div class="sec">Evolución TER y comisión de gestión</div>', unsafe_allow_html=True)
         serie_ter = cuant.get("serie_ter", [])
         ter_points = [t for t in serie_ter if t.get("ter_pct") or t.get("coste_gestion_pct")]
-        if ter and not any(normalize_year(str(t.get("periodo",""))) == "2025" for t in ter_points):
-            ter_points.append({"periodo": "2025", "ter_pct": ter, "coste_gestion_pct": gestion})
+        if ter and not any(normalize_year(str(t.get("periodo",""))) == normalize_year(str(datetime.now().year)) for t in ter_points):
+            ter_points.append({"periodo": str(datetime.now().year), "ter_pct": ter, "coste_gestion_pct": gestion})
 
         # Dedup by year
         yr_map_ter: dict[str, dict] = {}
@@ -741,31 +743,62 @@ with tab2:
                 yr_map_ter[yr] = t
         ter_sorted = sorted(yr_map_ter.items())
 
-        if ter_sorted:
-            xlabels  = [x[0] for x in ter_sorted]
-            gest_y   = [x[1].get("coste_gestion_pct") or 0 for x in ter_sorted]
-            dep_y    = [x[1].get("coste_deposito_pct") or 0 for x in ter_sorted]
-            # Deposito = TER - gestion (when deposit not stored separately)
-            ter_y_raw = [x[1].get("ter_pct") or 0 for x in ter_sorted]
-            dep_computed = [
-                round(max(t - g, 0), 3)
-                for t, g in zip(ter_y_raw, gest_y)
-            ]
-            dep_final = [d if d > 0 else dep_y[i] for i, d in enumerate(dep_computed)]
+        # Check if per-class commission data available
+        serie_cls = cuant.get("serie_comisiones_por_clase", [])
+        yr_map_cls: dict[str, dict] = {}
+        for e in serie_cls:
+            yr = normalize_year(str(e.get("periodo", "")))
+            if yr not in yr_map_cls:
+                yr_map_cls[yr] = e.get("clases", {})
+        cls_sorted = sorted(yr_map_cls.items())
+
+        CLASE_COLORS = [YELLOW, ACCENT, GREEN, RED, PURPLE]
+
+        if ter_sorted or cls_sorted:
             fig_ter = go.Figure()
-            if any(v > 0 for v in gest_y):
-                fig_ter.add_trace(go.Bar(
-                    x=xlabels, y=gest_y, name="Gestión %",
-                    marker_color=YELLOW,
-                    hovertemplate="Gestión: %{y:.3f}%<extra></extra>",
-                ))
-            if any(v > 0 for v in dep_final):
-                fig_ter.add_trace(go.Bar(
-                    x=xlabels, y=dep_final, name="Depósito / Otros %",
-                    marker_color=RED,
-                    hovertemplate="Depósito: %{y:.3f}%<extra></extra>",
-                ))
-            fig_ter.update_layout(barmode="stack", **chart_layout(240))
+            if cls_sorted:
+                # One trace per class
+                all_clases = sorted({cls for _, clases in cls_sorted for cls in clases})
+                for i, cls in enumerate(all_clases):
+                    xlabels_cls = [yr for yr, _ in cls_sorted]
+                    yvals_cls = [clases.get(cls, 0) for _, clases in cls_sorted]
+                    fig_ter.add_trace(go.Bar(
+                        x=xlabels_cls, y=yvals_cls,
+                        name=f"Clase {cls} %",
+                        marker_color=CLASE_COLORS[i % len(CLASE_COLORS)],
+                        text=[f"{v:.2f}%" if v else "" for v in yvals_cls],
+                        textposition="outside",
+                        textfont=dict(size=10, color=TEXT2),
+                        width=[0.35] * len(xlabels_cls),
+                        hovertemplate=f"Clase {cls}: %{{y:.2f}}%<extra></extra>",
+                    ))
+                fig_ter.update_layout(barmode="group", **chart_layout(260))
+            elif ter_sorted:
+                xlabels  = [x[0] for x in ter_sorted]
+                gest_y   = [x[1].get("coste_gestion_pct") or 0 for x in ter_sorted]
+                dep_y    = [x[1].get("coste_deposito_pct") or 0 for x in ter_sorted]
+                ter_y_raw = [x[1].get("ter_pct") or 0 for x in ter_sorted]
+                dep_computed = [round(max(t - g, 0), 3) for t, g in zip(ter_y_raw, gest_y)]
+                dep_final = [d if d > 0 else dep_y[i] for i, d in enumerate(dep_computed)]
+                if any(v > 0 for v in gest_y):
+                    fig_ter.add_trace(go.Bar(
+                        x=xlabels, y=gest_y, name="Gestión %",
+                        marker_color=YELLOW,
+                        text=[f"{v:.2f}%" if v else "" for v in gest_y],
+                        textposition="outside",
+                        textfont=dict(size=10, color=TEXT2),
+                        width=[0.5] * len(xlabels),
+                        hovertemplate="Gestión: %{y:.3f}%<extra></extra>",
+                    ))
+                if any(v > 0 for v in dep_final):
+                    fig_ter.add_trace(go.Bar(
+                        x=xlabels, y=dep_final, name="Depósito / Otros %",
+                        marker_color=RED,
+                        width=[0.5] * len(xlabels),
+                        hovertemplate="Depósito: %{y:.3f}%<extra></extra>",
+                    ))
+                fig_ter.update_layout(barmode="stack", **chart_layout(260))
+            fig_ter.update_xaxes(type="category")
             st.plotly_chart(fig_ter, use_container_width=True)
         else:
             if ter:
