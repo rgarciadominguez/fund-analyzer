@@ -1,7 +1,6 @@
 """
-Fund Analyzer — Streamlit Dashboard v4  (dark executive terminal theme)
+Fund Analyzer — Streamlit Dashboard v4  (dark/light executive theme)
 """
-import hashlib
 import json
 import re
 import urllib.parse
@@ -12,6 +11,7 @@ from plotly.subplots import make_subplots
 import streamlit as st
 from datetime import datetime
 
+import ui_components
 from ui_components import (
     section_header, narrative_block, timeline_item,
     dual_timeline_item, consistency_period, stat_row, empty_state,
@@ -28,160 +28,216 @@ st.set_page_config(
 # ── Session state ─────────────────────────────────────────────────────────────
 if "selected_isin" not in st.session_state:
     st.session_state.selected_isin = None
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = True
 
-# ── Design tokens — dark executive palette ────────────────────────────────────
-BG      = "#0d0f14"
-BG2     = "#13161e"
-BG3     = "#1a1d28"
-BORDER  = "#1e2130"
-TEXT    = "#e8e8e8"
-TEXT2   = "#bbb"
-TEXT3   = "#666"
-ACCENT  = "#4fc3f7"    # electric blue — all accents, bars
-GREEN   = "#4caf50"
-GREEN_CHART = "#10b981"
-RED     = "#ef5350"
-RED_CHART   = "#ef4444"
-YELLOW  = "#f59e0b"
-YELLOW_CHART = "#f59e0b"
-PURPLE  = "#a78bfa"
+dark_mode = st.session_state.dark_mode
 
-# ── Global CSS ────────────────────────────────────────────────────────────────
-st.markdown("""
+# ── Palettes ──────────────────────────────────────────────────────────────────
+DARK = {
+    "BG":"#0d0f14","BG2":"#13161e","BG3":"#1a1d28","BORDER":"#1e2130",
+    "TEXT":"#e8e8e8","TEXT2":"#bbb","TEXT3":"#666",
+    "ACCENT":"#4fc3f7",
+    "GREEN":"#4caf50","GREEN_CHART":"#10b981",
+    "RED":"#ef5350","RED_CHART":"#ef4444",
+    "YELLOW":"#f59e0b","YELLOW_CHART":"#f59e0b",
+    "PURPLE":"#a78bfa",
+    # CSS-specific
+    "TAB_BG":"#13161e","TAB_INACTIVE":"#555",
+    "METRIC_BG":"#13161e","METRIC_BORDER":"#1e2130",
+    "METRIC_LABEL":"#555","METRIC_VALUE":"#e8e8e8",
+    "EXP_BG":"#13161e","EXP_BORDER":"#1e2130","EXP_TEXT":"#888",
+    "SBOX_BG":"#0d0f14","SBOX_BORDER":"#1e2130","SBOX_TEXT":"#999",
+    "INPUT_BG":"#13161e","INPUT_TEXT":"#e8e8e8",
+    "TAG_BG":"#1a1d28","TAG_TEXT":"#888",
+    "GRID":"#1e2130",
+}
+LIGHT = {
+    "BG":"#f5f7fa","BG2":"#ffffff","BG3":"#fafafa","BORDER":"#e5e5e5",
+    "TEXT":"#1a1a1a","TEXT2":"#444444","TEXT3":"#888888",
+    "ACCENT":"#1e40af",
+    "GREEN":"#2e7d32","GREEN_CHART":"#10b981",
+    "RED":"#c62828","RED_CHART":"#ef4444",
+    "YELLOW":"#b45309","YELLOW_CHART":"#f59e0b",
+    "PURPLE":"#7c3aed",
+    # CSS-specific
+    "TAB_BG":"#ffffff","TAB_INACTIVE":"#888",
+    "METRIC_BG":"#ffffff","METRIC_BORDER":"#e5e5e5",
+    "METRIC_LABEL":"#888","METRIC_VALUE":"#1a1a1a",
+    "EXP_BG":"#fafafa","EXP_BORDER":"#e5e5e5","EXP_TEXT":"#555",
+    "SBOX_BG":"#f5f7fa","SBOX_BORDER":"#e5e5e5","SBOX_TEXT":"#444",
+    "INPUT_BG":"#ffffff","INPUT_TEXT":"#1a1a1a",
+    "TAG_BG":"#f0f0f0","TAG_TEXT":"#555",
+    "GRID":"#e5e5e5",
+}
+
+P = DARK if dark_mode else LIGHT
+
+# Convenience vars
+BG=P["BG"]; BG2=P["BG2"]; BG3=P["BG3"]; BORDER=P["BORDER"]
+TEXT=P["TEXT"]; TEXT2=P["TEXT2"]; TEXT3=P["TEXT3"]
+ACCENT=P["ACCENT"]
+GREEN=P["GREEN"]; GREEN_CHART=P["GREEN_CHART"]
+RED=P["RED"]; RED_CHART=P["RED_CHART"]
+YELLOW=P["YELLOW"]; YELLOW_CHART=P["YELLOW_CHART"]
+PURPLE=P["PURPLE"]
+
+# Propagate theme to component library
+ui_components.set_theme(
+    accent=ACCENT, bg2=BG2, border=BORDER,
+    text=TEXT, text2=TEXT2, text3=TEXT3,
+    green=GREEN, red=RED, yellow=YELLOW,
+    sbox_bg=P["SBOX_BG"],
+)
+
+# ── Global CSS (dynamic, palette-driven) ──────────────────────────────────────
+st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap');
 
 /* ── Reset & base ── */
-.block-container { padding-top:1.2rem !important; padding-bottom:1rem !important; max-width:1140px !important; }
-.element-container { margin-bottom:0.35rem !important; }
-div[data-testid="stVerticalBlock"] > div { gap:0.35rem !important; }
+.block-container {{ padding-top:1.2rem !important; padding-bottom:1rem !important; max-width:1140px !important; }}
+.element-container {{ margin-bottom:0.35rem !important; }}
+div[data-testid="stVerticalBlock"] > div {{ gap:0.35rem !important; }}
 
-html, body, [class*="css"] {
+html, body, [class*="css"] {{
   font-family:'Sora', sans-serif !important;
   font-size:13.5px;
-  color:#e8e8e8;
-}
+  color:{TEXT};
+}}
 
-.stApp { background-color:#0d0f14 !important; }
-section[data-testid="stSidebar"] { display:none; }
-header[data-testid="stHeader"] { display:none; }
+.stApp {{ background-color:{BG} !important; }}
+section[data-testid="stSidebar"] {{ display:none; }}
+header[data-testid="stHeader"] {{ display:none; }}
 
 /* ── Tabs ── */
-.stTabs [data-baseweb="tab-list"] {
-  background:#13161e;
+.stTabs [data-baseweb="tab-list"] {{
+  background:{P["TAB_BG"]};
   border-radius:0;
-  border-bottom:1px solid #1e2130;
+  border-bottom:1px solid {BORDER};
   gap:0; padding:0;
-}
-.stTabs [data-baseweb="tab"] {
+}}
+.stTabs [data-baseweb="tab"] {{
   font-family:'DM Mono', monospace !important;
   font-size:10.5px;
   letter-spacing:0.09em;
   text-transform:uppercase;
   padding:10px 18px;
   border-bottom:2px solid transparent;
-  color:#555;
+  color:{P["TAB_INACTIVE"]};
   background:transparent !important;
-}
-.stTabs [aria-selected="true"] {
-  border-bottom:2px solid #4fc3f7 !important;
-  color:#4fc3f7 !important;
+}}
+.stTabs [aria-selected="true"] {{
+  border-bottom:2px solid {ACCENT} !important;
+  color:{ACCENT} !important;
   background:transparent !important;
-}
-.stTabs [data-baseweb="tab-panel"] { padding-top:18px; }
+}}
+.stTabs [data-baseweb="tab-panel"] {{ padding-top:18px; }}
 
 /* ── Metrics ── */
-[data-testid="stMetric"] {
-  background:#13161e;
-  border:1px solid #1e2130;
-  border-left:3px solid #4fc3f7;
+[data-testid="stMetric"] {{
+  background:{P["METRIC_BG"]};
+  border:1px solid {P["METRIC_BORDER"]};
+  border-left:3px solid {ACCENT};
   padding:14px 18px !important;
   border-radius:4px;
-}
-[data-testid="stMetricLabel"] {
+}}
+[data-testid="stMetricLabel"] {{
   font-family:'DM Mono', monospace !important;
   font-size:9.5px !important;
   letter-spacing:0.12em;
   text-transform:uppercase;
-  color:#555 !important;
-}
-[data-testid="stMetricValue"] {
+  color:{P["METRIC_LABEL"]} !important;
+}}
+[data-testid="stMetricValue"] {{
   font-family:'DM Mono', monospace !important;
   font-size:20px !important;
   font-weight:500 !important;
-  color:#e8e8e8 !important;
-}
-[data-testid="stMetricDelta"] { font-size:10px !important; }
+  color:{P["METRIC_VALUE"]} !important;
+}}
+[data-testid="stMetricDelta"] {{ font-size:10px !important; }}
 
 /* ── Expanders ── */
-details {
-  background:#13161e !important;
-  border:1px solid #1e2130 !important;
+details {{
+  background:{P["EXP_BG"]} !important;
+  border:1px solid {P["EXP_BORDER"]} !important;
   border-radius:4px !important;
   margin-bottom:4px !important;
-}
-details summary {
+}}
+details summary {{
   font-family:'DM Mono', monospace !important;
   font-size:11px !important;
   padding:10px 16px !important;
-  color:#888 !important;
+  color:{P["EXP_TEXT"]} !important;
   letter-spacing:0.04em;
-}
-details summary:hover { color:#4fc3f7 !important; }
+}}
+details summary:hover {{ color:{ACCENT} !important; }}
 
 /* ── Scrollable box ── */
-.sbox {
-  background:#0d0f14;
-  border:1px solid #1e2130;
+.sbox {{
+  background:{P["SBOX_BG"]};
+  border:1px solid {P["SBOX_BORDER"]};
   border-radius:4px;
   padding:12px 14px;
   font-size:12.5px;
-  color:#999;
+  color:{P["SBOX_TEXT"]};
   line-height:1.75;
   max-height:220px;
   overflow-y:auto;
-}
+}}
 
 /* ── Misc ── */
-.stAlert { display:none !important; }
-hr { border:none; border-top:1px solid #1e2130; margin:1.2rem 0; }
-.modebar { display:none !important; }
-.stDataFrame { background:#13161e; }
+.stAlert {{ display:none !important; }}
+hr {{ border:none; border-top:1px solid {BORDER}; margin:1.2rem 0; }}
+.modebar {{ display:none !important; }}
 
 /* ── Form controls ── */
-.stSelectbox > div > div, .stTextInput > div > div > input {
-  background:#13161e !important;
-  color:#e8e8e8 !important;
-  border-color:#1e2130 !important;
+.stSelectbox > div > div, .stTextInput > div > div > input {{
+  background:{P["INPUT_BG"]} !important;
+  color:{P["INPUT_TEXT"]} !important;
+  border-color:{BORDER} !important;
   font-family:'DM Mono', monospace !important;
   font-size:12px !important;
-}
+}}
 
 /* ── Position bar ── */
-.pos-bar-bg { background:#1e2130; border-radius:2px; height:3px; margin-top:4px; }
-.pos-bar-fill { background:#4fc3f7; border-radius:2px; height:3px; }
+.pos-bar-bg {{ background:{BORDER}; border-radius:2px; height:3px; margin-top:4px; }}
+.pos-bar-fill {{ background:{ACCENT}; border-radius:2px; height:3px; }}
 
 /* ── Tag/badge ── */
-.tag {
+.tag {{
   display:inline-block;
-  background:#1a1d28;
-  border:1px solid #1e2130;
+  background:{P["TAG_BG"]};
+  border:1px solid {BORDER};
   border-radius:3px;
   padding:2px 8px;
   font-family:'DM Mono', monospace;
   font-size:10px;
   letter-spacing:0.06em;
-  color:#888;
+  color:{P["TAG_TEXT"]};
   margin-right:4px;
-}
-.tag-accent { border-color:#4fc3f7; color:#4fc3f7; }
-.tag-green  { border-color:#4caf50; color:#4caf50; }
-.tag-red    { border-color:#ef5350; color:#ef5350; }
-.tag-amber  { border-color:#f59e0b; color:#f59e0b; }
+}}
+.tag-accent {{ border-color:{ACCENT}; color:{ACCENT}; }}
+.tag-green  {{ border-color:{GREEN}; color:{GREEN}; }}
+.tag-red    {{ border-color:{RED}; color:{RED}; }}
+.tag-amber  {{ border-color:{YELLOW}; color:{YELLOW}; }}
+
+/* ── Toggle button ── */
+button[kind="secondary"] {{
+  font-family:'DM Mono', monospace !important;
+  font-size:10px !important;
+  letter-spacing:0.08em !important;
+  border-radius:3px !important;
+  padding:4px 12px !important;
+  border-color:{BORDER} !important;
+  background:{BG2} !important;
+  color:{TEXT3} !important;
+}}
+button[kind="secondary"]:hover {{ color:{ACCENT} !important; border-color:{ACCENT} !important; }}
 
 /* ── Links ── */
-a { color:#4fc3f7 !important; text-decoration:none !important; }
-a:hover { text-decoration:underline !important; }
+a {{ color:{ACCENT} !important; text-decoration:none !important; }}
+a:hover {{ text-decoration:underline !important; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -401,7 +457,7 @@ def infer_country(pos: dict) -> str:
 # ── TOP BAR ───────────────────────────────────────────────────────────────────
 funds = discover_funds()
 
-bar_logo, bar_sel = st.columns([2, 10])
+bar_logo, bar_sel, bar_toggle = st.columns([2, 9, 1])
 
 with bar_logo:
     st.markdown(
@@ -421,6 +477,12 @@ with bar_sel:
     )
     sel_idx = nombres.index(sel_nombre)
     st.session_state.selected_isin = isins[sel_idx]
+
+with bar_toggle:
+    toggle_label = "☀ Light" if dark_mode else "◐ Dark"
+    if st.button(toggle_label, key="theme_toggle", use_container_width=True):
+        st.session_state.dark_mode = not dark_mode
+        st.rerun()
 
 st.markdown(f"<div style='height:1px;background:{BORDER};margin:6px 0 14px 0'></div>",
             unsafe_allow_html=True)
