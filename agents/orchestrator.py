@@ -257,56 +257,75 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
 
         progress.advance(main_task)
 
-        # ── Paso 2: Letters Agent ─────────────────────────────────────────────
-        letters_step_idx = 2 if is_lu else 1
-        progress.update(main_task, description=steps[letters_step_idx][1])
-        log("ORCHESTRATOR", "START", "Paso 2: Letters Agent")
+        # ── Extract metadata from cnmv_data/intl_data for downstream agents ──
+        fund_name_hint = ""
+        gestora_hint = ""
+        anio_creacion_hint = None
+        gestores_hint: list[str] = []
 
-        try:
-            from agents.letters_agent import LettersAgent
-
-            # URL de la gestora según tipo
-            gestora_url = ""
-            if is_es:
-                gestora_url = config.get("gestora_url", "")
-            else:
-                gestora_url = config.get("gestora_url", "")
-
-            # Pasar nombre, gestora y anio_creacion para DDG search
-            output_so_far = results.get("output") or {}
-            kpis_so_far = output_so_far.get("kpis", {}) if isinstance(output_so_far, dict) else {}
-            # Intentar leer output parcial si analyst no ha corrido aún
-            partial_out_path = fund_dir / "output.json"
-            if partial_out_path.exists():
+        # Read from the just-generated source data
+        for data_fname in ["cnmv_data.json", "intl_data.json", "cssf_data.json"]:
+            data_path = fund_dir / data_fname
+            if data_path.exists():
                 try:
-                    partial = json.loads(partial_out_path.read_text(encoding="utf-8"))
-                    fund_name_hint = partial.get("nombre", "")
-                    gestora_hint   = partial.get("gestora", "")
-                    anio_creacion_hint = (partial.get("kpis") or {}).get("anio_creacion")
+                    src = json.loads(data_path.read_text(encoding="utf-8"))
+                    if not fund_name_hint:
+                        fund_name_hint = src.get("nombre", "") or src.get("nombre_oficial", "")
+                    if not gestora_hint:
+                        gestora_hint = src.get("gestora", "") or src.get("gestora_oficial", "")
+                    if not anio_creacion_hint:
+                        anio_creacion_hint = (src.get("kpis") or {}).get("anio_creacion")
                 except Exception:
-                    fund_name_hint = gestora_hint = ""
-                    anio_creacion_hint = None
-            else:
-                fund_name_hint = gestora_hint = ""
-                anio_creacion_hint = None
+                    pass
 
-            letters = LettersAgent(
-                isin, config, gestora_url=gestora_url,
-                fund_name=fund_name_hint,
-                gestora=gestora_hint,
-                anio_creacion=anio_creacion_hint,
-            )
-            results["letters"] = await letters.run()
-            n_cartas = len(results["letters"].get("cartas", []))
-            log("LETTERS", "OK", f"{n_cartas} cartas procesadas")
-        except Exception as exc:
-            log("LETTERS", "ERROR", f"Paso 2 falló: {exc}")
+        log("ORCHESTRATOR", "INFO", f"Metadata: nombre={fund_name_hint[:40]}, gestora={gestora_hint[:30]}")
+
+        # ── Paso 2: Letters + Readings EN PARALELO ────────────────────────────
+        progress.update(main_task, description="Letters + Readings (paralelo)")
+        log("ORCHESTRATOR", "START", "Paso 2: Letters + Readings (paralelo)")
+
+        async def _run_letters():
+            try:
+                from agents.letters_agent import LettersAgent
+                gestora_url = config.get("gestora_url", "")
+                letters = LettersAgent(
+                    isin, config, gestora_url=gestora_url,
+                    fund_name=fund_name_hint,
+                    gestora=gestora_hint,
+                    anio_creacion=anio_creacion_hint,
+                )
+                return await letters.run()
+            except Exception as exc:
+                log("LETTERS", "ERROR", f"Letters falló: {exc}")
+                return {}
+
+        async def _run_readings():
+            try:
+                from agents.readings_agent import ReadingsAgent
+                readings = ReadingsAgent(
+                    isin, fund_name=fund_name_hint,
+                    gestora=gestora_hint, gestores=gestores_hint,
+                )
+                return await readings.run()
+            except Exception as exc:
+                log("READINGS", "ERROR", f"Readings falló: {exc}")
+                return {}
+
+        letters_result, readings_result = await asyncio.gather(
+            _run_letters(), _run_readings()
+        )
+        results["letters"] = letters_result
+        results["readings"] = readings_result
+        n_cartas = len(letters_result.get("cartas", []))
+        n_lecturas = len(readings_result.get("lecturas", []))
+        n_externos = len(readings_result.get("analisis_externos", []))
+        log("ORCHESTRATOR", "OK",
+            f"Letters: {n_cartas} cartas | Readings: {n_lecturas} lecturas, {n_externos} externos")
 
         progress.advance(main_task)
 
         # ── Paso 3: Analyst Agent ─────────────────────────────────────────────
-        analyst_step_idx = 3 if is_lu else 2
-        progress.update(main_task, description=steps[analyst_step_idx][1])
+        progress.update(main_task, description="Analyst Agent (síntesis)")
         log("ORCHESTRATOR", "START", "Paso 3: Analyst Agent")
 
         try:
@@ -319,42 +338,29 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
             log("ANALYST", "ERROR", f"Paso 3 falló: {exc}")
             import traceback
             log("ANALYST", "TRACE", traceback.format_exc()[:500])
-            # Crear output mínimo
             output = {"isin": isin, "error": str(exc)}
             out_path = fund_dir / "output.json"
             out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
 
         progress.advance(main_task)
 
-        # ── Paso 4: Readings Agent ────────────────────────────────────────────
-        readings_step_idx = 4 if is_lu else 3
-        progress.update(main_task, description=steps[readings_step_idx][1])
-        log("ORCHESTRATOR", "START", "Paso 4: Readings Agent")
+        # ── Paso 4: Validation Agent ──────────────────────────────────────────
+        progress.update(main_task, description="Validation Agent")
+        log("ORCHESTRATOR", "START", "Paso 4: Validation Agent")
 
         try:
-            from agents.readings_agent import ReadingsAgent
-            out_for_readings = results.get("output", {})
-            if isinstance(out_for_readings, dict):
-                r_nombre  = out_for_readings.get("nombre", "")
-                r_gestora = out_for_readings.get("gestora", "")
-                r_gestores = [g.get("nombre", "") for g in
-                              out_for_readings.get("cualitativo", {}).get("gestores", []) if g.get("nombre")]
-            else:
-                r_nombre = r_gestora = ""
-                r_gestores = []
-            readings = ReadingsAgent(isin, fund_name=r_nombre, gestora=r_gestora, gestores=r_gestores)
-            results["readings"] = await readings.run()
-            log("READINGS", "OK",
-                f"Lecturas: {len(results['readings'].get('lecturas', []))} | "
-                f"Externos: {len(results['readings'].get('analisis_externos', []))}")
+            from agents.validation_agent import ValidationAgent
+            validator = ValidationAgent(isin, fund_dir=fund_dir, config=config)
+            results["validation"] = await validator.run()
+            quality_score = results["validation"].get("quality_score", 0)
+            log("VALIDATION", "OK", f"Validación completada — quality score: {quality_score}/100")
         except Exception as exc:
-            log("READINGS", "ERROR", f"Paso 4 falló: {exc}")
+            log("VALIDATION", "ERROR", f"Paso 4 falló: {exc}")
 
         progress.advance(main_task)
 
         # ── Paso 5: Meta Agent ────────────────────────────────────────────────
-        meta_step_idx = 5 if is_lu else 4
-        progress.update(main_task, description=steps[meta_step_idx][1])
+        progress.update(main_task, description="Meta Agent (QA)")
         log("ORCHESTRATOR", "START", "Paso 5: Meta Agent")
 
         try:

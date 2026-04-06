@@ -769,7 +769,7 @@ class CNMVAgent:
         # Section 9: Claude for qualitative market vision + decisions
         sec9 = self._extract_seccion_9(full_text)
         if sec9.strip():
-            result["cualitativo_gestor"] = await self._parse_seccion_cualitativo(sec9)
+            result["cualitativo_gestor"] = await self._parse_seccion_cualitativo(sec9, year)
 
         # Section 10 perspectivas: Claude for tesis_gestora (visión actual del gestor)
         sec10 = self._extract_seccion_perspectivas(full_text)
@@ -799,25 +799,48 @@ class CNMVAgent:
                 except Exception:
                     pass
 
-        # Section 1 estrategia: Claude for narrative investment policy
+        # Section 1 estrategia + cover page for gestores
         sec1 = self._extract_seccion_1(full_text)
-        if sec1.strip():
+        # Include cover page (first 2 pages ~3000 chars) for manager names
+        cover_text = extract_page_range(str(pdf_path), 0, 2) if pdf_path else ""
+        # Include section 8 if present (fund management info)
+        sec8_m = re.search(r'8\.\s*Informaci[oó]n\s+sobre\s+(?:la\s+)?gesti[oó]n', full_text, re.IGNORECASE)
+        sec8_text = ""
+        if sec8_m:
+            sec8_end = re.search(r'\n\s*9\.', full_text[sec8_m.start():])
+            sec8_text = full_text[sec8_m.start(): sec8_m.start() + (sec8_end.start() if sec8_end else 2000)]
+
+        combined_text = f"=== PORTADA ===\n{cover_text[:2000]}\n\n=== POLÍTICA DE INVERSIÓN ===\n{sec1}\n\n=== GESTIÓN ===\n{sec8_text}"
+
+        if sec1.strip() or cover_text.strip():
             try:
                 schema_base = {
-                    "estrategia": "política de inversión del fondo en 2-3 frases",
-                    "tipo_activos": "tipos de activos en los que invierte",
+                    "estrategia": "política de inversión del fondo en 2-3 frases concretas",
+                    "tipo_activos": "tipos de activos en los que invierte (renta variable, renta fija, mixto...)",
                     "gestores": [
-                        {"nombre": "nombre del gestor", "cargo": "cargo", "background": ""}
+                        {
+                            "nombre": "nombre completo de la persona física que gestiona o asesora el fondo",
+                            "cargo": "cargo: gestor, asesor, director de inversiones, portfolio manager",
+                            "background": "experiencia profesional si se menciona",
+                        }
                     ],
                 }
                 base = extract_structured_data(
-                    sec1, schema_base,
-                    context=f"Política de inversión {self.isin}",
+                    combined_text[:5000], schema_base,
+                    context=(
+                        f"Informe semestral CNMV {year}, fondo {self.isin}. "
+                        "Buscar nombres de gestores en la PORTADA (pueden aparecer como firmantes, "
+                        "responsables o asesores), en la sección de política de inversión, "
+                        "o en la sección 8 de información sobre gestión. "
+                        "Los gestores son PERSONAS FÍSICAS, no sociedades gestoras."
+                    ),
                 )
                 if isinstance(base, dict):
                     result["estrategia"] = base.get("estrategia", "")
                     result["tipo_activos"] = base.get("tipo_activos", "")
-                    result["gestores"] = base.get("gestores", [])
+                    gestores = base.get("gestores", [])
+                    # Filter out null/empty entries
+                    result["gestores"] = [g for g in gestores if g and g.get("nombre")]
             except Exception as exc:
                 console.log(f"[yellow]Error Claude sección 1: {exc}")
 
@@ -843,17 +866,61 @@ class CNMVAgent:
         return text[start:end]
 
     def _extract_seccion_9(self, text: str) -> str:
-        """Extract section 9 text (visión gestora, decisiones). Stops before perspectivas (section 10)."""
+        """
+        Extract section 9 text (visión gestora, decisiones).
+
+        Structure in all CNMV semiannual PDFs:
+          9. Anexo explicativo del informe periódico
+            1. SITUACIÓN DE LOS MERCADOS Y EVOLUCIÓN DEL FONDO
+              a. Visión de la gestora sobre la situación de los mercados
+              b. Decisiones generales de inversión adoptadas
+              c. Índice de referencia
+              d. Evolución del patrimonio, partícipes, rentabilidad y gastos
+              e. Rendimientos del fondo en comparación con el resto
+            2. INFORMACIÓN SOBRE LAS INVERSIONES
+              a. Inversiones concretas realizadas durante el periodo
+              ...
+
+        We extract targeted subsections for Claude instead of the full 20K+ chars.
+        """
         m = re.search(r'9\.\s*Anexo\s+explicativo\s+del\s+informe', text, re.IGNORECASE)
         if not m:
             m = re.search(r'Visi[oó]n\s+de\s+la\s+gestora', text, re.IGNORECASE)
         if not m:
             return ""
         start = m.start()
-        # Stop before "10. PERSPECTIVAS" or "10. Detalle"
         end_m = re.search(r'10\.\s+(?:PERSPECTIVAS|Detalle)', text[start:], re.IGNORECASE)
-        end = start + end_m.start() if end_m else start + 8000
-        return text[start:end]
+        full_sec9 = text[start: start + end_m.start() if end_m else start + 20000]
+
+        # Extract key subsections for a focused, token-efficient Claude prompt
+        parts: list[str] = []
+
+        # 1a. Visión de la gestora (contexto_mercado)
+        vis_m = re.search(r'a\.\s*Visi[oó]n\s+de\s+la\s+gestora', full_sec9, re.IGNORECASE)
+        vis_end = re.search(r'b\.\s*(?:Decisiones|Evoluci)', full_sec9[vis_m.start():], re.IGNORECASE) if vis_m else None
+        if vis_m:
+            vis_text = full_sec9[vis_m.start(): vis_m.start() + (vis_end.start() if vis_end else 3000)]
+            parts.append(f"=== VISIÓN DE LA GESTORA ===\n{vis_text[:3000]}")
+
+        # 1b. Decisiones generales de inversión (decisiones_tomadas)
+        dec_m = re.search(r'b\.\s*Decisiones\s+generales', full_sec9, re.IGNORECASE)
+        dec_end = re.search(r'c\.\s*[ÍI]ndice\s+de\s+referencia', full_sec9[dec_m.start():], re.IGNORECASE) if dec_m else None
+        if dec_m:
+            dec_text = full_sec9[dec_m.start(): dec_m.start() + (dec_end.start() if dec_end else 2000)]
+            parts.append(f"=== DECISIONES GENERALES ===\n{dec_text[:2000]}")
+
+        # 2a. Inversiones concretas realizadas (specific trades/positions)
+        inv_m = re.search(r'a\.\s*Inversiones\s+concretas\s+realizadas', full_sec9, re.IGNORECASE)
+        inv_end = re.search(r'b\.\s*Operativa\s+(?:del|en)', full_sec9[inv_m.start():], re.IGNORECASE) if inv_m else None
+        if inv_m:
+            inv_text = full_sec9[inv_m.start(): inv_m.start() + (inv_end.start() if inv_end else 2000)]
+            parts.append(f"=== INVERSIONES CONCRETAS ===\n{inv_text[:2000]}")
+
+        if parts:
+            return "\n\n".join(parts)
+
+        # Fallback: return first 6000 chars if subsection detection fails
+        return full_sec9[:6000]
 
     def _extract_seccion_perspectivas(self, text: str) -> str:
         """Extract section 10 perspectivas text."""
@@ -896,9 +963,10 @@ class CNMVAgent:
         result: dict = {}
 
         # ── Partícipes ────────────────────────────────────────────────────────
-        # Per-class table: "CLASE A  455  460  EUR  0,00  0,00  ...  NO"
-        # Columns after class name: nº_actual  nº_anterior  [divisa ...]
-        # Numbers are small integers (participants count, not big floats)
+        # Two possible formats for the partícipes table:
+        # Format A: "CLASE A  455  460  EUR  0,00  ..."  (participantes before currency)
+        # Format B: "CLASE A EUR 455 460 ..."  (currency before participantes - unlikely for this table)
+        # The partícipes table typically has small integers followed by EUR
         class_parts = re.findall(
             r'CLASE\s+\w+\s+([\d.]+)\s+([\d.]+)\s+(?:EUR|USD|GBP)',
             text, re.IGNORECASE,
@@ -918,9 +986,16 @@ class CNMVAgent:
                 result["num_participes_anterior"] = int(m.group(2).replace(".", ""))
 
         # ── AUM (Patrimonio) ──────────────────────────────────────────────────
-        # Strategy: find the patrimonio table and sum all classes for each column.
-        # Table header: "Patrimonio (en miles)" then rows: "CLASE A  119.070  96.488  22.106  7.831"
-        # Columns: actual, dic_anterior, dic_ante_anterior, dic_ante_ante_anterior
+        # Two table formats exist in CNMV PDFs:
+        #
+        # FORMAT A (pre-2020): "CLASE A  119.070  96.488  22.106  7.831"
+        #   → numbers immediately after class name
+        #
+        # FORMAT B (2021+):    "CLASE A EUR 31.619  28.590  24.660  22.355"
+        #   → currency code between class name and numbers
+        #
+        # Header row in Format B: "CLASE Divisa Al final del periodo Diciembre 2024 ..."
+        # We extract year labels from header to assign correct periods.
         serie_aum: list[dict] = []
 
         pat_section_m = re.search(
@@ -929,13 +1004,26 @@ class CNMVAgent:
         )
         if pat_section_m:
             pat_block = text[pat_section_m.start(): pat_section_m.start() + 1500]
-            # Find all CLASE rows: CLASE X  val1  val2  val3  val4
-            class_rows = re.findall(
-                r'CLASE\s+\w+\s+([\d.]+)\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
+
+            # Extract year labels from header: "Al final del periodo Diciembre 2024 Diciembre 2023 ..."
+            header_years = [f"{year}-S2"]  # col 0 = current period
+            for hm in re.finditer(r'(?:Diciembre|Junio)\s+(20\d{2})', pat_block[:300]):
+                header_years.append(hm.group(1))
+
+            # FORMAT B: CLASE X EUR val1 val2 val3 val4
+            class_rows_b = re.findall(
+                r'CLASE\s+\w+\s+(?:EUR|USD|GBP|CHF)\s+([\d.]+)\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
                 pat_block, re.IGNORECASE,
             )
+            # FORMAT A: CLASE X val1 val2 val3 val4 (no currency)
+            class_rows_a = re.findall(
+                r'CLASE\s+\w+\s+([\d.]+)\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
+                pat_block, re.IGNORECASE,
+            ) if not class_rows_b else []
+
+            class_rows = class_rows_b or class_rows_a
+
             if class_rows:
-                # Sum column 0 = current period, col 1 = previous year, etc.
                 def _col_sum(rows, col):
                     total = 0.0
                     for row in rows:
@@ -943,22 +1031,16 @@ class CNMVAgent:
                         total += float(v.replace(".", "").replace(",", "."))
                     return total
 
-                aum_current = _col_sum(class_rows, 0)
-                if aum_current > 0:
-                    serie_aum.append({
-                        "periodo": f"{year}-S2",
-                        "valor_meur": round(aum_current / 1000, 3),
-                    })
-                # Previous years from subsequent columns
-                for col_offset, yr_delta in [(1, 1), (2, 2), (3, 3)]:
-                    aum_prev = _col_sum(class_rows, col_offset)
-                    if aum_prev > 100:  # sanity: > 100 miles EUR
-                        prev_yr = year - yr_delta
-                        if not any(e["periodo"] == str(prev_yr) for e in serie_aum):
-                            serie_aum.append({
-                                "periodo": str(prev_yr),
-                                "valor_meur": round(aum_prev / 1000, 3),
-                            })
+                for col_idx in range(4):
+                    aum_val = _col_sum(class_rows, col_idx)
+                    if aum_val <= 0:
+                        continue
+                    periodo = header_years[col_idx] if col_idx < len(header_years) else str(year - col_idx)
+                    if not any(e["periodo"] == periodo for e in serie_aum):
+                        serie_aum.append({
+                            "periodo": periodo,
+                            "valor_meur": round(aum_val / 1000, 3),
+                        })
 
         # Fallback: "Periodo del informe  93.272  111,4533"
         if not serie_aum:
@@ -974,28 +1056,26 @@ class CNMVAgent:
                     ),
                     "vl": float(m.group(2).replace(",", ".")),
                 })
-            # Historical years (no VL — previous regex was buggy extracting year as VL)
-            for m in re.finditer(r'\b(20\d{2})\b\s+([\d.]+)\s*\n', text):
-                yr = int(m.group(1))
-                if 2000 <= yr < year:
-                    val = float(m.group(2).replace(".", "").replace(",", "."))
-                    if 100 <= val <= 500_000 and not any(e["periodo"] == str(yr) for e in serie_aum):
-                        serie_aum.append({"periodo": str(yr), "valor_meur": round(val / 1000, 3)})
 
         # ── VL (Valor liquidativo) — extraer de tabla separada ────────────────
-        # Table: "Valor liquidativo de la participación (%)"
-        # Rows: "CLASE A  30,0272  26,5477  22,036  19,312"
+        # Format A: "CLASE A  30,0272  26,5477  22,036  19,312"
+        # Format B: "CLASE A EUR 30,0272  26,5477  22,036  19,312"
         vl_section_m = re.search(r'Valor\s+liquidativo\s+de\s+la\s+participaci', text, re.IGNORECASE)
         if vl_section_m:
             vl_block = text[vl_section_m.start(): vl_section_m.start() + 800]
+            # Try Format B first (with currency)
             vl_rows = re.findall(
-                r'CLASE\s+\w+\s+([\d,]+)\s+([\d,]+)(?:\s+([\d,]+))?(?:\s+([\d,]+))?',
+                r'CLASE\s+\w+\s+(?:EUR|USD|GBP|CHF)\s+([\d,]+)\s+([\d,]+)(?:\s+([\d,]+))?(?:\s+([\d,]+))?',
                 vl_block, re.IGNORECASE,
             )
+            if not vl_rows:
+                # Format A (no currency)
+                vl_rows = re.findall(
+                    r'CLASE\s+\w+\s+([\d,]+)\s+([\d,]+)(?:\s+([\d,]+))?(?:\s+([\d,]+))?',
+                    vl_block, re.IGNORECASE,
+                )
             if vl_rows:
-                # Use first class as representative VL (or average)
                 vl_current = float(vl_rows[0][0].replace(",", "."))
-                # Attach VL to current period entry
                 for e in serie_aum:
                     if e["periodo"] == f"{year}-S2":
                         e["vl"] = vl_current
@@ -1342,32 +1422,35 @@ class CNMVAgent:
         console.log(f"[green]Posiciones: {len(posiciones)} | Mix: {list(mix.keys())}")
         return posiciones, mix
 
-    async def _parse_seccion_cualitativo(self, text: str) -> dict:
+    async def _parse_seccion_cualitativo(self, text: str, year: int = 0) -> dict:
         """
-        Use Claude to extract qualitative data from section 9
-        (market vision + specific investment decisions).
+        Use Claude to extract qualitative data from section 9 subsections.
+        The text now comes pre-segmented into VISIÓN, DECISIONES, INVERSIONES blocks.
         """
         schema = {
             "contexto_mercado": (
-                "Resumen en 150-250 palabras del contexto de mercado durante el periodo, "
-                "tal como lo describe la gestora en su informe semestral: entorno macro, "
-                "movimientos relevantes de tipos/divisas/renta variable, eventos clave. "
-                "Sintetizar fielmente, no copiar literalmente."
+                "Resumen en 150-250 palabras del contexto de mercado durante el periodo. "
+                "Extraer de la sección 'VISIÓN DE LA GESTORA': entorno macro, movimientos "
+                "de tipos/divisas/renta variable, eventos clave. Sintetizar fielmente."
             ),
             "decisiones_tomadas": (
-                "Inversiones concretas realizadas durante el periodo: posiciones que más aportaron "
-                "o detractaron, cambios de cartera relevantes (entradas, salidas, aumentos de peso), "
-                "con nombres de activos específicos si se mencionan. 100-200 palabras."
+                "Resumen de las decisiones de inversión del periodo en 100-200 palabras. "
+                "Extraer de 'DECISIONES GENERALES' e 'INVERSIONES CONCRETAS': "
+                "qué posiciones se compraron, vendieron o aumentaron/redujeron peso. "
+                "Incluir nombres de activos específicos, sectores y geografías. "
+                "Si se mencionan contribuidores/detractores al rendimiento, incluirlos. "
+                "NUNCA devolver null si hay texto en estas secciones — siempre hay decisiones."
             ),
         }
         try:
             result = extract_structured_data(
-                text[:6000],
+                text[:7000],
                 schema,
                 context=(
-                    f"Sección 9 informe semestral CNMV año {self.isin}. "
-                    "Anexo explicativo de la visión gestora y decisiones de inversión. "
-                    "Sintetizar los puntos clave sin copiar literalmente el texto."
+                    f"Informe semestral CNMV {year}, fondo {self.isin}. "
+                    "El texto contiene subsecciones etiquetadas del Anexo explicativo (sección 9). "
+                    "Extraer visión del mercado y decisiones de cartera concretas. "
+                    "Es CRÍTICO extraer decisiones_tomadas — buscar en todas las subsecciones."
                 ),
             )
             return result if isinstance(result, dict) else {}

@@ -250,29 +250,6 @@ class ReadingsAgent:
         lecturas: list[dict] = []
         analisis: list[dict] = []
         fund_short = self._short_fund_name() or self.isin
-
-        # 1. Gestores: entrevistas + vídeos + perfiles
-        for gestor in self.gestores[:4]:  # max 4 gestores
-            self._log("INFO", f"Buscando entrevistas para gestor: {gestor}")
-            # Multiple query strategies to maximize coverage
-            gestor_queries = [
-                (f'"{gestor}" entrevista fondo inversión', 4),
-                (f'"{gestor}" site:youtube.com', 3),
-                (f'"{gestor}" podcast inversión', 3),
-                (f'"{gestor}" site:citywire.es OR site:citywire.com', 2),
-                (f'"{gestor}" rankia OR finect OR morningstar', 3),
-            ]
-            for q, max_r in gestor_queries:
-                res = await self._ddg_search(q, max_results=max_r)
-                lecturas.extend(self._classify(res, source_type="gestor"))
-                await asyncio.sleep(1.5)
-
-            cw = await self._get_citywire_profile(gestor)
-            if cw:
-                lecturas.append(cw)
-            await asyncio.sleep(1)
-
-        # 2. Análisis en webs especializadas — fetch + summarize cada artículo real
         seen_analysis_urls: set[str] = set()
 
         async def _process_analysis_result(r: dict, site_label: str):
@@ -282,10 +259,10 @@ class ReadingsAgent:
             if any(d in url for d in ("google.com", "duckduckgo.com", "bing.com")):
                 return
             seen_analysis_urls.add(url)
-            self._log("INFO", f"Fetching article: {url[:60]}")
+            self._log("INFO", f"Fetching article: {url[:80]}")
             resumen_generado = await self._fetch_and_summarize(url)
             if not resumen_generado and not r.get("snippet"):
-                return  # nada útil
+                return
             analisis.append({
                 "fuente":            site_label,
                 "titulo":            r.get("titulo", ""),
@@ -295,77 +272,95 @@ class ReadingsAgent:
                 "resumen_generado":  resumen_generado,
                 "palabras_estimadas": self._estimate_words(r.get("snippet", "")),
             })
-            await asyncio.sleep(1)
 
-        for site in SOURCES_ANALYSIS:
-            self._log("INFO", f"Buscando en {site}")
-            # Substack: usar site:substack.com (captura todos los subdominios)
-            if site.endswith(".substack.com"):
-                query = f'"{fund_short}" site:substack.com' if fund_short else f'{self.isin} site:substack.com'
-            # Sitios donde site: falla (SPAs, subdominios complejos): buscar nombre del sitio + fondo
-            elif site in BROAD_SEARCH_SOURCES:
-                site_kw = site.split(".")[0]  # "astralisfundsacademy" → "astralis"
-                query = f'"{fund_short}" {site_kw}' if fund_short else f'{self.isin} {site_kw}'
-            else:
-                query = f'site:{site} "{fund_short}"' if fund_short else f'site:{site} {self.isin}'
-            results = await self._ddg_search(query, max_results=4)
-            for r in results:
-                # Para broad search: filtrar que la URL pertenezca al dominio correcto
-                if site in BROAD_SEARCH_SOURCES:
-                    url = r.get("url", "")
-                    if site not in url and site.split(".")[0] not in url:
-                        continue
-                await _process_analysis_result(r, site)
-            await asyncio.sleep(1.5)
-
-        # 3. Búsqueda amplia: cualquier dominio que analice este fondo
-        #    Estrategia: buscar como lo haría un usuario manualmente — nombre del fondo
-        #    + nombre de la web de análisis como keyword (sin site:)
+        # ── PASO 1: Fuentes PRIORITARIAS — Substack, Astralis, Rankia ────────
+        # Búsquedas simples y directas, como haría un usuario en Google.
+        # Usar nombre del fondo (NO depender de gestores que pueden ser null).
         if fund_short:
-            self._log("INFO", "Búsqueda amplia de análisis (cualquier dominio)")
+            self._log("INFO", "Paso 1: Búsqueda en fuentes prioritarias (Substack, Astralis, Rankia)")
+            priority_queries = [
+                # Substack Salud Financiera — fuente principal de análisis de fondos ES
+                (f'"{fund_short}" salud financiera', "saludfinanciera.substack.com"),
+                (f'"{fund_short}" site:substack.com', "substack.com"),
+                # Astralis — entrevistas y análisis detallados
+                (f'"{fund_short}" astralis', "astralisfundsacademy.com"),
+                # Rankia — foros y análisis comunitarios
+                (f'"{fund_short}" rankia', "rankia.com"),
+            ]
+            for query, source_label in priority_queries:
+                results = await self._ddg_search(query, max_results=5)
+                for r in results:
+                    await _process_analysis_result(r, source_label)
+                await asyncio.sleep(1)
+
+        # ── PASO 2: Otras webs especializadas ─────────────────────────────────
+        if fund_short:
+            self._log("INFO", "Paso 2: Búsqueda en webs especializadas")
+            secondary_queries = [
+                (f'"{fund_short}" morningstar', "morningstar.es"),
+                (f'"{fund_short}" finect', "finect.com"),
+                (f'"{fund_short}" masdividendos', "masdividendos.com"),
+                (f'"{fund_short}" valueschool', "valueschool.es"),
+            ]
+            for query, source_label in secondary_queries:
+                results = await self._ddg_search(query, max_results=3)
+                for r in results:
+                    await _process_analysis_result(r, source_label)
+                await asyncio.sleep(1)
+
+        # ── PASO 3: Búsqueda amplia (cualquier fuente) ───────────────────────
+        if fund_short:
+            self._log("INFO", "Paso 3: Búsqueda amplia de análisis")
             broad_queries = [
                 f'"{fund_short}" análisis fondo inversión',
-                f'"{fund_short}" reseña opinión cartera',
-                f'"{fund_short}" astralis',          # usuarios buscan: "avantage fund astralis"
-                f'"{fund_short}" rankia análisis',   # usuarios buscan: "avantage fund rankia"
-                f'"{fund_short}" salud financiera',
+                f'"{fund_short}" opinión cartera',
             ]
             if self.gestora:
                 broad_queries.append(f'"{fund_short}" "{self.gestora}"')
             for bq in broad_queries:
-                results = await self._ddg_search(bq, max_results=6)
+                results = await self._ddg_search(bq, max_results=5)
                 for r in results:
-                    url = r.get("url", "")
-                    # Only fetch if it looks like a real article (not a platform search)
-                    if not url or any(d in url for d in ("google.com", "duckduckgo.com", "bing.com")):
-                        continue
-                    if not self._is_fund_related(r):
-                        continue
-                    site_label = self._extract_domain(url)
-                    await _process_analysis_result(r, site_label)
-                await asyncio.sleep(1.5)
+                    if self._is_fund_related(r):
+                        site_label = self._extract_domain(r.get("url", ""))
+                        await _process_analysis_result(r, site_label)
+                await asyncio.sleep(1)
 
-        # 4. Artículos generales del fondo (lecturas: entrevistas, noticias)
+        # ── PASO 4: Gestores — entrevistas + vídeos + perfiles ────────────────
+        # Usar nombre del fondo como query principal, gestores como refuerzo
         if fund_short:
-            self._log("INFO", "Buscando artículos generales del fondo")
-            general_queries = [
-                f'"{fund_short}" entrevista gestor fondo',
-                f'"{fund_short}" fondo inversión opinión',
-                f'"{fund_short}" site:youtube.com',
-                f'"{fund_short}" podcast',
+            self._log("INFO", "Paso 4: Buscando entrevistas y vídeos")
+            media_queries = [
+                (f'"{fund_short}" entrevista gestor', "entrevista"),
+                (f'"{fund_short}" site:youtube.com', "youtube"),
+                (f'"{fund_short}" podcast', "podcast"),
             ]
-            for gq in general_queries:
-                results = await self._ddg_search(gq, max_results=5)
+            for q, src in media_queries:
+                results = await self._ddg_search(q, max_results=4)
                 lecturas.extend(self._classify(results, source_type="fondo"))
                 await asyncio.sleep(1)
 
-        # 5. Fallback: if total analisis < 3, try ISIN-based search
+        # Gestores individuales (solo si tenemos nombres)
+        for gestor in self.gestores[:3]:
+            self._log("INFO", f"Buscando perfil gestor: {gestor}")
+            gestor_queries = [
+                (f'"{gestor}" entrevista inversión', 3),
+                (f'"{gestor}" citywire OR rankia OR finect', 3),
+            ]
+            for q, max_r in gestor_queries:
+                res = await self._ddg_search(q, max_results=max_r)
+                lecturas.extend(self._classify(res, source_type="gestor"))
+                await asyncio.sleep(1)
+            cw = await self._get_citywire_profile(gestor)
+            if cw:
+                lecturas.append(cw)
+
+        # ── PASO 5: Fallback por ISIN si pocos resultados ────────────────────
         if len(analisis) < 3:
-            self._log("INFO", f"Pocos análisis ({len(analisis)}), intentando búsqueda por ISIN")
+            self._log("INFO", f"Pocos análisis ({len(analisis)}), buscando por ISIN")
             isin_queries = [
                 f'{self.isin} análisis fondo',
-                f'{self.isin} site:morningstar.es',
-                f'{self.isin} site:rankia.com',
+                f'{self.isin} morningstar',
+                f'{self.isin} rankia',
             ]
             for iq in isin_queries:
                 results = await self._ddg_search(iq, max_results=4)
@@ -375,6 +370,23 @@ class ReadingsAgent:
                         continue
                     site_label = self._extract_domain(url)
                     await _process_analysis_result(r, site_label)
+                await asyncio.sleep(1)
+
+        # ── PASO 6: Iteración sobre URLs buenas ──────────────────────────────
+        # Si encontramos URLs de análisis, intentar descubrir más del mismo sitio
+        if analisis:
+            good_domains = set()
+            for a in analisis[:5]:
+                domain = self._extract_domain(a.get("url", ""))
+                if domain and domain not in good_domains:
+                    good_domains.add(domain)
+            for domain in list(good_domains)[:3]:
+                self._log("INFO", f"Iterando sobre dominio exitoso: {domain}")
+                iter_query = f'"{fund_short}" site:{domain}'
+                results = await self._ddg_search(iter_query, max_results=5)
+                for r in results:
+                    await _process_analysis_result(r, domain)
+                await asyncio.sleep(1)
                 await asyncio.sleep(1.5)
 
         # Dedup lecturas por URL

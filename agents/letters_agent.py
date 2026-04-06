@@ -208,17 +208,46 @@ class LettersAgent:
             except Exception as exc:
                 self._log("WARN", f"Seed URL error {seed_url[:60]}: {exc}")
 
-        # ── Phase 1c: Source discovery + parallel DDG (fallback) ──────────
+        # ── Phase 1c: Gestoras registry — check known URLs ────────────────
+        registry_path = Path(__file__).parent.parent / "data" / "gestoras_registry.json"
+        if registry_path.exists():
+            try:
+                registry = json.loads(registry_path.read_text(encoding="utf-8"))
+                for gestora_name, info in registry.get("gestoras", {}).items():
+                    if self.isin in info.get("funds", []):
+                        # Try known letter pages
+                        for page_url in info.get("letters_pages", []):
+                            self._log("INFO", f"Registry: probando {page_url[:60]}")
+                            try:
+                                links = await self._expand_url(page_url)
+                                add_candidates(links)
+                            except Exception:
+                                pass
+                        # Try known successful PDF URLs
+                        for pdf_url in info.get("successful_pdf_urls", []):
+                            add_candidates([{"url": pdf_url, "titulo": "", "is_html": False}])
+            except Exception:
+                pass
+
+        # ── Phase 1d: Source discovery + parallel DDG (fallback) ──────────
         if len(candidate_urls) < 3 and (self.fund_short or self.fund_name):
             self._log("INFO", "Pocos candidatos — activando DDG discovery")
             discovered_domains = await self._discover_sources()
-            # Try sitemaps from discovered domains too
             for domain in discovered_domains[:4]:
                 if domain not in seed_domains:
                     sitemap_links = await self._discover_via_sitemap(domain)
                     add_candidates(sitemap_links)
             ddg_links = await self._search_all_years_parallel(discovered_domains)
             add_candidates(ddg_links)
+
+        # ── Phase 1e: URL iteration — find more from good URLs ───────────
+        # If we found any URLs, iterate on them to discover other years/quarters
+        if candidate_urls:
+            good_pdf_urls = [c["url"] for c in candidate_urls if c["url"].lower().endswith(".pdf")][:5]
+            iterated = self._iterate_url_variants(good_pdf_urls)
+            add_candidates(iterated)
+            # Save successful URLs to gestoras_registry for future reuse
+            self._save_successful_urls(good_pdf_urls, registry_path)
 
         if not candidate_urls:
             self._log("WARN", "Sin cartas encontradas. Guardando JSON vacio.")
@@ -737,6 +766,91 @@ class LettersAgent:
         if href.startswith("/"):
             return base_domain + href
         return base_url.rstrip("/") + "/" + href
+
+    # ── URL iteration — discover other years/quarters from good URLs ────────
+
+    def _iterate_url_variants(self, pdf_urls: list[str]) -> list[dict]:
+        """
+        Given a list of working PDF URLs, generate variants by changing
+        year/quarter/semester patterns to discover other editions.
+
+        Example: .../2024-Q4.pdf → try 2024-Q3, 2023-Q4, 2023-Q3, etc.
+        """
+        variants: list[dict] = []
+        seen = set(pdf_urls)
+
+        for url in pdf_urls:
+            # Pattern: year in URL (e.g., /2024/ or _2024_ or -2024-)
+            year_matches = list(re.finditer(r'(?<=[/_\-])(20[12]\d)(?=[/_\-.])', url))
+            if not year_matches:
+                continue
+
+            # Use the LAST year match (most likely the report year)
+            ym = year_matches[-1]
+            base_year = int(ym.group(1))
+
+            for target_year in range(max(base_year - 5, 2015), base_year + 2):
+                if target_year == base_year:
+                    continue
+                new_url = url[:ym.start()] + str(target_year) + url[ym.end():]
+                if new_url not in seen:
+                    seen.add(new_url)
+                    variants.append({
+                        "url": new_url,
+                        "titulo": f"Variante año {target_year}",
+                        "is_html": False,
+                        "fecha_estimada": str(target_year),
+                    })
+
+            # Pattern: quarter (Q1-Q4, T1-T4) or semester (S1, S2, H1, H2)
+            q_match = re.search(r'[QqTt]([1-4])', url)
+            s_match = re.search(r'[SsHh]([12])', url)
+            if q_match:
+                for q in range(1, 5):
+                    new_url = url[:q_match.start(1)] + str(q) + url[q_match.end(1):]
+                    if new_url not in seen:
+                        seen.add(new_url)
+                        variants.append({"url": new_url, "titulo": f"Variante Q{q}", "is_html": False})
+            elif s_match:
+                other = "1" if s_match.group(1) == "2" else "2"
+                new_url = url[:s_match.start(1)] + other + url[s_match.end(1):]
+                if new_url not in seen:
+                    seen.add(new_url)
+                    variants.append({"url": new_url, "titulo": f"Variante S{other}", "is_html": False})
+
+            # Pattern: month names (enero, febrero, etc.)
+            month_pattern = r'(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)'
+            m_match = re.search(month_pattern, url, re.IGNORECASE)
+            if m_match:
+                months = ["enero", "febrero", "marzo", "abril", "mayo", "junio",
+                          "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+                for month in months:
+                    new_url = url[:m_match.start()] + month + url[m_match.end():]
+                    if new_url not in seen:
+                        seen.add(new_url)
+                        variants.append({"url": new_url, "titulo": f"Variante {month}", "is_html": False})
+
+        self._log("INFO", f"URL iteration: {len(variants)} variantes generadas de {len(pdf_urls)} URLs")
+        return variants
+
+    def _save_successful_urls(self, urls: list[str], registry_path: Path):
+        """Save successful PDF URLs to gestoras_registry.json for future reuse."""
+        if not urls or not registry_path.exists():
+            return
+        try:
+            registry = json.loads(registry_path.read_text(encoding="utf-8"))
+            for gestora_name, info in registry.get("gestoras", {}).items():
+                if self.isin in info.get("funds", []):
+                    existing = set(info.get("successful_pdf_urls", []))
+                    for url in urls:
+                        existing.add(url)
+                    info["successful_pdf_urls"] = sorted(existing)
+                    registry_path.write_text(
+                        json.dumps(registry, ensure_ascii=False, indent=2), encoding="utf-8"
+                    )
+                    break
+        except Exception:
+            pass
 
     # ── Source discovery (DDG broad, cached) ──────────────────────────────────
 

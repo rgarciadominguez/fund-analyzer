@@ -4,9 +4,14 @@ Analyst Agent — Síntesis final con Claude API
 Lee todos los JSONs parciales del fondo, unifica en el schema universal
 y llama a Claude para generar análisis cualitativo y de consistencia.
 
+Output must read like a briefing written by a senior analyst for an
+investment committee: no filler, no generic statements, maximum signal
+per sentence. Based on feedback/analyst_agent.txt prompt.
+
 Si no hay ANTHROPIC_API_KEY → campos cualitativos = null, nunca bloquea.
 """
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -19,6 +24,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.claude_extractor import extract_structured_data
 
 console = Console()
+
+# ── Analyst prompt from feedback/analyst_agent.txt ───────────────────────────
+_ANALYST_PROMPT_PATH = Path(__file__).parent.parent / "feedback" / "analyst_agent.txt"
+_ANALYST_SYSTEM_PROMPT = ""
+if _ANALYST_PROMPT_PATH.exists():
+    _ANALYST_SYSTEM_PROMPT = _ANALYST_PROMPT_PATH.read_text(encoding="utf-8")
 
 
 def _ts() -> str:
@@ -243,186 +254,236 @@ class AnalystAgent:
 
     def _enrich_with_claude(self, output: dict) -> None:
         """
-        Llama a Claude API para generar campos cualitativos faltantes.
-        Si no hay API key o falla → deja null y continúa.
+        Genera el análisis completo estilo briefing de analista senior.
+        8 secciones basadas en feedback/analyst_agent.txt.
+        Si no hay API key → deja campos null y continúa.
         """
-        import os
         api_key = os.getenv("ANTHROPIC_API_KEY", "")
         if not api_key:
             self._log("WARN", "ANTHROPIC_API_KEY no configurada — campos cualitativos quedarán null")
             return
 
-        self._log("START", "Llamando a Claude API para análisis cualitativo")
+        self._log("START", "Generando análisis estilo briefing de analista senior")
 
-        # Construir contexto con todos los datos disponibles
-        context_parts = []
+        # ── Build comprehensive context from ALL available data ───────────────
+        context_text = self._build_full_context(output)
+
+        # ── ANALYST BRIEFING: 8 sections ─────────────────────────────────────
+        # Each section is generated separately for quality and token efficiency
 
         nombre = output.get("nombre", self.isin)
         gestora = output.get("gestora", "")
-        tipo = output.get("tipo", "")
-        context_parts.append(f"Fondo: {nombre} ({self.isin}), Gestora: {gestora}, Tipo: {tipo}")
 
-        kpis = output.get("kpis", {})
-        if kpis:
-            context_parts.append(f"KPIs: AUM={kpis.get('aum_actual_meur')} M€, "
-                                  f"Partícipes={kpis.get('num_participes')}, "
-                                  f"Comisión gestión={kpis.get('coste_gestion_pct')}%, "
-                                  f"Año creación={kpis.get('anio_creacion')}")
+        analyst_base_ctx = (
+            f"Fondo: {nombre} ({self.isin}), Gestora: {gestora}. "
+            "Eres un analista senior de fondos de inversión escribiendo un briefing para "
+            "el comité de inversión. Máxima densidad de información, cero filler. "
+            "Prioriza ESPECIFICIDAD sobre generalidad. Separa HECHOS de OPINIONES. "
+            "Ignora disclaimers, regulatorio genérico y marketing."
+        )
 
-        # Datos cuantitativos disponibles
-        cuant = output.get("cuantitativo", {})
-        aum_series = cuant.get("serie_aum", [])
-        if aum_series:
-            context_parts.append(f"Serie AUM: {len(aum_series)} periodos. "
-                                  f"Último: {aum_series[-1]}")
-
-        rent_series = cuant.get("serie_rentabilidad", [])
-        if rent_series:
-            context_parts.append(f"Serie rentabilidad: {rent_series[:5]}")
-
-        # Cualitativo existente
-        cual = output.get("cualitativo", {})
-        if cual:
-            for k, v in cual.items():
-                if v:
-                    context_parts.append(f"Cualitativo.{k}: {str(v)[:200]}")
-
-        # Posiciones
-        pos = output.get("posiciones", {}).get("actuales", [])
-        if pos:
-            context_parts.append(f"Posiciones actuales ({len(pos)}): "
-                                  + ", ".join(p.get("nombre", "") for p in pos[:5]))
-
-        # Letters metadata — URLs can reveal gestor names
-        letters_path = self.fund_dir / "letters_data.json"
-        if letters_path.exists():
-            try:
-                letters_data = json.loads(letters_path.read_text(encoding="utf-8"))
-                cartas = letters_data.get("cartas", [])
-                urls = [c.get("url_fuente", "") for c in cartas if c.get("url_fuente")]
-                if urls:
-                    context_parts.append(f"URLs cartas/entrevistas: {'; '.join(urls[:8])}")
-                # Add tesis from most recent carta
-                for carta in cartas[:2]:
-                    tesis = carta.get("tesis_inversion", "")
-                    if tesis:
-                        context_parts.append(f"Tesis reciente: {tesis[:300]}")
-                        break
-            except Exception:
-                pass
-
-        context_text = "\n".join(context_parts)
-
-        # ── Cualitativo ───────────────────────────────────────────────────────
-        cualitativo_actual = output.get("cualitativo", {})
-        campos_faltantes = [k for k in ["estrategia", "filosofia_inversion",
-                                         "tipo_activos", "objetivos_reales",
-                                         "proceso_seleccion"]
-                            if not cualitativo_actual.get(k)]
-
-        if campos_faltantes:
-            # Build richer context including longitudinal data for synthesis
-            mix_hist = cuant.get("mix_activos_historico", [])
-            mix_summary = "; ".join(
-                f"{m.get('periodo')}: RF={m.get('renta_fija_pct','?')}% RV={m.get('rv_pct','?')}% Liq={m.get('liquidez_pct','?')}%"
-                for m in sorted(mix_hist, key=lambda x: str(x.get("periodo","")))[-6:]
-            ) if mix_hist else ""
-            periodos_ctx = output.get("analisis_consistencia", {}).get("periodos", [])
-            decisiones_hist = "\n".join(
-                f"[{p.get('periodo','')}] {(p.get('decisiones_tomadas') or '')[:200]}"
-                for p in sorted(periodos_ctx, key=lambda x: str(x.get("periodo","")))[-6:]
-                if p.get("decisiones_tomadas")
-            )
-            tesis_hist = "\n".join(
-                f"[{p.get('periodo','')}] {(p.get('tesis_gestora') or '')[:200]}"
-                for p in sorted(periodos_ctx, key=lambda x: str(x.get("periodo","")))[-8:]
-                if p.get("tesis_gestora")
-            )
-            enriched_context = (
-                context_text
-                + (f"\nEvolución mix activos: {mix_summary}" if mix_summary else "")
-                + (f"\nDecisiones históricas de cartera:\n{decisiones_hist}" if decisiones_hist else "")
-                + (f"\nTesis gestora por periodo:\n{tesis_hist}" if tesis_hist else "")
-            )
-
-            schema_cual = {}
-            if "estrategia" in campos_faltantes:
-                schema_cual["estrategia"] = (
-                    "Párrafo ejecutivo de 200-300 palabras sintetizando el fondo a partir de TODOS los datos "
-                    "disponibles: histórico AUM, evolución mix activos, perfil de riesgo, estilo de gestión "
-                    "observado, comportamiento en distintos entornos de mercado. "
-                    "NO copiar frases del folleto. Escribir como un analista experimentado tras leer todos los informes."
-                )
-            if "filosofia_inversion" in campos_faltantes:
-                schema_cual["filosofia_inversion"] = (
-                    "Análisis de la filosofía REAL observada en los datos (no la declaración genérica del folleto). "
-                    "Describir cómo ha evolucionado la exposición a tipos de activo año a año, si ha habido cambios "
-                    "de estilo (growth/value, RF/RV, sectores), qué principios se mantienen constantes. "
-                    "Mínimo 150 palabras, basado en los datos históricos disponibles."
-                )
-            if "proceso_seleccion" in campos_faltantes:
-                schema_cual["proceso_seleccion"] = (
-                    "Proceso de selección de activos basado en el análisis de cartera histórica y comentarios "
-                    "del gestor. Describir: criterios de inclusión (valoración, calidad, momentum, macro...), "
-                    "cuándo sale una posición (stop loss, cambio de tesis, rebalanceo), concentración habitual, "
-                    "rotación. Citar periodos si el gestor lo menciona explícitamente. Mínimo 150 palabras."
-                )
-            if "tipo_activos" in campos_faltantes:
-                schema_cual["tipo_activos"] = "Tipos de activos y geografías en los que invierte el fondo"
-            if "objetivos_reales" in campos_faltantes:
-                schema_cual["objetivos_reales"] = "Objetivo real de rentabilidad/riesgo basado en los informes"
-
-            schema_cual["gestores"] = [
-                {"nombre": "nombre completo del gestor (inferir de URLs si contiene slug tipo 'juan-gomez-bada')",
-                 "cargo": "cargo (gestor principal / portfolio manager)",
-                 "background": "trayectoria profesional breve",
-                 "anio_incorporacion": None}
-            ]
-            try:
-                result = extract_structured_data(
-                    enriched_context[:8000],
-                    schema_cual,
-                    context=(
-                        f"Análisis cualitativo del fondo de inversión {nombre}. "
-                        f"IMPORTANTE: Sintetiza a partir de los datos históricos disponibles. "
-                        f"No copies frases literales de los informes. "
-                        f"Si no hay datos suficientes para un campo, devuelve null."
-                    ),
-                )
-                if isinstance(result, dict):
-                    for k, v in result.items():
-                        if v:
-                            output.setdefault("cualitativo", {})[k] = v
-                    self._log("OK", f"Cualitativo generado: {list(result.keys())}")
-            except Exception as exc:
-                self._log("WARN", f"Error Claude cualitativo: {exc}")
-
-        # ── KPIs adicionales ──────────────────────────────────────────────────
+        # Section 1: Fund Snapshot (mostly from structured data, fill gaps)
         kpis_faltantes = [k for k in ["clasificacion", "benchmark"]
                           if not output.get("kpis", {}).get(k)]
         if kpis_faltantes:
-            schema_kpis = {k: f"valor de {k}" for k in kpis_faltantes}
             try:
                 result = extract_structured_data(
-                    context_text, schema_kpis,
-                    context=f"KPIs del fondo {nombre}. "
-                            f"clasificacion = categoría Morningstar o CNMV. "
-                            f"benchmark = índice de referencia del fondo.",
+                    context_text[:3000],
+                    {k: f"valor de {k}" for k in kpis_faltantes},
+                    context=f"KPIs del fondo {nombre}. clasificacion=categoría CNMV/Morningstar. benchmark=índice de referencia.",
                 )
                 if isinstance(result, dict):
                     for k, v in result.items():
                         if v:
                             output.setdefault("kpis", {})[k] = v
-                    self._log("OK", f"KPIs inferidos: {list(result.keys())}")
             except Exception as exc:
-                self._log("WARN", f"Error Claude KPIs: {exc}")
+                self._log("WARN", f"Error KPIs: {exc}")
+
+        # Section 2: Investment Philosophy
+        cual = output.get("cualitativo", {})
+        if not cual.get("filosofia_inversion"):
+            try:
+                result = extract_structured_data(
+                    context_text[:6000],
+                    {"filosofia_inversion": (
+                        "Análisis de la filosofía de inversión REAL observada, no la declaración de marketing. "
+                        "En 200-300 palabras: qué busca el gestor (métricas concretas como ROCE, PER, net cash), "
+                        "qué evita, actitud hacia macro vs bottom-up, horizonte temporal, "
+                        "concentración habitual (número de posiciones), uso de cash/derivados. "
+                        "Basarse en las decisiones históricas y evolución de cartera, no en el folleto."
+                    )},
+                    context=analyst_base_ctx,
+                )
+                if isinstance(result, dict) and result.get("filosofia_inversion"):
+                    output.setdefault("cualitativo", {})["filosofia_inversion"] = result["filosofia_inversion"]
+            except Exception as exc:
+                self._log("WARN", f"Error filosofía: {exc}")
+
+        # Section 2b: Estrategia (complementa filosofía)
+        if not cual.get("estrategia"):
+            try:
+                result = extract_structured_data(
+                    context_text[:5000],
+                    {"estrategia": (
+                        "Párrafo ejecutivo de 150-200 palabras resumiendo el fondo: clase de activo, "
+                        "geografía, estilo (value/growth/blend), nivel de riesgo observado, "
+                        "rango típico de posiciones, comportamiento en distintos ciclos de mercado. "
+                        "Escribir como analista experimentado, no copiar folleto."
+                    ),
+                     "tipo_activos": "Tipos de activos específicos (renta variable europea, RF investment grade, etc.)",
+                     "objetivos_reales": "Objetivo real de rentabilidad/riesgo inferido de los datos históricos",
+                     "proceso_seleccion": (
+                        "Proceso de selección observado: criterios de entrada (valoración, calidad, momentum), "
+                        "triggers de salida, concentración, rotación. 100-150 palabras."
+                     )},
+                    context=analyst_base_ctx,
+                )
+                if isinstance(result, dict):
+                    for k, v in result.items():
+                        if v:
+                            output.setdefault("cualitativo", {})[k] = v
+            except Exception as exc:
+                self._log("WARN", f"Error estrategia: {exc}")
+
+        # Section 3: Portfolio Managers
+        gestores_actual = cual.get("gestores", [])
+        if not gestores_actual or not any(g.get("nombre") for g in gestores_actual):
+            try:
+                result = extract_structured_data(
+                    context_text[:5000],
+                    {"gestores": [{
+                        "nombre": "nombre completo de persona física que gestiona/asesora el fondo",
+                        "cargo": "gestor principal, asesor, portfolio manager, director de inversiones",
+                        "background": "trayectoria: firmas anteriores, educación, años experiencia",
+                        "anio_incorporacion": None,
+                    }]},
+                    context=(
+                        f"{analyst_base_ctx} "
+                        "Buscar nombres en portada, sección de gestión, URLs de cartas "
+                        "(slugs tipo 'juan-gomez-bada' revelan nombres). "
+                        "Solo personas FÍSICAS, no sociedades gestoras."
+                    ),
+                )
+                if isinstance(result, dict) and result.get("gestores"):
+                    gestores_filtrados = [g for g in result["gestores"] if g and g.get("nombre")]
+                    if gestores_filtrados:
+                        output.setdefault("cualitativo", {})["gestores"] = gestores_filtrados
+            except Exception as exc:
+                self._log("WARN", f"Error gestores: {exc}")
+
+        # Section 8: Analyst Synthesis (green flags, red flags, signal)
+        try:
+            result = extract_structured_data(
+                context_text[:8000],
+                {"analyst_synthesis": {
+                    "green_flags": ["máximo 5 puntos fuertes concretos del fondo/gestor (no genéricos)"],
+                    "red_flags": ["máximo 5 puntos de preocupación: style drift, AUM impact, key-man risk, inconsistencias"],
+                    "signal": "STRONG CONVICTION | MONITOR | PASS",
+                    "signal_rationale": "párrafo de 2-3 frases justificando la señal con datos concretos",
+                }},
+                context=(
+                    f"{analyst_base_ctx} "
+                    "Esta sección es TU juicio analítico, no resumen de lo que dice el gestor. "
+                    "Evalúa: consistencia filosofía-acción, impact de AUM en estrategia, key-man risk, "
+                    "track record en distintos ciclos, honestidad en comunicación."
+                ),
+            )
+            if isinstance(result, dict) and result.get("analyst_synthesis"):
+                output.setdefault("cualitativo", {})["analyst_synthesis"] = result["analyst_synthesis"]
+                self._log("OK", "Analyst synthesis generada")
+        except Exception as exc:
+            self._log("WARN", f"Error analyst synthesis: {exc}")
 
         self._log("OK", "Enriquecimiento Claude completado")
 
         # ── Historia del fondo ────────────────────────────────────────────────
-        # Generate rich narrative if historia_fondo is empty
         if not output.get("cualitativo", {}).get("historia_fondo"):
             self._generate_historia_fondo(output)
+
+    def _build_full_context(self, output: dict) -> str:
+        """Build comprehensive text context from all available data for Claude."""
+        parts = []
+        nombre = output.get("nombre", self.isin)
+        gestora = output.get("gestora", "")
+        tipo = output.get("tipo", "")
+        parts.append(f"Fondo: {nombre} ({self.isin}), Gestora: {gestora}, Tipo: {tipo}")
+
+        kpis = output.get("kpis", {})
+        if kpis:
+            parts.append(f"KPIs: AUM={kpis.get('aum_actual_meur')} M€, "
+                         f"Partícipes={kpis.get('num_participes')}, "
+                         f"Comisión gestión={kpis.get('coste_gestion_pct')}%, "
+                         f"TER={kpis.get('ter_pct')}%, "
+                         f"Año creación={kpis.get('anio_creacion')}, "
+                         f"Rotación cartera={kpis.get('rotacion_cartera_pct')}")
+
+        cuant = output.get("cuantitativo", {})
+        aum_series = cuant.get("serie_aum", [])
+        if aum_series:
+            aum_txt = ", ".join(f"{e['periodo']}: {e.get('valor_meur','')}M€" for e in sorted(aum_series, key=lambda x: x.get("periodo",""))[-8:])
+            parts.append(f"Evolución AUM: {aum_txt}")
+
+        rent_series = cuant.get("serie_rentabilidad", [])
+        if rent_series:
+            parts.append(f"Rentabilidad: {rent_series[:6]}")
+
+        mix_hist = cuant.get("mix_activos_historico", [])
+        if mix_hist:
+            mix_txt = "; ".join(
+                f"{m.get('periodo')}: RV={m.get('rv_pct','?')}% RF={m.get('renta_fija_pct','?')}% Liq={m.get('liquidez_pct','?')}%"
+                for m in sorted(mix_hist, key=lambda x: str(x.get("periodo","")))[-6:]
+            )
+            parts.append(f"Mix activos histórico: {mix_txt}")
+
+        cual = output.get("cualitativo", {})
+        for k in ["estrategia", "filosofia_inversion", "tipo_activos"]:
+            if cual.get(k):
+                parts.append(f"{k}: {str(cual[k])[:300]}")
+
+        pos = output.get("posiciones", {}).get("actuales", [])
+        if pos:
+            pos_txt = "\n".join(f"  {p.get('nombre','')} ({p.get('ticker','')}) {p.get('peso_pct','')}% {p.get('sector','')}" for p in pos[:15])
+            parts.append(f"Top posiciones ({len(pos)} total):\n{pos_txt}")
+
+        periodos = output.get("analisis_consistencia", {}).get("periodos", [])
+        if periodos:
+            for p in sorted(periodos, key=lambda x: x.get("periodo",""))[-6:]:
+                periodo_parts = [f"[{p.get('periodo','')}]"]
+                if p.get("tesis_gestora"):
+                    periodo_parts.append(f"Tesis: {p['tesis_gestora'][:200]}")
+                if p.get("decisiones_tomadas"):
+                    periodo_parts.append(f"Decisiones: {p['decisiones_tomadas'][:200]}")
+                if p.get("contexto_mercado"):
+                    periodo_parts.append(f"Mercado: {p['contexto_mercado'][:150]}")
+                parts.append(" | ".join(periodo_parts))
+
+        # Letters data
+        letters_path = self.fund_dir / "letters_data.json"
+        if letters_path.exists():
+            try:
+                letters_data = json.loads(letters_path.read_text(encoding="utf-8"))
+                cartas = letters_data.get("cartas", [])
+                for carta in cartas[:3]:
+                    tesis = carta.get("tesis_inversion", "")
+                    if tesis:
+                        parts.append(f"Carta [{carta.get('periodo','')}]: {tesis[:300]}")
+            except Exception:
+                pass
+
+        # Readings data
+        for fname in ["lecturas.json", "analisis_externos.json"]:
+            fpath = self.fund_dir / fname
+            if fpath.exists():
+                try:
+                    data = json.loads(fpath.read_text(encoding="utf-8"))
+                    for item in (data.get("lecturas", []) + data.get("analisis", []))[:3]:
+                        resumen = item.get("resumen_generado", "") or item.get("resumen", "")
+                        if resumen:
+                            parts.append(f"Análisis externo [{item.get('fuente','')}]: {resumen[:300]}")
+                except Exception:
+                    pass
+
+        return "\n".join(parts)
 
     def _generate_historia_fondo(self, output: dict) -> None:
         """
