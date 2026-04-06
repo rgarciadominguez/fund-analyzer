@@ -1409,7 +1409,17 @@ class CNMVAgent:
             result.setdefault("cuantitativo", {})["serie_aum"] = sorted(
                 existing.values(), key=lambda x: x["periodo"]
             )
-            result["kpis"]["aum_actual_meur"] = serie_aum_pdf[0]["valor_meur"]
+            # Only update aum_actual_meur if PDF's most recent entry is newer than XML's
+            sorted_pdf = sorted(serie_aum_pdf, key=lambda x: x["periodo"])
+            latest_pdf_periodo = sorted_pdf[-1]["periodo"]
+            all_series = list(result.get("cuantitativo", {}).get("serie_aum", {}).values()) \
+                if isinstance(result.get("cuantitativo", {}).get("serie_aum"), dict) \
+                else result.get("cuantitativo", {}).get("serie_aum", [])
+            latest_xml_periodo = max(
+                (e["periodo"] for e in all_series), default=""
+            )
+            if latest_pdf_periodo >= latest_xml_periodo or result["kpis"].get("aum_actual_meur") is None:
+                result["kpis"]["aum_actual_meur"] = sorted_pdf[-1]["valor_meur"]
 
         # Mix activos historico
         if pdf_data.get("mix_activos_historico"):

@@ -293,6 +293,24 @@ class AnalystAgent:
             context_parts.append(f"Posiciones actuales ({len(pos)}): "
                                   + ", ".join(p.get("nombre", "") for p in pos[:5]))
 
+        # Letters metadata — URLs can reveal gestor names
+        letters_path = self.fund_dir / "letters_data.json"
+        if letters_path.exists():
+            try:
+                letters_data = json.loads(letters_path.read_text(encoding="utf-8"))
+                cartas = letters_data.get("cartas", [])
+                urls = [c.get("url_fuente", "") for c in cartas if c.get("url_fuente")]
+                if urls:
+                    context_parts.append(f"URLs cartas/entrevistas: {'; '.join(urls[:8])}")
+                # Add tesis from most recent carta
+                for carta in cartas[:2]:
+                    tesis = carta.get("tesis_inversion", "")
+                    if tesis:
+                        context_parts.append(f"Tesis reciente: {tesis[:300]}")
+                        break
+            except Exception:
+                pass
+
         context_text = "\n".join(context_parts)
 
         # ── Cualitativo ───────────────────────────────────────────────────────
@@ -305,7 +323,9 @@ class AnalystAgent:
         if campos_faltantes:
             schema_cual = {k: f"descripción de {k} del fondo" for k in campos_faltantes}
             schema_cual["gestores"] = [
-                {"nombre": "nombre", "cargo": "cargo", "background": "trayectoria",
+                {"nombre": "nombre completo del gestor (inferir de URLs si contiene slug tipo 'juan-gomez-bada')",
+                 "cargo": "cargo (gestor principal / portfolio manager)",
+                 "background": "trayectoria profesional breve",
                  "anio_incorporacion": None}
             ]
             try:
