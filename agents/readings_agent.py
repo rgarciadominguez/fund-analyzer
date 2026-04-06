@@ -29,6 +29,7 @@ from tools.http_client import get, get_with_headers
 console = Console(highlight=False, force_terminal=False)
 
 SOURCES_ANALYSIS = [
+    "saludfinanciera.substack.com",   # Substack newsletter de análisis de fondos ES
     "saludfinanciera.es",
     "astralis.es",
     "morningstar.es",
@@ -36,7 +37,14 @@ SOURCES_ANALYSIS = [
     "finect.com",
     "investing.com",
     "elblogsalmon.com",
+    "riverpatrimonio.com",
+    "inversor-tranquilo.com",
+    "valueschool.es",
+    "masdividendos.com",
 ]
+
+# Para Substack usamos búsqueda amplia (no site:) porque los perfiles son subdominios
+SUBSTACK_QUERY_PATTERN = '"{fund_short}" site:substack.com'
 
 DDG_HEADERS = {
     "Accept-Language": "es-ES,es;q=0.9",
@@ -249,35 +257,68 @@ class ReadingsAgent:
             await asyncio.sleep(1)
 
         # 2. Análisis en webs especializadas — fetch + summarize cada artículo real
+        seen_analysis_urls: set[str] = set()
+
+        async def _process_analysis_result(r: dict, site_label: str):
+            url = r.get("url", "")
+            if not url or url in seen_analysis_urls:
+                return
+            if any(d in url for d in ("google.com", "duckduckgo.com", "bing.com")):
+                return
+            seen_analysis_urls.add(url)
+            self._log("INFO", f"Fetching article: {url[:60]}")
+            resumen_generado = await self._fetch_and_summarize(url)
+            if not resumen_generado and not r.get("snippet"):
+                return  # nada útil
+            analisis.append({
+                "fuente":            site_label,
+                "titulo":            r.get("titulo", ""),
+                "url":               url,
+                "fecha":             "",
+                "resumen":           r.get("snippet", ""),
+                "resumen_generado":  resumen_generado,
+                "palabras_estimadas": self._estimate_words(r.get("snippet", "")),
+            })
+            await asyncio.sleep(1)
+
         for site in SOURCES_ANALYSIS:
             self._log("INFO", f"Buscando en {site}")
-            query = f'site:{site} "{fund_short}"' if fund_short else f'site:{site} {self.isin}'
+            # Substack — usar site:substack.com para capturar todos los subdominios
+            if site.endswith(".substack.com"):
+                query = f'"{fund_short}" site:substack.com' if fund_short else f'{self.isin} site:substack.com'
+            else:
+                query = f'site:{site} "{fund_short}"' if fund_short else f'site:{site} {self.isin}'
             results = await self._ddg_search(query, max_results=4)
             for r in results:
-                url = r.get("url", "")
-                # Skip search engine redirect URLs
-                if any(d in url for d in ("google.com", "duckduckgo.com", "bing.com")):
-                    continue
-                if not self._is_substantial(r):
-                    continue
-                self._log("INFO", f"Fetching article: {url[:60]}")
-                resumen_generado = await self._fetch_and_summarize(url)
-                analisis.append({
-                    "fuente":            site,
-                    "titulo":            r.get("titulo", ""),
-                    "url":               url,
-                    "fecha":             "",
-                    "resumen":           r.get("snippet", ""),
-                    "resumen_generado":  resumen_generado,
-                    "palabras_estimadas": self._estimate_words(r.get("snippet", "")),
-                })
-                await asyncio.sleep(1)
+                await _process_analysis_result(r, site)
             await asyncio.sleep(1.5)
 
-        # 3. Artículos generales del fondo (sin site: filter)
+        # 3. Búsqueda amplia: cualquier dominio que analice este fondo
+        if fund_short:
+            self._log("INFO", "Búsqueda amplia de análisis (cualquier dominio)")
+            broad_queries = [
+                f'"{fund_short}" análisis fondo inversión',
+                f'"{fund_short}" reseña opinión cartera',
+            ]
+            if self.gestora:
+                broad_queries.append(f'"{fund_short}" "{self.gestora}"')
+            for bq in broad_queries:
+                results = await self._ddg_search(bq, max_results=6)
+                for r in results:
+                    url = r.get("url", "")
+                    # Only fetch if it looks like a real article (not a platform search)
+                    if not url or any(d in url for d in ("google.com", "duckduckgo.com", "bing.com")):
+                        continue
+                    if not self._is_fund_related(r):
+                        continue
+                    site_label = self._extract_domain(url)
+                    await _process_analysis_result(r, site_label)
+                await asyncio.sleep(1.5)
+
+        # 4. Artículos generales del fondo (lecturas: entrevistas, noticias)
         if fund_short:
             self._log("INFO", "Buscando artículos generales del fondo")
-            results = await self._ddg_search(f'"{fund_short}" análisis reseña fondo')
+            results = await self._ddg_search(f'"{fund_short}" entrevista gestor fondo')
             lecturas.extend(self._classify(results, source_type="fondo"))
             await asyncio.sleep(1)
 
@@ -285,7 +326,7 @@ class ReadingsAgent:
             lecturas.extend(self._classify(results2, source_type="fondo"))
             await asyncio.sleep(1)
 
-        # Dedup por URL
+        # Dedup lecturas por URL
         seen_urls: set[str] = set()
         lecturas_dedup = []
         for item in lecturas:
@@ -294,12 +335,8 @@ class ReadingsAgent:
                 seen_urls.add(url)
                 lecturas_dedup.append(item)
 
-        analisis_dedup = []
-        for item in analisis:
-            url = item.get("url", "")
-            if url and url not in seen_urls:
-                seen_urls.add(url)
-                analisis_dedup.append(item)
+        # analisis ya está deduplicado por seen_analysis_urls
+        analisis_dedup = analisis
 
         # Guardar
         lecturas_out = {"lecturas": lecturas_dedup, "generado": datetime.now().isoformat()}

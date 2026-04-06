@@ -61,6 +61,10 @@ _ISIN_LETTERS_URLS: dict[str, list[str]] = {
         "https://dunascapital.com/publicaciones/",
         "https://www.dunas.es/publicaciones/",
     ],
+    "ES0112231008": [  # Avantage Fund FI (now Renta 4)
+        "https://www.avantagecapital.com/informes-mensuales-pdf/",
+        "https://www.avantagecapital.com/",
+    ],
 }
 
 # Generic sources by ISIN prefix
@@ -74,6 +78,14 @@ _GESTORA_LETTERS_URLS: dict[str, list[str]] = {
 BLOG_INDEX_PATHS = re.compile(
     r"/tag/|/category/|/blog/?$|/publicaciones/?$|/cartas/?$|"
     r"/newsletters?/?$|/comentarios?/?$|/archivo/?$|/news/?$|/noticias/?$",
+    re.IGNORECASE,
+)
+
+# URL path patterns for fund document library pages (all PDFs on page belong to this fund)
+PUBLICATION_PAGE_PATHS = re.compile(
+    r"/informes?(-mensuales?|-trimestrales?|-semestrales?|-pdf)?/?$|"
+    r"/cartas?(-gestores?|-trimestrales?)?/?$|"
+    r"/documentos?/?$|/descargas?/?$|/downloads?/?$",
     re.IGNORECASE,
 )
 
@@ -471,6 +483,10 @@ class LettersAgent:
         url_type = self._classify_url(url, soup)
         self._log("INFO", f"[{url_type}] {url[:70]}")
 
+        if url_type == "publication_list":
+            # All PDFs on this page belong to this fund — extract without per-link filter
+            return self._extract_all_pdfs_from_page(soup, url)
+
         if url_type == "blog_index":
             return await self._scrape_blog_index(url, soup)
 
@@ -482,37 +498,86 @@ class LettersAgent:
 
         return []
 
+    # ── Publication list extraction ───────────────────────────────────────────
+
+    def _extract_all_pdfs_from_page(self, soup: BeautifulSoup, base_url: str) -> list[dict]:
+        """
+        Extract ALL PDF links from a document library page.
+        Used when the page itself is already verified to belong to this fund
+        (e.g. avantagecapital.com/informes-mensuales-pdf/), so no per-link
+        fund-keyword filtering is needed — every PDF on the page is a candidate.
+        """
+        parsed_base = urlparse(base_url)
+        base_domain = f"{parsed_base.scheme}://{parsed_base.netloc}"
+        entries: list[dict] = []
+        seen: set[str] = set()
+
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if ".pdf" not in href.lower():
+                continue
+            full_url = self._abs_url(href, base_url, base_domain)
+            if not full_url or full_url in seen:
+                continue
+            seen.add(full_url)
+            text = a.get_text(strip=True) or href.split("/")[-1]
+            fecha = self._extract_date_hint(text + " " + href)
+            entries.append({
+                "url": full_url,
+                "titulo": text[:120] or full_url.split("/")[-1],
+                "fecha_estimada": fecha,
+                "is_html": False,
+            })
+
+        self._log("INFO", f"Publication list {base_url[:60]}: {len(entries)} PDFs")
+        return entries
+
     # ── URL classification ────────────────────────────────────────────────────
 
-    def _classify_url(self, url: str, soup: BeautifulSoup) -> Literal["article", "blog_index", "unknown"]:
+    def _classify_url(self, url: str, soup: BeautifulSoup) -> Literal["article", "blog_index", "publication_list", "unknown"]:
         """
-        Classify a fetched URL as a blog index, individual article, or unknown.
+        Classify a fetched URL as:
+          - blog_index:        list of articles/posts
+          - publication_list:  document library page (all PDFs belong to this fund)
+          - article:           single article/post
+          - unknown
         Order of checks: path patterns -> structural HTML signals -> content length.
         """
         path = urlparse(url).path.lower()
 
-        # 1. Path-based: definitive index patterns
+        # 1. Publication library pages (Elementor accordion, toggle, etc.)
+        #    ALL PDFs on these pages belong to this fund — no per-link filtering needed
+        if PUBLICATION_PAGE_PATHS.search(path):
+            return "publication_list"
+
+        # 2. Count PDF links — 3+ PDFs = document library
+        pdf_links = [a for a in soup.find_all("a", href=True)
+                     if ".pdf" in a["href"].lower()]
+        if len(pdf_links) >= 3:
+            return "publication_list"
+
+        # 3. Path-based: definitive index patterns
         if BLOG_INDEX_PATHS.search(path):
             return "blog_index"
 
-        # 2. Structural: multiple <article> elements → index
+        # 4. Structural: multiple <article> elements → index
         articles = soup.find_all("article")
         if len(articles) >= 3:
             return "blog_index"
 
-        # 3. Structural: multiple <time> elements → list of dated posts
+        # 5. Structural: multiple <time> elements → list of dated posts
         times = soup.find_all("time")
         if len(times) >= 3:
             return "blog_index"
 
-        # 4. Structural: explicit pagination element
+        # 6. Structural: explicit pagination element
         pagination = soup.find(attrs={"class": re.compile(
             r"paginat|next-page|page-link|wp-pagenavi|page-numbers", re.I
         )})
         if pagination:
             return "blog_index"
 
-        # 5. Content-based: long article (4+ substantial paragraphs)
+        # 7. Content-based: long article (4+ substantial paragraphs)
         paragraphs = [p.get_text(strip=True) for p in soup.find_all("p")
                       if len(p.get_text(strip=True)) > 60]
         if len(paragraphs) >= 4:
@@ -695,6 +760,7 @@ class LettersAgent:
         discovery_queries = [
             f'"{fund_q}" carta gestores',
             f'"{fund_q}" informe trimestral',
+            f'"{fund_q}" informes mensuales pdf',
             f'"{self.gestora}" cartas gestores inversión' if self.gestora else f'"{fund_q}" carta',
         ]
 
@@ -772,13 +838,14 @@ class LettersAgent:
             return result
 
     async def _search_year(self, year: int, domains: list[str]) -> list[dict]:
-        """Build 3 DDG queries for a year and collect matching letter URLs."""
+        """Build DDG queries for a year and collect matching letter URLs."""
         fund_q = self.fund_short or self.fund_name
         queries: list[str] = []
 
-        # 1. Generic fund + year
+        # 1. Generic fund + year (carta / informe)
         if fund_q:
             queries.append(f'"{fund_q}" carta {year}')
+            queries.append(f'"{fund_q}" informe {year}')
 
         # 2. Domain-specific for top 2 discovered domains
         for domain in domains[:2]:
@@ -790,7 +857,7 @@ class LettersAgent:
 
         found: list[dict] = []
         seen: set[str] = set()
-        for query in queries[:3]:
+        for query in queries[:4]:
             results = await self._ddg_search(query, max_results=4)
             for r in results:
                 url = r.get("url", "")
@@ -798,7 +865,10 @@ class LettersAgent:
                     continue
                 seen.add(url)
                 combined = (url + " " + r.get("titulo", "")).lower()
-                if not re.search(r"\.pdf|carta|letter|trimestral|quarterly|comentario|informe", combined):
+                if not re.search(
+                    r"\.pdf|carta|letter|trimestral|quarterly|comentario|informe|mensual",
+                    combined,
+                ):
                     continue
                 found.append({
                     "url": url,
