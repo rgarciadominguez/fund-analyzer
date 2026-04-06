@@ -20,113 +20,162 @@ st.set_page_config(
 )
 
 # ── Session state defaults ────────────────────────────────────────────────────
-if "dark_mode" not in st.session_state:
-    st.session_state.dark_mode = False
 if "selected_isin" not in st.session_state:
     st.session_state.selected_isin = None
 
-# ── Theme variables ───────────────────────────────────────────────────────────
-DK = st.session_state.dark_mode
-
-BG          = "#0f1117" if DK else "#f5f7fa"
-BG2         = "#161b27" if DK else "#ffffff"
-BG3         = "#1c2333" if DK else "#f0f4f8"
-BORDER      = "#2d3748" if DK else "#dde3ed"
-TEXT        = "#e0e0e0" if DK else "#1a202c"
-TEXT2       = "#8892a4" if DK else "#64748b"
-TEXT3       = "#6b7a99" if DK else "#94a3b8"
-ACCENT      = "#3b82f6"
-GREEN       = "#10b981"
-RED         = "#f87171"
-YELLOW      = "#f59e0b"
-PURPLE      = "#8b5cf6"
-HEADER_BG   = "#1a2540" if DK else "#1e3a5f"
+# ── Design system — executive light palette ───────────────────────────────────
+BG     = "#f5f7fa"
+BG2    = "#ffffff"
+BG3    = "#fafafa"
+BORDER = "#e5e5e5"
+TEXT   = "#1a1a1a"
+TEXT2  = "#444444"
+TEXT3  = "#888888"
+ACCENT = "#1a1a2e"       # dark navy — UI accents, badges, borders
+CHART  = "#2563eb"       # mid-blue — chart bars (legible on white)
+GREEN  = "#2e7d32"       # badge green (earthy)
+GREEN_CHART = "#10b981"  # chart green (vivid, legible)
+RED    = "#c62828"       # badge red
+RED_CHART = "#ef4444"    # chart red
+YELLOW = "#b45309"       # amber for badges
+YELLOW_CHART = "#f59e0b" # chart amber
+PURPLE = "#7c3aed"
 
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <style>
-  .stApp {{ background-color: {BG}; color: {TEXT}; }}
-  section[data-testid="stSidebar"] {{ display: none; }}
-  header[data-testid="stHeader"] {{ display: none; }}
-  .block-container {{ padding: 1rem 2rem 2rem 2rem; max-width: 1400px; }}
+/* ── Base ── */
+.stApp {{ background-color: {BG}; color: {TEXT}; }}
+section[data-testid="stSidebar"] {{ display: none; }}
+header[data-testid="stHeader"] {{ display: none; }}
+.block-container {{ padding: 1rem 2rem 2rem 2rem; max-width: 1400px; }}
 
-  .stTabs [data-baseweb="tab-list"] {{
-    background: {BG2}; border-radius: 10px; padding: 4px;
-    border: 1px solid {BORDER}; gap: 2px;
-  }}
-  .stTabs [data-baseweb="tab"] {{
-    background: transparent; color: {TEXT2}; border-radius: 8px;
-    font-size: 13px; font-weight: 500; padding: 6px 14px; border: none;
-  }}
-  .stTabs [aria-selected="true"] {{ background: {ACCENT} !important; color: white !important; }}
-  .stTabs [data-baseweb="tab-panel"] {{ padding-top: 16px; }}
+/* ── Tipografía y jerarquía ── */
+h1, h2, h3 {{ font-family: 'Georgia', serif; letter-spacing: -0.02em; }}
+h1 {{ font-size: 1.8rem; font-weight: 700; color: #0d0d0d; margin-bottom: 0.25rem; }}
+h2 {{ font-size: 1.25rem; font-weight: 700; color: {TEXT}; margin-bottom: 0.5rem;
+      border-bottom: 1px solid {BORDER}; padding-bottom: 0.4rem; }}
+h3 {{ font-size: 1rem; font-weight: 600; color: #333; margin-bottom: 0.3rem; }}
+p, li {{ font-size: 0.92rem; color: {TEXT2}; line-height: 1.75; }}
+.meta {{ font-size: 0.78rem; color: {TEXT3}; text-transform: uppercase;
+         letter-spacing: 0.06em; font-weight: 600; }}
 
-  .card {{
-    background: {BG2}; border: 1px solid {BORDER};
-    border-radius: 10px; padding: 16px 20px;
-  }}
-  .kpi-card {{
-    background: {BG2}; border: 1px solid {BORDER};
-    border-radius: 10px; padding: 14px 18px; text-align: center;
-  }}
-  .kpi-label {{ font-size: 10px; color: {TEXT2}; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }}
-  .kpi-value {{ font-size: 22px; font-weight: 700; color: {TEXT}; line-height: 1.1; }}
-  .kpi-sub   {{ font-size: 11px; color: {TEXT3}; margin-top: 3px; }}
+/* ── Métricas st.metric ── */
+[data-testid="stMetric"] {{
+  border: 1px solid {BORDER}; border-radius: 8px;
+  padding: 0.75rem 1rem; background: {BG2};
+}}
+[data-testid="stMetricLabel"] {{
+  font-size: 0.72rem !important; text-transform: uppercase;
+  letter-spacing: 0.05em; color: {TEXT3} !important;
+}}
+[data-testid="stMetricValue"] {{
+  font-size: 1.4rem !important; font-weight: 700 !important; color: {TEXT} !important;
+}}
 
-  .sec {{ font-size: 12px; font-weight: 700; color: {TEXT2}; text-transform: uppercase;
-          letter-spacing: 1px; border-bottom: 1px solid {BORDER};
-          padding-bottom: 6px; margin: 20px 0 12px 0; }}
+/* ── Tabs ── */
+.stTabs [data-baseweb="tab-list"] {{
+  background: {BG2}; border-radius: 10px; padding: 4px;
+  border: 1px solid {BORDER}; gap: 2px;
+}}
+.stTabs [data-baseweb="tab"] {{
+  background: transparent; color: {TEXT2}; border-radius: 8px;
+  font-size: 13px; font-weight: 500; padding: 6px 14px; border: none;
+}}
+.stTabs [aria-selected="true"] {{ background: {ACCENT} !important; color: white !important; }}
+.stTabs [data-baseweb="tab-panel"] {{ padding-top: 16px; }}
 
-  .tl-wrap {{ position: relative; padding-left: 28px; }}
-  .tl-line {{ position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: {BORDER}; }}
-  .tl-item {{ position: relative; margin-bottom: 16px; }}
-  .tl-dot {{ width: 10px; height: 10px; background: {ACCENT}; border-radius: 50%;
-              position: absolute; left: -24px; top: 4px; border: 2px solid {BG2}; }}
-  .tl-dot-reg {{ background: {YELLOW}; }}
-  .tl-year {{ display: inline-block; background: {ACCENT}; color: #fff;
-              border-radius: 12px; padding: 1px 10px; font-size: 11px;
-              font-weight: 700; margin-bottom: 4px; }}
-  .tl-year-reg {{ background: {YELLOW}; color: #1a202c; }}
-  .tl-text {{ font-size: 13px; color: {TEXT}; line-height: 1.6; }}
-  .tl-label {{ font-size: 10px; color: {TEXT3}; text-transform: uppercase; margin-top: 3px; }}
+/* ── Componentes ── */
+.card {{
+  background: {BG2}; border: 1px solid {BORDER};
+  border-radius: 10px; padding: 16px 20px;
+}}
+.content-block {{
+  padding: 1.25rem 1.5rem; background: {BG3};
+  border-left: 3px solid {ACCENT};
+  border-radius: 0 6px 6px 0; margin-bottom: 1.5rem;
+}}
+.kpi-card {{
+  background: {BG2}; border: 1px solid {BORDER};
+  border-radius: 10px; padding: 14px 18px; text-align: center;
+}}
+.kpi-label {{ font-size: 10px; color: {TEXT3}; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }}
+.kpi-value {{ font-size: 22px; font-weight: 700; color: {TEXT}; line-height: 1.1; }}
+.kpi-sub   {{ font-size: 11px; color: {TEXT3}; margin-top: 3px; }}
 
-  .sbox {{
-    background: {"#111827" if DK else "#f8fafc"};
-    border: 1px solid {BORDER}; border-radius: 8px; padding: 12px 14px;
-    font-size: 13px; color: {TEXT}; line-height: 1.7;
-    max-height: 220px; overflow-y: auto;
-  }}
+/* ── Separadores y secciones ── */
+.sec {{
+  font-size: 12px; font-weight: 700; color: {TEXT3}; text-transform: uppercase;
+  letter-spacing: 1px; border-bottom: 1px solid {BORDER};
+  padding-bottom: 6px; margin: 20px 0 12px 0;
+}}
+.section-divider {{ border: none; border-top: 1px solid {BORDER}; margin: 2rem 0; }}
 
-  .pos-row {{ padding: 7px 0; border-bottom: 1px solid {BORDER}; font-size: 13px; }}
+/* ── Badges ── */
+.year-badge {{
+  display: inline-block; font-size: 0.75rem; font-weight: 700;
+  background: {ACCENT}; color: white; border-radius: 4px;
+  padding: 2px 8px; letter-spacing: 0.04em;
+}}
+.badge-pos {{ background: #e8f5e9; color: {GREEN}; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }}
+.badge-neg {{ background: #fdecea; color: {RED}; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }}
+.badge-neu {{ background: #f5f5f5; color: {TEXT3}; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }}
 
-  .streamlit-expanderHeader {{
-    background: {BG3} !important; border-radius: 8px !important;
-    font-size: 13px !important; color: {TEXT} !important;
-  }}
-  div[data-testid="stExpander"] > details > summary {{
-    background: {BG3}; border-radius: 8px; padding: 8px 14px;
-  }}
+/* ── Timeline ── */
+.tl-wrap {{ position: relative; padding-left: 28px; }}
+.tl-line {{ position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: {BORDER}; }}
+.tl-item {{ position: relative; margin-bottom: 1.25rem; }}
+.tl-dot  {{ width: 10px; height: 10px; background: {ACCENT}; border-radius: 50%;
+             position: absolute; left: -24px; top: 4px; border: 2px solid {BG2}; }}
+.tl-dot-reg {{ background: {YELLOW_CHART}; }}
+.tl-year {{ display: inline-block; background: {ACCENT}; color: #fff;
+             border-radius: 4px; padding: 2px 8px; font-size: 11px;
+             font-weight: 700; margin-bottom: 4px; }}
+.tl-year-reg {{ background: {YELLOW_CHART}; color: {TEXT}; }}
+.tl-text  {{ font-size: 13px; color: {TEXT2}; line-height: 1.6; }}
+.tl-label {{ font-size: 10px; color: {TEXT3}; text-transform: uppercase; margin-top: 3px; }}
 
-  .stSelectbox > div > div, .stTextInput > div > div > input {{
-    background: {BG2} !important; color: {TEXT} !important;
-    border-color: {BORDER} !important; font-size: 13px !important;
-  }}
+/* ── Scrollable box ── */
+.sbox {{
+  background: {BG3}; border: 1px solid {BORDER}; border-radius: 8px;
+  padding: 12px 14px; font-size: 13px; color: {TEXT2}; line-height: 1.7;
+  max-height: 220px; overflow-y: auto;
+}}
 
-  .modebar {{ display: none !important; }}
-  hr {{ border-color: {BORDER}; opacity: 0.4; }}
-  .stDataFrame {{ background: {BG2}; }}
+/* ── Position rows ── */
+.pos-row {{ padding: 7px 0; border-bottom: 1px solid {BORDER}; font-size: 13px; }}
 
-  .link-pill {{
-    display: inline-block; background: {BG3}; border: 1px solid {BORDER};
-    border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600;
-    color: {ACCENT}; text-decoration: none; margin-right: 6px; margin-top: 4px;
-  }}
-  .link-pill:hover {{ background: {ACCENT}; color: white; }}
+/* ── Expander ── */
+.streamlit-expanderHeader {{
+  background: {BG3} !important; border-radius: 8px !important;
+  font-size: 13px !important; color: {TEXT} !important;
+}}
+div[data-testid="stExpander"] > details > summary {{
+  background: {BG3}; border-radius: 8px; padding: 8px 14px;
+}}
 
-  .ext-card {{
-    background: {BG2}; border: 1px solid {BORDER}; border-radius: 10px;
-    padding: 14px 18px; margin-bottom: 10px;
-  }}
+/* ── Form controls ── */
+.stSelectbox > div > div, .stTextInput > div > div > input {{
+  background: {BG2} !important; color: {TEXT} !important;
+  border-color: {BORDER} !important; font-size: 13px !important;
+}}
+
+/* ── Misc ── */
+.modebar {{ display: none !important; }}
+hr {{ border-color: {BORDER}; opacity: 0.4; }}
+.stDataFrame {{ background: {BG2}; }}
+
+.link-pill {{
+  display: inline-block; background: {BG3}; border: 1px solid {BORDER};
+  border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600;
+  color: {ACCENT}; text-decoration: none; margin-right: 6px; margin-top: 4px;
+}}
+.link-pill:hover {{ background: {ACCENT}; color: white; }}
+
+.ext-card {{
+  background: {BG2}; border: 1px solid {BORDER}; border-radius: 10px;
+  padding: 14px 18px; margin-bottom: 10px;
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -355,13 +404,13 @@ def manager_slug(name: str) -> str:
 
 
 TIPO_COLOR = {
-    "REPO": YELLOW, "BONO": ACCENT, "IIC": GREEN,
-    "PARTICIPACIONES": GREEN, "PAGARE": PURPLE,
-    "OBLIGACION": "#60a5fa", "RENTA FIJA": ACCENT, "ETC": "#34d399",
+    "REPO": YELLOW_CHART, "BONO": CHART, "IIC": GREEN_CHART,
+    "PARTICIPACIONES": GREEN_CHART, "PAGARE": PURPLE,
+    "OBLIGACION": "#3b82f6", "RENTA FIJA": CHART, "ETC": "#34d399",
 }
 MIX_COLORS = {
-    "renta_fija_pct": ACCENT, "rv_pct": GREEN,
-    "iic_pct": PURPLE, "liquidez_pct": YELLOW, "depositos_pct": "#6b7280",
+    "renta_fija_pct": CHART, "rv_pct": GREEN_CHART,
+    "iic_pct": PURPLE, "liquidez_pct": YELLOW_CHART, "depositos_pct": "#6b7280",
 }
 MIX_LABELS = {
     "renta_fija_pct": "Renta Fija", "rv_pct": "Renta Variable",
@@ -371,10 +420,14 @@ MIX_LABELS = {
 # ── TOP BAR ───────────────────────────────────────────────────────────────────
 funds = discover_funds()
 
-top_l, top_m, top_r = st.columns([2, 6, 2])
+top_l, top_m = st.columns([2, 8])
 
 with top_l:
-    st.markdown(f'<div style="font-size:18px;font-weight:800;color:{ACCENT};padding-top:6px">📊 Fund Analyzer</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div style="font-size:16px;font-weight:800;color:{ACCENT};'
+        f'letter-spacing:-0.02em;padding-top:6px;font-family:Georgia,serif">'
+        f'Fund Analyzer</div>',
+        unsafe_allow_html=True)
 
 with top_m:
     nombres = [f["nombre"] for f in funds]
@@ -392,15 +445,7 @@ with top_m:
     sel_idx = nombres.index(sel_nombre)
     st.session_state.selected_isin = isins[sel_idx]
 
-with top_r:
-    st.markdown("<div style='padding-top:4px'>", unsafe_allow_html=True)
-    mode_label = "☀️ Claro" if DK else "🌙 Oscuro"
-    if st.button(mode_label, use_container_width=True):
-        st.session_state.dark_mode = not st.session_state.dark_mode
-        st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
-
-st.markdown("<hr style='margin:8px 0 14px 0'>", unsafe_allow_html=True)
+st.markdown(f"<hr style='border:none;border-top:1px solid {BORDER};margin:8px 0 14px 0'>", unsafe_allow_html=True)
 
 # ── Load data ─────────────────────────────────────────────────────────────────
 d         = load_output(st.session_state.selected_isin)
@@ -427,25 +472,27 @@ depositario   = kpis.get("depositario", "—")
 divisa_f      = kpis.get("divisa", "EUR")
 
 st.markdown(f"""
-<div style="background:{'linear-gradient(135deg,#1a2540,#1c3a5f)' if DK else 'linear-gradient(135deg,#1e3a5f,#1a5276)'};
+<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);
 border-radius:12px;padding:18px 24px;margin-bottom:12px">
   <div style="display:flex;justify-content:space-between;align-items:flex-start">
     <div>
-      <div style="font-size:20px;font-weight:800;color:#fff">{d.get('nombre', sel_nombre)}</div>
-      <div style="font-size:12px;color:#94a3b8;margin-top:4px">{gestora_name}</div>
+      <div style="font-size:20px;font-weight:800;color:#fff;font-family:Georgia,serif;
+                  letter-spacing:-0.02em">{d.get('nombre', sel_nombre)}</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:4px;letter-spacing:0.02em">{gestora_name}</div>
     </div>
     <div style="text-align:right">
-      <span style="background:#ffffff22;color:#fff;border-radius:6px;padding:4px 12px;font-size:13px;font-weight:700">
+      <span style="background:#ffffff18;color:#e5e7eb;border-radius:6px;padding:4px 12px;
+                   font-size:13px;font-weight:700;font-family:monospace">
         {st.session_state.selected_isin}
       </span>
-      <div style="font-size:11px;color:#94a3b8;margin-top:4px">Registro: {fecha_reg}</div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:4px">Registro: {fecha_reg}</div>
     </div>
   </div>
   <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
-    <span style="background:#ffffff1a;color:#e0e0e0;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600">{clasificacion}</span>
-    <span style="background:#ffffff1a;color:#e0e0e0;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600">Riesgo {perfil}/7</span>
-    <span style="background:#ffffff1a;color:#e0e0e0;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600">{divisa_f}</span>
-    <span style="background:#ffffff1a;color:#e0e0e0;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600">Depositario: {depositario}</span>
+    <span style="background:#ffffff14;color:#d1d5db;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">{clasificacion}</span>
+    <span style="background:#ffffff14;color:#d1d5db;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">Riesgo {perfil}/7</span>
+    <span style="background:#ffffff14;color:#d1d5db;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">{divisa_f}</span>
+    <span style="background:#ffffff14;color:#d1d5db;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">Dep. {depositario}</span>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -473,7 +520,7 @@ kpi_defs = [
     (k3, "TER", f'<div class="kpi-value">{pct(ter)}</div>',
      f'<div class="kpi-sub">Gestión {pct(gestion)} + Dep. {pct(deposito)}</div>'),
     (k4, "Volatilidad VL", f'<div class="kpi-value">{pct(vol)}</div>', ""),
-    (k5, "Riesgo", f'<div class="kpi-value">{perfil} <span style="font-size:14px;color:{TEXT3}">/ 7</span></div>', ""),
+    (k5, "Riesgo", f'<div class="kpi-value">{perfil}<span style="font-size:14px;color:{TEXT3}"> / 7</span></div>', ""),
     (k6, "Posiciones", f'<div class="kpi-value">{len(pos_data.get("actuales",[]))}</div>',
      '<div class="kpi-sub">activos en cartera</div>'),
 ]
@@ -509,18 +556,18 @@ with tab1:
         st.markdown('<div class="sec">Resumen</div>', unsafe_allow_html=True)
         estrategia = cual.get("estrategia") or cual.get("filosofia_inversion") or ""
         if estrategia:
-            st.markdown(f'<div class="card" style="font-size:14px;line-height:1.8;color:{TEXT}">{estrategia}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="content-block" style="font-size:14px;line-height:1.8">{estrategia}</div>', unsafe_allow_html=True)
 
         # Filosofía
         filosofia = cual.get("filosofia_inversion") or ""
         proceso   = cual.get("proceso_seleccion") or ""
         if filosofia and filosofia != estrategia:
             st.markdown('<div class="sec">Filosofía de inversión</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="card"><div class="sbox" style="max-height:160px">{filosofia}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="sbox" style="max-height:160px">{filosofia}</div>', unsafe_allow_html=True)
 
         if proceso:
             st.markdown('<div class="sec">Proceso de selección</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="card"><div class="sbox" style="max-height:130px">{proceso}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="sbox" style="max-height:130px">{proceso}</div>', unsafe_allow_html=True)
 
         # Visión gestores: moved to full-width section below the two columns
 
@@ -548,10 +595,10 @@ with tab1:
                 </div>"""
 
                 st.markdown(f"""
-                <div class="card" style="margin-bottom:8px">
-                  <div style="font-size:14px;font-weight:700;color:{TEXT}">👤 {nombre_g}</div>
-                  <div style="font-size:12px;color:{TEXT2};margin-top:2px">{cargo_g}{"  ·  Desde "+str(anio_g) if anio_g else ""}</div>
-                  {"<div style='font-size:12px;color:"+TEXT3+";margin-top:6px;line-height:1.5'>"+back_g+"</div>" if back_g else ""}
+                <div class="card" style="margin-bottom:8px;border-left:3px solid {ACCENT}">
+                  <div style="font-size:14px;font-weight:700;color:{TEXT};font-family:Georgia,serif">{nombre_g}</div>
+                  <div class="meta" style="margin-top:4px">{cargo_g}{"  ·  Desde "+str(anio_g) if anio_g else ""}</div>
+                  {"<p style='margin-top:8px;font-size:12px'>"+back_g+"</p>" if back_g else ""}
                   {links_html}
                 </div>""", unsafe_allow_html=True)
 
@@ -559,7 +606,7 @@ with tab1:
         tipo_activos = cual.get("tipo_activos", "")
         if tipo_activos:
             st.markdown('<div class="sec">Universo de inversión</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="card" style="font-size:13px;color:{TEXT};line-height:1.6">{tipo_activos}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="sbox" style="max-height:160px">{tipo_activos}</div>', unsafe_allow_html=True)
 
     # ── Hechos relevantes — sección propia, full width ────────────────────────
     hechos_relevantes = cual.get("hechos_relevantes", [])
@@ -571,11 +618,12 @@ with tab1:
             epigrafe_hr = hr.get("epigrafe", "")
             detalle_hr = hr.get("detalle", "")
             st.markdown(f"""
-            <div class="card" style="margin-bottom:8px;border-left:3px solid {YELLOW}">
-              <div style="font-size:12px;font-weight:700;color:{YELLOW};margin-bottom:4px">
-                {periodo_hr}{"  ·  " if periodo_hr and epigrafe_hr else ""}{epigrafe_hr}
+            <div class="card" style="margin-bottom:8px;border-left:3px solid {YELLOW_CHART}">
+              <div style="margin-bottom:6px">
+                <span class="year-badge" style="background:{YELLOW_CHART}">{periodo_hr}</span>
+                {"<span style='font-size:12px;font-weight:600;color:"+TEXT2+";margin-left:8px'>"+epigrafe_hr+"</span>" if epigrafe_hr else ""}
               </div>
-              {"<div style='font-size:13px;color:"+TEXT+";line-height:1.6'>"+detalle_hr+"</div>" if detalle_hr else ""}
+              {"<div style='font-size:13px;color:"+TEXT2+";line-height:1.6'>"+detalle_hr+"</div>" if detalle_hr else ""}
             </div>""", unsafe_allow_html=True)
 
     # ── Visión gestores año a año — timeline 2 columnas, full width ───────────
@@ -589,23 +637,23 @@ with tab1:
             contexto   = (pdata.get("contexto_mercado", "") or "")[:200]
             if not tesis and not decisiones:
                 continue
-            st.markdown(f'<div style="font-size:12px;font-weight:700;color:{ACCENT};margin:12px 0 4px">{yr_label}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="margin:16px 0 6px"><span class="year-badge">{yr_label}</span></div>', unsafe_allow_html=True)
             col_v, col_d = st.columns(2)
             with col_v:
                 if tesis:
                     st.markdown(f"""
-                    <div class="card" style="border-left:3px solid {ACCENT};height:100%">
-                      <div style="font-size:10px;font-weight:700;color:{ACCENT};text-transform:uppercase;margin-bottom:4px">Tesis / Visión</div>
-                      <div style="font-size:12px;color:{TEXT};line-height:1.6">{tesis}</div>
+                    <div class="card" style="border-left:3px solid {ACCENT}">
+                      <div class="meta" style="margin-bottom:6px">Tesis / Visión</div>
+                      <div style="font-size:13px;color:{TEXT2};line-height:1.75">{tesis}</div>
                     </div>""", unsafe_allow_html=True)
                 if contexto:
-                    st.markdown(f'<div style="font-size:11px;color:{TEXT3};margin-top:4px;line-height:1.5">{contexto[:150]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<p style="margin-top:6px;font-size:12px">{contexto[:150]}</p>', unsafe_allow_html=True)
             with col_d:
                 if decisiones:
                     st.markdown(f"""
-                    <div class="card" style="border-left:3px solid {GREEN};height:100%">
-                      <div style="font-size:10px;font-weight:700;color:{GREEN};text-transform:uppercase;margin-bottom:4px">Decisiones tomadas</div>
-                      <div style="font-size:12px;color:{TEXT};line-height:1.6">{decisiones}</div>
+                    <div class="card" style="border-left:3px solid {GREEN}">
+                      <div class="meta" style="margin-bottom:6px;color:{GREEN}">Decisiones tomadas</div>
+                      <div style="font-size:13px;color:{TEXT2};line-height:1.75">{decisiones}</div>
                     </div>""", unsafe_allow_html=True)
 
     # ── Historia del fondo — timeline visual, full width ─────────────────────
@@ -620,12 +668,12 @@ with tab1:
                 year_m = re.search(r"\b(20\d{2}|19\d{2})\b", para)
                 yr = year_m.group(1) if year_m else ""
                 st.markdown(f"""
-                <div class="card" style="margin-bottom:8px;border-left:3px solid {'#3b82f6' if yr else BORDER}">
-                  {"<span style='font-size:11px;font-weight:700;color:"+ACCENT+";margin-bottom:4px;display:block'>"+yr+"</span>" if yr else ""}
-                  <div style="font-size:13px;color:{TEXT};line-height:1.7">{para}</div>
+                <div class="card" style="margin-bottom:10px;border-left:3px solid {CHART if yr else BORDER}">
+                  {"<span class='year-badge' style='margin-bottom:8px;display:inline-block'>"+yr+"</span>" if yr else ""}
+                  <div style="font-size:13px;color:{TEXT2};line-height:1.75">{para}</div>
                 </div>""", unsafe_allow_html=True)
         else:
-            st.markdown(f'<div class="card" style="font-size:13px;color:{TEXT};line-height:1.7">{historia}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card" style="font-size:13px;color:{TEXT2};line-height:1.75">{historia}</div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -663,7 +711,7 @@ with tab2:
                             row_heights=row_heights, vertical_spacing=0.08)
         fig.add_trace(go.Bar(
             x=labels, y=values, name="AUM (M€)",
-            marker_color=ACCENT,
+            marker_color=CHART,
             text=[f"{v:.1f}" for v in values],
             textposition="outside",
             textfont=dict(size=11, color=TEXT2),
@@ -672,8 +720,8 @@ with tab2:
         if has_vl:
             fig.add_trace(go.Scatter(
                 x=vl_x, y=vl_y, mode="lines+markers", name="VL",
-                line=dict(color=GREEN, width=2),
-                marker=dict(size=7, color=GREEN),
+                line=dict(color=GREEN_CHART, width=2),
+                marker=dict(size=7, color=GREEN_CHART),
                 hovertemplate="<b>%{x}</b><br>VL: %{y:.4f}<extra></extra>",
             ), row=2, col=1)
         fig.update_layout(
@@ -692,7 +740,7 @@ with tab2:
                              row=2, col=1)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Sin datos de AUM histórico")
+        st.markdown(f'<div class="content-block"><span class="meta">Sin datos de AUM histórico disponibles</span></div>', unsafe_allow_html=True)
 
     col_part, col_ter = st.columns(2)
 
@@ -714,7 +762,7 @@ with tab2:
             fig_p = go.Figure(go.Bar(
                 x=[x[0] for x in part_sorted],
                 y=[x[1] for x in part_sorted],
-                marker_color=PURPLE,
+                marker_color=CHART,
                 text=[f"{int(x[1])}" for x in part_sorted],
                 textposition="outside",
                 textfont=dict(size=11, color=TEXT2),
@@ -725,7 +773,7 @@ with tab2:
             fig_p.update_xaxes(type="category")
             st.plotly_chart(fig_p, use_container_width=True)
         else:
-            st.info("Sin datos de partícipes históricos")
+            st.markdown(f'<div class="content-block"><span class="meta">Sin datos de partícipes históricos</span></div>', unsafe_allow_html=True)
 
     # ── TER — por clase (si disponible) o agregado apilado ───────────────────
     with col_ter:
@@ -752,7 +800,7 @@ with tab2:
                 yr_map_cls[yr] = e.get("clases", {})
         cls_sorted = sorted(yr_map_cls.items())
 
-        CLASE_COLORS = [YELLOW, ACCENT, GREEN, RED, PURPLE]
+        CLASE_COLORS = [YELLOW_CHART, CHART, GREEN_CHART, RED_CHART, PURPLE]
 
         if ter_sorted or cls_sorted:
             fig_ter = go.Figure()
@@ -783,7 +831,7 @@ with tab2:
                 if any(v > 0 for v in gest_y):
                     fig_ter.add_trace(go.Bar(
                         x=xlabels, y=gest_y, name="Gestión %",
-                        marker_color=YELLOW,
+                        marker_color=CHART,
                         text=[f"{v:.2f}%" if v else "" for v in gest_y],
                         textposition="outside",
                         textfont=dict(size=10, color=TEXT2),
@@ -793,7 +841,7 @@ with tab2:
                 if any(v > 0 for v in dep_final):
                     fig_ter.add_trace(go.Bar(
                         x=xlabels, y=dep_final, name="Depósito / Otros %",
-                        marker_color=RED,
+                        marker_color="#94a3b8",
                         width=[0.5] * len(xlabels),
                         hovertemplate="Depósito: %{y:.3f}%<extra></extra>",
                     ))
@@ -805,7 +853,7 @@ with tab2:
                 st.metric("TER actual", pct(ter))
                 st.metric("Comisión gestión", pct(gestion))
             else:
-                st.info("Sin datos de TER histórico")
+                st.markdown(f'<div class="content-block"><span class="meta">Sin datos de TER histórico</span></div>', unsafe_allow_html=True)
 
     # ── Mix activos (stacked bars) ────────────────────────────────────────────
     st.markdown('<div class="sec">Evolución por tipo de activo</div>', unsafe_allow_html=True)
@@ -916,7 +964,7 @@ with tab2:
         ly_geo["yaxis"] = dict(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
                                 range=[0, 100], ticksuffix="%")
         fig_geo.update_layout(barmode="stack", **ly_geo)
-        st.caption("País inferido por prefijo ISIN del instrumento / nombre del emisor / divisa")
+        st.markdown('<span class="meta">País inferido por prefijo ISIN del instrumento / nombre del emisor / divisa</span>', unsafe_allow_html=True)
         st.plotly_chart(fig_geo, use_container_width=True)
 
     # ── Divisa — stacked 100% evolutivo ──────────────────────────────────────
@@ -1023,13 +1071,13 @@ with tab3:
             with c6:
                 st.markdown(
                     f'<div style="font-size:13px;font-weight:700;color:{ACCENT}">{es(peso,2)}%</div>'
-                    f'<div style="background:{BG3};border-radius:3px;height:4px;margin-top:3px">'
-                    f'<div style="background:{ACCENT};border-radius:3px;height:4px;width:{bar}%"></div></div>',
+                    f'<div style="background:{BORDER};border-radius:3px;height:4px;margin-top:3px">'
+                    f'<div style="background:{CHART};border-radius:3px;height:4px;width:{bar}%"></div></div>',
                     unsafe_allow_html=True)
             st.markdown(f'<hr style="border:none;border-top:1px solid {BORDER};margin:4px 0">', unsafe_allow_html=True)
 
         if len(actuales) > 25:
-            st.caption(f"+ {len(actuales) - 25} posiciones adicionales")
+            st.markdown(f'<span class="meta">+ {len(actuales) - 25} posiciones adicionales</span>', unsafe_allow_html=True)
 
     # ── Evolución concentración top-15 (peso total acumulado por año) ─────────
     if len(historicas) >= 2:
@@ -1048,7 +1096,7 @@ with tab3:
             fig_evol = go.Figure(go.Bar(
                 x=[d["yr"] for d in top15_data],
                 y=[d["total_w"] for d in top15_data],
-                marker_color=ACCENT,
+                marker_color=CHART,
                 hovertemplate="<b>%{x}</b><br>Top-15 peso: %{y:.1f}%<extra></extra>",
             ))
             fig_evol.update_layout(**chart_layout(220, legend=False))
@@ -1100,7 +1148,8 @@ with tab3:
             if show_delta and delta is not None:
                 sign = "+" if delta > 0 else ""
                 delta_html = f'<span style="color:{tcolor};font-weight:700"> {sign}{es(delta,2)}%</span>'
-            return (f'<div style="background:{"#0d2b1f" if tcolor==GREEN else "#2b0d0d" if tcolor==RED else BG3};'
+            bg_card = "#f0faf4" if tcolor == GREEN_CHART else "#fdf2f2" if tcolor == RED_CHART else BG3
+            return (f'<div style="background:{bg_card};'
                     f'border-left:3px solid {bcolor};border-radius:0 6px 6px 0;'
                     f'padding:6px 10px;margin-bottom:5px;font-size:12px">'
                     f'<span style="color:{TEXT};font-weight:600">{p.get("nombre","")[:28]}</span>'
@@ -1120,23 +1169,23 @@ with tab3:
                         for p in ch["entradas"]:
                             st.markdown(pos_card(p, GREEN, GREEN), unsafe_allow_html=True)
                     else:
-                        st.caption("—")
+                        st.markdown('<span class="meta">—</span>', unsafe_allow_html=True)
                 with cc2:
                     st.markdown(f'<div style="font-size:11px;color:{RED};font-weight:700;text-transform:uppercase;margin-bottom:6px">▼ Salidas</div>', unsafe_allow_html=True)
                     if ch["salidas"]:
                         for p in ch["salidas"]:
-                            st.markdown(pos_card(p, RED, RED), unsafe_allow_html=True)
+                            st.markdown(pos_card(p, RED_CHART, RED_CHART), unsafe_allow_html=True)
                     else:
-                        st.caption("—")
+                        st.markdown('<span class="meta">—</span>', unsafe_allow_html=True)
                 with cc3:
                     st.markdown(f'<div style="font-size:11px;color:{ACCENT};font-weight:700;text-transform:uppercase;margin-bottom:6px">⇅ Cambios de peso</div>', unsafe_allow_html=True)
                     if ch["cambios"]:
                         for p in ch["cambios"]:
                             d_val = p["delta"]
-                            col_d = GREEN if d_val > 0 else RED
+                            col_d = GREEN_CHART if d_val > 0 else RED_CHART
                             st.markdown(pos_card(p, col_d, col_d, show_delta=True, delta=d_val), unsafe_allow_html=True)
                     else:
-                        st.caption("—")
+                        st.markdown('<span class="meta">—</span>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1146,9 +1195,9 @@ with tab4:
     resumen_g = consist.get("resumen_global", "")
     if resumen_g:
         st.markdown(f"""
-        <div class="card" style="border-left:3px solid {ACCENT};margin-bottom:16px;font-size:14px;color:{TEXT};line-height:1.7">
-          <div style="font-size:11px;font-weight:700;color:{ACCENT};text-transform:uppercase;margin-bottom:6px">Síntesis global</div>
-          {resumen_g}
+        <div class="content-block" style="margin-bottom:1.5rem">
+          <div class="meta" style="margin-bottom:8px">Síntesis global</div>
+          <div style="font-size:14px;color:{TEXT2};line-height:1.75">{resumen_g}</div>
         </div>""", unsafe_allow_html=True)
 
     if periodos:
@@ -1163,8 +1212,12 @@ with tab4:
 
             score_html = ""
             if score is not None:
-                col_sc = GREEN if score >= 7 else YELLOW if score >= 4 else RED
-                score_html = f'<span style="background:{col_sc}22;color:{col_sc};border-radius:4px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:8px">Score {score}/10</span>'
+                if score >= 7:
+                    score_html = f'<span class="badge-pos" style="margin-left:8px">Score {score}/10</span>'
+                elif score >= 4:
+                    score_html = f'<span class="badge-neu" style="margin-left:8px">Score {score}/10</span>'
+                else:
+                    score_html = f'<span class="badge-neg" style="margin-left:8px">Score {score}/10</span>'
 
             with st.expander(f"**{periodo_lbl}**{score_html}", expanded=(pdata == periodos[0])):
                 p1, p2 = st.columns(2)
@@ -1209,15 +1262,15 @@ with tab4:
     if hechos:
         for h_item in hechos:
             yr_lbl = h_item["year"]
-            col_h  = YELLOW if h_item["source"] == "regulatorio" else ACCENT
-            yr_badge = f'<span style="font-weight:700;color:{col_h};margin-right:8px">{yr_lbl}</span>' if yr_lbl else ""
+            col_h  = YELLOW_CHART if h_item["source"] == "regulatorio" else CHART
+            yr_badge = f'<span class="year-badge" style="margin-right:8px;background:{col_h}">{yr_lbl}</span>' if yr_lbl else ""
             st.markdown(f"""
             <div style="background:{BG3};border-left:3px solid {col_h};border-radius:0 8px 8px 0;
-            padding:8px 14px;margin-bottom:6px;font-size:13px;line-height:1.6">
+            padding:10px 14px;margin-bottom:6px;font-size:13px;line-height:1.6;color:{TEXT2}">
               {yr_badge}<span style="color:{TEXT}">{h_item['text']}</span>
             </div>""", unsafe_allow_html=True)
     else:
-        st.info("No hay hechos relevantes disponibles para este fondo.")
+        st.markdown(f'<div class="content-block"><span class="meta">No hay hechos relevantes disponibles para este fondo</span></div>', unsafe_allow_html=True)
 
     # ── Cartas trimestrales ───────────────────────────────────────────────────
     cartas_list = letters_d.get("cartas", []) or letters_d.get("letters", [])
@@ -1379,7 +1432,7 @@ with tab6:
             </div>""", unsafe_allow_html=True)
 
     elif ext_list and not ext_real:
-        st.info("Los análisis encontrados son URLs de búsqueda (no artículos reales). Re-ejecuta el pipeline para obtener artículos directos.")
+        st.markdown(f'<div class="content-block"><span class="meta">Los análisis encontrados son URLs de búsqueda (no artículos reales) — re-ejecuta el pipeline para obtener artículos directos</span></div>', unsafe_allow_html=True)
     else:
         # Mostrar búsquedas sugeridas para el usuario
         nombre_fondo = d.get("nombre", "")
@@ -1419,8 +1472,8 @@ with tab6:
         st.markdown('<div class="sec" style="margin-top:20px">⚠️ Issues detectados por meta-agente</div>', unsafe_allow_html=True)
         for issue in meta_report["issues"]:
             st.markdown(
-                f'<div style="background:{BG3};border-left:3px solid {YELLOW};border-radius:0 6px 6px 0;'
-                f'padding:6px 12px;margin-bottom:4px;font-size:13px;color:{TEXT}">⚠️ {issue}</div>',
+                f'<div style="background:{BG3};border-left:3px solid {YELLOW_CHART};border-radius:0 6px 6px 0;'
+                f'padding:6px 12px;margin-bottom:4px;font-size:13px;color:{TEXT2}">⚠️ {issue}</div>',
                 unsafe_allow_html=True)
 
 
