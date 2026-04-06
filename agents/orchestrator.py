@@ -368,6 +368,17 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
 
         progress.advance(main_task)
 
+        # ── Paso 6: Improver Agent (siempre, en modo propose) ─────────────────
+        try:
+            from agents.improver_agent import ImproverAgent
+            improver = ImproverAgent(mode="propose")
+            results["improver"] = await improver.run()
+            n_proposals = len(results["improver"].get("proposals", []))
+            if n_proposals:
+                log("IMPROVER", "INFO", f"{n_proposals} propuestas de mejora generadas — ver data/improvements/")
+        except Exception as exc:
+            log("IMPROVER", "WARN", f"Improver no ejecutado: {exc}")
+
     # ── Resumen final ─────────────────────────────────────────────────────────
     elapsed = round(time.time() - start_time, 1)
     output = results.get("output", {})

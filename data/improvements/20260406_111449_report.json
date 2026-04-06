@@ -1,0 +1,176 @@
+{
+  "timestamp": "2026-04-06T11:16:21.351724",
+  "cycle": {
+    "timestamp": "2026-04-06T11:16:21.350007",
+    "mode": "propose",
+    "total_issues": 38,
+    "agents_analyzed": [
+      "letters_agent.py",
+      "analyst_agent.py",
+      "cnmv_agent.py"
+    ],
+    "proposals": 3,
+    "applied": [],
+    "top_issues": [
+      "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNM",
+      "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — prob",
+      "sin cartas de gestores — ejecutar letters_agent con DuckDuckGo",
+      "[patron_conocido:gestores_todos_null] todos los gestores tienen nombre=null — ex",
+      "mix_activos YYYY suma 87.1% (esperado ~100%)"
+    ]
+  },
+  "frequency_top10": [
+    {
+      "issue_template": "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNM",
+      "count": 2,
+      "agent": "cnmv_agent.py",
+      "isins": [
+        "ES0112231008",
+        "ES0175316001"
+      ],
+      "examples": [
+        "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo",
+        "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
+      ]
+    },
+    {
+      "issue_template": "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — prob",
+      "count": 2,
+      "agent": "cnmv_agent.py",
+      "isins": [
+        "ES0156572002",
+        "ES0175316001"
+      ],
+      "examples": [
+        "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)",
+        "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)"
+      ]
+    },
+    {
+      "issue_template": "sin cartas de gestores — ejecutar letters_agent con DuckDuckGo",
+      "count": 1,
+      "agent": "letters_agent.py",
+      "isins": [
+        "ES0112231008"
+      ],
+      "examples": [
+        "sin cartas de gestores — ejecutar letters_agent con DuckDuckGo"
+      ]
+    },
+    {
+      "issue_template": "[patron_conocido:gestores_todos_null] todos los gestores tienen nombre=null — ex",
+      "count": 1,
+      "agent": "analyst_agent.py",
+      "isins": [
+        "ES0112231008"
+      ],
+      "examples": [
+        "[patron_conocido:gestores_todos_null] todos los gestores tienen nombre=null — extraccion PDF cualitativo fallida o sin PDFs cualitativos"
+      ]
+    },
+    {
+      "issue_template": "mix_activos YYYY suma 87.1% (esperado ~100%)",
+      "count": 1,
+      "agent": "cnmv_agent.py",
+      "isins": [
+        "ES0156572002"
+      ],
+      "examples": [
+        "mix_activos 2019 suma 87.1% (esperado ~100%)"
+      ]
+    },
+    {
+      "issue_template": "mix_activos YYYY suma 84.0% (esperado ~100%)",
+      "count": 1,
+      "agent": "cnmv_agent.py",
+      "isins": [
+        "ES0156572002"
+      ],
+      "examples": [
+        "mix_activos 2018 suma 84.0% (esperado ~100%)"
+      ]
+    },
+    {
+      "issue_template": "mix_activos YYYY suma 157.2% (esperado ~100%)",
+      "count": 1,
+      "agent": "cnmv_agent.py",
+      "isins": [
+        "ES0156572002"
+      ],
+      "examples": [
+        "mix_activos 2017 suma 157.2% (esperado ~100%)"
+      ]
+    },
+    {
+      "issue_template": "equipo gestor sin texto resumen; URLs de Citywire/Trustnet no llevan a ninguna p",
+      "count": 1,
+      "agent": null,
+      "isins": [
+        "ES0156572002"
+      ],
+      "examples": [
+        "equipo gestor sin texto resumen; URLs de Citywire/Trustnet no llevan a ninguna pagina real"
+      ]
+    },
+    {
+      "issue_template": "excepto YYYY, YYYY y YYYY (mal colocado al inicio) lo que se muestra es la estra",
+      "count": 1,
+      "agent": null,
+      "isins": [
+        "ES0156572002"
+      ],
+      "examples": [
+        "excepto 2017, 2018 y 2025 (mal colocado al inicio) lo que se muestra es la estrategia de inversion y no un resumen de cambios; si todo sigue igual omitir ese año"
+      ]
+    },
+    {
+      "issue_template": "hay que hacerla mas visual con un timeline mostrando vision y output de rendimie",
+      "count": 1,
+      "agent": null,
+      "isins": [
+        "ES0156572002"
+      ],
+      "examples": [
+        "hay que hacerla mas visual con un timeline mostrando vision y output de rendimiento/volatilidad desde inicio hasta actual"
+      ]
+    }
+  ],
+  "proposals": [
+    {
+      "diagnostico": "El error 'sin cartas de gestores' indica que el agente no está encontrando cartas trimestrales incluso usando DuckDuckGo. Analizando el código, detecto varios problemas: (1) La estrategia de descubrimiento DDG depende de que existan 'pocos candidatos' (< 3), pero los sitemaps y seed URLs pueden generar ruido que inhabilite DDG; (2) Las queries DDG están construidas de forma genérica sin priorizar dominios oficiales del fondo/gestora; (3) No hay validación de que los dominios descubiertos sean realmente relevantes (pueden ser agregadores genéricos como Rankia); (4) El sistema de caché de 30 días puede perpetuar fuentes incorrectas o desactualizadas.\n\nLa causa raíz principal es que la condición 'len(candidate_urls) < 3' es demasiado estricta y puede no activarse cuando hay URLs de baja calidad. Además, no hay priorización de fuentes oficiales (gestora_url, dominio del ISIN) sobre agregadores genéricos. El sistema debería activar DDG de forma más agresiva cuando las fuentes existentes no producen resultados, y filtrar mejor los dominios descubiertos.\n\nLa mejora debe: (1) Activar DDG incluso con más candidatos si no hay cartas confirmadas; (2) Priorizar dominios oficiales en las queries DDG; (3) Filtrar dominios genéricos/agregadores; (4) Invalidar caché si no produjo cartas en ejecución anterior.",
+      "propuesta": "Modificar la lógica de activación de DDG discovery para que se ejecute: (a) siempre que haya menos de 3 candidatos (actual), O (b) cuando tras procesar candidatos iniciales no se hayan encontrado cartas (nuevo). Añadir priorización de dominio oficial (gestora_url) en queries DDG incluyéndolo explícitamente con site: operator. Implementar filtro de dominios genéricos (rankia, finect, etc.) para priorizar fuentes oficiales. Invalidar caché de fuentes si la última ejecución no produjo resultados.",
+      "old_code": "        # ── Phase 1c: Source discovery + parallel DDG (fallback) ──────────\n        if len(candidate_urls) < 3 and (self.fund_short or self.fund_name):\n            self._log(\"INFO\", \"Pocos candidatos — activando DDG discovery\")\n            discovered_domains = await self._discover_sources()\n            # Try sitemaps from discovered domains too\n            for domain in discovered_domains[:4]:\n                if domain not in seed_domains:\n                    sitemap_links = await self._discover_via_sitemap(domain)\n                    add_candidates(sitemap_links)",
+      "new_code": "        # ── Phase 1c: Source discovery + parallel DDG (fallback) ──────────\n        force_ddg = len(candidate_urls) < 3 or self._should_invalidate_cache()\n        if force_ddg and (self.fund_short or self.fund_name):\n            self._log(\"INFO\", f\"Activando DDG discovery (candidatos={len(candidate_urls)}, force={force_ddg})\")\n            discovered_domains = await self._discover_sources()\n            # Priorizar dominios oficiales, filtrar agregadores genéricos\n            official_domain = urlparse(self.gestora_url).netloc if self.gestora_url else \"\"\n            generic_domains = {\"rankia.com\", \"finect.com\", \"selfbank.es\", \"myinvestor.es\"}\n            \n            prioritized = [d for d in discovered_domains if d == official_domain]\n            others = [d for d in discovered_domains if d != official_domain and d not in generic_domains]\n            filtered_domains = prioritized + others[:5]\n            \n            for domain in filtered_domains:\n                if domain not in seed_domains:\n                    sitemap_links = await self._discover_via_sitemap(domain)\n                    add_candidates(sitemap_links)\n                    result[\"fuentes\"][\"urls_consultadas\"].append(f\"ddg_sitemap:{domain}\")",
+      "confianza": 75,
+      "riesgos": "Posible incremento en llamadas DDG si el caché se invalida frecuentemente (rate limiting). Filtrar dominios genéricos puede excluir fuentes válidas si la gestora publica en esos agregadores. El método _should_invalidate_cache() aún no existe en el código proporcionado y debe implementarse verificando si letters_data.json está vacío o antiguo. Mayor tiempo de ejecución por procesar más sitemaps de dominios descubiertos.",
+      "test_suggestion": "Testear con ISINs problemáticos conocidos ejecutando letters_agent.py y verificar: (1) Que DDG se active incluso con >3 candidatos si caché está vacío; (2) Que dominios oficiales aparezcan primero en filtered_domains; (3) Que dominios genéricos se excluyan salvo que sean oficiales; (4) Revisar progress.log para confirmar 'Activando DDG discovery' con force=True; (5) Validar que letters_data.json contenga cartas tras la ejecución. Implementar _should_invalidate_cache() chequeando: Path(letters_data.json).exists() and json cartas=[] and mtime > 7 días.",
+      "agent": "letters_agent.py",
+      "issues_count": 1,
+      "timestamp": "2026-04-06T11:15:18.406744"
+    },
+    {
+      "diagnostico": "El error '[patron_conocido:gestores_todos_null]' indica que todos los gestores tienen nombre=null porque la extracción desde PDFs cualitativos falla o no hay PDFs disponibles. El código actual no tiene fallback a fuentes alternativas (Citywire/Finect) cuando la extracción de Claude falla. El método '_enrich_with_claude' procesa todo el documento PDF de una vez y si falla o no encuentra gestores, deja el campo vacío sin intentar otras fuentes. Además, el método '_remap_fields' solo mapea campos básicos pero no gestores desde fuentes parciales que podrían contenerlos.",
+      "propuesta": "Agregar un método '_fallback_gestores' que se ejecute después de '_enrich_with_claude' y detecte si la lista de gestores está vacía o todos tienen nombre=null. Este método buscaría en las fuentes parciales (cnmv_data.json, intl_data.json) si contienen datos de gestores ya extraídos por otros agentes. Si sigue vacío, loguear WARNING con sugerencia de buscar en Citywire/Finect. Modificar '_remap_fields' para incluir mapeo de gestores desde fuentes parciales.",
+      "old_code": "    def _enrich_with_claude(self, output: dict) -> None:\n        \"\"\"\n        Llama a Claude API para extraer datos cualitativos de PDFs.\n        Si no hay API key o falla → campos permanecen null.\n        \"\"\"\n        # ... código existente ...\n        # (el método completo no incluye fallback para gestores)",
+      "new_code": "    def _enrich_with_claude(self, output: dict) -> None:\n        \"\"\"\n        Llama a Claude API para extraer datos cualitativos de PDFs.\n        Si no hay API key o falla → campos permanecen null.\n        \"\"\"\n        # ... código existente sin cambios ...\n        pass  # mantener implementación actual\n\n    def _fallback_gestores(self, output: dict) -> None:\n        \"\"\"\n        Fallback para gestores: si están vacíos o todos null, buscar en parciales.\n        Si sigue vacío, loguear sugerencia de búsqueda manual.\n        \"\"\"\n        gestores = output.get(\"gestores\", [])\n        \n        # Detectar si están vacíos o todos null\n        if not gestores or all(g.get(\"nombre\") is None for g in gestores):\n            self._log(\"WARN\", \"Gestores vacíos o todos null tras Claude — buscando en parciales\")\n            \n            # Buscar en parciales fusionados previamente\n            files_to_check = [\n                self.fund_dir / \"cnmv_data.json\",\n                self.fund_dir / \"intl_data.json\",\n                self.fund_dir / \"cssf_data.json\"\n            ]\n            \n            for fpath in files_to_check:\n                if not fpath.exists():\n                    continue\n                try:\n                    data = json.loads(fpath.read_text(encoding=\"utf-8\"))\n                    partial_gestores = data.get(\"gestores\", [])\n                    \n                    if partial_gestores and any(g.get(\"nombre\") for g in partial_gestores):\n                        output[\"gestores\"] = partial_gestores\n                        self._log(\"OK\", f\"Gestores recuperados desde {fpath.name}\")\n                        return\n                except Exception as exc:\n                    self._log(\"WARN\", f\"Error leyendo gestores de {fpath.name}: {exc}\")\n            \n            # Si sigue vacío, sugerir búsqueda manual\n            if not output.get(\"gestores\") or all(g.get(\"nombre\") is None for g in output.get(\"gestores\", [])):\n                self._log(\"WARN\", f\"[patron_conocido:gestores_todos_null] ISIN={self.isin} — buscar en Citywire/Finect\")\n                output.setdefault(\"fuentes\", {}).setdefault(\"pendientes\", []).append(\"gestores_manual_citywire_finect\")",
+      "confianza": 85,
+      "riesgos": "Si los parciales tienen gestores con datos incorrectos o desactualizados, se copiarán al output final. Si múltiples parciales tienen gestores diferentes, solo se usará el primero encontrado (no hay deduplicación cross-file). El campo 'pendientes' en fuentes podría no existir en el schema si no está definido.",
+      "test_suggestion": "1) Crear un fondo test con PDFs sin gestores pero con cnmv_data.json conteniendo gestores válidos, verificar que se recuperan. 2) Crear caso con todos los parciales sin gestores, verificar que se loguea el WARNING con patrón conocido y se añade a fuentes.pendientes. 3) Verificar que si Claude extrae gestores correctamente, el fallback no se ejecuta. 4) Comprobar que el método se llama en run() después de '_enrich_with_claude' y antes de '_build_consistency_analysis'.",
+      "agent": "analyst_agent.py",
+      "issues_count": 2,
+      "timestamp": "2026-04-06T11:15:42.575281"
+    },
+    {
+      "diagnostico": "Los errores detectados están relacionados con el parsing de XMLs CNMV en la sección 3.1 (composición de activos). El problema de 'mix_activos suma incorrecta' con valores como 157.2%, 188.8%, etc. indica doble conteo: el parser está sumando tanto los subtotales de categorías como los totales globales. Por ejemplo, si hay 'Renta Fija Total: 60%' y luego subsecciones 'RF Pública: 40%, RF Privada: 20%', el parser suma 60+40+20=120%. El segundo error de 'serie_aum_muy_corta' sugiere que no todos los XMLs se están procesando o descargando correctamente desde los ZIPs mensuales. El código actual no muestra la función build_historical_series ni el parser XML específico, pero el patrón es claro: falta filtrado para tomar solo valores TOTAL de nivel superior y no acumular subtotales.",
+      "propuesta": "Modificar la lógica de extracción XML en build_historical_series (tools/xml_parser.py) para: 1) Identificar correctamente la estructura jerárquica de la sección 3.1 y extraer solo los totales de primer nivel (Renta Fija TOTAL, Renta Variable TOTAL, Liquidez TOTAL, Derivados TOTAL, etc.), excluyendo explícitamente subtotales y desgloses; 2) Validar que la suma de mix_activos esté entre 98-102% y loguear warning si no cumple; 3) Mejorar la descarga de XMLs verificando que cada ZIP mensual se descargue completamente y contenga el NIF del fondo antes de procesarlo. Como no tengo acceso al código de xml_parser.py, propongo añadir validación post-procesamiento en cnmv_agent.py que detecte y corrija estos casos.",
+      "old_code": "            try:\n                series = await self._download_xml_series(start_year)\n                result[\"cuantitativo\"] = series\n                result[\"fuentes\"][\"xmls_cnmv\"] = [\n                    p.name for p in sorted(self.xml_dir.glob(\"*.xml\"))\n                ]\n                # Nombre del fondo desde FONDREGISTRO (más fiable que el HTML)\n                if not result.get(\"nombre\"):\n                    result[\"nombre\"] = self._get_nombre_from_xml()\n                # KPIs actuales del último dato disponible\n                self._fill_kpis_from_series(result)\n            except Exception as exc:\n                console.log(f\"[yellow]Paso B parcial: {exc}\")",
+      "new_code": "            try:\n                series = await self._download_xml_series(start_year)\n                # Validar y limpiar mix_activos para evitar doble conteo\n                series = self._validate_and_fix_mix_activos(series)\n                result[\"cuantitativo\"] = series\n                result[\"fuentes\"][\"xmls_cnmv\"] = [\n                    p.name for p in sorted(self.xml_dir.glob(\"*.xml\"))\n                ]\n                # Nombre del fondo desde FONDREGISTRO (más fiable que el HTML)\n                if not result.get(\"nombre\"):\n                    result[\"nombre\"] = self._get_nombre_from_xml()\n                # KPIs actuales del último dato disponible\n                self._fill_kpis_from_series(result)\n                # Validar longitud mínima de series\n                if len(series.get(\"patrimonio\", [])) < 4:\n                    console.log(f\"[yellow]Advertencia: serie AUM muy corta ({len(series.get('patrimonio', []))} puntos). Verificar XMLs descargados.\")\n            except Exception as exc:\n                console.log(f\"[yellow]Paso B parcial: {exc}\")\n\n    def _validate_and_fix_mix_activos(self, series: dict) -> dict:\n        \"\"\"Valida que mix_activos sume ~100% por año y corrige doble conteos.\"\"\"\n        if \"mix_activos\" not in series:\n            return series\n        \n        for year, mix in list(series[\"mix_activos\"].items()):\n            if not isinstance(mix, dict):\n                continue\n            \n            total = sum(v for v in mix.values() if isinstance(v, (int, float)))\n            \n            # Si suma está fuera del rango aceptable (98-102%), intentar corrección\n            if not (98 <= total <= 102):\n                console.log(f\"[yellow]mix_activos {year} suma {total:.1f}% (esperado ~100%). Aplicando corrección.\")\n                \n                # Estrategia: si suma > 150%, probablemente hay doble conteo de totales\n                # Filtrar claves que contengan \"total\" o \"subtotal\" y mantener solo categorías principales\n                if total > 150:\n                    # Mantener solo claves principales (sin \"subtotal\", \"detalle\", \"desglose\")\n                    cleaned = {k: v for k, v in mix.items() \n                              if not any(x in k.lower() for x in [\"subtotal\", \"detalle\", \"desglose\", \"otros_\"])}\n                    new_total = sum(v for v in cleaned.values() if isinstance(v, (int, float)))\n                    \n                    if 98 <= new_total <= 102:\n                        series[\"mix_activos\"][year] = cleaned\n                        console.log(f\"[green]Corregido {year}: {total:.1f}% -> {new_total:.1f}%\")\n                    else:\n                        console.log(f\"[red]No se pudo corregir automáticamente {year}. Suma: {new_total:.1f}%\")\n        \n        return series",
+      "confianza": 75,
+      "riesgos": "La corrección automática de mix_activos basada en filtrado de claves puede eliminar categorías legítimas si sus nombres contienen palabras clave como 'subtotal'. Si el XML tiene estructura no estándar o nombres de categorías diferentes a los esperados, el filtrado puede fallar. La solución ideal requiere modificar xml_parser.py directamente con conocimiento de la estructura XSD del XML CNMV, pero como no tengo acceso a ese código, esta es una solución paliativa de validación post-procesamiento. Puede haber falsos positivos en fondos con derivados o posiciones cortas que legítimamente sumen >100%.",
+      "test_suggestion": "1) Ejecutar el agente sobre los ISINs que mostraron errores en producción y verificar que mix_activos suma entre 98-102% para todos los años. 2) Loguear los casos donde se aplica corrección automática y revisar manualmente 5-10 ejemplos para confirmar que las categorías eliminadas son efectivamente duplicados. 3) Comparar el mix_activos corregido con el informe PDF semestral correspondiente (sección patrimonio) para validar que los porcentajes coinciden. 4) Verificar que fondos con <4 puntos en serie AUM loguen el warning correctamente. 5) Test con fondo recién creado (1-2 años) vs fondo antiguo (>10 años) para validar ambos casos.",
+      "agent": "cnmv_agent.py",
+      "issues_count": 14,
+      "timestamp": "2026-04-06T11:16:21.333405"
+    }
+  ]
+}
