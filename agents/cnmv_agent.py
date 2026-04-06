@@ -449,9 +449,17 @@ class CNMVAgent:
                     "fecha_registro", "gestora_pdf",
                     "estrategia", "tipo_activos", "gestores",
                     "historia_fondo", "serie_aum_pdf",
+                    "rotacion_cartera_pct", "rotacion_cartera_anterior_pct",
+                    "comisiones_gestion_por_clase",
+                    "serie_ter_pdf",
+                    "_periodo_pdf",
                 ]:
                     if parsed.get(campo) is not None:
                         merged[campo] = parsed[campo]
+
+            # Accumulate hechos_relevantes from all PDFs
+            if parsed.get("hechos_relevantes"):
+                merged.setdefault("hechos_relevantes", []).extend(parsed["hechos_relevantes"])
 
                 # Qualitative from section 9/10
                 if objetivo not in ("2", "4"):
