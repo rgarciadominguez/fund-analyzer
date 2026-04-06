@@ -389,6 +389,35 @@ class ReadingsAgent:
                 await asyncio.sleep(1)
                 await asyncio.sleep(1.5)
 
+        # ── PASO 7: Cruzar con letters_data — entrevistas/podcasts ────────────
+        letters_path = self.fund_dir / "letters_data.json"
+        if letters_path.exists():
+            try:
+                letters = json.loads(letters_path.read_text(encoding="utf-8"))
+                for carta in letters.get("cartas", []):
+                    url = carta.get("url_fuente", "")
+                    if not url:
+                        continue
+                    combined = (url + " " + carta.get("titulo", "")).lower()
+                    # If it looks like interview/podcast/video, add to lecturas
+                    if any(kw in combined for kw in [
+                        "entrevista", "interview", "podcast", "youtube",
+                        "ivoox", "spotify", "video", "repasando", "value investing fm"
+                    ]):
+                        lecturas.append({
+                            "tipo": "entrevista" if "entrevista" in combined or "interview" in combined
+                                    else "podcast" if "podcast" in combined or "ivoox" in combined
+                                    else "video" if "youtube" in combined or "video" in combined
+                                    else "articulo",
+                            "titulo": carta.get("titulo", ""),
+                            "url": url,
+                            "fuente": self._extract_domain(url),
+                            "fecha": carta.get("periodo", ""),
+                            "descripcion": (carta.get("tesis_inversion") or carta.get("resumen_mercado") or "")[:200],
+                        })
+            except Exception:
+                pass
+
         # Dedup lecturas por URL
         seen_urls: set[str] = set()
         lecturas_dedup = []

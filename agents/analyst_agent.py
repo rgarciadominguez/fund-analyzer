@@ -345,31 +345,12 @@ class AnalystAgent:
             except Exception as exc:
                 self._log("WARN", f"Error estrategia: {exc}")
 
-        # Section 3: Portfolio Managers
+        # Section 3: Portfolio Managers — web search if not found in PDFs
         gestores_actual = cual.get("gestores", [])
         if not gestores_actual or not any(g.get("nombre") for g in gestores_actual):
-            try:
-                result = extract_structured_data(
-                    context_text[:5000],
-                    {"gestores": [{
-                        "nombre": "nombre completo de persona física que gestiona/asesora el fondo",
-                        "cargo": "gestor principal, asesor, portfolio manager, director de inversiones",
-                        "background": "trayectoria: firmas anteriores, educación, años experiencia",
-                        "anio_incorporacion": None,
-                    }]},
-                    context=(
-                        f"{analyst_base_ctx} "
-                        "Buscar nombres en portada, sección de gestión, URLs de cartas "
-                        "(slugs tipo 'juan-gomez-bada' revelan nombres). "
-                        "Solo personas FÍSICAS, no sociedades gestoras."
-                    ),
-                )
-                if isinstance(result, dict) and result.get("gestores"):
-                    gestores_filtrados = [g for g in result["gestores"] if g and g.get("nombre")]
-                    if gestores_filtrados:
-                        output.setdefault("cualitativo", {})["gestores"] = gestores_filtrados
-            except Exception as exc:
-                self._log("WARN", f"Error gestores: {exc}")
+            gestores_found = self._search_gestores_web(output)
+            if gestores_found:
+                output.setdefault("cualitativo", {})["gestores"] = gestores_found
 
         # Section 8: Analyst Synthesis (green flags, red flags, signal)
         try:
@@ -399,6 +380,129 @@ class AnalystAgent:
         # ── Historia del fondo ────────────────────────────────────────────────
         if not output.get("cualitativo", {}).get("historia_fondo"):
             self._generate_historia_fondo(output)
+
+    def _search_gestores_web(self, output: dict) -> list[dict]:
+        """
+        Search for fund managers via web: Morningstar equipo, Citywire, Trustnet,
+        gestora website, and external analyses already downloaded.
+        """
+        import asyncio
+        import urllib.parse
+        nombre = output.get("nombre", "")
+        fund_short = nombre.split(",")[0].strip() if "," in nombre else nombre
+
+        self._log("START", f"Buscando gestores en web para {fund_short}")
+
+        # Step 1: Extract from existing analisis_externos.json
+        gestores_text_hints = []
+        for fname in ["analisis_externos.json", "letters_data.json"]:
+            fpath = self.fund_dir / fname
+            if fpath.exists():
+                try:
+                    data = json.loads(fpath.read_text(encoding="utf-8"))
+                    # Collect all text that might contain gestor names
+                    if isinstance(data, list):
+                        for item in data:
+                            for k in ["titulo", "resumen_generado", "resumen"]:
+                                if item.get(k):
+                                    gestores_text_hints.append(item[k][:500])
+                    elif isinstance(data, dict):
+                        for carta in data.get("cartas", []):
+                            for k in ["url_fuente", "tesis_inversion", "resumen_mercado"]:
+                                if carta.get(k):
+                                    gestores_text_hints.append(str(carta[k])[:300])
+                except Exception:
+                    pass
+
+        # Step 2: DDG search for gestores
+        web_texts = []
+        try:
+            from tools.http_client import get_with_headers
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept-Language": "es-ES,es;q=0.9",
+            }
+
+            queries = [
+                f'"{fund_short}" gestor equipo manager',
+                f'"{fund_short}" morningstar equipo',
+                f'"{fund_short}" citywire manager',
+                f'"{fund_short}" trustnet manager',
+            ]
+
+            for query in queries[:3]:
+                try:
+                    enc_q = urllib.parse.quote_plus(query)
+                    ddg_url = f"https://html.duckduckgo.com/html/?q={enc_q}"
+                    html = asyncio.get_event_loop().run_until_complete(
+                        get_with_headers(ddg_url, headers)
+                    ) if not asyncio.get_event_loop().is_running() else ""
+
+                    # If we can't do async from sync context, try sync
+                    if not html:
+                        import httpx
+                        resp = httpx.get(ddg_url, headers=headers, timeout=15, follow_redirects=True)
+                        html = resp.text
+
+                    if html:
+                        from bs4 import BeautifulSoup
+                        soup = BeautifulSoup(html, "html.parser")
+                        for result_div in soup.select(".result__snippet")[:3]:
+                            web_texts.append(result_div.get_text(strip=True))
+                        # Try to fetch first Morningstar/Citywire/Trustnet result
+                        for a in soup.select("a.result__a")[:5]:
+                            href = a.get("href", "")
+                            if any(site in href for site in ["morningstar", "citywire", "trustnet"]):
+                                # Extract actual URL from DDG redirect
+                                if "uddg=" in href:
+                                    href = urllib.parse.unquote(href.split("uddg=")[1].split("&")[0])
+                                try:
+                                    page = httpx.get(href, headers=headers, timeout=15, follow_redirects=True)
+                                    page_soup = BeautifulSoup(page.text, "html.parser")
+                                    # Get text from manager/team sections
+                                    page_text = page_soup.get_text(separator=" ", strip=True)[:3000]
+                                    web_texts.append(page_text)
+                                    self._log("INFO", f"Fetched gestor page: {href[:60]}")
+                                except Exception:
+                                    pass
+                                break
+                except Exception as exc:
+                    self._log("WARN", f"DDG search error: {exc}")
+
+        except Exception as exc:
+            self._log("WARN", f"Web search for gestores failed: {exc}")
+
+        # Step 3: Send all collected text to Claude for extraction
+        all_text = "\n---\n".join(gestores_text_hints + web_texts)
+        if not all_text.strip():
+            self._log("WARN", "No text found for gestor extraction")
+            return []
+
+        try:
+            result = extract_structured_data(
+                all_text[:6000],
+                {"gestores": [{
+                    "nombre": "nombre completo de la persona física que gestiona el fondo",
+                    "cargo": "cargo: gestor principal, asesor, portfolio manager, CIO",
+                    "background": "trayectoria profesional: firmas anteriores, experiencia, formación",
+                    "anio_incorporacion": None,
+                }]},
+                context=(
+                    f"Extraer el equipo gestor del fondo {fund_short}. "
+                    "Buscar nombres de PERSONAS FÍSICAS que gestionan o asesoran este fondo. "
+                    "Fuentes: artículos de análisis, Morningstar, Citywire, Trustnet, web gestora. "
+                    "NO incluir sociedades gestoras como personas."
+                ),
+            )
+            if isinstance(result, dict) and result.get("gestores"):
+                gestores = [g for g in result["gestores"] if g and g.get("nombre")]
+                if gestores:
+                    self._log("OK", f"Gestores encontrados via web: {[g['nombre'] for g in gestores]}")
+                    return gestores
+        except Exception as exc:
+            self._log("WARN", f"Claude gestor extraction failed: {exc}")
+
+        return []
 
     def _build_full_context(self, output: dict) -> str:
         """Build comprehensive text context from all available data for Claude."""

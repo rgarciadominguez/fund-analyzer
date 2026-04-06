@@ -155,6 +155,38 @@ SUB_AGENT_TOOLS: list[dict] = [
             "required": ["message"],
         },
     },
+    {
+        "name": "feedback_agent",
+        "description": (
+            "Procesa feedback del usuario: URLs como pistas para aprender dónde buscar, "
+            "búsquedas para ejecutar, o correcciones de datos. "
+            "Las URLs NO se guardan como fuentes fijas — se analiza el sitio/patrón para "
+            "aprender qué tipo de contenido tiene y cómo buscarlo en el futuro."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "isin": {
+                    "type": "string",
+                    "description": "ISIN del fondo al que aplica el feedback.",
+                },
+                "feedback_type": {
+                    "type": "string",
+                    "enum": ["url", "search", "correction"],
+                    "description": (
+                        "Tipo de feedback: 'url' para pistas de sitios web, "
+                        "'search' para queries a ejecutar, "
+                        "'correction' para correcciones directas de datos."
+                    ),
+                },
+                "content": {
+                    "type": "string",
+                    "description": "La URL, query de búsqueda, o corrección a aplicar.",
+                },
+            },
+            "required": ["isin", "feedback_type", "content"],
+        },
+    },
 ]
 
 # ── Tools available to the Orchestrator ───────────────────────────────────────

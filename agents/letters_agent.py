@@ -1111,7 +1111,7 @@ class LettersAgent:
         """Pass text to Claude to extract structured letter data."""
         schema = {
             "fecha": "fecha de la carta o periodo (ej. 'Q1 2024', '1T2024', '1S 2025')",
-            "periodo": "formato normalizado (ej. '2024-Q1', '2025-S1')",
+            "periodo": "formato normalizado (ej. '2024-Q1', '2025-S1', '2026-02')",
             "resumen_mercado": "contexto de mercado descrito en la carta (2-4 frases)",
             "posiciones_comentadas": [
                 {"nombre": "activo o empresa",
@@ -1131,17 +1131,50 @@ class LettersAgent:
             )
             extracted["archivo"] = archivo
             extracted["url_fuente"] = url
+            # Fallback period from URL/filename if Claude didn't extract it
+            if not extracted.get("periodo"):
+                extracted["periodo"] = self._infer_period_from_url(url) or entry.get("fecha_estimada", "")
             self._log("OK", f"Extraida: {url[:60]}")
             return extracted
         except Exception as exc:
             self._log("WARN", f"Claude error {url[:60]}: {exc}")
+            periodo = self._infer_period_from_url(url) or entry.get("fecha_estimada", "")
             return {
                 "archivo": archivo, "url_fuente": url,
-                "fecha": entry.get("fecha_estimada", ""),
-                "periodo": entry.get("fecha_estimada", ""),
+                "fecha": periodo,
+                "periodo": periodo,
                 "resumen_mercado": None, "posiciones_comentadas": [],
                 "tesis_inversion": None, "perspectivas": None, "decisiones_cartera": None,
             }
+
+    def _infer_period_from_url(self, url: str) -> str:
+        """Extract date from URL patterns like /2026/03/ or _2025_01_ or -enero-2026."""
+        if not url:
+            return ""
+        # Pattern: /YYYY/MM/ in URL path
+        m = re.search(r'/(\d{4})/(\d{2})/', url)
+        if m:
+            return f"{m.group(1)}-{m.group(2)}"
+        # Pattern: month names in Spanish
+        months_es = {
+            "enero": "01", "febrero": "02", "marzo": "03", "abril": "04",
+            "mayo": "05", "junio": "06", "julio": "07", "agosto": "08",
+            "septiembre": "09", "octubre": "10", "noviembre": "11", "diciembre": "12",
+        }
+        for name, num in months_es.items():
+            m = re.search(rf'{name}[\-_\s]*(20\d{{2}})', url, re.IGNORECASE)
+            if m:
+                return f"{m.group(1)}-{num}"
+            m = re.search(rf'(20\d{{2}})[\-_\s]*{name}', url, re.IGNORECASE)
+            if m:
+                return f"{m.group(1)}-{num}"
+        # Pattern: semester/quarter in filename
+        m = re.search(r'(semestral|carta).*?(20\d{2})', url, re.IGNORECASE)
+        if m:
+            return f"{m.group(2)}-S2"
+        # Last resort: any year
+        m = re.search(r'(20\d{2})', url)
+        return m.group(1) if m else ""
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 

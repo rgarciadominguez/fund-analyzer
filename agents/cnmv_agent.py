@@ -756,7 +756,7 @@ class CNMVAgent:
         # Clean (cid:X) ligature artifacts from pdfplumber
         full_text = re.sub(r'\(cid:\d+\)', ' ', full_text)
 
-        result: dict = {"_periodo_pdf": f"{year}-S2"}
+        result: dict = {"_periodo_pdf": str(year)}
         result.update(self._parse_seccion_politica(full_text))
         result.update(self._parse_seccion_datos_generales(full_text, year))
         result.update(self._parse_seccion_comportamiento(full_text, year))
@@ -1006,7 +1006,7 @@ class CNMVAgent:
             pat_block = text[pat_section_m.start(): pat_section_m.start() + 1500]
 
             # Extract year labels from header: "Al final del periodo Diciembre 2024 Diciembre 2023 ..."
-            header_years = [f"{year}-S2"]  # col 0 = current period
+            header_years = [str(year)]  # col 0 = current period (normalized to YYYY)
             for hm in re.finditer(r'(?:Diciembre|Junio)\s+(20\d{2})', pat_block[:300]):
                 header_years.append(hm.group(1))
 
@@ -1050,7 +1050,7 @@ class CNMVAgent:
             )
             if m:
                 serie_aum.append({
-                    "periodo": f"{year}-S2",
+                    "periodo": str(year),
                     "valor_meur": round(
                         float(m.group(1).replace(".", "").replace(",", ".")) / 1000, 3
                     ),
@@ -1077,7 +1077,7 @@ class CNMVAgent:
             if vl_rows:
                 vl_current = float(vl_rows[0][0].replace(",", "."))
                 for e in serie_aum:
-                    if e["periodo"] == f"{year}-S2":
+                    if e["periodo"] == str(year):
                         e["vl"] = vl_current
                         break
 
@@ -1273,7 +1273,7 @@ class CNMVAgent:
 
         # Only add if meaningful content found
         if epigrafe_si or (detalle and len(detalle) > 30):
-            periodo_str = f"{year}-S2" if year else ""
+            periodo_str = str(year) if year else ""
             result["hechos_relevantes"] = [{
                 "periodo": periodo_str,
                 "epigrafe": "; ".join(epigrafe_si) if epigrafe_si else "",
@@ -1506,19 +1506,31 @@ class CNMVAgent:
                 })
             cuant["serie_rotacion"] = sorted(existing_rot, key=lambda x: x["periodo"])
 
-        # AUM series from PDF — merge with XML series without duplicating
+        # AUM series from PDF — merge with XML series, PDF OVERWRITES XML for same year
         serie_aum_pdf = pdf_data.get("serie_aum_pdf", [])
         if serie_aum_pdf:
-            existing = {
-                e["periodo"]: e
-                for e in result.get("cuantitativo", {}).get("serie_aum", [])
-            }
+            # Normalize XML periods: "202506" → "2025", "2022-S2" → "2022"
+            raw_xml = result.get("cuantitativo", {}).get("serie_aum", [])
+            existing: dict = {}
+            for e in raw_xml:
+                p = str(e.get("periodo", ""))
+                if len(p) == 6 and p.isdigit():  # "202506" → "2025"
+                    p = p[:4]
+                p = p.split("-")[0]  # "2022-S2" → "2022"
+                e_copy = dict(e)
+                e_copy["periodo"] = p
+                e_copy["_source"] = "xml"
+                existing[p] = e_copy
             for entry in serie_aum_pdf:
-                p = entry["periodo"]
-                if p not in existing:
-                    existing[p] = entry
-                elif "vl" not in existing.get(p, {}):
-                    existing[p]["vl"] = entry.get("vl")
+                p = str(entry["periodo"]).split("-")[0]  # normalize just in case
+                entry_copy = dict(entry)
+                entry_copy["periodo"] = p
+                entry_copy["_source"] = "pdf"
+                # PDF always overwrites XML (semiannual report is more reliable)
+                existing[p] = entry_copy
+            # Remove internal _source tag before saving
+            for e in existing.values():
+                e.pop("_source", None)
             result.setdefault("cuantitativo", {})["serie_aum"] = sorted(
                 existing.values(), key=lambda x: x["periodo"]
             )

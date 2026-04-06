@@ -380,6 +380,146 @@ def git_agent(message: str, files: list[str] | None = None) -> str:
         return f"ERROR en git_agent: {exc}"
 
 
+# ── Subagent: feedback_agent ───────────────────────────────────────────────────
+
+def feedback_agent(isin: str, feedback_type: str, content: str) -> str:
+    """
+    Process user feedback: URLs as hints (not fixed sources), corrections, search queries.
+
+    - URL → fetch, analyze what kind of site/content it is, learn the PATTERN (not the URL itself)
+    - search → execute DDG query, integrate results
+    - correction → update output.json directly
+    """
+    import httpx
+    from bs4 import BeautifulSoup
+
+    fund_dir = PROJECT_ROOT / "data" / "funds" / isin
+    history_path = fund_dir / "feedback_history.json"
+    knowledge_path = PROJECT_ROOT / "data" / "extraction_knowledge.json"
+
+    # Load history
+    history = []
+    if history_path.exists():
+        try:
+            history = json.loads(history_path.read_text(encoding="utf-8"))
+        except Exception:
+            history = []
+
+    result_summary = ""
+
+    if feedback_type == "url":
+        # Fetch the URL and analyze what kind of content/site it is
+        try:
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+            resp = httpx.get(content, headers=headers, timeout=15, follow_redirects=True)
+            soup = BeautifulSoup(resp.text, "html.parser")
+            page_text = soup.get_text(separator=" ", strip=True)[:3000]
+            domain = resp.url.host if resp.url else ""
+            title = soup.title.string if soup.title else ""
+
+            # Learn: what site is this, what content type, what URL pattern
+            import urllib.parse
+            parsed = urllib.parse.urlparse(str(resp.url))
+            path_pattern = re.sub(r'\d{4}', '{YEAR}', parsed.path)
+            path_pattern = re.sub(r'\d{2}', '{MM}', path_pattern)
+
+            learned = {
+                "domain": domain,
+                "content_type": "analysis" if any(kw in page_text.lower() for kw in ["análisis", "analysis", "review"])
+                                else "interview" if any(kw in page_text.lower() for kw in ["entrevista", "interview"])
+                                else "letter" if any(kw in page_text.lower() for kw in ["carta", "letter", "informe"])
+                                else "article",
+                "url_pattern": f"{parsed.scheme}://{parsed.netloc}{path_pattern}",
+                "title": title[:100],
+                "useful_for": "gestores" if any(kw in page_text.lower() for kw in ["gestor", "manager", "equipo"])
+                              else "analysis" if any(kw in page_text.lower() for kw in ["cartera", "portfolio", "posiciones"])
+                              else "general",
+            }
+
+            # Save to knowledge
+            try:
+                knowledge = json.loads(knowledge_path.read_text(encoding="utf-8")) if knowledge_path.exists() else {}
+                sources = knowledge.setdefault("learned_sources", [])
+                if not any(s.get("domain") == domain for s in sources):
+                    sources.append(learned)
+                    knowledge_path.write_text(json.dumps(knowledge, ensure_ascii=False, indent=2), encoding="utf-8")
+            except Exception:
+                pass
+
+            # Also try to extract useful content with Claude
+            try:
+                sys.path.insert(0, str(PROJECT_ROOT))
+                from tools.claude_extractor import extract_structured_data
+                extracted = extract_structured_data(
+                    page_text[:4000],
+                    {"resumen": "resumen de 5-10 líneas del contenido relevante para análisis de fondos",
+                     "gestores_mencionados": ["nombres de gestores/managers mencionados"],
+                     "datos_relevantes": "datos numéricos o hechos relevantes sobre el fondo"},
+                    context=f"Contenido de {domain} sobre fondo {isin}",
+                )
+                result_summary = (
+                    f"URL procesada: {content}\n"
+                    f"Sitio: {domain} ({learned['content_type']})\n"
+                    f"Patrón aprendido: {learned['url_pattern']}\n"
+                    f"Resumen: {extracted.get('resumen', 'N/A')}\n"
+                    f"Gestores: {extracted.get('gestores_mencionados', [])}"
+                )
+            except Exception:
+                result_summary = f"URL procesada: {content}\nSitio: {domain}\nPatrón: {learned['url_pattern']}"
+
+        except Exception as exc:
+            result_summary = f"ERROR procesando URL: {exc}"
+
+    elif feedback_type == "search":
+        # Execute DDG search and return results
+        try:
+            import httpx
+            enc_q = content.replace(" ", "+")
+            resp = httpx.get(
+                f"https://html.duckduckgo.com/html/?q={enc_q}",
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+                timeout=15,
+            )
+            soup = BeautifulSoup(resp.text, "html.parser")
+            results = []
+            for r in soup.select(".result")[:5]:
+                a = r.select_one("a.result__a")
+                snippet = r.select_one(".result__snippet")
+                if a:
+                    results.append({
+                        "titulo": a.get_text(strip=True),
+                        "url": a.get("href", ""),
+                        "snippet": snippet.get_text(strip=True) if snippet else "",
+                    })
+            result_summary = f"Búsqueda '{content}': {len(results)} resultados\n"
+            for r in results:
+                result_summary += f"  - {r['titulo'][:60]} → {r['url'][:80]}\n"
+        except Exception as exc:
+            result_summary = f"ERROR en búsqueda: {exc}"
+
+    elif feedback_type == "correction":
+        # Direct data correction
+        try:
+            output_path = fund_dir / "output.json"
+            if output_path.exists():
+                result_summary = f"Corrección recibida: {content[:200]}. Aplicar via code_agent."
+            else:
+                result_summary = f"output.json no encontrado para {isin}"
+        except Exception as exc:
+            result_summary = f"ERROR: {exc}"
+
+    # Save to history
+    history.append({
+        "timestamp": datetime.now().isoformat(),
+        "type": feedback_type,
+        "content": content[:500],
+        "result": result_summary[:500],
+    })
+    history_path.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    return result_summary
+
+
 # ── Dispatcher ────────────────────────────────────────────────────────────────
 
 def dispatch_sub_agent(tool_name: str, tool_input: dict[str, Any]) -> str:
@@ -412,6 +552,12 @@ def dispatch_sub_agent(tool_name: str, tool_input: dict[str, Any]) -> str:
         return git_agent(
             message=tool_input["message"],
             files=tool_input.get("files"),
+        )
+    if tool_name == "feedback_agent":
+        return feedback_agent(
+            isin=tool_input["isin"],
+            feedback_type=tool_input["feedback_type"],
+            content=tool_input["content"],
         )
     return f"ERROR: subagente desconocido '{tool_name}'"
 
