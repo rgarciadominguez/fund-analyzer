@@ -1,24 +1,23 @@
 {
   "isin": "ES0112231008",
   "nombre": "AVANTAGE FUND, FI",
-  "timestamp": "2026-04-06T14:10:20.616578",
-  "completeness_pct": 100.0,
+  "timestamp": "2026-04-06T14:19:58.363836",
+  "completeness_pct": 88.9,
   "dashboard_ready": true,
   "dashboard_blockers": [],
   "issues": [
-    "[patron_conocido:gestores_todos_null] todos los gestores tienen nombre=null — extraccion PDF cualitativo fallida o sin PDFs cualitativos",
+    "gestores vacíos — buscar en Citywire / Finect",
     "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
   ],
   "suggestions": [
     "Años sin datos AUM: 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2026 -> descargar XMLs CNMV de esos años",
-    "-> Anadir más PDFs semestrales en raw/reports/",
     "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0112231008 --auto"
   ],
   "feedback_previo": [],
   "stats": {
-    "periodos_consistencia": 12,
+    "periodos_consistencia": 10,
     "posiciones_actuales": 46,
     "puntos_aum": 3,
-    "gestores": 1
+    "gestores": 0
   }
 }
