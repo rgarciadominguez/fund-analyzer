@@ -1,5 +1,5 @@
 """
-Fund Analyzer — Streamlit Dashboard v3
+Fund Analyzer — Streamlit Dashboard v4  (dark executive terminal theme)
 """
 import hashlib
 import json
@@ -8,178 +8,184 @@ import urllib.parse
 from pathlib import Path
 
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import streamlit as st
 from datetime import datetime
+
+from ui_components import (
+    section_header, narrative_block, timeline_item,
+    dual_timeline_item, consistency_period, stat_row, empty_state,
+)
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Fund Analyzer",
-    page_icon="📊",
+    page_icon="◈",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# ── Session state defaults ────────────────────────────────────────────────────
+# ── Session state ─────────────────────────────────────────────────────────────
 if "selected_isin" not in st.session_state:
     st.session_state.selected_isin = None
 
-# ── Design system — executive light palette ───────────────────────────────────
-BG     = "#f5f7fa"
-BG2    = "#ffffff"
-BG3    = "#fafafa"
-BORDER = "#e5e5e5"
-TEXT   = "#1a1a1a"
-TEXT2  = "#444444"
-TEXT3  = "#888888"
-ACCENT = "#1a1a2e"       # dark navy — UI accents, badges, borders
-CHART  = "#2563eb"       # mid-blue — chart bars (legible on white)
-GREEN  = "#2e7d32"       # badge green (earthy)
-GREEN_CHART = "#10b981"  # chart green (vivid, legible)
-RED    = "#c62828"       # badge red
-RED_CHART = "#ef4444"    # chart red
-YELLOW = "#b45309"       # amber for badges
-YELLOW_CHART = "#f59e0b" # chart amber
-PURPLE = "#7c3aed"
+# ── Design tokens — dark executive palette ────────────────────────────────────
+BG      = "#0d0f14"
+BG2     = "#13161e"
+BG3     = "#1a1d28"
+BORDER  = "#1e2130"
+TEXT    = "#e8e8e8"
+TEXT2   = "#bbb"
+TEXT3   = "#666"
+ACCENT  = "#4fc3f7"    # electric blue — all accents, bars
+GREEN   = "#4caf50"
+GREEN_CHART = "#10b981"
+RED     = "#ef5350"
+RED_CHART   = "#ef4444"
+YELLOW  = "#f59e0b"
+YELLOW_CHART = "#f59e0b"
+PURPLE  = "#a78bfa"
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
-st.markdown(f"""
+# ── Global CSS ────────────────────────────────────────────────────────────────
+st.markdown("""
 <style>
-/* ── Base ── */
-.stApp {{ background-color: {BG}; color: {TEXT}; }}
-section[data-testid="stSidebar"] {{ display: none; }}
-header[data-testid="stHeader"] {{ display: none; }}
-.block-container {{ padding: 1rem 2rem 2rem 2rem; max-width: 1400px; }}
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap');
 
-/* ── Tipografía y jerarquía ── */
-h1, h2, h3 {{ font-family: 'Georgia', serif; letter-spacing: -0.02em; }}
-h1 {{ font-size: 1.8rem; font-weight: 700; color: #0d0d0d; margin-bottom: 0.25rem; }}
-h2 {{ font-size: 1.25rem; font-weight: 700; color: {TEXT}; margin-bottom: 0.5rem;
-      border-bottom: 1px solid {BORDER}; padding-bottom: 0.4rem; }}
-h3 {{ font-size: 1rem; font-weight: 600; color: #333; margin-bottom: 0.3rem; }}
-p, li {{ font-size: 0.92rem; color: {TEXT2}; line-height: 1.75; }}
-.meta {{ font-size: 0.78rem; color: {TEXT3}; text-transform: uppercase;
-         letter-spacing: 0.06em; font-weight: 600; }}
+/* ── Reset & base ── */
+.block-container { padding-top:1.2rem !important; padding-bottom:1rem !important; max-width:1140px !important; }
+.element-container { margin-bottom:0.35rem !important; }
+div[data-testid="stVerticalBlock"] > div { gap:0.35rem !important; }
 
-/* ── Métricas st.metric ── */
-[data-testid="stMetric"] {{
-  border: 1px solid {BORDER}; border-radius: 8px;
-  padding: 0.75rem 1rem; background: {BG2};
-}}
-[data-testid="stMetricLabel"] {{
-  font-size: 0.72rem !important; text-transform: uppercase;
-  letter-spacing: 0.05em; color: {TEXT3} !important;
-}}
-[data-testid="stMetricValue"] {{
-  font-size: 1.4rem !important; font-weight: 700 !important; color: {TEXT} !important;
-}}
+html, body, [class*="css"] {
+  font-family:'Sora', sans-serif !important;
+  font-size:13.5px;
+  color:#e8e8e8;
+}
+
+.stApp { background-color:#0d0f14 !important; }
+section[data-testid="stSidebar"] { display:none; }
+header[data-testid="stHeader"] { display:none; }
 
 /* ── Tabs ── */
-.stTabs [data-baseweb="tab-list"] {{
-  background: {BG2}; border-radius: 10px; padding: 4px;
-  border: 1px solid {BORDER}; gap: 2px;
-}}
-.stTabs [data-baseweb="tab"] {{
-  background: transparent; color: {TEXT2}; border-radius: 8px;
-  font-size: 13px; font-weight: 500; padding: 6px 14px; border: none;
-}}
-.stTabs [aria-selected="true"] {{ background: {ACCENT} !important; color: white !important; }}
-.stTabs [data-baseweb="tab-panel"] {{ padding-top: 16px; }}
+.stTabs [data-baseweb="tab-list"] {
+  background:#13161e;
+  border-radius:0;
+  border-bottom:1px solid #1e2130;
+  gap:0; padding:0;
+}
+.stTabs [data-baseweb="tab"] {
+  font-family:'DM Mono', monospace !important;
+  font-size:10.5px;
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+  padding:10px 18px;
+  border-bottom:2px solid transparent;
+  color:#555;
+  background:transparent !important;
+}
+.stTabs [aria-selected="true"] {
+  border-bottom:2px solid #4fc3f7 !important;
+  color:#4fc3f7 !important;
+  background:transparent !important;
+}
+.stTabs [data-baseweb="tab-panel"] { padding-top:18px; }
 
-/* ── Componentes ── */
-.card {{
-  background: {BG2}; border: 1px solid {BORDER};
-  border-radius: 10px; padding: 16px 20px;
-}}
-.content-block {{
-  padding: 1.25rem 1.5rem; background: {BG3};
-  border-left: 3px solid {ACCENT};
-  border-radius: 0 6px 6px 0; margin-bottom: 1.5rem;
-}}
-.kpi-card {{
-  background: {BG2}; border: 1px solid {BORDER};
-  border-radius: 10px; padding: 14px 18px; text-align: center;
-}}
-.kpi-label {{ font-size: 10px; color: {TEXT3}; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }}
-.kpi-value {{ font-size: 22px; font-weight: 700; color: {TEXT}; line-height: 1.1; }}
-.kpi-sub   {{ font-size: 11px; color: {TEXT3}; margin-top: 3px; }}
+/* ── Metrics ── */
+[data-testid="stMetric"] {
+  background:#13161e;
+  border:1px solid #1e2130;
+  border-left:3px solid #4fc3f7;
+  padding:14px 18px !important;
+  border-radius:4px;
+}
+[data-testid="stMetricLabel"] {
+  font-family:'DM Mono', monospace !important;
+  font-size:9.5px !important;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#555 !important;
+}
+[data-testid="stMetricValue"] {
+  font-family:'DM Mono', monospace !important;
+  font-size:20px !important;
+  font-weight:500 !important;
+  color:#e8e8e8 !important;
+}
+[data-testid="stMetricDelta"] { font-size:10px !important; }
 
-/* ── Separadores y secciones ── */
-.sec {{
-  font-size: 12px; font-weight: 700; color: {TEXT3}; text-transform: uppercase;
-  letter-spacing: 1px; border-bottom: 1px solid {BORDER};
-  padding-bottom: 6px; margin: 20px 0 12px 0;
-}}
-.section-divider {{ border: none; border-top: 1px solid {BORDER}; margin: 2rem 0; }}
-
-/* ── Badges ── */
-.year-badge {{
-  display: inline-block; font-size: 0.75rem; font-weight: 700;
-  background: {ACCENT}; color: white; border-radius: 4px;
-  padding: 2px 8px; letter-spacing: 0.04em;
-}}
-.badge-pos {{ background: #e8f5e9; color: {GREEN}; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }}
-.badge-neg {{ background: #fdecea; color: {RED}; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }}
-.badge-neu {{ background: #f5f5f5; color: {TEXT3}; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }}
-
-/* ── Timeline ── */
-.tl-wrap {{ position: relative; padding-left: 28px; }}
-.tl-line {{ position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: {BORDER}; }}
-.tl-item {{ position: relative; margin-bottom: 1.25rem; }}
-.tl-dot  {{ width: 10px; height: 10px; background: {ACCENT}; border-radius: 50%;
-             position: absolute; left: -24px; top: 4px; border: 2px solid {BG2}; }}
-.tl-dot-reg {{ background: {YELLOW_CHART}; }}
-.tl-year {{ display: inline-block; background: {ACCENT}; color: #fff;
-             border-radius: 4px; padding: 2px 8px; font-size: 11px;
-             font-weight: 700; margin-bottom: 4px; }}
-.tl-year-reg {{ background: {YELLOW_CHART}; color: {TEXT}; }}
-.tl-text  {{ font-size: 13px; color: {TEXT2}; line-height: 1.6; }}
-.tl-label {{ font-size: 10px; color: {TEXT3}; text-transform: uppercase; margin-top: 3px; }}
+/* ── Expanders ── */
+details {
+  background:#13161e !important;
+  border:1px solid #1e2130 !important;
+  border-radius:4px !important;
+  margin-bottom:4px !important;
+}
+details summary {
+  font-family:'DM Mono', monospace !important;
+  font-size:11px !important;
+  padding:10px 16px !important;
+  color:#888 !important;
+  letter-spacing:0.04em;
+}
+details summary:hover { color:#4fc3f7 !important; }
 
 /* ── Scrollable box ── */
-.sbox {{
-  background: {BG3}; border: 1px solid {BORDER}; border-radius: 8px;
-  padding: 12px 14px; font-size: 13px; color: {TEXT2}; line-height: 1.7;
-  max-height: 220px; overflow-y: auto;
-}}
-
-/* ── Position rows ── */
-.pos-row {{ padding: 7px 0; border-bottom: 1px solid {BORDER}; font-size: 13px; }}
-
-/* ── Expander ── */
-.streamlit-expanderHeader {{
-  background: {BG3} !important; border-radius: 8px !important;
-  font-size: 13px !important; color: {TEXT} !important;
-}}
-div[data-testid="stExpander"] > details > summary {{
-  background: {BG3}; border-radius: 8px; padding: 8px 14px;
-}}
-
-/* ── Form controls ── */
-.stSelectbox > div > div, .stTextInput > div > div > input {{
-  background: {BG2} !important; color: {TEXT} !important;
-  border-color: {BORDER} !important; font-size: 13px !important;
-}}
+.sbox {
+  background:#0d0f14;
+  border:1px solid #1e2130;
+  border-radius:4px;
+  padding:12px 14px;
+  font-size:12.5px;
+  color:#999;
+  line-height:1.75;
+  max-height:220px;
+  overflow-y:auto;
+}
 
 /* ── Misc ── */
-.modebar {{ display: none !important; }}
-hr {{ border-color: {BORDER}; opacity: 0.4; }}
-.stDataFrame {{ background: {BG2}; }}
+.stAlert { display:none !important; }
+hr { border:none; border-top:1px solid #1e2130; margin:1.2rem 0; }
+.modebar { display:none !important; }
+.stDataFrame { background:#13161e; }
 
-.link-pill {{
-  display: inline-block; background: {BG3}; border: 1px solid {BORDER};
-  border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600;
-  color: {ACCENT}; text-decoration: none; margin-right: 6px; margin-top: 4px;
-}}
-.link-pill:hover {{ background: {ACCENT}; color: white; }}
+/* ── Form controls ── */
+.stSelectbox > div > div, .stTextInput > div > div > input {
+  background:#13161e !important;
+  color:#e8e8e8 !important;
+  border-color:#1e2130 !important;
+  font-family:'DM Mono', monospace !important;
+  font-size:12px !important;
+}
 
-.ext-card {{
-  background: {BG2}; border: 1px solid {BORDER}; border-radius: 10px;
-  padding: 14px 18px; margin-bottom: 10px;
-}}
+/* ── Position bar ── */
+.pos-bar-bg { background:#1e2130; border-radius:2px; height:3px; margin-top:4px; }
+.pos-bar-fill { background:#4fc3f7; border-radius:2px; height:3px; }
+
+/* ── Tag/badge ── */
+.tag {
+  display:inline-block;
+  background:#1a1d28;
+  border:1px solid #1e2130;
+  border-radius:3px;
+  padding:2px 8px;
+  font-family:'DM Mono', monospace;
+  font-size:10px;
+  letter-spacing:0.06em;
+  color:#888;
+  margin-right:4px;
+}
+.tag-accent { border-color:#4fc3f7; color:#4fc3f7; }
+.tag-green  { border-color:#4caf50; color:#4caf50; }
+.tag-red    { border-color:#ef5350; color:#ef5350; }
+.tag-amber  { border-color:#f59e0b; color:#f59e0b; }
+
+/* ── Links ── */
+a { color:#4fc3f7 !important; text-decoration:none !important; }
+a:hover { text-decoration:underline !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ── Data loaders ──────────────────────────────────────────────────────────────
 
 def load_output(isin: str) -> dict:
     p = Path(__file__).parent.parent / "data" / "funds" / isin / "output.json"
@@ -189,7 +195,7 @@ def load_output(isin: str) -> dict:
 def load_json(isin: str, filename: str) -> dict | list:
     p = Path(__file__).parent.parent / "data" / "funds" / isin / filename
     if not p.exists():
-        return {} if filename.endswith(".json") and "list" not in filename else []
+        return {}
     try:
         return json.loads(p.read_text(encoding="utf-8"))
     except Exception:
@@ -197,17 +203,15 @@ def load_json(isin: str, filename: str) -> dict | list:
 
 
 def _fund_has_data(data: dict) -> bool:
-    """Return True only if the fund has been meaningfully analyzed."""
     if not data.get("nombre"):
         return False
-    kpis = data.get("kpis") or {}
-    cuanti = data.get("cuantitativo") or {}
-    cualit = data.get("cualitativo") or {}
-    # Must have at least one of: AUM, mix_activos, posiciones, gestores with name
-    has_aum = bool(kpis.get("aum_actual_meur"))
-    has_mix = bool(cuanti.get("mix_activos_historico"))
-    has_pos = bool((data.get("posiciones") or {}).get("actuales"))
-    has_gestores = any(g.get("nombre") for g in (cualit.get("gestores") or []))
+    kpis  = data.get("kpis") or {}
+    cuant = data.get("cuantitativo") or {}
+    cual  = data.get("cualitativo") or {}
+    has_aum    = bool(kpis.get("aum_actual_meur"))
+    has_mix    = bool(cuant.get("mix_activos_historico"))
+    has_pos    = bool((data.get("posiciones") or {}).get("actuales"))
+    has_gestores = any(g.get("nombre") for g in (cual.get("gestores") or []))
     return has_aum or has_mix or has_pos or has_gestores
 
 
@@ -231,9 +235,9 @@ def discover_funds() -> list[dict]:
             pass
     return sorted(result, key=lambda x: x["nombre"])
 
+# ── Formatters ────────────────────────────────────────────────────────────────
 
 def es(v, dec=2, suffix="") -> str:
-    """Formato español: 1.234,56"""
     if v is None:
         return "—"
     try:
@@ -254,198 +258,172 @@ def meur(v) -> str:
 
 
 def normalize_year(periodo: str) -> str:
-    """'2022-S2' → '2022', '202506' → '2025', '2025-H2' → '2025'"""
     m = re.match(r"^(20\d{2})", str(periodo))
     return m.group(1) if m else str(periodo)
 
+
+def manager_slug(name: str) -> str:
+    s = name.lower().strip()
+    for a, b in [("á","a"),("à","a"),("ä","a"),("é","e"),("è","e"),("ë","e"),
+                 ("í","i"),("ì","i"),("ï","i"),("ó","o"),("ò","o"),("ö","o"),
+                 ("ú","u"),("ù","u"),("ü","u"),("ñ","n")]:
+        s = s.replace(a, b)
+    return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
+
+# ── Chart helpers ─────────────────────────────────────────────────────────────
 
 def chart_layout(height=280, legend=True) -> dict:
     return dict(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color=TEXT2, size=12),
+        font=dict(color=TEXT3, size=10, family="DM Mono, monospace"),
         height=height,
         margin=dict(l=0, r=0, t=10, b=40),
         showlegend=legend,
         legend=dict(
             orientation="h", yanchor="bottom", y=1.02,
-            bgcolor="rgba(0,0,0,0)", font=dict(size=11, color=TEXT2),
+            bgcolor="rgba(0,0,0,0)", font=dict(size=10, color=TEXT3),
         ),
-        xaxis=dict(showgrid=False, tickfont=dict(color=TEXT2, size=11),
+        xaxis=dict(showgrid=False, tickfont=dict(color=TEXT3, size=10),
                    linecolor=BORDER, tickangle=-30),
-        yaxis=dict(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2)),
+        yaxis=dict(showgrid=True, gridcolor=BORDER, gridwidth=0.5,
+                   tickfont=dict(color=TEXT3, size=10)),
     )
-
 
 # ── Country inference ─────────────────────────────────────────────────────────
 
 ISIN_COUNTRY_MAP = {
-    "ES": "España", "DE": "Alemania", "FR": "Francia", "IT": "Italia",
-    "NL": "Países Bajos", "GB": "Reino Unido", "US": "EE.UU.", "JP": "Japón",
-    "CH": "Suiza", "AU": "Australia", "CA": "Canadá", "SE": "Suecia",
-    "NO": "Noruega", "DK": "Dinamarca", "FI": "Finlandia", "PT": "Portugal",
-    "BE": "Bélgica", "AT": "Austria", "IE": "Irlanda", "MX": "México",
-    "BR": "Brasil", "CN": "China", "IN": "India", "KR": "Corea del Sur",
-    "TW": "Taiwan", "HK": "Hong Kong", "SG": "Singapur", "ZA": "Sudáfrica",
-    "PL": "Polonia", "CZ": "Rep. Checa", "HU": "Hungría", "RO": "Rumanía",
-    "TR": "Turquía", "RU": "Rusia", "AE": "EAU", "SA": "Arabia Saudí",
-    "LU": "Luxemburgo", "XS": "Internacional", "XF": "Internacional",
-    "GR": "Grecia", "SK": "Eslovaquia", "SI": "Eslovenia", "HR": "Croacia",
-    "CL": "Chile", "CO": "Colombia", "PE": "Perú", "AR": "Argentina",
-    "IL": "Israel", "TH": "Tailandia", "ID": "Indonesia", "MY": "Malasia",
-    "PH": "Filipinas", "VN": "Vietnam", "EG": "Egipto", "MA": "Marruecos",
-    "NG": "Nigeria", "KE": "Kenia",
+    "ES":"España","DE":"Alemania","FR":"Francia","IT":"Italia",
+    "NL":"Países Bajos","GB":"Reino Unido","US":"EE.UU.","JP":"Japón",
+    "CH":"Suiza","AU":"Australia","CA":"Canadá","SE":"Suecia",
+    "NO":"Noruega","DK":"Dinamarca","FI":"Finlandia","PT":"Portugal",
+    "BE":"Bélgica","AT":"Austria","IE":"Irlanda","MX":"México",
+    "BR":"Brasil","CN":"China","IN":"India","KR":"Corea del Sur",
+    "TW":"Taiwan","HK":"Hong Kong","SG":"Singapur","ZA":"Sudáfrica",
+    "PL":"Polonia","CZ":"Rep. Checa","HU":"Hungría","RO":"Rumanía",
+    "TR":"Turquía","RU":"Rusia","AE":"EAU","SA":"Arabia Saudí",
+    "LU":"Luxemburgo","XS":"Internacional","XF":"Internacional",
+    "GR":"Grecia","SK":"Eslovaquia","SI":"Eslovenia","HR":"Croacia",
+    "CL":"Chile","CO":"Colombia","PE":"Perú","AR":"Argentina",
+    "IL":"Israel","TH":"Tailandia","ID":"Indonesia","MY":"Malasia",
+    "PH":"Filipinas","VN":"Vietnam","EG":"Egipto","MA":"Marruecos",
+    "NG":"Nigeria","KE":"Kenia",
 }
 
 NAME_COUNTRY_MAP = {
-    "SPAIN": "España", "ESPAÑA": "España", "REINO DE ESPAÑA": "España",
-    "GERMANY": "Alemania", "BUNDESREPUBLIK": "Alemania", "DEUTSCHLAND": "Alemania",
-    "FRANCE": "Francia", "REPUBLIQUE FRANCAISE": "Francia", "FRENCH": "Francia",
-    "ITALY": "Italia", "ITALIA": "Italia", "REPUBBLICA ITALIANA": "Italia", "ITALIAN": "Italia",
-    "NETHERLANDS": "Países Bajos", "NEDERLAND": "Países Bajos", "DUTCH": "Países Bajos",
-    "UNITED KINGDOM": "Reino Unido", "UK GILT": "Reino Unido", "GILT": "Reino Unido",
-    "BRITISH": "Reino Unido", "ENGLAND": "Reino Unido",
-    "UNITED STATES": "EE.UU.", "US TREASURY": "EE.UU.", "U.S. TREASURY": "EE.UU.",
-    "AMERICAN": "EE.UU.", "USA": "EE.UU.",
-    "JAPAN": "Japón", "JAPANESE": "Japón", "NIPPON": "Japón",
-    "SWITZERLAND": "Suiza", "SWISS": "Suiza", "EIDGENOSSENSCHAFT": "Suiza",
-    "CANADA": "Canadá", "CANADIAN": "Canadá",
-    "AUSTRALIA": "Australia", "AUSTRALIAN": "Australia",
-    "SWEDEN": "Suecia", "SVENSKA": "Suecia", "SWEDISH": "Suecia",
-    "NORWAY": "Noruega", "NORGES": "Noruega", "NORWEGIAN": "Noruega",
-    "DENMARK": "Dinamarca", "DANISH": "Dinamarca",
-    "FINLAND": "Finlandia", "FINNISH": "Finlandia",
-    "PORTUGAL": "Portugal", "PORTUGUESE": "Portugal",
-    "BELGIUM": "Bélgica", "BELGIQUE": "Bélgica", "BELGIAN": "Bélgica",
-    "AUSTRIA": "Austria", "AUSTRIAN": "Austria",
-    "IRELAND": "Irlanda", "IRISH": "Irlanda",
-    "MEXICO": "México", "MEXICAN": "México",
-    "BRAZIL": "Brasil", "BRASIL": "Brasil", "BRAZILIAN": "Brasil",
-    "CHINA": "China", "CHINESE": "China", "PEOPLES REPUBLIC": "China",
-    "INDIA": "India", "INDIAN": "India",
-    "KOREA": "Corea del Sur", "REPUBLIC OF KOREA": "Corea del Sur", "KOREAN": "Corea del Sur",
-    "TAIWAN": "Taiwan",
-    "HONG KONG": "Hong Kong",
-    "SINGAPORE": "Singapur",
-    "SOUTH AFRICA": "Sudáfrica",
-    "POLAND": "Polonia", "POLSKA": "Polonia", "POLISH": "Polonia",
-    "CZECH": "Rep. Checa",
-    "HUNGARY": "Hungría", "HUNGARIAN": "Hungría",
-    "TURKEY": "Turquía", "TURKIYE": "Turquía", "TURKISH": "Turquía",
-    "RUSSIA": "Rusia", "RUSSIAN": "Rusia",
-    "GREECE": "Grecia", "GREEK": "Grecia", "HELLENIC": "Grecia",
-    "CHILE": "Chile", "CHILEAN": "Chile",
-    "COLOMBIA": "Colombia", "COLOMBIAN": "Colombia",
-    "PERU": "Perú", "PERUVIAN": "Perú",
-    "ARGENTINA": "Argentina", "ARGENTINE": "Argentina",
-    "ISRAEL": "Israel", "ISRAELI": "Israel",
+    "SPAIN":"España","ESPAÑA":"España","REINO DE ESPAÑA":"España",
+    "GERMANY":"Alemania","BUNDESREPUBLIK":"Alemania","DEUTSCHLAND":"Alemania",
+    "FRANCE":"Francia","REPUBLIQUE FRANCAISE":"Francia","FRENCH":"Francia",
+    "ITALY":"Italia","ITALIA":"Italia","REPUBBLICA ITALIANA":"Italia","ITALIAN":"Italia",
+    "NETHERLANDS":"Países Bajos","NEDERLAND":"Países Bajos","DUTCH":"Países Bajos",
+    "UNITED KINGDOM":"Reino Unido","UK GILT":"Reino Unido","GILT":"Reino Unido",
+    "BRITISH":"Reino Unido","ENGLAND":"Reino Unido",
+    "UNITED STATES":"EE.UU.","US TREASURY":"EE.UU.","U.S. TREASURY":"EE.UU.",
+    "AMERICAN":"EE.UU.","USA":"EE.UU.",
+    "JAPAN":"Japón","JAPANESE":"Japón","NIPPON":"Japón",
+    "SWITZERLAND":"Suiza","SWISS":"Suiza","EIDGENOSSENSCHAFT":"Suiza",
+    "CANADA":"Canadá","CANADIAN":"Canadá",
+    "AUSTRALIA":"Australia","AUSTRALIAN":"Australia",
+    "SWEDEN":"Suecia","SVENSKA":"Suecia","SWEDISH":"Suecia",
+    "NORWAY":"Noruega","NORGES":"Noruega","NORWEGIAN":"Noruega",
+    "DENMARK":"Dinamarca","DANISH":"Dinamarca",
+    "FINLAND":"Finlandia","FINNISH":"Finlandia",
+    "PORTUGAL":"Portugal","PORTUGUESE":"Portugal",
+    "BELGIUM":"Bélgica","BELGIQUE":"Bélgica","BELGIAN":"Bélgica",
+    "AUSTRIA":"Austria","AUSTRIAN":"Austria",
+    "IRELAND":"Irlanda","IRISH":"Irlanda",
+    "MEXICO":"México","MEXICAN":"México",
+    "BRAZIL":"Brasil","BRASIL":"Brasil","BRAZILIAN":"Brasil",
+    "CHINA":"China","CHINESE":"China","PEOPLES REPUBLIC":"China",
+    "INDIA":"India","INDIAN":"India",
+    "KOREA":"Corea del Sur","REPUBLIC OF KOREA":"Corea del Sur","KOREAN":"Corea del Sur",
+    "TAIWAN":"Taiwan","HONG KONG":"Hong Kong","SINGAPORE":"Singapur",
+    "SOUTH AFRICA":"Sudáfrica","POLAND":"Polonia","POLSKA":"Polonia","POLISH":"Polonia",
+    "CZECH":"Rep. Checa","HUNGARY":"Hungría","HUNGARIAN":"Hungría",
+    "TURKEY":"Turquía","TURKIYE":"Turquía","TURKISH":"Turquía",
+    "RUSSIA":"Rusia","RUSSIAN":"Rusia",
+    "GREECE":"Grecia","GREEK":"Grecia","HELLENIC":"Grecia",
+    "CHILE":"Chile","CHILEAN":"Chile","COLOMBIA":"Colombia","COLOMBIAN":"Colombia",
+    "PERU":"Perú","PERUVIAN":"Perú","ARGENTINA":"Argentina","ARGENTINE":"Argentina",
+    "ISRAEL":"Israel","ISRAELI":"Israel",
 }
 
 DIVISA_REGION = {
-    "EUR": "Eurozona", "USD": "EE.UU.", "GBP": "Reino Unido",
-    "JPY": "Japón", "CHF": "Suiza", "SEK": "Suecia", "NOK": "Noruega",
-    "DKK": "Dinamarca", "AUD": "Australia", "CAD": "Canadá",
-    "HKD": "Hong Kong", "SGD": "Singapur", "CNY": "China", "CNH": "China",
-    "BRL": "Brasil", "MXN": "México", "INR": "India",
-    "KRW": "Corea del Sur", "TWD": "Taiwan", "ZAR": "Sudáfrica",
-    "PLN": "Polonia", "CZK": "Rep. Checa", "HUF": "Hungría",
-    "TRY": "Turquía", "RUB": "Rusia",
+    "EUR":"Eurozona","USD":"EE.UU.","GBP":"Reino Unido","JPY":"Japón",
+    "CHF":"Suiza","SEK":"Suecia","NOK":"Noruega","DKK":"Dinamarca",
+    "AUD":"Australia","CAD":"Canadá","HKD":"Hong Kong","SGD":"Singapur",
+    "CNY":"China","CNH":"China","BRL":"Brasil","MXN":"México","INR":"India",
+    "KRW":"Corea del Sur","TWD":"Taiwan","ZAR":"Sudáfrica","PLN":"Polonia",
+    "CZK":"Rep. Checa","HUF":"Hungría","TRY":"Turquía","RUB":"Rusia",
 }
 
 GEO_COLORS = [
-    "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6",
-    "#06b6d4", "#f97316", "#84cc16", "#ec4899", "#6b7280",
+    "#4fc3f7","#10b981","#f59e0b","#ef4444","#a78bfa",
+    "#06b6d4","#f97316","#84cc16","#ec4899","#6b7280",
 ]
+
+TIPO_COLOR = {
+    "REPO":YELLOW_CHART,"BONO":ACCENT,"IIC":GREEN_CHART,
+    "PARTICIPACIONES":GREEN_CHART,"PAGARE":PURPLE,
+    "OBLIGACION":"#60a5fa","RENTA FIJA":ACCENT,"ETC":"#34d399",
+}
+MIX_COLORS = {
+    "renta_fija_pct":ACCENT,"rv_pct":GREEN_CHART,
+    "iic_pct":PURPLE,"liquidez_pct":YELLOW_CHART,"depositos_pct":"#6b7280",
+}
+MIX_LABELS = {
+    "renta_fija_pct":"Renta Fija","rv_pct":"Renta Variable",
+    "iic_pct":"IIC / ETF","liquidez_pct":"Liquidez","depositos_pct":"Depósitos",
+}
 
 
 def infer_country(pos: dict) -> str:
-    ticker = str(pos.get("ticker", "") or "").upper().strip()
-    nombre = str(pos.get("nombre", "") or "").upper()
-    tipo   = str(pos.get("tipo", "") or "").upper()
-
-    # 1. ISIN prefix del ticker (más fiable: indica país emisor)
+    ticker = str(pos.get("ticker","") or "").upper().strip()
+    nombre = str(pos.get("nombre","") or "").upper()
+    tipo   = str(pos.get("tipo","") or "").upper()
     if len(ticker) >= 2 and ticker[:2].isalpha():
         cc = ticker[:2]
         if cc in ISIN_COUNTRY_MAP:
             c = ISIN_COUNTRY_MAP[cc]
-            # Evitar LU para fondos que invierten internacionalmente
             if c != "Luxemburgo":
                 return c
-
-    # 2. Nombre del instrumento → keywords de país
     for kw, country in NAME_COUNTRY_MAP.items():
         if kw in nombre:
             return country
-
-    # 3. ETF/IIC/ETC → divisa como proxy regional
-    if tipo in ("IIC", "PARTICIPACIONES", "ETC", "ETF"):
-        div = str(pos.get("divisa", "") or "")
+    if tipo in ("IIC","PARTICIPACIONES","ETC","ETF"):
+        div = str(pos.get("divisa","") or "")
         return DIVISA_REGION.get(div, "Internacional")
-
-    # 4. Divisa como último recurso
-    div = str(pos.get("divisa", "") or "")
+    div = str(pos.get("divisa","") or "")
     if div in DIVISA_REGION:
         return DIVISA_REGION[div]
-
     return "Otros"
-
-
-def manager_slug(name: str) -> str:
-    """'Juan García López' → 'juan-garcia-lopez'"""
-    s = name.lower().strip()
-    s = re.sub(r"[áàä]", "a", s)
-    s = re.sub(r"[éèë]", "e", s)
-    s = re.sub(r"[íìï]", "i", s)
-    s = re.sub(r"[óòö]", "o", s)
-    s = re.sub(r"[úùü]", "u", s)
-    s = re.sub(r"[ñ]", "n", s)
-    s = re.sub(r"[^a-z0-9]+", "-", s)
-    return s.strip("-")
-
-
-TIPO_COLOR = {
-    "REPO": YELLOW_CHART, "BONO": CHART, "IIC": GREEN_CHART,
-    "PARTICIPACIONES": GREEN_CHART, "PAGARE": PURPLE,
-    "OBLIGACION": "#3b82f6", "RENTA FIJA": CHART, "ETC": "#34d399",
-}
-MIX_COLORS = {
-    "renta_fija_pct": CHART, "rv_pct": GREEN_CHART,
-    "iic_pct": PURPLE, "liquidez_pct": YELLOW_CHART, "depositos_pct": "#6b7280",
-}
-MIX_LABELS = {
-    "renta_fija_pct": "Renta Fija", "rv_pct": "Renta Variable",
-    "iic_pct": "IIC / ETF", "liquidez_pct": "Liquidez", "depositos_pct": "Depósitos",
-}
 
 # ── TOP BAR ───────────────────────────────────────────────────────────────────
 funds = discover_funds()
 
-top_l, top_m = st.columns([2, 8])
+bar_logo, bar_sel = st.columns([2, 10])
 
-with top_l:
+with bar_logo:
     st.markdown(
-        f'<div style="font-size:16px;font-weight:800;color:{ACCENT};'
-        f'letter-spacing:-0.02em;padding-top:6px;font-family:Georgia,serif">'
-        f'Fund Analyzer</div>',
+        f'<div style="font-family:\'DM Mono\',monospace; font-size:13px; '
+        f'font-weight:500; color:{ACCENT}; letter-spacing:0.14em; '
+        f'text-transform:uppercase; padding-top:8px;">◈ Fund Analyzer</div>',
         unsafe_allow_html=True)
 
-with top_m:
+with bar_sel:
     nombres = [f["nombre"] for f in funds]
     isins   = [f["isin"]   for f in funds]
     default_idx = 0
     if st.session_state.selected_isin and st.session_state.selected_isin in isins:
         default_idx = isins.index(st.session_state.selected_isin)
-
     sel_nombre = st.selectbox(
-        "Buscar fondo por nombre",
-        options=nombres,
-        index=default_idx,
-        label_visibility="collapsed",
+        "Fondo", options=nombres, index=default_idx, label_visibility="collapsed",
     )
     sel_idx = nombres.index(sel_nombre)
     st.session_state.selected_isin = isins[sel_idx]
 
-st.markdown(f"<hr style='border:none;border-top:1px solid {BORDER};margin:8px 0 14px 0'>", unsafe_allow_html=True)
+st.markdown(f"<div style='height:1px;background:{BORDER};margin:6px 0 14px 0'></div>",
+            unsafe_allow_html=True)
 
 # ── Load data ─────────────────────────────────────────────────────────────────
 d         = load_output(st.session_state.selected_isin)
@@ -455,238 +433,231 @@ cuant     = d.get("cuantitativo", {})
 pos_data  = d.get("posiciones", {})
 consist   = d.get("analisis_consistencia", {})
 fuentes   = d.get("fuentes", {})
-periodos  = sorted(consist.get("periodos", []), key=lambda p: str(p.get("periodo", "")), reverse=True)
 
-# External data files
+# Periods: ascending for display (oldest first)
+periodos_asc = sorted(consist.get("periodos", []),
+                      key=lambda p: str(p.get("periodo", "")))
+# For quick access to most-recent, keep desc version too
+periodos_desc = list(reversed(periodos_asc))
+
 letters_d    = load_json(st.session_state.selected_isin, "letters_data.json")
 lecturas_d   = load_json(st.session_state.selected_isin, "lecturas.json")
 analisis_ext = load_json(st.session_state.selected_isin, "analisis_externos.json")
 meta_report  = load_json(st.session_state.selected_isin, "meta_report.json")
 
 # ── FUND HEADER ───────────────────────────────────────────────────────────────
-clasificacion = kpis.get("clasificacion", "—")
-perfil        = kpis.get("perfil_riesgo", "—")
-fecha_reg     = kpis.get("fecha_registro", "—")
-gestora_name  = d.get("gestora", "—")
-depositario   = kpis.get("depositario", "—")
-divisa_f      = kpis.get("divisa", "EUR")
+clasificacion = kpis.get("clasificacion") or "—"
+perfil        = kpis.get("perfil_riesgo") or "—"
+fecha_reg     = kpis.get("fecha_registro") or "—"
+gestora_name  = d.get("gestora") or "—"
+depositario   = kpis.get("depositario") or "—"
+divisa_f      = kpis.get("divisa") or "EUR"
+
+tags = " ".join(
+    f'<span class="tag">{t}</span>'
+    for t in [clasificacion, f"Riesgo {perfil}/7", divisa_f, f"Dep. {depositario}"]
+    if t and t != "—"
+)
 
 st.markdown(f"""
-<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);
-border-radius:12px;padding:18px 24px;margin-bottom:12px">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+<div style="background:linear-gradient(135deg,#0a0c12,#111520);
+            border:1px solid {BORDER}; border-radius:6px;
+            padding:20px 26px; margin-bottom:14px;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
     <div>
-      <div style="font-size:20px;font-weight:800;color:#fff;font-family:Georgia,serif;
-                  letter-spacing:-0.02em">{d.get('nombre', sel_nombre)}</div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:4px;letter-spacing:0.02em">{gestora_name}</div>
+      <div style="font-family:'Sora',sans-serif; font-size:19px; font-weight:700;
+                  color:#f0f0f0; letter-spacing:-0.01em;">
+        {d.get('nombre', sel_nombre)}
+      </div>
+      <div style="font-family:'DM Mono',monospace; font-size:10px;
+                  letter-spacing:0.08em; color:{TEXT3}; margin-top:6px;
+                  text-transform:uppercase;">{gestora_name}</div>
     </div>
-    <div style="text-align:right">
-      <span style="background:#ffffff18;color:#e5e7eb;border-radius:6px;padding:4px 12px;
-                   font-size:13px;font-weight:700;font-family:monospace">
+    <div style="text-align:right;">
+      <span style="font-family:'DM Mono',monospace; font-size:12px;
+                   font-weight:500; color:{ACCENT};
+                   background:#0d0f14; border:1px solid {BORDER};
+                   border-radius:3px; padding:4px 10px;">
         {st.session_state.selected_isin}
       </span>
-      <div style="font-size:11px;color:#9ca3af;margin-top:4px">Registro: {fecha_reg}</div>
+      <div style="font-family:'DM Mono',monospace; font-size:9px;
+                  color:{TEXT3}; margin-top:6px; letter-spacing:0.06em;">
+        REG {fecha_reg}
+      </div>
     </div>
   </div>
-  <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
-    <span style="background:#ffffff14;color:#d1d5db;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">{clasificacion}</span>
-    <span style="background:#ffffff14;color:#d1d5db;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">Riesgo {perfil}/7</span>
-    <span style="background:#ffffff14;color:#d1d5db;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">{divisa_f}</span>
-    <span style="background:#ffffff14;color:#d1d5db;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">Dep. {depositario}</span>
-  </div>
+  <div style="margin-top:14px;">{tags}</div>
 </div>
 """, unsafe_allow_html=True)
 
 # ── KPI ROW ───────────────────────────────────────────────────────────────────
-aum       = kpis.get("aum_actual_meur")
-part      = kpis.get("num_participes")
-part_ant  = kpis.get("num_participes_anterior")
-ter       = kpis.get("ter_pct")
-gestion   = kpis.get("coste_gestion_pct")
-deposito  = kpis.get("coste_deposito_pct")
-vol       = kpis.get("volatilidad_pct")
+aum      = kpis.get("aum_actual_meur")
+part     = kpis.get("num_participes")
+part_ant = kpis.get("num_participes_anterior")
+ter      = kpis.get("ter_pct")
+gestion  = kpis.get("coste_gestion_pct")
+deposito = kpis.get("coste_deposito_pct")
+vol      = kpis.get("volatilidad_pct")
 
-part_delta_html = ""
-if part and part_ant:
-    chg = (part - part_ant) / part_ant * 100
-    col_chg = GREEN if chg > 0 else RED
-    sign = "▲" if chg > 0 else "▼"
-    part_delta_html = f'<div class="kpi-sub" style="color:{col_chg}">{sign} {es(abs(chg),1)}% vs anterior</div>'
+part_delta = None
+if part and part_ant and part_ant != 0:
+    part_delta = (part - part_ant) / part_ant * 100
 
 k1, k2, k3, k4, k5, k6 = st.columns(6)
-kpi_defs = [
-    (k1, "AUM", f'<div class="kpi-value" style="color:{ACCENT}">{meur(aum)}</div>', ""),
-    (k2, "Partícipes", f'<div class="kpi-value">{es(part,0)}</div>', part_delta_html),
-    (k3, "TER", f'<div class="kpi-value">{pct(ter)}</div>',
-     f'<div class="kpi-sub">Gestión {pct(gestion)} + Dep. {pct(deposito)}</div>'),
-    (k4, "Volatilidad VL", f'<div class="kpi-value">{pct(vol)}</div>', ""),
-    (k5, "Riesgo", f'<div class="kpi-value">{perfil}<span style="font-size:14px;color:{TEXT3}"> / 7</span></div>', ""),
-    (k6, "Posiciones", f'<div class="kpi-value">{len(pos_data.get("actuales",[]))}</div>',
-     '<div class="kpi-sub">activos en cartera</div>'),
+kpi_cols = [
+    (k1, "AUM",        meur(aum),            None),
+    (k2, "Partícipes", es(part, 0),          f"{'+' if (part_delta or 0)>0 else ''}{es(part_delta,1)}%" if part_delta else None),
+    (k3, "TER",        pct(ter),             f"Gest {pct(gestion)}  Dep {pct(deposito)}"),
+    (k4, "Volatilidad",pct(vol),             None),
+    (k5, "Riesgo",     f"{perfil} / 7",      None),
+    (k6, "Posiciones", str(len(pos_data.get("actuales",[]))), "activos en cartera"),
 ]
-for col, label, val_html, sub_html in kpi_defs:
+for col, label, value, delta in kpi_cols:
     with col:
-        st.markdown(f"""
-        <div class="kpi-card">
-          <div class="kpi-label">{label}</div>
-          {val_html}{sub_html}
-        </div>""", unsafe_allow_html=True)
+        st.metric(label=label, value=value, delta=delta)
 
-st.markdown("<div style='margin-bottom:8px'></div>", unsafe_allow_html=True)
+st.markdown(f"<div style='height:4px'></div>", unsafe_allow_html=True)
 
 # ── TABS ──────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "📋 Resumen",
-    "📈 Evolutivo",
-    "💼 Cartera",
-    "🎯 Consistencia",
-    "🔗 Lecturas",
-    "🔍 Análisis externos",
-    "📁 Archivos",
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+    "Resumen",
+    "Historia & Gestores",
+    "Evolutivo",
+    "Cartera",
+    "Consistencia",
+    "Lecturas",
+    "Análisis ext.",
+    "Archivos",
 ])
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 1 — RESUMEN
 # ══════════════════════════════════════════════════════════════════════════════
 with tab1:
-    c_left, c_right = st.columns([3, 2])
+    estrategia = cual.get("estrategia") or ""
+    filosofia  = cual.get("filosofia_inversion") or ""
+    proceso    = cual.get("proceso_seleccion") or ""
 
-    with c_left:
-        # Resumen ejecutivo
-        st.markdown('<div class="sec">Resumen</div>', unsafe_allow_html=True)
-        estrategia = cual.get("estrategia") or cual.get("filosofia_inversion") or ""
-        if estrategia:
-            st.markdown(f'<div class="content-block" style="font-size:14px;line-height:1.8">{estrategia}</div>', unsafe_allow_html=True)
+    section_header("Estrategia ejecutiva")
+    if estrategia:
+        narrative_block(estrategia, "SÍNTESIS")
+    else:
+        empty_state("Sin datos de estrategia — ejecuta el pipeline con API key configurada.")
 
-        # Filosofía
-        filosofia = cual.get("filosofia_inversion") or ""
-        proceso   = cual.get("proceso_seleccion") or ""
-        if filosofia and filosofia != estrategia:
-            st.markdown('<div class="sec">Filosofía de inversión</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="sbox" style="max-height:160px">{filosofia}</div>', unsafe_allow_html=True)
+    if filosofia and filosofia != estrategia:
+        section_header("Filosofía de inversión")
+        narrative_block(filosofia, "FILOSOFÍA")
 
-        if proceso:
-            st.markdown('<div class="sec">Proceso de selección</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="sbox" style="max-height:130px">{proceso}</div>', unsafe_allow_html=True)
+    if proceso:
+        section_header("Proceso de selección")
+        narrative_block(proceso, "SELECCIÓN")
 
-        # Visión gestores: moved to full-width section below the two columns
+    # Tipo de activos
+    tipo_activos = cual.get("tipo_activos", "")
+    if tipo_activos:
+        section_header("Universo de inversión")
+        narrative_block(tipo_activos, "UNIVERSO")
 
-    with c_right:
-        # ── Gestores con links externos ───────────────────────────────────────
-        gestores = cual.get("gestores", [])
-        if gestores:
-            st.markdown('<div class="sec">Equipo gestor</div>', unsafe_allow_html=True)
-            for g in gestores:
-                nombre_g   = g.get("nombre") or ""
-                if not nombre_g:
-                    continue
-                cargo_g    = g.get("cargo") or ""
-                back_g     = g.get("background") or ""
-                anio_g     = g.get("anio_incorporacion") or ""
-                slug       = manager_slug(nombre_g)
-                q_enc      = urllib.parse.quote(f'"{nombre_g}" gestor fondo')
 
-                links_html = f"""
-                <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">
-                  <a class="link-pill" href="https://citywire.com/selector/manager/profile/{slug}" target="_blank">Citywire</a>
-                  <a class="link-pill" href="https://www.trustnet.com/factsheets/manager/{slug}" target="_blank">Trustnet</a>
-                  <a class="link-pill" href="https://www.finect.com/user/{slug}" target="_blank">Finect</a>
-                  <a class="link-pill" href="https://www.google.com/search?q={q_enc}+site:citywire.com" target="_blank">Google</a>
-                </div>"""
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 2 — HISTORIA & GESTORES
+# ══════════════════════════════════════════════════════════════════════════════
+with tab2:
 
-                st.markdown(f"""
-                <div class="card" style="margin-bottom:8px;border-left:3px solid {ACCENT}">
-                  <div style="font-size:14px;font-weight:700;color:{TEXT};font-family:Georgia,serif">{nombre_g}</div>
-                  <div class="meta" style="margin-top:4px">{cargo_g}{"  ·  Desde "+str(anio_g) if anio_g else ""}</div>
-                  {"<p style='margin-top:8px;font-size:12px'>"+back_g+"</p>" if back_g else ""}
-                  {links_html}
-                </div>""", unsafe_allow_html=True)
+    # ── Historia del fondo — timeline ascending ───────────────────────────────
+    historia = cual.get("historia_fondo", "")
+    if historia:
+        section_header("Historia del fondo")
+        paragraphs = [p.strip() for p in re.split(r"\n{2,}|\n(?=\d+\.)", historia)
+                      if len(p.strip()) > 30]
+        if paragraphs:
+            for para in paragraphs:
+                year_m = re.search(r"\b(20\d{2}|19\d{2})\b", para)
+                yr = year_m.group(1) if year_m else ""
+                timeline_item(yr, para)
+        else:
+            timeline_item("", historia)
 
-        # Tipo de activos
-        tipo_activos = cual.get("tipo_activos", "")
-        if tipo_activos:
-            st.markdown('<div class="sec">Universo de inversión</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="sbox" style="max-height:160px">{tipo_activos}</div>', unsafe_allow_html=True)
-
-    # ── Hechos relevantes — sección propia, full width ────────────────────────
+    # ── Hechos relevantes — ascending ────────────────────────────────────────
     hechos_relevantes = cual.get("hechos_relevantes", [])
     hechos_con_contenido = [h for h in hechos_relevantes if h.get("epigrafe") or h.get("detalle")]
     if hechos_con_contenido:
-        st.markdown('<div class="sec">Hechos relevantes</div>', unsafe_allow_html=True)
+        section_header("Hechos relevantes", accent_color=YELLOW_CHART)
         for hr in sorted(hechos_con_contenido, key=lambda x: x.get("periodo", "")):
-            periodo_hr = hr.get("periodo", "")
+            periodo_hr  = hr.get("periodo", "")
             epigrafe_hr = hr.get("epigrafe", "")
-            detalle_hr = hr.get("detalle", "")
+            detalle_hr  = hr.get("detalle", "")
+            label = f"<strong>{epigrafe_hr}</strong> — " if epigrafe_hr else ""
+            timeline_item(periodo_hr, label + detalle_hr, color=YELLOW_CHART)
+
+    # ── Equipo gestor ─────────────────────────────────────────────────────────
+    gestores = cual.get("gestores", [])
+    if gestores:
+        section_header("Equipo gestor")
+        for g in gestores:
+            nombre_g = g.get("nombre") or ""
+            if not nombre_g:
+                continue
+            cargo_g  = g.get("cargo") or ""
+            back_g   = g.get("background") or ""
+            anio_g   = g.get("anio_incorporacion") or ""
+            slug     = manager_slug(nombre_g)
+            q_enc    = urllib.parse.quote(f'"{nombre_g}" gestor fondo')
+
+            links = " ".join([
+                f'<a href="https://citywire.com/selector/manager/profile/{slug}" target="_blank" class="tag tag-accent">Citywire</a>',
+                f'<a href="https://www.finect.com/user/{slug}" target="_blank" class="tag tag-accent">Finect</a>',
+                f'<a href="https://www.google.com/search?q={q_enc}" target="_blank" class="tag">Google</a>',
+            ])
+
+            desde = f"<span style='color:{TEXT3}; font-size:10px;'>  ·  desde {anio_g}</span>" if anio_g else ""
+            bg_html = f"<div style='font-size:12.5px; color:{TEXT2}; line-height:1.7; margin:8px 0;'>{back_g}</div>" if back_g else ""
             st.markdown(f"""
-            <div class="card" style="margin-bottom:8px;border-left:3px solid {YELLOW_CHART}">
-              <div style="margin-bottom:6px">
-                <span class="year-badge" style="background:{YELLOW_CHART}">{periodo_hr}</span>
-                {"<span style='font-size:12px;font-weight:600;color:"+TEXT2+";margin-left:8px'>"+epigrafe_hr+"</span>" if epigrafe_hr else ""}
+            <div style="background:{BG2}; border:1px solid {BORDER}; border-left:3px solid {ACCENT};
+                        border-radius:4px; padding:14px 18px; margin-bottom:8px;">
+              <div style="font-size:14px; font-weight:600; color:{TEXT};">{nombre_g}</div>
+              <div style="font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:0.08em;
+                          text-transform:uppercase; color:{TEXT3}; margin-top:3px;">
+                {cargo_g}{desde}
               </div>
-              {"<div style='font-size:13px;color:"+TEXT2+";line-height:1.6'>"+detalle_hr+"</div>" if detalle_hr else ""}
+              {bg_html}
+              <div style="margin-top:10px;">{links}</div>
             </div>""", unsafe_allow_html=True)
 
-    # ── Visión gestores año a año — timeline 2 columnas, full width ───────────
-    if periodos:
-        st.markdown('<div class="sec">Visión de los gestores — año a año</div>', unsafe_allow_html=True)
-        periodos_asc_vision = sorted(periodos, key=lambda p: str(p.get("periodo", "")), reverse=True)
-        for pdata in periodos_asc_vision[:10]:
+    # ── Visión gestores — dual timeline ascending ─────────────────────────────
+    if periodos_asc:
+        section_header("Visión de los gestores — año a año",
+                       subtitle=f"{periodos_asc[0].get('periodo','')[:4]} → {periodos_asc[-1].get('periodo','')[:4]}")
+
+        # Column headers
+        h_l, h_yr, h_r = st.columns([1, 0.4, 1])
+        with h_l:
+            st.markdown(f"<div style='text-align:right; font-family:\"DM Mono\",monospace;"
+                        f" font-size:9px; letter-spacing:0.10em; text-transform:uppercase;"
+                        f" color:{TEXT3};'>Tesis / visión</div>", unsafe_allow_html=True)
+        with h_r:
+            st.markdown(f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                        f" letter-spacing:0.10em; text-transform:uppercase;"
+                        f" color:{TEXT3};'>Decisiones tomadas</div>", unsafe_allow_html=True)
+
+        for pdata in periodos_asc[-10:]:
             yr_label   = pdata.get("periodo", "—")
             tesis      = (pdata.get("tesis_gestora", "") or "")[:400]
             decisiones = (pdata.get("decisiones_tomadas", "") or "")[:400]
-            contexto   = (pdata.get("contexto_mercado", "") or "")[:200]
-            if not tesis and not decisiones:
-                continue
-            st.markdown(f'<div style="margin:16px 0 6px"><span class="year-badge">{yr_label}</span></div>', unsafe_allow_html=True)
-            col_v, col_d = st.columns(2)
-            with col_v:
-                if tesis:
-                    st.markdown(f"""
-                    <div class="card" style="border-left:3px solid {ACCENT}">
-                      <div class="meta" style="margin-bottom:6px">Tesis / Visión</div>
-                      <div style="font-size:13px;color:{TEXT2};line-height:1.75">{tesis}</div>
-                    </div>""", unsafe_allow_html=True)
-                if contexto:
-                    st.markdown(f'<p style="margin-top:6px;font-size:12px">{contexto[:150]}</p>', unsafe_allow_html=True)
-            with col_d:
-                if decisiones:
-                    st.markdown(f"""
-                    <div class="card" style="border-left:3px solid {GREEN}">
-                      <div class="meta" style="margin-bottom:6px;color:{GREEN}">Decisiones tomadas</div>
-                      <div style="font-size:13px;color:{TEXT2};line-height:1.75">{decisiones}</div>
-                    </div>""", unsafe_allow_html=True)
-
-    # ── Historia del fondo — timeline visual, full width ─────────────────────
-    historia = cual.get("historia_fondo", "")
-    if historia:
-        st.markdown('<div class="sec">Historia del fondo</div>', unsafe_allow_html=True)
-        # Split into paragraphs for visual display
-        paragraphs = [p.strip() for p in re.split(r"\n{2,}|\n(?=\d+\.)", historia) if len(p.strip()) > 30]
-        if paragraphs:
-            # Show as numbered cards
-            for i, para in enumerate(paragraphs):
-                year_m = re.search(r"\b(20\d{2}|19\d{2})\b", para)
-                yr = year_m.group(1) if year_m else ""
-                st.markdown(f"""
-                <div class="card" style="margin-bottom:10px;border-left:3px solid {CHART if yr else BORDER}">
-                  {"<span class='year-badge' style='margin-bottom:8px;display:inline-block'>"+yr+"</span>" if yr else ""}
-                  <div style="font-size:13px;color:{TEXT2};line-height:1.75">{para}</div>
-                </div>""", unsafe_allow_html=True)
-        else:
-            st.markdown(f'<div class="card" style="font-size:13px;color:{TEXT2};line-height:1.75">{historia}</div>', unsafe_allow_html=True)
+            dual_timeline_item(yr_label, tesis, decisiones)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — EVOLUTIVO
+# TAB 3 — EVOLUTIVO
 # ══════════════════════════════════════════════════════════════════════════════
-with tab2:
+with tab3:
     # ── AUM ──────────────────────────────────────────────────────────────────
-    st.markdown('<div class="sec">Evolución del patrimonio (AUM) y Valor Liquidativo</div>', unsafe_allow_html=True)
-    serie_aum = [s for s in cuant.get("serie_aum", []) if s.get("valor_meur") and len(str(s["periodo"])) <= 7]
+    section_header("Evolución del patrimonio (AUM)")
+    serie_aum = [s for s in cuant.get("serie_aum", [])
+                 if s.get("valor_meur") and len(str(s["periodo"])) <= 7]
 
     if serie_aum:
         serie_aum_s = sorted(serie_aum, key=lambda x: str(x["periodo"]))
-        # Dedup: si mismo año aparece varias veces, coger el máximo
         year_map: dict[str, dict] = {}
         for s in serie_aum_s:
             yr = normalize_year(str(s["periodo"]))
@@ -695,77 +666,72 @@ with tab2:
         deduped = sorted(year_map.values(), key=lambda x: normalize_year(str(x["periodo"])))
         labels = [normalize_year(str(s["periodo"])) for s in deduped]
         values = [s["valor_meur"] for s in deduped]
-        # Only use VL if the value is clearly a NAV (>1 and <100000, not a year number)
         vls    = [s.get("vl") if (s.get("vl") and 1 < (s.get("vl") or 0) < 100000
                                   and (s.get("vl") or 0) < 2010) else None
                   for s in deduped]
-
-        from plotly.subplots import make_subplots
         vl_x = [labels[i] for i, v in enumerate(vls) if v]
         vl_y = [v for v in vls if v]
         has_vl = bool(vl_y)
         rows = 2 if has_vl else 1
         row_heights = [0.6, 0.4] if has_vl else [1.0]
-        # shared_yaxes=False is critical — prevents VL scale (e.g. 2022) contaminating AUM y-axis
         fig = make_subplots(rows=rows, cols=1, shared_xaxes=True, shared_yaxes=False,
                             row_heights=row_heights, vertical_spacing=0.08)
         fig.add_trace(go.Bar(
             x=labels, y=values, name="AUM (M€)",
-            marker_color=CHART,
+            marker_color=ACCENT,
             text=[f"{v:.1f}" for v in values],
             textposition="outside",
-            textfont=dict(size=11, color=TEXT2),
+            textfont=dict(size=10, color=TEXT3, family="DM Mono, monospace"),
             hovertemplate="<b>%{x}</b><br>AUM: %{y:.2f} M€<extra></extra>",
         ), row=1, col=1)
         if has_vl:
             fig.add_trace(go.Scatter(
                 x=vl_x, y=vl_y, mode="lines+markers", name="VL",
                 line=dict(color=GREEN_CHART, width=2),
-                marker=dict(size=7, color=GREEN_CHART),
+                marker=dict(size=6, color=GREEN_CHART),
                 hovertemplate="<b>%{x}</b><br>VL: %{y:.4f}<extra></extra>",
             ), row=2, col=1)
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color=TEXT2, size=12), height=300 if has_vl else 260,
-            margin=dict(l=0, r=0, t=30, b=40), showlegend=True,
+            font=dict(color=TEXT3, size=10, family="DM Mono, monospace"),
+            height=320 if has_vl else 280,
+            margin=dict(l=0, r=0, t=10, b=40), showlegend=True,
             legend=dict(orientation="h", yanchor="bottom", y=1.02,
-                        bgcolor="rgba(0,0,0,0)", font=dict(size=11, color=TEXT2)),
+                        bgcolor="rgba(0,0,0,0)", font=dict(size=10, color=TEXT3)),
         )
-        fig.update_xaxes(showgrid=False, tickfont=dict(color=TEXT2, size=11),
+        fig.update_xaxes(showgrid=False, tickfont=dict(color=TEXT3, size=10),
                          linecolor=BORDER, tickangle=-30, type="category")
-        fig.update_yaxes(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
-                         row=1, col=1)
+        fig.update_yaxes(showgrid=True, gridcolor=BORDER, gridwidth=0.5,
+                         tickfont=dict(color=TEXT3, size=10), row=1, col=1)
         if has_vl:
-            fig.update_yaxes(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
-                             row=2, col=1)
+            fig.update_yaxes(showgrid=True, gridcolor=BORDER, gridwidth=0.5,
+                             tickfont=dict(color=TEXT3, size=10), row=2, col=1)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.markdown(f'<div class="content-block"><span class="meta">Sin datos de AUM histórico disponibles</span></div>', unsafe_allow_html=True)
+        empty_state("Sin datos de AUM histórico disponibles.")
 
     col_part, col_ter = st.columns(2)
 
-    # ── Partícipes — barras ───────────────────────────────────────────────────
+    # ── Partícipes ────────────────────────────────────────────────────────────
     with col_part:
-        st.markdown('<div class="sec">Evolución de partícipes</div>', unsafe_allow_html=True)
+        section_header("Evolución de partícipes")
         serie_p = cuant.get("serie_participes", [])
-        part_points = [{"periodo": s["periodo"], "valor": s["valor"]} for s in serie_p if s.get("valor")]
-
-        # Dedup by year: take the max (most recent semi-annual report for that year)
+        part_points = [{"periodo": s["periodo"], "valor": s["valor"]}
+                       for s in serie_p if s.get("valor")]
         yr_map_p: dict[str, float] = {}
         for p in part_points:
             yr = normalize_year(str(p["periodo"]))
             if yr not in yr_map_p or p["valor"] > yr_map_p[yr]:
                 yr_map_p[yr] = p["valor"]
         part_sorted = sorted(yr_map_p.items())
-
         if part_sorted:
             fig_p = go.Figure(go.Bar(
                 x=[x[0] for x in part_sorted],
                 y=[x[1] for x in part_sorted],
-                marker_color=CHART,
+                marker_color=ACCENT,
                 text=[f"{int(x[1])}" for x in part_sorted],
                 textposition="outside",
-                textfont=dict(size=11, color=TEXT2),
+                textfont=dict(size=10, color=TEXT3, family="DM Mono, monospace"),
                 width=[0.5] * len(part_sorted),
                 hovertemplate="<b>%{x}</b><br>Partícipes: %{y:.0f}<extra></extra>",
             ))
@@ -773,17 +739,17 @@ with tab2:
             fig_p.update_xaxes(type="category")
             st.plotly_chart(fig_p, use_container_width=True)
         else:
-            st.markdown(f'<div class="content-block"><span class="meta">Sin datos de partícipes históricos</span></div>', unsafe_allow_html=True)
+            empty_state("Sin datos de partícipes históricos.")
 
-    # ── TER — por clase (si disponible) o agregado apilado ───────────────────
+    # ── TER ───────────────────────────────────────────────────────────────────
     with col_ter:
-        st.markdown('<div class="sec">Evolución TER y comisión de gestión</div>', unsafe_allow_html=True)
+        section_header("Evolución TER y comisión de gestión")
         serie_ter = cuant.get("serie_ter", [])
         ter_points = [t for t in serie_ter if t.get("ter_pct") or t.get("coste_gestion_pct")]
-        if ter and not any(normalize_year(str(t.get("periodo",""))) == normalize_year(str(datetime.now().year)) for t in ter_points):
-            ter_points.append({"periodo": str(datetime.now().year), "ter_pct": ter, "coste_gestion_pct": gestion})
-
-        # Dedup by year
+        if ter and not any(normalize_year(str(t.get("periodo",""))) ==
+                           normalize_year(str(datetime.now().year)) for t in ter_points):
+            ter_points.append({"periodo": str(datetime.now().year),
+                               "ter_pct": ter, "coste_gestion_pct": gestion})
         yr_map_ter: dict[str, dict] = {}
         for t in ter_points:
             yr = normalize_year(str(t.get("periodo", "")))
@@ -791,7 +757,6 @@ with tab2:
                 yr_map_ter[yr] = t
         ter_sorted = sorted(yr_map_ter.items())
 
-        # Check if per-class commission data available
         serie_cls = cuant.get("serie_comisiones_por_clase", [])
         yr_map_cls: dict[str, dict] = {}
         for e in serie_cls:
@@ -800,23 +765,22 @@ with tab2:
                 yr_map_cls[yr] = e.get("clases", {})
         cls_sorted = sorted(yr_map_cls.items())
 
-        CLASE_COLORS = [YELLOW_CHART, CHART, GREEN_CHART, RED_CHART, PURPLE]
+        CLASE_COLORS = [YELLOW_CHART, ACCENT, GREEN_CHART, RED_CHART, PURPLE]
 
         if ter_sorted or cls_sorted:
             fig_ter = go.Figure()
             if cls_sorted:
-                # One trace per class
                 all_clases = sorted({cls for _, clases in cls_sorted for cls in clases})
                 for i, cls in enumerate(all_clases):
                     xlabels_cls = [yr for yr, _ in cls_sorted]
                     yvals_cls = [clases.get(cls, 0) for _, clases in cls_sorted]
                     fig_ter.add_trace(go.Bar(
                         x=xlabels_cls, y=yvals_cls,
-                        name=f"Clase {cls} %",
+                        name=f"Clase {cls}",
                         marker_color=CLASE_COLORS[i % len(CLASE_COLORS)],
                         text=[f"{v:.2f}%" if v else "" for v in yvals_cls],
                         textposition="outside",
-                        textfont=dict(size=10, color=TEXT2),
+                        textfont=dict(size=10, color=TEXT3),
                         width=[0.35] * len(xlabels_cls),
                         hovertemplate=f"Clase {cls}: %{{y:.2f}}%<extra></extra>",
                     ))
@@ -831,17 +795,17 @@ with tab2:
                 if any(v > 0 for v in gest_y):
                     fig_ter.add_trace(go.Bar(
                         x=xlabels, y=gest_y, name="Gestión %",
-                        marker_color=CHART,
+                        marker_color=ACCENT,
                         text=[f"{v:.2f}%" if v else "" for v in gest_y],
                         textposition="outside",
-                        textfont=dict(size=10, color=TEXT2),
+                        textfont=dict(size=10, color=TEXT3),
                         width=[0.5] * len(xlabels),
                         hovertemplate="Gestión: %{y:.3f}%<extra></extra>",
                     ))
                 if any(v > 0 for v in dep_final):
                     fig_ter.add_trace(go.Bar(
                         x=xlabels, y=dep_final, name="Depósito / Otros %",
-                        marker_color="#94a3b8",
+                        marker_color="#334155",
                         width=[0.5] * len(xlabels),
                         hovertemplate="Depósito: %{y:.3f}%<extra></extra>",
                     ))
@@ -853,13 +817,12 @@ with tab2:
                 st.metric("TER actual", pct(ter))
                 st.metric("Comisión gestión", pct(gestion))
             else:
-                st.markdown(f'<div class="content-block"><span class="meta">Sin datos de TER histórico</span></div>', unsafe_allow_html=True)
+                empty_state("Sin datos de TER histórico.")
 
-    # ── Mix activos (stacked bars) ────────────────────────────────────────────
-    st.markdown('<div class="sec">Evolución por tipo de activo</div>', unsafe_allow_html=True)
+    # ── Mix activos ───────────────────────────────────────────────────────────
+    section_header("Evolución por tipo de activo")
     mix_hist = cuant.get("mix_activos_historico", [])
     if mix_hist:
-        # Dedup: un punto por año
         yr_map_mix: dict[str, dict] = {}
         for m in mix_hist:
             yr = normalize_year(str(m.get("periodo", "")))
@@ -868,8 +831,6 @@ with tab2:
         mix_s = sorted(yr_map_mix.items())
         xlabels = [x[0] for x in mix_s]
         mix_rows = [x[1] for x in mix_s]
-
-        # Normalize each row to 100% (stacked 100% chart)
         mix_keys = list(MIX_LABELS.keys())
         norm_rows = []
         for m in mix_rows:
@@ -878,7 +839,6 @@ with tab2:
                 norm_rows.append({k: round((m.get(k, 0) or 0) / total * 100, 1) for k in mix_keys})
             else:
                 norm_rows.append({k: 0 for k in mix_keys})
-
         fig_mix = go.Figure()
         for key, label in MIX_LABELS.items():
             vals = [r[key] for r in norm_rows]
@@ -891,161 +851,145 @@ with tab2:
                     textposition="inside",
                 ))
         ly_mix = chart_layout(260)
-        ly_mix["yaxis"] = dict(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
+        ly_mix["yaxis"] = dict(showgrid=True, gridcolor=BORDER, gridwidth=0.5,
+                               tickfont=dict(color=TEXT3, size=10),
                                range=[0, 100], ticksuffix="%")
         fig_mix.update_layout(barmode="stack", **ly_mix)
         st.plotly_chart(fig_mix, use_container_width=True)
 
-    # ── Geografía por país — stacked bars evolutivo ───────────────────────────
+    # ── Geografía ─────────────────────────────────────────────────────────────
     posiciones_actuales = pos_data.get("actuales", [])
     historicas_pos = pos_data.get("historicas", [])
 
-    # Construir serie geográfica desde historicas
-    geo_series: list[tuple[str, dict]] = []  # [(year, {country: pct})]
+    geo_series: list[tuple[str, dict]] = []
     for h in sorted(historicas_pos, key=lambda x: str(x.get("periodo", ""))):
         yr = normalize_year(str(h.get("periodo", "")))
-        country_weights: dict[str, float] = {}
+        cw: dict[str, float] = {}
         for p in h.get("top10", []):
             c = infer_country(p)
-            country_weights[c] = country_weights.get(c, 0) + (p.get("peso_pct") or 0)
-        if country_weights:
-            geo_series.append((yr, country_weights))
-
-    # Agregar posiciones actuales si no hay historico
+            cw[c] = cw.get(c, 0) + (p.get("peso_pct") or 0)
+        if cw:
+            geo_series.append((yr, cw))
     if not geo_series and posiciones_actuales:
-        country_weights: dict[str, float] = {}
+        cw: dict[str, float] = {}
         for p in posiciones_actuales:
             c = infer_country(p)
-            country_weights[c] = country_weights.get(c, 0) + (p.get("peso_pct") or 0)
-        if country_weights:
-            geo_series.append(("Actual", country_weights))
+            cw[c] = cw.get(c, 0) + (p.get("peso_pct") or 0)
+        if cw:
+            geo_series.append(("Actual", cw))
 
     if geo_series:
-        st.markdown('<div class="sec">Distribución geográfica por país del emisor</div>', unsafe_allow_html=True)
-        # Obtener top 8 países por peso promedio
+        section_header("Distribución geográfica por país del emisor")
         all_countries: dict[str, float] = {}
         for _, cw in geo_series:
             for c, w in cw.items():
                 all_countries[c] = all_countries.get(c, 0) + w
         top_countries = [c for c, _ in sorted(all_countries.items(), key=lambda x: x[1], reverse=True)[:8]]
-
-        # Normalize each year to 100% for stacked 100% chart
         geo_norm = []
         for yr, cw in geo_series:
             total_w = sum(cw.values())
-            if total_w > 0:
-                geo_norm.append((yr, {c: round(w / total_w * 100, 1) for c, w in cw.items()}))
-            else:
-                geo_norm.append((yr, cw))
-
+            geo_norm.append((yr, {c: round(w / total_w * 100, 1) for c, w in cw.items()} if total_w else cw))
         xlabels_geo = [yr for yr, _ in geo_norm]
         fig_geo = go.Figure()
         for i, country in enumerate(top_countries):
             vals = [cw.get(country, 0) for _, cw in geo_norm]
-            color = GEO_COLORS[i % len(GEO_COLORS)]
             fig_geo.add_trace(go.Bar(
                 x=xlabels_geo, y=vals, name=country,
-                marker_color=color,
+                marker_color=GEO_COLORS[i % len(GEO_COLORS)],
                 text=[f"{v:.0f}%" if v >= 5 else "" for v in vals],
                 textposition="inside",
                 hovertemplate=f"<b>{country}</b>: %{{y:.1f}}%<extra></extra>",
             ))
-        # "Otros" bucket
         otros_vals = [sum(v for c, v in cw.items() if c not in top_countries) for _, cw in geo_norm]
         if any(v > 0 for v in otros_vals):
-            fig_geo.add_trace(go.Bar(
-                x=xlabels_geo, y=otros_vals, name="Otros",
-                marker_color="#6b7280",
-                text=[f"{v:.0f}%" if v >= 5 else "" for v in otros_vals],
-                textposition="inside",
-                hovertemplate="<b>Otros</b>: %{y:.1f}%<extra></extra>",
-            ))
+            fig_geo.add_trace(go.Bar(x=xlabels_geo, y=otros_vals, name="Otros",
+                                     marker_color="#334155",
+                                     text=[f"{v:.0f}%" if v >= 5 else "" for v in otros_vals],
+                                     textposition="inside",
+                                     hovertemplate="<b>Otros</b>: %{y:.1f}%<extra></extra>"))
         ly_geo = chart_layout(280)
-        ly_geo["yaxis"] = dict(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
-                                range=[0, 100], ticksuffix="%")
+        ly_geo["yaxis"] = dict(showgrid=True, gridcolor=BORDER, gridwidth=0.5,
+                               tickfont=dict(color=TEXT3, size=10),
+                               range=[0, 100], ticksuffix="%")
         fig_geo.update_layout(barmode="stack", **ly_geo)
-        st.markdown('<span class="meta">País inferido por prefijo ISIN del instrumento / nombre del emisor / divisa</span>', unsafe_allow_html=True)
+        st.markdown(
+            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+            f" color:{TEXT3}; letter-spacing:0.06em; margin-bottom:4px;'>"
+            f"PAÍS INFERIDO POR PREFIJO ISIN / NOMBRE EMISOR / DIVISA</div>",
+            unsafe_allow_html=True)
         st.plotly_chart(fig_geo, use_container_width=True)
 
-    # ── Divisa — stacked 100% evolutivo ──────────────────────────────────────
+    # ── Divisa ────────────────────────────────────────────────────────────────
     divisa_series: list[tuple[str, dict]] = []
     for h in sorted(historicas_pos, key=lambda x: str(x.get("periodo", ""))):
         yr = normalize_year(str(h.get("periodo", "")))
-        divisa_weights: dict[str, float] = {}
+        dw: dict[str, float] = {}
         for p in h.get("top10", []):
             div = str(p.get("divisa", "") or "").upper()
             if div:
-                divisa_weights[div] = divisa_weights.get(div, 0) + (p.get("peso_pct") or 0)
-        if divisa_weights:
-            divisa_series.append((yr, divisa_weights))
+                dw[div] = dw.get(div, 0) + (p.get("peso_pct") or 0)
+        if dw:
+            divisa_series.append((yr, dw))
 
     if divisa_series:
-        st.markdown('<div class="sec">Evolución de exposición por divisa</div>', unsafe_allow_html=True)
+        section_header("Evolución de exposición por divisa")
         all_divisas: dict[str, float] = {}
         for _, dw in divisa_series:
             for d, w in dw.items():
                 all_divisas[d] = all_divisas.get(d, 0) + w
         top_divisas = [d for d, _ in sorted(all_divisas.items(), key=lambda x: x[1], reverse=True)[:8]]
-
         div_norm = []
         for yr, dw in divisa_series:
             total_w = sum(dw.values())
-            if total_w > 0:
-                div_norm.append((yr, {d: round(w / total_w * 100, 1) for d, w in dw.items()}))
-            else:
-                div_norm.append((yr, dw))
-
+            div_norm.append((yr, {d: round(w / total_w * 100, 1) for d, w in dw.items()} if total_w else dw))
         xlabels_div = [yr for yr, _ in div_norm]
         fig_div = go.Figure()
         for i, div in enumerate(top_divisas):
             vals = [dw.get(div, 0) for _, dw in div_norm]
-            color = GEO_COLORS[i % len(GEO_COLORS)]
-            fig_div.add_trace(go.Bar(
-                x=xlabels_div, y=vals, name=div,
-                marker_color=color,
-                text=[f"{v:.0f}%" if v >= 5 else "" for v in vals],
-                textposition="inside",
-                hovertemplate=f"<b>{div}</b>: %{{y:.1f}}%<extra></extra>",
-            ))
+            fig_div.add_trace(go.Bar(x=xlabels_div, y=vals, name=div,
+                                     marker_color=GEO_COLORS[i % len(GEO_COLORS)],
+                                     text=[f"{v:.0f}%" if v >= 5 else "" for v in vals],
+                                     textposition="inside",
+                                     hovertemplate=f"<b>{div}</b>: %{{y:.1f}}%<extra></extra>"))
         otros_div = [sum(v for d, v in dw.items() if d not in top_divisas) for _, dw in div_norm]
         if any(v > 0 for v in otros_div):
-            fig_div.add_trace(go.Bar(
-                x=xlabels_div, y=otros_div, name="Otras",
-                marker_color="#6b7280",
-                hovertemplate="<b>Otras</b>: %{y:.1f}%<extra></extra>",
-            ))
+            fig_div.add_trace(go.Bar(x=xlabels_div, y=otros_div, name="Otras",
+                                     marker_color="#334155",
+                                     hovertemplate="<b>Otras</b>: %{y:.1f}%<extra></extra>"))
         ly_div = chart_layout(260)
-        ly_div["yaxis"] = dict(showgrid=True, gridcolor=BORDER, tickfont=dict(color=TEXT2),
-                                range=[0, 100], ticksuffix="%")
+        ly_div["yaxis"] = dict(showgrid=True, gridcolor=BORDER, gridwidth=0.5,
+                               tickfont=dict(color=TEXT3, size=10),
+                               range=[0, 100], ticksuffix="%")
         fig_div.update_layout(barmode="stack", **ly_div)
         st.plotly_chart(fig_div, use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 3 — CARTERA
+# TAB 4 — CARTERA
 # ══════════════════════════════════════════════════════════════════════════════
-with tab3:
+with tab4:
     actuales   = pos_data.get("actuales", [])
     historicas = pos_data.get("historicas", [])
-
-    # Ordenar por peso desc
     actuales_sorted = sorted(actuales, key=lambda p: p.get("peso_pct") or 0, reverse=True)
 
-    # ── Top posiciones actuales ───────────────────────────────────────────────
-    st.markdown('<div class="sec">Principales posiciones actuales</div>', unsafe_allow_html=True)
+    section_header("Posiciones actuales")
 
     if actuales_sorted:
         top25 = actuales_sorted[:25]
         max_peso = max((p.get("peso_pct", 0) or 0) for p in top25) or 1
 
-        # Header
+        # Header row
         h1, h2, h3, h4, h5, h6 = st.columns([4, 1, 1, 1, 1, 2])
-        for col, lbl in zip([h1, h2, h3, h4, h5, h6], ["Nombre / ISIN", "Tipo", "País", "Divisa", "Valor (M€)", "Peso %"]):
-            col.markdown(f'<div style="font-size:10px;color:{TEXT3};text-transform:uppercase;font-weight:600">{lbl}</div>', unsafe_allow_html=True)
+        for col, lbl in zip([h1,h2,h3,h4,h5,h6],
+                            ["Nombre / ISIN","Tipo","País","Divisa","Valor M€","Peso %"]):
+            col.markdown(
+                f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                f" color:{TEXT3}; text-transform:uppercase; letter-spacing:0.08em;'>"
+                f"{lbl}</div>", unsafe_allow_html=True)
 
         for pos in top25:
             tipo_p = pos.get("tipo", "") or ""
-            color  = TIPO_COLOR.get(tipo_p, "#6b7280")
+            color  = TIPO_COLOR.get(tipo_p, "#334155")
             peso   = pos.get("peso_pct", 0) or 0
             val_m  = (pos.get("valor_mercado_miles", 0) or 0) / 1000
             bar    = int(peso / max_peso * 100)
@@ -1055,35 +999,47 @@ with tab3:
             with c1:
                 vcto = f" · {pos['vencimiento']}" if pos.get("vencimiento") else ""
                 st.markdown(
-                    f'<div style="font-size:13px;font-weight:500;color:{TEXT}">{pos.get("nombre","")}</div>'
-                    f'<div style="font-size:10px;color:{TEXT3}">{pos.get("ticker","")}{vcto}</div>',
+                    f"<div style='font-size:13px; font-weight:500; color:{TEXT};'>{pos.get('nombre','')}</div>"
+                    f"<div style='font-family:\"DM Mono\",monospace; font-size:9.5px; color:{TEXT3};'>"
+                    f"{pos.get('ticker','')}{vcto}</div>",
                     unsafe_allow_html=True)
             with c2:
-                st.markdown(f'<span style="background:{color}22;color:{color};border-radius:4px;'
-                            f'padding:2px 7px;font-size:10px;font-weight:600">{tipo_p}</span>',
-                            unsafe_allow_html=True)
+                st.markdown(
+                    f"<span style='background:{color}22; color:{color}; border-radius:3px;"
+                    f" padding:2px 6px; font-family:\"DM Mono\",monospace; font-size:9px;"
+                    f" letter-spacing:0.04em;'>{tipo_p}</span>",
+                    unsafe_allow_html=True)
             with c3:
-                st.markdown(f'<span style="font-size:11px;color:{TEXT2}">{pais_p}</span>', unsafe_allow_html=True)
+                st.markdown(f"<span style='font-size:11px; color:{TEXT2};'>{pais_p}</span>",
+                            unsafe_allow_html=True)
             with c4:
-                st.markdown(f'<span style="font-size:12px;color:{TEXT2}">{pos.get("divisa","")}</span>', unsafe_allow_html=True)
+                st.markdown(f"<span style='font-family:\"DM Mono\",monospace; font-size:11px;"
+                            f" color:{TEXT2};'>{pos.get('divisa','')}</span>",
+                            unsafe_allow_html=True)
             with c5:
-                st.markdown(f'<span style="font-size:12px;color:{TEXT2}">{es(val_m,2)}</span>', unsafe_allow_html=True)
+                st.markdown(f"<span style='font-family:\"DM Mono\",monospace; font-size:12px;"
+                            f" color:{TEXT2};'>{es(val_m,2)}</span>",
+                            unsafe_allow_html=True)
             with c6:
                 st.markdown(
-                    f'<div style="font-size:13px;font-weight:700;color:{ACCENT}">{es(peso,2)}%</div>'
-                    f'<div style="background:{BORDER};border-radius:3px;height:4px;margin-top:3px">'
-                    f'<div style="background:{CHART};border-radius:3px;height:4px;width:{bar}%"></div></div>',
+                    f"<div style='font-family:\"DM Mono\",monospace; font-size:13px;"
+                    f" font-weight:500; color:{ACCENT};'>{es(peso,2)}%</div>"
+                    f"<div class='pos-bar-bg'><div class='pos-bar-fill' style='width:{bar}%'></div></div>",
                     unsafe_allow_html=True)
-            st.markdown(f'<hr style="border:none;border-top:1px solid {BORDER};margin:4px 0">', unsafe_allow_html=True)
+            st.markdown(f"<div style='height:1px; background:{BORDER}; margin:3px 0;'></div>",
+                        unsafe_allow_html=True)
 
         if len(actuales) > 25:
-            st.markdown(f'<span class="meta">+ {len(actuales) - 25} posiciones adicionales</span>', unsafe_allow_html=True)
+            st.markdown(
+                f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                f" color:{TEXT3}; letter-spacing:0.06em; margin-top:4px;'>"
+                f"+ {len(actuales)-25} POSICIONES ADICIONALES</div>",
+                unsafe_allow_html=True)
 
-    # ── Evolución concentración top-15 (peso total acumulado por año) ─────────
+    # ── Concentración top-15 ──────────────────────────────────────────────────
     if len(historicas) >= 2:
-        st.markdown('<div class="sec">Concentración top-15 posiciones por año</div>', unsafe_allow_html=True)
+        section_header("Concentración top-15 posiciones por año")
         hist_s = sorted(historicas, key=lambda h: str(h.get("periodo", "")))
-
         top15_data = []
         for h in hist_s:
             yr = normalize_year(str(h.get("periodo", "")))
@@ -1091,36 +1047,37 @@ with tab3:
             total_w = sum(p.get("peso_pct") or 0 for p in sorted_top)
             top5 = [(p.get("nombre", "")[:18], p.get("peso_pct") or 0) for p in sorted_top[:5]]
             top15_data.append({"yr": yr, "total_w": round(total_w, 1), "top5": top5})
-
         if top15_data:
             fig_evol = go.Figure(go.Bar(
                 x=[d["yr"] for d in top15_data],
                 y=[d["total_w"] for d in top15_data],
-                marker_color=CHART,
+                marker_color=ACCENT,
                 hovertemplate="<b>%{x}</b><br>Top-15 peso: %{y:.1f}%<extra></extra>",
             ))
-            fig_evol.update_layout(**chart_layout(220, legend=False))
+            fig_evol.update_layout(**chart_layout(200, legend=False))
             st.plotly_chart(fig_evol, use_container_width=True)
-
-            # Top-5 por año debajo del gráfico
             cols_t5 = st.columns(min(len(top15_data), 6))
-            for i, d in enumerate(top15_data[-6:]):
+            for i, data in enumerate(top15_data[-6:]):
                 with cols_t5[i % len(cols_t5)]:
                     top5_html = "".join(
-                        f'<div style="font-size:11px;color:{TEXT};padding:1px 0">'
-                        f'<span style="color:{TEXT3}">{j+1}.</span> {nm} '
-                        f'<span style="color:{ACCENT};font-weight:700">{es(w,1)}%</span></div>'
-                        for j, (nm, w) in enumerate(d["top5"])
+                        f"<div style='font-family:\"DM Mono\",monospace; font-size:10px;"
+                        f" color:{TEXT2}; padding:2px 0;'>"
+                        f"<span style='color:{TEXT3};'>{j+1}.</span> {nm} "
+                        f"<span style='color:{ACCENT}; font-weight:500;'>{es(w,1)}%</span></div>"
+                        for j, (nm, w) in enumerate(data["top5"])
                     )
                     st.markdown(
-                        f'<div style="background:{BG3};border-radius:8px;padding:8px 10px;border:1px solid {BORDER}">'
-                        f'<div style="font-size:11px;font-weight:700;color:{TEXT2};margin-bottom:4px">{d["yr"]}</div>'
-                        f'{top5_html}</div>',
+                        f"<div style='background:{BG2}; border:1px solid {BORDER}; border-radius:4px;"
+                        f" padding:10px 12px;'>"
+                        f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                        f" font-weight:500; color:{TEXT3}; letter-spacing:0.08em;"
+                        f" text-transform:uppercase; margin-bottom:6px;'>{data['yr']}</div>"
+                        f"{top5_html}</div>",
                         unsafe_allow_html=True)
 
-    # ── Cambios relevantes año a año ─────────────────────────────────────────
+    # ── Cambios de cartera año a año ──────────────────────────────────────────
     if len(historicas) >= 2:
-        st.markdown('<div class="sec">Cambios relevantes de cartera — año a año</div>', unsafe_allow_html=True)
+        section_header("Cambios de cartera — año a año")
 
         def compute_changes(hist):
             srt = sorted(hist, key=lambda h: str(h.get("periodo", "")))
@@ -1128,8 +1085,8 @@ with tab3:
             for i in range(1, len(srt)):
                 prev_m = {(p.get("ticker") or p.get("nombre","")): p for p in srt[i-1].get("top10",[])}
                 curr_m = {(p.get("ticker") or p.get("nombre","")): p for p in srt[i].get("top10",[])}
-                entradas = [p for k,p in curr_m.items() if k not in prev_m and (p.get("peso_pct") or 0) >= 1]
-                salidas  = [p for k,p in prev_m.items() if k not in curr_m and (p.get("peso_pct") or 0) >= 1]
+                entradas = [p for k, p in curr_m.items() if k not in prev_m and (p.get("peso_pct") or 0) >= 1]
+                salidas  = [p for k, p in prev_m.items() if k not in curr_m and (p.get("peso_pct") or 0) >= 1]
                 dchanges = []
                 for k, p in curr_m.items():
                     if k in prev_m:
@@ -1143,169 +1100,152 @@ with tab3:
                 })
             return list(reversed(changes))
 
-        def pos_card(p, bcolor, tcolor, show_delta=False, delta=None):
-            delta_html = ""
-            if show_delta and delta is not None:
-                sign = "+" if delta > 0 else ""
-                delta_html = f'<span style="color:{tcolor};font-weight:700"> {sign}{es(delta,2)}%</span>'
-            bg_card = "#f0faf4" if tcolor == GREEN_CHART else "#fdf2f2" if tcolor == RED_CHART else BG3
-            return (f'<div style="background:{bg_card};'
-                    f'border-left:3px solid {bcolor};border-radius:0 6px 6px 0;'
-                    f'padding:6px 10px;margin-bottom:5px;font-size:12px">'
-                    f'<span style="color:{TEXT};font-weight:600">{p.get("nombre","")[:28]}</span>'
-                    f'<br><span style="color:{TEXT3}">{p.get("ticker","")}</span>'
-                    f'&nbsp;<span style="color:{bcolor};font-weight:700">{es(p.get("peso_pct",0),2)}%</span>'
-                    f'{delta_html}</div>')
+        def _pos_row(p, border_col, value_col, delta=None):
+            sign = f"+{es(delta,2)}%" if delta and delta > 0 else (f"{es(delta,2)}%" if delta else "")
+            delta_html = (f"<span style='color:{value_col}; font-size:10px;'> {sign}</span>"
+                          if sign else "")
+            return (
+                f"<div style='background:{BG2}; border-left:2px solid {border_col};"
+                f" border-radius:0 3px 3px 0; padding:5px 9px; margin-bottom:4px; font-size:11.5px;'>"
+                f"<span style='color:{TEXT}; font-weight:500;'>{p.get('nombre','')[:28]}</span>"
+                f"<br><span style='font-family:\"DM Mono\",monospace; font-size:9.5px; color:{TEXT3};'>"
+                f"{p.get('ticker','')}</span>"
+                f"&nbsp;<span style='color:{border_col}; font-weight:500; font-size:11px;'>"
+                f"{es(p.get('peso_pct',0),2)}%</span>"
+                f"{delta_html}</div>"
+            )
 
         for ch in compute_changes(historicas):
             n = len(ch["entradas"]) + len(ch["salidas"]) + len(ch["cambios"])
             if n == 0:
                 continue
-            with st.expander(f"**{ch['de']} → {ch['a']}** · {n} cambio{'s' if n>1 else ''} detectado{'s' if n>1 else ''}"):
+            with st.expander(f"{ch['de']} → {ch['a']}  ·  {n} cambio{'s' if n>1 else ''}"):
                 cc1, cc2, cc3 = st.columns(3)
                 with cc1:
-                    st.markdown(f'<div style="font-size:11px;color:{GREEN};font-weight:700;text-transform:uppercase;margin-bottom:6px">▲ Entradas</div>', unsafe_allow_html=True)
-                    if ch["entradas"]:
-                        for p in ch["entradas"]:
-                            st.markdown(pos_card(p, GREEN, GREEN), unsafe_allow_html=True)
-                    else:
-                        st.markdown('<span class="meta">—</span>', unsafe_allow_html=True)
+                    st.markdown(
+                        f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                        f" color:{GREEN}; letter-spacing:0.08em; margin-bottom:8px;'>ENTRADAS</div>",
+                        unsafe_allow_html=True)
+                    for p in ch["entradas"]:
+                        st.markdown(_pos_row(p, GREEN, GREEN), unsafe_allow_html=True)
+                    if not ch["entradas"]:
+                        st.markdown(f"<span style='color:{TEXT3}; font-size:11px;'>—</span>",
+                                    unsafe_allow_html=True)
                 with cc2:
-                    st.markdown(f'<div style="font-size:11px;color:{RED};font-weight:700;text-transform:uppercase;margin-bottom:6px">▼ Salidas</div>', unsafe_allow_html=True)
-                    if ch["salidas"]:
-                        for p in ch["salidas"]:
-                            st.markdown(pos_card(p, RED_CHART, RED_CHART), unsafe_allow_html=True)
-                    else:
-                        st.markdown('<span class="meta">—</span>', unsafe_allow_html=True)
+                    st.markdown(
+                        f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                        f" color:{RED}; letter-spacing:0.08em; margin-bottom:8px;'>SALIDAS</div>",
+                        unsafe_allow_html=True)
+                    for p in ch["salidas"]:
+                        st.markdown(_pos_row(p, RED, RED), unsafe_allow_html=True)
+                    if not ch["salidas"]:
+                        st.markdown(f"<span style='color:{TEXT3}; font-size:11px;'>—</span>",
+                                    unsafe_allow_html=True)
                 with cc3:
-                    st.markdown(f'<div style="font-size:11px;color:{ACCENT};font-weight:700;text-transform:uppercase;margin-bottom:6px">⇅ Cambios de peso</div>', unsafe_allow_html=True)
-                    if ch["cambios"]:
-                        for p in ch["cambios"]:
-                            d_val = p["delta"]
-                            col_d = GREEN_CHART if d_val > 0 else RED_CHART
-                            st.markdown(pos_card(p, col_d, col_d, show_delta=True, delta=d_val), unsafe_allow_html=True)
-                    else:
-                        st.markdown('<span class="meta">—</span>', unsafe_allow_html=True)
+                    st.markdown(
+                        f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                        f" color:{ACCENT}; letter-spacing:0.08em; margin-bottom:8px;'>CAMBIOS PESO</div>",
+                        unsafe_allow_html=True)
+                    for p in ch["cambios"]:
+                        d_val = p["delta"]
+                        col_d = GREEN if d_val > 0 else RED
+                        st.markdown(_pos_row(p, col_d, col_d, delta=d_val), unsafe_allow_html=True)
+                    if not ch["cambios"]:
+                        st.markdown(f"<span style='color:{TEXT3}; font-size:11px;'>—</span>",
+                                    unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 4 — CONSISTENCIA
+# TAB 5 — CONSISTENCIA
 # ══════════════════════════════════════════════════════════════════════════════
-with tab4:
+with tab5:
     resumen_g = consist.get("resumen_global", "")
     if resumen_g:
-        st.markdown(f"""
-        <div class="content-block" style="margin-bottom:1.5rem">
-          <div class="meta" style="margin-bottom:8px">Síntesis global</div>
-          <div style="font-size:14px;color:{TEXT2};line-height:1.75">{resumen_g}</div>
-        </div>""", unsafe_allow_html=True)
+        section_header("Síntesis del track record")
+        narrative_block(resumen_g, "SÍNTESIS GLOBAL")
 
-    if periodos:
-        st.markdown('<div class="sec">Análisis de consistencia — por periodo</div>', unsafe_allow_html=True)
-        for pdata in periodos:
-            periodo_lbl = pdata.get("periodo", "—")
-            tesis       = pdata.get("tesis_gestora", "")
-            contexto    = pdata.get("contexto_mercado", "")
-            decisiones  = pdata.get("decisiones_tomadas", "")
-            resultado   = pdata.get("resultado_real", "")
-            score       = pdata.get("consistencia_score")
-
-            score_html = ""
-            if score is not None:
-                if score >= 7:
-                    score_html = f'<span class="badge-pos" style="margin-left:8px">Score {score}/10</span>'
-                elif score >= 4:
-                    score_html = f'<span class="badge-neu" style="margin-left:8px">Score {score}/10</span>'
-                else:
-                    score_html = f'<span class="badge-neg" style="margin-left:8px">Score {score}/10</span>'
-
-            with st.expander(f"**{periodo_lbl}**{score_html}", expanded=(pdata == periodos[0])):
-                p1, p2 = st.columns(2)
-                with p1:
-                    if contexto:
-                        st.markdown(f'<div style="font-size:11px;font-weight:700;color:{TEXT2};text-transform:uppercase;margin-bottom:6px">Contexto de mercado</div>', unsafe_allow_html=True)
-                        st.markdown(f'<div class="sbox">{contexto[:800]}{"..." if len(contexto)>800 else ""}</div>', unsafe_allow_html=True)
-                with p2:
-                    if tesis:
-                        st.markdown(f'<div style="font-size:11px;font-weight:700;color:{TEXT2};text-transform:uppercase;margin-bottom:6px">Tesis gestora</div>', unsafe_allow_html=True)
-                        st.markdown(f'<div class="sbox">{tesis[:600]}{"..." if len(tesis)>600 else ""}</div>', unsafe_allow_html=True)
-                    if decisiones:
-                        st.markdown(f'<div style="font-size:11px;font-weight:700;color:{GREEN};text-transform:uppercase;margin:8px 0 6px 0">Decisiones</div>', unsafe_allow_html=True)
-                        st.markdown(f'<div class="sbox" style="max-height:120px">{decisiones}</div>', unsafe_allow_html=True)
-                    if resultado:
-                        st.markdown(f'<div style="font-size:11px;font-weight:700;color:{YELLOW};text-transform:uppercase;margin:8px 0 6px 0">Resultado real</div>', unsafe_allow_html=True)
-                        st.markdown(f'<div class="sbox" style="max-height:100px">{resultado}</div>', unsafe_allow_html=True)
-
-    # ── Hechos relevantes — todos los años ────────────────────────────────────
-    st.markdown('<div class="sec">Hechos relevantes históricos</div>', unsafe_allow_html=True)
-
-    # Combinar historia_fondo + periodos de consistencia (desc)
-    hechos = []
-    historia = cual.get("historia_fondo", "")
-    if historia:
-        for b in re.split(r"\n+", historia):
-            b = b.strip()
-            if len(b) < 20:
-                continue
-            year_m = re.search(r"\b(20\d{2}|19\d{2})\b", b)
-            hechos.append({"year": year_m.group(1) if year_m else "", "text": b, "source": "regulatorio"})
-
-    # Añadir contexto de todos los periodos
-    for p in periodos:  # ya están en desc
-        yr = normalize_year(str(p.get("periodo", "")))
-        ctx = (p.get("contexto_mercado", "") or "")[:300]
-        dec = (p.get("decisiones_tomadas", "") or "")[:200]
-        if ctx or dec:
-            combined = ctx + (f"\n📌 {dec}" if dec else "")
-            hechos.append({"year": yr, "text": combined, "source": "gestion"})
-
-    if hechos:
-        for h_item in hechos:
-            yr_lbl = h_item["year"]
-            col_h  = YELLOW_CHART if h_item["source"] == "regulatorio" else CHART
-            yr_badge = f'<span class="year-badge" style="margin-right:8px;background:{col_h}">{yr_lbl}</span>' if yr_lbl else ""
-            st.markdown(f"""
-            <div style="background:{BG3};border-left:3px solid {col_h};border-radius:0 8px 8px 0;
-            padding:10px 14px;margin-bottom:6px;font-size:13px;line-height:1.6;color:{TEXT2}">
-              {yr_badge}<span style="color:{TEXT}">{h_item['text']}</span>
-            </div>""", unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="content-block"><span class="meta">No hay hechos relevantes disponibles para este fondo</span></div>', unsafe_allow_html=True)
-
-    # ── Cartas trimestrales ───────────────────────────────────────────────────
-    cartas_list = letters_d.get("cartas", []) or letters_d.get("letters", [])
+    # Cartas trimestrales
+    cartas_list = (letters_d.get("cartas", []) if isinstance(letters_d, dict) else []) or []
     if cartas_list:
-        st.markdown('<div class="sec">Cartas trimestrales — resumen</div>', unsafe_allow_html=True)
+        section_header("Cartas trimestrales")
         for carta in cartas_list[:8]:
-            fecha_c  = carta.get("fecha", carta.get("date", ""))
-            titulo_c = carta.get("titulo", carta.get("title", ""))
+            fecha_c   = carta.get("fecha", carta.get("date", ""))
+            titulo_c  = carta.get("titulo", carta.get("title", ""))
             resumen_c = carta.get("resumen", carta.get("summary", ""))
             with st.expander(f"{fecha_c}  {titulo_c}"):
                 if resumen_c:
-                    st.markdown(f'<div style="font-size:13px;color:{TEXT};line-height:1.7">{resumen_c}</div>', unsafe_allow_html=True)
+                    st.markdown(
+                        f"<div style='font-size:12.5px; color:{TEXT2}; line-height:1.75;'>"
+                        f"{resumen_c}</div>", unsafe_allow_html=True)
     else:
-        st.markdown('<div class="sec">Cartas trimestrales</div>', unsafe_allow_html=True)
-        nombre_f = d.get("nombre", "")
-        gestores_ns = [g.get("nombre","") for g in cual.get("gestores",[]) if g.get("nombre")]
-        st.markdown(f"""
-        <div class="card" style="border:1px dashed {BORDER}">
-          <div style="font-size:13px;color:{TEXT2};line-height:1.7">
-            No se encontraron cartas trimestrales para <strong>{nombre_f}</strong>.<br>
-            Re-ejecuta el pipeline:
-            <code style="font-size:12px;background:{BG3};padding:2px 8px;border-radius:4px">
-              python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto
-            </code>
-          </div>
-        </div>""", unsafe_allow_html=True)
+        section_header("Cartas trimestrales")
+        empty_state(
+            "No se encontraron cartas trimestrales.",
+            f"python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto")
+
+    # Periodos — ascending, oldest first
+    if periodos_asc:
+        section_header("Análisis de consistencia por periodo",
+                       subtitle=f"{periodos_asc[0].get('periodo','')[:4]} → {periodos_asc[-1].get('periodo','')[:4]}")
+
+        for pdata in periodos_asc:
+            periodo_lbl = pdata.get("periodo", "—")
+            score       = pdata.get("consistencia_score")
+            tesis       = pdata.get("tesis_gestora", "") or ""
+            contexto    = pdata.get("contexto_mercado", "") or ""
+            decisiones  = pdata.get("decisiones_tomadas", "") or ""
+            resultado   = pdata.get("resultado_real", "") or ""
+
+            def _period_content(t=tesis, ctx=contexto, dec=decisiones, res=resultado):
+                p1, p2 = st.columns(2)
+                with p1:
+                    if ctx:
+                        st.markdown(
+                            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                            f" color:{TEXT3}; letter-spacing:0.08em; text-transform:uppercase;"
+                            f" margin-bottom:6px;'>Contexto de mercado</div>",
+                            unsafe_allow_html=True)
+                        st.markdown(f"<div class='sbox'>{ctx[:800]}</div>",
+                                    unsafe_allow_html=True)
+                with p2:
+                    if t:
+                        st.markdown(
+                            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                            f" color:{TEXT3}; letter-spacing:0.08em; text-transform:uppercase;"
+                            f" margin-bottom:6px;'>Tesis gestora</div>",
+                            unsafe_allow_html=True)
+                        st.markdown(f"<div class='sbox'>{t[:600]}</div>",
+                                    unsafe_allow_html=True)
+                    if dec:
+                        st.markdown(
+                            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                            f" color:{GREEN}; letter-spacing:0.08em; text-transform:uppercase;"
+                            f" margin:10px 0 6px 0;'>Decisiones</div>",
+                            unsafe_allow_html=True)
+                        st.markdown(f"<div class='sbox' style='max-height:120px;'>{dec}</div>",
+                                    unsafe_allow_html=True)
+                    if res:
+                        st.markdown(
+                            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                            f" color:{YELLOW}; letter-spacing:0.08em; text-transform:uppercase;"
+                            f" margin:10px 0 6px 0;'>Resultado real</div>",
+                            unsafe_allow_html=True)
+                        st.markdown(f"<div class='sbox' style='max-height:100px;'>{res}</div>",
+                                    unsafe_allow_html=True)
+
+            consistency_period(periodo_lbl, score, _period_content)
+
+    elif not resumen_g:
+        empty_state("Sin datos de consistencia — ejecuta el pipeline con ANTHROPIC_API_KEY.",
+                    f"python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 5 — LECTURAS
+# TAB 6 — LECTURAS
 # ══════════════════════════════════════════════════════════════════════════════
-with tab5:
-    st.markdown('<div class="sec">Lecturas, vídeos y entrevistas recomendadas</div>', unsafe_allow_html=True)
+with tab6:
+    section_header("Lecturas, vídeos y entrevistas")
 
-    # lecturas_d puede ser list o dict
     if isinstance(lecturas_d, dict):
         lecturas_list = lecturas_d.get("lecturas", [])
     elif isinstance(lecturas_d, list):
@@ -1313,70 +1253,69 @@ with tab5:
     else:
         lecturas_list = []
 
-    TIPO_ICON = {"articulo": "📄", "video": "🎥", "entrevista": "🎙️",
-                 "podcast": "🎧", "perfil_gestor": "👤", "otro": "🔗"}
+    TIPO_ICON = {
+        "articulo":"ART","video":"VID","entrevista":"ENT",
+        "podcast":"POD","perfil_gestor":"PRF","otro":"LNK",
+    }
 
     if lecturas_list:
         for item in lecturas_list:
             tipo_l = item.get("tipo", "otro")
-            icon   = TIPO_ICON.get(tipo_l, "🔗")
+            tag    = TIPO_ICON.get(tipo_l, "LNK")
             url    = item.get("url", "#")
             titulo = item.get("titulo", url)
             desc   = item.get("descripcion", "") or item.get("snippet", "")
             fecha  = item.get("fecha", "")
             fuente = item.get("fuente", "") or item.get("source", "")
 
+            date_html = (f"<span style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                         f" color:{TEXT3};'>{fecha}</span>  " if fecha else "")
+            src_html  = (f"<span style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                         f" color:{TEXT3}; letter-spacing:0.04em;'>{fuente}</span>" if fuente else "")
+            desc_html = (f"<div style='font-size:12px; color:{TEXT3}; line-height:1.7;"
+                         f" margin-top:8px;'>{desc}</div>" if desc else "")
             st.markdown(f"""
-            <div class="card" style="margin-bottom:8px">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div>
-                  <span style="font-size:12px;background:{BG3};border-radius:4px;padding:2px 8px;
-                  color:{TEXT2};margin-right:8px">{icon} {tipo_l.replace("_"," ").capitalize()}</span>
-                  {"<span style='font-size:11px;color:"+TEXT3+"'>"+fecha+"</span>" if fecha else ""}
-                  <br>
-                  <a href="{url}" target="_blank" style="font-size:14px;font-weight:600;
-                  color:{ACCENT};text-decoration:none">{titulo}</a>
-                  {"<div style='font-size:12px;color:"+TEXT2+";margin-top:2px'>"+fuente+"</div>" if fuente else ""}
-                </div>
+            <div style="background:{BG2}; border:1px solid {BORDER}; border-radius:4px;
+                        padding:14px 18px; margin-bottom:6px;">
+              <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
+                <span style="font-family:'DM Mono',monospace; font-size:9px;
+                             letter-spacing:0.1em; color:{ACCENT}; background:#0d0f14;
+                             border:1px solid {BORDER}; border-radius:3px;
+                             padding:2px 6px;">{tag}</span>
+                {date_html}{src_html}
               </div>
-              {"<div style='font-size:13px;color:"+TEXT+";margin-top:8px;line-height:1.6'>"+str(desc)+"</div>" if desc else ""}
+              <a href="{url}" target="_blank"
+                 style="font-size:13.5px; font-weight:600; color:{TEXT};">{titulo}</a>
+              {desc_html}
             </div>""", unsafe_allow_html=True)
     else:
         nombre_fondo = d.get("nombre", "")
         gestores_names = [g.get("nombre","") for g in cual.get("gestores",[]) if g.get("nombre")]
-        st.markdown(f"""
-        <div class="card" style="border:1px dashed {BORDER}">
-          <div style="font-size:14px;font-weight:600;color:{TEXT};margin-bottom:10px">
-            🔍 Aún no se han buscado lecturas para este fondo
-          </div>
-          <div style="font-size:13px;color:{TEXT2};line-height:1.7">
-            Para generarlas automáticamente, ejecuta:
-            <code style="font-size:12px;background:{BG3};padding:2px 8px;border-radius:4px">
-              python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto
-            </code>
-          </div>
-        </div>""", unsafe_allow_html=True)
-
+        empty_state(
+            "Sin lecturas disponibles todavía — ejecuta el pipeline.",
+            f"python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto")
         if gestores_names:
-            st.markdown('<div class="sec" style="margin-top:16px">Búsquedas sugeridas</div>', unsafe_allow_html=True)
-            queries = [f'"{nombre_fondo}" entrevista', f'"{nombre_fondo}" carta gestores'] + \
-                      [f'"{n}" gestor fondo entrevista' for n in gestores_names[:2]]
+            section_header("Búsquedas sugeridas")
+            queries = (
+                [f'"{nombre_fondo}" entrevista', f'"{nombre_fondo}" carta gestores'] +
+                [f'"{n}" gestor fondo inversión' for n in gestores_names[:2]]
+            )
             for q in queries:
                 enc = urllib.parse.quote(q)
                 st.markdown(
-                    f'<div style="background:{BG3};border-radius:6px;padding:8px 12px;margin-bottom:6px;font-size:13px">'
-                    f'🔎 <a href="https://www.google.com/search?q={enc}" target="_blank" '
-                    f'style="color:{ACCENT};text-decoration:none">{q}</a></div>',
+                    f"<div style='background:{BG2}; border:1px solid {BORDER}; border-radius:3px;"
+                    f" padding:8px 14px; margin-bottom:4px; font-size:12px;'>"
+                    f"<a href='https://www.google.com/search?q={enc}' target='_blank'"
+                    f" style='color:{ACCENT};'>{q}</a></div>",
                     unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 6 — ANÁLISIS EXTERNOS
+# TAB 7 — ANÁLISIS EXTERNOS
 # ══════════════════════════════════════════════════════════════════════════════
-with tab6:
-    st.markdown('<div class="sec">Análisis publicados por webs especializadas</div>', unsafe_allow_html=True)
+with tab7:
+    section_header("Análisis publicados por webs especializadas")
 
-    # analisis_ext puede ser dict o list
     if isinstance(analisis_ext, dict):
         ext_list = analisis_ext.get("analisis_externos", [])
     elif isinstance(analisis_ext, list):
@@ -1384,157 +1323,148 @@ with tab6:
     else:
         ext_list = []
 
-    SOURCE_ICONS = {
-        "saludfinanciera.es": "💚", "astralis.es": "⭐", "morningstar.es": "🌟",
-        "rankia.com": "📊", "finect.com": "🔵", "investing.com": "📈",
-        "elblogsalmon.com": "🐟", "expansión": "📰", "cinco dias": "📰",
-    }
+    SEARCH_DOMAINS = ("google.com","duckduckgo.com","bing.com","yahoo.com")
+    ext_real = [it for it in ext_list
+                if not any(d in (it.get("url","") or "") for d in SEARCH_DOMAINS)]
 
-    # Filter out search engine URLs (not real articles)
-    SEARCH_DOMAINS = ("google.com", "duckduckgo.com", "bing.com", "yahoo.com")
-    ext_real = [
-        it for it in ext_list
-        if not any(d in (it.get("url", "") or "") for d in SEARCH_DOMAINS)
-    ]
+    SOURCE_ICON = {
+        "saludfinanciera":"SF","astralis":"AS","morningstar":"MS",
+        "rankia":"RK","finect":"FN","investing":"IN","expansión":"EX",
+    }
 
     if ext_real:
         for item in ext_real:
-            fuente = item.get("fuente", "") or item.get("source", "")
-            titulo = item.get("titulo", item.get("title", "Sin título"))
-            url    = item.get("url", "#")
-            fecha  = item.get("fecha", "")
-            resumen_e = item.get("resumen_generado", "") or item.get("resumen", "") or item.get("snippet", "")
-            palabras = item.get("palabras_estimadas", "")
+            fuente    = item.get("fuente","") or item.get("source","")
+            titulo    = item.get("titulo", item.get("title","Sin título"))
+            url       = item.get("url","#")
+            fecha     = item.get("fecha","")
+            resumen_e = (item.get("resumen_generado","") or
+                         item.get("resumen","") or item.get("snippet",""))
+            palabras  = item.get("palabras_estimadas","")
 
-            icon = "🔍"
-            for k, v in SOURCE_ICONS.items():
-                if k in fuente.lower():
-                    icon = v
-                    break
-
-            palabras_html = f'<span style="font-size:10px;color:{TEXT3}"> · ~{palabras} palabras</span>' if palabras else ""
+            tag = next((v for k, v in SOURCE_ICON.items() if k in fuente.lower()), "EXT")
+            date_html = (f"<span style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                         f" color:{TEXT3};'>{fecha}</span>" if fecha else "")
+            words_html = (f"<span style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                          f" color:{TEXT3};'> · ~{palabras}w</span>" if palabras else "")
+            res_html = (f"<div style='font-size:12.5px; color:{TEXT2}; line-height:1.75;"
+                        f" margin-top:10px; border-top:1px solid {BORDER}; padding-top:10px;'>"
+                        f"{resumen_e}</div>" if resumen_e else "")
             st.markdown(f"""
-            <div class="ext-card">
-              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-                <div>
-                  <span style="font-size:12px;background:{BG3};border-radius:4px;padding:2px 8px;color:{TEXT2}">
-                    {icon} {fuente}
-                  </span>
-                  {f'<span style="font-size:11px;color:{TEXT3};margin-left:8px">{fecha}</span>' if fecha else ""}
-                  {palabras_html}
-                </div>
+            <div style="background:{BG2}; border:1px solid {BORDER}; border-radius:4px;
+                        padding:16px 20px; margin-bottom:8px;">
+              <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:8px;">
+                <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em;
+                             color:{ACCENT}; background:#0d0f14; border:1px solid {BORDER};
+                             border-radius:3px; padding:2px 6px;">{tag}</span>
+                <span style="font-family:'DM Mono',monospace; font-size:9.5px;
+                             color:{TEXT3}; letter-spacing:0.04em;">{fuente}</span>
+                {date_html}{words_html}
               </div>
-              <div style="margin-top:8px">
-                <a href="{url}" target="_blank" style="font-size:15px;font-weight:700;
-                color:{ACCENT};text-decoration:none">{titulo}</a>
-              </div>
-              {f'<div style="font-size:13px;color:{TEXT};margin-top:8px;line-height:1.65">{resumen_e}</div>' if resumen_e else ""}
+              <a href="{url}" target="_blank"
+                 style="font-size:14px; font-weight:600; color:{TEXT}; line-height:1.4;">
+                {titulo}
+              </a>
+              {res_html}
             </div>""", unsafe_allow_html=True)
 
     elif ext_list and not ext_real:
-        st.markdown(f'<div class="content-block"><span class="meta">Los análisis encontrados son URLs de búsqueda (no artículos reales) — re-ejecuta el pipeline para obtener artículos directos</span></div>', unsafe_allow_html=True)
+        empty_state("Los resultados encontrados son URLs de búsqueda — re-ejecuta el pipeline para artículos directos.")
     else:
-        # Mostrar búsquedas sugeridas para el usuario
         nombre_fondo = d.get("nombre", "")
         SOURCES = [
-            ("Salud Financiera", "saludfinanciera.es", "💚"),
-            ("Astralis", "astralis.es", "⭐"),
-            ("Morningstar", "morningstar.es", "🌟"),
-            ("Rankia", "rankia.com", "📊"),
-            ("Finect", "finect.com", "🔵"),
+            ("Salud Financiera","saludfinanciera.es"),
+            ("Astralis","astralis.es"),
+            ("Morningstar","morningstar.es"),
+            ("Rankia","rankia.com"),
+            ("Finect","finect.com"),
         ]
-        st.markdown(f"""
-        <div class="card" style="border:1px dashed {BORDER};margin-bottom:16px">
-          <div style="font-size:14px;font-weight:600;color:{TEXT};margin-bottom:10px">
-            🔍 Sin análisis externos disponibles todavía
-          </div>
-          <div style="font-size:13px;color:{TEXT2};line-height:1.7">
-            El agente de lecturas buscará análisis de este fondo en webs especializadas.<br>
-            Ejecuta: <code style="background:{BG3};padding:2px 8px;border-radius:4px">python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto</code>
-          </div>
-        </div>""", unsafe_allow_html=True)
+        empty_state(
+            "Sin análisis externos disponibles.",
+            f"python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto")
 
-        st.markdown('<div class="sec">Buscar manualmente en:</div>', unsafe_allow_html=True)
+        section_header("Buscar manualmente", subtitle="acceso directo")
         cols_src = st.columns(len(SOURCES))
-        for i, (name, site, icon) in enumerate(SOURCES):
+        for i, (name, site) in enumerate(SOURCES):
             q = urllib.parse.quote(f'"{nombre_fondo}"')
             with cols_src[i]:
                 st.markdown(
-                    f'<div style="text-align:center;background:{BG3};border-radius:10px;padding:14px;border:1px solid {BORDER}">'
-                    f'<div style="font-size:24px">{icon}</div>'
-                    f'<div style="font-size:12px;font-weight:700;color:{TEXT};margin:4px 0">{name}</div>'
-                    f'<a href="https://www.google.com/search?q=site:{site}+{q}" target="_blank" '
-                    f'style="font-size:11px;color:{ACCENT}">Buscar →</a></div>',
+                    f"<div style='text-align:center; background:{BG2}; border:1px solid {BORDER};"
+                    f" border-radius:4px; padding:14px 10px;'>"
+                    f"<div style='font-family:\"DM Mono\",monospace; font-size:10px;"
+                    f" font-weight:500; color:{TEXT2}; letter-spacing:0.06em;'>{name}</div>"
+                    f"<div style='margin-top:6px;'>"
+                    f"<a href='https://www.google.com/search?q=site:{site}+{q}' target='_blank'"
+                    f" style='font-family:\"DM Mono\",monospace; font-size:9px;"
+                    f" color:{ACCENT};'>Buscar →</a></div></div>",
                     unsafe_allow_html=True)
 
-    # Meta-report issues (si existe)
     if meta_report and meta_report.get("issues"):
-        st.markdown('<div class="sec" style="margin-top:20px">⚠️ Issues detectados por meta-agente</div>', unsafe_allow_html=True)
+        section_header("Issues del meta-agente", accent_color=YELLOW_CHART)
         for issue in meta_report["issues"]:
             st.markdown(
-                f'<div style="background:{BG3};border-left:3px solid {YELLOW_CHART};border-radius:0 6px 6px 0;'
-                f'padding:6px 12px;margin-bottom:4px;font-size:13px;color:{TEXT2}">⚠️ {issue}</div>',
+                f"<div style='background:{BG2}; border-left:2px solid {YELLOW_CHART};"
+                f" border-radius:0 4px 4px 0; padding:6px 14px; margin-bottom:4px;"
+                f" font-size:12px; color:{TEXT2};'>{issue}</div>",
                 unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 7 — ARCHIVOS
+# TAB 8 — ARCHIVOS
 # ══════════════════════════════════════════════════════════════════════════════
-with tab7:
-    st.markdown('<div class="sec">Archivos y fuentes analizadas</div>', unsafe_allow_html=True)
+with tab8:
+    section_header("Archivos y fuentes analizadas")
 
     xmls = fuentes.get("xmls_cnmv", [])
     pdfs = fuentes.get("informes_descargados", [])
     urls = fuentes.get("urls_consultadas", [])
 
+    # Metadata table
+    lect_count = (len(lecturas_d.get("lecturas", [])) if isinstance(lecturas_d, dict)
+                  else len(lecturas_d) if isinstance(lecturas_d, list) else 0)
+    ext_count  = len(ext_list) if "ext_list" in dir() else 0
+
+    meta_rows = [
+        ("ISIN",                   st.session_state.selected_isin),
+        ("Tipo",                   d.get("tipo","—")),
+        ("Última actualización",   str(d.get("ultima_actualizacion") or "—")[:19].replace("T"," ")),
+        ("XMLs procesados",        str(len(xmls))),
+        ("PDFs procesados",        str(len(pdfs))),
+        ("Periodos consistencia",  str(len(periodos_asc))),
+        ("Lecturas",               str(lect_count)),
+        ("Análisis externos",      str(ext_count)),
+    ]
+    st.markdown(f"<div style='background:{BG2}; border:1px solid {BORDER}; border-radius:4px;"
+                f" padding:14px 18px; margin-bottom:16px;'>", unsafe_allow_html=True)
+    for label, val in meta_rows:
+        stat_row(label, val)
+    st.markdown("</div>", unsafe_allow_html=True)
+
     col_f1, col_f2 = st.columns(2)
 
     with col_f1:
         if pdfs:
-            st.markdown(f"""
-            <div class="card">
-              <div style="font-size:12px;font-weight:700;color:{ACCENT};text-transform:uppercase;margin-bottom:10px">
-                📄 Informes semestrales CNMV ({len(pdfs)})
-              </div>""", unsafe_allow_html=True)
+            section_header(f"Informes semestrales CNMV", subtitle=str(len(pdfs)))
             for pdf in sorted(pdfs):
-                st.markdown(f'<div style="font-size:12px;color:{TEXT};padding:3px 0;border-bottom:1px solid {BORDER}">📋 {pdf}</div>', unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
+                st.markdown(
+                    f"<div style='font-family:\"DM Mono\",monospace; font-size:10px;"
+                    f" color:{TEXT2}; padding:3px 0; border-bottom:1px solid {BORDER};'>"
+                    f"{pdf}</div>", unsafe_allow_html=True)
         if urls:
-            st.markdown(f"""
-            <div class="card" style="margin-top:10px">
-              <div style="font-size:12px;font-weight:700;color:{PURPLE};text-transform:uppercase;margin-bottom:10px">
-                🌐 URLs consultadas
-              </div>""", unsafe_allow_html=True)
+            section_header("URLs consultadas")
             for url in urls:
-                short = url[:70] + "..." if len(url) > 70 else url
-                st.markdown(f'<div style="font-size:11px;color:{ACCENT};padding:3px 0">'
-                            f'<a href="{url}" target="_blank" style="color:{ACCENT};text-decoration:none">{short}</a>'
-                            f'</div>', unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+                short = url[:72] + "…" if len(url) > 72 else url
+                st.markdown(
+                    f"<div style='font-family:\"DM Mono\",monospace; font-size:9.5px;"
+                    f" padding:3px 0;'>"
+                    f"<a href='{url}' target='_blank' style='color:{ACCENT};'>{short}</a>"
+                    f"</div>", unsafe_allow_html=True)
 
     with col_f2:
         if xmls:
-            st.markdown(f"""
-            <div class="card">
-              <div style="font-size:12px;font-weight:700;color:{GREEN};text-transform:uppercase;margin-bottom:10px">
-                🗂️ XMLs CNMV bulk data ({len(xmls)})
-              </div>""", unsafe_allow_html=True)
+            section_header(f"XMLs CNMV bulk data", subtitle=str(len(xmls)))
             for xml in sorted(xmls):
-                st.markdown(f'<div style="font-size:11px;color:{TEXT2};padding:2px 0">{xml}</div>', unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown(f"""
-    <div class="card" style="margin-top:12px">
-      <div style="font-size:12px;font-weight:700;color:{TEXT2};text-transform:uppercase;margin-bottom:10px">ℹ️ Metadatos del análisis</div>
-      <table style="width:100%;font-size:13px;border-collapse:collapse">
-        <tr><td style="color:{TEXT3};padding:4px 0;width:160px">ISIN</td><td style="color:{TEXT}">{st.session_state.selected_isin}</td></tr>
-        <tr><td style="color:{TEXT3};padding:4px 0">Tipo</td><td style="color:{TEXT}">{d.get('tipo','—')}</td></tr>
-        <tr><td style="color:{TEXT3};padding:4px 0">Última actualización</td><td style="color:{TEXT}">{str(d.get('ultima_actualizacion') or '—')[:19].replace('T',' ')}</td></tr>
-        <tr><td style="color:{TEXT3};padding:4px 0">XMLs procesados</td><td style="color:{TEXT}">{len(xmls)}</td></tr>
-        <tr><td style="color:{TEXT3};padding:4px 0">PDFs procesados</td><td style="color:{TEXT}">{len(pdfs)}</td></tr>
-        <tr><td style="color:{TEXT3};padding:4px 0">Periodos consistencia</td><td style="color:{TEXT}">{len(periodos)}</td></tr>
-        <tr><td style="color:{TEXT3};padding:4px 0">Lecturas</td><td style="color:{TEXT}">{len(lecturas_list) if isinstance(lecturas_d, list) else len(lecturas_d.get("lecturas",[]) if isinstance(lecturas_d, dict) else [])}</td></tr>
-        <tr><td style="color:{TEXT3};padding:4px 0">Análisis externos</td><td style="color:{TEXT}">{len(ext_list)}</td></tr>
-      </table>
-    </div>""", unsafe_allow_html=True)
+                st.markdown(
+                    f"<div style='font-family:\"DM Mono\",monospace; font-size:10px;"
+                    f" color:{TEXT2}; padding:2px 0;'>{xml}</div>",
+                    unsafe_allow_html=True)
