@@ -368,31 +368,21 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
 
         progress.advance(main_task)
 
-        # ── Paso 6: Improver Agent (siempre, en modo propose) ─────────────────
-        try:
-            from agents.improver_agent import ImproverAgent
-            improver = ImproverAgent(mode="propose")
-            results["improver"] = await improver.run()
-            n_proposals = len(results["improver"].get("proposals", []))
-            if n_proposals:
-                log("IMPROVER", "INFO", f"{n_proposals} propuestas de mejora generadas — ver data/improvements/")
-        except Exception as exc:
-            log("IMPROVER", "WARN", f"Improver no ejecutado: {exc}")
+    # ═══════════════════════════════════════════════════════════════════════
+    # POST-PIPELINE: Verificación → Publicación → Feedback → Auto-mejora
+    # ═══════════════════════════════════════════════════════════════════════
 
-    # ── Resumen final ─────────────────────────────────────────────────────────
     elapsed = round(time.time() - start_time, 1)
-    output = results.get("output", {})
+    output  = results.get("output", {})
+    meta_result = results.get("meta", {})
 
-    # Contar campos
     completed_fields = _count_nonempty(output)
-    null_fields = _find_null_fields(output)
-
-    # Contar ficheros
-    xml_count = len(list((fund_dir / "raw" / "xml").glob("*.xml"))) if (fund_dir / "raw" / "xml").exists() else 0
-    pdf_count = len(list((fund_dir / "raw").rglob("*.pdf")))
+    null_fields      = _find_null_fields(output)
+    xml_count   = len(list((fund_dir / "raw" / "xml").glob("*.xml"))) if (fund_dir / "raw" / "xml").exists() else 0
+    pdf_count   = len(list((fund_dir / "raw").rglob("*.pdf")))
     carta_count = len(list((fund_dir / "raw" / "letters").glob("*.pdf"))) if (fund_dir / "raw" / "letters").exists() else 0
 
-    # Tabla de resumen con rich
+    # ── Resumen de pipeline ───────────────────────────────────────────────────
     table = Table(title=f"Pipeline completado — {isin}", show_header=True)
     table.add_column("Campo", style="cyan")
     table.add_column("Valor", style="green")
@@ -412,24 +402,250 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
         console.print(f"[yellow]Campos null: {', '.join(null_fields[:15])}"
                       + (f" (+{len(null_fields)-15} más)" if len(null_fields) > 15 else ""))
 
-    # Meta-QA issues
-    meta_result = results.get("meta", {})
     if meta_result.get("issues"):
         console.print(f"\n[bold yellow]! Meta-QA: {len(meta_result['issues'])} issues detectados[/bold yellow]")
+
+    # ── PASO A: Verificar que el fondo está listo para el dashboard ───────────
+    from agents.meta_agent import _fund_ready_for_dashboard
+    dashboard_ready, blockers = _fund_ready_for_dashboard(output)
+
+    if not dashboard_ready:
+        console.print(Panel(
+            "[bold red]FONDO NO LISTO PARA EL DASHBOARD[/bold red]\n"
+            + "\n".join(f"  • {b}" for b in blockers)
+            + "\n\n[yellow]El fondo NO se publicará hasta resolver los blockers.[/yellow]",
+            title="Verificación de calidad",
+            border_style="red",
+        ))
+        log("OUTPUT", "WARN", f"Fondo {isin} NO publicado: {'; '.join(blockers)}")
+    else:
+        console.print(Panel(
+            "[bold green]Fondo listo para el dashboard[/bold green]\n"
+            + f"  AUM: {output.get('kpis', {}).get('aum_actual_meur', '?')} M€  |  "
+            + f"Mix activos: {len(output.get('cuantitativo', {}).get('mix_activos_historico', []))} años  |  "
+            + f"Posiciones: {len((output.get('posiciones') or {}).get('actuales', []))}",
+            title="Verificación de calidad",
+            border_style="green",
+        ))
+
+        # ── PASO B: Git commit + push → actualizar Streamlit ─────────────────
+        console.print("\n[bold cyan]Publicando en Streamlit...[/bold cyan]")
+        git_ok = _git_commit_and_push(isin, output.get("nombre", isin))
+        if git_ok:
+            console.print("[green]OK Streamlit actualizado — cambios publicados en el repositorio[/green]")
+            log("OUTPUT", "OK", "Git push completado — Streamlit Cloud redesplegará en ~1 min")
+        else:
+            console.print("[yellow]Git push falló — revisar conexión o conflictos[/yellow]")
+            log("OUTPUT", "WARN", "Git push falló")
+
+    # ── PASO C: Verificación del output (mostrar datos clave) ─────────────────
+    _print_output_verification(output, meta_result)
+
+    # ── PASO D: Recoger feedback del usuario + lanzar Improver ───────────────
+    if not auto:
+        console.print(Panel(
+            "Revisa el fondo en el dashboard y vuelve con tu feedback.\n"
+            "[cyan]Puedes escribir aquí tus observaciones[/cyan] (errores, datos incorrectos,\n"
+            "mejoras visuales, fuentes que faltan, etc.) o pulsar Enter para saltar.",
+            title="Feedback del análisis",
+            border_style="green",
+        ))
+        await _collect_feedback_and_improve(isin, fund_dir)
 
     separator = "=" * 48
     summary = (
         f"\n{separator}\n"
         f"PIPELINE COMPLETADO — {isin}\n"
         f"Duracion total: {elapsed}s\n"
+        f"Dashboard listo: {'SI' if dashboard_ready else 'NO — ' + '; '.join(blockers)}\n"
         f"Campos completados: {completed_fields}\n"
         f"Campos null: {', '.join(null_fields[:10])}\n"
         f"Ficheros: {xml_count} XML + {pdf_count} PDF + {carta_count} cartas\n"
         f"{separator}\n"
     )
     log("OUTPUT", "OK", summary)
-
     return output
+
+
+# ── Git helpers ───────────────────────────────────────────────────────────────
+
+def _git_commit_and_push(isin: str, nombre: str) -> bool:
+    """Hace git add + commit + push de todos los cambios del fondo analizado."""
+    import subprocess
+    fund_data_path = ROOT / "data" / "funds" / isin
+
+    try:
+        # Stage datos del fondo + agentes modificados
+        subprocess.run(
+            ["git", "add",
+             str(fund_data_path),
+             str(ROOT / "agents"),
+             str(ROOT / "dashboard" / "app.py"),
+             str(ROOT / "data" / "improvements"),
+             ],
+            cwd=str(ROOT), check=True, capture_output=True,
+        )
+        # Check if there's anything to commit
+        status = subprocess.run(
+            ["git", "diff", "--cached", "--quiet"],
+            cwd=str(ROOT), capture_output=True,
+        )
+        if status.returncode == 0:
+            # Nothing staged — check untracked
+            log_fn = lambda m: None  # noqa
+            return True  # already up to date
+
+        msg = f"Análisis {isin} ({nombre}) + pipeline fixes\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+        subprocess.run(
+            ["git", "commit", "-m", msg],
+            cwd=str(ROOT), check=True, capture_output=True,
+        )
+        subprocess.run(
+            ["git", "push", "origin", "main"],
+            cwd=str(ROOT), check=True, capture_output=True,
+        )
+        return True
+    except subprocess.CalledProcessError as exc:
+        stderr = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
+        log("GIT", "ERROR", f"git error: {stderr[:200]}")
+        return False
+
+
+# ── Output verification display ───────────────────────────────────────────────
+
+def _print_output_verification(output: dict, meta_result: dict):
+    """Muestra tabla de verificación de los datos clave del output."""
+    kpis  = output.get("kpis", {}) or {}
+    cuant = output.get("cuantitativo", {}) or {}
+    cual  = output.get("cualitativo", {}) or {}
+    pos   = output.get("posiciones", {}) or {}
+    consist = output.get("analisis_consistencia", {}) or {}
+
+    def chk(v) -> str:
+        return "[green]OK[/]" if v else "[red]FALTA[/]"
+
+    mix_years = [m.get("periodo") for m in cuant.get("mix_activos_historico", [])]
+    mix_sums  = []
+    for m in cuant.get("mix_activos_historico", []):
+        keys = ["renta_fija_pct", "rv_pct", "iic_pct", "liquidez_pct", "depositos_pct"]
+        total = sum((m.get(k) or 0) for k in keys)
+        if total > 5:
+            mix_sums.append(f"{m.get('periodo','?')}={total:.0f}%")
+
+    gestores_names = [g.get("nombre", "") for g in cual.get("gestores", []) if g.get("nombre")]
+    aum_puntos = len(cuant.get("serie_aum", []))
+    n_periodos = len(consist.get("periodos", []))
+    n_pos = len(pos.get("actuales", []))
+    n_hist_pos = len(pos.get("historicas", []))
+
+    table = Table(title="Verificación del output", show_header=True, border_style="cyan")
+    table.add_column("Campo", style="cyan", width=28)
+    table.add_column("Valor / Estado", width=55)
+
+    table.add_row("Nombre", output.get("nombre", "") or "[red]VACÍO[/]")
+    table.add_row("Gestora", output.get("gestora", "") or "[red]VACÍO[/]")
+    table.add_row("AUM actual (M€)", f"{kpis.get('aum_actual_meur', '?')}  {chk(kpis.get('aum_actual_meur'))}")
+    table.add_row("Partícipes", f"{kpis.get('num_participes', '?')}  {chk(kpis.get('num_participes'))}")
+    table.add_row("TER %", f"{kpis.get('ter_pct', '?')}  {chk(kpis.get('ter_pct'))}")
+    table.add_row("Gestores", ", ".join(gestores_names) if gestores_names else "[red]FALTA[/]")
+    table.add_row("Estrategia", chk(cual.get("estrategia")))
+    table.add_row("Serie AUM", f"{aum_puntos} puntos  {chk(aum_puntos >= 3)}")
+    table.add_row("Mix activos", f"{len(mix_years)} años: {', '.join(str(y) for y in mix_years[-5:])}  {chk(mix_years)}")
+    table.add_row("Mix sumas", "  ".join(mix_sums[-6:]) if mix_sums else "[dim]n/a[/]")
+    table.add_row("Posiciones actuales", f"{n_pos}  {chk(n_pos > 0)}")
+    table.add_row("Posiciones históricas", f"{n_hist_pos} periodos  {chk(n_hist_pos > 0)}")
+    table.add_row("Periodos consistencia", f"{n_periodos}  {chk(n_periodos >= 3)}")
+    table.add_row("Cartas gestores", chk((output.get("fuentes") or {}).get("cartas_gestores")))
+    console.print(table)
+
+    # Issues bloqueantes destacados
+    blockers_issues = [i for i in meta_result.get("issues", []) if "BLOQUEANTE" in i or "patron_conocido" in i]
+    if blockers_issues:
+        console.print("\n[bold yellow]Issues a resolver:[/bold yellow]")
+        for i in blockers_issues:
+            safe = i.encode("cp1252", errors="replace").decode("cp1252")
+            console.print(f"  [yellow]•[/] {safe}")
+
+
+# ── Feedback + Improver ───────────────────────────────────────────────────────
+
+async def _collect_feedback_and_improve(isin: str, fund_dir: Path):
+    """
+    Recoge feedback del usuario en terminal y lo guarda.
+    Luego lanza el ImproverAgent en modo propose para generar mejoras.
+    """
+    from rich.prompt import Prompt
+
+    console.print("\n[bold]Tu feedback (Enter para saltar cada pregunta):[/bold]")
+
+    questions = [
+        ("datos_incorrectos", "¿Hay algún dato incorrecto o sospechoso?"),
+        ("falta_info",        "¿Qué información falta o es insuficiente?"),
+        ("errores_visuales",  "¿Algo no se muestra bien en el dashboard?"),
+        ("mejoras",           "¿Qué cambiarías o mejorarías?"),
+        ("fuentes",           "¿Alguna fuente de datos que deberíamos añadir?"),
+    ]
+
+    respuestas: dict = {}
+    for q_id, q_text in questions:
+        try:
+            resp = Prompt.ask(f"[cyan]{q_text}[/cyan]", default="")
+            if resp.strip():
+                respuestas[q_id] = resp.strip()
+        except (KeyboardInterrupt, EOFError):
+            break
+
+    if respuestas:
+        fb = {
+            "isin":       isin,
+            "timestamp":  datetime.now().isoformat(),
+            "fuente":     "usuario_post_pipeline",
+            "respuestas": respuestas,
+            "issues":     list(respuestas.values()),  # para que improver los lea
+        }
+        fb_path = fund_dir / "feedback.json"
+        existing = []
+        if fb_path.exists():
+            try:
+                existing = json.loads(fb_path.read_text(encoding="utf-8"))
+                if isinstance(existing, dict):
+                    existing = [existing]
+            except Exception:
+                existing = []
+        existing.append(fb)
+        fb_path.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
+        console.print("[green]Feedback guardado.[/green]")
+        log("FEEDBACK", "OK", f"Feedback guardado con {len(respuestas)} respuestas")
+
+        # Lanzar Improver con el nuevo feedback
+        console.print("\n[cyan]Analizando feedback con ImproverAgent...[/cyan]")
+        try:
+            from agents.improver_agent import ImproverAgent
+            improver = ImproverAgent(mode="propose")
+            report = await improver.run()
+            proposals = report.get("proposals", [])
+            if proposals:
+                console.print(f"[green]ImproverAgent: {len(proposals)} propuestas de mejora generadas[/green]")
+                for p in proposals:
+                    conf = p.get("confianza", "?")
+                    safe = str(p.get("propuesta", ""))[:100].encode("cp1252", errors="replace").decode("cp1252")
+                    console.print(f"  [dim]{p['agent']} (confianza {conf}%):[/dim] {safe}")
+                console.print(
+                    f"\n[dim]Para aplicar automáticamente los patches de alta confianza:[/dim]\n"
+                    f"  python -m agents.improver_agent --apply"
+                )
+            else:
+                console.print("[dim]No se generaron propuestas nuevas.[/dim]")
+        except Exception as exc:
+            log("IMPROVER", "WARN", f"Improver post-feedback falló: {exc}")
+    else:
+        # Sin feedback — lanzar improver igualmente en modo silencioso
+        try:
+            from agents.improver_agent import ImproverAgent
+            improver = ImproverAgent(mode="propose")
+            await improver.run()
+        except Exception:
+            pass
 
 
 def _count_nonempty(obj) -> int:
