@@ -864,17 +864,21 @@ class CNMVAgent:
         result: dict = {}
 
         # ── Partícipes ────────────────────────────────────────────────────────
-        # Strategy: try per-class table first (sum all classes), fallback to aggregate row.
-        # Per-class table pattern: "CLASE A  1.052.998,9  1.065.463,7  455  445  ..."
-        # We need columns 3+4 which are N° partícipes actual and anterior.
+        # Per-class table: "CLASE A  455  460  EUR  0,00  0,00  ...  NO"
+        # Columns after class name: nº_actual  nº_anterior  [divisa ...]
+        # Numbers are small integers (participants count, not big floats)
         class_parts = re.findall(
-            r'CLASE\s+\w+(?:\s+[\d.,]+){2}\s+([\d.]+)\s+([\d.]+)',
+            r'CLASE\s+\w+\s+([\d.]+)\s+([\d.]+)\s+(?:EUR|USD|GBP)',
             text, re.IGNORECASE,
         )
         if class_parts:
-            result["num_participes"] = sum(int(p[0].replace(".", "")) for p in class_parts)
-            result["num_participes_anterior"] = sum(int(p[1].replace(".", "")) for p in class_parts)
-        else:
+            try:
+                result["num_participes"] = sum(int(p[0].replace(".", "")) for p in class_parts)
+                result["num_participes_anterior"] = sum(int(p[1].replace(".", "")) for p in class_parts)
+            except ValueError:
+                pass
+
+        if "num_participes" not in result:
             # Fallback: aggregate row "Nº de Partícipes  5.176  4.902"
             m = re.search(r'N[oº°]\s*\.?\s*de\s+Part[íi]cipes\s+([\d.]+)\s+([\d.]+)', text)
             if m:
@@ -971,13 +975,23 @@ class CNMVAgent:
             )
 
         # ── Comisión de gestión — por clase ──────────────────────────────────
-        # Table row per class: "CLASE A  0,40  0,00  0,40  0,80  0,04  0,08  0,04  0,08"
-        # Column order: trim_base, trim_result, trim_total, acum_total (gestión)
-        #               trim_base_dep, trim_result_dep, trim_total_dep, acum_total_dep
+        # The table has a complex header; rows look like:
+        # "CLASE A  0,40  0,00  0,40  0,80  0,04  0,08  0,04  0,08"
+        # We need the 4th number (acumulada gestión s/patrimonio)
+        # The table appears AFTER "Comisiones aplicadas en el período" header
+        comis_section = ""
+        comis_m = re.search(r'Comisiones\s+aplicadas\s+en\s+el\s+per', text, re.IGNORECASE)
+        if comis_m:
+            comis_section = text[comis_m.start(): comis_m.start() + 1000]
+        else:
+            comis_section = text  # fallback to full text
+
         class_comisiones = re.findall(
-            r'CLASE\s+(\w+)\s+[\d,]+\s+[\d,]+\s+[\d,]+\s+([\d,]+)',
-            text, re.IGNORECASE,
+            r'CLASE\s+(\w+)\s+([\d,]+)\s+[\d,]+\s+[\d,]+\s+([\d,]+)',
+            comis_section, re.IGNORECASE,
         )
+        # Reformat: group(1)=clase, group(2)=periodo%, group(3)=acumulada%
+        class_comisiones = [(m[0], m[2]) for m in class_comisiones]  # (clase, acumulada)
         if class_comisiones:
             por_clase = {cls: float(val.replace(",", ".")) for cls, val in class_comisiones}
             result["comisiones_gestion_por_clase"] = por_clase
@@ -1020,48 +1034,57 @@ class CNMVAgent:
         # Columns: acum_actual, trim1, trim2, trim3, trim4, año_anterior, ante_anterior...
         # Annual columns (years) start at position 5 onwards depending on layout.
         # We also look for explicit year labels: "2024  0,91"
-        m = re.search(
-            r'Ratio\s+total\s+de\s+gastos\s*([\d,]+(?:\s+[\d,]+)*)',
-            text, re.IGNORECASE,
-        )
-        serie_ter: list[dict] = []
-        if m:
-            nums = re.findall(r'[\d,]+', m.group(1))
-            if nums:
-                # First number = TER acumulado del periodo actual
-                result["ter_pct"] = float(nums[0].replace(",", "."))
-                # Positions 5-8 are typically the last 3-4 annual TER values
-                # (trim1-4 + annual1, annual2, annual3...)
-                annual_nums = nums[5:9] if len(nums) >= 6 else nums[1:]
-                for i, n in enumerate(annual_nums):
-                    yr = (year - i) if year else 0
-                    val = float(n.replace(",", "."))
-                    if 0.01 < val < 10 and yr > 2000:  # sanity: TER between 0.01% and 10%
-                        serie_ter.append({"periodo": str(yr), "ter_pct": val})
-
-        # Also look for explicit "YYYY  X,XX" patterns nearby
+        # TER row: "Ratio total de gastos|0,90 0,23 0,23 0,22 0,22 0,91 0,92 0,92 0,94"
+        # Format: acum_actual trim1 trim2 trim3 trim4 año_t-1 año_t-2 año_t-3 año_t-5
+        # (9 numbers total for semi-annual; fewer for older reports)
         ter_m = re.search(r'Ratio\s+total\s+de\s+gastos', text, re.IGNORECASE)
+        serie_ter: list[dict] = []
         if ter_m:
-            ter_block = text[ter_m.start(): ter_m.start() + 600]
-            explicit = re.findall(r'\b(20\d{2})\b\s+([\d,]+)', ter_block)
-            for yr_s, val_s in explicit:
-                yr_i = int(yr_s)
-                val_f = float(val_s.replace(",", "."))
-                if 0.01 < val_f < 10 and not any(t["periodo"] == yr_s for t in serie_ter):
-                    serie_ter.append({"periodo": yr_s, "ter_pct": val_f})
+            ter_block = text[ter_m.start(): ter_m.start() + 400]
+            nums = re.findall(r'[\d,]+', ter_block)
+            # Filter: only numbers that look like TER percentages (0.01 – 5.0)
+            ter_nums = []
+            for n in nums:
+                try:
+                    v = float(n.replace(",", "."))
+                    if 0.01 <= v <= 5.0:
+                        ter_nums.append(v)
+                except ValueError:
+                    pass
+            if ter_nums:
+                result["ter_pct"] = ter_nums[0]  # acumulado actual
+                # Annual values: positions 5,6,7,8 in the full sequence
+                # (positions 1-4 are quarterly breakdowns)
+                annual_vals = ter_nums[5:9] if len(ter_nums) >= 6 else ter_nums[1:]
+                for i, v in enumerate(annual_vals):
+                    yr = year - i if year else 0
+                    if yr > 2010:
+                        serie_ter.append({"periodo": str(yr), "ter_pct": round(v, 4)})
 
         if serie_ter:
             result["serie_ter_pdf"] = sorted(serie_ter, key=lambda x: x["periodo"], reverse=True)
 
         # ── Índice de rotación de cartera ─────────────────────────────────────
-        # Row: "Índice de rotación de cartera  0,39  0,27"
+        # Row: "Índice de rotación de la cartera  0,09  0,34  0,39  0,27"
+        # Format: sem_actual sem_anterior año_actual año_anterior
+        # We want año_actual (3rd number) as the annual rotation index
         m = re.search(
-            r'[ÍI]ndice\s+de\s+rotaci[oó]n\s+(?:de\s+)?(?:la\s+)?cartera\s+([\d,]+)\s+([\d,]+)',
+            r'[ÍI]ndice\s+de\s+rotaci[oó]n\s+(?:de\s+)?(?:la\s+)?cartera\s+([\d,]+)(?:\s+[\d,]+)?\s+([\d,]+)\s+([\d,]+)',
             text, re.IGNORECASE,
         )
-        if m:
-            result["rotacion_cartera_pct"] = float(m.group(1).replace(",", "."))
-            result["rotacion_cartera_anterior_pct"] = float(m.group(2).replace(",", "."))
+        if not m:
+            # Fallback: simpler pattern with just 2 numbers
+            m = re.search(
+                r'[ÍI]ndice\s+de\s+rotaci[oó]n\s+(?:de\s+)?(?:la\s+)?cartera\s+([\d,]+)\s+([\d,]+)',
+                text, re.IGNORECASE,
+            )
+            if m:
+                result["rotacion_cartera_pct"] = float(m.group(1).replace(",", "."))
+                result["rotacion_cartera_anterior_pct"] = float(m.group(2).replace(",", "."))
+        else:
+            # 4-number format: take positions 3 and 4 (annual figures)
+            result["rotacion_cartera_pct"] = float(m.group(2).replace(",", "."))
+            result["rotacion_cartera_anterior_pct"] = float(m.group(3).replace(",", "."))
 
         # ── Volatilidad ───────────────────────────────────────────────────────
         m = re.search(r'Valor\s+liquidativo\s+([\d,]+)', text, re.IGNORECASE)
@@ -1085,18 +1108,34 @@ class CNMVAgent:
         # ── Sección 4: tabla de hechos relevantes ────────────────────────────
         sec4_m = re.search(r'4\.\s*Hechos\s+relevantes', text, re.IGNORECASE)
         if sec4_m:
-            sec5_start = re.search(r'\n\s*5\.', text[sec4_m.start():])
-            sec4_end = sec4_m.start() + (sec5_start.start() if sec5_start else 2000)
+            sec5_start = re.search(r'5\.\s*Anexo', text[sec4_m.start():])
+            sec4_end = sec4_m.start() + (sec5_start.start() if sec5_start else 3000)
             sec4 = text[sec4_m.start(): sec4_end]
 
-            # Each row: "a. Suspension temporal...  NO" or "h. Cambio...  SI"
-            # Also: row spanning multiple lines with SI at end
-            for row_m in re.finditer(
-                r'([a-z]\.\s+[^\n]{5,80}?)\s+(SI|NO)\b',
-                sec4, re.IGNORECASE,
-            ):
-                if row_m.group(2).upper() == "SI":
-                    epigrafe_si.append(row_m.group(1).strip())
+            # Rows can be:
+            # "a. Suspensión temporal de suscripciones/reembolsos X"  (inline X=NO, X/SI)
+            # "h. Cambio de control de la sociedad gestora X" followed by separate SI line
+            # Also multi-line rows where epígrafe is on one line and SI/NO on next
+            lines_sec4 = sec4.splitlines()
+            pending_epigrafe = ""
+            for line in lines_sec4:
+                line_s = line.strip()
+                # Detect epígrafe line: starts with letter + dot
+                ep_m = re.match(r'^([a-z]\.\s+.{5,})', line_s, re.IGNORECASE)
+                if ep_m:
+                    # Check if SI is on same line
+                    if re.search(r'\bSI\b', line_s, re.IGNORECASE) and not re.search(r'\bNO\b', line_s, re.IGNORECASE):
+                        epigrafe_si.append(ep_m.group(1).strip())
+                        pending_epigrafe = ""
+                    elif re.search(r'\bNO\b', line_s, re.IGNORECASE):
+                        pending_epigrafe = ""
+                    else:
+                        pending_epigrafe = ep_m.group(1).strip()
+                elif pending_epigrafe and re.match(r'^\s*SI\s*$', line_s, re.IGNORECASE):
+                    epigrafe_si.append(pending_epigrafe)
+                    pending_epigrafe = ""
+                elif pending_epigrafe and re.match(r'^\s*NO\s*$', line_s, re.IGNORECASE):
+                    pending_epigrafe = ""
 
         # ── Sección 5: Anexo explicativo ─────────────────────────────────────
         m5 = re.search(r'5\.\s*Anexo\s+explicativo\s+de\s+hechos\s+relevantes', text, re.IGNORECASE)
