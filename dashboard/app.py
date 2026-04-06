@@ -146,6 +146,21 @@ def load_json(isin: str, filename: str) -> dict | list:
         return {}
 
 
+def _fund_has_data(data: dict) -> bool:
+    """Return True only if the fund has been meaningfully analyzed."""
+    if not data.get("nombre"):
+        return False
+    kpis = data.get("kpis") or {}
+    cuanti = data.get("cuantitativo") or {}
+    cualit = data.get("cualitativo") or {}
+    # Must have at least one of: AUM, mix_activos, posiciones, gestores with name
+    has_aum = bool(kpis.get("aum_actual_meur"))
+    has_mix = bool(cuanti.get("mix_activos_historico"))
+    has_pos = bool((data.get("posiciones") or {}).get("actuales"))
+    has_gestores = any(g.get("nombre") for g in (cualit.get("gestores") or []))
+    return has_aum or has_mix or has_pos or has_gestores
+
+
 def discover_funds() -> list[dict]:
     base = Path(__file__).parent.parent / "data" / "funds"
     if not base.exists():
@@ -159,9 +174,11 @@ def discover_funds() -> list[dict]:
             continue
         try:
             data = json.loads(op.read_text(encoding="utf-8"))
+            if not _fund_has_data(data):
+                continue
             result.append({"isin": d.name, "nombre": data.get("nombre", d.name)})
         except Exception:
-            result.append({"isin": d.name, "nombre": d.name})
+            pass
     return sorted(result, key=lambda x: x["nombre"])
 
 

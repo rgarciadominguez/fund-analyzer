@@ -245,11 +245,37 @@ class CNMVAgent:
         """
         Descarga ZIPs del catálogo CNMV (desde start_year hasta hoy),
         extrae XMLs y construye series históricas.
-        """
-        html = await get(CNMV_CATALOG_URL)
-        soup = BeautifulSoup(html, "lxml")
 
-        zip_links = self._parse_catalog_links(soup, start_year)
+        El catálogo CNMV tiene una página por año (?ejercicio=YYYY).
+        La página principal muestra solo el año en curso; los históricos
+        se acceden via: /descarga-informacion-individual.aspx?ejercicio=YYYY
+        """
+        all_zip_links: list[dict] = []
+
+        # Años a descargar: desde start_year hasta el año actual (inclusive)
+        years_to_fetch = list(range(start_year, self.current_year + 1))
+
+        for year in years_to_fetch:
+            if year == self.current_year:
+                url = CNMV_CATALOG_URL
+            else:
+                url = f"{CNMV_BASE}/portal/publicaciones/descarga-informacion-individual.aspx?ejercicio={year}"
+            try:
+                html = await get(url)
+                soup = BeautifulSoup(html, "lxml")
+                links = self._parse_catalog_links(soup, start_year)
+                all_zip_links.extend(links)
+            except Exception as exc:
+                console.log(f"[yellow]Error catálogo {year}: {exc}")
+
+        # Dedup por filename
+        seen_fn: set[str] = set()
+        zip_links = []
+        for lnk in all_zip_links:
+            if lnk["filename"] not in seen_fn:
+                seen_fn.add(lnk["filename"])
+                zip_links.append(lnk)
+
         console.log(f"[blue]Links de descarga encontrados: {len(zip_links)}")
 
         downloaded_new = 0
@@ -986,10 +1012,21 @@ class CNMVAgent:
             return posiciones, mix
 
         sec10 = text[m_sec.start():]
-        # Limit to before section 11
+        # Limit to: section 11, OR the grand-total row "TOTAL INVERSIONES FINANCIERAS"
+        # (without INTERIOR/EXTERIOR qualifier) — this row ends the summary table
+        # and prevents picking up the duplicate table that appears later in the PDF.
         end_m = re.search(r'\n\s*11\.\s', sec10, re.IGNORECASE)
         if end_m:
             sec10 = sec10[:end_m.start()]
+        else:
+            # Find grand total row (not the INTERIOR / EXTERIOR subtotals)
+            grand_m = re.search(
+                r'TOTAL\s+INVERSIONES\s+FINANCIERAS\s+[\d.,]+\s+[\d,]+[^\n]*\n',
+                sec10, re.IGNORECASE,
+            )
+            if grand_m:
+                # Keep through end of that line then stop (max 200 extra chars for liquidez row)
+                sec10 = sec10[:grand_m.end() + 200]
 
         # Position pattern:
         # ISIN - TYPE|name_fields  CURRENCY  value_miles  pct%
@@ -1046,30 +1083,41 @@ class CNMVAgent:
 
             posiciones.append(entry)
 
-        # Mix activos — take LAST match (global total row), not sum (avoids double-counting
-        # interior subtotal + exterior total which appeared as >180% bug)
-        rf_pcts = re.findall(
-            r'TOTAL\s+RENTA\s+FIJA\s+[\d.]+\s+([\d,]+)',
-            sec10, re.IGNORECASE,
-        )
-        if rf_pcts:
-            mix["renta_fija_pct"] = round(float(rf_pcts[-1].replace(",", ".")), 2)
+        # Mix activos — detect whether report has one block or two (INTERIOR + EXTERIOR).
+        # Two-block reports: sum both blocks (INTERIOR + EXTERIOR = grand total).
+        # Single-block reports (with subtotals): take LAST match (grand total row).
+        has_two_blocks = bool(re.search(
+            r'TOTAL\s+INVERSIONES\s+FINANCIERAS\s+INTERIOR', sec10, re.IGNORECASE
+        ) and re.search(
+            r'TOTAL\s+INVERSIONES\s+FINANCIERAS\s+EXTERIOR', sec10, re.IGNORECASE
+        ))
 
-        rv_pcts = re.findall(r'TOTAL\s+RENTA\s+VARIABLE\s+[\d.]+\s+([\d,]+)', sec10, re.IGNORECASE)
-        if rv_pcts:
-            rv_val = float(rv_pcts[-1].replace(",", "."))
-            if rv_val > 0:
-                mix["rv_pct"] = round(rv_val, 2)
+        def _extract_pct(pattern: str) -> float:
+            """Extract % for a category — sum if two blocks, take last if single block."""
+            vals = re.findall(pattern, sec10, re.IGNORECASE)
+            if not vals:
+                return 0.0
+            floats = [float(v.replace(",", ".")) for v in vals]
+            if has_two_blocks:
+                return round(sum(floats), 2)
+            else:
+                return round(floats[-1], 2)
 
-        iic_pcts = re.findall(r'TOTAL\s+IIC\s+[\d.]+\s+([\d,]+)', sec10, re.IGNORECASE)
-        if iic_pcts:
-            iic_val = float(iic_pcts[-1].replace(",", "."))
-            if iic_val > 0:
-                mix["iic_pct"] = round(iic_val, 2)
+        rf_val = _extract_pct(r'TOTAL\s+RENTA\s+FIJA\s+[\d.]+\s+([\d,]+)')
+        if rf_val:
+            mix["renta_fija_pct"] = rf_val
 
-        m2 = re.search(r'TOTAL\s+DEP[ÓO]SITOS?\s+[\d.]+\s+([\d,]+)', sec10, re.IGNORECASE)
-        if m2:
-            mix["depositos_pct"] = float(m2.group(1).replace(",", "."))
+        rv_val = _extract_pct(r'TOTAL\s+RENTA\s+VARIABLE\s+[\d.]+\s+([\d,]+)')
+        if rv_val:
+            mix["rv_pct"] = rv_val
+
+        iic_val = _extract_pct(r'TOTAL\s+IIC\s+[\d.]+\s+([\d,]+)')
+        if iic_val:
+            mix["iic_pct"] = iic_val
+
+        dep_val = _extract_pct(r'TOTAL\s+DEP[ÓO]SITOS?\s+[\d.]+\s+([\d,]+)')
+        if dep_val:
+            mix["depositos_pct"] = dep_val
 
         # Liquidez from section 2.3
         m2 = re.search(

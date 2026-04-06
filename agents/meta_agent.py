@@ -28,7 +28,42 @@ MIX_KEYS = ["renta_fija_pct", "rv_pct", "iic_pct", "liquidez_pct", "depositos_pc
 
 
 # Patrones de issues conocidos aprendidos del feedback del usuario
+def _fund_ready_for_dashboard(output: dict) -> tuple[bool, list[str]]:
+    """
+    Determina si un output.json tiene datos suficientes para mostrarse en el dashboard.
+    Retorna (ready: bool, motivos_fallo: list[str]).
+    Esta función es la fuente de verdad — dashboard/app.py la debe replicar para el filtro.
+    """
+    blockers = []
+    if not output.get("nombre"):
+        blockers.append("nombre del fondo vacío")
+    kpis  = output.get("kpis") or {}
+    cuant = output.get("cuantitativo") or {}
+    cual  = output.get("cualitativo") or {}
+    pos   = output.get("posiciones") or {}
+
+    has_aum      = bool(kpis.get("aum_actual_meur"))
+    has_mix      = bool(cuant.get("mix_activos_historico"))
+    has_pos      = bool(pos.get("actuales"))
+    has_gestores = any(g.get("nombre") for g in (cual.get("gestores") or []))
+
+    if not (has_aum or has_mix or has_pos or has_gestores):
+        blockers.append(
+            "sin datos cuantitativos ni cualitativos mínimos "
+            "(falta: AUM, mix_activos, posiciones y gestores) — "
+            "el fondo aparecería vacío en el dashboard"
+        )
+    return (len(blockers) == 0), blockers
+
+
 KNOWN_ISSUES_PATTERNS = {
+    "fondo_no_listo_para_dashboard": {
+        "check": lambda output: not _fund_ready_for_dashboard(output)[0],
+        "mensaje": lambda output: "BLOQUEANTE: fondo no listo para dashboard — " +
+                   "; ".join(_fund_ready_for_dashboard(output)[1]),
+        "accion": "NO publicar este fondo hasta completar el pipeline. "
+                  "Ejecutar: python -m agents.orchestrator --isin {ISIN} --auto",
+    },
     "mix_activos_suma_incorrecta": {
         "check": lambda output: any(
             abs(sum((m.get(k) or 0) for k in MIX_KEYS) - 100) > 15
@@ -177,7 +212,9 @@ class MetaAgent:
                 continue  # Already checked above
             try:
                 if pattern["check"](output):
-                    issues.append(f"[patron_conocido:{pattern_id}] {pattern['mensaje']}")
+                    msg = pattern["mensaje"]
+                    msg_str = msg(output) if callable(msg) else msg
+                    issues.append(f"[patron_conocido:{pattern_id}] {msg_str}")
             except Exception:
                 pass
 
@@ -287,18 +324,21 @@ class MetaAgent:
         issues      = self._find_issues(output)
         suggestions = self._suggest_improvements(issues, output)
         completeness = self._calculate_completeness(output)
+        dashboard_ready, dashboard_blockers = _fund_ready_for_dashboard(output)
 
         # Load prior user feedback to include in report
         prior_feedback = self._load_prior_feedback()
 
         report = {
-            "isin":             self.isin,
-            "nombre":           output.get("nombre", ""),
-            "timestamp":        datetime.now().isoformat(),
-            "completeness_pct": completeness,
-            "issues":           issues,
-            "suggestions":      suggestions,
-            "feedback_previo":  prior_feedback,
+            "isin":               self.isin,
+            "nombre":             output.get("nombre", ""),
+            "timestamp":          datetime.now().isoformat(),
+            "completeness_pct":   completeness,
+            "dashboard_ready":    dashboard_ready,
+            "dashboard_blockers": dashboard_blockers,
+            "issues":             issues,
+            "suggestions":        suggestions,
+            "feedback_previo":    prior_feedback,
             "stats": {
                 "periodos_consistencia": len(output.get("analisis_consistencia", {}).get("periodos", [])),
                 "posiciones_actuales":   len(output.get("posiciones", {}).get("actuales", [])),
@@ -321,6 +361,8 @@ class MetaAgent:
         safe_nombre = report.get('nombre', self.isin).encode("cp1252", errors="replace").decode("cp1252")
         print(f"\nMeta-QA: {safe_nombre}")
         print(f"  Completitud: {completeness}%")
+        ready_str = "SI" if report.get("dashboard_ready") else "NO — " + "; ".join(report.get("dashboard_blockers", []))
+        print(f"  Listo para dashboard: {ready_str}".encode("cp1252", errors="replace").decode("cp1252"))
         for k, v in report.get("stats", {}).items():
             print(f"  {k.replace('_', ' ').title()}: {v}")
 
