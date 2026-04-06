@@ -254,10 +254,18 @@ class ReadingsAgent:
         # 1. Gestores: entrevistas + vídeos + perfiles
         for gestor in self.gestores[:4]:  # max 4 gestores
             self._log("INFO", f"Buscando entrevistas para gestor: {gestor}")
-            results = await self._ddg_search(f'"{gestor}" entrevista inversión fondo', max_results=4)
-            results += await self._ddg_search(f'"{gestor}" youtube podcast inversión', max_results=3)
-            lecturas.extend(self._classify(results, source_type="gestor"))
-            await asyncio.sleep(1.5)
+            # Multiple query strategies to maximize coverage
+            gestor_queries = [
+                (f'"{gestor}" entrevista fondo inversión', 4),
+                (f'"{gestor}" site:youtube.com', 3),
+                (f'"{gestor}" podcast inversión', 3),
+                (f'"{gestor}" site:citywire.es OR site:citywire.com', 2),
+                (f'"{gestor}" rankia OR finect OR morningstar', 3),
+            ]
+            for q, max_r in gestor_queries:
+                res = await self._ddg_search(q, max_results=max_r)
+                lecturas.extend(self._classify(res, source_type="gestor"))
+                await asyncio.sleep(1.5)
 
             cw = await self._get_citywire_profile(gestor)
             if cw:
@@ -340,13 +348,34 @@ class ReadingsAgent:
         # 4. Artículos generales del fondo (lecturas: entrevistas, noticias)
         if fund_short:
             self._log("INFO", "Buscando artículos generales del fondo")
-            results = await self._ddg_search(f'"{fund_short}" entrevista gestor fondo')
-            lecturas.extend(self._classify(results, source_type="fondo"))
-            await asyncio.sleep(1)
+            general_queries = [
+                f'"{fund_short}" entrevista gestor fondo',
+                f'"{fund_short}" fondo inversión opinión',
+                f'"{fund_short}" site:youtube.com',
+                f'"{fund_short}" podcast',
+            ]
+            for gq in general_queries:
+                results = await self._ddg_search(gq, max_results=5)
+                lecturas.extend(self._classify(results, source_type="fondo"))
+                await asyncio.sleep(1)
 
-            results2 = await self._ddg_search(f'"{fund_short}" fondo inversión opinión')
-            lecturas.extend(self._classify(results2, source_type="fondo"))
-            await asyncio.sleep(1)
+        # 5. Fallback: if total analisis < 3, try ISIN-based search
+        if len(analisis) < 3:
+            self._log("INFO", f"Pocos análisis ({len(analisis)}), intentando búsqueda por ISIN")
+            isin_queries = [
+                f'{self.isin} análisis fondo',
+                f'{self.isin} site:morningstar.es',
+                f'{self.isin} site:rankia.com',
+            ]
+            for iq in isin_queries:
+                results = await self._ddg_search(iq, max_results=4)
+                for r in results:
+                    url = r.get("url", "")
+                    if not url or any(d in url for d in ("google.com", "duckduckgo.com")):
+                        continue
+                    site_label = self._extract_domain(url)
+                    await _process_analysis_result(r, site_label)
+                await asyncio.sleep(1.5)
 
         # Dedup lecturas por URL
         seen_urls: set[str] = set()

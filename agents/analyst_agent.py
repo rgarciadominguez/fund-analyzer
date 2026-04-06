@@ -321,7 +321,57 @@ class AnalystAgent:
                             if not cualitativo_actual.get(k)]
 
         if campos_faltantes:
-            schema_cual = {k: f"descripción de {k} del fondo" for k in campos_faltantes}
+            # Build richer context including longitudinal data for synthesis
+            mix_hist = cuant.get("mix_activos_historico", [])
+            mix_summary = "; ".join(
+                f"{m.get('periodo')}: RF={m.get('renta_fija_pct','?')}% RV={m.get('rv_pct','?')}% Liq={m.get('liquidez_pct','?')}%"
+                for m in sorted(mix_hist, key=lambda x: str(x.get("periodo","")))[-6:]
+            ) if mix_hist else ""
+            periodos_ctx = output.get("analisis_consistencia", {}).get("periodos", [])
+            decisiones_hist = "\n".join(
+                f"[{p.get('periodo','')}] {(p.get('decisiones_tomadas') or '')[:200]}"
+                for p in sorted(periodos_ctx, key=lambda x: str(x.get("periodo","")))[-6:]
+                if p.get("decisiones_tomadas")
+            )
+            tesis_hist = "\n".join(
+                f"[{p.get('periodo','')}] {(p.get('tesis_gestora') or '')[:200]}"
+                for p in sorted(periodos_ctx, key=lambda x: str(x.get("periodo","")))[-8:]
+                if p.get("tesis_gestora")
+            )
+            enriched_context = (
+                context_text
+                + (f"\nEvolución mix activos: {mix_summary}" if mix_summary else "")
+                + (f"\nDecisiones históricas de cartera:\n{decisiones_hist}" if decisiones_hist else "")
+                + (f"\nTesis gestora por periodo:\n{tesis_hist}" if tesis_hist else "")
+            )
+
+            schema_cual = {}
+            if "estrategia" in campos_faltantes:
+                schema_cual["estrategia"] = (
+                    "Párrafo ejecutivo de 200-300 palabras sintetizando el fondo a partir de TODOS los datos "
+                    "disponibles: histórico AUM, evolución mix activos, perfil de riesgo, estilo de gestión "
+                    "observado, comportamiento en distintos entornos de mercado. "
+                    "NO copiar frases del folleto. Escribir como un analista experimentado tras leer todos los informes."
+                )
+            if "filosofia_inversion" in campos_faltantes:
+                schema_cual["filosofia_inversion"] = (
+                    "Análisis de la filosofía REAL observada en los datos (no la declaración genérica del folleto). "
+                    "Describir cómo ha evolucionado la exposición a tipos de activo año a año, si ha habido cambios "
+                    "de estilo (growth/value, RF/RV, sectores), qué principios se mantienen constantes. "
+                    "Mínimo 150 palabras, basado en los datos históricos disponibles."
+                )
+            if "proceso_seleccion" in campos_faltantes:
+                schema_cual["proceso_seleccion"] = (
+                    "Proceso de selección de activos basado en el análisis de cartera histórica y comentarios "
+                    "del gestor. Describir: criterios de inclusión (valoración, calidad, momentum, macro...), "
+                    "cuándo sale una posición (stop loss, cambio de tesis, rebalanceo), concentración habitual, "
+                    "rotación. Citar periodos si el gestor lo menciona explícitamente. Mínimo 150 palabras."
+                )
+            if "tipo_activos" in campos_faltantes:
+                schema_cual["tipo_activos"] = "Tipos de activos y geografías en los que invierte el fondo"
+            if "objetivos_reales" in campos_faltantes:
+                schema_cual["objetivos_reales"] = "Objetivo real de rentabilidad/riesgo basado en los informes"
+
             schema_cual["gestores"] = [
                 {"nombre": "nombre completo del gestor (inferir de URLs si contiene slug tipo 'juan-gomez-bada')",
                  "cargo": "cargo (gestor principal / portfolio manager)",
@@ -330,16 +380,17 @@ class AnalystAgent:
             ]
             try:
                 result = extract_structured_data(
-                    context_text,
+                    enriched_context[:8000],
                     schema_cual,
-                    context=f"Análisis cualitativo del fondo de inversión {nombre}. "
-                            f"Infiere los campos a partir de los datos disponibles. "
-                            f"Si no tienes información suficiente, usa null.",
+                    context=(
+                        f"Análisis cualitativo del fondo de inversión {nombre}. "
+                        f"IMPORTANTE: Sintetiza a partir de los datos históricos disponibles. "
+                        f"No copies frases literales de los informes. "
+                        f"Si no hay datos suficientes para un campo, devuelve null."
+                    ),
                 )
                 if isinstance(result, dict):
                     for k, v in result.items():
-                        if v and k in output.get("cualitativo", {}).__class__.__mro__[0].__dict__:
-                            pass
                         if v:
                             output.setdefault("cualitativo", {})[k] = v
                     self._log("OK", f"Cualitativo generado: {list(result.keys())}")
@@ -470,14 +521,28 @@ class AnalystAgent:
             api_key = os.getenv("ANTHROPIC_API_KEY", "")
             if api_key and periodos_data:
                 try:
-                    ctx = (f"Fondo {output.get('nombre', self.isin)}. "
-                           f"Periodos analizados: {len(periodos_data)}. "
-                           f"Contextos disponibles: "
-                           + " | ".join(str(p.get("contexto_mercado", ""))[:100] for p in periodos_data[:3]))
+                    # Build rich context: tesis + decisiones longitudinales
+                    tesis_lines = "\n".join(
+                        f"[{p.get('periodo','')}] Tesis: {(p.get('tesis_gestora') or '')[:200]} | "
+                        f"Decisiones: {(p.get('decisiones_tomadas') or '')[:150]}"
+                        for p in sorted(periodos_data, key=lambda x: x.get("periodo",""))
+                        if p.get("tesis_gestora") or p.get("decisiones_tomadas")
+                    )
+                    ctx = (
+                        f"Fondo {output.get('nombre', self.isin)} ({self.isin}). "
+                        f"Gestora: {output.get('gestora','')}. "
+                        f"Periodos analizados: {len(periodos_data)}. "
+                        f"Evolución tesis y decisiones:\n{tesis_lines[:3000]}"
+                    )
                     r = extract_structured_data(
                         ctx,
-                        {"resumen_global": "resumen del track record y filosofía consistente del gestor en 2-3 frases"},
-                        context="Síntesis del análisis de consistencia del fondo.",
+                        {"resumen_global": (
+                            "Síntesis de 3-5 frases del track record del gestor: "
+                            "consistencia de la filosofía a lo largo del tiempo, cómo gestiona "
+                            "distintos entornos de mercado, fortalezas y debilidades observadas. "
+                            "Basarse en la evolución real de tesis y decisiones descritas arriba."
+                        )},
+                        context="Análisis de consistencia longitudinal del fondo.",
                     )
                     resumen = r.get("resumen_global") if isinstance(r, dict) else None
                     if resumen:

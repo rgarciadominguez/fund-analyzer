@@ -439,7 +439,7 @@ class CNMVAgent:
                 console.log(f"[yellow]Error parseando {pdf_path.name}: {exc}")
                 continue
 
-            # Most-recent PDF sets the "current" fields
+            # Most-recent PDF sets the "current" scalar fields
             if i == 0:
                 for campo in [
                     "num_participes", "num_participes_anterior",
@@ -448,24 +448,38 @@ class CNMVAgent:
                     "perfil_riesgo", "divisa", "depositario",
                     "fecha_registro", "gestora_pdf",
                     "estrategia", "tipo_activos", "gestores",
-                    "historia_fondo", "serie_aum_pdf",
+                    "historia_fondo",
                     "rotacion_cartera_pct", "rotacion_cartera_anterior_pct",
                     "comisiones_gestion_por_clase",
-                    "serie_ter_pdf",
                     "_periodo_pdf",
                 ]:
                     if parsed.get(campo) is not None:
                         merged[campo] = parsed[campo]
 
+            # Accumulate serie_aum_pdf from ALL PDFs (dedup by periodo)
+            for entry in parsed.get("serie_aum_pdf", []):
+                periodo = entry.get("periodo", "")
+                existing = merged.setdefault("serie_aum_pdf", [])
+                if not any(e.get("periodo") == periodo for e in existing):
+                    existing.append(entry)
+
+            # Accumulate serie_ter_pdf from ALL PDFs (dedup by periodo)
+            for entry in parsed.get("serie_ter_pdf", []):
+                periodo = entry.get("periodo", "")
+                existing = merged.setdefault("serie_ter_pdf", [])
+                if not any(e.get("periodo") == periodo for e in existing):
+                    existing.append(entry)
+
             # Accumulate hechos_relevantes from all PDFs
             if parsed.get("hechos_relevantes"):
                 merged.setdefault("hechos_relevantes", []).extend(parsed["hechos_relevantes"])
 
-                # Qualitative from section 9/10
-                if objetivo not in ("2", "4"):
-                    cual = parsed.get("cualitativo_gestor", {})
-                    if isinstance(cual, dict):
-                        for k, v in cual.items():
+            # Qualitative from section 9/10 (all PDFs, most-recent wins for each key)
+            if objetivo not in ("2", "4"):
+                cual = parsed.get("cualitativo_gestor", {})
+                if isinstance(cual, dict):
+                    for k, v in cual.items():
+                        if i == 0 or k not in merged:
                             merged[k] = v
 
             # Positions: current from most-recent only
@@ -757,18 +771,28 @@ class CNMVAgent:
         if sec9.strip():
             result["cualitativo_gestor"] = await self._parse_seccion_cualitativo(sec9)
 
-        # Section 10 perspectivas: Claude for tesis_gestora
+        # Section 10 perspectivas: Claude for tesis_gestora (visión actual del gestor)
         sec10 = self._extract_seccion_perspectivas(full_text)
         if sec10.strip():
             gestor = result.get("cualitativo_gestor", {})
             if not gestor.get("tesis_gestora"):
                 schema_persp = {
-                    "tesis_gestora": "perspectivas y filosofía de inversión del fondo"
+                    "tesis_gestora": (
+                        "Resumen en 100-150 palabras de la visión actual del gestor sobre el mercado "
+                        "y el posicionamiento del fondo. Extraído EXCLUSIVAMENTE de la sección 10 "
+                        "'PERSPECTIVAS DE MERCADO Y ACTUACIÓN PREVISIBLE DEL FONDO'. "
+                        "Incluir: visión macro del gestor, sectores/activos favorecidos, "
+                        "riesgos identificados y cómo se posiciona el fondo. "
+                        "No inventar, resumir fielmente el texto de la sección."
+                    )
                 }
                 try:
                     persp = extract_structured_data(
-                        sec10, schema_persp,
-                        context=f"Perspectivas fondo {self.isin}",
+                        sec10[:3000], schema_persp,
+                        context=(
+                            f"Sección 10 informe semestral CNMV {year}. Fondo {self.isin}. "
+                            f"Perspectivas de mercado y actuación previsible."
+                        ),
                     )
                     if isinstance(persp, dict):
                         result.setdefault("cualitativo_gestor", {})["tesis_gestora"] = persp.get("tesis_gestora", "")
@@ -1325,10 +1349,15 @@ class CNMVAgent:
         """
         schema = {
             "contexto_mercado": (
-                "visión de la gestora sobre los mercados durante el periodo (2-4 párrafos)"
+                "Resumen en 150-250 palabras del contexto de mercado durante el periodo, "
+                "tal como lo describe la gestora en su informe semestral: entorno macro, "
+                "movimientos relevantes de tipos/divisas/renta variable, eventos clave. "
+                "Sintetizar fielmente, no copiar literalmente."
             ),
             "decisiones_tomadas": (
-                "inversiones concretas realizadas, posiciones que más aportaron/detractaron"
+                "Inversiones concretas realizadas durante el periodo: posiciones que más aportaron "
+                "o detractaron, cambios de cartera relevantes (entradas, salidas, aumentos de peso), "
+                "con nombres de activos específicos si se mencionan. 100-200 palabras."
             ),
         }
         try:
@@ -1336,8 +1365,9 @@ class CNMVAgent:
                 text[:6000],
                 schema,
                 context=(
-                    f"Sección 9 informe semestral CNMV fondo {self.isin}. "
-                    "Anexo explicativo."
+                    f"Sección 9 informe semestral CNMV año {self.isin}. "
+                    "Anexo explicativo de la visión gestora y decisiones de inversión. "
+                    "Sintetizar los puntos clave sin copiar literalmente el texto."
                 ),
             )
             return result if isinstance(result, dict) else {}
