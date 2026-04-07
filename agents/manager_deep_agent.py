@@ -69,13 +69,36 @@ class ManagerDeepAgent:
             self._log("WARN", "No se encontró nombre de gestor")
             return self._save({"error": "gestor no encontrado", "isin": self.isin})
 
-        self._log("OK", f"Equipo gestor: {self.manager_names}")
+        self._log("OK", f"Equipo gestor identificado: {self.manager_names}")
 
-        # ── Paso 2: Búsquedas por cada gestor ────────────────────────────────
+        # ── Paso 1b: Si hay página de equipo, extraer TODOS los roles ────────
+        team_detail = await self._extract_team_from_web()
+        if team_detail:
+            # Add any new names found in team page
+            for person in team_detail:
+                name = person.get("nombre", "")
+                if name and name not in self.manager_names and "Equipo" not in name:
+                    self.manager_names.append(name)
+            self._log("INFO", f"Equipo ampliado desde web: {len(self.manager_names)} personas")
+
+        # ── Paso 2: Búsquedas INDIVIDUALES por cada gestor ───────────────────
+        # Prioritize: people in inversiones/dirección areas first
         all_search_results = []
-        for name in self.manager_names[:3]:  # Max 3 gestores
+        real_names = [n for n in self.manager_names if not n.startswith("Equipo")]
+        if team_detail:
+            # Reorder: inversiones > dirección > rest
+            inv_names = [t["nombre"] for t in team_detail if t.get("area") in ("inversiones", "dirección")]
+            other_names = [n for n in real_names if n not in inv_names]
+            real_names = inv_names + other_names
+        for name in real_names[:5]:  # Max 5 gestores individuales
+            self._log("INFO", f"Buscando info de: {name}")
             results = await self._search_for_manager(name)
             all_search_results.extend(results)
+        # Also search the fund itself for general info
+        fund_results = await self.search.search(
+            f'"{self.fund_short}" gestor equipo inversiones', num=5, agent="manager_deep"
+        )
+        all_search_results.extend(fund_results)
         self._log("INFO", f"Búsquedas: {len(all_search_results)} URLs únicas")
 
         # ── Paso 3: Filtrar URLs buenas ──────────────────────────────────────
@@ -84,7 +107,7 @@ class ManagerDeepAgent:
 
         # ── Paso 4: Fetch contenido ──────────────────────────────────────────
         fetched_pages = []
-        for r in filtered[:12]:  # Max 12 pages
+        for r in filtered[:15]:  # Max 15 pages
             text = await fetch_page_text(r["url"], max_chars=5000)
             if text and len(text) > 300:
                 fetched_pages.append({
@@ -102,11 +125,27 @@ class ManagerDeepAgent:
         validated_pages = self._validate_content(fetched_pages)
         self._log("INFO", f"Páginas validadas: {len(validated_pages)} (de {len(fetched_pages)})")
 
-        # ── Paso 6: Gemini estructura ────────────────────────────────────────
-        profile = await self._structure_with_gemini(validated_pages, letters_info, cnmv_info)
+        # ── Paso 6: Extraer info de cada página con Gemini (1 llamada/pág) ──
+        extracted_info = []
+        names_str = ", ".join(n for n in self.manager_names if not n.startswith("Equipo"))
+        for page in validated_pages:
+            info = await self._extract_page_info(page, names_str)
+            if info:
+                extracted_info.append(info)
+        self._log("INFO", f"Info extraída con Gemini: {len(extracted_info)} páginas")
 
-        # ── Paso 7: Output ───────────────────────────────────────────────────
-        profile["equipo_gestor"] = self.manager_names
+        # ── Paso 7: Output — TODO lo recopilado ─────────────────────────────
+        profile = {
+            "equipo_gestor": self.manager_names,
+            "equipo_detalle_web": team_detail or [],
+            "info_extraida_por_fuente": extracted_info,
+            "fuentes_web_raw": [
+                {"url": p["url"], "title": p["title"], "text": p["text"]}
+                for p in validated_pages
+            ],
+            "informacion_cartas": letters_info,
+            "informacion_cnmv": cnmv_info,
+        }
         profile["isin"] = self.isin
         profile["fondo"] = self.fund_name
         profile["generado"] = datetime.now().isoformat()
@@ -286,6 +325,72 @@ class ManagerDeepAgent:
                     name = " ".join(p.capitalize() for p in parts)
                     names.append(name)
         return names
+
+    async def _extract_team_from_web(self) -> list[dict]:
+        """Fetch gestora team page and extract all people with their roles using Gemini."""
+        if not self.gestora:
+            return []
+
+        # Search for team page
+        team_results = await self.search.search(
+            f'"{self.gestora}" equipo', num=3, agent="manager_team"
+        )
+        # Also try direct fetch of known patterns
+        team_text = ""
+        team_url = ""
+        for r in team_results[:3]:
+            url = r.get("url", "")
+            if "equipo" in url.lower() or "team" in url.lower() or "about" in url.lower():
+                text = await fetch_page_text(url, max_chars=8000)
+                if text and len(text) > 500:
+                    team_text = text
+                    team_url = url
+                    break
+        # Fallback: try any result from gestora domain
+        if not team_text:
+            for r in team_results[:3]:
+                text = await fetch_page_text(r.get("url", ""), max_chars=8000)
+                if text and len(text) > 500:
+                    team_text = text
+                    team_url = r.get("url", "")
+                    break
+
+        if not team_text:
+            return []
+
+        self._log("INFO", f"Página equipo encontrada: {team_url[:60]} ({len(team_text)}c)")
+
+        # Use Gemini to extract all people and their roles
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
+            model = genai.GenerativeModel("gemini-2.5-flash")
+
+            prompt = (
+                f"De esta página web del equipo de {self.gestora}, extrae TODAS las personas "
+                f"mencionadas con su nombre completo, cargo/rol y una breve descripción de su "
+                f"trayectoria si aparece. Indica cuáles están en el área de gestión/inversiones.\n\n"
+                f"Responde en JSON: [{{"
+                f"\"nombre\": \"\", \"cargo\": \"\", \"area\": \"inversiones|comercial|operaciones|dirección\", "
+                f"\"trayectoria\": \"breve resumen si aparece\"}}]\n\n"
+                f"Texto:\n{team_text[:6000]}"
+            )
+
+            resp = model.generate_content(prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.1, max_output_tokens=3000))
+            raw = resp.text.strip() if resp.text else ""
+            # Extract JSON array
+            m = re.search(r'\[.*\]', raw, re.DOTALL)
+            if m:
+                result = json.loads(m.group())
+                if isinstance(result, list):
+                    self._log("OK", f"Equipo extraído: {len(result)} personas")
+                    return result
+        except Exception as exc:
+            self._log("WARN", f"Error extrayendo equipo: {exc}")
+
+        return []
 
     async def _gemini_extract_names(self, snippets: list[str]) -> list[str]:
         """Use Gemini to extract manager names from Google snippets when regex fails."""
@@ -472,7 +577,79 @@ class ManagerDeepAgent:
         return result
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # PASO 6: GEMINI STRUCTURE
+    # PASO 6: EXTRAER INFO POR PÁGINA
+
+    async def _extract_page_info(self, page: dict, manager_names: str) -> dict | None:
+        """Use Gemini to extract relevant manager info from a single page."""
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
+            model = genai.GenerativeModel("gemini-2.5-flash")
+        except Exception:
+            # Fallback: return page as-is
+            return {"fuente": page["url"], "titulo": page["title"], "texto_raw": page["text"][:3000]}
+
+        prompt = (
+            f"Extrae TODA la información relevante de este texto sobre el fondo {self.fund_short} "
+            f"y su equipo gestor ({manager_names}). Incluye:\n"
+            f"- Nombres y cargos de personas mencionadas\n"
+            f"- Trayectoria profesional, formación\n"
+            f"- Filosofía de inversión, estrategia, opiniones de mercado\n"
+            f"- Decisiones de cartera, posicionamiento\n"
+            f"- Datos del fondo: rentabilidad, AUM, premios\n"
+            f"- Entrevistas, citas textuales\n"
+            f"- Cualquier dato útil para un analista de fondos\n"
+            f"Extrae todo lo que encuentres. Responde en JSON.\n\n"
+            f"Fuente: {page['title']}\n"
+            f"{page['text'][:4000]}"
+        )
+
+        try:
+            resp = model.generate_content(prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.1, max_output_tokens=2000))
+            raw = resp.text.strip() if resp.text else ""
+            if not raw:
+                return {"_fuente": page["url"], "_titulo": page["title"], "texto_raw": page["text"][:3000]}
+            # Try to parse JSON — handle malformed responses
+            # Remove markdown wrappers (may span multiple lines)
+            clean = re.sub(r'^```(?:json)?\s*\n?', '', raw, flags=re.MULTILINE)
+            clean = re.sub(r'\n?```\s*$', '', clean, flags=re.MULTILINE)
+            clean = clean.strip()
+            try:
+                result = json.loads(clean)
+            except json.JSONDecodeError:
+                # Try to find first complete JSON object
+                depth = 0
+                start = clean.find('{')
+                if start >= 0:
+                    for i in range(start, len(clean)):
+                        if clean[i] == '{': depth += 1
+                        elif clean[i] == '}': depth -= 1
+                        if depth == 0:
+                            try:
+                                result = json.loads(clean[start:i+1])
+                                break
+                            except json.JSONDecodeError:
+                                result = None
+                                break
+                    else:
+                        result = None
+                else:
+                    result = None
+            if result and isinstance(result, dict) and len(result) > 0:
+                result["_fuente"] = page["url"]
+                result["_titulo"] = page["title"]
+                return result
+            # If JSON failed but we have text, save raw Gemini response
+            return {"_fuente": page["url"], "_titulo": page["title"],
+                    "gemini_text": raw[:2000], "texto_raw": page["text"][:2000]}
+        except Exception as exc:
+            self._log("WARN", f"Gemini extract error for {page['title'][:30]}: {exc}")
+        return {"_fuente": page["url"], "_titulo": page["title"], "texto_raw": page["text"][:3000]}
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # GEMINI STRUCTURE (legacy — kept for compatibility)
     # ═══════════════════════════════════════════════════════════════════════════
 
     async def _structure_with_gemini(self, pages: list[dict],
