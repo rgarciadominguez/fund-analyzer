@@ -1206,6 +1206,24 @@ with tab3:
             else:
                 empty_state("Sin datos de TER histórico.")
 
+    # ── Rotación de cartera ─────────────────────────────────────────────────
+    serie_rot = cuant.get("serie_rotacion", [])
+    if serie_rot and len(serie_rot) > 1:
+        section_header("Índice de rotación de cartera")
+        rot_s = sorted(serie_rot, key=lambda x: str(x.get("periodo", "")))
+        rot_labels = [str(r.get("periodo", "")) for r in rot_s]
+        rot_vals = [r.get("rotacion_pct", 0) or 0 for r in rot_s]
+        fig_rot = go.Figure(go.Bar(
+            x=rot_labels, y=rot_vals, marker_color=PURPLE,
+            text=[f"{v:.2f}" for v in rot_vals], textposition="outside",
+            textfont=dict(size=10, color=TEXT3),
+            width=0.5,
+            hovertemplate="<b>%{x}</b><br>Rotación: %{y:.2f}<extra></extra>",
+        ))
+        fig_rot.update_layout(**chart_layout(240, legend=False))
+        fig_rot.update_xaxes(type="category")
+        st.plotly_chart(fig_rot, use_container_width=True)
+
     # ── Mix activos ───────────────────────────────────────────────────────────
     section_header("Evolución por tipo de activo")
     mix_hist = cuant.get("mix_activos_historico", [])
@@ -1361,28 +1379,48 @@ with tab4:
 
     section_header("Posiciones actuales")
 
+    # Country flag emoji mapping (ISIN prefix → flag)
+    COUNTRY_FLAG = {
+        "ES": "🇪🇸", "US": "🇺🇸", "DE": "🇩🇪", "FR": "🇫🇷", "GB": "🇬🇧",
+        "IT": "🇮🇹", "NL": "🇳🇱", "CH": "🇨🇭", "SE": "🇸🇪", "NO": "🇳🇴",
+        "DK": "🇩🇰", "FI": "🇫🇮", "BE": "🇧🇪", "AT": "🇦🇹", "PT": "🇵🇹",
+        "IE": "🇮🇪", "LU": "🇱🇺", "CA": "🇨🇦", "AU": "🇦🇺", "JP": "🇯🇵",
+        "KR": "🇰🇷", "CN": "🇨🇳", "HK": "🇭🇰", "BR": "🇧🇷", "MX": "🇲🇽",
+        "AR": "🇦🇷", "IN": "🇮🇳", "SG": "🇸🇬", "TW": "🇹🇼", "IL": "🇮🇱",
+    }
+
+    def _get_flag(pos_item):
+        ticker = pos_item.get("ticker", "")
+        if ticker and len(ticker) >= 2:
+            prefix = ticker[:2].upper()
+            return COUNTRY_FLAG.get(prefix, "")
+        return ""
+
     if actuales_sorted:
         top25 = actuales_sorted[:25]
         max_peso = max((p.get("peso_pct", 0) or 0) for p in top25) or 1
 
-        # Header row
-        h1, h2, h3, h4, h5, h6 = st.columns([4, 1, 1, 1, 1, 2])
-        for col, lbl in zip([h1,h2,h3,h4,h5,h6],
-                            ["Nombre / ISIN","Tipo","País","Divisa","Valor M€","Peso %"]):
+        # Header row with % Acum column
+        h1, h2, h3, h4, h5, h6, h7 = st.columns([4, 1, 0.6, 1, 1, 1.5, 0.8])
+        for col, lbl in zip([h1,h2,h3,h4,h5,h6,h7],
+                            ["Nombre / ISIN","Tipo","País","Divisa","Valor M€","Peso %","% Acum"]):
             col.markdown(
                 f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
                 f" color:{TEXT3}; text-transform:uppercase; letter-spacing:0.08em;'>"
                 f"{lbl}</div>", unsafe_allow_html=True)
 
+        acum = 0.0
         for pos in top25:
             tipo_p = pos.get("tipo", "") or ""
             color  = TIPO_COLOR.get(tipo_p, "#334155")
             peso   = pos.get("peso_pct", 0) or 0
+            acum  += peso
             val_m  = (pos.get("valor_mercado_miles", 0) or 0) / 1000
             bar    = int(peso / max_peso * 100)
-            pais_p = infer_country(pos)
+            flag   = _get_flag(pos)
+            pais_p = flag or infer_country(pos)[:3]
 
-            c1, c2, c3, c4, c5, c6 = st.columns([4, 1, 1, 1, 1, 2])
+            c1, c2, c3, c4, c5, c6, c7 = st.columns([4, 1, 0.6, 1, 1, 1.5, 0.8])
             with c1:
                 vcto = f" · {pos['vencimiento']}" if pos.get("vencimiento") else ""
                 st.markdown(
@@ -1397,7 +1435,7 @@ with tab4:
                     f" letter-spacing:0.04em;'>{tipo_p}</span>",
                     unsafe_allow_html=True)
             with c3:
-                st.markdown(f"<span style='font-size:11px; color:{TEXT2};'>{pais_p}</span>",
+                st.markdown(f"<span style='font-size:14px;'>{pais_p}</span>",
                             unsafe_allow_html=True)
             with c4:
                 st.markdown(f"<span style='font-family:\"DM Mono\",monospace; font-size:11px;"
@@ -1412,6 +1450,11 @@ with tab4:
                     f"<div style='font-family:\"DM Mono\",monospace; font-size:13px;"
                     f" font-weight:500; color:{ACCENT};'>{es(peso,2)}%</div>"
                     f"<div class='pos-bar-bg'><div class='pos-bar-fill' style='width:{bar}%'></div></div>",
+                    unsafe_allow_html=True)
+            with c7:
+                st.markdown(
+                    f"<div style='font-family:\"DM Mono\",monospace; font-size:11px;"
+                    f" color:{TEXT3};'>{es(acum,1)}%</div>",
                     unsafe_allow_html=True)
             st.markdown(f"<div style='height:1px; background:{BORDER}; margin:3px 0;'></div>",
                         unsafe_allow_html=True)
@@ -1551,14 +1594,16 @@ with tab5:
         section_header("Síntesis del track record")
         narrative_block(resumen_g, "SÍNTESIS GLOBAL")
 
-    # Cartas semestrales / trimestrales — rich cards
+    # ── Cartas del gestor — storyline horizontal (antiguo → reciente) ─────────
     cartas_list = (letters_d.get("cartas", []) if isinstance(letters_d, dict) else []) or []
     cartas_valid = [c for c in cartas_list if isinstance(c, dict) and (c.get("periodo") or c.get("resumen_mercado") or c.get("tesis_inversion"))]
 
     if cartas_valid:
-        section_header("Cartas del gestor", subtitle=f"{len(cartas_valid)} cartas")
+        cartas_sorted = sorted(cartas_valid, key=lambda x: str(x.get("periodo", "")))
+        section_header("Cartas del gestor", subtitle=f"{len(cartas_sorted)} cartas · antiguo → reciente")
 
-        for carta in sorted(cartas_valid, key=lambda x: str(x.get("periodo", "")), reverse=True)[:12]:
+        # Horizontal storyline — each carta is a card in a scrollable row
+        for carta in cartas_sorted:
             periodo_c    = carta.get("periodo", "") or ""
             rent_c       = carta.get("rentabilidad_periodo_pct")
             rv_inicio    = carta.get("exposicion_rv_inicio_pct")
@@ -1573,53 +1618,58 @@ with tab5:
             citas        = carta.get("citas_textuales", []) or []
             url_c        = carta.get("url_fuente", "") or ""
 
-            # Card header with period + rentabilidad
-            rent_html = f"<span style='color:{GREEN if (rent_c or 0)>=0 else RED};font-weight:700;font-size:14px;'>{'+' if (rent_c or 0)>=0 else ''}{rent_c:.1f}%</span>" if rent_c is not None else ""
-            rv_html = f"<span style='color:{TEXT3};font-size:11px;'>RV: {rv_inicio}% → {rv_fin}%</span>" if rv_inicio and rv_fin else ""
+            rent_badge = f"<span style='color:{GREEN if (rent_c or 0)>=0 else RED};font-weight:700;'>{rent_c:+.1f}%</span>" if rent_c is not None else ""
+            rv_badge = f"<span style='font-size:10px;color:{TEXT3};'>RV {rv_inicio}%→{rv_fin}%</span>" if rv_inicio and rv_fin else ""
 
-            with st.expander(f"📄 {periodo_c}  {f'{rent_c:+.1f}%' if rent_c is not None else ''}"):
-                # Resumen ejecutivo
-                if resumen_ej:
-                    st.markdown(f"<div style='font-size:13px;color:{TEXT};line-height:1.7;margin-bottom:12px;'>{resumen_ej}</div>", unsafe_allow_html=True)
+            # Vision/mercado content
+            left_content = ""
+            if vision_m:
+                left_content = "".join(f"<div style='font-size:11px;color:{TEXT2};margin-bottom:2px;'>· {v}</div>" for v in vision_m[:4])
+            elif mercado_c:
+                left_content = f"<div style='font-size:11px;color:{TEXT2};line-height:1.5;'>{mercado_c[:200]}</div>"
 
-                col_vis, col_mov = st.columns(2)
-                with col_vis:
-                    if vision_m:
-                        st.markdown(f"<div style='font-size:10px;color:{TEXT3};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;'>VISIÓN MACRO</div>", unsafe_allow_html=True)
-                        for v in vision_m[:5]:
-                            st.markdown(f"<div style='font-size:12px;color:{TEXT2};margin-bottom:3px;'>· {v}</div>", unsafe_allow_html=True)
-                    elif mercado_c:
-                        st.markdown(f"<div style='font-size:10px;color:{TEXT3};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;'>MERCADO</div>", unsafe_allow_html=True)
-                        st.markdown(f"<div style='font-size:12px;color:{TEXT2};line-height:1.6;'>{mercado_c}</div>", unsafe_allow_html=True)
+            # Movimientos content
+            right_content = ""
+            moves = []
+            for e in (entradas_c or [])[:3]:
+                if isinstance(e, dict):
+                    moves.append(f"<span style='color:{GREEN};'>+{e.get('empresa','')}</span>")
+            for s in (salidas_c or [])[:3]:
+                if isinstance(s, dict):
+                    moves.append(f"<span style='color:{RED};'>-{s.get('empresa','')}</span>")
+            if moves:
+                right_content = " ".join(moves)
+            elif decisiones_c:
+                right_content = f"<span style='font-size:11px;color:{TEXT2};'>{decisiones_c[:120]}</span>"
 
-                with col_mov:
-                    if entradas_c or salidas_c or decisiones_c:
-                        st.markdown(f"<div style='font-size:10px;color:{TEXT3};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;'>MOVIMIENTOS CARTERA</div>", unsafe_allow_html=True)
-                        for e in entradas_c[:4]:
-                            if isinstance(e, dict):
-                                st.markdown(f"<div style='font-size:12px;color:{GREEN};margin-bottom:2px;'>+ {e.get('empresa','')} <span style='color:{TEXT3};'>— {e.get('justificacion','')[:60]}</span></div>", unsafe_allow_html=True)
-                        for s in salidas_c[:4]:
-                            if isinstance(s, dict):
-                                st.markdown(f"<div style='font-size:12px;color:{RED};margin-bottom:2px;'>- {s.get('empresa','')} <span style='color:{TEXT3};'>— {s.get('justificacion','')[:60]}</span></div>", unsafe_allow_html=True)
-                        if rv_html:
-                            st.markdown(f"<div style='margin-top:6px;'>{rv_html}</div>", unsafe_allow_html=True)
-                        if not entradas_c and not salidas_c and decisiones_c:
-                            st.markdown(f"<div style='font-size:12px;color:{TEXT2};'>{decisiones_c[:200]}</div>", unsafe_allow_html=True)
+            # Citas
+            cita_html = f"<div style='font-size:11px;color:{ACCENT};font-style:italic;margin-top:6px;'>«{citas[0]}»</div>" if citas else ""
 
-                if tesis_c:
-                    st.markdown(f"<div style='font-size:12px;color:{TEXT2};margin-top:8px;border-top:1px solid {BORDER};padding-top:8px;'><strong>Tesis:</strong> {tesis_c}</div>", unsafe_allow_html=True)
-                if citas:
-                    for cita in citas[:2]:
-                        st.markdown(f"<div style='font-size:12px;color:{ACCENT};font-style:italic;margin-top:4px;'>«{cita}»</div>", unsafe_allow_html=True)
-                if url_c:
-                    st.markdown(f"[Ver carta completa ↗]({url_c})")
+            # Link
+            link_html = f"<a href='{url_c}' target='_blank' style='font-size:10px;color:{ACCENT};'>Ver carta ↗</a>" if url_c else ""
+
+            st.markdown(f"""
+            <div style="background:{BG2};border:1px solid {BORDER};border-left:3px solid {ACCENT};
+                        border-radius:4px;padding:14px 18px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:{TEXT};">{periodo_c}</span>
+                <span>{rent_badge} {rv_badge}</span>
+              </div>
+              {f'<div style="font-size:12px;color:{TEXT};line-height:1.6;margin-bottom:8px;">{resumen_ej}</div>' if resumen_ej else ''}
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>{left_content}</div>
+                <div>{right_content}</div>
+              </div>
+              {cita_html}
+              <div style="margin-top:6px;">{link_html}</div>
+            </div>""", unsafe_allow_html=True)
     else:
         section_header("Cartas del gestor")
         empty_state("No se encontraron cartas.", f"python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto")
 
-    # Periodos — ascending, oldest first
+    # ── Análisis de consistencia — storyline horizontal (mismo formato) ───────
     if periodos_asc:
-        section_header("Análisis de consistencia por periodo",
+        section_header("Análisis de consistencia",
                        subtitle=f"{periodos_asc[0].get('periodo','')[:4]} → {periodos_asc[-1].get('periodo','')[:4]}")
 
         for pdata in periodos_asc:
@@ -1630,44 +1680,38 @@ with tab5:
             decisiones  = pdata.get("decisiones_tomadas", "") or ""
             resultado   = pdata.get("resultado_real", "") or ""
 
-            def _period_content(t=tesis, ctx=contexto, dec=decisiones, res=resultado):
-                p1, p2 = st.columns(2)
-                with p1:
-                    if ctx:
-                        st.markdown(
-                            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
-                            f" color:{TEXT3}; letter-spacing:0.08em; text-transform:uppercase;"
-                            f" margin-bottom:6px;'>Contexto de mercado</div>",
-                            unsafe_allow_html=True)
-                        st.markdown(f"<div class='sbox'>{ctx[:800]}</div>",
-                                    unsafe_allow_html=True)
-                with p2:
-                    if t:
-                        st.markdown(
-                            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
-                            f" color:{TEXT3}; letter-spacing:0.08em; text-transform:uppercase;"
-                            f" margin-bottom:6px;'>Tesis gestora</div>",
-                            unsafe_allow_html=True)
-                        st.markdown(f"<div class='sbox'>{t[:600]}</div>",
-                                    unsafe_allow_html=True)
-                    if dec:
-                        st.markdown(
-                            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
-                            f" color:{GREEN}; letter-spacing:0.08em; text-transform:uppercase;"
-                            f" margin:10px 0 6px 0;'>Decisiones</div>",
-                            unsafe_allow_html=True)
-                        st.markdown(f"<div class='sbox' style='max-height:120px;'>{dec}</div>",
-                                    unsafe_allow_html=True)
-                    if res:
-                        st.markdown(
-                            f"<div style='font-family:\"DM Mono\",monospace; font-size:9px;"
-                            f" color:{YELLOW}; letter-spacing:0.08em; text-transform:uppercase;"
-                            f" margin:10px 0 6px 0;'>Resultado real</div>",
-                            unsafe_allow_html=True)
-                        st.markdown(f"<div class='sbox' style='max-height:100px;'>{res}</div>",
-                                    unsafe_allow_html=True)
+            if not tesis and not contexto and not decisiones:
+                continue
 
-            consistency_period(periodo_lbl, score, _period_content)
+            # Score color
+            if score is not None:
+                try:
+                    sv = float(score)
+                    sc_color = GREEN if sv >= 7 else RED if sv < 4 else YELLOW
+                    score_html = f"<span style='color:{sc_color};font-weight:700;'>{int(sv)}/10</span>"
+                except (ValueError, TypeError):
+                    score_html = ""
+            else:
+                score_html = ""
+
+            st.markdown(f"""
+            <div style="background:{BG2};border:1px solid {BORDER};border-left:3px solid {ACCENT};
+                        border-radius:4px;padding:14px 18px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:{TEXT};">{periodo_lbl}</span>
+                {score_html}
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                  {f'<div style="font-size:10px;color:{TEXT3};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Contexto</div><div style="font-size:11px;color:{TEXT2};line-height:1.6;">{contexto[:300]}</div>' if contexto else ''}
+                  {f'<div style="font-size:10px;color:{TEXT3};text-transform:uppercase;letter-spacing:0.08em;margin:8px 0 4px;">Tesis</div><div style="font-size:11px;color:{TEXT2};line-height:1.6;">{tesis[:300]}</div>' if tesis else ''}
+                </div>
+                <div>
+                  {f'<div style="font-size:10px;color:{GREEN};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Decisiones</div><div style="font-size:11px;color:{TEXT2};line-height:1.6;">{decisiones[:300]}</div>' if decisiones else ''}
+                  {f'<div style="font-size:10px;color:{YELLOW};text-transform:uppercase;letter-spacing:0.08em;margin:8px 0 4px;">Resultado</div><div style="font-size:11px;color:{TEXT2};line-height:1.6;">{resultado}</div>' if resultado else ''}
+                </div>
+              </div>
+            </div>""", unsafe_allow_html=True)
 
     elif not resumen_g:
         empty_state("Sin datos de consistencia — ejecuta el pipeline con ANTHROPIC_API_KEY.",

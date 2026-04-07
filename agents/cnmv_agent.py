@@ -470,6 +470,30 @@ class CNMVAgent:
                 if not any(e.get("periodo") == periodo for e in existing):
                     existing.append(entry)
 
+            # Accumulate serie_participes_pdf from ALL PDFs (dedup by periodo)
+            if parsed.get("num_participes") is not None:
+                periodo_key = str(year)
+                existing_part = merged.setdefault("serie_participes_pdf", [])
+                if not any(e.get("periodo") == periodo_key for e in existing_part):
+                    existing_part.append({"periodo": periodo_key, "valor": parsed["num_participes"]})
+            if parsed.get("num_participes_anterior") is not None:
+                periodo_key = str(year - 1)
+                existing_part = merged.setdefault("serie_participes_pdf", [])
+                if not any(e.get("periodo") == periodo_key for e in existing_part):
+                    existing_part.append({"periodo": periodo_key, "valor": parsed["num_participes_anterior"]})
+
+            # Accumulate serie_rotacion_pdf from ALL PDFs (dedup by periodo)
+            if parsed.get("rotacion_cartera_pct") is not None:
+                periodo_key = str(year)
+                existing_rot = merged.setdefault("serie_rotacion_pdf", [])
+                if not any(e.get("periodo") == periodo_key for e in existing_rot):
+                    existing_rot.append({"periodo": periodo_key, "rotacion_pct": parsed["rotacion_cartera_pct"]})
+            if parsed.get("rotacion_cartera_anterior_pct") is not None:
+                periodo_key = str(year - 1)
+                existing_rot = merged.setdefault("serie_rotacion_pdf", [])
+                if not any(e.get("periodo") == periodo_key for e in existing_rot):
+                    existing_rot.append({"periodo": periodo_key, "rotacion_pct": parsed["rotacion_cartera_anterior_pct"]})
+
             # Accumulate hechos_relevantes from all PDFs
             if parsed.get("hechos_relevantes"):
                 merged.setdefault("hechos_relevantes", []).extend(parsed["hechos_relevantes"])
@@ -1493,8 +1517,18 @@ class CNMVAgent:
                 })
             cuant["serie_comisiones_por_clase"] = existing_cls
 
-        # Índice rotación → cuantitativo serie_rotacion
-        if pdf_data.get("rotacion_cartera_pct") is not None:
+        # Índice rotación → cuantitativo serie_rotacion (full series from all PDFs)
+        serie_rotacion_pdf = pdf_data.get("serie_rotacion_pdf", [])
+        if serie_rotacion_pdf:
+            cuant = result.setdefault("cuantitativo", {})
+            existing_rot = {e["periodo"]: e for e in cuant.get("serie_rotacion", [])}
+            for entry in serie_rotacion_pdf:
+                p = entry["periodo"]
+                if p not in existing_rot:
+                    existing_rot[p] = entry
+            cuant["serie_rotacion"] = sorted(existing_rot.values(), key=lambda x: x["periodo"])
+        elif pdf_data.get("rotacion_cartera_pct") is not None:
+            # Fallback: single-point from most-recent PDF scalar
             cuant = result.setdefault("cuantitativo", {})
             existing_rot = cuant.get("serie_rotacion", [])
             period_key = pdf_data.get("_periodo_pdf", "")
@@ -1505,6 +1539,17 @@ class CNMVAgent:
                     "rotacion_pct": pdf_data["rotacion_cartera_pct"],
                 })
             cuant["serie_rotacion"] = sorted(existing_rot, key=lambda x: x["periodo"])
+
+        # Partícipes → cuantitativo serie_participes (full series from all PDFs)
+        serie_participes_pdf = pdf_data.get("serie_participes_pdf", [])
+        if serie_participes_pdf:
+            cuant = result.setdefault("cuantitativo", {})
+            existing_part = {e["periodo"]: e for e in cuant.get("serie_participes", [])}
+            for entry in serie_participes_pdf:
+                p = entry["periodo"]
+                # PDF overwrites XML for same period
+                existing_part[p] = entry
+            cuant["serie_participes"] = sorted(existing_part.values(), key=lambda x: x["periodo"])
 
         # AUM series from PDF — merge with XML series, PDF OVERWRITES XML for same year
         serie_aum_pdf = pdf_data.get("serie_aum_pdf", [])
