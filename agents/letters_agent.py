@@ -1,1210 +1,650 @@
 """
-Letters Agent v2 — Cartas trimestrales de gestores
+Letters Agent — Encuentra y descarga cartas del gestor
 
-Estrategia de descubrimiento en dos fases:
-  Fase 1: Descubrimiento de fuentes (DDG broad search -> dominios relevantes, cacheados 30 dias)
-  Fase 2: Busqueda año a año en paralelo con fuentes descubiertas (asyncio.gather + Semaphore)
+Busca cartas trimestrales, semestrales y anuales del fondo desde el año de inicio
+hasta la actualidad. Usa el SearchEngine centralizado para búsqueda Google + navegación web.
 
-Para cada URL candidata:
-  - BLOG_INDEX  -> recorrer links de articulos + paginacion (hasta 5 paginas)
-  - ARTICLE     -> extraer texto + Claude
-  - PDF         -> descargar + pdfplumber + Claude
+Pipeline:
+  1. Buscar fuentes de cartas (Google + caché de otros agentes)
+  2. Navegar webs de gestora para encontrar PDFs
+  3. Buscar año por año si faltan cartas
+  4. Validar cada URL (es realmente una carta de este fondo?)
+  5. Descargar PDFs + extraer texto con pdfplumber (sin API)
+  6. Output: texto raw completo al analyst_agent
+
+Se ejecuta DESPUÉS de cnmv_agent (necesita anio_creacion y nombre del fondo).
 
 Output:
   data/funds/{ISIN}/letters_data.json
-  data/funds/{ISIN}/letters_sources.json  (cache fuentes, TTL 30 dias)
 """
 import asyncio
 import json
+import os
 import re
 import sys
-import urllib.parse
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Literal
-from urllib.parse import urlparse
 
-from bs4 import BeautifulSoup
+from rich.console import Console
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import httpx
-
-from tools.http_client import get_bytes, get_with_headers
-from tools.pdf_extractor import extract_pages_by_keyword, extract_page_range, get_pdf_metadata
-from tools.claude_extractor import extract_structured_data
-
-
-async def _fetch_no_retry(url: str, headers: dict, timeout: float = 15.0) -> str:
-    """Single GET with no retry — for probing paths that may not exist (e.g. sitemaps)."""
-    async with httpx.AsyncClient(follow_redirects=True, timeout=timeout) as client:
-        resp = await client.get(url, headers=headers)
-        resp.raise_for_status()
-        return resp.text
-
-# ── Constants ─────────────────────────────────────────────────────────────────
-
-DDG_HEADERS = {
-    "Accept-Language": "es-ES,es;q=0.9",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml",
-    "Referer": "https://duckduckgo.com/",
-}
-
-# ISIN-specific confirmed sources (user-validated)
-_ISIN_LETTERS_URLS: dict[str, list[str]] = {
-    "ES0156572002": [  # MyInvestor Cartera Permanente
-        "https://www.riverpatrimonio.com/tag/myinvestor",
-        "https://www.riverpatrimonio.com/blog",
-    ],
-    "ES0175316001": [  # Dunas Valor Flexible
-        "https://dunascapital.com/publicaciones/",
-        "https://www.dunas.es/publicaciones/",
-    ],
-    "ES0112231008": [  # Avantage Fund FI (now Renta 4)
-        "https://www.avantagecapital.com/informes-mensuales-pdf/",
-        "https://www.avantagecapital.com/",
-    ],
-}
-
-# Generic sources by ISIN prefix
-_GESTORA_LETTERS_URLS: dict[str, list[str]] = {
-    "ES": [],
-    "LU": ["https://www.dnca-investments.com/en/news/management-letters"],
-    "IE": [], "FR": [], "GB": [], "DE": [],
-}
-
-# URL path patterns that indicate a blog/publication INDEX page
-BLOG_INDEX_PATHS = re.compile(
-    r"/tag/|/category/|/blog/?$|/publicaciones/?$|/cartas/?$|"
-    r"/newsletters?/?$|/comentarios?/?$|/archivo/?$|/news/?$|/noticias/?$",
-    re.IGNORECASE,
+from tools.google_search import (
+    SearchEngine, fetch_page_text, find_pdfs_in_page,
+    find_links_by_keywords, crawl_for_documents,
 )
+from tools.http_client import get_bytes
+from tools.pdf_extractor import extract_page_range, get_pdf_metadata
 
-# URL path patterns for fund document library pages (all PDFs on page belong to this fund)
-PUBLICATION_PAGE_PATHS = re.compile(
-    r"/informes?(-mensuales?|-trimestrales?|-semestrales?|-pdf)?/?$|"
-    r"/cartas?(-gestores?|-trimestrales?)?/?$|"
-    r"/documentos?/?$|/descargas?/?$|/downloads?/?$",
-    re.IGNORECASE,
-)
+console = Console(highlight=False, force_terminal=False)
 
-# Keywords to filter relevant article links on index pages
-LETTER_LINK_KW = re.compile(
-    r"carta|letter|trimestral|quarterly|comment|semestral|semestr|informe|"
-    r"newsletter|perspectiv|gestion|gestor|mercado|cartera|portfolio",
-    re.IGNORECASE,
-)
-
-# Text keywords for PDF section extraction (pdfplumber)
-LETTER_TEXT_KEYWORDS = [
-    "posiciones", "cartera", "portfolio", "holdings",
-    "perspectivas", "outlook", "tesis", "rentabilidad",
-    "performance", "trimestre", "quarter",
+# Keywords that indicate a letter/report
+LETTER_KEYWORDS = [
+    "carta", "letter", "informe", "report", "trimestral", "semestral",
+    "anual", "quarterly", "semiannual", "annual", "mensual", "monthly",
+    "inversores", "coinversores", "partícipes",
 ]
 
-# Known Spanish fund commentary domains (seeded into source discovery)
-KNOWN_COMMENTARY_SITES = [
-    "riverpatrimonio.com",
-    "inversor-tranquilo.com",
-    "rankia.com",
-    "finect.com",
-    "selfbank.es",
-    "myinvestor.es",
-]
-
-MAX_LETTERS         = 12   # max cartas a procesar por run
-MAX_PAGES_PAGINATE  = 5    # max paginas de paginacion a seguir
-CACHE_TTL_DAYS      = 30   # dias antes de re-descubrir fuentes
-DDG_SEM_SIZE        = 3    # max consultas DDG en paralelo
-EXTRACT_SEM_SIZE    = 2    # max extracciones Claude en paralelo
+# Keywords to filter PDFs (must match at least one)
+PDF_LETTER_PATTERNS = re.compile(
+    r"carta|informe|report|letter|trimestral|semestral|anual|mensual|quarterly",
+    re.IGNORECASE,
+)
 
 
 class LettersAgent:
-    """
-    Agente de cartas trimestrales v2.
 
-    Descubrimiento en dos fases:
-    1. Source discovery: DDG broad queries -> dominios relevantes (cacheados)
-    2. Year-by-year: busqueda paralela con fuentes descubiertas
-
-    async def run() -> dict segun convenio del proyecto.
-    """
-
-    def __init__(self, isin: str, config: dict = None, gestora_url: str = "",
-                 fund_name: str = "", gestora: str = "", anio_creacion: int | None = None):
-        self.isin          = isin.strip().upper()
-        self.config        = config or {"fuentes": "1"}
-        self.gestora_url   = gestora_url
-        self.prefix        = self.isin[:2].upper()
-        self.fund_name     = fund_name
-        self.gestora       = gestora
-        self.anio_creacion = anio_creacion or (datetime.now().year - 5)
-        self.current_year  = datetime.now().year
-        # Short name without legal suffixes — better DDG results
-        self.fund_short    = re.sub(
-            r'\b(FI|SICAV|FP|SIL|FUND|FONDO)\b', '',
-            fund_name, flags=re.IGNORECASE,
-        ).strip().strip(",").strip()
+    def __init__(self, isin: str, config: dict = None, fund_name: str = "",
+                 gestora: str = "", anio_creacion: int | None = None, **kwargs):
+        self.isin = isin.strip().upper()
+        self.config = config or {}
+        self.fund_name = fund_name
+        self.fund_short = fund_name.split(",")[0].strip() if fund_name else ""
+        self.gestora = gestora
+        self.anio_creacion = anio_creacion or 2015
+        self.current_year = datetime.now().year
 
         root = Path(__file__).parent.parent
-        self.fund_dir      = root / "data" / "funds" / self.isin
-        self.letters_dir   = self.fund_dir / "raw" / "letters"
-        self._sources_path = self.fund_dir / "letters_sources.json"
-        self._log_path     = root / "progress.log"
+        self.fund_dir = root / "data" / "funds" / self.isin
+        self.letters_dir = self.fund_dir / "raw" / "letters"
         self.fund_dir.mkdir(parents=True, exist_ok=True)
         self.letters_dir.mkdir(parents=True, exist_ok=True)
+        self.log_path = root / "progress.log"
 
-    # ── Logging ───────────────────────────────────────────────────────────────
+        self.search = SearchEngine(isin=self.isin)
 
     def _log(self, level: str, msg: str):
         ts = datetime.now().strftime("%H:%M:%S")
         line = f"[{ts}] [LETTERS] [{level}] {msg}"
         safe = line.encode("cp1252", errors="replace").decode("cp1252")
         print(safe, flush=True)
-        with open(self._log_path, "a", encoding="utf-8") as f:
+        with open(self.log_path, "a", encoding="utf-8") as f:
             f.write(line + "\n")
 
-    # ── Entry point ───────────────────────────────────────────────────────────
+    # ═══════════════════════════════════════════════════════════════════════════
+    # ENTRY POINT
+    # ═══════════════════════════════════════════════════════════════════════════
 
     async def run(self) -> dict:
+        self._log("START", f"Letters Agent — {self.isin} ({self.fund_short})")
+
         result = {
             "isin": self.isin,
             "ultima_actualizacion": datetime.now().isoformat(),
             "cartas": [],
-            "fuentes": {"cartas_gestores": [], "urls_consultadas": []},
+            "anos_sin_carta": [],
+            "fuentes_consultadas": [],
         }
 
         if self.config.get("fuentes") == "2":
-            self._log("INFO", "Config fuentes=2: saltar cartas trimestrales")
+            self._log("INFO", "Config fuentes=2: saltar cartas")
             self._save(result)
             return result
 
-        self._log("START", f"LettersAgent v2 — {self.isin} ({self.fund_short or self.fund_name})")
+        # ── Paso 1: Buscar fuentes de cartas ─────────────────────────────────
+        candidate_urls = await self._find_letter_sources()
+        self._log("INFO", f"Paso 1: {len(candidate_urls)} URLs candidatas")
 
-        candidate_urls: list[dict] = []
-        seen_urls: set[str] = set()
+        # ── Paso 2: Navegar webs de gestora ──────────────────────────────────
+        web_pdfs = await self._navigate_gestora_web()
+        candidate_urls.extend(web_pdfs)
+        self._log("INFO", f"Paso 2: {len(web_pdfs)} PDFs de navegación web")
 
-        def add_candidates(links: list[dict]):
-            for link in links:
-                url = link.get("url", "")
-                if url and url not in seen_urls:
-                    seen_urls.add(url)
-                    candidate_urls.append(link)
+        # Dedup
+        seen = set()
+        deduped = []
+        for c in candidate_urls:
+            url = c.get("url", "")
+            if url and url not in seen:
+                seen.add(url)
+                deduped.append(c)
+        candidate_urls = deduped
 
-        # ── Phase 1a: Sitemap discovery from all seed domains ─────────────
-        seed_domains = self._seed_domains()
-        for domain in seed_domains:
-            sitemap_links = await self._discover_via_sitemap(domain)
-            add_candidates(sitemap_links)
-            result["fuentes"]["urls_consultadas"].append(f"sitemap:{domain}")
+        # ── Paso 3: Buscar año por año si faltan ─────────────────────────────
+        found_years = self._detect_years(candidate_urls)
+        all_years = set(range(self.anio_creacion, self.current_year + 1))
+        missing_years = sorted(all_years - found_years)
 
-        # ── Phase 1b: Expand seed URLs (blog index / standalone article) ──
-        for seed_url in self._build_seed_urls():
-            result["fuentes"]["urls_consultadas"].append(seed_url)
-            try:
-                links = await self._expand_url(seed_url)
-                add_candidates(links)
-            except Exception as exc:
-                self._log("WARN", f"Seed URL error {seed_url[:60]}: {exc}")
+        if missing_years:
+            self._log("INFO", f"Paso 3: Buscando {len(missing_years)} años sin carta: {missing_years}")
+            extra = await self._search_missing_years(missing_years)
+            for e in extra:
+                url = e.get("url", "")
+                if url and url not in seen:
+                    seen.add(url)
+                    candidate_urls.append(e)
 
-        # ── Phase 1c: Gestoras registry — check known URLs ────────────────
-        registry_path = Path(__file__).parent.parent / "data" / "gestoras_registry.json"
-        if registry_path.exists():
-            try:
-                registry = json.loads(registry_path.read_text(encoding="utf-8"))
-                for gestora_name, info in registry.get("gestoras", {}).items():
-                    if self.isin in info.get("funds", []):
-                        # Try known letter pages
-                        for page_url in info.get("letters_pages", []):
-                            self._log("INFO", f"Registry: probando {page_url[:60]}")
-                            try:
-                                links = await self._expand_url(page_url)
-                                add_candidates(links)
-                            except Exception:
-                                pass
-                        # Try known successful PDF URLs
-                        for pdf_url in info.get("successful_pdf_urls", []):
-                            add_candidates([{"url": pdf_url, "titulo": "", "is_html": False}])
-            except Exception:
-                pass
+        # ── Paso 4: Validar URLs ─────────────────────────────────────────────
+        validated = self._validate_urls(candidate_urls)
+        self._log("INFO", f"Paso 4: {len(validated)} URLs validadas (de {len(candidate_urls)})")
 
-        # ── Phase 1d: Source discovery + parallel DDG (fallback) ──────────
-        if len(candidate_urls) < 3 and (self.fund_short or self.fund_name):
-            self._log("INFO", "Pocos candidatos — activando DDG discovery")
-            discovered_domains = await self._discover_sources()
-            for domain in discovered_domains[:4]:
-                if domain not in seed_domains:
-                    sitemap_links = await self._discover_via_sitemap(domain)
-                    add_candidates(sitemap_links)
-            ddg_links = await self._search_all_years_parallel(discovered_domains)
-            add_candidates(ddg_links)
+        # ── Paso 5: Descargar y extraer texto ────────────────────────────────
+        all_cartas = await self._download_and_extract(validated)
 
-        # ── Phase 1e: URL iteration — find more from good URLs ───────────
-        # If we found any URLs, iterate on them to discover other years/quarters
-        if candidate_urls:
-            good_pdf_urls = [c["url"] for c in candidate_urls if c["url"].lower().endswith(".pdf")][:5]
-            iterated = self._iterate_url_variants(good_pdf_urls)
-            add_candidates(iterated)
-            # Save successful URLs to gestoras_registry for future reuse
-            self._save_successful_urls(good_pdf_urls, registry_path)
+        # ── Paso 5b: Filter by periodicity preference ────────────────────────
+        # Prefer: trimestral > semestral > mensual (only mar/jun/sep/dic if monthly)
+        cartas = self._filter_by_periodicity(all_cartas)
+        result["cartas"] = sorted(cartas, key=lambda c: c.get("periodo", ""))
 
-        if not candidate_urls:
-            self._log("WARN", "Sin cartas encontradas. Guardando JSON vacio.")
-            self._save(result)
-            return result
+        # Final: report missing years
+        final_years = {c.get("periodo", "")[:4] for c in cartas if c.get("periodo")}
+        result["anos_sin_carta"] = sorted(all_years - {int(y) for y in final_years if y.isdigit()})
+        result["fuentes_consultadas"] = list(seen)[:50]
 
-        self._log("INFO", f"Candidatas totales: {len(candidate_urls)} URLs")
-
-        # ── Phase 2: Process — extract content in parallel ─────────────────
-        candidates = self._prioritize(candidate_urls)[:MAX_LETTERS]
-        sem = asyncio.Semaphore(EXTRACT_SEM_SIZE)
-        tasks = [self._safe_process(entry, sem) for entry in candidates]
-        processed = await asyncio.gather(*tasks)
-
-        for carta in processed:
-            if carta:
-                result["cartas"].append(carta)
-                result["fuentes"]["cartas_gestores"].append(
-                    carta.get("archivo", "") or carta.get("url_fuente", "")
-                )
-
-        self._log("OK", f"{len(result['cartas'])} cartas extraidas de {len(candidates)} candidatas")
+        self._log("OK", f"Cartas: {len(cartas)} | Sin carta: {result['anos_sin_carta']}")
         self._save(result)
         return result
 
-    # ── Seed URL building ─────────────────────────────────────────────────────
-
-    def _build_seed_urls(self) -> list[str]:
-        """Build ordered list of seed URLs: ISIN-specific > config > gestora > prefix."""
-        urls: list[str] = []
-        if self.config.get("gestora_url"):
-            urls.append(self.config["gestora_url"])
-        urls.extend(_ISIN_LETTERS_URLS.get(self.isin, []))
-        if self.gestora_url:
-            urls.append(self.gestora_url)
-        urls.extend(_GESTORA_LETTERS_URLS.get(self.prefix, []))
-        # Deduplicate preserving order
-        seen: set[str] = set()
-        return [u for u in urls if u and not (u in seen or seen.add(u))]
-
-    # ── Seed domain extraction ────────────────────────────────────────────────
-
-    def _seed_domains(self) -> list[str]:
-        """Extract unique domains from all known seed URLs for this ISIN."""
-        domains: list[str] = []
-        seen: set[str] = set()
-
-        def add(url: str):
-            d = self._domain_of(url)
-            if d and d not in seen:
-                seen.add(d)
-                domains.append(d)
-
-        for url in _ISIN_LETTERS_URLS.get(self.isin, []):
-            add(url)
-        if self.gestora_url:
-            add(self.gestora_url)
-        for url in _GESTORA_LETTERS_URLS.get(self.prefix, []):
-            add(url)
-        return domains
-
-    # ── Sitemap-based discovery ───────────────────────────────────────────────
-
-    async def _discover_via_sitemap(self, domain: str) -> list[dict]:
-        """
-        Discover letter URLs from a domain's sitemap.
-        Strategy:
-          1. Fetch /sitemap.xml -> look for sub-sitemap links
-          2. Also try common Wix/WordPress blog sitemap paths directly
-          3. Parse each sitemap XML for <url><loc> entries
-          4. Filter strictly by distinctive fund keywords (prevents false positives
-             from other funds on the same site)
-        """
-        base = f"https://{domain}"
-        EXTRA_SITEMAP_PATHS = [
-            "/blog-posts-sitemap.xml",    # Wix
-            "/post-sitemap.xml",          # WordPress
-            "/sitemap_index.xml",         # WordPress Yoast index
-            "/sitemap-posts-post-1.xml",  # All-in-One SEO
-            "/page_sitemap.xml",
-            "/news-sitemap.xml",
-        ]
-
-        candidate_sitemaps: list[str] = []
-        tried: set[str] = set()
-        found_entries: list[dict] = []
-
-        # Step 1: Fetch main sitemap.xml and look for sub-sitemaps
-        main_sitemap_url = f"{base}/sitemap.xml"
-        tried.add(main_sitemap_url)
-        try:
-            xml = await _fetch_no_retry(main_sitemap_url, DDG_HEADERS)
-            # Extract sub-sitemap locs
-            sub_locs = re.findall(r"<loc>([^<]+sitemap[^<]*)</loc>", xml, re.IGNORECASE)
-            for loc in sub_locs:
-                loc = loc.strip()
-                if loc not in tried:
-                    candidate_sitemaps.append(loc)
-            # Also try to parse as a URL sitemap directly
-            found_entries.extend(self._parse_sitemap_urls(xml))
-        except Exception as exc:
-            self._log("WARN", f"Sitemap {main_sitemap_url}: {exc}")
-
-        # Step 2: Add common CMS-specific paths (only if not already found via main)
-        for path in EXTRA_SITEMAP_PATHS:
-            url = base + path
-            if url not in tried:
-                candidate_sitemaps.append(url)
-
-        # Step 3: Fetch all candidate sitemaps
-        for sitemap_url in candidate_sitemaps:
-            if sitemap_url in tried:
-                continue
-            tried.add(sitemap_url)
-            try:
-                xml = await _fetch_no_retry(sitemap_url, DDG_HEADERS)
-                entries = self._parse_sitemap_urls(xml)
-                if entries:
-                    self._log("INFO", f"Sitemap {sitemap_url.split('/')[-1]}: {len(entries)} matches")
-                    found_entries.extend(entries)
-                    await asyncio.sleep(0.5)
-            except Exception:
-                pass  # silently skip missing sitemap paths
-
-        # Dedup by URL
-        seen_urls: set[str] = set()
-        result: list[dict] = []
-        for e in found_entries:
-            if e["url"] not in seen_urls:
-                seen_urls.add(e["url"])
-                result.append(e)
-
-        if result:
-            self._log("INFO", f"Sitemap [{domain}]: {len(result)} candidatas")
-        return result
-
-    def _parse_sitemap_urls(self, xml: str) -> list[dict]:
-        """
-        Parse sitemap XML and return entries whose URL contains a distinctive
-        keyword from the fund name (no false positives from other funds on same site).
-        """
-        entries: list[dict] = []
-        gestora_kw = self.gestora.lower()[:12] if self.gestora else ""
-        isin_lower = self.isin.lower()
-
-        def is_match(text: str) -> bool:
-            return self._is_letter_url(text, "", gestora_kw, isin_lower)
-
-        url_blocks = re.findall(r"<url>(.*?)</url>", xml, re.DOTALL | re.IGNORECASE)
-
-        if not url_blocks:
-            # Flat sitemap: just extract <loc> that aren't sub-sitemaps
-            locs = re.findall(r"<loc>([^<]+)</loc>", xml)
-            for loc in locs:
-                loc = loc.strip()
-                if "sitemap" in loc.lower():
-                    continue
-                if not is_match(loc.lower()):
-                    continue
-                fecha = self._extract_date_hint(loc)
-                entries.append({
-                    "url": loc,
-                    "titulo": loc.split("/")[-1].replace("-", " ").replace("_", " ")[:100],
-                    "fecha_estimada": fecha,
-                    "is_html": not loc.lower().endswith(".pdf"),
-                })
-            return entries
-
-        for block in url_blocks:
-            loc_m = re.search(r"<loc>([^<]+)</loc>", block)
-            if not loc_m:
-                continue
-            url = loc_m.group(1).strip()
-            lastmod_m = re.search(r"<lastmod>([^<]+)</lastmod>", block)
-            lastmod = lastmod_m.group(1).strip() if lastmod_m else ""
-
-            combined = (url + " " + lastmod).lower()
-            if not is_match(combined):
-                continue
-
-            fecha = self._extract_date_hint(url) or self._extract_date_hint(lastmod) or lastmod[:7]
-            title = url.split("/")[-1].replace("-", " ").replace("_", " ")[:100]
-            entries.append({
-                "url": url,
-                "titulo": title,
-                "fecha_estimada": fecha,
-                "is_html": not url.lower().endswith(".pdf"),
-            })
-
-        return entries
-
-    # Generic finance words that are too common to use as fund identifiers
-    _GENERIC_FINANCE_WORDS = frozenset({
-        "valor", "fondo", "renta", "fija", "variable", "global", "fund",
-        "invest", "capital", "asset", "growth", "bonds", "equity", "multi",
-        "cartera", "activos", "flexible", "total", "return", "income",
-        "permanente", "mixto", "fixed", "dynamic", "balance", "balanced",
-    })
-
-    def _fund_keywords(self) -> list[str]:
-        """
-        Extract distinctive keywords from the fund name for URL matching.
-        Rules:
-          - ALL-CAPS acronyms >= 3 chars (brand names like DNCA, ISIN prefix) → always include
-          - Words >4 chars that are NOT generic finance terms → include
-        Falls back to ISIN if nothing distinctive found.
-        """
-        words = (self.fund_short or self.fund_name or "").split()
-        kws: list[str] = []
-        for w in words:
-            wl = w.lower()
-            if wl in self._GENERIC_FINANCE_WORDS:
-                continue
-            # ALL-CAPS brand acronyms (e.g. DNCA, BBVA, ING) — min 3 chars
-            if w.isupper() and len(w) >= 3:
-                kws.append(wl)
-            # Normal words — must be >4 chars to avoid noise
-            elif len(w) > 4:
-                kws.append(wl)
-        return kws if kws else [self.isin.lower()]
-
-    def _is_letter_url(self, text: str, fund_kw: str, gestora_kw: str, isin: str) -> bool:
-        """
-        Check if a URL/text is relevant to this fund's letters.
-        Requires ALL distinctive fund keywords to appear (AND-logic), which prevents
-        false positives on sites that write about generic fund concepts (e.g. 'cartera permanente').
-        Falls back to gestora or ISIN if no fund keywords found.
-        """
-        kws = self._fund_keywords()
-        if kws and kws != [self.isin.lower()]:
-            # All keywords must appear (with hyphen fallback for URL slugs)
-            if all(kw in text or kw.replace("-", " ") in text for kw in kws):
-                return True
-        if gestora_kw:
-            gestora_kw_h = gestora_kw.replace(" ", "-")
-            if gestora_kw in text or gestora_kw_h in text:
-                return True
-        if isin and isin in text:
-            return True
-        return False
-
-    # ── URL expansion ─────────────────────────────────────────────────────────
-
-    async def _expand_url(self, url: str) -> list[dict]:
-        """
-        Classify a URL and expand it into individual letter entries.
-        - PDF -> return directly
-        - BLOG_INDEX -> scrape article links + follow pagination
-        - ARTICLE -> return directly as single entry
-        """
-        if url.lower().endswith(".pdf"):
-            return [{"url": url, "titulo": url.split("/")[-1],
-                     "fecha_estimada": self._extract_date_hint(url), "is_html": False}]
-
-        try:
-            html = await get_with_headers(url, DDG_HEADERS)
-        except Exception as exc:
-            self._log("WARN", f"No accesible: {url[:60]} — {exc}")
-            return []
-
-        soup = BeautifulSoup(html, "lxml")
-        url_type = self._classify_url(url, soup)
-        self._log("INFO", f"[{url_type}] {url[:70]}")
-
-        if url_type == "publication_list":
-            # All PDFs on this page belong to this fund — extract without per-link filter
-            return self._extract_all_pdfs_from_page(soup, url)
-
-        if url_type == "blog_index":
-            return await self._scrape_blog_index(url, soup)
-
-        if url_type == "article":
-            h1 = soup.find("h1") or soup.find("title")
-            titulo = h1.get_text(strip=True)[:120] if h1 else url
-            fecha = self._extract_date_hint(titulo + " " + url)
-            return [{"url": url, "titulo": titulo, "fecha_estimada": fecha, "is_html": True}]
-
-        return []
-
-    # ── Publication list extraction ───────────────────────────────────────────
-
-    def _extract_all_pdfs_from_page(self, soup: BeautifulSoup, base_url: str) -> list[dict]:
-        """
-        Extract ALL PDF links from a document library page.
-        Used when the page itself is already verified to belong to this fund
-        (e.g. avantagecapital.com/informes-mensuales-pdf/), so no per-link
-        fund-keyword filtering is needed — every PDF on the page is a candidate.
-        """
-        parsed_base = urlparse(base_url)
-        base_domain = f"{parsed_base.scheme}://{parsed_base.netloc}"
-        entries: list[dict] = []
-        seen: set[str] = set()
-
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if ".pdf" not in href.lower():
-                continue
-            full_url = self._abs_url(href, base_url, base_domain)
-            if not full_url or full_url in seen:
-                continue
-            seen.add(full_url)
-            text = a.get_text(strip=True) or href.split("/")[-1]
-            fecha = self._extract_date_hint(text + " " + href)
-            entries.append({
-                "url": full_url,
-                "titulo": text[:120] or full_url.split("/")[-1],
-                "fecha_estimada": fecha,
-                "is_html": False,
-            })
-
-        self._log("INFO", f"Publication list {base_url[:60]}: {len(entries)} PDFs")
-        return entries
-
-    # ── URL classification ────────────────────────────────────────────────────
-
-    def _classify_url(self, url: str, soup: BeautifulSoup) -> Literal["article", "blog_index", "publication_list", "unknown"]:
-        """
-        Classify a fetched URL as:
-          - blog_index:        list of articles/posts
-          - publication_list:  document library page (all PDFs belong to this fund)
-          - article:           single article/post
-          - unknown
-        Order of checks: path patterns -> structural HTML signals -> content length.
-        """
-        path = urlparse(url).path.lower()
-
-        # 1. Publication library pages (Elementor accordion, toggle, etc.)
-        #    ALL PDFs on these pages belong to this fund — no per-link filtering needed
-        if PUBLICATION_PAGE_PATHS.search(path):
-            return "publication_list"
-
-        # 2. Count PDF links — 3+ PDFs = document library
-        pdf_links = [a for a in soup.find_all("a", href=True)
-                     if ".pdf" in a["href"].lower()]
-        if len(pdf_links) >= 3:
-            return "publication_list"
-
-        # 3. Path-based: definitive index patterns
-        if BLOG_INDEX_PATHS.search(path):
-            return "blog_index"
-
-        # 4. Structural: multiple <article> elements → index
-        articles = soup.find_all("article")
-        if len(articles) >= 3:
-            return "blog_index"
-
-        # 5. Structural: multiple <time> elements → list of dated posts
-        times = soup.find_all("time")
-        if len(times) >= 3:
-            return "blog_index"
-
-        # 6. Structural: explicit pagination element
-        pagination = soup.find(attrs={"class": re.compile(
-            r"paginat|next-page|page-link|wp-pagenavi|page-numbers", re.I
-        )})
-        if pagination:
-            return "blog_index"
-
-        # 7. Content-based: long article (4+ substantial paragraphs)
-        paragraphs = [p.get_text(strip=True) for p in soup.find_all("p")
-                      if len(p.get_text(strip=True)) > 60]
-        if len(paragraphs) >= 4:
-            return "article"
-
-        return "unknown"
-
-    # ── Blog index scraping ───────────────────────────────────────────────────
-
-    async def _scrape_blog_index(self, base_url: str, initial_soup: BeautifulSoup) -> list[dict]:
-        """
-        Scrape a blog/publication index: extract article links + follow pagination
-        up to MAX_PAGES_PAGINATE pages.
-        """
-        all_entries: list[dict] = []
-        seen: set[str] = set()
-        soup = initial_soup
-        current_url = base_url
-
-        for page_num in range(MAX_PAGES_PAGINATE):
-            entries = self._extract_article_links(soup, current_url)
-            for e in entries:
-                if e["url"] not in seen:
-                    seen.add(e["url"])
-                    all_entries.append(e)
-
-            next_url = self._find_next_page(soup, current_url)
-            if not next_url or next_url == current_url:
-                break
-            self._log("INFO", f"  Paginacion [{page_num + 2}/{MAX_PAGES_PAGINATE}]: {next_url[:60]}")
-            try:
-                html = await get_with_headers(next_url, DDG_HEADERS)
-                soup = BeautifulSoup(html, "lxml")
-                current_url = next_url
-                await asyncio.sleep(1)
-            except Exception as exc:
-                self._log("WARN", f"Error paginacion {next_url[:50]}: {exc}")
-                break
-
-        self._log("INFO", f"Blog index: {len(all_entries)} articulos encontrados en {base_url[:50]}")
-        return all_entries
-
-    def _extract_article_links(self, soup: BeautifulSoup, base_url: str) -> list[dict]:
-        """
-        Extract individual article links from a blog index page using 3 strategies:
-        1. <article> elements with <a> links
-        2. <h2>/<h3> headings with <a> links
-        3. PDF <a> links anywhere on the page
-        """
-        entries: list[dict] = []
-        parsed_base = urlparse(base_url)
-        base_domain = f"{parsed_base.scheme}://{parsed_base.netloc}"
-        gestora_kw = self.gestora.lower()[:12] if self.gestora else ""
-        isin_lower = self.isin.lower()
-
-        def is_relevant(text: str, href: str) -> bool:
-            combined = (text + " " + href).lower()
-            return self._is_letter_url(combined, "", gestora_kw, isin_lower)
-
-        # Strategy 1: <article> elements
-        for article in soup.find_all("article"):
-            # Prefer heading link, fallback to first link
-            heading = article.find(["h2", "h3"])
-            link = (heading.find("a", href=True) if heading else None) or article.find("a", href=True)
-            if not link:
-                continue
-            href = link["href"]
-            text = (heading.get_text(strip=True) if heading else link.get_text(strip=True))
-            if not is_relevant(text, href):
-                continue
-            full_url = self._abs_url(href, base_url, base_domain)
-            if not full_url:
-                continue
-            fecha = self._extract_date_hint(text + " " + href)
-            time_tag = article.find("time")
-            if time_tag:
-                fecha = fecha or self._extract_date_hint(
-                    (time_tag.get("datetime") or "") + " " + time_tag.get_text(strip=True)
-                )
-            entries.append({"url": full_url, "titulo": text[:120],
-                            "fecha_estimada": fecha, "is_html": not full_url.lower().endswith(".pdf")})
-
-        # Strategy 2: <h2>/<h3> with <a> (used when no <article> wrapper)
-        if not entries:
-            for heading in soup.find_all(["h2", "h3"]):
-                link = heading.find("a", href=True)
-                if not link:
-                    continue
-                href = link["href"]
-                text = heading.get_text(strip=True)
-                if not is_relevant(text, href):
-                    continue
-                full_url = self._abs_url(href, base_url, base_domain)
-                if not full_url:
-                    continue
-                fecha = self._extract_date_hint(text + " " + href)
-                entries.append({"url": full_url, "titulo": text[:120],
-                                "fecha_estimada": fecha, "is_html": True})
-
-        # Strategy 3: PDF links (publication indexes often list PDFs directly)
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if ".pdf" not in href.lower():
-                continue
-            text = a.get_text(strip=True)
-            if not is_relevant(text, href):
-                continue
-            full_url = self._abs_url(href, base_url, base_domain)
-            if not full_url:
-                continue
-            fecha = self._extract_date_hint(text + " " + href)
-            entries.append({"url": full_url, "titulo": text[:120] or href.split("/")[-1],
-                            "fecha_estimada": fecha, "is_html": False})
-
-        return entries
-
-    def _find_next_page(self, soup: BeautifulSoup, current_url: str) -> str | None:
-        """Detect and return the next pagination page URL, or None."""
-        parsed = urlparse(current_url)
-        base_domain = f"{parsed.scheme}://{parsed.netloc}"
-
-        # CSS selector patterns (most reliable)
-        for sel in [
-            "a[rel='next']", "a.next", ".pagination a.next",
-            ".nav-previous a", "a[aria-label='Next page']",
-            ".wp-pagenavi a.nextpostslink",
-        ]:
-            try:
-                link = soup.select_one(sel)
-                if link and link.get("href"):
-                    return self._abs_url(link["href"], current_url, base_domain)
-            except Exception:
-                continue
-
-        # Text-based detection
-        NEXT_TEXTS = {"siguiente", "next", "older posts", "mas antiguo", "anterior", ">>", "›"}
-        for a in soup.find_all("a", href=True):
-            if a.get_text(strip=True).lower() in NEXT_TEXTS:
-                return self._abs_url(a["href"], current_url, base_domain)
-
-        # Pattern: /page/N/ -> /page/N+1/
-        m = re.search(r"/page/(\d+)/?$", current_url)
-        if m:
-            next_page = int(m.group(1)) + 1
-            return re.sub(r"/page/\d+/?$", f"/page/{next_page}/", current_url)
-
-        return None
-
-    def _abs_url(self, href: str, base_url: str, base_domain: str) -> str | None:
-        """Convert any href to an absolute URL."""
-        if not href or href.startswith("#") or href.startswith("javascript:"):
-            return None
-        if href.startswith("http"):
-            return href
-        if href.startswith("//"):
-            return urlparse(base_url).scheme + ":" + href
-        if href.startswith("/"):
-            return base_domain + href
-        return base_url.rstrip("/") + "/" + href
-
-    # ── URL iteration — discover other years/quarters from good URLs ────────
-
-    def _iterate_url_variants(self, pdf_urls: list[str]) -> list[dict]:
-        """
-        Given a list of working PDF URLs, generate variants by changing
-        year/quarter/semester patterns to discover other editions.
-
-        Example: .../2024-Q4.pdf → try 2024-Q3, 2023-Q4, 2023-Q3, etc.
-        """
-        variants: list[dict] = []
-        seen = set(pdf_urls)
-
-        for url in pdf_urls:
-            # Pattern: year in URL (e.g., /2024/ or _2024_ or -2024-)
-            year_matches = list(re.finditer(r'(?<=[/_\-])(20[12]\d)(?=[/_\-.])', url))
-            if not year_matches:
-                continue
-
-            # Use the LAST year match (most likely the report year)
-            ym = year_matches[-1]
-            base_year = int(ym.group(1))
-
-            for target_year in range(max(base_year - 5, 2015), base_year + 2):
-                if target_year == base_year:
-                    continue
-                new_url = url[:ym.start()] + str(target_year) + url[ym.end():]
-                if new_url not in seen:
-                    seen.add(new_url)
-                    variants.append({
-                        "url": new_url,
-                        "titulo": f"Variante año {target_year}",
-                        "is_html": False,
-                        "fecha_estimada": str(target_year),
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PASO 1: BUSCAR FUENTES
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    async def _find_letter_sources(self) -> list[dict]:
+        """Google search for letter/report sources."""
+        queries = []
+        if self.fund_short:
+            queries.extend([
+                f'"{self.fund_short}" carta semestral',
+                f'"{self.fund_short}" carta trimestral',
+                f'"{self.fund_short}" informe inversores',
+                f'"{self.fund_short}" carta anual',
+                f'"{self.fund_short}" cartas semestrales históricas',
+            ])
+        if self.gestora:
+            queries.extend([
+                f'"{self.gestora}" cartas inversores informes',
+                f'"{self.gestora}" cartas semestrales',
+                f'site:{self.gestora.lower().replace(" ", "")}.com cartas',
+            ])
+        if not queries:
+            queries.append(f'{self.isin} carta informe')
+
+        results = await self.search.search_multiple(queries, num_per_query=5, agent="letters")
+
+        # Also get cached results from other agents
+        cached = self.search.get_cached_for_agent("letters")
+        results.extend(cached)
+
+        # Filter: only URLs that look like letters/documents
+        filtered = []
+        for r in results:
+            url = r.get("url", "").lower()
+            title = r.get("title", "").lower()
+            snippet = r.get("snippet", "").lower()
+            combined = url + " " + title + " " + snippet
+            if any(kw in combined for kw in LETTER_KEYWORDS) or url.endswith(".pdf"):
+                filtered.append(r)
+
+        return filtered
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PASO 2: NAVEGAR WEB GESTORA
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    async def _navigate_gestora_web(self) -> list[dict]:
+        """Navigate gestora website to find ALL letters (PDFs + HTML pages).
+        PRIORITY: when a listing page is found, exhaust ALL its pagination before searching elsewhere."""
+        docs_found = []
+
+        # Strategy 1: Find listing/archive pages on the gestora website
+        doc_queries = []
+        if self.gestora:
+            doc_queries.extend([
+                f'"{self.gestora}" cartas semestrales',
+                f'"{self.gestora}" informes cartas inversores',
+            ])
+        if self.fund_short:
+            doc_queries.extend([
+                f'"{self.fund_short}" cartas semestrales',
+                f'"{self.fund_short}" informes mensuales pdf',
+            ])
+
+        doc_results = await self.search.search_multiple(doc_queries, num_per_query=5, agent="letters")
+
+        # PRIORITY: Find listing/archive pages and exhaust ALL pagination first
+        listing_keywords = ["category", "cartas", "informes", "publicaciones", "archivo",
+                           "documentos", "reports", "letters"]
+        for r in doc_results:
+            url = r.get("url", "")
+            combined = (url + " " + r.get("title", "")).lower()
+            is_listing = any(kw in combined for kw in listing_keywords)
+            if is_listing:
+                self._log("INFO", f"Página de listado encontrada: {url[:60]}")
+                # Exhaust ALL pagination
+                paginated_links = await self._follow_pagination(url, max_pages=10)
+                self._log("INFO", f"Paginación agotada: {len(paginated_links)} links totales")
+                for link in paginated_links:
+                    docs_found.append({
+                        "url": link["url"],
+                        "titulo": link.get("titulo", ""),
+                        "tipo": "html",
                     })
+                # Also extract PDFs from the listing page itself
+                pdfs = await find_pdfs_in_page(url)
+                for pdf in pdfs:
+                    docs_found.append(pdf)
+                if paginated_links:
+                    break  # Found the archive — don't search more
 
-            # Pattern: quarter (Q1-Q4, T1-T4) or semester (S1, S2, H1, H2)
-            q_match = re.search(r'[QqTt]([1-4])', url)
-            s_match = re.search(r'[SsHh]([12])', url)
-            if q_match:
-                for q in range(1, 5):
-                    new_url = url[:q_match.start(1)] + str(q) + url[q_match.end(1):]
-                    if new_url not in seen:
-                        seen.add(new_url)
-                        variants.append({"url": new_url, "titulo": f"Variante Q{q}", "is_html": False})
-            elif s_match:
-                other = "1" if s_match.group(1) == "2" else "2"
-                new_url = url[:s_match.start(1)] + other + url[s_match.end(1):]
-                if new_url not in seen:
-                    seen.add(new_url)
-                    variants.append({"url": new_url, "titulo": f"Variante S{other}", "is_html": False})
+        # Strategy 2: Visit remaining results and extract PDFs
+        for r in doc_results[:5]:
+            url = r.get("url", "")
+            if url in {d.get("url") for d in docs_found}:
+                continue
+            pdfs = await find_pdfs_in_page(url)
+            for pdf in pdfs:
+                titulo_lower = (pdf.get("titulo", "") + " " + pdf.get("url", "")).lower()
+                if PDF_LETTER_PATTERNS.search(titulo_lower):
+                    docs_found.append(pdf)
 
-            # Pattern: month names (enero, febrero, etc.)
-            month_pattern = r'(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)'
-            m_match = re.search(month_pattern, url, re.IGNORECASE)
-            if m_match:
-                months = ["enero", "febrero", "marzo", "abril", "mayo", "junio",
-                          "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
-                for month in months:
-                    new_url = url[:m_match.start()] + month + url[m_match.end():]
-                    if new_url not in seen:
-                        seen.add(new_url)
-                        variants.append({"url": new_url, "titulo": f"Variante {month}", "is_html": False})
-
-        self._log("INFO", f"URL iteration: {len(variants)} variantes generadas de {len(pdf_urls)} URLs")
-        return variants
-
-    def _save_successful_urls(self, urls: list[str], registry_path: Path):
-        """Save successful PDF URLs to gestoras_registry.json for future reuse."""
-        if not urls or not registry_path.exists():
-            return
-        try:
-            registry = json.loads(registry_path.read_text(encoding="utf-8"))
-            for gestora_name, info in registry.get("gestoras", {}).items():
-                if self.isin in info.get("funds", []):
-                    existing = set(info.get("successful_pdf_urls", []))
-                    for url in urls:
-                        existing.add(url)
-                    info["successful_pdf_urls"] = sorted(existing)
-                    registry_path.write_text(
-                        json.dumps(registry, ensure_ascii=False, indent=2), encoding="utf-8"
+        # Strategy 3: Crawl from gestora home (only if few results so far)
+        if self.gestora and len(docs_found) < 5:
+            gestora_results = await self.search.search(
+                f'"{self.gestora}" site oficial', num=3, agent="letters"
+            )
+            for r in gestora_results[:2]:
+                url = r.get("url", "")
+                if self.gestora.lower().split()[0] in url.lower():
+                    docs = await crawl_for_documents(
+                        url, keywords=LETTER_KEYWORDS, max_depth=2, max_pages=10
                     )
+                    docs_found.extend(docs)
                     break
-        except Exception:
-            pass
 
-    # ── Source discovery (DDG broad, cached) ──────────────────────────────────
+        self._log("INFO", f"Navegación web: {len(docs_found)} documentos")
+        return docs_found
 
-    async def _discover_sources(self) -> list[str]:
-        """
-        Run 3 broad DDG queries to find domains that publish content about this fund.
-        Returns ordered list of domain strings for year-specific queries.
-        Cached for CACHE_TTL_DAYS days in letters_sources.json.
-        """
-        cache = self._load_sources_cache()
-        if cache and self._cache_fresh(cache):
-            domains = cache.get("discovered_domains", [])
-            self._log("INFO", f"Fuentes desde cache: {domains[:4]}")
-            return domains
-
-        self._log("INFO", "Descubriendo fuentes (DDG broad)...")
-        fund_q = self.fund_short or self.fund_name
-        if not fund_q:
-            return list(KNOWN_COMMENTARY_SITES)
-
-        discovery_queries = [
-            f'"{fund_q}" carta gestores',
-            f'"{fund_q}" informe trimestral',
-            f'"{fund_q}" informes mensuales pdf',
-            f'"{self.gestora}" cartas gestores inversión' if self.gestora else f'"{fund_q}" carta',
-        ]
-
-        domain_hits: dict[str, int] = {}
-        for query in discovery_queries:
-            results = await self._ddg_search(query, max_results=8)
-            for r in results:
-                domain = self._domain_of(r.get("url", ""))
-                if domain and domain not in ("duckduckgo.com", "google.com", "bing.com"):
-                    domain_hits[domain] = domain_hits.get(domain, 0) + 1
-            await asyncio.sleep(2)
-
-        # Seed known commentary sites with weight 0 (always included, low priority)
-        for site in KNOWN_COMMENTARY_SITES:
-            if site not in domain_hits:
-                domain_hits[site] = 0
-
-        discovered = [d for d, _ in sorted(domain_hits.items(), key=lambda x: x[1], reverse=True)]
-        self._save_sources_cache({
-            "isin": self.isin,
-            "discovered_domains": discovered,
-            "last_discovery": datetime.now().isoformat(),
-        })
-        self._log("INFO", f"Fuentes descubiertas: {discovered[:5]}")
-        return discovered
-
-    def _load_sources_cache(self) -> dict | None:
-        if not self._sources_path.exists():
-            return None
-        try:
-            return json.loads(self._sources_path.read_text(encoding="utf-8"))
-        except Exception:
-            return None
-
-    def _cache_fresh(self, cache: dict) -> bool:
-        try:
-            ts = datetime.fromisoformat(cache.get("last_discovery", "2000-01-01"))
-            return (datetime.now() - ts) < timedelta(days=CACHE_TTL_DAYS)
-        except Exception:
-            return False
-
-    def _save_sources_cache(self, cache: dict):
-        self._sources_path.write_text(
-            json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-
-    # ── DDG year-by-year search (parallel) ───────────────────────────────────
-
-    async def _search_all_years_parallel(self, discovered_domains: list[str]) -> list[dict]:
-        """
-        Search all years from anio_creacion to current_year in parallel,
-        using asyncio.gather + Semaphore to avoid DDG rate limits.
-        """
-        sem = asyncio.Semaphore(DDG_SEM_SIZE)
-        years = list(range(self.anio_creacion, self.current_year + 1))
-        tasks = [self._search_year_sem(year, discovered_domains, sem) for year in years]
-        year_results = await asyncio.gather(*tasks)
-
+    async def _follow_pagination(self, start_url: str, max_pages: int = 10) -> list[dict]:
+        """Follow ALL paginated pages of a listing (WordPress category, blog index, etc.)
+        EXHAUSTS all pages before returning. Detects pagination links in the page."""
         all_links: list[dict] = []
-        seen: set[str] = set()
-        for links in year_results:
-            for link in links:
-                url = link.get("url", "")
-                if url and url not in seen:
-                    seen.add(url)
-                    all_links.append(link)
+        seen_urls: set[str] = set()
+        visited_pages: set[str] = set()
 
-        self._log("INFO", f"DDG paralelo: {len(all_links)} URLs unicas en {len(years)} anos")
+        # Detect base URL for pagination (remove /page/N/ if present)
+        base_url = re.sub(r'/page/\d+/?$', '/', start_url)
+
+        for page_num in range(1, max_pages + 1):
+            if page_num == 1:
+                url = base_url
+            else:
+                url = base_url.rstrip("/") + f"/page/{page_num}/"
+
+            if url in visited_pages:
+                continue
+            visited_pages.add(url)
+
+            # Get ALL links from this page (both content links and navigation)
+            links = await find_links_by_keywords(url, LETTER_KEYWORDS + [str(y) for y in range(2014, 2027)])
+            if not links:
+                # Try without trailing slash
+                alt_url = url.rstrip("/")
+                if alt_url not in visited_pages:
+                    visited_pages.add(alt_url)
+                    links = await find_links_by_keywords(alt_url, LETTER_KEYWORDS + [str(y) for y in range(2014, 2027)])
+                if not links:
+                    break
+
+            new_count = 0
+            for link in links:
+                link_url = link.get("url", "")
+                # Skip pagination links, category self-links
+                if "/page/" in link_url:
+                    continue
+                if link_url.rstrip("/") == base_url.rstrip("/"):
+                    continue
+                # Skip if just a number (pagination link text)
+                if link.get("titulo", "").strip().isdigit():
+                    continue
+                if link_url not in seen_urls:
+                    seen_urls.add(link_url)
+                    all_links.append(link)
+                    new_count += 1
+
+            self._log("INFO", f"Paginación {page_num}: {new_count} nuevos links (total: {len(all_links)})")
+
+            if new_count == 0:
+                break  # No new content links, pagination exhausted
+
         return all_links
 
-    async def _search_year_sem(self, year: int, domains: list[str], sem: asyncio.Semaphore) -> list[dict]:
-        async with sem:
-            result = await self._search_year(year, domains)
-            await asyncio.sleep(1.5)
-            return result
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PASO 3: BUSCAR AÑOS FALTANTES
+    # ═══════════════════════════════════════════════════════════════════════════
 
-    async def _search_year(self, year: int, domains: list[str]) -> list[dict]:
-        """Build DDG queries for a year and collect matching letter URLs."""
-        fund_q = self.fund_short or self.fund_name
-        queries: list[str] = []
+    async def _search_missing_years(self, missing: list[int]) -> list[dict]:
+        """Search for specific years where no letter was found.
+        Strategy: 1) Google per year, 2) Find gestora cartas archive pages with pagination."""
+        results = []
 
-        # 1. Generic fund + year (carta / informe)
-        if fund_q:
-            queries.append(f'"{fund_q}" carta {year}')
-            queries.append(f'"{fund_q}" informe {year}')
-
-        # 2. Domain-specific for top 2 discovered domains
-        for domain in domains[:2]:
-            if fund_q:
-                queries.append(f'site:{domain} "{fund_q}" {year}')
-
-        # 3. ISIN-based fallback
-        queries.append(f'"{self.isin}" carta informe {year}')
-
-        found: list[dict] = []
-        seen: set[str] = set()
-        for query in queries[:4]:
-            results = await self._ddg_search(query, max_results=4)
-            for r in results:
-                url = r.get("url", "")
-                if not url or url in seen:
-                    continue
-                seen.add(url)
-                combined = (url + " " + r.get("titulo", "")).lower()
-                if not re.search(
-                    r"\.pdf|carta|letter|trimestral|quarterly|comentario|informe|mensual",
-                    combined,
-                ):
-                    continue
-                found.append({
-                    "url": url,
-                    "titulo": r.get("titulo", ""),
-                    "fecha_estimada": self._extract_date_hint(r.get("titulo", "") + " " + url) or str(year),
-                    "is_html": not url.lower().endswith(".pdf"),
-                })
-
-        if found:
-            self._log("INFO", f"  DDG {year}: {len(found)} resultado(s) -> {found[0]['url'][:60]}")
-        return found
-
-    async def _ddg_search(self, query: str, max_results: int = 5) -> list[dict]:
-        """Execute a DuckDuckGo HTML search; return [{titulo, url}]."""
-        enc_q = urllib.parse.quote_plus(query)
-        ddg_url = f"https://html.duckduckgo.com/html/?q={enc_q}"
-        try:
-            html = await get_with_headers(ddg_url, DDG_HEADERS)
-            soup = BeautifulSoup(html, "lxml")
-            results: list[dict] = []
-            for a_tag in soup.select(".result__a"):
-                href = a_tag.get("href", "")
-                titulo = a_tag.get_text(strip=True)
-                url = self._extract_ddg_url(href)
-                if url:
-                    results.append({"titulo": titulo, "url": url})
-                    if len(results) >= max_results:
-                        break
-            return results
-        except Exception as exc:
-            self._log("WARN", f"DDG error '{query[:40]}': {exc}")
-            return []
-
-    def _extract_ddg_url(self, href: str) -> str:
-        if href.startswith("http") and "duckduckgo" not in href:
-            return href
-        m = re.search(r"uddg=([^&]+)", href)
-        if m:
-            return urllib.parse.unquote(m.group(1))
-        m2 = re.search(r"\bu=([^&]+)", href)
-        if m2:
-            return urllib.parse.unquote(m2.group(1))
-        return ""
-
-    # ── Prioritization ────────────────────────────────────────────────────────
-
-    def _prioritize(self, candidates: list[dict]) -> list[dict]:
-        """Sort candidates: most recent year first; PDFs preferred within same year."""
-        def key(e: dict) -> tuple:
-            fecha = e.get("fecha_estimada", "")
-            m = re.search(r"(20\d{2})", fecha)
-            year = int(m.group(1)) if m else 0
-            pdf_first = 0 if not e.get("is_html", True) else 1
-            return (-year, pdf_first)
-        return sorted(candidates, key=key)
-
-    # ── Letter processing ─────────────────────────────────────────────────────
-
-    async def _safe_process(self, entry: dict, sem: asyncio.Semaphore) -> dict | None:
-        async with sem:
-            return await self._process_letter(entry)
-
-    async def _process_letter(self, entry: dict) -> dict | None:
-        url = entry.get("url", "")
-        is_html = entry.get("is_html", True) if "is_html" in entry else not url.lower().endswith(".pdf")
-        if is_html:
-            return await self._process_html_letter(entry)
-        return await self._process_pdf_letter(entry)
-
-    async def _process_html_letter(self, entry: dict) -> dict | None:
-        url = entry.get("url", "")
-        self._log("INFO", f"HTML: {url[:70]}")
-        try:
-            html = await get_with_headers(url, DDG_HEADERS)
-            soup = BeautifulSoup(html, "lxml")
-            for tag in soup(["script", "style", "nav", "footer", "aside", "header"]):
-                tag.decompose()
-            paragraphs = [
-                p.get_text(strip=True)
-                for p in soup.find_all(["p", "h2", "h3"])
-                if len(p.get_text(strip=True)) > 40
+        # Strategy 1: Find the archive/category page and exhaust ALL its pagination
+        # First: collect candidate URLs from Google
+        archive_url = None
+        if self.gestora or self.fund_short:
+            archive_queries = [
+                f'"{self.gestora}" cartas semestrales' if self.gestora else f'"{self.fund_short}" cartas semestrales',
+                f'"{self.fund_short}" category cartas' if self.fund_short else None,
             ]
-            text = " ".join(paragraphs)
-            if len(text) < 200:
-                self._log("WARN", f"HTML insuficiente ({len(text)} chars): {url[:60]}")
-                return None
-            return await self._extract_letter_content(text[:5000], entry)
-        except Exception as exc:
-            self._log("WARN", f"Error HTML {url[:60]}: {exc}")
-            return None
+            for q in [q for q in archive_queries if q]:
+                found = await self.search.search(q, num=5, agent="letters_archive")
+                for r in found:
+                    url = r.get("url", "")
+                    # If this IS a listing/category page → use directly
+                    if "category" in url.lower() or "archivo" in url.lower():
+                        archive_url = url
+                        break
+                    # If this is a carta individual → look for category link inside
+                    if any(kw in url.lower() for kw in ["carta", "semestral", "informe"]):
+                        category_links = await find_links_by_keywords(
+                            url, ["cartas semestrales", "category", "archivo", "todas las cartas"]
+                        )
+                        for cl in category_links:
+                            cl_url = cl.get("url", "")
+                            if "category" in cl_url.lower() or "archivo" in cl_url.lower():
+                                archive_url = cl_url
+                                self._log("INFO", f"Archivo descubierto desde carta: {archive_url[:60]}")
+                                break
+                    if archive_url:
+                        break
+                if archive_url:
+                    break
 
-    async def _process_pdf_letter(self, entry: dict) -> dict | None:
-        url = entry.get("url", "")
-        safe_name = re.sub(r"[^\w\-]", "_", entry.get("titulo", "carta"))[:50]
-        filename = f"letter_{safe_name}.pdf"
-        target = self.letters_dir / filename
+        # Now exhaust ALL pages of the archive
+        if archive_url:
+            self._log("INFO", f"Agotando paginación de: {archive_url[:60]}")
+            paginated = await self._follow_pagination(archive_url, max_pages=10)
+            results.extend(paginated)
+            self._log("INFO", f"Archivo: {len(paginated)} cartas encontradas en total")
 
-        if not (target.exists() and target.stat().st_size > 1000):
+        # Strategy 3: Google per missing year (fallback)
+        still_missing = [y for y in missing if not any(str(y) in r.get("url", "") for r in results)]
+        for year in still_missing[:5]:
+            queries = [
+                f'"{self.fund_short}" carta {year}' if self.fund_short else f'{self.isin} carta {year}',
+            ]
+            for q in queries:
+                found = await self.search.search(q, num=3, agent="letters")
+                for r in found:
+                    url = r.get("url", "").lower()
+                    combined = url + " " + r.get("title", "").lower()
+                    if any(kw in combined for kw in LETTER_KEYWORDS) or url.endswith(".pdf"):
+                        results.append(r)
+
+        return results
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PASO 4: VALIDAR URLs
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _validate_urls(self, candidates: list[dict]) -> list[dict]:
+        """Validate: is this URL really a letter of THIS fund?"""
+        validated = []
+        fund_terms = set()
+        if self.fund_short:
+            for w in self.fund_short.lower().split():
+                if len(w) > 3:
+                    fund_terms.add(w)
+        if self.gestora:
+            for w in self.gestora.lower().split():
+                if len(w) > 3:
+                    fund_terms.add(w)
+        fund_terms.add(self.isin.lower())
+
+        # Gestora domains — PDFs from these domains are trusted
+        gestora_domains = set()
+        if self.gestora:
+            # Extract likely domain from gestora name
+            gestora_domains.add(self.gestora.lower().replace(" ", ""))
+            gestora_domains.add(self.gestora.lower().split()[0])
+
+        for c in candidates:
+            url = c.get("url", "").lower()
+            title = c.get("titulo", c.get("title", "")).lower()
+            combined = url + " " + title
+
+            # Skip search engines
+            if any(d in url for d in ("google.com", "bing.com", "duckduckgo.com")):
+                continue
+
+            # Trust PDFs from gestora domain (don't need fund name in filename)
+            is_gestora_domain = any(d in url for d in gestora_domains)
+            if is_gestora_domain and (url.endswith(".pdf") or PDF_LETTER_PATTERNS.search(combined)):
+                validated.append(c)
+                continue
+
+            # For other URLs: must mention fund or gestora
+            if any(term in combined for term in fund_terms):
+                validated.append(c)
+
+        return validated
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PASO 5: DESCARGAR Y EXTRAER
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    async def _download_and_extract(self, urls: list[dict]) -> list[dict]:
+        """Download PDFs/HTML and extract raw text with pdfplumber."""
+        cartas = []
+
+        for entry in urls[:30]:  # Max 30 cartas
+            url = entry.get("url", "")
+            titulo = entry.get("titulo", entry.get("title", ""))
+
+            if url.lower().endswith(".pdf"):
+                carta = await self._process_pdf(url, titulo)
+            else:
+                carta = await self._process_html(url, titulo)
+
+            if carta and carta.get("texto_completo"):
+                cartas.append(carta)
+
+        return cartas
+
+    async def _process_pdf(self, url: str, titulo: str) -> dict | None:
+        """Download PDF and extract text with pdfplumber."""
+        # Generate safe filename
+        safe_name = re.sub(r'[^\w\-.]', '_', url.split("/")[-1])[:60]
+        if not safe_name.endswith(".pdf"):
+            safe_name += ".pdf"
+        target = self.letters_dir / f"letter_{safe_name}"
+
+        # Download if not cached
+        if not target.exists() or target.stat().st_size < 1000:
             try:
                 data = await get_bytes(url)
-                if b"%PDF" not in data[:20]:
-                    self._log("WARN", f"No es PDF: {url[:60]}")
+                if not data or not data[:5].startswith(b"%PDF"):
                     return None
                 target.write_bytes(data)
-                self._log("OK", f"PDF descargado: {filename} ({len(data) // 1024} KB)")
+                self._log("INFO", f"Descargado: {safe_name} ({len(data)//1024}KB)")
             except Exception as exc:
-                self._log("WARN", f"Error PDF {url[:60]}: {exc}")
+                self._log("WARN", f"Error descargando {url[:60]}: {exc}")
                 return None
-        else:
-            self._log("INFO", f"PDF existente: {filename}")
 
+        # Extract text with pdfplumber
         try:
             meta = get_pdf_metadata(str(target))
-            text = extract_pages_by_keyword(str(target), LETTER_TEXT_KEYWORDS, context_pages=1)
-            if not text.strip():
-                text = extract_page_range(str(target), 0, min(5, meta["num_pages"]))
+            text = extract_page_range(str(target), 0, meta["num_pages"])
+            text = re.sub(r'\(cid:\d+\)', ' ', text)  # Clean ligatures
         except Exception as exc:
-            self._log("WARN", f"Error extrayendo PDF {filename}: {exc}")
+            self._log("WARN", f"Error extrayendo {safe_name}: {exc}")
             return None
 
-        if not text.strip():
+        if not text or len(text) < 100:
             return None
-        return await self._extract_letter_content(text[:4000], {**entry, "archivo": filename})
 
-    async def _extract_letter_content(self, text: str, entry: dict) -> dict | None:
-        """Pass text to Claude to extract structured letter data."""
-        schema = {
-            "fecha": "fecha de la carta o periodo (ej. 'Q1 2024', '1T2024', '1S 2025')",
-            "periodo": "formato normalizado (ej. '2024-Q1', '2025-S1', '2026-02')",
-            "resumen_mercado": "contexto de mercado descrito en la carta (2-4 frases)",
-            "posiciones_comentadas": [
-                {"nombre": "activo o empresa",
-                 "accion": "entrada/salida/aumento/reduccion/mantener",
-                 "racional": "razon de la decision"}
-            ],
-            "tesis_inversion": "tesis principal de inversion expuesta en la carta",
-            "perspectivas": "outlook o perspectivas para el proximo periodo",
-            "decisiones_cartera": "resumen de cambios realizados en la cartera",
+        periodo = self._infer_period(url, titulo, text[:500])
+        tipo = self._infer_tipo(url, titulo)
+
+        return {
+            "periodo": periodo,
+            "tipo": tipo,
+            "url_fuente": url,
+            "archivo": safe_name,
+            "titulo": titulo,
+            "texto_completo": text,  # Sin límite de caracteres
+            "num_paginas": meta.get("num_pages", 0),
+            "fecha_inferida": periodo,
         }
-        url = entry.get("url", "")
-        archivo = entry.get("archivo", "")
-        try:
-            extracted = extract_structured_data(
-                text, schema,
-                context=f"Carta trimestral/semestral del fondo {self.fund_name} (ISIN {self.isin})",
-            )
-            extracted["archivo"] = archivo
-            extracted["url_fuente"] = url
-            # Fallback period from URL/filename if Claude didn't extract it
-            if not extracted.get("periodo"):
-                extracted["periodo"] = self._infer_period_from_url(url) or entry.get("fecha_estimada", "")
-            self._log("OK", f"Extraida: {url[:60]}")
-            return extracted
-        except Exception as exc:
-            self._log("WARN", f"Claude error {url[:60]}: {exc}")
-            periodo = self._infer_period_from_url(url) or entry.get("fecha_estimada", "")
-            return {
-                "archivo": archivo, "url_fuente": url,
-                "fecha": periodo,
-                "periodo": periodo,
-                "resumen_mercado": None, "posiciones_comentadas": [],
-                "tesis_inversion": None, "perspectivas": None, "decisiones_cartera": None,
-            }
 
-    def _infer_period_from_url(self, url: str) -> str:
-        """Extract date from URL patterns like /2026/03/ or _2025_01_ or -enero-2026."""
-        if not url:
-            return ""
-        # Pattern: /YYYY/MM/ in URL path
-        m = re.search(r'/(\d{4})/(\d{2})/', url)
-        if m:
-            return f"{m.group(1)}-{m.group(2)}"
-        # Pattern: month names in Spanish
+    async def _process_html(self, url: str, titulo: str) -> dict | None:
+        """Fetch HTML page and extract text."""
+        text = await fetch_page_text(url, max_chars=0)  # Sin límite
+        if not text or len(text) < 200:
+            return None
+
+        periodo = self._infer_period(url, titulo, text[:500])
+        tipo = self._infer_tipo(url, titulo)
+
+        return {
+            "periodo": periodo,
+            "tipo": tipo,
+            "url_fuente": url,
+            "archivo": "",
+            "titulo": titulo,
+            "texto_completo": text,
+            "num_paginas": 0,
+            "fecha_inferida": periodo,
+        }
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # HELPERS
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _get_known_carta_urls(self) -> list[str]:
+        """Get URLs of cartas already found (from search cache or previous results)."""
+        urls = []
+        # From search cache
+        for url_info in self.search.get_all_cached_urls():
+            url = url_info.get("url", "")
+            if any(kw in url.lower() for kw in ["carta", "semestral", "informe"]):
+                urls.append(url)
+        return urls[:5]
+
+    def _filter_by_periodicity(self, cartas: list[dict]) -> list[dict]:
+        """Filter cartas by periodicity preference:
+        trimestral > semestral > mensual (only mar/jun/sep/dic)."""
+        # Group by year
+        by_year: dict[str, list[dict]] = {}
+        for c in cartas:
+            year = c.get("periodo", "")[:4]
+            if year:
+                by_year.setdefault(year, []).append(c)
+
+        filtered = []
+        quarterly_months = {"03", "06", "09", "12"}
+
+        for year, year_cartas in by_year.items():
+            tipos = {c.get("tipo", "") for c in year_cartas}
+
+            if "trimestral" in tipos:
+                # Keep all trimestral + semestral + anual
+                filtered.extend(c for c in year_cartas if c.get("tipo") in ("trimestral", "semestral", "anual", "carta"))
+            elif "semestral" in tipos:
+                # Keep semestral + anual
+                filtered.extend(c for c in year_cartas if c.get("tipo") in ("semestral", "anual", "carta"))
+            elif "mensual" in tipos:
+                # Keep only quarterly months (mar, jun, sep, dic) + non-mensual
+                for c in year_cartas:
+                    if c.get("tipo") != "mensual":
+                        filtered.append(c)
+                    else:
+                        # Check if month is quarterly
+                        periodo = c.get("periodo", "")
+                        month = periodo[5:7] if len(periodo) >= 7 else ""
+                        if month in quarterly_months:
+                            filtered.append(c)
+            else:
+                # Keep everything (cartas, anual, unknown)
+                filtered.extend(year_cartas)
+
+        # Also keep cartas without year
+        filtered.extend(c for c in cartas if not c.get("periodo", "")[:4])
+        return filtered
+
+    def _detect_years(self, candidates: list[dict]) -> set[int]:
+        """Detect which years are covered by found URLs."""
+        years = set()
+        for c in candidates:
+            combined = c.get("url", "") + " " + c.get("titulo", c.get("title", ""))
+            for m in re.finditer(r'\b(20[12]\d)\b', combined):
+                years.add(int(m.group(1)))
+        return years
+
+    def _infer_period(self, url: str, titulo: str, text_start: str = "") -> str:
+        """Infer period (YYYY or YYYY-MM) from URL, title, or text."""
+        combined = url + " " + titulo + " " + text_start
+
+        # Month names in Spanish
         months_es = {
             "enero": "01", "febrero": "02", "marzo": "03", "abril": "04",
             "mayo": "05", "junio": "06", "julio": "07", "agosto": "08",
             "septiembre": "09", "octubre": "10", "noviembre": "11", "diciembre": "12",
         }
         for name, num in months_es.items():
-            m = re.search(rf'{name}[\-_\s]*(20\d{{2}})', url, re.IGNORECASE)
+            m = re.search(rf'{name}\s*[\-_\s]*(20[12]\d)', combined, re.IGNORECASE)
             if m:
                 return f"{m.group(1)}-{num}"
-            m = re.search(rf'(20\d{{2}})[\-_\s]*{name}', url, re.IGNORECASE)
+            m = re.search(rf'(20[12]\d)\s*[\-_\s]*{name}', combined, re.IGNORECASE)
             if m:
                 return f"{m.group(1)}-{num}"
-        # Pattern: semester/quarter in filename
-        m = re.search(r'(semestral|carta).*?(20\d{2})', url, re.IGNORECASE)
+
+        # URL patterns: /2025/01/ or _2025_01
+        m = re.search(r'/(20[12]\d)/(\d{2})/', combined)
         if m:
-            return f"{m.group(2)}-S2"
-        # Last resort: any year
-        m = re.search(r'(20\d{2})', url)
+            return f"{m.group(1)}-{m.group(2)}"
+
+        # Quarter/semester
+        m = re.search(r'(20[12]\d)[_\-\s]*[QqTt]([1-4])', combined)
+        if m:
+            return f"{m.group(1)}-Q{m.group(2)}"
+        m = re.search(r'(20[12]\d)[_\-\s]*[SsHh]([12])', combined)
+        if m:
+            return f"{m.group(1)}-S{m.group(2)}"
+
+        # Just year
+        m = re.search(r'(20[12]\d)', combined)
         return m.group(1) if m else ""
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
+    def _infer_tipo(self, url: str, titulo: str) -> str:
+        """Infer letter type from URL/title."""
+        combined = (url + " " + titulo).lower()
+        if "semestral" in combined:
+            return "semestral"
+        if "trimestral" in combined or "quarterly" in combined:
+            return "trimestral"
+        if "anual" in combined or "annual" in combined:
+            return "anual"
+        if "mensual" in combined or "monthly" in combined:
+            return "mensual"
+        return "carta"
 
-    def _extract_date_hint(self, text: str) -> str:
-        """Extract quarter/semester/year hint from text."""
-        for pat in [
-            r'\b(Q[1-4])\s*(20\d{2})\b',
-            r'\b([1-4][TtQ])\s*(20\d{2})\b',
-            r'\b([12][Ss])\s*(20\d{2})\b',
-            r'\b(20\d{2})[/\-](0[1-9]|1[0-2])\b',
-            r'\b(20\d{2})\b',
-        ]:
-            m = re.search(pat, text, re.IGNORECASE)
-            if m:
-                return m.group(0)
-        return ""
-
-    def _domain_of(self, url: str) -> str:
-        try:
-            return urlparse(url).netloc.lstrip("www.")
-        except Exception:
-            return ""
-
-    def _save(self, result: dict) -> None:
+    def _save(self, result: dict):
         out = self.fund_dir / "letters_data.json"
         out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
         self._log("OK", f"Guardado: {out}")
 
 
-# ── Standalone CLI ─────────────────────────────────────────────────────────────
+# ── CLI ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import argparse
@@ -1212,19 +652,19 @@ if __name__ == "__main__":
     load_dotenv(Path(__file__).parent.parent / ".env")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--isin", required=True)
-    parser.add_argument("--fund-name", default="")
-    parser.add_argument("--gestora", default="")
-    parser.add_argument("--anio-creacion", type=int, default=None)
+    parser.add_argument("--isin", default="ES0112231008")
+    parser.add_argument("--fund-name", default="Avantage Fund")
+    parser.add_argument("--gestora", default="Avantage Capital")
+    parser.add_argument("--anio-creacion", type=int, default=2014)
     args = parser.parse_args()
 
     agent = LettersAgent(
-        isin=args.isin,
-        fund_name=args.fund_name,
-        gestora=args.gestora,
+        args.isin, fund_name=args.fund_name, gestora=args.gestora,
         anio_creacion=args.anio_creacion,
     )
     result = asyncio.run(agent.run())
-    print(f"Cartas encontradas: {len(result['cartas'])}")
-    for c in result["cartas"]:
-        print(f"  [{c.get('periodo','?')}] {c.get('url_fuente','')[:70]}")
+    cartas = result.get("cartas", [])
+    sin = result.get("anos_sin_carta", [])
+    print(f"\nCartas: {len(cartas)} | Sin carta: {sin}")
+    for c in cartas[:5]:
+        print(f"  [{c.get('periodo','')}] {c.get('tipo',''):10s} {c.get('titulo','')[:50]}")

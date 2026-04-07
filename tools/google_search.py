@@ -262,6 +262,143 @@ async def fetch_page_text(url: str, max_chars: int = 5000) -> str:
     return text
 
 
+async def find_pdfs_in_page(url: str) -> list[dict]:
+    """
+    Enter a URL and extract all PDF links found in the page.
+    Returns: [{"url": "https://.../doc.pdf", "titulo": "link text"}]
+    """
+    try:
+        html = await get_with_headers(url, _HEADERS_WEB)
+    except Exception:
+        # Try without trailing slash
+        alt = url.rstrip("/") if url.endswith("/") else url + "/"
+        try:
+            html = await get_with_headers(alt, _HEADERS_WEB)
+        except Exception:
+            return []
+
+    soup = BeautifulSoup(html, "html.parser")
+    from urllib.parse import urljoin
+    pdfs = []
+    seen = set()
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if not href:
+            continue
+        full_url = urljoin(url, href)
+        if full_url.lower().endswith(".pdf") and full_url not in seen:
+            seen.add(full_url)
+            titulo = a.get_text(strip=True) or full_url.split("/")[-1]
+            pdfs.append({"url": full_url, "titulo": titulo})
+    return pdfs
+
+
+async def find_links_by_keywords(url: str, keywords: list[str]) -> list[dict]:
+    """
+    Navigate a page and extract internal links that match any keyword.
+    Returns: [{"url": "...", "titulo": "...", "matched_keyword": "carta"}]
+    """
+    try:
+        html = await get_with_headers(url, _HEADERS_WEB)
+    except Exception:
+        alt = url.rstrip("/") if url.endswith("/") else url + "/"
+        try:
+            html = await get_with_headers(alt, _HEADERS_WEB)
+        except Exception:
+            return []
+
+    soup = BeautifulSoup(html, "html.parser")
+    from urllib.parse import urljoin, urlparse
+    base_domain = urlparse(url).netloc
+    results = []
+    seen = set()
+
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        full_url = urljoin(url, href)
+        parsed = urlparse(full_url)
+        # Only internal links or PDFs
+        if parsed.netloc and parsed.netloc != base_domain:
+            continue
+        if full_url in seen:
+            continue
+
+        link_text = (a.get_text(strip=True) + " " + href).lower()
+        for kw in keywords:
+            if kw.lower() in link_text:
+                seen.add(full_url)
+                results.append({
+                    "url": full_url,
+                    "titulo": a.get_text(strip=True) or href.split("/")[-1],
+                    "matched_keyword": kw,
+                })
+                break
+
+    return results
+
+
+async def crawl_for_documents(
+    start_url: str, keywords: list[str], max_depth: int = 2, max_pages: int = 20
+) -> list[dict]:
+    """
+    Web crawling: start at start_url, follow internal links matching keywords,
+    find PDFs and document pages. Max depth levels.
+    Returns: [{"url": "...", "titulo": "...", "tipo": "pdf|html"}]
+    """
+    from urllib.parse import urljoin, urlparse
+    base_domain = urlparse(start_url).netloc
+    visited: set[str] = set()
+    documents: list[dict] = []
+    to_visit: list[tuple[str, int]] = [(start_url, 0)]  # (url, depth)
+
+    while to_visit and len(visited) < max_pages:
+        current_url, depth = to_visit.pop(0)
+        if current_url in visited:
+            continue
+        visited.add(current_url)
+
+        try:
+            html = await get_with_headers(current_url, _HEADERS_WEB)
+        except Exception:
+            # Try without/with trailing slash
+            alt = current_url.rstrip("/") if current_url.endswith("/") else current_url + "/"
+            try:
+                html = await get_with_headers(alt, _HEADERS_WEB)
+            except Exception:
+                continue
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            full_url = urljoin(current_url, href)
+            parsed = urlparse(full_url)
+
+            # Only same domain
+            if parsed.netloc and parsed.netloc != base_domain:
+                continue
+            if full_url in visited:
+                continue
+
+            link_text = (a.get_text(strip=True) + " " + href).lower()
+
+            # Found a PDF
+            if full_url.lower().endswith(".pdf"):
+                if any(kw.lower() in link_text for kw in keywords):
+                    documents.append({
+                        "url": full_url,
+                        "titulo": a.get_text(strip=True) or full_url.split("/")[-1],
+                        "tipo": "pdf",
+                    })
+                continue
+
+            # Found a page link matching keywords → add to visit queue
+            if depth < max_depth and any(kw.lower() in link_text for kw in keywords):
+                to_visit.append((full_url, depth + 1))
+
+    return documents
+
+
 async def search_and_fetch(
     query: str, num: int = 3, max_chars_per_page: int = 4000
 ) -> list[dict]:
