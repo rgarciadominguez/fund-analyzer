@@ -327,32 +327,72 @@ class ManagerDeepAgent:
         return names
 
     async def _extract_team_from_web(self) -> list[dict]:
-        """Fetch gestora team page and extract all people with their roles using Gemini."""
+        """Fetch gestora team page and extract all people with roles using Gemini.
+        Strategy: Google search → navigate from gestora home → follow team/equipo links."""
         if not self.gestora:
             return []
 
-        # Search for team page
+        team_text = ""
+        team_url = ""
+
+        # Strategy 1: Google search for team page
         team_results = await self.search.search(
             f'"{self.gestora}" equipo', num=3, agent="manager_team"
         )
-        # Also try direct fetch of known patterns
-        team_text = ""
-        team_url = ""
         for r in team_results[:3]:
             url = r.get("url", "")
-            if "equipo" in url.lower() or "team" in url.lower() or "about" in url.lower():
+            if any(kw in url.lower() for kw in ["equipo", "team", "about", "asset-management"]):
                 text = await fetch_page_text(url, max_chars=8000)
                 if text and len(text) > 500:
                     team_text = text
                     team_url = url
                     break
-        # Fallback: try any result from gestora domain
+
+        # Strategy 2: Navigate from gestora home page — follow team/equipo links
         if not team_text:
-            for r in team_results[:3]:
-                text = await fetch_page_text(r.get("url", ""), max_chars=8000)
-                if text and len(text) > 500:
-                    team_text = text
-                    team_url = r.get("url", "")
+            # Find gestora domain from search results or gestora name
+            gestora_domains = set()
+            for r in team_results:
+                from urllib.parse import urlparse
+                domain = urlparse(r.get("url", "")).netloc
+                if domain and self.gestora.lower().split()[0] in domain.lower():
+                    gestora_domains.add(domain)
+
+            for domain in list(gestora_domains)[:2]:
+                # Fetch home page
+                home_url = f"https://{domain}"
+                home_text_raw = ""
+                try:
+                    html = await get_with_headers(home_url, _HEADERS_WEB)
+                    home_text_raw = html
+                except Exception:
+                    continue
+
+                if not home_text_raw:
+                    continue
+
+                # Find internal links to team/equipo pages
+                from bs4 import BeautifulSoup as BS
+                soup = BS(home_text_raw, "html.parser")
+                team_keywords = ["equipo", "team", "about", "quienes", "asset-management", "nosotros"]
+                for a in soup.find_all("a", href=True):
+                    href = a["href"].lower()
+                    link_text = a.get_text(strip=True).lower()
+                    if any(kw in href or kw in link_text for kw in team_keywords):
+                        # Build full URL
+                        full_url = a["href"]
+                        if full_url.startswith("/"):
+                            full_url = f"https://{domain}{full_url}"
+                        elif not full_url.startswith("http"):
+                            continue
+                        text = await fetch_page_text(full_url, max_chars=8000)
+                        if text and len(text) > 500:
+                            team_text = text
+                            team_url = full_url
+                            self._log("INFO", f"Navegado hasta equipo: {full_url[:60]}")
+                            break
+
+                if team_text:
                     break
 
         if not team_text:
@@ -367,18 +407,14 @@ class ManagerDeepAgent:
             model = genai.GenerativeModel("gemini-2.5-flash")
 
             prompt = (
-                f"De esta página web del equipo de {self.gestora}, extrae TODAS las personas "
-                f"mencionadas con su nombre completo, cargo/rol y una breve descripción de su "
-                f"trayectoria si aparece. Indica cuáles están en el área de gestión/inversiones.\n\n"
-                f"Responde en JSON: [{{"
-                f"\"nombre\": \"\", \"cargo\": \"\", \"area\": \"inversiones|comercial|operaciones|dirección\", "
-                f"\"trayectoria\": \"breve resumen si aparece\"}}]\n\n"
-                f"Texto:\n{team_text[:6000]}"
+                f"Lista TODAS las personas de esta pagina de equipo de {self.gestora}. "
+                f"JSON array: [{{\"nombre\":\"\",\"cargo\":\"\",\"area\":\"inversiones|comercial|operaciones|direccion\"}}]\n\n"
+                f"{team_text}"
             )
 
             resp = model.generate_content(prompt,
                 generation_config=genai.types.GenerationConfig(
-                    temperature=0.1, max_output_tokens=3000))
+                    response_mime_type="application/json", temperature=0.1, max_output_tokens=3000))
             raw = resp.text.strip() if resp.text else ""
             # Extract JSON array
             m = re.search(r'\[.*\]', raw, re.DOTALL)
@@ -414,7 +450,7 @@ class ManagerDeepAgent:
                 model = genai.GenerativeModel("gemini-2.5-flash")
                 resp = model.generate_content(prompt,
                     generation_config=genai.types.GenerationConfig(
-                        temperature=0.1, max_output_tokens=300))
+                        response_mime_type="application/json", temperature=0.1, max_output_tokens=300))
                 raw = resp.text.strip() if resp.text else ""
                 self._log("INFO", f"Gemini names raw: {raw[:200]}")
                 # Try to extract JSON array from response
@@ -607,7 +643,7 @@ class ManagerDeepAgent:
         try:
             resp = model.generate_content(prompt,
                 generation_config=genai.types.GenerationConfig(
-                    temperature=0.1, max_output_tokens=2000))
+                    response_mime_type="application/json", temperature=0.1, max_output_tokens=2000))
             raw = resp.text.strip() if resp.text else ""
             if not raw:
                 return {"_fuente": page["url"], "_titulo": page["title"], "texto_raw": page["text"][:3000]}

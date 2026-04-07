@@ -230,22 +230,36 @@ class SearchEngine:
 async def fetch_page_text(url: str, max_chars: int = 5000) -> str:
     """
     Fetch a URL and extract clean text content.
+    Handles trailing slash issues (some servers return 500 with slash but 200 without).
     Returns empty string on error.
     """
-    # Skip known unfetchable domains
     skip_domains = ("linkedin.com", "twitter.com", "x.com", "facebook.com", "instagram.com")
     if any(d in url for d in skip_domains):
         return ""
 
-    try:
-        html = await get_with_headers(url, _HEADERS_WEB)
-        soup = BeautifulSoup(html, "html.parser")
-        for tag in soup(["script", "style", "nav", "footer", "aside", "header"]):
-            tag.decompose()
-        text = soup.get_text(separator=" ", strip=True)
-        return text[:max_chars] if max_chars else text
-    except Exception:
-        return ""
+    async def _try_fetch(u: str) -> str:
+        try:
+            html = await get_with_headers(u, _HEADERS_WEB)
+            soup = BeautifulSoup(html, "html.parser")
+            for tag in soup(["script", "style", "nav", "footer", "aside", "header"]):
+                tag.decompose()
+            text = soup.get_text(separator=" ", strip=True)
+            return text[:max_chars] if max_chars else text
+        except Exception:
+            return ""
+
+    # Try original URL first
+    text = await _try_fetch(url)
+    if text and len(text) > 100:
+        return text
+
+    # If failed and URL ends with /, try without trailing slash (and vice versa)
+    if url.endswith("/"):
+        alt = url.rstrip("/")
+    else:
+        alt = url + "/"
+    text = await _try_fetch(alt)
+    return text
 
 
 async def search_and_fetch(
