@@ -86,8 +86,10 @@ class AnalystAgent:
     # ── Schema template ───────────────────────────────────────────────────────
 
     def _load_schema_template(self) -> dict:
-        """Carga el schema universal como base del output."""
-        template = json.loads(self.schema_path.read_text(encoding="utf-8"))
+        """Carga el schema v2 como base del output (fallback a v1)."""
+        v2_path = self.schema_path.parent / "fund_output_v2.json"
+        schema_file = v2_path if v2_path.exists() else self.schema_path
+        template = json.loads(schema_file.read_text(encoding="utf-8"))
         # Limpiar arrays de ejemplo → vacíos
         def _clean(obj):
             if isinstance(obj, dict):
@@ -112,6 +114,37 @@ class AnalystAgent:
             self.fund_dir / "cssf_data.json",
             self.fund_dir / "letters_data.json",
         ]
+
+        # Merge manager_profile.json into output.manager_profile
+        mgr_path = self.fund_dir / "manager_profile.json"
+        if mgr_path.exists():
+            try:
+                mgr = json.loads(mgr_path.read_text(encoding="utf-8"))
+                output["manager_profile"] = mgr
+                # Also update gestores in cualitativo if manager found
+                if mgr.get("nombre"):
+                    gestores = output.setdefault("cualitativo", {}).get("gestores", [])
+                    if not any(g.get("nombre") == mgr["nombre"] for g in gestores if g):
+                        gestores.append({
+                            "nombre": mgr["nombre"],
+                            "cargo": mgr.get("cargo", ""),
+                            "background": mgr.get("filosofia_detallada", "")[:200],
+                            "anio_incorporacion": None,
+                        })
+                        output["cualitativo"]["gestores"] = gestores
+                self._log("OK", f"Manager profile merged: {mgr.get('nombre', '?')}")
+            except Exception as exc:
+                self._log("WARN", f"Error merging manager_profile: {exc}")
+
+        # Merge sources.json into output.sources
+        src_path = self.fund_dir / "sources.json"
+        if src_path.exists():
+            try:
+                src = json.loads(src_path.read_text(encoding="utf-8"))
+                output["sources"] = src.get("sources", []) if isinstance(src, dict) else src
+                self._log("OK", f"Sources merged: {len(output['sources'])} fuentes")
+            except Exception:
+                pass
 
         for fpath in files_to_merge:
             if not fpath.exists():

@@ -310,7 +310,19 @@ def pct(v) -> str:
 
 
 def meur(v) -> str:
-    return es(v, 3, " M€")
+    """Format AUM: >100 → 1 decimal, <100 → 2 decimals, compact."""
+    if v is None:
+        return "—"
+    try:
+        v = float(v)
+        if v >= 100:
+            s = f"{v:,.1f}"
+        else:
+            s = f"{v:,.2f}"
+        s = s.replace(",", "X").replace(".", ",").replace("X", ".")
+        return s + " M€"
+    except Exception:
+        return str(v)
 
 
 def normalize_year(periodo: str) -> str:
@@ -489,12 +501,15 @@ st.markdown(f"<div style='height:1px;background:{BORDER};margin:6px 0 14px 0'></
 
 # ── Load data ─────────────────────────────────────────────────────────────────
 d         = load_output(st.session_state.selected_isin)
-kpis      = d.get("kpis", {})
-cual      = d.get("cualitativo", {})
-cuant     = d.get("cuantitativo", {})
-pos_data  = d.get("posiciones", {})
-consist   = d.get("analisis_consistencia", {})
-fuentes   = d.get("fuentes", {})
+kpis      = d.get("kpis") or {}
+cual      = d.get("cualitativo") or {}
+cuant     = d.get("cuantitativo") or {}
+pos_data  = d.get("posiciones") or {}
+consist   = d.get("analisis_consistencia") or {}
+fuentes   = d.get("fuentes") or {}
+mgr_prof  = d.get("manager_profile") or {}
+sources   = d.get("sources") or []
+synthesis = cual.get("analyst_synthesis") or {}
 
 # Periods: ascending for display (oldest first)
 periodos_asc = sorted(consist.get("periodos", []),
@@ -552,7 +567,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── KPI ROW ───────────────────────────────────────────────────────────────────
+# ── KPI ROWS ─────────────────────────────────────────────────────────────────
 aum      = kpis.get("aum_actual_meur")
 part     = kpis.get("num_participes")
 part_ant = kpis.get("num_participes_anterior")
@@ -560,13 +575,20 @@ ter      = kpis.get("ter_pct")
 gestion  = kpis.get("coste_gestion_pct")
 deposito = kpis.get("coste_deposito_pct")
 vol      = kpis.get("volatilidad_pct")
+cagr     = kpis.get("cagr_desde_inicio_pct")
+acum     = kpis.get("rentabilidad_acumulada_pct")
+ytd      = kpis.get("ytd_pct")
+rating_m = kpis.get("rating_morningstar")
+sharpe   = kpis.get("sharpe_ratio")
+mdd      = kpis.get("max_drawdown_pct")
 
 part_delta = None
 if part and part_ant and part_ant != 0:
     part_delta = (part - part_ant) / part_ant * 100
 
+# Row 1: Core KPIs
 k1, k2, k3, k4, k5, k6 = st.columns(6)
-kpi_cols = [
+kpi_row1 = [
     (k1, "AUM",        meur(aum),            None),
     (k2, "Partícipes", es(part, 0),          f"{'+' if (part_delta or 0)>0 else ''}{es(part_delta,1)}%" if part_delta else None),
     (k3, "TER",        pct(ter),             f"Gest {pct(gestion)}  Dep {pct(deposito)}"),
@@ -574,9 +596,26 @@ kpi_cols = [
     (k5, "Riesgo",     f"{perfil} / 7",      None),
     (k6, "Posiciones", str(len(pos_data.get("actuales",[]))), "activos en cartera"),
 ]
-for col, label, value, delta in kpi_cols:
+for col, label, value, delta in kpi_row1:
     with col:
         st.metric(label=label, value=value, delta=delta)
+
+# Row 2: Performance KPIs (only show if we have data)
+has_perf = any(x is not None for x in [cagr, acum, ytd, rating_m, sharpe, mdd])
+if has_perf:
+    p1, p2, p3, p4, p5, p6 = st.columns(6)
+    stars = "★" * int(rating_m) + "☆" * (5 - int(rating_m)) if rating_m else "—"
+    kpi_row2 = [
+        (p1, "CAGR",       pct(cagr) if cagr else "—",  "desde inicio"),
+        (p2, "Acumulada",   pct(acum) if acum else "—",  "desde inicio"),
+        (p3, "YTD",         pct(ytd) if ytd else "—",    None),
+        (p4, "Morningstar", stars,                        None),
+        (p5, "Sharpe",      es(sharpe, 2) if sharpe else "—", None),
+        (p6, "Max Drawdown",pct(mdd) if mdd else "—",    None),
+    ]
+    for col, label, value, delta in kpi_row2:
+        with col:
+            st.metric(label=label, value=value, delta=delta)
 
 st.markdown(f"<div style='height:4px'></div>", unsafe_allow_html=True)
 
@@ -600,6 +639,15 @@ with tab1:
     filosofia  = cual.get("filosofia_inversion") or ""
     proceso    = cual.get("proceso_seleccion") or ""
 
+    # ── BLOQUE 1: Síntesis 3 líneas ──────────────────────────────────────────
+    sintesis_3 = synthesis.get("sintesis_3_lineas", "")
+    if sintesis_3:
+        st.markdown(
+            f"<div style='background:{BG2}; border-left:3px solid {ACCENT}; padding:16px 20px;"
+            f" margin-bottom:16px; font-size:14px; line-height:1.8; color:{TEXT};'>"
+            f"{sintesis_3}</div>", unsafe_allow_html=True)
+
+    # ── BLOQUE 2: Estrategia ejecutiva ────────────────────────────────────────
     section_header("Estrategia ejecutiva")
     if estrategia:
         narrative_block(estrategia, "SÍNTESIS")
@@ -610,15 +658,120 @@ with tab1:
         section_header("Filosofía de inversión")
         narrative_block(filosofia, "FILOSOFÍA")
 
+    # ── BLOQUE 3: Criterios de inversión ──────────────────────────────────────
+    criterios = synthesis.get("criterios_inversion", [])
+    if criterios:
+        section_header("Criterios de inversión")
+        for i, criterio in enumerate(criterios[:5], 1):
+            st.markdown(
+                f"<div style='background:{BG2}; border:1px solid {BORDER}; border-radius:4px;"
+                f" padding:10px 16px; margin-bottom:6px; font-size:13px; color:{TEXT};'>"
+                f"<span style='color:{ACCENT}; font-weight:600;'>{i}.</span> {criterio}</div>",
+                unsafe_allow_html=True)
+
+    # ── BLOQUE 4: Skin in the game (DESTACADO) ───────────────────────────────
+    sitg = mgr_prof.get("skin_in_the_game") or {}
+    if sitg.get("compromisos"):
+        section_header("Compromisos del gestor", subtitle="skin in the game")
+        compromisos_html = "".join(
+            f"<li style='margin-bottom:6px;'>{c}</li>" for c in sitg["compromisos"]
+        )
+        st.markdown(
+            f"<div style='background:{BG2}; border:2px solid {GREEN}; border-radius:6px;"
+            f" padding:16px 20px;'>"
+            f"<div style='font-size:11px; color:{GREEN}; font-weight:600; letter-spacing:0.1em;"
+            f" text-transform:uppercase; margin-bottom:10px;'>COMPROMISO NOTARIAL</div>"
+            f"<div style='font-size:12px; color:{TEXT2}; margin-bottom:10px;'>{sitg.get('descripcion','')}</div>"
+            f"<ul style='font-size:13px; color:{TEXT}; line-height:1.8; padding-left:20px;'>"
+            f"{compromisos_html}</ul></div>", unsafe_allow_html=True)
+
+    # ── BLOQUE 5: Comisiones Clase A vs B ─────────────────────────────────────
+    comisiones_clase = cuant.get("serie_comisiones_por_clase", [])
+    if comisiones_clase:
+        section_header("Estructura de comisiones")
+        latest = sorted(comisiones_clase, key=lambda x: x.get("periodo",""))[-1] if comisiones_clase else {}
+        clases = latest.get("clases", {})
+        if clases:
+            rows = "".join(
+                f"<tr><td style='padding:6px 12px;border-bottom:1px solid {BORDER};'>{cls}</td>"
+                f"<td style='padding:6px 12px;border-bottom:1px solid {BORDER};'>{pct(val)}</td></tr>"
+                for cls, val in sorted(clases.items())
+            )
+            st.markdown(
+                f"<table style='width:100%;border-collapse:collapse;font-size:13px;'>"
+                f"<tr style='color:{TEXT3};font-size:10px;text-transform:uppercase;letter-spacing:0.1em;'>"
+                f"<th style='padding:8px 12px;text-align:left;'>Clase</th>"
+                f"<th style='padding:8px 12px;text-align:left;'>Comisión gestión</th></tr>"
+                f"{rows}</table>", unsafe_allow_html=True)
+
+    # ── BLOQUE 6: Tabla rentabilidad anual ────────────────────────────────────
+    rent_anual = cuant.get("rentabilidad_anual", [])
+    if rent_anual:
+        section_header("Rentabilidad anual histórica")
+        rent_sorted = sorted(rent_anual, key=lambda x: x.get("anio", 0))
+        header = (f"<tr style='color:{TEXT3};font-size:10px;text-transform:uppercase;letter-spacing:0.08em;'>"
+                  f"<th style='padding:6px 10px;'>Año</th>"
+                  f"<th style='padding:6px 10px;'>Fondo A</th>"
+                  f"<th style='padding:6px 10px;'>Benchmark</th>"
+                  f"<th style='padding:6px 10px;'>Volatilidad</th></tr>")
+        rows = ""
+        for r in rent_sorted:
+            anio = r.get("anio", "")
+            fa = r.get("fondo_clase_a_pct")
+            bm = r.get("benchmark_pct")
+            vl = r.get("volatilidad_fondo_pct")
+            color_fa = GREEN if fa and fa > 0 else RED if fa and fa < 0 else TEXT2
+            color_bm = GREEN if bm and bm > 0 else RED if bm and bm < 0 else TEXT2
+            rows += (f"<tr><td style='padding:6px 10px;border-bottom:1px solid {BORDER};color:{TEXT};'>{anio}</td>"
+                     f"<td style='padding:6px 10px;border-bottom:1px solid {BORDER};color:{color_fa};font-weight:600;'>{pct(fa) if fa is not None else '—'}</td>"
+                     f"<td style='padding:6px 10px;border-bottom:1px solid {BORDER};color:{color_bm};'>{pct(bm) if bm is not None else '—'}</td>"
+                     f"<td style='padding:6px 10px;border-bottom:1px solid {BORDER};color:{TEXT3};'>{pct(vl) if vl is not None else '—'}</td></tr>")
+        st.markdown(
+            f"<table style='width:100%;border-collapse:collapse;font-size:13px;'>{header}{rows}</table>",
+            unsafe_allow_html=True)
+
+    # ── BLOQUE 7: Resumen ejecutivo ───────────────────────────────────────────
+    resumen_ej = synthesis.get("resumen_ejecutivo", "")
+    if resumen_ej:
+        section_header("Resumen ejecutivo")
+        narrative_block(resumen_ej, "ANÁLISIS")
+
+    # ── BLOQUE 8: Fortalezas / Riesgos ───────────────────────────────────────
+    fortalezas = synthesis.get("fortalezas") or synthesis.get("green_flags") or []
+    riesgos = synthesis.get("riesgos") or synthesis.get("red_flags") or []
+    signal = synthesis.get("signal", "")
+    if fortalezas or riesgos:
+        section_header("Fortalezas y riesgos")
+        col_f, col_r = st.columns(2)
+        with col_f:
+            st.markdown(f"<div style='font-size:10px;color:{GREEN};letter-spacing:0.1em;"
+                        f"text-transform:uppercase;margin-bottom:8px;font-weight:600;'>FORTALEZAS</div>",
+                        unsafe_allow_html=True)
+            for f in fortalezas[:5]:
+                st.markdown(f"<div style='font-size:12px;color:{TEXT2};line-height:1.7;margin-bottom:4px;'>"
+                            f"<span style='color:{GREEN};'>+</span> {f}</div>", unsafe_allow_html=True)
+        with col_r:
+            st.markdown(f"<div style='font-size:10px;color:{RED};letter-spacing:0.1em;"
+                        f"text-transform:uppercase;margin-bottom:8px;font-weight:600;'>RIESGOS</div>",
+                        unsafe_allow_html=True)
+            for r in riesgos[:5]:
+                st.markdown(f"<div style='font-size:12px;color:{TEXT2};line-height:1.7;margin-bottom:4px;'>"
+                            f"<span style='color:{RED};'>-</span> {r}</div>", unsafe_allow_html=True)
+        if signal:
+            signal_color = GREEN if "CONVICTION" in signal.upper() else RED if "PASS" in signal.upper() else YELLOW
+            st.markdown(
+                f"<div style='text-align:center;margin-top:16px;padding:12px;background:{BG2};"
+                f"border:2px solid {signal_color};border-radius:6px;'>"
+                f"<span style='font-size:14px;font-weight:700;color:{signal_color};'>{signal}</span>"
+                f"</div>", unsafe_allow_html=True)
+            rationale = synthesis.get("signal_rationale", "")
+            if rationale:
+                st.markdown(f"<div style='font-size:12px;color:{TEXT3};text-align:center;margin-top:8px;'>"
+                            f"{rationale}</div>", unsafe_allow_html=True)
+
     if proceso:
         section_header("Proceso de selección")
         narrative_block(proceso, "SELECCIÓN")
-
-    # Tipo de activos
-    tipo_activos = cual.get("tipo_activos", "")
-    if tipo_activos:
-        section_header("Universo de inversión")
-        narrative_block(tipo_activos, "UNIVERSO")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -652,19 +805,51 @@ with tab2:
             label = f"<strong>{epigrafe_hr}</strong> — " if epigrafe_hr else ""
             timeline_item(periodo_hr, label + detalle_hr, color=YELLOW_CHART)
 
-    # ── Equipo gestor ─────────────────────────────────────────────────────────
+    # ── Equipo gestor (enriched with manager_profile) ─────────────────────────
     gestores = cual.get("gestores", [])
-    if gestores:
+    if gestores or mgr_prof.get("nombre"):
         section_header("Equipo gestor")
-        for g in gestores:
-            nombre_g = g.get("nombre") or ""
-            if not nombre_g:
-                continue
-            cargo_g  = g.get("cargo") or ""
-            back_g   = g.get("background") or ""
-            anio_g   = g.get("anio_incorporacion") or ""
-            slug     = manager_slug(nombre_g)
-            q_enc    = urllib.parse.quote(f'"{nombre_g}" gestor fondo')
+
+        # Show manager_profile card if available (deep profile)
+        if mgr_prof.get("nombre"):
+            nombre_g = mgr_prof.get("nombre", "")
+            cargo_g = mgr_prof.get("cargo", "")
+            empresa_g = mgr_prof.get("empresa", "")
+            filosofia_g = mgr_prof.get("filosofia_detallada", "")
+            slug = manager_slug(nombre_g)
+            q_enc = urllib.parse.quote(f'"{nombre_g}" gestor fondo')
+
+            # Formación
+            formacion = mgr_prof.get("formacion", [])
+            form_html = ""
+            if formacion:
+                form_items = "".join(
+                    f"<li>{f.get('titulo','')} — {f.get('institucion','')}</li>"
+                    for f in formacion if f.get("titulo")
+                )
+                form_html = f"<div style='margin:8px 0;'><strong style='color:{TEXT3};font-size:10px;text-transform:uppercase;letter-spacing:0.08em;'>Formación</strong><ul style='font-size:12px;color:{TEXT2};line-height:1.7;margin:4px 0;padding-left:18px;'>{form_items}</ul></div>"
+
+            # Trayectoria
+            empleos = mgr_prof.get("historial_empleos", [])
+            tray_html = ""
+            if empleos:
+                tray_items = "".join(
+                    f"<div style='margin-bottom:6px;'><span style='color:{ACCENT};font-size:11px;font-family:DM Mono,monospace;'>{e.get('periodo','')}</span> "
+                    f"<span style='color:{TEXT};font-size:12px;'>{e.get('empresa','')} — {e.get('cargo','')}</span></div>"
+                    for e in empleos if e.get("empresa")
+                )
+                tray_html = f"<div style='margin:10px 0;'><strong style='color:{TEXT3};font-size:10px;text-transform:uppercase;letter-spacing:0.08em;'>Trayectoria</strong><div style='margin-top:6px;'>{tray_items}</div></div>"
+
+            # Skin in the game
+            sitg = mgr_prof.get("skin_in_the_game", {})
+            sitg_html = ""
+            if sitg.get("compromisos"):
+                items = "".join(f"<li>{c}</li>" for c in sitg["compromisos"])
+                sitg_html = (
+                    f"<div style='background:#0d1a0d;border:1px solid {GREEN};border-radius:4px;padding:12px 16px;margin:10px 0;'>"
+                    f"<div style='font-size:10px;color:{GREEN};font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;'>COMPROMISO NOTARIAL</div>"
+                    f"<ul style='font-size:12px;color:{TEXT2};line-height:1.8;padding-left:18px;margin:0;'>{items}</ul></div>"
+                )
 
             links = " ".join([
                 f'<a href="https://citywire.com/selector/manager/profile/{slug}" target="_blank" class="tag tag-accent">Citywire</a>',
@@ -672,19 +857,62 @@ with tab2:
                 f'<a href="https://www.google.com/search?q={q_enc}" target="_blank" class="tag">Google</a>',
             ])
 
-            desde = f"<span style='color:{TEXT3}; font-size:10px;'>  ·  desde {anio_g}</span>" if anio_g else ""
-            bg_html = f"<div style='font-size:12.5px; color:{TEXT2}; line-height:1.7; margin:8px 0;'>{back_g}</div>" if back_g else ""
             st.markdown(f"""
             <div style="background:{BG2}; border:1px solid {BORDER}; border-left:3px solid {ACCENT};
-                        border-radius:4px; padding:14px 18px; margin-bottom:8px;">
-              <div style="font-size:14px; font-weight:600; color:{TEXT};">{nombre_g}</div>
-              <div style="font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:0.08em;
+                        border-radius:4px; padding:18px 22px; margin-bottom:12px;">
+              <div style="font-size:16px; font-weight:700; color:{TEXT};">{nombre_g}</div>
+              <div style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.08em;
                           text-transform:uppercase; color:{TEXT3}; margin-top:3px;">
-                {cargo_g}{desde}
+                {cargo_g}{(' · ' + empresa_g) if empresa_g else ''}
               </div>
-              {bg_html}
-              <div style="margin-top:10px;">{links}</div>
+              {form_html}
+              {tray_html}
+              {sitg_html}
+              {f'<div style="font-size:12.5px;color:{TEXT2};line-height:1.7;margin:10px 0;">{filosofia_g[:500]}</div>' if filosofia_g else ''}
+              <div style="margin-top:12px;">{links}</div>
             </div>""", unsafe_allow_html=True)
+
+            # Entrevistas recientes
+            entrevistas = mgr_prof.get("entrevistas_recientes", [])
+            if entrevistas:
+                st.markdown(f"<div style='font-size:10px;color:{TEXT3};letter-spacing:0.1em;text-transform:uppercase;margin:12px 0 8px;font-weight:600;'>ENTREVISTAS RECIENTES</div>", unsafe_allow_html=True)
+                for ent in entrevistas[:6]:
+                    medio = ent.get("medio", "")
+                    fecha = ent.get("fecha", "")
+                    url = ent.get("url", "")
+                    tema = ent.get("tema", "")
+                    ideas = ent.get("ideas_clave", [])
+                    ideas_html = " · ".join(ideas[:3]) if ideas else ""
+                    st.markdown(
+                        f"<div style='background:{BG2};border:1px solid {BORDER};border-radius:3px;padding:8px 14px;margin-bottom:4px;'>"
+                        f"<a href='{url}' target='_blank' style='font-size:13px;color:{TEXT};font-weight:600;'>{medio}</a>"
+                        f"<span style='color:{TEXT3};font-size:10px;margin-left:8px;'>{fecha}</span>"
+                        f"{'<div style=\"font-size:11px;color:'+TEXT3+';margin-top:4px;\">'+ideas_html+'</div>' if ideas_html else ''}"
+                        f"</div>", unsafe_allow_html=True)
+
+        else:
+            # Fallback: basic gestor cards from cualitativo.gestores
+            for g in gestores:
+                nombre_g = g.get("nombre") or ""
+                if not nombre_g:
+                    continue
+                cargo_g = g.get("cargo") or ""
+                back_g = g.get("background") or ""
+                slug = manager_slug(nombre_g)
+                q_enc = urllib.parse.quote(f'"{nombre_g}" gestor fondo')
+                links = " ".join([
+                    f'<a href="https://citywire.com/selector/manager/profile/{slug}" target="_blank" class="tag tag-accent">Citywire</a>',
+                    f'<a href="https://www.finect.com/user/{slug}" target="_blank" class="tag tag-accent">Finect</a>',
+                    f'<a href="https://www.google.com/search?q={q_enc}" target="_blank" class="tag">Google</a>',
+                ])
+                st.markdown(f"""
+                <div style="background:{BG2}; border:1px solid {BORDER}; border-left:3px solid {ACCENT};
+                            border-radius:4px; padding:14px 18px; margin-bottom:8px;">
+                  <div style="font-size:14px; font-weight:600; color:{TEXT};">{nombre_g}</div>
+                  <div style="font-size:10px;color:{TEXT3};margin-top:3px;">{cargo_g}</div>
+                  {f'<div style="font-size:12px;color:{TEXT2};margin:8px 0;">{back_g}</div>' if back_g else ''}
+                  <div style="margin-top:10px;">{links}</div>
+                </div>""", unsafe_allow_html=True)
 
     # ── Visión gestores — dual timeline ascending ─────────────────────────────
     if periodos_asc:
@@ -704,8 +932,9 @@ with tab2:
 
         for pdata in periodos_asc[-10:]:
             yr_label   = pdata.get("periodo", "—")
-            tesis      = (pdata.get("tesis_gestora", "") or "")[:400]
-            decisiones = (pdata.get("decisiones_tomadas", "") or "")[:400]
+            tesis      = pdata.get("tesis_gestora", "") or ""
+            decisiones = pdata.get("decisiones_tomadas", "") or ""
+            # Use full text — no truncation
             dual_timeline_item(yr_label, tesis, decisiones)
 
 
@@ -713,6 +942,102 @@ with tab2:
 # TAB 3 — EVOLUTIVO
 # ══════════════════════════════════════════════════════════════════════════════
 with tab3:
+    # ── Rentabilidad anual comparada (barras fondo vs benchmark) ─────────────
+    rent_anual = cuant.get("rentabilidad_anual", [])
+    if rent_anual:
+        section_header("Rentabilidad anual: Fondo vs Benchmark")
+        rent_s = sorted(rent_anual, key=lambda x: x.get("anio", 0))
+        anios = [str(r.get("anio", "")) for r in rent_s]
+        fondo_y = [r.get("fondo_clase_a_pct") for r in rent_s]
+        bench_y = [r.get("benchmark_pct") for r in rent_s]
+        bench_name = next((r.get("benchmark_nombre", "") for r in rent_s if r.get("benchmark_nombre")), "Benchmark")
+
+        fig_rent = go.Figure()
+        # Fondo bars - colored green/red
+        fondo_colors = [GREEN_CHART if (v or 0) >= 0 else RED_CHART for v in fondo_y]
+        fig_rent.add_trace(go.Bar(
+            x=anios, y=fondo_y, name="Fondo",
+            marker_color=fondo_colors,
+            text=[f"{v:+.1f}%" if v is not None else "" for v in fondo_y],
+            textposition="outside", textfont=dict(size=9, color=TEXT3),
+            width=0.35, offset=-0.18,
+            hovertemplate="<b>%{x}</b><br>Fondo: %{y:.1f}%<extra></extra>",
+        ))
+        if any(v is not None for v in bench_y):
+            fig_rent.add_trace(go.Bar(
+                x=anios, y=bench_y, name=bench_name,
+                marker_color="#555", opacity=0.7,
+                text=[f"{v:+.1f}%" if v is not None else "" for v in bench_y],
+                textposition="outside", textfont=dict(size=9, color=TEXT3),
+                width=0.35, offset=0.18,
+                hovertemplate=f"<b>%{{x}}</b><br>{bench_name}: %{{y:.1f}}%<extra></extra>",
+            ))
+        fig_rent.add_hline(y=0, line_dash="dot", line_color=BORDER, line_width=1)
+        fig_rent.update_layout(**chart_layout(300), barmode="group")
+        fig_rent.update_xaxes(type="category")
+        st.plotly_chart(fig_rent, use_container_width=True)
+
+    # ── Rentabilidad acumulada (línea desde inicio) ──────────────────────────
+    if rent_anual:
+        section_header("Rentabilidad acumulada desde inicio")
+        rent_s2 = sorted(rent_anual, key=lambda x: x.get("anio", 0))
+        cum_fondo = []
+        cum_bench = []
+        acc_f, acc_b = 100.0, 100.0
+        for r in rent_s2:
+            fa = r.get("fondo_clase_a_pct")
+            ba = r.get("benchmark_pct")
+            if fa is not None:
+                acc_f *= (1 + fa / 100)
+            if ba is not None:
+                acc_b *= (1 + ba / 100)
+            cum_fondo.append(acc_f - 100)
+            cum_bench.append(acc_b - 100 if ba is not None else None)
+
+        anios2 = [str(r.get("anio", "")) for r in rent_s2]
+        fig_cum = go.Figure()
+        fig_cum.add_trace(go.Scatter(
+            x=anios2, y=cum_fondo, name="Fondo", mode="lines+markers",
+            line=dict(color=ACCENT, width=2.5), marker=dict(size=5),
+            fill="tozeroy", fillcolor=f"rgba(79,195,247,0.1)",
+            hovertemplate="<b>%{x}</b><br>Acumulada: %{y:+.1f}%<extra></extra>",
+        ))
+        if any(v is not None for v in cum_bench):
+            fig_cum.add_trace(go.Scatter(
+                x=anios2, y=cum_bench, name=bench_name, mode="lines",
+                line=dict(color="#888", width=1.5, dash="dot"),
+                hovertemplate=f"<b>%{{x}}</b><br>{bench_name}: %{{y:+.1f}}%<extra></extra>",
+            ))
+        fig_cum.add_hline(y=0, line_dash="dot", line_color=BORDER, line_width=1)
+        fig_cum.update_layout(**chart_layout(300))
+        st.plotly_chart(fig_cum, use_container_width=True)
+
+    # ── Exposición RV histórica (área) ───────────────────────────────────────
+    serie_rv = cuant.get("serie_exposicion_rv", [])
+    # Also try to build from mix_activos if serie_exposicion_rv empty
+    if not serie_rv:
+        mix_h = cuant.get("mix_activos_historico", [])
+        serie_rv = [{"periodo": m.get("periodo", ""), "rv_pct": m.get("rv_pct") or m.get("renta_variable_pct")}
+                    for m in mix_h if m.get("rv_pct") or m.get("renta_variable_pct")]
+    if serie_rv:
+        section_header("Exposición a renta variable")
+        rv_s = sorted(serie_rv, key=lambda x: str(x.get("periodo", "")))
+        rv_labels = [normalize_year(str(r["periodo"])) for r in rv_s]
+        rv_vals = [r.get("rv_pct", 0) or 0 for r in rv_s]
+        fig_rv = go.Figure()
+        fig_rv.add_trace(go.Scatter(
+            x=rv_labels, y=rv_vals, mode="lines",
+            line=dict(color=ACCENT, width=2),
+            fill="tozeroy", fillcolor=f"rgba(79,195,247,0.15)",
+            name="% Renta Variable",
+            hovertemplate="<b>%{x}</b><br>RV: %{y:.1f}%<extra></extra>",
+        ))
+        ly_rv = chart_layout(240, legend=False)
+        ly_rv["yaxis"] = dict(showgrid=True, gridcolor=BORDER, range=[0, 100], ticksuffix="%",
+                              tickfont=dict(color=TEXT3, size=10))
+        fig_rv.update_layout(**ly_rv)
+        st.plotly_chart(fig_rv, use_container_width=True)
+
     # ── AUM ──────────────────────────────────────────────────────────────────
     section_header("Evolución del patrimonio (AUM)")
     serie_aum = [s for s in cuant.get("serie_aum", [])
@@ -1226,24 +1551,71 @@ with tab5:
         section_header("Síntesis del track record")
         narrative_block(resumen_g, "SÍNTESIS GLOBAL")
 
-    # Cartas trimestrales
+    # Cartas semestrales / trimestrales — rich cards
     cartas_list = (letters_d.get("cartas", []) if isinstance(letters_d, dict) else []) or []
-    if cartas_list:
-        section_header("Cartas trimestrales")
-        for carta in cartas_list[:8]:
-            fecha_c   = carta.get("fecha", carta.get("date", ""))
-            titulo_c  = carta.get("titulo", carta.get("title", ""))
-            resumen_c = carta.get("resumen", carta.get("summary", ""))
-            with st.expander(f"{fecha_c}  {titulo_c}"):
-                if resumen_c:
-                    st.markdown(
-                        f"<div style='font-size:12.5px; color:{TEXT2}; line-height:1.75;'>"
-                        f"{resumen_c}</div>", unsafe_allow_html=True)
+    cartas_valid = [c for c in cartas_list if isinstance(c, dict) and (c.get("periodo") or c.get("resumen_mercado") or c.get("tesis_inversion"))]
+
+    if cartas_valid:
+        section_header("Cartas del gestor", subtitle=f"{len(cartas_valid)} cartas")
+
+        for carta in sorted(cartas_valid, key=lambda x: str(x.get("periodo", "")), reverse=True)[:12]:
+            periodo_c    = carta.get("periodo", "") or ""
+            rent_c       = carta.get("rentabilidad_periodo_pct")
+            rv_inicio    = carta.get("exposicion_rv_inicio_pct")
+            rv_fin       = carta.get("exposicion_rv_fin_pct")
+            entradas_c   = carta.get("entradas", []) or []
+            salidas_c    = carta.get("salidas", []) or []
+            vision_m     = carta.get("vision_macro", []) or []
+            tesis_c      = carta.get("tesis_inversion", "") or ""
+            resumen_ej   = carta.get("resumen_ejecutivo", "") or ""
+            mercado_c    = carta.get("resumen_mercado", "") or ""
+            decisiones_c = carta.get("decisiones_cartera", "") or ""
+            citas        = carta.get("citas_textuales", []) or []
+            url_c        = carta.get("url_fuente", "") or ""
+
+            # Card header with period + rentabilidad
+            rent_html = f"<span style='color:{GREEN if (rent_c or 0)>=0 else RED};font-weight:700;font-size:14px;'>{'+' if (rent_c or 0)>=0 else ''}{rent_c:.1f}%</span>" if rent_c is not None else ""
+            rv_html = f"<span style='color:{TEXT3};font-size:11px;'>RV: {rv_inicio}% → {rv_fin}%</span>" if rv_inicio and rv_fin else ""
+
+            with st.expander(f"📄 {periodo_c}  {f'{rent_c:+.1f}%' if rent_c is not None else ''}"):
+                # Resumen ejecutivo
+                if resumen_ej:
+                    st.markdown(f"<div style='font-size:13px;color:{TEXT};line-height:1.7;margin-bottom:12px;'>{resumen_ej}</div>", unsafe_allow_html=True)
+
+                col_vis, col_mov = st.columns(2)
+                with col_vis:
+                    if vision_m:
+                        st.markdown(f"<div style='font-size:10px;color:{TEXT3};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;'>VISIÓN MACRO</div>", unsafe_allow_html=True)
+                        for v in vision_m[:5]:
+                            st.markdown(f"<div style='font-size:12px;color:{TEXT2};margin-bottom:3px;'>· {v}</div>", unsafe_allow_html=True)
+                    elif mercado_c:
+                        st.markdown(f"<div style='font-size:10px;color:{TEXT3};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;'>MERCADO</div>", unsafe_allow_html=True)
+                        st.markdown(f"<div style='font-size:12px;color:{TEXT2};line-height:1.6;'>{mercado_c}</div>", unsafe_allow_html=True)
+
+                with col_mov:
+                    if entradas_c or salidas_c or decisiones_c:
+                        st.markdown(f"<div style='font-size:10px;color:{TEXT3};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;'>MOVIMIENTOS CARTERA</div>", unsafe_allow_html=True)
+                        for e in entradas_c[:4]:
+                            if isinstance(e, dict):
+                                st.markdown(f"<div style='font-size:12px;color:{GREEN};margin-bottom:2px;'>+ {e.get('empresa','')} <span style='color:{TEXT3};'>— {e.get('justificacion','')[:60]}</span></div>", unsafe_allow_html=True)
+                        for s in salidas_c[:4]:
+                            if isinstance(s, dict):
+                                st.markdown(f"<div style='font-size:12px;color:{RED};margin-bottom:2px;'>- {s.get('empresa','')} <span style='color:{TEXT3};'>— {s.get('justificacion','')[:60]}</span></div>", unsafe_allow_html=True)
+                        if rv_html:
+                            st.markdown(f"<div style='margin-top:6px;'>{rv_html}</div>", unsafe_allow_html=True)
+                        if not entradas_c and not salidas_c and decisiones_c:
+                            st.markdown(f"<div style='font-size:12px;color:{TEXT2};'>{decisiones_c[:200]}</div>", unsafe_allow_html=True)
+
+                if tesis_c:
+                    st.markdown(f"<div style='font-size:12px;color:{TEXT2};margin-top:8px;border-top:1px solid {BORDER};padding-top:8px;'><strong>Tesis:</strong> {tesis_c}</div>", unsafe_allow_html=True)
+                if citas:
+                    for cita in citas[:2]:
+                        st.markdown(f"<div style='font-size:12px;color:{ACCENT};font-style:italic;margin-top:4px;'>«{cita}»</div>", unsafe_allow_html=True)
+                if url_c:
+                    st.markdown(f"[Ver carta completa ↗]({url_c})")
     else:
-        section_header("Cartas trimestrales")
-        empty_state(
-            "No se encontraron cartas trimestrales.",
-            f"python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto")
+        section_header("Cartas del gestor")
+        empty_state("No se encontraron cartas.", f"python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto")
 
     # Periodos — ascending, oldest first
     if periodos_asc:
@@ -1306,8 +1678,9 @@ with tab5:
 # TAB 6 — LECTURAS
 # ══════════════════════════════════════════════════════════════════════════════
 with tab6:
-    section_header("Lecturas, vídeos y entrevistas")
+    section_header("Recursos: lecturas, vídeos y entrevistas")
 
+    # Merge lecturas + sources of media types
     if isinstance(lecturas_d, dict):
         lecturas_list = lecturas_d.get("lecturas", [])
     elif isinstance(lecturas_d, list):
@@ -1315,69 +1688,106 @@ with tab6:
     else:
         lecturas_list = []
 
-    TIPO_ICON = {
-        "articulo":"ART","video":"VID","entrevista":"ENT",
-        "podcast":"POD","perfil_gestor":"PRF","otro":"LNK",
-    }
+    # Add media sources from sources.json
+    for src in sources:
+        if isinstance(src, dict) and src.get("tipo") in ("youtube", "podcast", "articulo"):
+            # Don't duplicate URLs
+            if not any(l.get("url") == src.get("url") for l in lecturas_list):
+                lecturas_list.append({
+                    "tipo": "video" if src["tipo"] == "youtube" else src["tipo"],
+                    "titulo": src.get("titulo", ""),
+                    "url": src.get("url", ""),
+                    "fuente": src.get("tipo", ""),
+                    "fecha": src.get("fecha", ""),
+                    "descripcion": "",
+                })
+
+    # Categorize
+    CATEGORIES = [
+        ("video", "Videos y conferencias"),
+        ("entrevista", "Entrevistas"),
+        ("podcast", "Podcasts"),
+        ("articulo", "Articulos y analisis"),
+        ("perfil_gestor", "Perfiles de gestores"),
+    ]
+    CAT_ICONS = {"video": "📽", "entrevista": "🎤", "podcast": "🎙", "articulo": "📰", "perfil_gestor": "👤"}
+
+    def _render_resource(item):
+        url = item.get("url", "#")
+        titulo = item.get("titulo", "") or url[:60]
+        desc = item.get("descripcion", "") or ""
+        fecha = item.get("fecha", "")
+        fuente = item.get("fuente", "")
+        meta = f"<span style='font-size:10px;color:{TEXT3};'>{fuente}{(' · ' + fecha) if fecha else ''}</span>"
+        desc_html = f"<div style='font-size:11px;color:{TEXT3};margin-top:4px;'>{desc[:150]}</div>" if desc else ""
+        st.markdown(
+            f"<div style='background:{BG2};border:1px solid {BORDER};border-radius:3px;padding:10px 14px;margin-bottom:5px;'>"
+            f"<a href='{url}' target='_blank' style='font-size:13px;font-weight:600;color:{TEXT};'>{titulo}</a><br>"
+            f"{meta}{desc_html}</div>", unsafe_allow_html=True)
 
     if lecturas_list:
-        for item in lecturas_list:
-            tipo_l = item.get("tipo", "otro")
-            tag    = TIPO_ICON.get(tipo_l, "LNK")
-            url    = item.get("url", "#")
-            titulo = item.get("titulo", url)
-            desc   = item.get("descripcion", "") or item.get("snippet", "")
-            fecha  = item.get("fecha", "")
-            fuente = item.get("fuente", "") or item.get("source", "")
+        for tipo_key, cat_label in CATEGORIES:
+            items = [l for l in lecturas_list if isinstance(l, dict) and l.get("tipo") == tipo_key]
+            if items:
+                icon = CAT_ICONS.get(tipo_key, "📄")
+                section_header(f"{icon} {cat_label}", subtitle=f"{len(items)}")
+                for item in sorted(items, key=lambda x: x.get("fecha", ""), reverse=True):
+                    _render_resource(item)
 
-            date_html = (f"<span style='font-family:\"DM Mono\",monospace; font-size:9px;"
-                         f" color:{TEXT3};'>{fecha}</span>  " if fecha else "")
-            src_html  = (f"<span style='font-family:\"DM Mono\",monospace; font-size:9px;"
-                         f" color:{TEXT3}; letter-spacing:0.04em;'>{fuente}</span>" if fuente else "")
-            desc_html = (f"<div style='font-size:12px; color:{TEXT3}; line-height:1.7;"
-                         f" margin-top:8px;'>{desc}</div>" if desc else "")
-            st.markdown(f"""
-            <div style="background:{BG2}; border:1px solid {BORDER}; border-radius:4px;
-                        padding:14px 18px; margin-bottom:6px;">
-              <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
-                <span style="font-family:'DM Mono',monospace; font-size:9px;
-                             letter-spacing:0.1em; color:{ACCENT}; background:#0d0f14;
-                             border:1px solid {BORDER}; border-radius:3px;
-                             padding:2px 6px;">{tag}</span>
-                {date_html}{src_html}
-              </div>
-              <a href="{url}" target="_blank"
-                 style="font-size:13.5px; font-weight:600; color:{TEXT};">{titulo}</a>
-              {desc_html}
-            </div>""", unsafe_allow_html=True)
+        # "Otros" — items not matching any category
+        otros = [l for l in lecturas_list if isinstance(l, dict) and l.get("tipo") not in dict(CATEGORIES)]
+        if otros:
+            section_header("📄 Otros recursos", subtitle=f"{len(otros)}")
+            for item in otros:
+                _render_resource(item)
     else:
         nombre_fondo = d.get("nombre", "")
-        gestores_names = [g.get("nombre","") for g in cual.get("gestores",[]) if g.get("nombre")]
+        gestores_names = [g.get("nombre","") for g in cual.get("gestores",[]) if isinstance(g, dict) and g.get("nombre")]
         empty_state(
-            "Sin lecturas disponibles todavía — ejecuta el pipeline.",
+            "Sin lecturas disponibles — ejecuta el pipeline.",
             f"python -m agents.orchestrator --isin {st.session_state.selected_isin} --auto")
-        if gestores_names:
+        if gestores_names or nombre_fondo:
             section_header("Búsquedas sugeridas")
-            queries = (
-                [f'"{nombre_fondo}" entrevista', f'"{nombre_fondo}" carta gestores'] +
-                [f'"{n}" gestor fondo inversión' for n in gestores_names[:2]]
-            )
+            queries = [f'"{nombre_fondo}" entrevista', f'"{nombre_fondo}" conferencia anual youtube']
+            queries += [f'"{n}" entrevista inversión' for n in gestores_names[:2]]
             for q in queries:
                 enc = urllib.parse.quote(q)
                 st.markdown(
-                    f"<div style='background:{BG2}; border:1px solid {BORDER}; border-radius:3px;"
-                    f" padding:8px 14px; margin-bottom:4px; font-size:12px;'>"
-                    f"<a href='https://www.google.com/search?q={enc}' target='_blank'"
-                    f" style='color:{ACCENT};'>{q}</a></div>",
+                    f"<div style='background:{BG2};border:1px solid {BORDER};border-radius:3px;"
+                    f"padding:8px 14px;margin-bottom:4px;font-size:12px;'>"
+                    f"<a href='https://www.google.com/search?q={enc}' target='_blank' style='color:{ACCENT};'>{q}</a></div>",
                     unsafe_allow_html=True)
+
+    # Documentación oficial (from sources)
+    doc_sources = [s for s in sources if isinstance(s, dict) and s.get("tipo") in ("cnmv_doc", "carta_gestor", "web_gestora", "ficha_mensual")]
+    if doc_sources:
+        section_header("📄 Documentación oficial", subtitle=f"{len(doc_sources)}")
+        for src in doc_sources:
+            _render_resource({"titulo": src.get("titulo", src.get("url", "")[:50]), "url": src.get("url", ""),
+                              "fuente": src.get("tipo", ""), "fecha": src.get("fecha", ""), "tipo": "articulo", "descripcion": ""})
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 7 — ANÁLISIS EXTERNOS
 # ══════════════════════════════════════════════════════════════════════════════
 with tab7:
-    section_header("Análisis publicados por webs especializadas")
+    section_header("Análisis y fuentes externas")
 
+    # ── Morningstar Rating Block ─────────────────────────────────────────────
+    rating_m_val = kpis.get("rating_morningstar")
+    if rating_m_val:
+        stars_full = int(rating_m_val)
+        stars_display = "★" * stars_full + "☆" * (5 - stars_full)
+        ms_sources = [s for s in sources if isinstance(s, dict) and "morningstar" in s.get("tipo", "")]
+        ms_url = ms_sources[0].get("url", "") if ms_sources else ""
+        st.markdown(
+            f"<div style='background:{BG2};border:2px solid {YELLOW};border-radius:6px;padding:20px;margin-bottom:16px;text-align:center;'>"
+            f"<div style='font-size:28px;letter-spacing:4px;color:{YELLOW};'>{stars_display}</div>"
+            f"<div style='font-size:12px;color:{TEXT3};margin-top:6px;'>Morningstar Rating</div>"
+            f"{f'<a href=\"{ms_url}\" target=\"_blank\" style=\"font-size:10px;color:{ACCENT};\">Ver en Morningstar ↗</a>' if ms_url else ''}"
+            f"</div>", unsafe_allow_html=True)
+
+    # ── External analyses ────────────────────────────────────────────────────
     if isinstance(analisis_ext, dict):
         ext_list = analisis_ext.get("analisis_externos", [])
     elif isinstance(analisis_ext, list):
@@ -1385,53 +1795,51 @@ with tab7:
     else:
         ext_list = []
 
-    SEARCH_DOMAINS = ("google.com","duckduckgo.com","bing.com","yahoo.com")
-    ext_real = [it for it in ext_list
-                if not any(d in (it.get("url","") or "") for d in SEARCH_DOMAINS)]
+    SEARCH_DOMAINS = ("google.com", "duckduckgo.com", "bing.com", "yahoo.com")
+    ext_real = [it for it in ext_list if isinstance(it, dict)
+                and not any(sd in (it.get("url", "") or "") for sd in SEARCH_DOMAINS)]
+
+    # Add analysis-type sources from sources.json
+    for src in sources:
+        if isinstance(src, dict) and src.get("tipo") in ("morningstar", "rankia", "finect"):
+            if not any(e.get("url") == src.get("url") for e in ext_real):
+                ext_real.append({
+                    "fuente": src.get("tipo", ""),
+                    "titulo": src.get("titulo", ""),
+                    "url": src.get("url", ""),
+                    "fecha": src.get("fecha", ""),
+                    "resumen_generado": "",
+                })
 
     SOURCE_ICON = {
-        "saludfinanciera":"SF","astralis":"AS","morningstar":"MS",
-        "rankia":"RK","finect":"FN","investing":"IN","expansión":"EX",
+        "saludfinanciera": "SF", "astralis": "AS", "morningstar": "MS",
+        "rankia": "RK", "finect": "FN", "investing": "IN",
     }
 
     if ext_real:
+        section_header("Análisis publicados", subtitle=f"{len(ext_real)} fuentes")
         for item in ext_real:
-            fuente    = item.get("fuente","") or item.get("source","")
-            titulo    = item.get("titulo", item.get("title","Sin título"))
-            url       = item.get("url","#")
-            fecha     = item.get("fecha","")
-            resumen_e = (item.get("resumen_generado","") or
-                         item.get("resumen","") or item.get("snippet",""))
-            palabras  = item.get("palabras_estimadas","")
+            fuente = item.get("fuente", "") or ""
+            titulo = item.get("titulo", "") or "Sin título"
+            url = item.get("url", "#")
+            fecha = item.get("fecha", "")
+            resumen_e = (item.get("resumen_generado", "") or item.get("resumen", "") or "")
 
             tag = next((v for k, v in SOURCE_ICON.items() if k in fuente.lower()), "EXT")
-            date_html = (f"<span style='font-family:\"DM Mono\",monospace; font-size:9px;"
-                         f" color:{TEXT3};'>{fecha}</span>" if fecha else "")
-            words_html = (f"<span style='font-family:\"DM Mono\",monospace; font-size:9px;"
-                          f" color:{TEXT3};'> · ~{palabras}w</span>" if palabras else "")
-            res_html = (f"<div style='font-size:12.5px; color:{TEXT2}; line-height:1.75;"
-                        f" margin-top:10px; border-top:1px solid {BORDER}; padding-top:10px;'>"
-                        f"{resumen_e}</div>" if resumen_e else "")
+            meta_parts = [f for f in [fuente, fecha] if f]
+            meta = " · ".join(meta_parts)
+            res_html = f"<div style='font-size:12px;color:{TEXT2};line-height:1.7;margin-top:8px;border-top:1px solid {BORDER};padding-top:8px;'>{resumen_e}</div>" if resumen_e else ""
+
             st.markdown(f"""
-            <div style="background:{BG2}; border:1px solid {BORDER}; border-radius:4px;
-                        padding:16px 20px; margin-bottom:8px;">
-              <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:8px;">
-                <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em;
-                             color:{ACCENT}; background:#0d0f14; border:1px solid {BORDER};
-                             border-radius:3px; padding:2px 6px;">{tag}</span>
-                <span style="font-family:'DM Mono',monospace; font-size:9.5px;
-                             color:{TEXT3}; letter-spacing:0.04em;">{fuente}</span>
-                {date_html}{words_html}
+            <div style="background:{BG2};border:1px solid {BORDER};border-radius:4px;padding:14px 18px;margin-bottom:6px;">
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+                <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;color:{ACCENT};
+                             background:#0d0f14;border:1px solid {BORDER};border-radius:3px;padding:2px 6px;">{tag}</span>
+                <span style="font-size:10px;color:{TEXT3};">{meta}</span>
               </div>
-              <a href="{url}" target="_blank"
-                 style="font-size:14px; font-weight:600; color:{TEXT}; line-height:1.4;">
-                {titulo}
-              </a>
+              <a href="{url}" target="_blank" style="font-size:13.5px;font-weight:600;color:{TEXT};">{titulo}</a>
               {res_html}
             </div>""", unsafe_allow_html=True)
-
-    elif ext_list and not ext_real:
-        empty_state("Los resultados encontrados son URLs de búsqueda — re-ejecuta el pipeline para artículos directos.")
     else:
         nombre_fondo = d.get("nombre", "")
         SOURCES = [

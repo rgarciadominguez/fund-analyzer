@@ -280,9 +280,28 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
 
         log("ORCHESTRATOR", "INFO", f"Metadata: nombre={fund_name_hint[:40]}, gestora={gestora_hint[:30]}")
 
-        # ── Paso 2: Letters + Readings EN PARALELO ────────────────────────────
-        progress.update(main_task, description="Letters + Readings (paralelo)")
-        log("ORCHESTRATOR", "START", "Paso 2: Letters + Readings (paralelo)")
+        # ── Paso 2: Sources Agent (descubrimiento de fuentes) ─────────────────
+        progress.update(main_task, description="Sources Agent")
+        log("ORCHESTRATOR", "START", "Paso 2: Sources Agent")
+
+        try:
+            from agents.sources_agent import SourcesAgent
+            sources = SourcesAgent(
+                isin, fund_name=fund_name_hint,
+                gestora=gestora_hint, gestor_principal=gestores_hint[0] if gestores_hint else "",
+            )
+            results["sources"] = await sources.run()
+            n_sources = len(results["sources"].get("sources", []))
+            log("SOURCES", "OK", f"{n_sources} fuentes descubiertas")
+        except Exception as exc:
+            log("SOURCES", "ERROR", f"Sources falló: {exc}")
+            results["sources"] = {}
+
+        progress.advance(main_task)
+
+        # ── Paso 3: Letters + Readings + Manager Deep (EN PARALELO) ──────────
+        progress.update(main_task, description="Letters + Readings + Manager (paralelo)")
+        log("ORCHESTRATOR", "START", "Paso 3: Letters + Readings + Manager (paralelo)")
 
         async def _run_letters():
             try:
@@ -311,22 +330,50 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
                 log("READINGS", "ERROR", f"Readings falló: {exc}")
                 return {}
 
-        letters_result, readings_result = await asyncio.gather(
-            _run_letters(), _run_readings()
+        async def _run_manager_deep():
+            try:
+                from agents.manager_deep_agent import ManagerDeepAgent
+                manager = ManagerDeepAgent(
+                    isin, fund_name=fund_name_hint,
+                    gestora=gestora_hint, manager_names=gestores_hint or None,
+                )
+                return await manager.run()
+            except Exception as exc:
+                log("MANAGER", "ERROR", f"Manager Deep falló: {exc}")
+                return {}
+
+        letters_result, readings_result, manager_result = await asyncio.gather(
+            _run_letters(), _run_readings(), _run_manager_deep()
         )
         results["letters"] = letters_result
         results["readings"] = readings_result
+        results["manager"] = manager_result
         n_cartas = len(letters_result.get("cartas", []))
         n_lecturas = len(readings_result.get("lecturas", []))
         n_externos = len(readings_result.get("analisis_externos", []))
         log("ORCHESTRATOR", "OK",
-            f"Letters: {n_cartas} cartas | Readings: {n_lecturas} lecturas, {n_externos} externos")
+            f"Letters: {n_cartas} | Readings: {n_lecturas} lect + {n_externos} ext | Manager: {'OK' if manager_result.get('nombre') else 'parcial'}")
 
         progress.advance(main_task)
 
-        # ── Paso 3: Analyst Agent ─────────────────────────────────────────────
+        # ── Paso 3b: Letters Deep (segundo pase — necesita letters terminado) ─
+        progress.update(main_task, description="Letters Deep Agent")
+        log("ORCHESTRATOR", "START", "Paso 3b: Letters Deep Agent")
+
+        try:
+            from agents.letters_deep_agent import LettersDeepAgent
+            letters_deep = LettersDeepAgent(isin, fund_name=fund_name_hint)
+            results["letters_deep"] = await letters_deep.run()
+            n_deep = results["letters_deep"].get("deep_extracted", 0)
+            log("LETTERS_DEEP", "OK", f"{n_deep} cartas enriquecidas")
+        except Exception as exc:
+            log("LETTERS_DEEP", "ERROR", f"Letters Deep falló: {exc}")
+
+        progress.advance(main_task)
+
+        # ── Paso 4: Analyst Agent ─────────────────────────────────────────────
         progress.update(main_task, description="Analyst Agent (síntesis)")
-        log("ORCHESTRATOR", "START", "Paso 3: Analyst Agent")
+        log("ORCHESTRATOR", "START", "Paso 4: Analyst Agent")
 
         try:
             from agents.analyst_agent import AnalystAgent
