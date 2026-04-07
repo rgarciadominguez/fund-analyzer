@@ -276,13 +276,14 @@ class LettersAgent:
 
     async def _follow_pagination(self, start_url: str, max_pages: int = 10) -> list[dict]:
         """Follow ALL paginated pages of a listing (WordPress category, blog index, etc.)
-        EXHAUSTS all pages before returning. Detects pagination links in the page."""
+        EXHAUSTS all pages before returning.
+        When on a category page, ALL article links are relevant (no keyword filtering needed)."""
         all_links: list[dict] = []
         seen_urls: set[str] = set()
         visited_pages: set[str] = set()
 
-        # Detect base URL for pagination (remove /page/N/ if present)
         base_url = re.sub(r'/page/\d+/?$', '/', start_url)
+        is_category = "category" in base_url.lower()
 
         for page_num in range(1, max_pages + 1):
             if page_num == 1:
@@ -294,37 +295,57 @@ class LettersAgent:
                 continue
             visited_pages.add(url)
 
-            # Get ALL links from this page (both content links and navigation)
-            links = await find_links_by_keywords(url, LETTER_KEYWORDS + [str(y) for y in range(2014, 2027)])
-            if not links:
-                # Try without trailing slash
-                alt_url = url.rstrip("/")
-                if alt_url not in visited_pages:
-                    visited_pages.add(alt_url)
-                    links = await find_links_by_keywords(alt_url, LETTER_KEYWORDS + [str(y) for y in range(2014, 2027)])
-                if not links:
+            # Fetch raw HTML to extract ALL links (not just keyword-matched)
+            try:
+                from tools.http_client import get_with_headers as _fetch_html
+                html = await _fetch_html(url, _HEADERS_WEB)
+            except Exception:
+                alt_url = url.rstrip("/") if url.endswith("/") else url + "/"
+                try:
+                    html = await _fetch_html(alt_url, _HEADERS_WEB)
+                except Exception:
                     break
 
+            from urllib.parse import urljoin, urlparse
+            soup = BeautifulSoup(html, "html.parser")
+            base_domain = urlparse(base_url).netloc
+
             new_count = 0
-            for link in links:
-                link_url = link.get("url", "")
-                # Skip pagination links, category self-links
-                if "/page/" in link_url:
+            for a in soup.find_all("a", href=True):
+                href = a["href"]
+                full_url = urljoin(url, href)
+                parsed = urlparse(full_url)
+
+                # Only same domain
+                if parsed.netloc and parsed.netloc != base_domain:
                     continue
-                if link_url.rstrip("/") == base_url.rstrip("/"):
+                # Skip pagination, category self-links, anchors
+                if "/page/" in full_url or full_url.rstrip("/") == base_url.rstrip("/"):
                     continue
-                # Skip if just a number (pagination link text)
-                if link.get("titulo", "").strip().isdigit():
+                if full_url in seen_urls:
                     continue
-                if link_url not in seen_urls:
-                    seen_urls.add(link_url)
-                    all_links.append(link)
+
+                link_text = a.get_text(strip=True)
+                # Skip pure navigation (numbers, "Anterior", "Siguiente", category names)
+                if not link_text or link_text.strip().isdigit():
+                    continue
+                if link_text.lower() in ("anterior", "siguiente", "next", "prev"):
+                    continue
+                # Skip links to other categories
+                if "/category/" in full_url and full_url != base_url:
+                    continue
+
+                # On category pages: accept ALL article links (they belong to this category)
+                # On other pages: filter by keywords
+                if is_category or any(kw in (link_text + " " + full_url).lower() for kw in LETTER_KEYWORDS):
+                    seen_urls.add(full_url)
+                    all_links.append({"url": full_url, "titulo": link_text})
                     new_count += 1
 
             self._log("INFO", f"Paginación {page_num}: {new_count} nuevos links (total: {len(all_links)})")
 
             if new_count == 0:
-                break  # No new content links, pagination exhausted
+                break
 
         return all_links
 
@@ -446,7 +467,7 @@ class LettersAgent:
         """Download PDFs/HTML and extract raw text with pdfplumber."""
         cartas = []
 
-        for entry in urls[:30]:  # Max 30 cartas
+        for entry in urls[:50]:  # Max 50 cartas
             url = entry.get("url", "")
             titulo = entry.get("titulo", entry.get("title", ""))
 
