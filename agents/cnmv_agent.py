@@ -77,6 +77,15 @@ class CNMVAgent:
         self.xml_dir.mkdir(parents=True, exist_ok=True)
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
+    @staticmethod
+    def _normalize_period(periodo) -> str:
+        """Normaliza cualquier formato de periodo a YYYY.
+        '202506' → '2025', '2025-S2' → '2025', '2025-H2' → '2025', '2025' → '2025'."""
+        p = str(periodo)
+        if len(p) == 6 and p.isdigit():
+            return p[:4]
+        return p.split("-")[0]
+
     # ── Entry point ──────────────────────────────────────────────────────────
 
     async def run(self) -> dict:
@@ -153,7 +162,88 @@ class CNMVAgent:
                 console.log(f"[yellow]Paso C parcial: {exc}")
 
         self._save(result)
+        self._print_summary_table(result)
         return result
+
+    def _print_summary_table(self, result: dict) -> None:
+        """Print a Rich table summarizing all quantitative data extracted per year."""
+        from rich.table import Table
+        cuant = result.get("cuantitativo", {})
+
+        # Build year→data lookup from all series
+        years_data: dict[str, dict] = {}
+        for e in cuant.get("serie_aum", []):
+            yr = self._normalize_period(e.get("periodo", ""))
+            years_data.setdefault(yr, {})["aum"] = e.get("valor_meur")
+            years_data[yr]["vl"] = e.get("vl")
+        for e in cuant.get("serie_vl_base100", []):
+            yr = self._normalize_period(e.get("periodo", ""))
+            years_data.setdefault(yr, {})["base100"] = e.get("base100")
+        for e in cuant.get("serie_participes", []):
+            yr = self._normalize_period(e.get("periodo", ""))
+            years_data.setdefault(yr, {})["part"] = e.get("valor")
+        for e in cuant.get("serie_ter_por_clase", []):
+            yr = self._normalize_period(e.get("periodo", ""))
+            clases = e.get("clases", {})
+            years_data.setdefault(yr, {})["ter_a"] = clases.get("A")
+            years_data[yr]["ter_b"] = clases.get("B")
+        for e in cuant.get("serie_rotacion", []):
+            yr = self._normalize_period(e.get("periodo", ""))
+            years_data.setdefault(yr, {})["rot"] = e.get("rotacion_pct")
+        for e in cuant.get("serie_comisiones_por_clase", []):
+            yr = self._normalize_period(e.get("periodo", ""))
+            clases = e.get("clases", {})
+            years_data.setdefault(yr, {})["gest_a"] = clases.get("A")
+            years_data[yr]["gest_b"] = clases.get("B")
+        # Posiciones count — use num_posiciones if available, else len(top10)
+        pos_hist = result.get("posiciones", {}).get("historicas", [])
+        for h in pos_hist:
+            yr = self._normalize_period(h.get("periodo", ""))
+            years_data.setdefault(yr, {})["n_pos"] = h.get("num_posiciones") or len(h.get("top10", []))
+        pos_act = result.get("posiciones", {}).get("actuales", [])
+        if pos_act:
+            # Latest year
+            latest_yr = max(years_data.keys()) if years_data else ""
+            if latest_yr:
+                years_data[latest_yr]["n_pos"] = len(pos_act)
+
+        if not years_data:
+            return
+
+        table = Table(title=f"CNMV Agent — Resumen cuantitativo {self.isin}", show_lines=True)
+        table.add_column("Año", style="bold cyan", width=6)
+        table.add_column("AUM M€", justify="right", width=9)
+        table.add_column("VL", justify="right", width=7)
+        table.add_column("Base100", justify="right", width=8)
+        table.add_column("Part.", justify="right", width=6)
+        table.add_column("TER_A%", justify="right", width=7)
+        table.add_column("TER_B%", justify="right", width=7)
+        table.add_column("GestA%", justify="right", width=7)
+        table.add_column("GestB%", justify="right", width=7)
+        table.add_column("Rot%", justify="right", width=6)
+        table.add_column("Pos", justify="right", width=4)
+
+        def _fmt(v, dec=2):
+            if v is None:
+                return "—"
+            return f"{v:,.{dec}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+        for yr in sorted(years_data.keys()):
+            d = years_data[yr]
+            table.add_row(
+                yr,
+                _fmt(d.get("aum"), 1),
+                _fmt(d.get("vl"), 1),
+                _fmt(d.get("base100"), 1),
+                str(int(d["part"])) if d.get("part") else "—",
+                _fmt(d.get("ter_a"), 2),
+                _fmt(d.get("ter_b"), 2),
+                _fmt(d.get("gest_a"), 2),
+                _fmt(d.get("gest_b"), 2),
+                _fmt(d.get("rot"), 1),
+                str(d.get("n_pos", "")) or "—",
+            )
+        console.print(table)
 
     # ── Paso A ───────────────────────────────────────────────────────────────
 
@@ -447,21 +537,53 @@ class CNMVAgent:
                     "ter_pct", "volatilidad_pct", "clasificacion",
                     "perfil_riesgo", "divisa", "depositario",
                     "fecha_registro", "gestora_pdf",
-                    "estrategia", "tipo_activos", "gestores",
-                    "historia_fondo",
+                    "estrategia", "tipo_activos",
                     "rotacion_cartera_pct", "rotacion_cartera_anterior_pct",
                     "comisiones_gestion_por_clase",
+                    "benchmark_mencionado",
+                    "seccion_9_texto_completo", "seccion_10_perspectivas_texto",
                     "_periodo_pdf",
                 ]:
                     if parsed.get(campo) is not None:
                         merged[campo] = parsed[campo]
 
-            # Accumulate serie_aum_pdf from ALL PDFs (dedup by periodo)
+            # Detect gestora name change between reports
+            gestora_this = parsed.get("gestora_pdf", "")
+            if gestora_this:
+                prev_gestora = merged.get("_prev_gestora", "")
+                if prev_gestora and prev_gestora != gestora_this:
+                    merged.setdefault("hechos_relevantes", []).append({
+                        "periodo": str(year),
+                        "epigrafe": "Cambio de gestora/asesor",
+                        "detalle": f"Cambio de {prev_gestora} a {gestora_this}",
+                    })
+                merged["_prev_gestora"] = gestora_this
+
+            # Accumulate comisiones de gestión por clase from ALL PDFs
+            # If per-class data exists, use it. Otherwise, use coste_gestion_pct as "clase A" (pre-split)
+            comis_clase = parsed.get("comisiones_gestion_por_clase")
+            if not comis_clase and parsed.get("coste_gestion_pct"):
+                # Pre-class era: single class → assign to A (the class that continues post-split)
+                comis_clase = {"A": parsed["coste_gestion_pct"]}
+            if comis_clase:
+                existing_cls = merged.setdefault("serie_comisiones_por_clase", [])
+                yr_key = str(year)
+                if not any(e.get("periodo") == yr_key for e in existing_cls):
+                    existing_cls.append({
+                        "periodo": yr_key,
+                        "clases": comis_clase,
+                    })
+
+            # Accumulate serie_aum_pdf from ALL PDFs (dedup by periodo, VL enrichment)
             for entry in parsed.get("serie_aum_pdf", []):
                 periodo = entry.get("periodo", "")
                 existing = merged.setdefault("serie_aum_pdf", [])
-                if not any(e.get("periodo") == periodo for e in existing):
+                found = next((e for e in existing if e.get("periodo") == periodo), None)
+                if not found:
                     existing.append(entry)
+                elif entry.get("vl") and not found.get("vl"):
+                    # Enrich existing entry with VL from this PDF's own-year data
+                    found["vl"] = entry["vl"]
 
             # Accumulate serie_ter_pdf from ALL PDFs (dedup by periodo)
             for entry in parsed.get("serie_ter_pdf", []):
@@ -469,30 +591,47 @@ class CNMVAgent:
                 existing = merged.setdefault("serie_ter_pdf", [])
                 if not any(e.get("periodo") == periodo for e in existing):
                     existing.append(entry)
+            # Also add current year's TER from the scalar ter_pct (accumulated annual)
+            if parsed.get("ter_pct") is not None:
+                yr_key = str(year)
+                existing_ter = merged.setdefault("serie_ter_pdf", [])
+                found_ter = next((e for e in existing_ter if e.get("periodo") == yr_key), None)
+                if not found_ter:
+                    existing_ter.append({"periodo": yr_key, "ter_pct": parsed["ter_pct"]})
 
-            # Accumulate serie_participes_pdf from ALL PDFs (dedup by periodo)
+            # Accumulate TER per class from ALL PDFs
+            if parsed.get("ter_por_clase"):
+                existing_ter_cls = merged.setdefault("serie_ter_por_clase", [])
+                yr_key = str(year)
+                if not any(e.get("periodo") == yr_key for e in existing_ter_cls):
+                    existing_ter_cls.append({"periodo": yr_key, "clases": parsed["ter_por_clase"]})
+                # For pre-multi-class years: if only 1 class, assign to A
+            elif parsed.get("ter_pct") is not None:
+                existing_ter_cls = merged.setdefault("serie_ter_por_clase", [])
+                yr_key = str(year)
+                if not any(e.get("periodo") == yr_key for e in existing_ter_cls):
+                    existing_ter_cls.append({"periodo": yr_key, "clases": {"A": parsed["ter_pct"]}})
+
+            # Accumulate serie_participes_pdf — solo valor del año del report (no año-1)
             if parsed.get("num_participes") is not None:
                 periodo_key = str(year)
                 existing_part = merged.setdefault("serie_participes_pdf", [])
                 if not any(e.get("periodo") == periodo_key for e in existing_part):
                     existing_part.append({"periodo": periodo_key, "valor": parsed["num_participes"]})
-            if parsed.get("num_participes_anterior") is not None:
-                periodo_key = str(year - 1)
-                existing_part = merged.setdefault("serie_participes_pdf", [])
-                if not any(e.get("periodo") == periodo_key for e in existing_part):
-                    existing_part.append({"periodo": periodo_key, "valor": parsed["num_participes_anterior"]})
 
-            # Accumulate serie_rotacion_pdf from ALL PDFs (dedup by periodo)
+            # Accumulate serie_rotacion_pdf — solo valor del año del report (no año-1)
             if parsed.get("rotacion_cartera_pct") is not None:
                 periodo_key = str(year)
                 existing_rot = merged.setdefault("serie_rotacion_pdf", [])
                 if not any(e.get("periodo") == periodo_key for e in existing_rot):
                     existing_rot.append({"periodo": periodo_key, "rotacion_pct": parsed["rotacion_cartera_pct"]})
-            if parsed.get("rotacion_cartera_anterior_pct") is not None:
-                periodo_key = str(year - 1)
-                existing_rot = merged.setdefault("serie_rotacion_pdf", [])
-                if not any(e.get("periodo") == periodo_key for e in existing_rot):
-                    existing_rot.append({"periodo": periodo_key, "rotacion_pct": parsed["rotacion_cartera_anterior_pct"]})
+
+            # Accumulate clases_info from ALL PDFs
+            if parsed.get("clases_info"):
+                existing_ci = merged.setdefault("serie_clases_info", [])
+                yr_key = str(year)
+                if not any(e.get("periodo") == yr_key for e in existing_ci):
+                    existing_ci.append({"periodo": yr_key, **parsed["clases_info"]})
 
             # Accumulate hechos_relevantes from all PDFs
             if parsed.get("hechos_relevantes"):
@@ -511,11 +650,14 @@ class CNMVAgent:
             if i == 0 and posiciones:
                 merged["posiciones_actuales"] = posiciones
 
-            # Historical positions: top10 per period
+            # Historical positions: ALL positions per period (sorted by weight)
             if posiciones:
+                sorted_pos = sorted(posiciones, key=lambda p: p.get("peso_pct", 0), reverse=True)
                 merged["posiciones_historicas"].append({
-                    "periodo": f"{year}-H2",
-                    "top10": posiciones[:10],
+                    "periodo": str(year),
+                    "num_posiciones": len(posiciones),
+                    "top10": sorted_pos[:10],
+                    "todas": sorted_pos,
                 })
 
             # Mix activos per period
@@ -526,20 +668,20 @@ class CNMVAgent:
                     **mix,
                 })
 
-            # Análisis de consistencia
-            cual_gestor = parsed.get("cualitativo_gestor", {})
-            if cual_gestor:
+            # Análisis de consistencia — raw text per year for analyst_agent
+            has_text = bool(parsed.get("seccion_9_texto_completo") or parsed.get("seccion_10_perspectivas_texto"))
+            if has_text:
                 periodo_entry = {
-                    "periodo": f"{year}-H2",
-                    "contexto_mercado": cual_gestor.get("contexto_mercado", ""),
-                    "tesis_gestora": cual_gestor.get("tesis_gestora", ""),
-                    "decisiones_tomadas": cual_gestor.get("decisiones_tomadas", ""),
-                    "resultado_real": "",
-                    "consistencia_score": None,
-                    "notas": "",
+                    "periodo": str(year),
+                    "seccion_1_texto": parsed.get("seccion_1_politica_texto") or "",
+                    "seccion_9_texto": parsed.get("seccion_9_texto_completo") or "",
+                    "seccion_10_texto": parsed.get("seccion_10_perspectivas_texto") or "",
+                    "seccion_4_5_texto": parsed.get("seccion_4_5_hechos_texto") or "",
                 }
                 merged["analisis_periodos"].append(periodo_entry)
 
+        # Clean internal keys
+        merged.pop("_prev_gestora", None)
         return merged
 
     async def _get_report_links(self, nif: str, start_year: int) -> list[dict]:
@@ -790,83 +932,19 @@ class CNMVAgent:
         result["posiciones"] = pos
         result["mix_activos"] = mix
 
-        # Section 9: Claude for qualitative market vision + decisions
-        sec9 = self._extract_seccion_9(full_text)
-        if sec9.strip():
-            result["cualitativo_gestor"] = await self._parse_seccion_cualitativo(sec9, year)
+        # ── Raw text extraction for analyst_agent (NO API calls) ─────────────
+        # Section 9: full text (visión gestora, decisiones, inversiones concretas)
+        result["seccion_9_texto_completo"] = self._extract_seccion_9_full(full_text)
 
-        # Section 10 perspectivas: Claude for tesis_gestora (visión actual del gestor)
-        sec10 = self._extract_seccion_perspectivas(full_text)
-        if sec10.strip():
-            gestor = result.get("cualitativo_gestor", {})
-            if not gestor.get("tesis_gestora"):
-                schema_persp = {
-                    "tesis_gestora": (
-                        "Resumen en 100-150 palabras de la visión actual del gestor sobre el mercado "
-                        "y el posicionamiento del fondo. Extraído EXCLUSIVAMENTE de la sección 10 "
-                        "'PERSPECTIVAS DE MERCADO Y ACTUACIÓN PREVISIBLE DEL FONDO'. "
-                        "Incluir: visión macro del gestor, sectores/activos favorecidos, "
-                        "riesgos identificados y cómo se posiciona el fondo. "
-                        "No inventar, resumir fielmente el texto de la sección."
-                    )
-                }
-                try:
-                    persp = extract_structured_data(
-                        sec10[:3000], schema_persp,
-                        context=(
-                            f"Sección 10 informe semestral CNMV {year}. Fondo {self.isin}. "
-                            f"Perspectivas de mercado y actuación previsible."
-                        ),
-                    )
-                    if isinstance(persp, dict):
-                        result.setdefault("cualitativo_gestor", {})["tesis_gestora"] = persp.get("tesis_gestora", "")
-                except Exception:
-                    pass
+        # Section 10: perspectivas de mercado
+        sec10_persp = self._extract_seccion_perspectivas(full_text)
+        if sec10_persp:
+            result["seccion_10_perspectivas_texto"] = sec10_persp
 
-        # Section 1 estrategia + cover page for gestores
+        # Section 1: política de inversión (raw text for analyst)
         sec1 = self._extract_seccion_1(full_text)
-        # Include cover page (first 2 pages ~3000 chars) for manager names
-        cover_text = extract_page_range(str(pdf_path), 0, 2) if pdf_path else ""
-        # Include section 8 if present (fund management info)
-        sec8_m = re.search(r'8\.\s*Informaci[oó]n\s+sobre\s+(?:la\s+)?gesti[oó]n', full_text, re.IGNORECASE)
-        sec8_text = ""
-        if sec8_m:
-            sec8_end = re.search(r'\n\s*9\.', full_text[sec8_m.start():])
-            sec8_text = full_text[sec8_m.start(): sec8_m.start() + (sec8_end.start() if sec8_end else 2000)]
-
-        combined_text = f"=== PORTADA ===\n{cover_text[:2000]}\n\n=== POLÍTICA DE INVERSIÓN ===\n{sec1}\n\n=== GESTIÓN ===\n{sec8_text}"
-
-        if sec1.strip() or cover_text.strip():
-            try:
-                schema_base = {
-                    "estrategia": "política de inversión del fondo en 2-3 frases concretas",
-                    "tipo_activos": "tipos de activos en los que invierte (renta variable, renta fija, mixto...)",
-                    "gestores": [
-                        {
-                            "nombre": "nombre completo de la persona física que gestiona o asesora el fondo",
-                            "cargo": "cargo: gestor, asesor, director de inversiones, portfolio manager",
-                            "background": "experiencia profesional si se menciona",
-                        }
-                    ],
-                }
-                base = extract_structured_data(
-                    combined_text[:5000], schema_base,
-                    context=(
-                        f"Informe semestral CNMV {year}, fondo {self.isin}. "
-                        "Buscar nombres de gestores en la PORTADA (pueden aparecer como firmantes, "
-                        "responsables o asesores), en la sección de política de inversión, "
-                        "o en la sección 8 de información sobre gestión. "
-                        "Los gestores son PERSONAS FÍSICAS, no sociedades gestoras."
-                    ),
-                )
-                if isinstance(base, dict):
-                    result["estrategia"] = base.get("estrategia", "")
-                    result["tipo_activos"] = base.get("tipo_activos", "")
-                    gestores = base.get("gestores", [])
-                    # Filter out null/empty entries
-                    result["gestores"] = [g for g in gestores if g and g.get("nombre")]
-            except Exception as exc:
-                console.log(f"[yellow]Error Claude sección 1: {exc}")
+        if sec1.strip():
+            result["seccion_1_politica_texto"] = sec1
 
         # Save to cache
         cache[key] = {
@@ -957,6 +1035,17 @@ class CNMVAgent:
         end = start + end_m.start() if end_m else start + 3000
         return text[start:end]
 
+    def _extract_seccion_9_full(self, text: str) -> str:
+        """Extract section 9 COMPLETE text (up to 20K chars) for analyst_agent."""
+        m = re.search(r'9\.\s*Anexo\s+explicativo\s+del\s+informe', text, re.IGNORECASE)
+        if not m:
+            m = re.search(r'Visi[oó]n\s+de\s+la\s+gestora', text, re.IGNORECASE)
+        if not m:
+            return ""
+        start = m.start()
+        end_m = re.search(r'10\.\s+(?:PERSPECTIVAS|Detalle)', text[start:], re.IGNORECASE)
+        return text[start: start + end_m.start() if end_m else start + 20000]
+
     # ── Section parsers (return structured dicts) ─────────────────────────────
 
     def _parse_seccion_politica(self, text: str) -> dict:
@@ -987,20 +1076,44 @@ class CNMVAgent:
         result: dict = {}
 
         # ── Partícipes ────────────────────────────────────────────────────────
-        # Two possible formats for the partícipes table:
-        # Format A: "CLASE A  455  460  EUR  0,00  ..."  (participantes before currency)
-        # Format B: "CLASE A EUR 455 460 ..."  (currency before participantes - unlikely for this table)
-        # The partícipes table typically has small integers followed by EUR
-        class_parts = re.findall(
-            r'CLASE\s+\w+\s+([\d.]+)\s+([\d.]+)\s+(?:EUR|USD|GBP)',
-            text, re.IGNORECASE,
-        )
-        if class_parts:
-            try:
-                result["num_participes"] = sum(int(p[0].replace(".", "")) for p in class_parts)
-                result["num_participes_anterior"] = sum(int(p[1].replace(".", "")) for p in class_parts)
-            except ValueError:
-                pass
+        # Table 2.1: rows with CLASE X ... numbers ... EUR
+        # Partícipes = last 2 integers (no decimal comma, <100000) before EUR
+        # This handles multi-line pdfplumber output where participaciones (decimals) break across lines
+        participes_section = ""
+        datos_m = re.search(r'2\.1\.?\s*a?\)?\s*Datos\s+generales|N.*de\s+part[ií]cipes', text, re.IGNORECASE)
+        patrim_m = re.search(r'Patrimonio\s*\(en\s*miles\)', text, re.IGNORECASE)
+        if datos_m and patrim_m and patrim_m.start() > datos_m.start():
+            participes_section = text[datos_m.start(): patrim_m.start()]
+        elif datos_m:
+            participes_section = text[datos_m.start(): datos_m.start() + 2000]
+
+        total_part_act = 0
+        total_part_ant = 0
+        found_any = False
+
+        for line in participes_section.split("\n"):
+            m_cls = re.match(r'\s*CLASE\s+\w+\s+(.+?)\s+(?:EUR|USD|GBP)', line, re.IGNORECASE)
+            if not m_cls:
+                continue
+            nums_str = m_cls.group(1)
+            tokens = re.findall(r'[\d.,]+', nums_str)
+            # Find last 2 integer tokens (no comma = not decimal) before EUR
+            ints_found: list[int] = []
+            for t in reversed(tokens):
+                if "," not in t:  # integer (may have dots as thousands separator)
+                    val = int(t.replace(".", ""))
+                    if val < 100000:
+                        ints_found.insert(0, val)
+                if len(ints_found) == 2:
+                    break
+            if len(ints_found) == 2:
+                total_part_act += ints_found[0]
+                total_part_ant += ints_found[1]
+                found_any = True
+
+        if found_any:
+            result["num_participes"] = total_part_act
+            result["num_participes_anterior"] = total_part_ant
 
         if "num_participes" not in result:
             # Fallback: aggregate row "Nº de Partícipes  5.176  4.902"
@@ -1008,6 +1121,29 @@ class CNMVAgent:
             if m:
                 result["num_participes"] = int(m.group(1).replace(".", ""))
                 result["num_participes_anterior"] = int(m.group(2).replace(".", ""))
+
+        # ── Clases info (inversión mínima, dividendos) ───────────────────────
+        # Table rows: "CLASE A  455  460  EUR  100.000  0,00  0,00  0,80  NO"
+        # or:         "CLASE A  455  460  EUR  0,00  0,00  0,40  0,80  NO"
+        clases_info: dict = {}
+        # Extended regex: CLASE X  part_actual  part_anterior  DIVISA  [nums...]  SI|NO
+        clase_rows = re.findall(
+            r'CLASE\s+(\w+)\s+[\d.]+\s+[\d.]+\s+(EUR|USD|GBP)\s+([\d.,]+)(?:\s+[\d.,]+)*\s+(SI|NO)\b',
+            text, re.IGNORECASE,
+        )
+        for cls_name, divisa, first_num, dividendos in clase_rows:
+            inv_min_raw = first_num.replace(".", "").replace(",", ".")
+            try:
+                inv_min = float(inv_min_raw)
+            except ValueError:
+                inv_min = 0
+            clases_info[cls_name] = {
+                "divisa": divisa,
+                "inversion_minima": inv_min if inv_min >= 1 else 0,
+                "dividendos": dividendos.upper() == "SI",
+            }
+        if clases_info:
+            result["clases_info"] = clases_info
 
         # ── AUM (Patrimonio) ──────────────────────────────────────────────────
         # Two table formats exist in CNMV PDFs:
@@ -1034,14 +1170,14 @@ class CNMVAgent:
             for hm in re.finditer(r'(?:Diciembre|Junio)\s+(20\d{2})', pat_block[:300]):
                 header_years.append(hm.group(1))
 
-            # FORMAT B: CLASE X EUR val1 val2 val3 val4
+            # FORMAT B: CLASE X EUR val1 [val2] [val3] [val4] — all optional except val1
             class_rows_b = re.findall(
-                r'CLASE\s+\w+\s+(?:EUR|USD|GBP|CHF)\s+([\d.]+)\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
+                r'CLASE\s+\w+\s+(?:EUR|USD|GBP|CHF)\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
                 pat_block, re.IGNORECASE,
             )
-            # FORMAT A: CLASE X val1 val2 val3 val4 (no currency)
+            # FORMAT A: CLASE X val1 [val2] [val3] [val4] (no currency)
             class_rows_a = re.findall(
-                r'CLASE\s+\w+\s+([\d.]+)\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
+                r'CLASE\s+\w+\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
                 pat_block, re.IGNORECASE,
             ) if not class_rows_b else []
 
@@ -1102,7 +1238,7 @@ class CNMVAgent:
                 vl_current = float(vl_rows[0][0].replace(",", "."))
                 for e in serie_aum:
                     if e["periodo"] == str(year):
-                        e["vl"] = vl_current
+                        e["vl"] = round(vl_current, 1)
                         break
 
         if serie_aum:
@@ -1111,30 +1247,34 @@ class CNMVAgent:
             )
 
         # ── Comisión de gestión — por clase ──────────────────────────────────
-        # The table has a complex header; rows look like:
-        # "CLASE A  0,40  0,00  0,40  0,80  0,04  0,08  0,04  0,08"
-        # We need the 4th number (acumulada gestión s/patrimonio)
-        # The table appears AFTER "Comisiones aplicadas en el período" header
+        # Table format (6 numbers per row, may include negatives):
+        # CLASE I  0,33  -0,14  0,19  0,70  0,18  0,88  patrimonio  0,03  0,08
+        #          ^per_spat ^per_sres ^per_total ^acum_spat ^acum_sres ^acum_total
+        # We want acum_spat (position 4) = annual management fee on assets
         comis_section = ""
         comis_m = re.search(r'Comisiones\s+aplicadas\s+en\s+el\s+per', text, re.IGNORECASE)
         if comis_m:
-            comis_section = text[comis_m.start(): comis_m.start() + 1000]
+            comis_section = text[comis_m.start(): comis_m.start() + 2000]
         else:
-            comis_section = text  # fallback to full text
+            comis_section = text
 
+        # Flexible regex: captures clase name + 6 numbers (allowing negatives)
         class_comisiones = re.findall(
-            r'CLASE\s+(\w+)\s+([\d,]+)\s+[\d,]+\s+[\d,]+\s+([\d,]+)',
+            r'CLASE\s+(\w+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)',
             comis_section, re.IGNORECASE,
         )
-        # Reformat: group(1)=clase, group(2)=periodo%, group(3)=acumulada%
-        class_comisiones = [(m[0], m[2]) for m in class_comisiones]  # (clase, acumulada)
         if class_comisiones:
-            por_clase = {cls: float(val.replace(",", ".")) for cls, val in class_comisiones}
-            result["comisiones_gestion_por_clase"] = por_clase
-            # coste_gestion_pct = mínima (clase más barata, generalmente A)
-            result["coste_gestion_pct"] = min(por_clase.values())
+            por_clase = {}
+            for m_row in class_comisiones:
+                cls_name = m_row[0]
+                acum_spat = float(m_row[4].replace(",", "."))  # position 4 = Acumulada s/patrimonio
+                if acum_spat >= 0:
+                    por_clase[cls_name] = acum_spat
+            if por_clase:
+                result["comisiones_gestion_por_clase"] = por_clase
+                result["coste_gestion_pct"] = min(por_clase.values())
         else:
-            # Fallback: aggregate row
+            # Fallback: aggregate row (single-class funds)
             m = re.search(
                 r'Comisi[oó]n\s+de\s+gesti[oó]n\s+'
                 r'([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)',
@@ -1161,44 +1301,58 @@ class CNMVAgent:
         return result
 
     def _parse_seccion_comportamiento(self, text: str, year: int = 0) -> dict:
-        """Parse section 2.2: TER (multi-year), volatility, índice rotación cartera."""
+        """Parse section 2.2: TER (multi-year per class), volatility, índice rotación cartera."""
         result: dict = {}
 
-        # ── TER (Ratio total de gastos) — extraer serie histórica ────────────
-        # The table row looks like:
-        # "Ratio total de gastos  0,90  0,23  0,23  0,22  0,22  0,91  0,92  0,92  0,94"
-        # Columns: acum_actual, trim1, trim2, trim3, trim4, año_anterior, ante_anterior...
-        # Annual columns (years) start at position 5 onwards depending on layout.
-        # We also look for explicit year labels: "2024  0,91"
-        # TER row: "Ratio total de gastos|0,90 0,23 0,23 0,22 0,22 0,91 0,92 0,92 0,94"
-        # Format: acum_actual trim1 trim2 trim3 trim4 año_t-1 año_t-2 año_t-3 año_t-5
-        # (9 numbers total for semi-annual; fewer for older reports)
-        ter_m = re.search(r'Ratio\s+total\s+de\s+gastos', text, re.IGNORECASE)
+        # ── TER (Ratio total de gastos) — per class extraction ───────────────
+        # PDFs with 1 class: 1 table "Ratio total de gastos"
+        # PDFs with 2+ classes: 1 table under "A) Individual Clase A", another under "Clase B"
+        # Format: acum_actual trim1 trim2 trim3 trim4 año-1 año-2 año-3 [año-5]
+        # nums[0] = TER of THIS year. nums[5+] = historical annual TER.
+        ter_matches = list(re.finditer(r'Ratio\s+total\s+de\s+gastos', text, re.IGNORECASE))
+
         serie_ter: list[dict] = []
-        if ter_m:
-            ter_block = text[ter_m.start(): ter_m.start() + 400]
-            nums = re.findall(r'[\d,]+', ter_block)
-            # Filter: only numbers that look like TER percentages (0.01 – 5.0)
-            ter_nums = []
-            for n in nums:
+        ter_por_clase: dict = {}
+
+        def _extract_ter_nums(start_pos: int) -> list[float]:
+            """Extract TER-like numbers (0.01-5.0) from text after a match position."""
+            block = text[start_pos: start_pos + 400]
+            nums = []
+            for n in re.findall(r'[\d,]+', block):
                 try:
                     v = float(n.replace(",", "."))
                     if 0.01 <= v <= 5.0:
-                        ter_nums.append(v)
+                        nums.append(v)
                 except ValueError:
                     pass
-            if ter_nums:
-                result["ter_pct"] = ter_nums[0]  # acumulado actual
-                # Annual values: positions 5,6,7,8 in the full sequence
-                # (positions 1-4 are quarterly breakdowns)
-                annual_vals = ter_nums[5:9] if len(ter_nums) >= 6 else ter_nums[1:]
+            return nums
+
+        for idx, ter_m in enumerate(ter_matches):
+            ter_nums = _extract_ter_nums(ter_m.start())
+            if not ter_nums:
+                continue
+
+            # Determine class: first table = clase A (or única), second = clase B
+            clase = "A" if idx == 0 else chr(ord("A") + idx)
+            ter_actual = ter_nums[0]
+            ter_por_clase[clase] = ter_actual
+
+            # Build historical serie from first table only (clase A / única)
+            if idx == 0:
+                result["ter_pct"] = ter_actual
+                serie_ter.append({"periodo": str(year), "ter_pct": ter_actual})
+                # Historical: positions 5+ (after 4 quarterly values)
+                annual_start = 5 if len(ter_nums) >= 6 else 1
+                annual_vals = ter_nums[annual_start:annual_start + 4]
                 for i, v in enumerate(annual_vals):
-                    yr = year - i if year else 0
-                    if yr > 2010:
+                    yr = year - (i + 1) if year else 0
+                    if yr > 2010 and v > 0:
                         serie_ter.append({"periodo": str(yr), "ter_pct": round(v, 4)})
 
         if serie_ter:
             result["serie_ter_pdf"] = sorted(serie_ter, key=lambda x: x["periodo"], reverse=True)
+        if ter_por_clase:
+            result["ter_por_clase"] = ter_por_clase
 
         # ── Índice de rotación de cartera ─────────────────────────────────────
         # Row: "Índice de rotación de la cartera  0,09  0,34  0,39  0,27"
@@ -1215,12 +1369,12 @@ class CNMVAgent:
                 text, re.IGNORECASE,
             )
             if m:
-                result["rotacion_cartera_pct"] = float(m.group(1).replace(",", "."))
-                result["rotacion_cartera_anterior_pct"] = float(m.group(2).replace(",", "."))
+                result["rotacion_cartera_pct"] = round(float(m.group(1).replace(",", ".")) * 100, 1)
+                result["rotacion_cartera_anterior_pct"] = round(float(m.group(2).replace(",", ".")) * 100, 1)
         else:
             # 4-number format: take positions 3 and 4 (annual figures)
-            result["rotacion_cartera_pct"] = float(m.group(2).replace(",", "."))
-            result["rotacion_cartera_anterior_pct"] = float(m.group(3).replace(",", "."))
+            result["rotacion_cartera_pct"] = round(float(m.group(2).replace(",", ".")) * 100, 1)
+            result["rotacion_cartera_anterior_pct"] = round(float(m.group(3).replace(",", ".")) * 100, 1)
 
         # ── Volatilidad ───────────────────────────────────────────────────────
         m = re.search(r'Valor\s+liquidativo\s+([\d,]+)', text, re.IGNORECASE)
@@ -1295,14 +1449,23 @@ class CNMVAgent:
                     lines.append(line)
             detalle = " ".join(lines).strip()
 
-        # Only add if meaningful content found
+        # Always add hechos if any SI found or any detail text
         if epigrafe_si or (detalle and len(detalle) > 30):
             periodo_str = str(year) if year else ""
             result["hechos_relevantes"] = [{
                 "periodo": periodo_str,
                 "epigrafe": "; ".join(epigrafe_si) if epigrafe_si else "",
-                "detalle": detalle[:1500],
+                "detalle": detalle,  # sin límite de caracteres
             }]
+
+        # Also save raw text of sections 4+5 for analyst_agent
+        sec4_raw = ""
+        sec4_m2 = re.search(r'4\.\s*Hechos\s+relevantes', text, re.IGNORECASE)
+        if sec4_m2:
+            sec6_m = re.search(r'\n\s*6\.', text[sec4_m2.start():], re.IGNORECASE)
+            sec4_raw = text[sec4_m2.start(): sec4_m2.start() + (sec6_m.start() if sec6_m else 5000)]
+        if sec4_raw:
+            result["seccion_4_5_hechos_texto"] = sec4_raw
 
         return result
 
@@ -1316,14 +1479,17 @@ class CNMVAgent:
         posiciones: list = []
         mix: dict = {}
 
-        # Locate "10. Detalle de inversiones financieras"
-        m_sec = re.search(
-            r'10\.\s*Detalle\s+de\s+inversiones\s+financieras',
+        # Locate "10. Detalle de inversiones financieras" — use LAST match
+        # (first match may be section 3.1 summary; the detailed table is always near the end)
+        all_detalle = list(re.finditer(
+            r'10\.?\s*Detalle\s+de\s+inves?iones\s+financieras',
             text, re.IGNORECASE,
-        )
+        ))
+        m_sec = all_detalle[-1] if all_detalle else None
         if not m_sec:
-            # Fallback: section 3.1
-            m_sec = re.search(r'3\.1\s*Inversiones\s+financieras', text, re.IGNORECASE)
+            # Fallback: section 3.1 (last match)
+            all_31 = list(re.finditer(r'3\.1\s*Inversiones\s+financieras', text, re.IGNORECASE))
+            m_sec = all_31[-1] if all_31 else None
         if not m_sec:
             return posiciones, mix
 
@@ -1335,69 +1501,124 @@ class CNMVAgent:
         if end_m:
             sec10 = sec10[:end_m.start()]
         else:
-            # Find grand total row (not the INTERIOR / EXTERIOR subtotals)
+            # Find grand total row — must NOT contain INTERIOR or EXTERIOR
             grand_m = re.search(
-                r'TOTAL\s+INVERSIONES\s+FINANCIERAS\s+[\d.,]+\s+[\d,]+[^\n]*\n',
+                r'TOTAL\s+INVERSIONES\s+FINANCIERAS\s+(?!INTERIOR|EXTERIOR)[\d.,]+\s+[\d,]+[^\n]*\n',
                 sec10, re.IGNORECASE,
             )
             if grand_m:
                 # Keep through end of that line then stop (max 200 extra chars for liquidez row)
                 sec10 = sec10[:grand_m.end() + 200]
 
-        # Position pattern:
-        # ISIN - TYPE|name_fields  CURRENCY  value_miles  pct%
-        pat = re.compile(
+        # ── Asset type determination ─────────────────────────────────────────
+        # For pattern A (2019+): tipo comes directly from the line (BONO, ACCIONES, IIC, etc.)
+        # For pattern B (pre-2019): tipo inferred from nearest TOTAL marker (RF→BONO, RV→ACCIONES)
+        # Geographic origin (España/Internacional) is inferred from ISIN prefix (ES=España)
+
+        def _get_tipo_from_position(char_pos: int) -> str:
+            """For pattern B: infer asset type from the CLOSEST NEXT TOTAL marker."""
+            search_text = sec10[char_pos:]
+            candidates = []
+            for pattern, tipo in [
+                (r'TOTAL\s+(?:RENTA\s+FIJA|RF\b|ADQUISI)', "BONO"),
+                (r'TOTAL\s+(?:RENTA\s+VARIABLE|RV\b)', "ACCIONES"),
+                (r'TOTAL\s+IIC\b', "IIC"),
+                (r'TOTAL\s+DEP[OÓ]SITOS', "DEPOSITO"),
+            ]:
+                m_t = re.search(pattern, search_text, re.IGNORECASE)
+                if m_t:
+                    candidates.append((m_t.start(), tipo))
+            if candidates:
+                _, closest_tipo = min(candidates, key=lambda x: x[0])
+                return closest_tipo
+            return "ACCIONES"
+
+        # Pattern A (2019+): ISIN - TYPE|name CURRENCY val pct
+        pat_a = re.compile(
             r'\b([A-Z]{2}[A-Z0-9]{10})\s*-\s*([A-Z][A-Z ]*?)\|(.+?)\s+'
-            r'(EUR|USD|GBP|CHF|SEK|CAD|AUD|NOK|DKK|JPY|CHF)\s+'
+            r'(EUR|USD|GBP|CHF|SEK|CAD|AUD|NOK|DKK|JPY)\s+'
+            r'([\d.]+)\s+([\d,]+)',
+            re.MULTILINE,
+        )
+        # Pattern B (pre-2019): ISIN - NAME CURRENCY val pct [val_ant pct_ant]
+        pat_b = re.compile(
+            r'\b([A-Z]{2}[A-Z0-9]{10})\s*-\s*(.+?)\s+'
+            r'(EUR|USD|GBP|CHF|SEK|CAD|AUD|NOK|DKK|JPY)\s+'
             r'([\d.]+)\s+([\d,]+)',
             re.MULTILINE,
         )
 
-        for m in pat.finditer(sec10):
-            isin_pos = m.group(1)
-            tipo = m.group(2).strip()
-            rest = m.group(3).strip()
-            divisa = m.group(4)
+        matches_a = list(pat_a.finditer(sec10))
+        if matches_a:
+            # Use pattern A (has TYPE|name split)
+            for m in matches_a:
+                isin_pos = m.group(1)
+                tipo_raw = m.group(2).strip()  # BONO, ACCIONES, etc.
+                rest = m.group(3).strip()
+                divisa = m.group(4)
+                valor_miles_str = m.group(5).replace(".", "")
+                try:
+                    valor_miles = int(valor_miles_str)
+                except ValueError:
+                    continue
+                if valor_miles == 0:
+                    continue
 
-            # Skip zero-value current positions
-            valor_miles_str = m.group(5).replace(".", "")
-            try:
-                valor_miles = int(valor_miles_str)
-            except ValueError:
-                continue
-            if valor_miles == 0:
-                continue
+                peso = float(m.group(6).replace(",", "."))
 
-            peso = float(m.group(6).replace(",", "."))
+                # Parse name, coupon, maturity from rest
+                parts = [p.strip() for p in rest.split("|")]
+                nombre = parts[0]
+                cupon = None
+                vencimiento = None
+                for part in parts[1:]:
+                    if re.match(r'\d{4}-\d{2}-\d{2}', part):
+                        vencimiento = part
+                    elif re.match(r'^[\d,]+$', part):
+                        try:
+                            cupon = float(part.replace(",", "."))
+                        except ValueError:
+                            pass
 
-            # Parse name, coupon, maturity from rest
-            parts = [p.strip() for p in rest.split("|")]
-            nombre = parts[0]
-            cupon = None
-            vencimiento = None
-            for part in parts[1:]:
-                if re.match(r'\d{4}-\d{2}-\d{2}', part):
-                    vencimiento = part
-                elif re.match(r'^[\d,]+$', part):
-                    try:
-                        cupon = float(part.replace(",", "."))
-                    except ValueError:
-                        pass
+                entry: dict = {
+                    "nombre": nombre,
+                    "ticker": isin_pos,
+                    "tipo": tipo_raw,
+                    "pais": "España" if isin_pos.startswith("ES") else "Internacional",
+                    "divisa": divisa,
+                    "valor_mercado_miles": valor_miles,
+                    "peso_pct": peso,
+                }
+                if cupon is not None:
+                    entry["cupon"] = cupon
+                if vencimiento:
+                    entry["vencimiento"] = vencimiento
 
-            entry: dict = {
-                "nombre": nombre,
-                "ticker": isin_pos,
-                "tipo": tipo,
-                "divisa": divisa,
-                "valor_mercado_miles": valor_miles,
-                "peso_pct": peso,
-            }
-            if cupon is not None:
-                entry["cupon"] = cupon
-            if vencimiento:
-                entry["vencimiento"] = vencimiento
-
-            posiciones.append(entry)
+                posiciones.append(entry)
+        else:
+            # Pattern B fallback (pre-2019): ISIN - NAME CURRENCY val pct
+            for m in pat_b.finditer(sec10):
+                isin_pos = m.group(1)
+                nombre = m.group(2).strip()
+                divisa = m.group(3)
+                valor_miles_str = m.group(4).replace(".", "")
+                try:
+                    valor_miles = int(valor_miles_str)
+                except ValueError:
+                    continue
+                if valor_miles == 0:
+                    continue
+                peso = float(m.group(5).replace(",", "."))
+                tipo = _get_tipo_from_position(m.start())
+                posiciones.append({
+                    "nombre": nombre,
+                    "ticker": isin_pos,
+                    "tipo": tipo,
+                    "pais": "España" if isin_pos.startswith("ES") else "Internacional",
+                    "divisa": divisa,
+                    "valor_mercado_miles": valor_miles,
+                    "peso_pct": peso,
+                })
 
         # Mix activos — detect whether report has one block or two (INTERIOR + EXTERIOR).
         # Two-block reports: sum both blocks (INTERIOR + EXTERIOR = grand total).
@@ -1503,29 +1724,31 @@ class CNMVAgent:
             if val is not None:
                 result["kpis"][campo] = val
 
-        # Comisiones por clase → cuantitativo
-        if pdf_data.get("comisiones_gestion_por_clase"):
+        # Comisiones por clase → cuantitativo (use accumulated series from _process_pdfs)
+        serie_comis = pdf_data.get("serie_comisiones_por_clase", [])
+        if serie_comis:
             cuant = result.setdefault("cuantitativo", {})
-            existing_cls = cuant.get("serie_comisiones_por_clase", [])
-            # Add entry for this period if not already present
-            period_key = pdf_data.get("_periodo_pdf", "")
-            year_key = period_key[:4] if period_key else ""
-            if year_key and not any(e.get("periodo") == year_key for e in existing_cls):
-                existing_cls.append({
-                    "periodo": year_key,
-                    "clases": pdf_data["comisiones_gestion_por_clase"],
-                })
-            cuant["serie_comisiones_por_clase"] = existing_cls
+            existing_cls = {e["periodo"]: e for e in cuant.get("serie_comisiones_por_clase", [])}
+            for entry in serie_comis:
+                p = self._normalize_period(entry.get("periodo", ""))
+                entry_copy = dict(entry)
+                entry_copy["periodo"] = p
+                existing_cls[p] = entry_copy  # PDF overwrites
+            cuant["serie_comisiones_por_clase"] = sorted(existing_cls.values(), key=lambda x: x["periodo"])
 
         # Índice rotación → cuantitativo serie_rotacion (full series from all PDFs)
         serie_rotacion_pdf = pdf_data.get("serie_rotacion_pdf", [])
         if serie_rotacion_pdf:
             cuant = result.setdefault("cuantitativo", {})
-            existing_rot = {e["periodo"]: e for e in cuant.get("serie_rotacion", [])}
+            existing_rot = {}
+            for e in cuant.get("serie_rotacion", []):
+                p = self._normalize_period(e.get("periodo", ""))
+                e_copy = dict(e); e_copy["periodo"] = p
+                existing_rot[p] = e_copy
             for entry in serie_rotacion_pdf:
-                p = entry["periodo"]
-                if p not in existing_rot:
-                    existing_rot[p] = entry
+                p = self._normalize_period(entry["periodo"])
+                entry_copy = dict(entry); entry_copy["periodo"] = p
+                existing_rot[p] = entry_copy  # PDF overwrites
             cuant["serie_rotacion"] = sorted(existing_rot.values(), key=lambda x: x["periodo"])
         elif pdf_data.get("rotacion_cartera_pct") is not None:
             # Fallback: single-point from most-recent PDF scalar
@@ -1544,30 +1767,30 @@ class CNMVAgent:
         serie_participes_pdf = pdf_data.get("serie_participes_pdf", [])
         if serie_participes_pdf:
             cuant = result.setdefault("cuantitativo", {})
-            existing_part = {e["periodo"]: e for e in cuant.get("serie_participes", [])}
+            existing_part = {}
+            for e in cuant.get("serie_participes", []):
+                p = self._normalize_period(e.get("periodo", ""))
+                e_copy = dict(e); e_copy["periodo"] = p
+                existing_part[p] = e_copy
             for entry in serie_participes_pdf:
-                p = entry["periodo"]
-                # PDF overwrites XML for same period
-                existing_part[p] = entry
+                p = self._normalize_period(entry["periodo"])
+                entry_copy = dict(entry); entry_copy["periodo"] = p
+                existing_part[p] = entry_copy  # PDF overwrites XML
             cuant["serie_participes"] = sorted(existing_part.values(), key=lambda x: x["periodo"])
 
         # AUM series from PDF — merge with XML series, PDF OVERWRITES XML for same year
         serie_aum_pdf = pdf_data.get("serie_aum_pdf", [])
         if serie_aum_pdf:
-            # Normalize XML periods: "202506" → "2025", "2022-S2" → "2022"
             raw_xml = result.get("cuantitativo", {}).get("serie_aum", [])
             existing: dict = {}
             for e in raw_xml:
-                p = str(e.get("periodo", ""))
-                if len(p) == 6 and p.isdigit():  # "202506" → "2025"
-                    p = p[:4]
-                p = p.split("-")[0]  # "2022-S2" → "2022"
+                p = self._normalize_period(e.get("periodo", ""))
                 e_copy = dict(e)
                 e_copy["periodo"] = p
                 e_copy["_source"] = "xml"
                 existing[p] = e_copy
             for entry in serie_aum_pdf:
-                p = str(entry["periodo"]).split("-")[0]  # normalize just in case
+                p = self._normalize_period(entry["periodo"])
                 entry_copy = dict(entry)
                 entry_copy["periodo"] = p
                 entry_copy["_source"] = "pdf"
@@ -1591,23 +1814,52 @@ class CNMVAgent:
             if latest_pdf_periodo >= latest_xml_periodo or result["kpis"].get("aum_actual_meur") is None:
                 result["kpis"]["aum_actual_meur"] = sorted_pdf[-1]["valor_meur"]
 
+        # VL base 100 — calcular crecimiento desde primer VL conocido
+        aum_with_vl = [e for e in result.get("cuantitativo", {}).get("serie_aum", []) if e.get("vl")]
+        if len(aum_with_vl) >= 2:
+            vl_sorted = sorted(aum_with_vl, key=lambda x: x["periodo"])
+            base_vl = vl_sorted[0]["vl"]
+            if base_vl and base_vl > 0:
+                result.setdefault("cuantitativo", {})["serie_vl_base100"] = [
+                    {"periodo": e["periodo"], "vl": e["vl"], "base100": round(e["vl"] / base_vl * 100, 1)}
+                    for e in vl_sorted
+                ]
+
+        # TER por clase → cuantitativo
+        serie_ter_cls = pdf_data.get("serie_ter_por_clase", [])
+        if serie_ter_cls:
+            cuant = result.setdefault("cuantitativo", {})
+            existing_tcls = {e["periodo"]: e for e in cuant.get("serie_ter_por_clase", [])}
+            for entry in serie_ter_cls:
+                p = self._normalize_period(entry.get("periodo", ""))
+                entry_copy = dict(entry); entry_copy["periodo"] = p
+                existing_tcls[p] = entry_copy
+            cuant["serie_ter_por_clase"] = sorted(existing_tcls.values(), key=lambda x: x["periodo"])
+
+        # Clases info → cuantitativo
+        if pdf_data.get("serie_clases_info"):
+            result.setdefault("cuantitativo", {})["serie_clases_info"] = pdf_data["serie_clases_info"]
+
         # Mix activos historico
         if pdf_data.get("mix_activos_historico"):
             result.setdefault("cuantitativo", {})["mix_activos_historico"] = (
                 pdf_data["mix_activos_historico"]
             )
 
-        # TER histórico desde PDF (multi-año por informe)
+        # TER histórico desde PDF (multi-año por informe) — normalize + PDF overwrites XML
         serie_ter_pdf = pdf_data.get("serie_ter_pdf", [])
         if serie_ter_pdf:
             cuant = result.setdefault("cuantitativo", {})
-            existing_ter = {e["periodo"]: e for e in cuant.get("serie_ter", [])}
+            existing_ter: dict = {}
+            for e in cuant.get("serie_ter", []):
+                p = self._normalize_period(e.get("periodo", ""))
+                e_copy = dict(e); e_copy["periodo"] = p
+                existing_ter[p] = e_copy
             for entry in serie_ter_pdf:
-                p = entry["periodo"]
-                if p not in existing_ter:
-                    existing_ter[p] = entry
-                elif entry.get("ter_pct") and not existing_ter[p].get("ter_pct"):
-                    existing_ter[p]["ter_pct"] = entry["ter_pct"]
+                p = self._normalize_period(entry["periodo"])
+                entry_copy = dict(entry); entry_copy["periodo"] = p
+                # PDF data overwrites XML for same year
+                existing_ter[p] = entry_copy
             cuant["serie_ter"] = sorted(existing_ter.values(), key=lambda x: x["periodo"])
 
         # Cualitativo
@@ -1615,8 +1867,7 @@ class CNMVAgent:
         for campo in ["estrategia", "tipo_activos", "filosofia_inversion", "objetivos_reales"]:
             if pdf_data.get(campo):
                 cual[campo] = pdf_data[campo]
-        if pdf_data.get("gestores"):
-            cual["gestores"] = pdf_data["gestores"]
+        # gestores extraction delegated to manager_deep_agent
         if pdf_data.get("historia_fondo"):
             cual["historia_fondo"] = pdf_data["historia_fondo"]
 
@@ -1627,10 +1878,16 @@ class CNMVAgent:
                 if not any(e.get("periodo") == hr.get("periodo") for e in existing_hr):
                     existing_hr.append(hr)
             cual["hechos_relevantes"] = sorted(existing_hr, key=lambda x: x.get("periodo", ""))
-        # Qualitative fields from section 9/10
-        for campo in ["contexto_mercado", "decisiones_tomadas", "tesis_gestora"]:
-            if pdf_data.get(campo):
-                cual[campo] = pdf_data[campo]
+        # Note: cualitativo synthesis (contexto_mercado, decisiones_tomadas, tesis_gestora)
+        # is now done by analyst_agent from raw text — cnmv_agent only provides raw text
+
+        # Full text of all qualitative sections for analyst_agent (NO char limits)
+        for text_field in ["seccion_9_texto_completo", "seccion_10_perspectivas_texto",
+                           "seccion_1_politica_texto", "seccion_4_5_hechos_texto"]:
+            if pdf_data.get(text_field):
+                cual[text_field] = pdf_data[text_field]
+        if pdf_data.get("benchmark_mencionado"):
+            result.setdefault("kpis", {})["benchmark_mencionado"] = pdf_data["benchmark_mencionado"]
 
         if pdf_data.get("gestora_pdf") and not result.get("gestora"):
             result["gestora"] = pdf_data["gestora_pdf"]

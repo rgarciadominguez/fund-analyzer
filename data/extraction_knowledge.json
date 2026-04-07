@@ -1,0 +1,68 @@
+{
+  "_description": "Patrones de extracción aprendidos por cnmv_agent. Si un regex falla, se guardan variantes que funcionaron para reutilizar en futuras ejecuciones.",
+  "patrimonio_formats": {
+    "format_a": {
+      "description": "Pre-2020: CLASE X val1 val2 val3 val4 (sin divisa entre clase y valores)",
+      "regex": "CLASE\\s+\\w+\\s+([\\d.]+)\\s+([\\d.]+)(?:\\s+([\\d.]+))?(?:\\s+([\\d.]+))?",
+      "example": "CLASE A  119.070  96.488  22.106  7.831"
+    },
+    "format_b": {
+      "description": "Actual: CLASE X EUR val1 val2 val3 val4 (divisa entre clase y valores). Soporta N clases.",
+      "regex": "CLASE\\s+\\w+\\s+(?:EUR|USD|GBP|CHF)\\s+([\\d.]+)\\s+([\\d.]+)(?:\\s+([\\d.]+))?(?:\\s+([\\d.]+))?",
+      "example": "CLASE I EUR 137.712 101.943 34.985 27.095"
+    }
+  },
+  "participes_format": {
+    "description": "Tabla 2.1a: CLASE X  n_participaciones(decimal)  n_participaciones_ant(decimal)  n_participes(int)  n_participes_ant(int)  EUR",
+    "regex": "CLASE\\s+\\w+\\s+[\\d.,]+\\s+[\\d.,]+\\s+(\\d+)\\s+(\\d+)\\s+(?:EUR|USD|GBP)",
+    "note": "Los partícipes son siempre enteros pequeños (<100000). Las participaciones son decimales grandes con puntos de miles."
+  },
+  "comisiones_format": {
+    "description": "Tabla comisiones: CLASE X  per_spat  per_sres  per_total  acum_spat  acum_sres  acum_total  patrimonio",
+    "regex": "CLASE\\s+(\\w+)\\s+(-?[\\d,]+)\\s+(-?[\\d,]+)\\s+(-?[\\d,]+)\\s+(-?[\\d,]+)\\s+(-?[\\d,]+)\\s+(-?[\\d,]+)",
+    "note": "Posición 4 (acum_spat) = comisión de gestión anual sobre patrimonio. Permite negativos para comisión sobre resultados."
+  },
+  "ter_format": {
+    "description": "1 tabla TER por clase. Pre-multi-clase: 1 tabla. Post-multi-clase: N tablas bajo A) Individual Clase X.",
+    "note": "nums[0]=TER_actual, nums[5+]=anuales históricos (año-1, año-2, año-3)"
+  },
+  "posiciones_format": {
+    "pattern_a": "ISIN - TIPO|nombre DIVISA val pct (2019+, con pipe y tipo)",
+    "pattern_b": "ISIN - nombre DIVISA val pct val_ant pct_ant (pre-2019, sin pipe)",
+    "section": "10. Detalle de inversiones financieras (puede faltar el punto: '10 Detalle de invesiones')",
+    "output": "Se guardan TODAS las posiciones por año (no solo top10). Campo 'todas' tiene la tabla completa ordenada por peso. El analyst_agent usa esta tabla para análisis de cartera, concentración, cambios año a año, etc."
+  },
+  "seccion_9_formats": {
+    "all_years": {
+      "description": "Estructura estándar con subsecciones: 1.a Visión gestora, 1.b Decisiones generales, 2.a Inversiones concretas",
+      "subsections": [
+        "a. Visión de la gestora sobre la situación de los mercados",
+        "b. Decisiones generales de inversión adoptadas",
+        "a. Inversiones concretas realizadas durante el periodo"
+      ]
+    }
+  },
+  "learned_patterns": [
+    {
+      "isin": "ES0112231008",
+      "timestamp": "2026-04-06T20:55:19.025728",
+      "type": "null_field",
+      "field": "cualitativo.gestores",
+      "reason": ""
+    },
+    {
+      "isin": "ES0112231008",
+      "timestamp": "2026-04-07T07:38:35.967001",
+      "type": "null_field",
+      "field": "manager_profile.nombre",
+      "reason": ""
+    },
+    {
+      "isin": "ES0112231008",
+      "timestamp": "2026-04-07T08:20:32.363639",
+      "type": "null_field",
+      "field": "cualitativo.historia_fondo",
+      "reason": ""
+    }
+  ]
+}
