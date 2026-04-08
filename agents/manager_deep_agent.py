@@ -55,6 +55,13 @@ class ManagerDeepAgent:
         with open(self.log_path, "a", encoding="utf-8") as f:
             f.write(line + "\n")
 
+    def _get_gemini_client(self):
+        """Get or create Gemini client (new google-genai SDK)."""
+        if not hasattr(self, '_gemini_client'):
+            from google import genai
+            self._gemini_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY", ""))
+        return self._gemini_client
+
     # ═══════════════════════════════════════════════════════════════════════════
     # ENTRY POINT
     # ═══════════════════════════════════════════════════════════════════════════
@@ -402,9 +409,8 @@ class ManagerDeepAgent:
 
         # Use Gemini to extract all people and their roles
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
-            model = genai.GenerativeModel("gemini-2.5-flash")
+            from google.genai import types
+            client = self._get_gemini_client()
 
             prompt = (
                 f"Lista TODAS las personas de esta pagina de equipo de {self.gestora}. "
@@ -412,8 +418,9 @@ class ManagerDeepAgent:
                 f"{team_text}"
             )
 
-            resp = model.generate_content(prompt,
-                generation_config=genai.types.GenerationConfig(
+            resp = client.models.generate_content(
+                model="gemini-2.5-flash", contents=prompt,
+                config=types.GenerateContentConfig(
                     response_mime_type="application/json", temperature=0.1, max_output_tokens=3000))
             raw = resp.text.strip() if resp.text else ""
             # Extract JSON array
@@ -431,8 +438,8 @@ class ManagerDeepAgent:
     async def _gemini_extract_names(self, snippets: list[str]) -> list[str]:
         """Use Gemini to extract manager names from Google snippets when regex fails."""
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
+            from google.genai import types
+            client = self._get_gemini_client()
         except Exception:
             return []
 
@@ -447,9 +454,9 @@ class ManagerDeepAgent:
 
         for attempt in range(2):
             try:
-                model = genai.GenerativeModel("gemini-2.5-flash")
-                resp = model.generate_content(prompt,
-                    generation_config=genai.types.GenerationConfig(
+                resp = client.models.generate_content(
+                    model="gemini-2.5-flash", contents=prompt,
+                    config=types.GenerateContentConfig(
                         response_mime_type="application/json", temperature=0.1, max_output_tokens=300))
                 raw = resp.text.strip() if resp.text else ""
                 self._log("INFO", f"Gemini names raw: {raw[:200]}")
@@ -618,9 +625,8 @@ class ManagerDeepAgent:
     async def _extract_page_info(self, page: dict, manager_names: str) -> dict | None:
         """Use Gemini to extract relevant manager info from a single page."""
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
-            model = genai.GenerativeModel("gemini-2.5-flash")
+            from google.genai import types
+            client = self._get_gemini_client()
         except Exception:
             # Fallback: return page as-is
             return {"fuente": page["url"], "titulo": page["title"], "texto_raw": page["text"][:3000]}
@@ -641,8 +647,9 @@ class ManagerDeepAgent:
         )
 
         try:
-            resp = model.generate_content(prompt,
-                generation_config=genai.types.GenerationConfig(
+            resp = client.models.generate_content(
+                model="gemini-2.5-flash", contents=prompt,
+                config=types.GenerateContentConfig(
                     response_mime_type="application/json", temperature=0.1, max_output_tokens=2000))
             raw = resp.text.strip() if resp.text else ""
             if not raw:
@@ -692,8 +699,8 @@ class ManagerDeepAgent:
                                       letters: list[dict], cnmv: dict) -> dict:
         """Use Gemini to structure collected info. Fallback to raw if fails."""
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
+            from google.genai import types
+            client = self._get_gemini_client()
         except Exception:
             self._log("WARN", "Gemini no disponible")
             return self._raw_profile(pages, letters, cnmv)
@@ -724,9 +731,9 @@ class ManagerDeepAgent:
 
         for attempt in range(3):
             try:
-                model = genai.GenerativeModel("gemini-2.5-flash")
-                resp = model.generate_content(prompt,
-                    generation_config=genai.types.GenerationConfig(
+                resp = client.models.generate_content(
+                    model="gemini-2.5-flash", contents=prompt,
+                    config=types.GenerateContentConfig(
                         response_mime_type="application/json", temperature=0.1,
                         max_output_tokens=4000))
                 result = json.loads(resp.text)

@@ -393,30 +393,39 @@ class AnalystAgent:
     # CAPA 3: GEMINI SYNTHESIS — 8 SECCIONES
     # ═══════════════════════════════════════════════════════════════════════════
 
+    def _get_gemini_client(self):
+        """Get or create Gemini client (new google-genai SDK)."""
+        if not hasattr(self, '_gemini_client'):
+            from google import genai
+            self._gemini_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY", ""))
+        return self._gemini_client
+
     def _gemini_call(self, prompt: str, max_tokens: int = 8000, retries: int = 2) -> dict | None:
         """Call Gemini with JSON response. Retry on rate limit. Repair truncated JSON."""
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
-            model = genai.GenerativeModel("gemini-2.5-flash")
+            from google.genai import types
+            client = self._get_gemini_client()
         except Exception as exc:
             self._log("ERROR", f"Gemini init failed: {exc}")
             return None
 
         for attempt in range(retries + 1):
             try:
-                resp = model.generate_content(prompt,
-                    generation_config=genai.types.GenerationConfig(
+                resp = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
                         response_mime_type="application/json",
                         temperature=0.1,
-                        max_output_tokens=max_tokens))
+                        max_output_tokens=max_tokens,
+                    ),
+                )
                 raw = resp.text.strip() if resp.text else ""
                 if not raw:
                     raise ValueError("Empty Gemini response")
                 try:
                     return json.loads(raw)
                 except json.JSONDecodeError:
-                    # Try to repair truncated JSON
                     repaired = self._repair_json(raw)
                     if repaired:
                         self._log("INFO", f"JSON reparado ({len(raw)} chars)")
@@ -439,19 +448,22 @@ class AnalystAgent:
     def _gemini_text(self, prompt: str, max_tokens: int = 8000, retries: int = 2) -> str:
         """Call Gemini for FREE TEXT (no JSON mode). Returns plain string."""
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
-            model = genai.GenerativeModel("gemini-2.5-flash")
+            from google.genai import types
+            client = self._get_gemini_client()
         except Exception as exc:
             self._log("ERROR", f"Gemini init failed: {exc}")
             return ""
 
         for attempt in range(retries + 1):
             try:
-                resp = model.generate_content(prompt,
-                    generation_config=genai.types.GenerationConfig(
+                resp = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
                         temperature=0.2,
-                        max_output_tokens=max_tokens))
+                        max_output_tokens=max_tokens,
+                    ),
+                )
                 text = resp.text.strip() if resp.text else ""
                 if not text:
                     raise ValueError("Empty Gemini response")
