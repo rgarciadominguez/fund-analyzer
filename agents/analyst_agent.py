@@ -436,6 +436,40 @@ class AnalystAgent:
                     return None
         return None
 
+    def _gemini_text(self, prompt: str, max_tokens: int = 8000, retries: int = 2) -> str:
+        """Call Gemini for FREE TEXT (no JSON mode). Returns plain string."""
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=os.getenv("GOOGLE_API_KEY", ""))
+            model = genai.GenerativeModel("gemini-2.5-flash")
+        except Exception as exc:
+            self._log("ERROR", f"Gemini init failed: {exc}")
+            return ""
+
+        for attempt in range(retries + 1):
+            try:
+                resp = model.generate_content(prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        temperature=0.2,
+                        max_output_tokens=max_tokens))
+                text = resp.text.strip() if resp.text else ""
+                if not text:
+                    raise ValueError("Empty Gemini response")
+                return text
+            except Exception as exc:
+                exc_str = str(exc)
+                if "429" in exc_str or "ResourceExhausted" in exc_str:
+                    wait = 45 * (attempt + 1)
+                    self._log("WARN", f"Gemini rate limit — espera {wait}s")
+                    time.sleep(wait)
+                elif attempt < retries:
+                    self._log("WARN", f"Gemini text error (intento {attempt+1}): {exc}")
+                    time.sleep(5)
+                else:
+                    self._log("ERROR", f"Gemini text falló tras {retries+1} intentos: {exc}")
+                    return ""
+        return ""
+
     def _repair_json(self, raw: str) -> dict | None:
         """Attempt to repair truncated JSON from Gemini."""
         # Common case: JSON string truncated mid-value
@@ -544,85 +578,82 @@ class AnalystAgent:
 
         return synthesis
 
-    # ── Sección 1: Resumen ────────────────────────────────────────────────
+    # ── Sección 1: Resumen (2 llamadas: texto + datos) ──────────────────
 
     def _section_resumen(self, data: dict) -> dict | None:
         kpis = data.get("kpis", {})
-        # Calculate annual returns from VL series
-        vl_series = data.get("cuantitativo", {}).get("serie_vl_base100", [])
-        rentabilidades = []
-        for i in range(1, len(vl_series)):
-            prev = vl_series[i-1].get("base100", 0)
-            curr = vl_series[i].get("base100", 0)
-            if prev > 0:
-                ret = round((curr / prev - 1) * 100, 1)
-                rentabilidades.append({"periodo": vl_series[i].get("periodo", ""), "rentabilidad_pct": ret})
+        rentabilidades = self._compute_annual_returns(data)
 
-        input_data = {
+        input_data = json.dumps({
             "kpis": kpis,
             "rentabilidades_anuales": rentabilidades,
-            "estrategia_actual": self._truncate(data.get("estrategia_actual", ""), 1500),
-            "seccion_9_reciente": self._truncate(data.get("seccion_9_mas_reciente", ""), 2000),
-            "seccion_10_reciente": self._truncate(data.get("seccion_10_mas_reciente", ""), 1500),
-            "hechos_relevantes": data.get("hechos_relevantes", []),
-        }
+            "estrategia": self._truncate(data.get("estrategia_actual", ""), 1500),
+            "seccion_9": self._truncate(data.get("seccion_9_mas_reciente", ""), 2500),
+            "seccion_10": self._truncate(data.get("seccion_10_mas_reciente", ""), 1500),
+            "hechos": data.get("hechos_relevantes", []),
+            "gestores_info": data.get("gestores", {}).get("info_cartas", [])[:2],
+        }, ensure_ascii=False)
 
-        schema = '{"texto":"string 3-5 párrafos","fortalezas":["string"],"riesgos":["string"],"para_quien_es":"string","compromiso_gestor":"string","signal":"POSITIVO|NEUTRAL|NEGATIVO","signal_rationale":"string"}'
-
-        prompt = (
+        # Call 1: TEXTO libre
+        texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"=== TAREA ===\n"
-            f"Genera un RESUMEN EJECUTIVO del fondo. Incluye:\n"
-            f"- Qué es el fondo, filosofía, track record con rentabilidades anuales concretas\n"
-            f"- Fortalezas y riesgos específicos (no genéricos)\n"
-            f"- Para qué tipo de inversor es adecuado\n"
-            f"- Nivel de compromiso del gestor (skin in the game)\n"
-            f"- Signal global (POSITIVO/NEUTRAL/NEGATIVO) con justificación\n\n"
-            f"=== SCHEMA ===\n{schema}\n\n"
-            f"=== DATOS ===\n{json.dumps(input_data, ensure_ascii=False)}\n\n"
-            f"Responde SOLO con el JSON:"
+            f"Escribe un RESUMEN EJECUTIVO extenso (mínimo 4 párrafos) del fondo para un comité de inversión.\n"
+            f"Incluye: qué es el fondo, filosofía, track record con TODAS las rentabilidades anuales,\n"
+            f"evolución del patrimonio y partícipes, principales fortalezas y riesgos,\n"
+            f"para qué tipo de inversor es adecuado, y nivel de compromiso del gestor.\n"
+            f"Usa cifras concretas. No uses markdown ni formato especial.\n\n"
+            f"DATOS:\n{input_data}"
         )
-        return self._gemini_call(prompt, max_tokens=8000)
+        time.sleep(2)
 
-    # ── Sección 2: Historia ───────────────────────────────────────────────
+        # Call 2: DATOS estructurados
+        datos = self._gemini_call(
+            f"Extrae datos estructurados de este fondo. Responde SOLO JSON.\n"
+            f"Schema: {{\"fortalezas\":[\"string específica\"],\"riesgos\":[\"string específica\"],"
+            f"\"para_quien_es\":\"string\",\"compromiso_gestor\":\"string\","
+            f"\"signal\":\"POSITIVO|NEUTRAL|NEGATIVO\",\"signal_rationale\":\"string\"}}\n\n"
+            f"DATOS:\n{input_data}"
+        )
+        if not datos:
+            datos = {}
+
+        datos["texto"] = texto
+        return datos if texto else None
+
+    # ── Sección 2: Historia (2 llamadas) ──────────────────────────────────
 
     def _section_historia(self, data: dict) -> dict | None:
-        timeline_compact = []
-        for t in data.get("timeline", []):
-            timeline_compact.append({
-                "anio": t.get("anio", ""),
-                "cnmv_vision": self._truncate(t.get("cnmv_vision", ""), 200),
-                "num_cartas": t.get("num_cartas", 0),
-                "hechos": t.get("hechos", []),
-            })
-
-        input_data = {
+        input_data = json.dumps({
             "nombre": data.get("nombre", ""),
             "gestora": data.get("gestora", ""),
             "anio_creacion": data.get("kpis", {}).get("anio_creacion", ""),
             "fecha_registro": data.get("kpis", {}).get("fecha_registro", ""),
-            "hechos_relevantes": data.get("hechos_relevantes", []),
-            "timeline": timeline_compact,
+            "hechos": data.get("hechos_relevantes", []),
             "serie_aum": data.get("cuantitativo", {}).get("serie_aum", []),
             "serie_participes": data.get("cuantitativo", {}).get("serie_participes", []),
-        }
+            "timeline_resumen": [{"a": t.get("anio", ""), "v": self._truncate(t.get("cnmv_vision", ""), 150), "n": t.get("num_cartas", 0)} for t in data.get("timeline", [])],
+        }, ensure_ascii=False)
 
-        schema = '{"texto":"string narrativa cronológica extensa","hitos":[{"anio":"YYYY","evento":"string"}]}'
-
-        prompt = (
+        texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"=== TAREA ===\n"
-            f"Genera la HISTORIA COMPLETA del fondo. Narrativa cronológica desde su creación.\n"
-            f"Incluye: creación, crecimiento del patrimonio, episodios clave (salidas/entradas partícipes),\n"
-            f"cambios regulatorios, hitos de reconocimiento, evolución de la cartera.\n"
-            f"Usa datos concretos (AUM, partícipes, VL) para cada periodo.\n\n"
-            f"=== SCHEMA ===\n{schema}\n\n"
-            f"=== DATOS ===\n{json.dumps(input_data, ensure_ascii=False)}\n\n"
-            f"Responde SOLO con el JSON:"
+            f"Escribe la HISTORIA COMPLETA del fondo como narrativa cronológica extensa.\n"
+            f"Incluye: creación, cada año relevante con datos de AUM y partícipes,\n"
+            f"episodios de crecimiento y crisis, cambios regulatorios, hitos.\n"
+            f"Usa cifras concretas para cada periodo. No markdown.\n\n"
+            f"DATOS:\n{input_data}"
         )
-        return self._gemini_call(prompt, max_tokens=8000)
+        time.sleep(2)
 
-    # ── Sección 3: Gestores ───────────────────────────────────────────────
+        datos = self._gemini_call(
+            f"Extrae hitos del fondo. JSON: {{\"hitos\":[{{\"anio\":\"YYYY\",\"evento\":\"string\"}}]}}\n"
+            f"DATOS:\n{input_data}"
+        )
+
+        result = datos if datos else {}
+        result["texto"] = texto
+        return result if texto else None
+
+    # ── Sección 3: Gestores (3 llamadas) ──────────────────────────────────
 
     def _section_gestores(self, data: dict) -> dict | None:
         gestores = data.get("gestores", {})
@@ -631,33 +662,48 @@ class AnalystAgent:
             fuentes_compact.append({
                 "url": f.get("url", ""),
                 "titulo": f.get("titulo", ""),
-                "texto": self._truncate(f.get("texto", ""), 500),
+                "texto": self._truncate(f.get("texto", ""), 600),
             })
 
-        input_data = {
+        input_data = json.dumps({
             "equipo": gestores.get("equipo", []),
-            "equipo_detalle_web": gestores.get("equipo_detalle_web", []),
+            "equipo_detalle": gestores.get("equipo_detalle_web", []),
             "fuentes_web": fuentes_compact[:10],
-            "perfiles_gemini": gestores.get("perfiles", []),
             "info_cartas": gestores.get("info_cartas", []),
-        }
+        }, ensure_ascii=False)
 
-        schema = '{"texto":"string overview equipo","perfiles":[{"nombre":"","cargo":"","trayectoria":"","filosofia":"string detallada con citas","decisiones_clave":["string con contexto y resultado"],"rasgos_diferenciales":"string"}]}'
-
-        prompt = (
+        # Call 1: TEXTO — perfil detallado del gestor principal
+        texto_principal = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"=== TAREA ===\n"
-            f"Genera perfiles DETALLADOS del equipo gestor. Para cada persona con rol de inversión:\n"
-            f"- Trayectoria profesional y reconocimientos\n"
-            f"- Filosofía de inversión con citas textuales de sus artículos/entrevistas\n"
-            f"- Decisiones clave documentadas (con contexto de mercado y resultado)\n"
-            f"- Rasgos diferenciales como gestor\n"
-            f"Para personas en roles no-inversión: descripción breve del rol.\n\n"
-            f"=== SCHEMA ===\n{schema}\n\n"
-            f"=== DATOS ===\n{json.dumps(input_data, ensure_ascii=False)}\n\n"
-            f"Responde SOLO con el JSON:"
+            f"Escribe un PERFIL DETALLADO del gestor principal del fondo para un comité de inversión.\n"
+            f"Incluye: trayectoria profesional, filosofía de inversión CON CITAS TEXTUALES de sus artículos,\n"
+            f"decisiones de inversión clave (con contexto de mercado y resultado),\n"
+            f"rasgos diferenciales como gestor, estilo de comunicación.\n"
+            f"Extenso: mínimo 800 palabras. No markdown.\n\n"
+            f"DATOS:\n{input_data}"
         )
-        return self._gemini_call(prompt, max_tokens=8000)
+        time.sleep(2)
+
+        # Call 2: TEXTO — overview del equipo y roles
+        texto_equipo = self._gemini_text(
+            f"{self._system_role(data)}\n\n"
+            f"Describe brevemente el equipo completo de la gestora: estructura, roles, cómo se complementan.\n"
+            f"Para cada persona que NO sea el gestor principal: cargo y contribución al equipo.\n"
+            f"No markdown.\n\n"
+            f"DATOS:\n{input_data}"
+        )
+        time.sleep(2)
+
+        # Call 3: DATOS estructurados
+        datos = self._gemini_call(
+            f"Extrae perfiles del equipo. JSON:\n"
+            f"{{\"perfiles\":[{{\"nombre\":\"\",\"cargo\":\"\",\"decisiones_clave\":[\"string\"]}}]}}\n"
+            f"DATOS:\n{input_data}"
+        )
+
+        result = datos if datos else {}
+        result["texto"] = (texto_equipo + "\n\n" + texto_principal) if texto_principal else texto_equipo
+        return result if result.get("texto") else None
 
     # ── Sección 4: Evolución ──────────────────────────────────────────────
 
@@ -757,139 +803,136 @@ class AnalystAgent:
 
     def _section_evolucion(self, data: dict) -> dict | None:
         cuant = data.get("cuantitativo", {})
-        # Compact series: only key fields to reduce input size
-        input_data = {
-            "serie_aum": [{"p": s.get("periodo"), "v": s.get("valor_meur")} for s in cuant.get("serie_aum", [])],
-            "serie_participes": [{"p": s.get("periodo"), "v": s.get("valor")} for s in cuant.get("serie_participes", [])],
-            "serie_ter": [{"p": s.get("periodo"), "v": s.get("ter_pct")} for s in cuant.get("serie_ter", [])],
-            "serie_rotacion": [{"p": s.get("periodo"), "v": s.get("rotacion_pct")} for s in cuant.get("serie_rotacion", [])],
-            "serie_vl_base100": [{"p": s.get("periodo"), "v": s.get("base100")} for s in cuant.get("serie_vl_base100", [])],
-            "mix_activos": [{"p": s.get("periodo"), "rv": s.get("rv_pct"), "rf": s.get("renta_fija_pct"), "liq": s.get("liquidez_pct")} for s in cuant.get("mix_activos_historico", [])],
+        input_data = json.dumps({
+            "aum": [{"p": s.get("periodo"), "v": s.get("valor_meur")} for s in cuant.get("serie_aum", [])],
+            "participes": [{"p": s.get("periodo"), "v": s.get("valor")} for s in cuant.get("serie_participes", [])],
+            "ter": [{"p": s.get("periodo"), "v": s.get("ter_pct")} for s in cuant.get("serie_ter", [])],
+            "rotacion": [{"p": s.get("periodo"), "v": s.get("rotacion_pct")} for s in cuant.get("serie_rotacion", [])],
+            "vl100": [{"p": s.get("periodo"), "v": s.get("base100")} for s in cuant.get("serie_vl_base100", [])],
+            "mix": [{"p": s.get("periodo"), "rv": s.get("rv_pct"), "rf": s.get("renta_fija_pct"), "liq": s.get("liquidez_pct")} for s in cuant.get("mix_activos_historico", [])],
             "rentabilidades": self._compute_annual_returns(data),
-            "geo": self._compute_geographic_mix(data),
-            "num_pos": self._compute_positions_count(data),
-            "concentracion": self._compute_concentration(data),
+        }, ensure_ascii=False)
+
+        # Call 1: TEXTO narrativo
+        texto = self._gemini_text(
+            f"{self._system_role(data)}\n\n"
+            f"Escribe un ANÁLISIS CUANTITATIVO DETALLADO de la evolución del fondo (mínimo 600 palabras).\n"
+            f"Cubre: patrimonio (AUM), partícipes, valor liquidativo con rentabilidades anuales,\n"
+            f"comisiones (TER), mix de activos (cómo cambió de puro RV a mixto), rotación.\n"
+            f"Para cada dato, incluye la cifra concreta y el contexto. No markdown.\n\n"
+            f"DATOS:\n{input_data}"
+        )
+        time.sleep(2)
+
+        # Call 2: DATOS — pre-computados en Python, solo los pasamos
+        datos_graficos = {
+            "exposicion_geografica": self._compute_geographic_mix(data),
+            "num_posiciones_por_anio": self._compute_positions_count(data),
+            "concentracion_historica": self._compute_concentration(data),
+            "rentabilidades_anuales": self._compute_annual_returns(data),
         }
 
-        schema = ('{"texto":"string análisis extenso de la evolución cuantitativa",'
-                  '"datos_graficos":{"exposicion_geografica":[{"periodo":"","zonas":{},"fuente":""}],'
-                  '"num_posiciones_por_anio":[{"periodo":"","num_posiciones":0,"fuente":""}],'
-                  '"concentracion_historica":[{"periodo":"","top5_pct":0,"top10_pct":0,"top15_pct":0,"fuente":""}],'
-                  '"rentabilidades_anuales":[{"periodo":"","rentabilidad_pct":0}]}}')
+        return {"texto": texto, "datos_graficos": datos_graficos} if texto else None
 
-        prompt = (
-            f"{self._system_role(data)}\n\n"
-            f"=== TAREA ===\n"
-            f"Genera un ANÁLISIS CUANTITATIVO DETALLADO de la evolución del fondo.\n"
-            f"Incluye: patrimonio (AUM), partícipes, valor liquidativo, comisiones, mix de activos, rotación.\n"
-            f"Calcula y comenta las rentabilidades anuales.\n"
-            f"IMPORTANTE: En datos_graficos, incluye SOLO datos con fuente real.\n"
-            f"Si un dato es 'posiciones_actuales' solo hay 1 punto. No inventes puntos históricos.\n"
-            f"Marca cada dato con su campo 'fuente' para trazabilidad.\n\n"
-            f"=== SCHEMA ===\n{schema}\n\n"
-            f"=== DATOS ===\n{json.dumps(input_data, ensure_ascii=False)}\n\n"
-            f"Responde SOLO con el JSON:"
-        )
-        return self._gemini_call(prompt, max_tokens=8000)
-
-    # ── Sección 5: Estrategia ─────────────────────────────────────────────
+    # ── Sección 5: Estrategia (2 llamadas) ────────────────────────────────
 
     def _section_estrategia(self, data: dict) -> dict | None:
         timeline_compact = []
         for t in data.get("timeline", []):
             timeline_compact.append({
                 "a": t.get("anio", ""),
-                "v": self._truncate(t.get("cnmv_vision", ""), 250),
-                "c": self._truncate(t.get("carta_texto", ""), 150),
+                "v": self._truncate(t.get("cnmv_vision", ""), 300),
+                "c": self._truncate(t.get("carta_texto", ""), 200),
                 "h": [h.get("detalle", "")[:80] for h in t.get("hechos", [])],
             })
 
         cuant = data.get("cuantitativo", {})
-        input_data = {
+        input_data = json.dumps({
             "timeline": timeline_compact,
             "mix": [{"p": s.get("periodo"), "rv": s.get("rv_pct"), "rf": s.get("renta_fija_pct")} for s in cuant.get("mix_activos_historico", [])],
             "rotacion": [{"p": s.get("periodo"), "v": s.get("rotacion_pct")} for s in cuant.get("serie_rotacion", [])],
-        }
+        }, ensure_ascii=False)
 
-        schema = ('{"texto":"string narrativa cronológica extensa con nombres de posiciones",'
-                  '"hitos_estrategia":[{"periodo":"","cambio":"string"}],'
-                  '"estrategia_actual_resumen":"string"}')
-
-        prompt = (
+        # Call 1: TEXTO narrativo
+        texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"=== TAREA ===\n"
-            f"Genera una NARRATIVA CRONOLÓGICA de la estrategia del fondo.\n"
-            f"Para cada periodo: qué decisiones se tomaron, qué posiciones entraron/salieron (NOMBRES CONCRETOS),\n"
-            f"cómo cambió el mix de activos, qué motivó los cambios.\n"
-            f"Incluye hitos estratégicos (momentos donde la estrategia cambió significativamente).\n\n"
-            f"=== SCHEMA ===\n{schema}\n\n"
-            f"=== DATOS ===\n{json.dumps(input_data, ensure_ascii=False)}\n\n"
-            f"Responde SOLO con el JSON:"
+            f"Escribe una NARRATIVA CRONOLÓGICA EXTENSA de la estrategia del fondo (mínimo 800 palabras).\n"
+            f"Para cada fase/periodo: decisiones tomadas, posiciones que entraron/salieron (NOMBRES CONCRETOS),\n"
+            f"cómo cambió el mix de activos, qué motivó los cambios, resultado.\n"
+            f"Organiza por fases temáticas (ej: fase fundacional, primera prueba, COVID, globalización...).\n"
+            f"No markdown.\n\n"
+            f"DATOS:\n{input_data}"
         )
-        return self._gemini_call(prompt, max_tokens=8000)
+        time.sleep(2)
 
-    # ── Sección 6: Cartera ────────────────────────────────────────────────
+        # Call 2: DATOS hitos
+        datos = self._gemini_call(
+            f"Extrae hitos estratégicos. JSON:\n"
+            f"{{\"hitos_estrategia\":[{{\"periodo\":\"\",\"cambio\":\"string\"}}],"
+            f"\"estrategia_actual_resumen\":\"string\"}}\n"
+            f"DATOS:\n{input_data}"
+        )
+
+        result = datos if datos else {}
+        result["texto"] = texto
+        return result if texto else None
+
+    # ── Sección 6: Cartera (2 llamadas) ───────────────────────────────────
 
     def _section_cartera(self, data: dict) -> dict | None:
         actuales = data.get("posiciones", {}).get("actuales", [])
-        # Top 15 by weight (compact to avoid Gemini truncation)
         sorted_pos = sorted(actuales, key=lambda x: x.get("peso_pct", 0) or 0, reverse=True)
         top_positions = [{
             "nombre": p.get("nombre", ""),
             "peso_pct": p.get("peso_pct", 0),
             "tipo": p.get("tipo", ""),
             "pais": p.get("pais", ""),
-        } for p in sorted_pos[:15]]
-        # Summary of remaining positions
-        remaining = sorted_pos[15:]
-        remaining_summary = {
-            "count": len(remaining),
-            "total_pct": round(sum(p.get("peso_pct", 0) or 0 for p in remaining), 1),
-        }
+            "divisa": p.get("divisa", ""),
+        } for p in sorted_pos[:20]]
 
         concentration = self._compute_concentration(data)
 
-        input_data = {
-            "posiciones_top15": top_positions,
-            "resto_posiciones": remaining_summary,
+        input_data = json.dumps({
+            "posiciones_top20": top_positions,
             "total_posiciones": len(actuales),
             "concentracion": concentration,
-            "mix_activos_historico": data.get("cuantitativo", {}).get("mix_activos_historico", []),
-        }
+        }, ensure_ascii=False)
 
-        schema = ('{"texto":"string análisis detallado de la cartera por bloques",'
-                  '"concentracion":{"top5_pct":0,"top10_pct":0,"top15_pct":0},'
-                  '"concentracion_historica":[{"periodo":"","top5_pct":0,"top10_pct":0,"top15_pct":0,"fuente":""}],'
-                  '"distribucion_tipo":{"rv_españa_pct":0,"rv_internacional_pct":0,"rf_pct":0,"liquidez_pct":0}}')
-
-        prompt = (
+        # Call 1: TEXTO análisis
+        texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"=== TAREA ===\n"
-            f"Genera un ANÁLISIS DETALLADO de la cartera actual del fondo.\n"
+            f"Escribe un ANÁLISIS DETALLADO de la cartera actual (mínimo 500 palabras).\n"
             f"Agrupa posiciones por bloques temáticos/geográficos.\n"
-            f"Clasifica cada posición por su país real (usar ISIN/ticker, no asumir).\n"
-            f"Calcula la concentración temática (ej: total exposición a Argentina incluyendo RV+RF).\n"
-            f"Solo incluye datos de concentración histórica si hay datos reales (fuente: posiciones_historicas).\n\n"
-            f"=== SCHEMA ===\n{schema}\n\n"
-            f"=== DATOS ===\n{json.dumps(input_data, ensure_ascii=False)}\n\n"
-            f"Responde SOLO con el JSON:"
+            f"Clasifica cada posición por su país real (ISIN/ticker).\n"
+            f"Calcula concentración temática (ej: total Argentina RV+RF).\n"
+            f"Analiza riesgos de concentración. No markdown.\n\n"
+            f"DATOS:\n{input_data}"
         )
-        return self._gemini_call(prompt, max_tokens=8000)
+        time.sleep(2)
 
-    # ── Sección 7: Fuentes Externas ───────────────────────────────────────
+        # Call 2: DATOS estructurados
+        datos = self._gemini_call(
+            f"Extrae distribución de cartera. JSON:\n"
+            f"{{\"concentracion\":{{\"top5_pct\":0,\"top10_pct\":0,\"top15_pct\":0}},"
+            f"\"distribucion_tipo\":{{\"rv_españa_pct\":0,\"rv_internacional_pct\":0,\"rf_pct\":0,\"liquidez_pct\":0}}}}\n"
+            f"DATOS:\n{input_data}"
+        )
+
+        result = datos if datos else {}
+        result["texto"] = texto
+        result["concentracion_historica"] = concentration
+        return result if texto else None
+
+    # ── Sección 7: Fuentes Externas (2 llamadas) ─────────────────────────
 
     def _section_fuentes_externas(self, data: dict) -> dict | None:
         lecturas = data.get("lecturas_externas", {})
         items_compact = []
-        # Skip self-published content (gestora's own letters)
-        gestora_domain = ""
         gestora_name = (data.get("gestora", "") or "").lower()
-        if gestora_name:
-            gestora_domain = gestora_name.split()[0] if gestora_name else ""
+        gestora_domain = gestora_name.split()[0] if gestora_name else ""
 
         for item in lecturas.get("analisis_escritos", []) + lecturas.get("multimedia", []):
             url = item.get("url", "")
-            # Skip if it's the fund's own letter/page (not truly external)
             titulo = (item.get("titulo", "") or "").lower()
             if "carta semestral" in titulo and gestora_domain and gestora_domain in url:
                 continue
@@ -899,26 +942,32 @@ class AnalystAgent:
                 "titulo": item.get("titulo", ""),
                 "url": url,
                 "fecha": item.get("fecha", ""),
-                "texto": self._truncate(item.get("texto_completo", ""), 500),
+                "texto": self._truncate(item.get("texto_completo", ""), 600),
             })
 
-        input_data = {"fuentes_externas": items_compact[:15]}
+        input_data = json.dumps({"fuentes": items_compact[:15]}, ensure_ascii=False)
 
-        schema = ('{"texto":"string síntesis de opiniones de terceros",'
-                  '"opiniones_clave":[{"fuente":"","opinion":"","sentimiento":"POSITIVO|NEUTRAL|NEGATIVO"}]}')
-
-        prompt = (
+        # Call 1: TEXTO síntesis
+        texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"=== TAREA ===\n"
-            f"Sintetiza las OPINIONES DE TERCEROS sobre el fondo.\n"
-            f"Para cada fuente: qué dice, qué destaca, qué critica.\n"
-            f"Excluye páginas genéricas de podcasts o listados sin contenido específico sobre el fondo.\n"
-            f"Incluye citas relevantes si las hay.\n\n"
-            f"=== SCHEMA ===\n{schema}\n\n"
-            f"=== DATOS ===\n{json.dumps(input_data, ensure_ascii=False)}\n\n"
-            f"Responde SOLO con el JSON:"
+            f"Sintetiza las OPINIONES DE TERCEROS sobre el fondo (mínimo 400 palabras).\n"
+            f"Para cada fuente relevante: qué dice, qué destaca, qué critica, citas si las hay.\n"
+            f"Excluye páginas genéricas (listados de podcasts, fichas sin contenido).\n"
+            f"No markdown.\n\n"
+            f"DATOS:\n{input_data}"
         )
-        return self._gemini_call(prompt, max_tokens=8000)
+        time.sleep(2)
+
+        # Call 2: DATOS opiniones
+        datos = self._gemini_call(
+            f"Extrae opiniones clave. JSON:\n"
+            f"{{\"opiniones_clave\":[{{\"fuente\":\"\",\"opinion\":\"\",\"sentimiento\":\"POSITIVO|NEUTRAL|NEGATIVO\"}}]}}\n"
+            f"DATOS:\n{input_data}"
+        )
+
+        result = datos if datos else {}
+        result["texto"] = texto
+        return result if texto else None
 
     # ── Sección 8: Documentos (puro Python) ───────────────────────────────
 
