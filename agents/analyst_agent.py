@@ -542,12 +542,18 @@ class AnalystAgent:
         isin = data.get("isin", self.isin)
         gestora = data.get("gestora", "")
         return (
-            "Eres un analista senior de fondos de inversión preparando un informe para comité de inversión. "
-            "Generas análisis profesionales en español. "
-            "IMPORTANTE: Escribe textos DETALLADOS con datos concretos y cifras. "
-            "Usa datos concretos, nombres de posiciones, cifras exactas. "
-            "Tono neutro de analista, sin adjetivos laudatorios (no usar 'excepcional', 'extraordinario'). "
-            "No inventes datos. Si no hay información suficiente, indica 'información insuficiente'.\n"
+            "Eres un analista senior de fondos de inversión escribiendo un informe ejecutivo para comité de inversión.\n"
+            "REGLAS CRÍTICAS DE REDACCIÓN:\n"
+            "1. Escribe NARRATIVA FLUIDA con hilo conductor — NO listas de bullets ni esquemas.\n"
+            "2. Cada párrafo debe fluir al siguiente con transiciones naturales.\n"
+            "3. Usa subsecciones con **Título en negrita** para separar temas.\n"
+            "4. Incluye CIFRAS CONCRETAS (AUM, partícipes, rentabilidad, %) integradas en el texto.\n"
+            "5. Usa **negritas** en datos clave, nombres de posiciones y conclusiones importantes.\n"
+            "6. Tono: analista profesional neutro. Sin adjetivos laudatorios.\n"
+            "7. NO hagas copy-paste de datos en bruto. PROCESA, SINTETIZA y CONCLUYE.\n"
+            "8. El texto debe tener PENSAMIENTO detrás — no ser una descripción mecánica.\n"
+            "9. Si no hay datos suficientes, indica qué falta. NUNCA inventes.\n"
+            "10. Mínimo 3-4 párrafos extensos por sección.\n"
             f"Fondo: {nombre} ({isin}) — Gestora: {gestora}"
         )
 
@@ -606,14 +612,24 @@ class AnalystAgent:
             "gestores_info": data.get("gestores", {}).get("info_cartas", [])[:2],
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO libre
+        # Call 1: TEXTO libre — prompt nivel Avantage
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Escribe un RESUMEN EJECUTIVO extenso (mínimo 4 párrafos) del fondo para un comité de inversión.\n"
-            f"Incluye: qué es el fondo, filosofía, track record con TODAS las rentabilidades anuales,\n"
-            f"evolución del patrimonio y partícipes, principales fortalezas y riesgos,\n"
-            f"para qué tipo de inversor es adecuado, y nivel de compromiso del gestor.\n"
-            f"Usa cifras concretas. No uses markdown ni formato especial.\n\n"
+            f"Escribe un RESUMEN EJECUTIVO que permita entender el fondo completo en un solo vistazo.\n"
+            f"El texto debe ser NARRATIVA FLUIDA con hilo conductor — NO una lista de datos.\n"
+            f"Cada párrafo debe fluir al siguiente con transiciones naturales.\n\n"
+            f"ESTRUCTURA OBLIGATORIA (usa **Título** en negrita para cada subsección):\n"
+            f"**Descripción general**: Qué es el fondo, quién lo gestiona y asesora, cuándo se creó, AUM actual, partícipes. "
+            f"Contextualizar la posición del fondo en su categoría.\n"
+            f"**Filosofía y proceso de inversión**: Cómo invierte, qué criterios aplica, qué le diferencia. "
+            f"Incluir citas del gestor si las hay. Explicar la evolución del enfoque si ha habido cambios.\n"
+            f"**Track record**: TODAS las rentabilidades anuales con cifras concretas, VL base 100, "
+            f"comparación con categoría. Destacar los mejores y peores años con contexto.\n"
+            f"**Evolución del patrimonio**: Crecimiento del AUM y partícipes año a año, fases de crecimiento, "
+            f"episodios de salidas/entradas masivas y sus causas.\n"
+            f"**Conclusión**: 2-3 frases que sinteticen la propuesta de valor del fondo, para quién es adecuado, "
+            f"y los principales riesgos a considerar.\n\n"
+            f"MÍNIMO 3.000 caracteres. Cada subsección 2-3 párrafos FLUIDOS.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
@@ -648,10 +664,13 @@ class AnalystAgent:
 
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Escribe la HISTORIA COMPLETA del fondo como narrativa cronológica extensa.\n"
-            f"Incluye: creación, cada año relevante con datos de AUM y partícipes,\n"
-            f"episodios de crecimiento y crisis, cambios regulatorios, hitos.\n"
-            f"Usa cifras concretas para cada periodo. No markdown.\n\n"
+            f"Escribe la HISTORIA del fondo como una NARRATIVA CRONOLÓGICA FLUIDA — NO como lista de bullets.\n"
+            f"El texto debe leer como un artículo de análisis, con párrafos conectados por transiciones naturales.\n"
+            f"Agrupa los años en FASES temáticas (no año por año mecánicamente).\n"
+            f"Estructura con subsecciones usando **Periodo: Título descriptivo** en negrita:\n"
+            f"Ejemplo: **2017-2019: Los primeros años de construcción**, **2020: COVID como punto de inflexión**\n"
+            f"Cada subsección: 1-2 párrafos con datos concretos (AUM, partícipes, VL, rentabilidad).\n"
+            f"Incluye episodios de crecimiento, crisis, cambios regulatorios, hitos.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
@@ -687,11 +706,17 @@ class AnalystAgent:
         # Call 1: TEXTO — perfil detallado del gestor principal
         texto_principal = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Escribe un PERFIL DETALLADO del gestor principal del fondo para un comité de inversión.\n"
-            f"Incluye: trayectoria profesional, filosofía de inversión CON CITAS TEXTUALES de sus artículos,\n"
-            f"decisiones de inversión clave (con contexto de mercado y resultado),\n"
-            f"rasgos diferenciales como gestor, estilo de comunicación.\n"
-            f"Extenso: mínimo 800 palabras. No markdown.\n\n"
+            f"Escribe un PERFIL DETALLADO de CADA gestor del fondo (no solo el principal).\n"
+            f"Para el gestor principal, escribe extensamente (mín 2.000 chars). Para los demás, 1-2 párrafos.\n\n"
+            f"Para CADA gestor incluye:\n"
+            f"**[Nombre del gestor] — [Cargo]**\n"
+            f"- Trayectoria profesional: formación, experiencia previa, años en el fondo\n"
+            f"- Filosofía de inversión: cómo piensa, qué le diferencia, CITAS TEXTUALES si las hay\n"
+            f"- Decisiones clave documentadas: con CONTEXTO de mercado + qué hizo + RESULTADO concreto\n"
+            f"- Rasgos diferenciales: estilo de comunicación, transparencia, coinversión\n\n"
+            f"IMPORTANTE: Escribe NARRATIVA FLUIDA, no bullets. Los párrafos deben fluir con transiciones.\n"
+            f"Si hay citas del gestor en las fuentes, inclúyelas entrecomilladas.\n"
+            f"MÍNIMO 4.000 caracteres total.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
@@ -699,9 +724,11 @@ class AnalystAgent:
         # Call 2: TEXTO — overview del equipo y roles
         texto_equipo = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Describe brevemente el equipo completo de la gestora: estructura, roles, cómo se complementan.\n"
-            f"Para cada persona que NO sea el gestor principal: cargo y contribución al equipo.\n"
-            f"No markdown.\n\n"
+            f"Escribe 3 párrafos sobre el equipo gestor en su conjunto:\n"
+            f"1. Composición, estructura, número de personas, estabilidad (¿ha habido cambios?)\n"
+            f"2. Filosofía compartida, cómo se complementan los gestores\n"
+            f"3. Conclusión: fortalezas y riesgos del equipo (ej: persona clave, experiencia, etc.)\n"
+            f"para cada persona: **Nombre — Cargo** seguido de 1-2 frases con su rol.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
@@ -828,10 +855,15 @@ class AnalystAgent:
         # Call 1: TEXTO narrativo
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Escribe un ANÁLISIS CUANTITATIVO DETALLADO de la evolución del fondo (mínimo 600 palabras).\n"
-            f"Cubre: patrimonio (AUM), partícipes, valor liquidativo con rentabilidades anuales,\n"
-            f"comisiones (TER), mix de activos (cómo cambió de puro RV a mixto), rotación.\n"
-            f"Para cada dato, incluye la cifra concreta y el contexto. No markdown.\n\n"
+            f"Escribe un ANÁLISIS CUANTITATIVO de la evolución del fondo.\n"
+            f"Estructura con subsecciones usando **Título** en negrita:\n"
+            f"- **Patrimonio (AUM)** — evolución con cifras por año, fases de crecimiento\n"
+            f"- **Partícipes** — evolución, episodios de entrada/salida masiva\n"
+            f"- **Rentabilidad** — rentabilidades anuales concretas, comparación con índices si hay datos\n"
+            f"- **Comisiones (TER)** — evolución, comparación entre clases\n"
+            f"- **Mix de activos** — cómo cambió de puro RV a mixto, por qué\n"
+            f"- **Rotación** — evolución y qué indica\n"
+            f"Cada subsección: 1-2 párrafos con cifras concretas.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
@@ -865,23 +897,32 @@ class AnalystAgent:
             "rotacion": [{"p": s.get("periodo"), "v": s.get("rotacion_pct")} for s in cuant.get("serie_rotacion", [])],
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO narrativo
+        # Call 1: TEXTO narrativo — nivel Avantage
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Escribe una NARRATIVA CRONOLÓGICA EXTENSA de la estrategia del fondo (mínimo 800 palabras).\n"
-            f"Para cada fase/periodo: decisiones tomadas, posiciones que entraron/salieron (NOMBRES CONCRETOS),\n"
-            f"cómo cambió el mix de activos, qué motivó los cambios, resultado.\n"
-            f"Organiza por fases temáticas (ej: fase fundacional, primera prueba, COVID, globalización...).\n"
-            f"No markdown.\n\n"
+            f"Escribe un ANÁLISIS DE LA ESTRATEGIA Y COHERENCIA del fondo.\n"
+            f"Este NO es un resumen de hechos — es una EVALUACIÓN con pensamiento detrás.\n\n"
+            f"ESTRUCTURA:\n"
+            f"Párrafo 1-2: Visión general de la evolución estratégica. ¿Han sido coherentes entre lo que dicen y lo que hacen?\n"
+            f"¿Qué ha cambiado y qué se ha mantenido? ¿Hay aprendizaje institucional?\n\n"
+            f"Luego organiza por FASES con **Periodo — Título** en negrita:\n"
+            f"Para CADA fase (mínimo 4 fases):\n"
+            f"- Contexto de mercado en ese periodo\n"
+            f"- Qué decisiones tomó el equipo (nombres de posiciones, % de exposición)\n"
+            f"- Qué resultado obtuvieron (rentabilidad concreta, AUM, partícipes)\n"
+            f"- ¿Fue coherente con lo que decían? ¿Aprendieron algo?\n\n"
+            f"Párrafo final: Síntesis evaluativa — ¿es un equipo coherente? ¿cuáles son sus patrones de acierto y error?\n\n"
+            f"MÍNIMO 4.000 caracteres. NARRATIVA FLUIDA, no lista de hechos.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # Call 2: DATOS hitos
+        # Call 2: DATOS hitos — forzar al menos 4
         datos = self._gemini_call(
-            f"Extrae hitos estratégicos. JSON:\n"
-            f"{{\"hitos_estrategia\":[{{\"periodo\":\"\",\"cambio\":\"string\"}}],"
-            f"\"estrategia_actual_resumen\":\"string\"}}\n"
+            f"Extrae AL MENOS 4 hitos estratégicos del fondo, uno por cada fase temporal relevante.\n"
+            f"JSON: {{\"hitos_estrategia\":[{{\"periodo\":\"2017-2019\",\"cambio\":\"descripción concreta\"}}],"
+            f"\"estrategia_actual_resumen\":\"resumen de la estrategia actual en 2-3 frases\"}}\n"
+            f"IMPORTANTE: Genera MÍNIMO 4 hitos con periodos diferentes.\n"
             f"DATOS:\n{input_data}"
         )
 
@@ -904,20 +945,31 @@ class AnalystAgent:
 
         concentration = self._compute_concentration(data)
 
+        # Get last period date for prompt
+        last_period = ""
+        for s in reversed(data.get("cuantitativo", {}).get("serie_aum", [])):
+            last_period = s.get("periodo", "")
+            break
+
         input_data = json.dumps({
             "posiciones_top20": top_positions,
             "total_posiciones": len(actuales),
             "concentracion": concentration,
+            "fecha_datos": last_period,
         }, ensure_ascii=False)
 
         # Call 1: TEXTO análisis
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Escribe un ANÁLISIS DETALLADO de la cartera actual (mínimo 500 palabras).\n"
-            f"Agrupa posiciones por bloques temáticos/geográficos.\n"
-            f"Clasifica cada posición por su país real (ISIN/ticker).\n"
-            f"Calcula concentración temática (ej: total Argentina RV+RF).\n"
-            f"Analiza riesgos de concentración. No markdown.\n\n"
+            f"Escribe un ANÁLISIS de la cartera actual (datos a fecha {last_period}).\n"
+            f"IMPORTANTE: La fecha de los datos es {last_period}. NO inventes otra fecha.\n"
+            f"Estructura con subsecciones usando **Título** en negrita:\n"
+            f"- **Composición general** — nº posiciones, distribución RV/RF/liquidez\n"
+            f"- **Renta Variable España** — principales posiciones con peso y por qué\n"
+            f"- **Renta Variable Internacional** — por bloques temáticos (tech, emergentes, Europa)\n"
+            f"- **Renta Fija** — emisores, cupones, vencimientos, riesgo\n"
+            f"- **Concentración y riesgos** — temática (ej: total Argentina), top 5/10\n"
+            f"Cada subsección: 1-2 párrafos con nombres y cifras concretas.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
@@ -962,18 +1014,19 @@ class AnalystAgent:
         # Call 1: TEXTO síntesis
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Sintetiza las OPINIONES DE TERCEROS sobre el fondo (mínimo 400 palabras).\n"
-            f"Para cada fuente relevante: qué dice, qué destaca, qué critica, citas si las hay.\n"
-            f"Excluye páginas genéricas (listados de podcasts, fichas sin contenido).\n"
-            f"No markdown.\n\n"
+            f"Sintetiza las OPINIONES DE TERCEROS sobre el fondo.\n"
+            f"Estructura con subsecciones usando **Nombre de la fuente** en negrita:\n"
+            f"Para cada fuente relevante: qué dice, qué destaca, qué critica, citas textuales si las hay.\n"
+            f"Excluye páginas genéricas (listados de podcasts, fichas sin contenido específico).\n"
+            f"Cada fuente: 1-2 párrafos con lo más relevante, no resúmenes genéricos.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # Call 2: DATOS opiniones
+        # Call 2: DATOS opiniones (con titulo y url)
         datos = self._gemini_call(
-            f"Extrae opiniones clave. JSON:\n"
-            f"{{\"opiniones_clave\":[{{\"fuente\":\"\",\"opinion\":\"\",\"sentimiento\":\"POSITIVO|NEUTRAL|NEGATIVO\"}}]}}\n"
+            f"Extrae opiniones clave de cada fuente. JSON:\n"
+            f"{{\"opiniones_clave\":[{{\"fuente\":\"\",\"titulo\":\"titulo del análisis\",\"url\":\"url de la fuente\",\"opinion\":\"resumen sustancial de lo que dice\",\"sentimiento\":\"POSITIVO|NEUTRAL|NEGATIVO\"}}]}}\n"
             f"DATOS:\n{input_data}"
         )
 
