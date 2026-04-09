@@ -161,6 +161,22 @@ class CNMVAgent:
             except Exception as exc:
                 console.log(f"[yellow]Paso C parcial: {exc}")
 
+        # ── Comisión de éxito: aggregate from serie_comisiones_por_clase ──
+        cuant_final = result.get("cuantitativo", {})
+        serie_com_final = cuant_final.get("serie_comisiones_por_clase", [])
+        has_perf_fee = False
+        perf_fee_serie = []
+        for entry in serie_com_final:
+            exito = entry.get("exito", {})
+            if exito:
+                perf_fee_serie.append({"periodo": entry.get("periodo"), "exito": exito})
+                if any(v > 0 for v in exito.values()):
+                    has_perf_fee = True
+        result["comision_exito"] = {
+            "existe": has_perf_fee,
+            "serie_historica": perf_fee_serie,
+        }
+
         self._save(result)
         self._print_summary_table(result)
         return result
@@ -569,10 +585,15 @@ class CNMVAgent:
                 existing_cls = merged.setdefault("serie_comisiones_por_clase", [])
                 yr_key = str(year)
                 if not any(e.get("periodo") == yr_key for e in existing_cls):
-                    existing_cls.append({
+                    entry = {
                         "periodo": yr_key,
                         "clases": comis_clase,
-                    })
+                    }
+                    # Add performance fee (comisión de éxito) if available
+                    exito = parsed.get("comisiones_exito_por_clase")
+                    if exito:
+                        entry["exito"] = exito
+                    existing_cls.append(entry)
 
             # Accumulate serie_aum_pdf from ALL PDFs (dedup by periodo, VL enrichment)
             for entry in parsed.get("serie_aum_pdf", []):
@@ -1265,23 +1286,49 @@ class CNMVAgent:
         )
         if class_comisiones:
             por_clase = {}
+            exito_clase = {}
             for m_row in class_comisiones:
                 cls_name = m_row[0]
-                acum_spat = float(m_row[4].replace(",", "."))  # position 4 = Acumulada s/patrimonio
+                # m_row: [0]=clase, [1]=per_spat, [2]=per_sres, [3]=per_total,
+                #         [4]=acum_spat, [5]=acum_sres, [6]=acum_total
+                acum_spat = float(m_row[4].replace(",", "."))  # Acumulada s/patrimonio
+                acum_sres = float(m_row[5].replace(",", "."))  # Acumulada s/resultados (comisión éxito)
                 if acum_spat >= 0:
                     por_clase[cls_name] = acum_spat
+                exito_clase[cls_name] = acum_sres
             if por_clase:
                 result["comisiones_gestion_por_clase"] = por_clase
                 result["coste_gestion_pct"] = min(por_clase.values())
+            # Comisión de éxito (sobre resultados)
+            result["comisiones_exito_por_clase"] = exito_clase
+            result["cobra_comision_exito"] = any(v > 0 for v in exito_clase.values())
         else:
             # Fallback: aggregate row (single-class funds)
+            # Try 6-number pattern first (with s/resultados)
             m = re.search(
                 r'Comisi[oó]n\s+de\s+gesti[oó]n\s+'
-                r'([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)',
+                r'(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)',
                 text,
             )
             if m:
-                result["coste_gestion_pct"] = float(m.group(4).replace(",", "."))
+                acum_spat = float(m.group(4).replace(",", "."))
+                acum_sres = float(m.group(5).replace(",", "."))
+                result["coste_gestion_pct"] = acum_spat
+                result["comisiones_exito_por_clase"] = {"UNICA": acum_sres}
+                result["cobra_comision_exito"] = acum_sres > 0
+                # Check base de cálculo for "mixta" → indicates performance fee structure exists
+                base_m = re.search(r'(?:mixta|resultados)', text[m.start():m.start()+200], re.IGNORECASE)
+                if base_m:
+                    result["base_comision"] = "mixta"
+            else:
+                # Last resort: 4-number pattern
+                m = re.search(
+                    r'Comisi[oó]n\s+de\s+gesti[oó]n\s+'
+                    r'([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)',
+                    text,
+                )
+                if m:
+                    result["coste_gestion_pct"] = float(m.group(4).replace(",", "."))
 
         # Comisión depositario: "Comisión de depositario  0,04  0,07 patrimonio"
         m = re.search(r'Comisi[oó]n\s+de\s+depositario\s+([\d,]+)\s+([\d,]+)', text)
@@ -1946,6 +1993,30 @@ class CNMVAgent:
             last = ter_series[-1]
             result["kpis"]["ter_pct"] = last.get("ter_pct")
             result["kpis"]["coste_gestion_pct"] = last.get("coste_gestion_pct")
+
+        # Comisión de éxito: check if any year had performance fees > 0
+        # Look in the RESULT cuantitativo (already merged at this point)
+        cuant_result = result.get("cuantitativo", {})
+        serie_com = cuant_result.get("serie_comisiones_por_clase", [])
+        has_exito = False
+        exito_serie = []
+        base_com = "patrimonio"
+        for entry in serie_com:
+            exito = entry.get("exito", {})
+            if exito:
+                exito_serie.append({"periodo": entry.get("periodo"), "exito": exito})
+                if any(v > 0 for v in exito.values()):
+                    has_exito = True
+        # Check pdf_data for base_comision (mixta = has performance fee structure)
+        if isinstance(pdf_data, dict):
+            base_com = pdf_data.get("base_comision", base_com)
+            if pdf_data.get("cobra_comision_exito"):
+                has_exito = True
+        result["comision_exito"] = {
+            "existe": has_exito or base_com == "mixta",
+            "serie_historica": exito_serie,
+            "base_comision": base_com,
+        }
 
     def _save(self, result: dict) -> None:
         """Guarda el resultado parcial o final en cnmv_data.json."""
