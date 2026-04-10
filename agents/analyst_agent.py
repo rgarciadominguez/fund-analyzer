@@ -31,13 +31,36 @@ console = Console()
 
 class AnalystAgent:
 
-    def __init__(self, isin: str, config: dict = None):
+    def __init__(self, isin: str, config: dict = None, quality_feedback: list = None):
         self.isin = isin.strip().upper()
         self.config = config or {}
+        # quality_feedback: lista de fallos del DashboardQualityAgent (re-ejecución)
+        # Cada fallo: {seccion, problema, agente_responsable, accion, prioridad}
+        self.quality_feedback = quality_feedback or []
         root = Path(__file__).parent.parent
         self.fund_dir = root / "data" / "funds" / self.isin
         self.schema_path = root / "schemas" / "fund_output_v2.json"
         self.log_path = root / "progress.log"
+
+    def _quality_hint(self, section: str) -> str:
+        """Build a 'CORRECCIONES OBLIGATORIAS' block to inject in prompts when re-running.
+        Only includes fallos targeted at analyst_agent for the given section."""
+        if not self.quality_feedback:
+            return ""
+        relevant = [f for f in self.quality_feedback
+                    if f.get("seccion") == section
+                    and f.get("agente_responsable") == "analyst_agent"]
+        if not relevant:
+            return ""
+        lines = ["", "CORRECCIONES OBLIGATORIAS (iteración previa marcó fallos):"]
+        for f in relevant:
+            prob = f.get("problema", "")
+            acc = f.get("accion", "")
+            prio = f.get("prioridad", "")
+            lines.append(f"- [{prio}] {prob} → {acc}")
+        lines.append("DEBES corregir TODOS los fallos arriba listados en esta nueva versión.")
+        lines.append("")
+        return "\n".join(lines)
 
     def _log(self, level: str, msg: str):
         ts = datetime.now().strftime("%H:%M:%S")
@@ -615,6 +638,7 @@ class AnalystAgent:
         # Call 1: TEXTO libre — prompt nivel Avantage
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._quality_hint('resumen')}"
             f"Escribe un RESUMEN EJECUTIVO que permita entender el fondo completo en un solo vistazo.\n"
             f"El texto debe ser NARRATIVA FLUIDA con hilo conductor — NO una lista de datos.\n"
             f"Cada párrafo debe fluir al siguiente con transiciones naturales.\n\n"
@@ -634,16 +658,42 @@ class AnalystAgent:
         )
         time.sleep(2)
 
-        # Call 2: DATOS estructurados
+        # Call 2: DATOS estructurados — FORZAR mínimo 4 fortalezas y 3 riesgos
         datos = self._gemini_call(
-            f"Extrae datos estructurados de este fondo. Responde SOLO JSON.\n"
-            f"Schema: {{\"fortalezas\":[\"string específica\"],\"riesgos\":[\"string específica\"],"
-            f"\"para_quien_es\":\"string\",\"compromiso_gestor\":\"string\","
+            f"Extrae datos estructurados de este fondo a partir del análisis y los datos brutos.\n"
+            f"OBLIGATORIO: mínimo 4 fortalezas concretas y mínimo 3 riesgos concretos.\n"
+            f"Cada fortaleza/riesgo debe ser una frase específica del fondo (no genérica).\n"
+            f"Responde SOLO JSON.\n"
+            f"Schema: {{\"fortalezas\":[\"string específica\",\"string\",\"string\",\"string\"],"
+            f"\"riesgos\":[\"string específica\",\"string\",\"string\"],"
+            f"\"para_quien_es\":\"string descriptivo del perfil del inversor adecuado\","
+            f"\"compromiso_gestor\":\"string sobre coinversión, % capital propio, alineamiento\","
             f"\"signal\":\"POSITIVO|NEUTRAL|NEGATIVO\",\"signal_rationale\":\"string\"}}\n\n"
-            f"DATOS:\n{input_data}"
+            f"TEXTO DEL ANÁLISIS:\n{texto[:4000]}\n\n"
+            f"DATOS BRUTOS:\n{input_data}"
         )
         if not datos:
             datos = {}
+
+        # Reintentro condicional: si <3 riesgos o <4 fortalezas, hacer una segunda extracción
+        n_fort = len(datos.get("fortalezas", []) or [])
+        n_riesg = len(datos.get("riesgos", []) or [])
+        if n_riesg < 3 or n_fort < 4:
+            self._log("RETRY", f"Resumen: solo {n_fort} fortalezas / {n_riesg} riesgos — re-extrayendo")
+            time.sleep(2)
+            extra = self._gemini_call(
+                f"Del siguiente texto sobre un fondo, extrae EXACTAMENTE 4 fortalezas concretas "
+                f"y 3 riesgos concretos. Cada item debe ser una frase específica del fondo "
+                f"(referenciar cifras, gestor, estrategia, posiciones).\n"
+                f"Responde SOLO JSON: {{\"fortalezas\":[\"\",\"\",\"\",\"\"],\"riesgos\":[\"\",\"\",\"\"]}}\n\n"
+                f"TEXTO:\n{texto[:5000]}"
+            )
+            if extra:
+                if len(extra.get("fortalezas", []) or []) >= 4:
+                    datos["fortalezas"] = extra["fortalezas"]
+                if len(extra.get("riesgos", []) or []) >= 3:
+                    datos["riesgos"] = extra["riesgos"]
+                self._log("OK", f"Resumen retry: {len(datos.get('fortalezas',[]))} fortalezas / {len(datos.get('riesgos',[]))} riesgos")
 
         datos["texto"] = texto
         return datos if texto else None
@@ -664,6 +714,7 @@ class AnalystAgent:
 
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._quality_hint('historia')}"
             f"Escribe la HISTORIA del fondo como una NARRATIVA CRONOLÓGICA FLUIDA — NO como lista de bullets.\n"
             f"El texto debe leer como un artículo de análisis, con párrafos conectados por transiciones naturales.\n"
             f"Agrupa los años en FASES temáticas (no año por año mecánicamente).\n"
@@ -675,12 +726,35 @@ class AnalystAgent:
         )
         time.sleep(2)
 
+        # DATOS: extraer mínimo 5 hitos del texto generado
         datos = self._gemini_call(
-            f"Extrae hitos del fondo. JSON: {{\"hitos\":[{{\"anio\":\"YYYY\",\"evento\":\"string\"}}]}}\n"
-            f"DATOS:\n{input_data}"
+            f"Del siguiente texto sobre la historia de un fondo, extrae MÍNIMO 5 hitos cronológicos.\n"
+            f"Cada hito debe tener año concreto y descripción del evento (no genérica).\n"
+            f"Incluye lanzamiento del fondo, hechos relevantes, cambios de gestor, crisis, decisiones clave.\n"
+            f"Responde SOLO JSON: {{\"hitos\":[{{\"anio\":\"YYYY\",\"evento\":\"string concreto\"}},...]}}\n"
+            f"OBLIGATORIO: mínimo 5 hitos.\n\n"
+            f"TEXTO:\n{texto[:5000]}\n\n"
+            f"DATOS BRUTOS:\n{input_data}"
         )
 
         result = datos if datos else {}
+
+        # Reintentro condicional: si <5 hitos, re-extraer del texto
+        n_hitos = len(result.get("hitos", []) or [])
+        if n_hitos < 5:
+            self._log("RETRY", f"Historia: solo {n_hitos} hitos — re-extrayendo del texto")
+            time.sleep(2)
+            extra = self._gemini_call(
+                f"Lee el siguiente texto sobre la historia de un fondo y extrae los 5+ eventos "
+                f"más importantes en orden cronológico. Cada uno con año y descripción concreta.\n"
+                f"Responde SOLO JSON: {{\"hitos\":[{{\"anio\":\"YYYY\",\"evento\":\"string\"}}]}}\n"
+                f"DEBE haber MÍNIMO 5 hitos. Si el texto solo menciona 3, busca años en el texto y crea hitos adicionales.\n\n"
+                f"TEXTO:\n{texto[:6000]}"
+            )
+            if extra and len(extra.get("hitos", []) or []) >= 5:
+                result["hitos"] = extra["hitos"]
+                self._log("OK", f"Historia retry: {len(result['hitos'])} hitos")
+
         result["texto"] = texto
         return result if texto else None
 
@@ -706,6 +780,7 @@ class AnalystAgent:
         # Call 1: TEXTO — perfil detallado del gestor principal
         texto_principal = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._quality_hint('gestores')}"
             f"Escribe un PERFIL DETALLADO de CADA gestor del fondo (no solo el principal).\n"
             f"Para el gestor principal, escribe extensamente (mín 2.000 chars). Para los demás, 1-2 párrafos.\n\n"
             f"Para CADA gestor incluye:\n"
@@ -733,14 +808,49 @@ class AnalystAgent:
         )
         time.sleep(2)
 
-        # Call 3: DATOS estructurados
+        # Call 3: DATOS estructurados perfiles
         datos = self._gemini_call(
-            f"Extrae perfiles del equipo. JSON:\n"
-            f"{{\"perfiles\":[{{\"nombre\":\"\",\"cargo\":\"\",\"decisiones_clave\":[\"string\"]}}]}}\n"
+            f"Extrae perfiles del equipo gestor. Para CADA perfil incluye nombre, cargo, "
+            f"decisiones_clave (lista de 2-4 strings concretas), trayectoria (string), "
+            f"y filosofia (string con su filosofía de inversión, 3-5 frases concretas).\n"
+            f"Responde SOLO JSON:\n"
+            f"{{\"perfiles\":[{{\"nombre\":\"\",\"cargo\":\"\",\"trayectoria\":\"\","
+            f"\"filosofia\":\"string con filosofía concreta\","
+            f"\"decisiones_clave\":[\"string\",\"string\"],"
+            f"\"rasgos_diferenciales\":\"\"}}]}}\n"
             f"DATOS:\n{input_data}"
         )
 
         result = datos if datos else {}
+
+        # Call 4: SIEMPRE extraer filosofía del gestor principal si hay fuentes web
+        # (resuelve el caso 'gestor sin filosofía' del quality_agent)
+        perfiles = result.get("perfiles", []) or []
+        if perfiles and fuentes_compact:
+            lead_name = perfiles[0].get("nombre", "")
+            if lead_name and not perfiles[0].get("filosofia"):
+                self._log("RETRY", f"Gestores: extrayendo filosofía explícita de {lead_name}")
+                time.sleep(2)
+                fuentes_str = "\n\n".join(
+                    f"FUENTE: {f.get('titulo','')}\n{f.get('texto','')[:1000]}"
+                    for f in fuentes_compact[:6]
+                )
+                filo_text = self._gemini_text(
+                    f"Analiza estas fuentes web sobre el gestor {lead_name}.\n"
+                    f"Extrae su FILOSOFÍA DE INVERSIÓN en 3-5 frases concretas.\n"
+                    f"Si hay citas textuales del gestor, inclúyelas entrecomilladas.\n"
+                    f"NO uses bullets — escribe párrafo fluido.\n"
+                    f"NO digas 'la filosofía de X es...' — entra directo al contenido.\n"
+                    f"Si las fuentes no contienen información explícita sobre filosofía, "
+                    f"infiere la filosofía a partir de las decisiones, posiciones y comentarios documentados.\n\n"
+                    f"FUENTES:\n{fuentes_str}",
+                    max_tokens=2000,
+                )
+                if filo_text and len(filo_text) > 100:
+                    perfiles[0]["filosofia"] = filo_text.strip()
+                    result["perfiles"] = perfiles
+                    self._log("OK", f"Filosofía extraída para {lead_name}: {len(filo_text)} chars")
+
         result["texto"] = (texto_equipo + "\n\n" + texto_principal) if texto_principal else texto_equipo
         return result if result.get("texto") else None
 
@@ -900,6 +1010,7 @@ class AnalystAgent:
         # Call 1: TEXTO narrativo — nivel Avantage
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._quality_hint('estrategia')}"
             f"Escribe un ANÁLISIS DE LA ESTRATEGIA Y COHERENCIA del fondo.\n"
             f"Este NO es un resumen de hechos — es una EVALUACIÓN con pensamiento detrás.\n\n"
             f"ESTRUCTURA:\n"
@@ -961,6 +1072,7 @@ class AnalystAgent:
         # Call 1: TEXTO análisis
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._quality_hint('cartera')}"
             f"Escribe un ANÁLISIS de la cartera actual (datos a fecha {last_period}).\n"
             f"IMPORTANTE: La fecha de los datos es {last_period}. NO inventes otra fecha.\n"
             f"Estructura con subsecciones usando **Título** en negrita:\n"

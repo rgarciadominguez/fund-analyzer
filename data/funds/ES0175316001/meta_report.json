@@ -1,23 +1,26 @@
 {
   "isin": "ES0175316001",
   "nombre": "DUNAS VALOR FLEXIBLE FI",
-  "timestamp": "2026-04-05T09:45:41.270099",
-  "completeness_pct": 94.4,
+  "timestamp": "2026-04-10T10:49:04.838937",
+  "completeness_pct": 66.7,
+  "dashboard_ready": true,
+  "dashboard_blockers": [],
   "issues": [
     "gestores vacíos — buscar en Citywire / Finect",
-    "serie AUM muy corta (2 puntos) — añadir XMLs históricos",
-    "mix_activos 2018 suma 188.8% (esperado ~100%)",
-    "mix_activos 2017 suma 183.3% (esperado ~100%)",
-    "mix_activos 2016 suma 188.2% (esperado ~100%)",
-    "mix_activos 2015 suma 185.5% (esperado ~100%)",
-    "mix_activos 2014 suma 186.7% (esperado ~100%)",
-    "mix_activos 2013 suma 182.2% (esperado ~100%)",
-    "mix_activos 2012 suma 185.2% (esperado ~100%)",
-    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)",
-    "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
+    "sin estrategia ni filosofía de inversión — necesita PDFs cualitativos",
+    "solo 0 periodos de consistencia — añadir más PDFs semestrales",
+    "mix_activos 2025 suma 184.8% (esperado ~100%)",
+    "mix_activos 2024 suma 181.0% (esperado ~100%)",
+    "mix_activos 2023 suma 181.7% (esperado ~100%)",
+    "mix_activos 2022 suma 174.2% (esperado ~100%)",
+    "mix_activos 2021 suma 177.1% (esperado ~100%)",
+    "mix_activos 2020 suma 181.6% (esperado ~100%)",
+    "mix_activos 2019 suma 178.7% (esperado ~100%)",
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)"
   ],
   "suggestions": [
-    "Años sin datos AUM: 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2026 -> descargar XMLs CNMV de esos años",
+    "Años sin datos AUM: 2026 -> descargar XMLs CNMV de esos años",
+    "-> Anadir más PDFs semestrales en raw/reports/",
     "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0175316001 --auto"
   ],
   "feedback_previo": [
@@ -35,9 +38,9 @@
     }
   ],
   "stats": {
-    "periodos_consistencia": 14,
+    "periodos_consistencia": 0,
     "posiciones_actuales": 101,
-    "puntos_aum": 2,
+    "puntos_aum": 14,
     "gestores": 0
   }
 }

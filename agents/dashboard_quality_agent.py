@@ -361,7 +361,13 @@ class DashboardQualityAgent:
         if rules.get("must_have_rotacion"):
             checks_total += 1
             rot = cuant.get("serie_rotacion", [])
-            if len(rot) < 2:
+            # Cartera permanente: rotación nula es por diseño — no marcar como fallo
+            nombre_lower = (full_data.get("nombre", "") or "").lower()
+            es_cartera_permanente = "cartera permanente" in nombre_lower or "permanent portfolio" in nombre_lower
+            if es_cartera_permanente:
+                # Estrategia es no-rotar — aceptamos rotacion=0 como diseño
+                checks_passed += 1
+            elif len(rot) < 2:
                 fallos.append({
                     "seccion": "datos_cuantitativos",
                     "problema": f"serie_rotacion: {len(rot)} puntos. Necesaria para análisis de estrategia.",

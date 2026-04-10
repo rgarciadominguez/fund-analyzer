@@ -421,6 +421,35 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
 
         progress.advance(main_task)
 
+        # ── Paso 6: Quality Loop — Dashboard Quality Agent ───────────────────
+        # Evalúa output.json contra patrón Avantage. Si no es aceptable,
+        # re-ejecuta agentes upstream con feedback hasta max_iter veces.
+        progress.update(main_task, description="Quality Loop (Dashboard)")
+        log("ORCHESTRATOR", "START", "Paso 6: Dashboard Quality Loop")
+
+        try:
+            quality_report = await _run_quality_loop(
+                isin, fund_dir, config,
+                fund_name_hint=fund_name_hint,
+                gestora_hint=gestora_hint,
+                anio_creacion_hint=anio_creacion_hint,
+                gestores_hint=gestores_hint,
+                log=log,
+                max_iter=5,
+            )
+            results["quality"] = quality_report
+            score = quality_report.get("score", 0)
+            aceptable = quality_report.get("aceptable", False)
+            log("QUALITY", "OK", f"Score final: {score}/100 — {'ACEPTABLE' if aceptable else 'INSUFICIENTE'}")
+            # Refrescar output después del loop
+            out_path = fund_dir / "output.json"
+            if out_path.exists():
+                results["output"] = json.loads(out_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            log("QUALITY", "ERROR", f"Quality loop falló: {exc}")
+            import traceback
+            log("QUALITY", "TRACE", traceback.format_exc()[:500])
+
     # ═══════════════════════════════════════════════════════════════════════
     # POST-PIPELINE: Verificación → Publicación → Feedback → Auto-mejora
     # ═══════════════════════════════════════════════════════════════════════
@@ -518,6 +547,150 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
     )
     log("OUTPUT", "OK", summary)
     return output
+
+
+# ── Quality Loop ─────────────────────────────────────────────────────────────
+
+async def _run_quality_loop(
+    isin: str,
+    fund_dir: Path,
+    config: dict,
+    fund_name_hint: str,
+    gestora_hint: str,
+    anio_creacion_hint,
+    gestores_hint: list,
+    log,
+    max_iter: int = 2,
+) -> dict:
+    """Loop iterativo: evalúa con DashboardQualityAgent → reagenta upstream agents
+    en función de los fallos → re-ejecuta analyst → re-evalúa.
+    Termina cuando aceptable=True o max_iter alcanzado.
+    """
+    from agents.dashboard_quality_agent import DashboardQualityAgent
+
+    quality = DashboardQualityAgent(isin)
+    report = quality.run()
+    log("QUALITY", "INFO",
+        f"Iteración 0 — score {report.get('score', 0)}/100, "
+        f"{len(report.get('fallos', []))} fallos")
+
+    iteration = 0
+    while not report.get("aceptable", False) and iteration < max_iter:
+        iteration += 1
+        log("QUALITY", "INFO", f"Iteración {iteration}/{max_iter} — reagenting upstream agents")
+
+        # Agrupar fallos por agente responsable
+        fallos = report.get("fallos", [])
+        fallos_por_agente: dict = {}
+        for f in fallos:
+            agente = f.get("agente_responsable", "analyst_agent")
+            fallos_por_agente.setdefault(agente, []).append(f)
+
+        log("QUALITY", "INFO",
+            f"Fallos por agente: " + ", ".join(
+                f"{a}={len(fs)}" for a, fs in fallos_por_agente.items()))
+
+        # ── Re-ejecutar upstream agents según fallos ─────────────────────────
+        # manager_deep_agent: filosofía/perfiles del gestor
+        if "manager_deep_agent" in fallos_por_agente:
+            try:
+                from agents.manager_deep_agent import ManagerDeepAgent
+                log("QUALITY", "RETRY", "Re-ejecutando manager_deep_agent")
+                manager = ManagerDeepAgent(
+                    isin, fund_name=fund_name_hint,
+                    gestora=gestora_hint, manager_names=gestores_hint or None,
+                )
+                await manager.run()
+                log("QUALITY", "OK", "manager_deep_agent re-ejecutado")
+            except Exception as exc:
+                log("QUALITY", "ERROR", f"manager_deep retry falló: {exc}")
+
+        # readings_agent: fuentes externas
+        if "readings_agent" in fallos_por_agente:
+            try:
+                from agents.readings_agent import ReadingsAgent
+                log("QUALITY", "RETRY", "Re-ejecutando readings_agent")
+                readings = ReadingsAgent(
+                    isin, fund_name=fund_name_hint,
+                    gestora=gestora_hint, gestores=gestores_hint,
+                )
+                await readings.run()
+                log("QUALITY", "OK", "readings_agent re-ejecutado")
+            except Exception as exc:
+                log("QUALITY", "ERROR", f"readings retry falló: {exc}")
+
+        # letters_agent: cartas trimestrales
+        if "letters_agent" in fallos_por_agente:
+            try:
+                from agents.letters_agent import LettersAgent
+                log("QUALITY", "RETRY", "Re-ejecutando letters_agent")
+                letters = LettersAgent(
+                    isin, config,
+                    gestora_url=config.get("gestora_url", ""),
+                    fund_name=fund_name_hint,
+                    gestora=gestora_hint,
+                    anio_creacion=anio_creacion_hint,
+                )
+                await letters.run()
+                log("QUALITY", "OK", "letters_agent re-ejecutado")
+            except Exception as exc:
+                log("QUALITY", "ERROR", f"letters retry falló: {exc}")
+
+        # cnmv_agent: solo en casos extremos (es muy costoso)
+        # Lo dejamos fuera del loop por defecto — los datos cuantitativos
+        # rara vez mejoran sin descargas nuevas.
+
+        # ── Re-ejecutar analyst SIEMPRE con quality_feedback ─────────────────
+        # Aunque los fallos sean de upstream, analyst debe re-sintetizar
+        # con los nuevos datos + las correcciones específicas.
+        try:
+            from agents.analyst_agent import AnalystAgent
+            log("QUALITY", "RETRY", "Re-ejecutando analyst_agent con quality_feedback")
+            analyst = AnalystAgent(isin, config, quality_feedback=fallos)
+            analyst.run()
+            log("QUALITY", "OK", "analyst_agent re-ejecutado")
+        except Exception as exc:
+            log("QUALITY", "ERROR", f"analyst retry falló: {exc}")
+
+        # ── Re-evaluar ───────────────────────────────────────────────────────
+        report = quality.run()
+        log("QUALITY", "INFO",
+            f"Iteración {iteration} — nuevo score {report.get('score', 0)}/100, "
+            f"{len(report.get('fallos', []))} fallos")
+
+    # ── Re-generar dashboard HTML con el output final del loop ──────────────
+    try:
+        import subprocess
+        gen_path = ROOT / "dashboard" / "generate_dashboard.py"
+        result = subprocess.run(
+            ["python", str(gen_path), isin],
+            cwd=str(ROOT), capture_output=True, text=True, timeout=60,
+        )
+        if result.returncode == 0:
+            log("QUALITY", "OK", f"Dashboard HTML regenerado tras quality loop")
+        else:
+            log("QUALITY", "WARN", f"generate_dashboard falló: {result.stderr[:200]}")
+    except Exception as exc:
+        log("QUALITY", "WARN", f"No se pudo regenerar dashboard: {exc}")
+
+    if report.get("aceptable", False):
+        console.print(Panel(
+            f"[bold green]Quality loop OK — score {report['score']}/100 (iteración {iteration})[/bold green]",
+            border_style="green",
+        ))
+    else:
+        fallos_summary = "\n".join(
+            f"  • [{f.get('prioridad','?')}] {f.get('seccion','?')}: {f.get('problema','')[:80]}"
+            for f in report.get("fallos", [])[:8]
+        )
+        console.print(Panel(
+            f"[bold yellow]Quality loop terminó sin alcanzar 80 — score {report.get('score', 0)}/100[/bold yellow]\n"
+            f"Tras {iteration} iteraciones quedan {len(report.get('fallos', []))} fallos:\n{fallos_summary}",
+            title="Quality insuficiente",
+            border_style="yellow",
+        ))
+
+    return report
 
 
 # ── Git helpers ───────────────────────────────────────────────────────────────
