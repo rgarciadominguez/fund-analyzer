@@ -40,7 +40,12 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from tools.claude_extractor import extract_structured_data
+from tools.llm_extractor import extract_structured as _llm_extract_structured
+# Legacy import kept as alias for backward compatibility
+try:
+    from tools.claude_extractor import extract_structured_data
+except Exception:
+    extract_structured_data = None
 from tools.http_client import get_with_headers
 from tools.pdf_extractor import extract_page_range, get_pdf_metadata
 
@@ -120,8 +125,8 @@ def _ts() -> str:
 
 
 def _has_api_key() -> bool:
-    """Check whether ANTHROPIC_API_KEY is available."""
-    return bool(os.getenv("ANTHROPIC_API_KEY"))
+    """Check whether any LLM API key is available (Gemini or Claude)."""
+    return bool(os.getenv("GOOGLE_API_KEY") or os.getenv("ANTHROPIC_API_KEY"))
 
 
 def _has_value(value) -> bool:
@@ -623,13 +628,16 @@ class LettersDeepAgent:
             f"clave y perspectivas."
         )
 
-        loop = asyncio.get_event_loop()
-        raw = await loop.run_in_executor(
-            None, extract_structured_data, text, DEEP_SCHEMA, context,
+        # Use unified LLM extractor (Gemini first, Claude fallback)
+        raw = _llm_extract_structured(
+            text=text,
+            schema=DEEP_SCHEMA,
+            context=context,
+            provider="auto",
         )
 
-        if not isinstance(raw, dict):
-            raise ValueError(f"Claude returned non-dict: {type(raw)}")
+        if not isinstance(raw, dict) or raw is None:
+            raise ValueError(f"LLM extractor returned non-dict: {type(raw)}")
 
         return self._clean_deep_result(raw)
 

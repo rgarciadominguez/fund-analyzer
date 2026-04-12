@@ -563,20 +563,24 @@ async def _run_quality_loop(
     max_iter: int = 2,
 ) -> dict:
     """Loop iterativo: evalúa con DashboardQualityAgent → reagenta upstream agents
-    en función de los fallos → re-ejecuta analyst → re-evalúa.
-    Termina cuando aceptable=True o max_iter alcanzado.
+    según los fallos → re-ejecuta analyst → re-evalúa.
+
+    Termina cuando:
+      - fallos == 0
+      - max_iter alcanzado
+      - una iteración no reduce el número de fallos (no estamos avanzando)
     """
     from agents.dashboard_quality_agent import DashboardQualityAgent
 
     quality = DashboardQualityAgent(isin)
     report = quality.run()
-    log("QUALITY", "INFO",
-        f"Iteración 0 — score {report.get('score', 0)}/100, "
-        f"{len(report.get('fallos', []))} fallos")
+    n_fallos = len(report.get("fallos", []))
+    log("QUALITY", "INFO", f"Iteración 0 — {n_fallos} fallos")
 
     iteration = 0
-    while not report.get("aceptable", False) and iteration < max_iter:
+    while n_fallos > 0 and iteration < max_iter:
         iteration += 1
+        prev_fallos = n_fallos
         log("QUALITY", "INFO", f"Iteración {iteration}/{max_iter} — reagenting upstream agents")
 
         # Agrupar fallos por agente responsable
@@ -654,9 +658,13 @@ async def _run_quality_loop(
 
         # ── Re-evaluar ───────────────────────────────────────────────────────
         report = quality.run()
-        log("QUALITY", "INFO",
-            f"Iteración {iteration} — nuevo score {report.get('score', 0)}/100, "
-            f"{len(report.get('fallos', []))} fallos")
+        n_fallos = len(report.get("fallos", []))
+        log("QUALITY", "INFO", f"Iteración {iteration} — {n_fallos} fallos (antes: {prev_fallos})")
+
+        # Abortar si no estamos reduciendo fallos
+        if n_fallos >= prev_fallos:
+            log("QUALITY", "WARN", f"Iteración {iteration} no redujo fallos — abortando loop")
+            break
 
     # ── Re-generar dashboard HTML con el output final del loop ──────────────
     try:
@@ -673,20 +681,21 @@ async def _run_quality_loop(
     except Exception as exc:
         log("QUALITY", "WARN", f"No se pudo regenerar dashboard: {exc}")
 
-    if report.get("aceptable", False):
+    final_fallos = len(report.get("fallos", []))
+    if final_fallos == 0:
         console.print(Panel(
-            f"[bold green]Quality loop OK — score {report['score']}/100 (iteración {iteration})[/bold green]",
+            f"[bold green]Quality loop OK — 0 fallos (iteración {iteration})[/bold green]",
             border_style="green",
         ))
     else:
         fallos_summary = "\n".join(
-            f"  • [{f.get('prioridad','?')}] {f.get('seccion','?')}: {f.get('problema','')[:80]}"
+            f"  • [{f.get('seccion','?')}] {f.get('problema','')[:90]}"
             for f in report.get("fallos", [])[:8]
         )
         console.print(Panel(
-            f"[bold yellow]Quality loop terminó sin alcanzar 80 — score {report.get('score', 0)}/100[/bold yellow]\n"
-            f"Tras {iteration} iteraciones quedan {len(report.get('fallos', []))} fallos:\n{fallos_summary}",
-            title="Quality insuficiente",
+            f"[bold yellow]Quality loop terminó con {final_fallos} fallos restantes[/bold yellow]\n"
+            f"Tras {iteration} iteraciones quedan:\n{fallos_summary}",
+            title="Quality con fallos pendientes",
             border_style="yellow",
         ))
 

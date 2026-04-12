@@ -88,40 +88,34 @@ class ManagerDeepAgent:
                     self.manager_names.append(name)
             self._log("INFO", f"Equipo ampliado desde web: {len(self.manager_names)} personas")
 
-        # ── Paso 2: Búsquedas INDIVIDUALES por cada gestor ───────────────────
-        # Prioritize: people in inversiones/dirección areas first
-        all_search_results = []
-        real_names = [n for n in self.manager_names if not n.startswith("Equipo")]
-        if team_detail:
-            # Reorder: inversiones > dirección > rest
-            inv_names = [t["nombre"] for t in team_detail if t.get("area") in ("inversiones", "dirección")]
-            other_names = [n for n in real_names if n not in inv_names]
-            real_names = inv_names + other_names
-        for name in real_names[:5]:  # Max 5 gestores individuales
-            self._log("INFO", f"Buscando info de: {name}")
-            results = await self._search_for_manager(name)
-            all_search_results.extend(results)
-        # Also search the fund itself for general info
-        fund_results = await self.search.search(
-            f'"{self.fund_short}" gestor equipo inversiones', num=5, agent="manager_deep"
+        # ── Paso 2-4: Discovery Agent (búsqueda + fetch unificado) ──────────
+        # Reemplaza las búsquedas individuales + fetch_page_text silencioso
+        # con el DiscoveryAgent que usa web_fetcher con escalada + caché.
+        from agents.discovery_agent import DiscoveryAgent
+        discovery = DiscoveryAgent(
+            isin=self.isin,
+            fund_name=self.fund_name,
+            gestora=self.gestora,
+            manager_names=self.manager_names,
         )
-        all_search_results.extend(fund_results)
-        self._log("INFO", f"Búsquedas: {len(all_search_results)} URLs únicas")
+        discovery_sources = await discovery.find_manager_info()
+        self._log("OK", f"Discovery: {len(discovery_sources)} fuentes con contenido")
 
-        # ── Paso 3: Filtrar URLs buenas ──────────────────────────────────────
-        filtered = self._filter_relevant(all_search_results)
-        self._log("INFO", f"URLs filtradas: {len(filtered)} (de {len(all_search_results)})")
-
-        # ── Paso 4: Fetch contenido ──────────────────────────────────────────
+        # Convert FetchedSource → format expected by downstream steps
         fetched_pages = []
-        for r in filtered[:15]:  # Max 15 pages
-            text = await fetch_page_text(r["url"], max_chars=5000)
-            if text and len(text) > 300:
-                fetched_pages.append({
-                    "url": r["url"], "title": r["title"],
-                    "snippet": r.get("snippet", ""), "text": text,
-                })
-                self._log("INFO", f"Fetched: {r['title'][:50]} ({len(text)}c)")
+        filtered = []
+        for src in discovery_sources:
+            fetched_pages.append({
+                "url": src.url,
+                "title": src.titulo,
+                "snippet": src.metadata.get("snippet", ""),
+                "text": src.text,
+            })
+            filtered.append({
+                "title": src.titulo,
+                "url": src.url,
+                "snippet": src.metadata.get("snippet", ""),
+            })
         self._log("INFO", f"Páginas descargadas: {len(fetched_pages)}")
 
         # Extraer de cartas y CNMV
