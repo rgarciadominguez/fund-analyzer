@@ -3,28 +3,100 @@
   "nombre": "CARTESIO X, FI",
   "fallos": [
     {
-      "regla_id": "resumen_has_cifras",
-      "seccion": "resumen",
-      "fail_type": "content",
-      "problema": "Resumen con pocas cifras concretas (4 encontradas, mínimo 5). Parece genérico.",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
     },
     {
-      "regla_id": "estrategia_min_chars",
-      "seccion": "estrategia",
+      "regla_id": "gestores_lead_has_filosofia",
+      "seccion": "gestores",
       "fail_type": "estructura",
-      "problema": "Estrategia demasiado corta: 2272 chars (mínimo 2500)",
+      "problema": "Gestor principal '' sin filosofía de inversión.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
       "agente_responsable": "analyst_agent",
-      "accion": "Re-generar estrategia con análisis evaluativo detallado."
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "gestores_lead_trayectoria_min",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Trayectoria del gestor principal solo 0 chars (minimo 1000)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con trayectoria EXTENSA (3-4 parrafos)."
+    },
+    {
+      "regla_id": "gestores_lead_cv_bullets",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+    },
+    {
+      "regla_id": "cuant_serie_vl_valid",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "Serie VL corrupta (enteros_repetidos): VLs=[1.0, 2.0]. No refleja VLs reales del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar extraccion de VL en cnmv_agent. Puede estar leyendo AUM, numero de participes u otro campo como VL."
+    },
+    {
+      "regla_id": "gestores_equipo_not_generic",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Equipo gestor generico (equipo_generico): Equipo CARTESIO INVERSIONES, SGIIC, S.A.. Debe mostrar nombres reales de gestores.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent o revisar orchestrator fallback. Los perfiles estan en manager_profile.json, mover nombres reales a gestores.equipo."
+    },
+    {
+      "regla_id": "cuant_mix_activos_sum_100",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "Mix de activos con sumas incorrectas (suma_incorrecta): 2025=194%, 2024=194%, 2023=193%, 2022=188%, 2021=187%. Cada año debe sumar ~100%.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar extraccion XML CNMV seccion 3.1. Tomar solo valores TOTAL (no sumar subtotales + totales). Verificar que renta_fija_pct incluya solo RF pura, no depositos ni otros."
+    },
+    {
+      "regla_id": "cuant_mix_activos_no_over_100",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "Componente individual supera 100% (componente_sobre_100): 2025 RF=159%, 2024 RF=154%, 2023 RF=149%, 2022 RF=125%, 2020 RF=114%. Imposible — datos duplicados.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent esta sumando filas duplicadas del XML (subtotales + totales). Filtrar para tomar solo la fila global de cada tipo de activo."
+    },
+    {
+      "regla_id": "cartera_posiciones_nombre_limpio",
+      "seccion": "cartera",
+      "fail_type": "estructura",
+      "problema": "Posiciones con nombres corruptos (nombres_con_separadores): 116/116 (100%) - ejemplos: ['Bonos|UNICAJA|3,500|2031-06-30', 'Obligaciones|ABANCA CORPORACION B|1,531|2049-12', 'Acciones|ACERINOX SA']",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent esta concatenando varios campos (tipo|nombre|cupon|vto) en el campo nombre. Parsear correctamente: nombre limpio, cupon/vto en campos separados."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/116 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
     }
   ],
-  "fallos_estructura": 2,
-  "fallos_scarcity": 0,
-  "total_reglas": 38,
-  "reglas_ok": 36,
+  "fallos_estructura": 9,
+  "fallos_scarcity": 2,
+  "total_reglas": 50,
+  "reglas_ok": 39,
   "aceptable": false,
-  "score_display": "36/38 reglas OK",
+  "score_display": "39/50 reglas OK (2 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -34,5 +106,5 @@
     "fuentes_externas",
     "datos_cuantitativos"
   ],
-  "evaluado_at": "2026-04-13T18:04:30.160758"
+  "evaluado_at": "2026-04-13T18:57:10.039936"
 }

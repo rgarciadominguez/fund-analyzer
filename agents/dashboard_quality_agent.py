@@ -228,6 +228,379 @@ def _check_has_field_in_hitos(rule: dict, data: dict) -> tuple[bool, dict]:
     return ok, {"actual": count_with, "expected": rule.get("value", 1)}
 
 
+def _check_serie_vl_valid(rule: dict, data: dict) -> tuple[bool, dict]:
+    """La serie VL debe tener valores decimales realistas, no enteros repetidos ni saltos imposibles.
+    Detecta corrupción: VLs todos iguales, VLs enteros 1.0/2.0/3.0, rentabilidad total >300% o <-80%."""
+    vl_series = _get_nested(data, rule.get("field_path", "cuantitativo.serie_vl_base100")) or []
+    if not isinstance(vl_series, list) or len(vl_series) < 2:
+        return True, {"actual": "no_data"}  # scarcity rule handles this
+
+    vls = [float(v.get("vl", 0) or 0) for v in vl_series if isinstance(v, dict)]
+    if not vls or all(v == 0 for v in vls):
+        return False, {"reason": "todos_ceros", "actual": "VLs=0"}
+
+    # Patrón de corrupción 1: todos los VLs son el mismo entero (1.0 repetido)
+    unique_vals = set(vls)
+    if len(unique_vals) <= 2 and all(v == int(v) for v in unique_vals if v > 0):
+        return False, {"reason": "enteros_repetidos", "actual": f"VLs={sorted(unique_vals)}"}
+
+    # Patrón de corrupción 2: primer VL muy alto o muy bajo (corrupto)
+    first_vl = vls[0]
+    if first_vl > 200 or (first_vl > 0 and first_vl < 0.1):
+        return False, {"reason": "primer_vl_anomalo", "actual": f"VL inicial={first_vl}"}
+
+    # Patrón 3: rentabilidad total irreal (ningún fondo normal multiplica x3 en pocos años
+    # ni cae más del 80% sin que sea noticia)
+    base100 = [float(v.get("base100", 0) or 0) for v in vl_series if isinstance(v, dict)]
+    if base100 and base100[0] > 0:
+        final_ret = (base100[-1] / base100[0] - 1) * 100
+        n_years = len(base100)
+        # CAGR implícito
+        if n_years > 1 and base100[-1] > 0:
+            cagr = (base100[-1] / base100[0]) ** (1/n_years) - 1
+            cagr_pct = cagr * 100
+            # Detecta CAGR absurdo: >40% o <-30% sostenido
+            if cagr_pct > 40 or cagr_pct < -30:
+                return False, {"reason": "cagr_irreal", "actual": f"CAGR={cagr_pct:.1f}% en {n_years} años"}
+
+    return True, {"actual": f"{len(vls)} VLs OK"}
+
+
+def _check_equipo_not_generic(rule: dict, data: dict) -> tuple[bool, dict]:
+    """El equipo gestor no debe ser un placeholder genérico tipo 'Equipo {gestora}'.
+    Debe contener nombres reales de personas."""
+    equipo = _get_nested(data, rule.get("field_path", "gestores.equipo")) or []
+    if not isinstance(equipo, list) or not equipo:
+        return True, {"actual": "empty"}  # scarcity rule handles this
+
+    gestora = (data.get("gestora", "") or "").lower()
+    for item in equipo:
+        s = str(item).lower().strip()
+        # Detecta patrones genéricos
+        if s.startswith("equipo ") and gestora and gestora.split(",")[0] in s:
+            return False, {"reason": "equipo_generico", "actual": str(item)}
+        if s in ("equipo gestor", "gestor", "equipo"):
+            return False, {"reason": "equipo_placeholder", "actual": str(item)}
+
+    # Check si hay perfiles reales en synthesis que contradigan el equipo genérico
+    perfiles = _get_nested(data, "analyst_synthesis.gestores.perfiles") or []
+    if perfiles and equipo:
+        # Si hay perfiles con nombres reales pero equipo no los refleja
+        nombres_perfiles = [p.get("nombre", "") for p in perfiles if isinstance(p, dict)]
+        nombres_perfiles = [n for n in nombres_perfiles if n]
+        if nombres_perfiles:
+            # equipo debería contener al menos uno de los nombres de los perfiles
+            equipo_str = " ".join(str(e) for e in equipo).lower()
+            if not any(n.split()[0].lower() in equipo_str for n in nombres_perfiles if n.split()):
+                return False, {"reason": "equipo_desconectado_de_perfiles",
+                                "actual": f"equipo={equipo} pero perfiles={nombres_perfiles}"}
+
+    return True, {"actual": str(equipo)}
+
+
+def _check_mix_activos_sum_100(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Cada periodo de mix_activos_historico debe sumar 95-105%.
+    Tolerancia de 5pp para redondeos. Detecta extracción duplicada de subtotales."""
+    mix = _get_nested(data, rule.get("field_path", "cuantitativo.mix_activos_historico")) or []
+    if not isinstance(mix, list) or not mix:
+        return True, {"actual": "no_data"}
+
+    bad_periods = []
+    for item in mix:
+        if not isinstance(item, dict):
+            continue
+        periodo = item.get("periodo", "")
+        rv = float(item.get("rv_pct", 0) or item.get("renta_variable_pct", 0) or 0)
+        rf = float(item.get("renta_fija_pct", 0) or 0)
+        liq = float(item.get("liquidez_pct", 0) or 0)
+        otros = float(item.get("otros_pct", 0) or 0)
+        dep = float(item.get("depositos_pct", 0) or 0)
+        total = rv + rf + liq + otros + dep
+        if total > 0 and (total < 95 or total > 105):
+            bad_periods.append(f"{periodo}={total:.0f}%")
+
+    if bad_periods:
+        return False, {"reason": "suma_incorrecta",
+                       "actual": ", ".join(bad_periods[:5]),
+                       "count": len(bad_periods)}
+    return True, {"actual": f"{len(mix)} periodos OK"}
+
+
+def _check_mix_activos_no_over_100(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Ningún componente individual (RF, RV, LIQ) puede superar 100% del patrimonio.
+    Detecta duplicación de filas (suma de subtotales + totales)."""
+    mix = _get_nested(data, rule.get("field_path", "cuantitativo.mix_activos_historico")) or []
+    if not isinstance(mix, list) or not mix:
+        return True, {"actual": "no_data"}
+
+    violations = []
+    for item in mix:
+        if not isinstance(item, dict):
+            continue
+        periodo = item.get("periodo", "")
+        for comp_name, comp_keys in [
+            ("RF", ["renta_fija_pct"]),
+            ("RV", ["rv_pct", "renta_variable_pct"]),
+            ("LIQ", ["liquidez_pct"]),
+            ("OTROS", ["otros_pct"]),
+        ]:
+            val = 0
+            for k in comp_keys:
+                v = item.get(k)
+                if v is not None:
+                    val = float(v)
+                    break
+            if val > 105:  # 5pp tolerance
+                violations.append(f"{periodo} {comp_name}={val:.0f}%")
+
+    if violations:
+        return False, {"reason": "componente_sobre_100",
+                       "actual": ", ".join(violations[:5]),
+                       "count": len(violations)}
+    return True, {"actual": f"{len(mix)} periodos OK"}
+
+
+def _check_posiciones_nombre_limpio(rule: dict, data: dict) -> tuple[bool, dict]:
+    """El campo 'nombre' de cada posición no debe contener separadores tipo '|' o varios campos concatenados."""
+    posiciones = _get_nested(data, rule.get("field_path", "posiciones.actuales")) or []
+    if not isinstance(posiciones, list) or not posiciones:
+        return True, {"actual": "no_data"}
+
+    dirty = 0
+    examples = []
+    for p in posiciones:
+        if not isinstance(p, dict):
+            continue
+        nombre = str(p.get("nombre", "") or "")
+        # Pipe separator indica concatenación de campos
+        if "|" in nombre:
+            dirty += 1
+            if len(examples) < 3:
+                examples.append(nombre[:60])
+
+    threshold = rule.get("value", 5)  # Max % de nombres sucios permitidos
+    pct_dirty = (dirty / len(posiciones)) * 100 if posiciones else 0
+    if pct_dirty > threshold:
+        return False, {"reason": "nombres_con_separadores",
+                       "actual": f"{dirty}/{len(posiciones)} ({pct_dirty:.0f}%) - ejemplos: {examples}",
+                       "count": dirty}
+    return True, {"actual": f"{len(posiciones)-dirty}/{len(posiciones)} OK"}
+
+
+def _check_posiciones_sectores(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Al menos value% de posiciones deben tener campo 'sector' con valor real (no '?', '', 'N/A')."""
+    posiciones = _get_nested(data, rule.get("field_path", "posiciones.actuales")) or []
+    if not isinstance(posiciones, list) or not posiciones:
+        return True, {"actual": "no_data"}
+
+    with_sector = 0
+    for p in posiciones:
+        if not isinstance(p, dict):
+            continue
+        sector = str(p.get("sector", "") or "").strip()
+        if sector and sector not in ("?", "-", "N/A", "n/a", "Unknown"):
+            with_sector += 1
+
+    threshold_pct = rule.get("value", 80)
+    pct = (with_sector / len(posiciones)) * 100 if posiciones else 0
+    if pct < threshold_pct:
+        return False, {"reason": "sectores_ausentes",
+                       "actual": f"{with_sector}/{len(posiciones)} ({pct:.0f}%) con sector",
+                       "count": len(posiciones) - with_sector}
+    return True, {"actual": f"{pct:.0f}% con sector"}
+
+
+def _check_posiciones_historicas_cobertura(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Debe haber posiciones históricas para al menos value% de los años con datos AUM."""
+    historicas = _get_nested(data, "posiciones.historicas") or []
+    aum_series = _get_nested(data, "cuantitativo.serie_aum") or []
+
+    if not aum_series:
+        return True, {"actual": "no_aum_data"}
+
+    aum_years = set(str(a.get("periodo", ""))[:4] for a in aum_series if isinstance(a, dict))
+    aum_years.discard("")
+    if not aum_years:
+        return True, {"actual": "no_aum_years"}
+
+    hist_years = set(str(h.get("periodo", ""))[:4] for h in historicas if isinstance(h, dict))
+    hist_years.discard("")
+
+    coverage = (len(hist_years & aum_years) / len(aum_years)) * 100 if aum_years else 0
+    threshold = rule.get("value", 70)
+
+    if coverage < threshold:
+        missing = sorted(aum_years - hist_years)
+        return False, {"reason": "cobertura_insuficiente",
+                       "actual": f"{len(hist_years)}/{len(aum_years)} años ({coverage:.0f}%) - faltan: {missing[:8]}"}
+    return True, {"actual": f"{coverage:.0f}% cobertura"}
+
+
+def _check_fortalezas_no_contradict_riesgos(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Si los riesgos mencionan 'falta de datos/información histórica', las fortalezas
+    NO deben citar cifras o datos de esos mismos aspectos. Detecta incoherencia interna."""
+    fortalezas = _get_nested(data, "analyst_synthesis.resumen.fortalezas") or []
+    riesgos = _get_nested(data, "analyst_synthesis.resumen.riesgos") or []
+    if not fortalezas or not riesgos:
+        return True, {"actual": "sin_datos"}
+
+    # Detecta riesgos que admiten falta de datos
+    data_gap_patterns = [
+        "falta de información",
+        "falta información",
+        "falta de datos",
+        "sin información",
+        "no se ha facilitado",
+        "no se ha proporcionado",
+        "información histórica completa",
+        "no hay datos",
+        "datos no disponibles",
+    ]
+
+    riesgos_text = " ".join(str(r).lower() for r in riesgos)
+    admits_gap = any(p in riesgos_text for p in data_gap_patterns)
+
+    if not admits_gap:
+        return True, {"actual": "no_gaps_admitted"}
+
+    # Si admite gap, las fortalezas no deberían citar cifras precisas ni rentabilidades
+    # (porque el analyst dijo que faltan datos)
+    contradictions = []
+    for f in fortalezas:
+        f_str = str(f).lower()
+        if re.search(r"\d+[,.]?\d*\s*%", f_str) and ("rentabilidad" in f_str or "retorno" in f_str or "rendimiento" in f_str):
+            contradictions.append(str(f)[:80])
+
+    if contradictions:
+        return False, {"reason": "fortalezas_contradicen_riesgos",
+                       "actual": f"Riesgos admiten falta de datos pero fortalezas citan rentabilidad: {contradictions[:2]}"}
+    return True, {"actual": "coherente"}
+
+
+def _check_clasificacion_vs_cartera(rule: dict, data: dict) -> tuple[bool, dict]:
+    """La clasificación del fondo debe ser coherente con el mix real de la cartera actual.
+    Si clasifica como RV pero RV<40% en cartera → contradicción."""
+    clasif = str(_get_nested(data, "kpis.clasificacion") or "").lower()
+    if not clasif:
+        return True, {"actual": "no_clasificacion"}
+
+    mix = _get_nested(data, "cuantitativo.mix_activos_historico") or []
+    if not mix:
+        return True, {"actual": "no_mix"}
+
+    # Buscar el periodo más reciente
+    latest = None
+    latest_year = ""
+    for item in mix:
+        if isinstance(item, dict):
+            periodo = str(item.get("periodo", ""))[:4]
+            if periodo > latest_year:
+                latest_year = periodo
+                latest = item
+    if not latest:
+        return True, {"actual": "no_latest"}
+
+    rv = float(latest.get("rv_pct", 0) or latest.get("renta_variable_pct", 0) or 0)
+    rf = float(latest.get("renta_fija_pct", 0) or 0)
+
+    # Normalizar si supera 100% (datos corruptos)
+    total = rv + rf + float(latest.get("liquidez_pct", 0) or 0) + float(latest.get("otros_pct", 0) or 0)
+    if total > 120:
+        # Datos demasiado corruptos para verificar clasificación
+        return True, {"actual": "mix_corrupto_omitido"}
+
+    # Detectar palabras clave en clasificación
+    is_rv_pure = ("renta variable" in clasif) and ("mixta" not in clasif and "mixto" not in clasif)
+    is_rf_pure = ("renta fija" in clasif) and ("mixta" not in clasif and "mixto" not in clasif)
+    is_mixta_rv = "renta variable mixta" in clasif or "rv mixta" in clasif
+    is_mixta_rf = "renta fija mixta" in clasif or "rf mixta" in clasif
+
+    if is_rv_pure and rv < 70:
+        return False, {"reason": "rv_pure_sin_rv",
+                       "actual": f"Clasificación '{clasif}' pero RV={rv:.0f}% en cartera"}
+    if is_rf_pure and rf < 70:
+        return False, {"reason": "rf_pure_sin_rf",
+                       "actual": f"Clasificación '{clasif}' pero RF={rf:.0f}% en cartera"}
+    if is_mixta_rv and rv < 30:
+        return False, {"reason": "mixta_rv_con_poco_rv",
+                       "actual": f"Clasificación '{clasif}' pero RV solo {rv:.0f}% (esperado >=30%)"}
+    if is_mixta_rf and rf < 30:
+        return False, {"reason": "mixta_rf_con_poco_rf",
+                       "actual": f"Clasificación '{clasif}' pero RF solo {rf:.0f}% (esperado >=30%)"}
+
+    return True, {"actual": "coherente"}
+
+
+def _check_text_returns_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Detecta alucinaciones en el texto: si el texto menciona rentabilidades concretas
+    (ej. '+15,4% en 2023'), deben cuadrar con serie_rentabilidad o serie_vl_base100.
+    Fallo si el texto afirma una rentabilidad que no existe en los datos."""
+    text = _get_nested(data, rule["field_path"]) or ""
+    if not isinstance(text, str) or len(text) < 100:
+        return True, {"actual": "no_text"}
+
+    # Extraer menciones "X% en YYYY" o "YYYY: X%"
+    pattern1 = re.compile(r"(?:rentabilidad|rendimiento|retorno|subida|caída|bajada)[^.]{0,60}?([+-]?\d{1,3}[,.]?\d{0,2})\s*%[^.]{0,40}?(\b20\d{2}\b)", re.IGNORECASE)
+    pattern2 = re.compile(r"\b(20\d{2})\b[^.]{0,40}?(?:rentabilidad|rendimiento|retorno|subida|caída|bajada)[^.]{0,40}?([+-]?\d{1,3}[,.]?\d{0,2})\s*%", re.IGNORECASE)
+
+    mentions = []
+    for m in pattern1.finditer(text):
+        pct, year = m.group(1), m.group(2)
+        mentions.append((year, pct.replace(",", ".")))
+    for m in pattern2.finditer(text):
+        year, pct = m.group(1), m.group(2)
+        mentions.append((year, pct.replace(",", ".")))
+
+    if not mentions:
+        return True, {"actual": "no_mentions"}
+
+    # Buscar rentabilidades reales en los datos
+    real_returns = {}
+    serie_rent = _get_nested(data, "cuantitativo.serie_rentabilidad") or []
+    for item in serie_rent:
+        if isinstance(item, dict):
+            periodo = str(item.get("periodo", ""))
+            rent = item.get("rentabilidad_pct")
+            if periodo and rent is not None:
+                real_returns[periodo[:4]] = float(rent)
+
+    # Si no hay serie_rentabilidad, calcular de base100
+    if not real_returns:
+        vl_series = _get_nested(data, "cuantitativo.serie_vl_base100") or []
+        base_by_year = {str(v.get("periodo", ""))[:4]: float(v.get("base100", 0) or 0)
+                        for v in vl_series if isinstance(v, dict)}
+        years_sorted = sorted(base_by_year.keys())
+        for i in range(1, len(years_sorted)):
+            y = years_sorted[i]
+            prev_b = base_by_year[years_sorted[i-1]]
+            curr_b = base_by_year[y]
+            if prev_b > 0:
+                real_returns[y] = (curr_b / prev_b - 1) * 100
+
+    if not real_returns:
+        return True, {"actual": "no_real_data_to_compare"}
+
+    # Verificar menciones vs datos reales
+    discrepancies = []
+    for year, pct_str in mentions:
+        try:
+            claimed = float(pct_str)
+        except ValueError:
+            continue
+        real = real_returns.get(year)
+        if real is None:
+            continue
+        # Tolerancia: 3 puntos porcentuales
+        if abs(claimed - real) > 3:
+            discrepancies.append(f"{year}: texto dice {claimed}%, real {real:.1f}%")
+
+    if discrepancies:
+        return False, {"reason": "rentabilidades_inventadas",
+                       "actual": " | ".join(discrepancies[:3])}
+
+    return True, {"actual": f"{len(mentions)} menciones verificadas"}
+
+
 # Registro de validadores
 CHECK_REGISTRY = {
     "min_chars": _check_min_chars,
@@ -243,6 +616,16 @@ CHECK_REGISTRY = {
     "nested_field_present": _check_nested_field_present,
     "nested_array_min": _check_nested_array_min,
     "any_field_present": _check_any_field_present,
+    "serie_vl_valid": _check_serie_vl_valid,
+    "equipo_not_generic": _check_equipo_not_generic,
+    "text_returns_match_data": _check_text_returns_match_data,
+    "mix_activos_sum_100": _check_mix_activos_sum_100,
+    "mix_activos_no_over_100": _check_mix_activos_no_over_100,
+    "posiciones_nombre_limpio": _check_posiciones_nombre_limpio,
+    "posiciones_sectores": _check_posiciones_sectores,
+    "posiciones_historicas_cobertura": _check_posiciones_historicas_cobertura,
+    "fortalezas_no_contradict_riesgos": _check_fortalezas_no_contradict_riesgos,
+    "clasificacion_vs_cartera": _check_clasificacion_vs_cartera,
 }
 
 
