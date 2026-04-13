@@ -177,6 +177,58 @@ class CNMVAgent:
             "serie_historica": perf_fee_serie,
         }
 
+        # ── TER EFECTIVO (incluye comisión éxito cobrada s/patrimonio) ──
+        # El inversor paga: gestión + depositario + éxito (s/patrimonio) + otros
+        # TER oficial CNMV incluye gestión+depositario+otros pero EXCLUYE éxito.
+        # Lógica robusta:
+        #   - Si ter_pct >= gestión → ter_pct ya incluye gestión → sumar éxito
+        #     ter_efectivo = ter_pct + exito_s_patrimonio
+        #   - Si ter_pct < gestión (bug de extracción CNMV) → reconstruir desde componentes
+        #     ter_efectivo = gestión + exito + depositario
+        ter_series = cuant_final.get("serie_ter", [])
+        exito_by_year = {}
+        gestion_by_year = {}
+        for entry in serie_com_final:
+            y = str(entry.get("periodo", ""))[:4]
+            ex = entry.get("exito", {}) or {}
+            cls = entry.get("clases", {}) or {}
+            if ex and y:
+                val = next((v for v in ex.values() if v is not None), None)
+                if val is not None:
+                    exito_by_year[y] = float(val)
+            if cls and y:
+                val = next((v for v in cls.values() if v is not None), None)
+                if val is not None:
+                    gestion_by_year[y] = float(val)
+
+        # Depositario del último PDF (si lo tenemos)
+        depositario_pct = (pdf_data.get("coste_deposito_pct") or 0) if isinstance(pdf_data, dict) else 0
+
+        for t in ter_series:
+            y = str(t.get("periodo", ""))[:4]
+            ter_off = t.get("ter_pct")
+            exito_ano = exito_by_year.get(y, 0) or 0
+            gestion_ano = gestion_by_year.get(y, 0) or 0
+
+            if ter_off is None:
+                continue
+
+            if gestion_ano and ter_off + 0.05 < gestion_ano:
+                # TER oficial NO incluye gestión (bug): reconstruir
+                ter_ef = gestion_ano + exito_ano + (depositario_pct or 0)
+                t["ter_efectivo_pct"] = round(ter_ef, 4)
+                t["ter_efectivo_fuente"] = "reconstruido_desde_componentes"
+            else:
+                # TER oficial ya incluye gestión → sumar solo éxito
+                t["ter_efectivo_pct"] = round(ter_off + exito_ano, 4)
+                t["ter_efectivo_fuente"] = "ter_oficial_mas_exito"
+
+        # KPI: TER efectivo actual
+        if ter_series:
+            last_ter = ter_series[-1]
+            if last_ter.get("ter_efectivo_pct") is not None:
+                result.setdefault("kpis", {})["ter_efectivo_pct"] = last_ter["ter_efectivo_pct"]
+
         self._save(result)
         self._print_summary_table(result)
         return result
@@ -944,10 +996,14 @@ class CNMVAgent:
         Parsea un PDF semestral CNMV completo usando regex + Claude solo para sección 9.
         Cachea resultados por (filename, file_size).
         """
+        # Parser version: incrementar al añadir nuevos extractores.
+        # v6: añadido vl_historico_pdf (tabla "Fecha Patrimonio Valor liquidativo") y comision_exito_pct teórico
+        PARSER_VERSION = "v6"
         cache = self._load_pdf_cache()
         key = pdf_path.name
         fsize = pdf_path.stat().st_size
-        if key in cache and cache[key].get("file_size") == fsize:
+        if (key in cache and cache[key].get("file_size") == fsize
+                and cache[key].get("parser_version") == PARSER_VERSION):
             console.log(f"[dim]Cache hit: {key}")
             return cache[key]["data"]
 
@@ -985,6 +1041,7 @@ class CNMVAgent:
         cache[key] = {
             "parsed_at": datetime.now().isoformat(),
             "file_size": fsize,
+            "parser_version": PARSER_VERSION,
             "data": result,
         }
         self._save_pdf_cache(cache)
@@ -2133,32 +2190,7 @@ class CNMVAgent:
         if exito_teorico_pct is not None:
             result["kpis"]["comision_exito_pct"] = exito_teorico_pct
 
-        # ── TER EFECTIVO (incluye comisión éxito, lo que paga el inversor) ──
-        # TER oficial CNMV excluye comisión éxito por regulación.
-        # El inversor paga: gestión_s/patrimonio + éxito_s/patrimonio + depositario + otros
-        # Fórmula: ter_efectivo_pct = ter_pct (oficial) + exito_s_patrimonio (cobrado)
-        ter_series_mut = cuant_result.get("serie_ter", [])
-        exito_by_year = {}
-        for entry in serie_com:
-            y = str(entry.get("periodo", ""))[:4]
-            ex = entry.get("exito", {}) or {}
-            if ex and y:
-                val = next((v for v in ex.values() if v is not None), None)
-                if val is not None:
-                    exito_by_year[y] = float(val)
-
-        for t in ter_series_mut:
-            y = str(t.get("periodo", ""))[:4]
-            ter_off = t.get("ter_pct")
-            exito_ano = exito_by_year.get(y, 0) or 0
-            if ter_off is not None:
-                t["ter_efectivo_pct"] = round(ter_off + exito_ano, 4)
-
-        # KPI: TER efectivo actual
-        if ter_series_mut:
-            last_ter = ter_series_mut[-1]
-            if last_ter.get("ter_efectivo_pct") is not None:
-                result["kpis"]["ter_efectivo_pct"] = last_ter["ter_efectivo_pct"]
+        # TER efectivo se calcula en run() después de procesar PDFs (donde están las comisiones éxito)
 
     def _save(self, result: dict) -> None:
         """Guarda el resultado parcial o final en cnmv_data.json."""

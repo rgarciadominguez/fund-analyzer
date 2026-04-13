@@ -21,24 +21,65 @@ def load_data():
     # ── Data resilience: fill gaps from available data ──
     cuant = data.setdefault("cuantitativo", {})
 
-    # Compute/fix serie_vl_base100 from serie_aum VL data
-    # Filter out anomalous VL values (>500 or <1 = data corruption)
-    aum_series = cuant.get("serie_aum", [])
-    valid_vl = [s for s in aum_series if s.get("vl") and 1 < s["vl"] < 500]
+    # Si serie_vl_base100 ya existe con datos ricos (VLs decimales reales del PDF CNMV),
+    # NO sobrescribir con serie_aum.vl (que puede ser entero redondeado).
+    existing_vl = cuant.get("serie_vl_base100", [])
+    existing_has_decimals = bool(existing_vl) and any(
+        v.get("vl") and float(v["vl"]) != int(float(v["vl"]))
+        for v in existing_vl if isinstance(v, dict)
+    )
 
-    # Also filter out partial-year periods like "202506" (keep only YYYY or YYYY-SX)
-    valid_vl = [s for s in valid_vl if len(str(s.get("periodo", ""))) <= 7]
+    if not existing_has_decimals:
+        # Construir desde serie_aum solo si no hay mejor fuente
+        aum_series = cuant.get("serie_aum", [])
+        valid_vl = [s for s in aum_series if s.get("vl") and 1 < s["vl"] < 100000]
+        # Filtrar periodos parciales (ej "202506")
+        valid_vl = [s for s in valid_vl if len(str(s.get("periodo", ""))) <= 7]
 
-    if valid_vl:
-        first_vl = valid_vl[0]["vl"]
-        cuant["serie_vl_base100"] = [
-            {"periodo": s.get("periodo", ""), "vl": s["vl"], "base100": round(s["vl"] / first_vl * 100, 1)}
-            for s in valid_vl
-        ]
+        if valid_vl and len(valid_vl) > len(existing_vl):
+            first_vl = valid_vl[0]["vl"]
+            cuant["serie_vl_base100"] = [
+                {"periodo": s.get("periodo", ""), "vl": s["vl"], "base100": round(s["vl"] / first_vl * 100, 1)}
+                for s in valid_vl
+            ]
+
+    # ── Detect corrupted VL base 100 series ──
+    # Detectar serie VL corrupta. VLs válidos:
+    #  - Decimales reales (ej 12.5432, 1249.8637) o pequeños (1-500 EUR)
+    #  - Fondos con base 1000€: VLs pueden ser >500 perfectamente
+    # Corrupción real:
+    #  - Todos enteros idénticos tipo [1.0, 1.0, 2.0] (AUM/participes parseados como VL)
+    #  - Años parseados como VL (valor == 20XX)
+    #  - Rentabilidad implícita absurda (>300% o <-80%)
+    serie_vl = cuant.get("serie_vl_base100", [])
+    vl_corrupta = False
+    if serie_vl and len(serie_vl) >= 3:
+        vls = [float(v.get("vl", 0) or 0) for v in serie_vl if isinstance(v, dict)]
+        unique_vals = set(vls)
+        # 1. Todos valores únicos son enteros pequeños (1.0, 2.0) → corrupto
+        if len(unique_vals) <= 3 and all(v == int(v) for v in unique_vals if v > 0) and max(unique_vals) < 20:
+            vl_corrupta = True
+        # 2. Detección de "VL = año": periodo y vl coinciden (ej periodo=2020, vl=2020)
+        #    Solo marca corrupto si la MAYORÍA de entries tienen periodo==round(vl)
+        if not vl_corrupta:
+            year_matches = sum(
+                1 for v in serie_vl
+                if isinstance(v, dict) and str(v.get("periodo","")).isdigit()
+                and abs(int(v["periodo"]) - round(float(v.get("vl", 0) or 0))) <= 1
+            )
+            if year_matches >= len(serie_vl) * 0.5:
+                vl_corrupta = True
+        # 3. Base100 del segundo punto < 50 (primer VL era anómalo)
+        if not vl_corrupta and len(serie_vl) >= 2:
+            second_base = serie_vl[1].get("base100", 100)
+            if second_base < 50:
+                vl_corrupta = True
+    data["serie_vl_corrupta"] = vl_corrupta
 
     # Also clean serie_aum: filter anomalous entries
-    if aum_series:
-        cuant["serie_aum"] = [s for s in aum_series if len(str(s.get("periodo", ""))) <= 7]
+    aum_series_clean = cuant.get("serie_aum", [])
+    if aum_series_clean:
+        cuant["serie_aum"] = [s for s in aum_series_clean if len(str(s.get("periodo", ""))) <= 7]
 
     # If gestora is empty, try cnmv_data
     if not data.get("gestora"):
@@ -72,45 +113,145 @@ def load_data():
 import re as _re
 
 def build_classes_table(data):
-    """Build classes table dynamically from cuantitativo data."""
+    """Build classes table dynamically from cuantitativo data.
+    Shows only CURRENT classes (latest period in serie_comisiones_por_clase).
+    Includes: Inicio (first year class appears), Com. Gestión, TER, Com. Éxito."""
     cuant = data.get("cuantitativo", {})
     com_series = cuant.get("serie_comisiones_por_clase", [])
     ter_series = cuant.get("serie_ter_por_clase", [])
     isin = data.get("isin", "")
 
-    # Get latest comisiones and TER per class
+    # Find first year each class appears (for "Inicio" column)
+    clases_inicio = {}
+    for s in com_series:
+        per = str(s.get("periodo", ""))
+        for cls in s.get("clases", {}):
+            if cls not in clases_inicio:
+                clases_inicio[cls] = per
+
+    # Get ALL classes across ALL periods (historical + current)
     clases = {}
+
+    # Collect all classes from comisiones history
+    current_clases = set()
     if com_series:
-        latest_com = com_series[-1].get("clases", {})
-        for cls, val in latest_com.items():
-            clases.setdefault(cls, {})["com_gestion"] = val
-    if ter_series:
-        latest_ter = ter_series[-1].get("clases", {})
-        for cls, val in latest_ter.items():
-            clases.setdefault(cls, {})["ter"] = val
+        # Last period = current classes
+        current_clases = set(com_series[-1].get("clases", {}).keys())
+        # All history
+        for s in com_series:
+            for cls, val in s.get("clases", {}).items():
+                if cls not in clases:
+                    clases[cls] = {}
+
+    # Latest comision per class (most recent value available)
+    for s in reversed(com_series):
+        for cls, val in s.get("clases", {}).items():
+            if "com_gestion" not in clases.get(cls, {}):
+                clases.setdefault(cls, {})["com_gestion"] = val
+
+    # Mark active vs closed
+    for cls in clases:
+        clases[cls]["activa"] = cls in current_clases
+
+    # TER: use global TER for all classes (per-class TER names may differ)
+    global_ter = None
+    for t in cuant.get("serie_ter", []):
+        if t.get("ter_pct"):
+            global_ter = t["ter_pct"]
+    for cls in clases:
+        if clases[cls].get("activa") and global_ter:
+            clases[cls]["ter"] = global_ter
 
     if not clases:
-        # Fallback: single class from kpis
         k = data.get("kpis", {})
         if k.get("coste_gestion_pct"):
             clases["A"] = {"com_gestion": k["coste_gestion_pct"], "ter": k.get("ter_pct")}
+            clases_inicio["A"] = str(k.get("anio_creacion", "—"))
 
     if not clases:
         return '<p class="pr" style="color:var(--ink-4);font-style:italic;">Información de clases no disponible.</p>'
 
+    # Comisión de éxito — ESTRUCTURA del fondo (parámetro KID/folleto), no importes cobrados.
+    # Ej: "5% sobre beneficios" → estructura que define cuánto puede cobrar la gestora cada año.
+    # Se mantiene estable: aunque varíe el importe cobrado año a año, la regla es la misma.
+    com_exito = data.get("comision_exito", {})
+    tiene_exito = com_exito.get("existe", False)
+    # Parámetro teórico del folleto/KID (ej: 5% sobre beneficios positivos)
+    exito_teorico_pct = (data.get("kpis", {}).get("comision_exito_pct")
+                         or com_exito.get("pct_teorico"))
+    # Base de cálculo: "mixta" → s/patrimonio+resultados, "resultados" → solo s/beneficios, etc.
+    base_calculo = (com_exito.get("base_comision") or "").lower()
+    # Textualizar la base de forma humana
+    if "mixta" in base_calculo:
+        base_texto = "s/resultados"
+    elif "result" in base_calculo:
+        base_texto = "s/resultados"
+    elif "benchmark" in base_calculo or "referencia" in base_calculo:
+        base_texto = "s/exceso vs benchmark"
+    else:
+        base_texto = "s/resultados"  # default
+    # Fallback: si no tenemos teórico pero sí hay serie histórica, intentar detectar
+    exito_por_clase = {}
+    exito_ultimo_anio = None
+    for entry in sorted(com_exito.get("serie_historica", []), key=lambda x: str(x.get("periodo",""))):
+        periodo = entry.get("periodo", "")
+        for cls, val in entry.get("exito", {}).items():
+            if val is not None:
+                exito_por_clase[cls] = val
+                exito_ultimo_anio = periodo
+
     rows = ""
-    for cls_name in sorted(clases.keys()):
+    # Sort: active classes first, then closed
+    sorted_classes = sorted(clases.keys(), key=lambda c: (0 if clases[c].get("activa") else 1, c))
+    for cls_name in sorted_classes:
         cls_data = clases[cls_name]
         com = cls_data.get("com_gestion")
         ter = cls_data.get("ter")
-        # Derive ISIN for class (heuristic: base ISIN with class suffix)
-        cls_isin = isin  # Best we can do without explicit mapping
-        rows += f'<tr><td><strong>Clase {cls_name}</strong></td><td>{cls_isin}</td><td>{p(com)}</td><td>{p(ter)}</td><td style="font-family:\'Source Sans 3\';font-size:12px;">—</td><td style="font-family:\'Source Sans 3\';font-size:12px;">—</td></tr>'
+        inicio = clases_inicio.get(cls_name, "—")
+        activa = cls_data.get("activa", True)
+
+        # Status badge
+        estado = '<span style="color:var(--pos);font-size:10px;">Activa</span>' if activa else '<span style="color:var(--ink-4);font-size:10px;">Cerrada</span>'
+
+        if tiene_exito:
+            # Mostrar la ESTRUCTURA (parámetro fijo del fondo). Ej: "5% s/resultados"
+            if exito_teorico_pct:
+                exito_cell = f'<strong>{p(exito_teorico_pct)}</strong> {base_texto}'
+            else:
+                # Sin % teórico: mostrar solo la base. El quality agent detecta y pide extracción
+                exito_cell = f'{base_texto} <span style="color:var(--ink-4);font-size:10px;">(% pendiente)</span>'
+        else:
+            exito_cell = '<span style="color:var(--pos);">No cobra</span>'
+
+        # Dim closed classes
+        row_style = ' style="opacity:0.5;"' if not activa else ''
+
+        rows += (
+            f'<tr{row_style}><td><strong>Clase {cls_name}</strong></td><td>{isin}</td>'
+            f'<td>{p(com)}</td><td>{p(ter) if activa else "—"}</td>'
+            f'<td style="font-family:\'Source Sans 3\';font-size:12px;">{exito_cell}</td>'
+            f'<td style="font-family:\'Source Code Pro\';font-size:11px;">{inicio}</td>'
+            f'<td>{estado}</td></tr>'
+        )
+
+    exito_note = ""
+    if tiene_exito:
+        # Nota explicativa adaptada: incluye último importe cobrado si lo hay, como contexto
+        ultimo_val = next(iter(exito_por_clase.values()), None)
+        ctx_ultimo = ""
+        if ultimo_val is not None and exito_ultimo_anio:
+            ctx_ultimo = f' Último año aplicado ({exito_ultimo_anio}): <strong>{p(ultimo_val)}</strong> s/patrimonio cobrado.'
+        exito_note = (
+            f'<p style="font-size:10px;color:var(--ink-4);margin-top:4px;font-style:italic;">'
+            f'* Estructura: parámetro fijo del fondo que define el máximo aplicable.'
+            f'{ctx_ultimo}</p>'
+        )
 
     return f"""<table class="rt mb20">
-    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Dividendos</th><th>Mín. inversión</th></tr></thead>
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
     <tbody>{rows}</tbody>
-  </table>"""
+  </table>
+  {exito_note}"""
 
 
 def render_narrative_inline(text, fund_name=""):
@@ -156,6 +297,31 @@ def render_narrative_inline(text, fund_name=""):
             prev_was_header = False
 
     return html
+
+
+def _build_class_selector(data):
+    """Build <option> tags for the commission chart class selector, using ALL historical classes."""
+    cuant = data.get("cuantitativo", {})
+    com_series = cuant.get("serie_comisiones_por_clase", [])
+    if not com_series:
+        return '<option value="A">A</option>'
+    # Collect ALL classes across ALL periods
+    all_clases = set()
+    current_clases = set()
+    if com_series:
+        current_clases = set(com_series[-1].get("clases", {}).keys())
+        for s in com_series:
+            all_clases.update(s.get("clases", {}).keys())
+    if not all_clases:
+        all_clases = {"A"}
+    # Sort: active first, then closed
+    sorted_cls = sorted(all_clases, key=lambda c: (0 if c in current_clases else 1, c))
+    opts = ""
+    for i, cls in enumerate(sorted_cls):
+        sel = " selected" if i == 0 else ""
+        label = cls if cls in current_clases else f"{cls} (cerrada)"
+        opts += f'<option value="{cls}"{sel}>{label}</option>'
+    return opts
 
 
 def f(val, d=0, s=""):
@@ -206,7 +372,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
 .tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
 /* BODY */
-.body{max-width:1280px;margin:0 auto;padding:36px 36px 72px;}.pane{display:none;}.pane.on{display:block;}
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
 .pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
 .pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
 .pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
@@ -398,7 +564,12 @@ def build_header(data):
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">{data.get('ultima_actualizacion','Fecha no disponible')[:10]}</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\\npython -m agents.orchestrator --isin {data.get('isin','')} --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
 </header>"""
 
 
@@ -410,44 +581,88 @@ def build_tab_resumen(data):
     s = data.get("analyst_synthesis", {}).get("resumen", {})
     k = data.get("kpis", {})
     cuant = data.get("cuantitativo", {})
-    vl = cuant.get("serie_vl_base100", [])
 
-    # Rentabilidades
-    ret_cells = ""
-    ret_ths = ""
-    for i in range(1, len(vl)):
-        prev, curr = vl[i-1].get("base100",0), vl[i].get("base100",0)
-        if prev > 0:
-            r = round((curr/prev-1)*100, 1)
-            c = "pos-v" if r >= 0 else "neg-v"
-            sg = "+" if r >= 0 else ""
-            ret_cells += f"<td class='{c}'>{sg}{f(r,1)}%</td>"
-            ret_ths += f"<th>{vl[i].get('periodo','')}</th>"
-
-    fort = "".join(f'<div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">{x}</span></div>' for x in s.get("fortalezas",[]))
-    risk = "".join(f'<div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">{x}</span></div>' for x in s.get("riesgos",[]))
-
-    # Narrative from analyst_synthesis (generated by Gemini, fund-specific)
+    # ── 1. Narrativa (sin headers, max 4 párrafos fluidos) ───────────────
     texto_resumen = s.get("texto", "")
-    # Parse into paragraphs for Narrative-style rendering
-    # Uses global render_narrative_inline
+    # Strip any **headers** from the narrative — should be pure prose
+    narrative_html = render_narrative_inline(texto_resumen, data.get("nombre", ""))
 
-    # Compromiso gestor
-    compromiso = s.get("compromiso_gestor", "")
+    # ── 2. Filosofía + Criterios (2 columnas) ────────────────────────────
+    filosofia = s.get("filosofia_inversion", "")
+    criterios = s.get("criterios_inversion", [])
+
+    filosofia_html = ""
+    if filosofia:
+        filo_formatted = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', filosofia)
+        filosofia_html = f'<p class="pr">{filo_formatted}</p>'
+
+    criterios_html = ""
+    if criterios:
+        for i, c in enumerate(criterios[:3], 1):
+            titulo = c.get("titulo", "") if isinstance(c, dict) else str(c)
+            desc = c.get("descripcion", "") if isinstance(c, dict) else ""
+            desc_fmt = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', desc)
+            criterios_html += f'''<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">0{i}</span>
+              <div><strong style="color:var(--ink);font-size:13px;">{titulo}:</strong> <span class="pr" style="font-size:12.5px;">{desc_fmt}</span></div>
+            </div>'''
+
+    filo_criterios_block = ""
+    if filosofia_html or criterios_html:
+        filo_criterios_block = f'''<div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      {filosofia_html}
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      {criterios_html}
+    </div>
+  </div>'''
+
+    # ── 3. Gráficos rent + vol (2 col, mismo ancho) ──────────────────────
+    # (Morningstar charts rendered by JS)
+
+    # ── 4. Fortalezas + Riesgos (2 columnas) ─────────────────────────────
+    fort = "".join(f'<div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">{x}</span></div>' for x in s.get("fortalezas", []))
+    risk = "".join(f'<div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">{x}</span></div>' for x in s.get("riesgos", []))
+
+    fort_block = f'''<div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin">{fort}</div>
+    </div>''' if fort else ""
+    risk_block = f'''<div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin">{risk}</div>
+    </div>''' if risk else ""
+    fort_risk_block = f'<div class="col2 mb20">{fort_block}{risk_block}</div>' if (fort or risk) else ""
+
+    # ── 5. Clases disponibles ────────────────────────────────────────────
+
+    # ── 6. Para quién + Compromiso gestor (2 col) ────────────────────────
     para_quien = s.get("para_quien_es", "")
+    compromiso = s.get("compromiso_gestor", "")
+    para_comp_block = ""
+    if para_quien or compromiso:
+        pq = f'<div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">{para_quien}</p></div>' if para_quien else ""
+        cg = f'<div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">{compromiso}</p></div>' if compromiso else ""
+        para_comp_block = f'<div class="col2 mb20">{pq}{cg}</div>'
 
+    # ── 7. Evolución de comisiones ───────────────────────────────────────
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # LAYOUT FIJO — orden Avantage: narrativa → filo/criterios → gráficos →
+    # fortalezas/riesgos → clases → para_quien/compromiso → comisiones
+    # ═══════════════════════════════════════════════════════════════════════
     return f"""
 <section class="pane on" id="p0">
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    {render_narrative_inline(texto_resumen, data.get("nombre",""))}
+    {narrative_html}
   </div>
 
-  {f'''<div class="col2 mb20">
-    {f'<div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">{para_quien}</p></div>' if para_quien else ''}
-    {f'<div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">{compromiso}</p></div>' if compromiso else ''}
-  </div>''' if para_quien or compromiso else ''}
+  {filo_criterios_block}
 
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
   <div class="col2 mb20">
@@ -455,23 +670,16 @@ def build_tab_resumen(data):
     <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
   </div>
 
-  <div class="col2 mb20">
-    <div>
-      <div class="sr" style="color:var(--pos);">Fortalezas</div>
-      <div class="prin">{fort}</div>
-    </div>
-    <div>
-      <div class="sr" style="color:var(--neg);">Riesgos</div>
-      <div class="prin">{risk}</div>
-    </div>
-  </div>
+  {fort_risk_block}
 
   <div class="sr">Clases disponibles</div>
   {build_classes_table(data)}
 
-  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A">A</option><option value="B">B</option></select></span></div>
+  {para_comp_block}
+
+  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()">{_build_class_selector(data)}</select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
-    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos de 2014-2015 excluidos por inconsistencia entre TER y comisión de gestión en fuentes CNMV.</p>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión en fuentes CNMV.</p>
   </div>
 </section>"""
 
@@ -499,9 +707,10 @@ def build_tab_historia(data):
         years_since = str(datetime.now().year - int(k["anio_creacion"]))
     fecha_inicio = format_date(k.get("fecha_registro", ""))
 
-    # CAGR from VL
+    # CAGR from VL (skip if VL series is corrupted)
+    vl_corrupta = data.get("serie_vl_corrupta", False)
     cagr_str = "—"
-    if len(vl) >= 2:
+    if not vl_corrupta and len(vl) >= 2:
         first_vl = vl[0].get("base100", 100)
         last_vl = vl[-1].get("base100", 100)
         n_years = len(vl) - 1
@@ -509,41 +718,51 @@ def build_tab_historia(data):
             cagr = ((last_vl / first_vl) ** (1 / n_years) - 1) * 100
             cagr_str = f"~{f(cagr, 1)}%"
 
-    # Best/worst year
+    # Best/worst year (skip if VL series is corrupted)
     best_yr, best_ret, worst_yr, worst_ret = "", 0, "", 0
-    for i in range(1, len(vl)):
-        prev = vl[i - 1].get("base100", 0)
-        curr = vl[i].get("base100", 0)
-        if prev > 0:
-            ret = (curr / prev - 1) * 100
-            yr = vl[i].get("periodo", "")
-            if ret > best_ret:
-                best_ret = ret
-                best_yr = yr
-            if ret < worst_ret:
-                worst_ret = ret
-                worst_yr = yr
+    if not vl_corrupta:
+        for i in range(1, len(vl)):
+            prev = vl[i - 1].get("base100", 0)
+            curr = vl[i].get("base100", 0)
+            if prev > 0:
+                ret = (curr / prev - 1) * 100
+                yr = vl[i].get("periodo", "")
+                if ret > best_ret:
+                    best_ret = ret
+                    best_yr = yr
+                if ret < worst_ret:
+                    worst_ret = ret
+                    worst_yr = yr
 
     # Timeline from analyst hitos (dynamic, not hardcoded)
     tl = ""
     for h in hitos:
         anio = h.get("anio", "")
         evento = h.get("evento", "")
-        # Auto-classify by keywords
+        titulo_hito = h.get("titulo", "")
+        tipo_hito = h.get("tipo", "")
+
+        # Classify by explicit tipo field, fallback to keyword detection
         dot_cls = "dot-hito"
         tag_cls = "tag-hito"
         tag_text = "Hito"
-        ev_lower = evento.lower()
-        if any(w in ev_lower for w in ["crisis", "salida", "caída", "pérdida", "negativ"]):
-            dot_cls = "dot-crisis"; tag_cls = "tag-crisis"; tag_text = "Crisis"
-        elif any(w in ev_lower for w in ["estrateg", "cobertura", "covid", "rotación", "cambio"]):
-            dot_cls = "dot-strat"; tag_cls = "tag-strat"; tag_text = "Estrategia"
-        elif any(w in ev_lower for w in ["regulat", "cnmv", "folleto", "registro"]):
-            dot_cls = "dot-reg"; tag_cls = "tag-reg"; tag_text = "Regulatorio"
+        tipo_lower = tipo_hito.lower() if tipo_hito else ""
+        ev_lower = (evento + " " + titulo_hito).lower()
 
-        # Split evento into title (first ~80 chars) and desc (rest)
-        title = evento[:80]
-        desc = evento[80:] if len(evento) > 80 else ""
+        if tipo_lower == "crisis" or any(w in ev_lower for w in ["crisis", "salida", "caída", "pérdida", "negativ"]):
+            dot_cls = "dot-crisis"; tag_cls = "tag-crisis"; tag_text = "Crisis"
+        elif tipo_lower == "estrategia" or any(w in ev_lower for w in ["estrateg", "cobertura", "covid", "rotación", "cambio", "decisión"]):
+            dot_cls = "dot-strat"; tag_cls = "tag-strat"; tag_text = "Decisión estratégica"
+        elif tipo_lower == "regulatorio" or any(w in ev_lower for w in ["regulat", "cnmv", "folleto", "registro"]):
+            dot_cls = "dot-reg"; tag_cls = "tag-reg"; tag_text = "Regulatorio"
+        elif tipo_lower == "crecimiento" or any(w in ev_lower for w in ["crecimiento", "expansión", "duplica", "cuadruplic"]):
+            dot_cls = "dot-hito"; tag_cls = "tag-hito"; tag_text = "Salto de escala"
+        elif tipo_lower:
+            tag_text = tipo_hito.capitalize()
+
+        # Use titulo_hito if available, otherwise first 80 chars of evento
+        title = titulo_hito or evento[:80]
+        desc = evento if titulo_hito else (evento[80:] if len(evento) > 80 else "")
 
         tl += f"""
     <div class="tl-item">
@@ -553,6 +772,12 @@ def build_tab_historia(data):
       <div class="tl-title">{title}</div>
       <div class="tl-desc">{desc}</div>
     </div>"""
+
+    # ── Plantilla visual fija: narrativa → KPIs calculados → gráficos → cronología
+    cronologia_block = f'''
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">{tl}
+  </div>''' if tl else ""
 
     return f"""
 <section class="pane" id="p1">
@@ -564,9 +789,9 @@ def build_tab_historia(data):
 
   <div class="kpi-row">
     <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">{years_since or '—'}</div><div class="kpi-sub">{fecha_inicio} — presente</div></div>
-    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos">{cagr_str}</div><div class="kpi-sub">Neto de comisiones</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg">{f(worst_ret,1)}%</div><div class="kpi-sub">{worst_yr}</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos">+{f(best_ret,1)}%</div><div class="kpi-sub">{best_yr}</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos">{cagr_str}</div><div class="kpi-sub">{'Datos VL no fiables' if vl_corrupta else 'Neto de comisiones'}</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg">{'—' if vl_corrupta else f'{f(worst_ret,1)}%'}</div><div class="kpi-sub">{'Datos VL no fiables' if vl_corrupta else worst_yr}</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos">{'—' if vl_corrupta else f'+{f(best_ret,1)}%'}</div><div class="kpi-sub">{'Datos VL no fiables' if vl_corrupta else best_yr}</div></div>
   </div>
 
   <div class="col3 mb20">
@@ -574,11 +799,7 @@ def build_tab_historia(data):
     <div class="ch-b"><div class="ch-l">Partícipes</div><div class="ch-h"><canvas id="c-part"></canvas></div></div>
     <div class="ch-b"><div class="ch-l">VL Base 100</div><div class="ch-h"><canvas id="c-vl"></canvas></div></div>
   </div>
-
-
-  <div class="sr">Cronología de eventos relevantes</div>
-  <div class="timeline">{tl}
-  </div>
+  {cronologia_block}
 </section>"""
 
 
@@ -609,14 +830,37 @@ def build_tab_gestores(data):
         decisiones = pr.get("decisiones_clave", []) or []
         rasgos = pr.get("rasgos_diferenciales", "")
 
-        is_lead = (i == 0)  # First profile = lead manager
+        is_lead = (i <= 1)  # First 2 profiles = lead managers (extensive format)
+        cv_bullets = pr.get("cv_bullets", []) or []
 
         if is_lead:
-            # Extensive format for lead manager
+            # Lead format (like Avantage): avatar + CV bullets left, full narrative right
             dec_html = ""
             for d in decisiones:
                 d_formatted = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', d)
                 dec_html += f'<p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">{d_formatted}</p>'
+
+            tray_fmt = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', trayectoria) if trayectoria else ''
+            filo_fmt = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', filosofia) if filosofia else ''
+
+            cv_html = ""
+            for bullet in cv_bullets:
+                cv_html += f'<li style="margin-bottom:2px;">{bullet}</li>'
+            cv_block = f'<ul class="mgr-cv">{cv_html}</ul>' if cv_html else ''
+
+            # Visible: trayectoria + filosofía (normal paragraphs)
+            # Hidden: decisiones clave + rasgos (additional detail behind expand)
+            extra_html = ""
+            if dec_html or rasgos:
+                uid = f"mgr-extra-{i}"
+                extra_content = ""
+                if dec_html:
+                    extra_content += f'<div class="sr" style="margin-top:8px;">Decisiones clave</div>{dec_html}'
+                if rasgos:
+                    extra_content += f'<p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> {rasgos}</p>'
+                extra_html = f"""
+        <button class="exp-btn" onclick="const b=document.getElementById('{uid}');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Decisiones y rasgos';" style="margin-top:8px;">▶ Decisiones y rasgos</button>
+        <div id="{uid}" class="exp-body">{extra_content}</div>"""
 
             mgrs_html += f"""
     <div class="mgr">
@@ -624,12 +868,12 @@ def build_tab_gestores(data):
         <div class="mgr-av" style="background:{bg};">{initials}</div>
         <div class="mgr-nm">{nombre}</div>
         <div class="mgr-rl">{cargo}</div>
+        {cv_block}
       </div>
       <div class="mgr-b">
-        {f'<p class="pr" style="font-size:13px;">{re.sub(chr(42)+chr(42)+r"([^*]+)"+chr(42)+chr(42), r"<strong>" + chr(92) + "1</strong>", trayectoria)}</p>' if trayectoria else ''}
-        {f'<p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">{filosofia}</p>' if filosofia else ''}
-        {f'<div class="sr" style="margin-top:12px;">Decisiones clave</div>{dec_html}' if dec_html else ''}
-        {f'<p class="pr" style="font-size:12.5px;margin-top:10px;"><strong>Rasgos diferenciales:</strong> {rasgos}</p>' if rasgos else ''}
+        {f'<p class="pr" style="font-size:13px;">{tray_fmt}</p>' if tray_fmt else ''}
+        {f'<p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">{filo_fmt}</p>' if filo_fmt else ''}
+        {extra_html}
       </div>
     </div>"""
         elif decisiones or trayectoria:
@@ -656,13 +900,26 @@ def build_tab_gestores(data):
     if not perfiles:
         mgrs_html = '<p class="pr" style="color:var(--ink-4);font-style:italic;">Información de gestores pendiente. Ejecutar manager_deep_agent para obtener perfiles.</p>'
 
+    # ── Extract only the overview (before first **Name — Cargo** header)
+    # The texto field concatenates overview + detailed profiles; we only want overview here
+    overview_paras = []
+    if texto:
+        for para in texto.split("\n\n"):
+            ps = para.strip()
+            if not ps:
+                continue
+            # Stop at first bold header that looks like a name (e.g. **Carlos Santiso — Cogestor**)
+            if ps.startswith("**") and ("—" in ps or "–" in ps or "gestor" in ps.lower()):
+                break
+            overview_paras.append(ps)
+    overview_text = "\n\n".join(overview_paras[:4])  # max 4 overview paragraphs
+    overview_html = render_narrative_inline(overview_text, data.get("nombre", "")) if overview_text else ""
+
     return f"""
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  <div class="mb24">
-    {render_narrative_inline(texto, data.get("nombre",""))}
-  </div>
+  {f'<div class="mb24">{overview_html}</div>' if overview_html else ''}
 
   {mgrs_html}
 </section>"""
@@ -737,17 +994,43 @@ def build_tab_estrategia(data):
     texto = s.get("texto", "")
     resumen = s.get("estrategia_actual_resumen", "")
     hitos = s.get("hitos_estrategia", [])
+    quotes = s.get("quotes", [])
 
-    # Uses global render_narrative_inline
+    # Quotes block — Avantage style: single blockquote with left border, no header
+    quotes_html = ""
+    if quotes:
+        for q in quotes[:3]:
+            qtxt = q.get("texto", "") if isinstance(q, dict) else str(q)
+            autor = q.get("autor", "") if isinstance(q, dict) else ""
+            ctx = q.get("contexto", "") if isinstance(q, dict) else ""
+            attr = f"— {autor}" if autor else ""
+            if ctx:
+                attr += f", {ctx}"
+            quotes_html += f'''<div style="border-left:3px solid var(--navy);padding:12px 16px;margin-bottom:16px;">
+              <p class="pr" style="font-style:italic;font-size:13.5px;line-height:1.7;color:var(--ink);">"{qtxt}"</p>
+              {f'<p style="font-size:11px;color:var(--ink-4);margin-top:6px;">{attr}</p>' if attr else ''}
+            </div>'''
 
-    # Build hitos as timeline cards (from analyst_synthesis, not hardcoded)
+    # Matriz estratégica con 4 columnas (periodo/contexto/decisiones/resultado)
     hitos_html = ""
     if hitos:
         for h in hitos:
             periodo = h.get("periodo", "")
-            cambio = h.get("cambio", "")
-            cambio_fmt = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', cambio)
-            hitos_html += f"""<div class="strat-row">
+            # Support both old format (cambio) and new format (contexto_mercado/decisiones/resultado)
+            if h.get("contexto_mercado") or h.get("decisiones"):
+                ctx = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', h.get("contexto_mercado", ""))
+                dec = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', h.get("decisiones", ""))
+                res = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', h.get("resultado", ""))
+                hitos_html += f"""<div class="strat-row">
+  <div class="strat-yr">{periodo}</div>
+  <div class="strat-c">{ctx}</div>
+  <div class="strat-c">{dec}</div>
+  <div class="strat-c">{res}</div>
+</div>"""
+            else:
+                cambio = h.get("cambio", "")
+                cambio_fmt = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', cambio)
+                hitos_html += f"""<div class="strat-row">
   <div class="strat-yr">{periodo}</div>
   <div class="strat-c" style="grid-column:span 3;">{cambio_fmt}</div>
 </div>"""
@@ -761,6 +1044,18 @@ def build_tab_estrategia(data):
     <p class="pr" style="font-size:12.5px;">{resumen}</p>
   </div>"""
 
+    # Header row for 4-column matrix
+    matrix_header = """<div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>""" if any(h.get("contexto_mercado") or h.get("decisiones") for h in hitos) else """<div style="display:grid;grid-template-columns:100px 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Descripción</div>
+  </div>"""
+
+    # ── Layout fijo: narrativa → quotes → resumen actual → matriz hitos
     return f"""
 <section class="pane" id="p4">
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
@@ -769,13 +1064,12 @@ def build_tab_estrategia(data):
     {render_narrative_inline(texto, data.get("nombre",""))}
   </div>
 
+  {quotes_html}
+
   {resumen_html}
 
-  {f'''<div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Hitos estratégicos</div>
-  <div style="display:grid;grid-template-columns:100px 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
-    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Descripción</div>
-  </div>
+  {f'''<div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica</div>
+  {matrix_header}
   {hitos_html}''' if hitos_html else ''}
 </section>"""
 
@@ -880,12 +1174,16 @@ def build_tab_cartera(data):
     mix_all = data.get("cuantitativo", {}).get("mix_activos_historico", [])
     avg_liq = round(sum(m.get("liquidez_pct",0) or 0 for m in mix_all) / max(1,len(mix_all)), 1)
 
+    # ── Plantilla visual fija: narrativa → KPIs → gráficos → tabla
+    texto_cart = s.get('texto', '')
+    narrativa_html = render_narrative_inline(texto_cart, data.get("nombre","")) if texto_cart else f'<p class="pr">La cartera actual comprende <strong>{len(sorted_pos)} posiciones</strong>.</p>'
+
     return f"""
 <section class="pane" id="p5">
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre · H2 2025</span></div>
 
   <div class="mb24">
-    {render_narrative_inline(s.get('texto', '')) if s.get('texto') else f'<p class="pr">La cartera actual comprende <strong>{len(sorted_pos)} posiciones</strong>.</p>'}
+    {narrativa_html}
   </div>
 
   <div class="kpi-row">
@@ -941,20 +1239,24 @@ def build_tab_fuentes(data):
                 return color, initials
         return "#555", fuente[:2].upper() if fuente else "??"
 
-    # Separate: análisis (substack, rankia blog, finect review, astralis research)
-    # vs otros (podcast, vídeo, foro, artículo genérico)
+    # Separate: análisis profesionales (fuentes fiables de inversión)
+    # vs otros recursos (generalistas, institucionales, vídeos, podcasts, noticias)
+    # REGLA: solo estas fuentes van a "Análisis profesionales":
+    pro_sources = [
+        "salud financiera", "substack", "masdividendos", "más dividendos",
+        "rankia", "astralis", "valueschool", "value school",
+        "finanzasmania", "uncommon finance", "zona value",
+    ]
     pro = []
     otros = []
-    other_keywords = ["podcast", "video", "vídeo", "foro", "youtube", "comunidad"]
     for op in ops:
         fuente_l = (op.get("fuente","") or "").lower()
-        titulo_l = (op.get("titulo","") or "").lower()
-        tipo_l = (op.get("tipo","") or "").lower()
-        is_other = any(kw in fuente_l or kw in titulo_l or kw in tipo_l for kw in other_keywords)
-        if is_other:
-            otros.append(op)
-        else:
+        url_l = (op.get("url","") or "").lower()
+        is_pro = any(src in fuente_l or src in url_l for src in pro_sources)
+        if is_pro:
             pro.append(op)
+        else:
+            otros.append(op)
 
     def render_card(op, expanded=True):
         fuente = op.get('fuente', '')
@@ -1066,6 +1368,250 @@ def build_tab_documentos(data):
 
 
 # ═══════════════════════════════════════════════════════════════
+# TAB 9: CHAT
+# ═══════════════════════════════════════════════════════════════
+
+def build_tab_chat(data):
+    nombre = data.get("nombre", "Fondo")
+    isin = data.get("isin", "")
+    return f"""
+<section class="pane" id="p8">
+  <style>
+    .chat-container {{
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }}
+    .chat-header {{
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }}
+    .chat-header h1 {{
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }}
+    .chat-header p {{
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }}
+    .chat-status {{
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }}
+    .chat-status .dot {{
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }}
+    .chat-status .dot.on {{ background: #22c55e; }}
+    .chat-messages {{
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }}
+    .chat-msg {{
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }}
+    .chat-msg.user {{
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }}
+    .chat-msg.ai {{
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }}
+    .chat-msg.ai strong {{ color: var(--navy); }}
+    .chat-msg.system {{
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }}
+    .chat-input-area {{
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }}
+    .chat-input {{
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }}
+    .chat-input:focus {{ border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }}
+    .chat-send {{
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }}
+    .chat-send:hover {{ opacity: 0.9; }}
+    .chat-send:disabled {{ opacity: 0.4; cursor: not-allowed; }}
+    .chat-clear {{
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }}
+    .chat-typing {{ display: inline-flex; gap: 4px; padding: 4px 0; }}
+    .chat-typing span {{
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }}
+    .chat-typing span:nth-child(2) {{ animation-delay: 0.2s; }}
+    .chat-typing span:nth-child(3) {{ animation-delay: 0.4s; }}
+    @keyframes blink {{ 0%,80%,100% {{ opacity: 0.4; }} 40% {{ opacity: 1; }} }}
+    .chat-suggestions {{
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }}
+    .chat-sug {{
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }}
+    .chat-sug:hover {{ background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }}
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Pregunta sobre {nombre} ({isin}). El chat tiene acceso a todos los informes CNMV,
+         cartas del gestor, fuentes externas y el analisis completo.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){{event.preventDefault();sendChat();}}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {{
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  }});
+
+  // Check server status
+  async function checkServer() {{
+    try {{
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {{
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }}
+    }} catch(e) {{}}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py {isin}';
+    return false;
+  }}
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {{
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');
+    html = html.replace(/\\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }}
+
+  function addTyping() {{
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }}
+
+  async function sendChat() {{
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {{
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py {isin}', 'system');
+      return;
+    }}
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {{
+      const resp = await fetch(CHAT_API + '/api/chat', {{
+        method: 'POST',
+        headers: {{'Content-Type': 'application/json'}},
+        body: JSON.stringify({{question: q}}),
+      }});
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {{
+        const {{done, value}} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {{stream: true}});
+        fullText += chunk;
+        let html = fullText.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');
+        html = html.replace(/\\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }}
+    }} catch(e) {{
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }}
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }}
+
+  function askSuggestion(btn) {{
+    chatInput.value = btn.textContent;
+    sendChat();
+  }}
+
+  async function clearChat() {{
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try {{ await fetch(CHAT_API + '/api/clear', {{method: 'POST'}}); }} catch(e) {{}}
+  }}
+  </script>
+</section>"""
+
+
+# ═══════════════════════════════════════════════════════════════
 # SCRIPTS
 # ═══════════════════════════════════════════════════════════════
 
@@ -1089,14 +1635,117 @@ def build_scripts(data):
     ce = data.get("comision_exito", {})
     has_perf_fee = ce.get("existe", False) or False
 
-    # TER data by class — align by year, exclude incoherent years (2014, 2015)
-    ter_by_year = {str(s.get("periodo","")): s.get("ter_pct") for s in ter}
-    skip_years = {"2014", "2015"}  # TER data incoherent with comisiones in these years
-    com_filtered = [s for s in com_a if str(s.get("periodo","")) not in skip_years]
-    com_years = [str(s.get("periodo","")) for s in com_filtered]
-    ter_a = [ter_by_year.get(y, None) for y in com_years]
-    com_a_data = [s.get("clases",{}).get("A",None) for s in com_filtered]
-    com_b_data = [s.get("clases",{}).get("B",None) for s in com_filtered]
+    # ── Commission data ──
+    # REGLA GENERAL:
+    # - Com. gestión: serie_comisiones_por_clase (nombres COMERCIALES: I, R, D, G)
+    # - TER: serie_ter_por_clase (nombres INTERNOS CNMV: A, B, C, D, E)
+    # - Los nombres NO coinciden entre series. Mapeo por VALOR ASCENDENTE:
+    #   se ordena com_gestion y TER por valor, y se emparejan posicionalmente.
+    #   TER siempre > com_gestion para la misma clase (diff ~0.05-0.15).
+    # - Si un año no tiene dato para una clase → null
+    # - Años: unión de todos los años de ambas series
+
+    com_by_year = {}
+    for s in com_a:
+        com_by_year[str(s.get("periodo", ""))] = s.get("clases", {})
+
+    ter_cls_by_year = {}
+    for s in cuant.get("serie_ter_por_clase", []):
+        ter_cls_by_year[str(s.get("periodo", ""))] = s.get("clases", {})
+
+    # Fallback: global TER if no per-class TER
+    ter_global_by_year = {str(s.get("periodo", "")): s.get("ter_pct") for s in ter}
+
+    # All years from all sources
+    all_com_years = sorted(set(
+        list(com_by_year.keys()) + list(ter_cls_by_year.keys()) + list(ter_global_by_year.keys())
+    ))
+
+    # All classes from comisiones (source of truth for COMMERCIAL names)
+    all_classes = set()
+    for s in com_a:
+        all_classes.update(s.get("clases", {}).keys())
+    all_classes = sorted(all_classes) if all_classes else ["A"]
+
+    # Build mapping: commercial class name → TER internal name (per year)
+    # Strategy: sort both by value ascending and pair positionally
+    def _map_ter_to_com(com_clases: dict, ter_clases: dict) -> dict:
+        """Map TER internal class names to commercial names by ascending value."""
+        if not com_clases or not ter_clases:
+            return {}
+        com_sorted = sorted(com_clases.items(), key=lambda x: x[1])
+        ter_sorted = sorted(ter_clases.items(), key=lambda x: x[1])
+        mapping = {}
+        for i, (com_name, _) in enumerate(com_sorted):
+            if i < len(ter_sorted):
+                mapping[com_name] = ter_sorted[i][0]
+        return mapping
+
+    # Build com_gestion and TER per commercial class, aligned to all_com_years
+    com_by_class = {}
+    ter_by_class = {}
+    for cls in all_classes:
+        com_vals = []
+        ter_vals = []
+        for y in all_com_years:
+            # Com. gestión: direct lookup
+            com_vals.append(com_by_year.get(y, {}).get(cls, None))
+
+            # TER: map commercial name to internal name for this year
+            com_y = com_by_year.get(y, {})
+            ter_y = ter_cls_by_year.get(y, {})
+            mapping = _map_ter_to_com(com_y, ter_y)
+            ter_internal = mapping.get(cls)
+            if ter_internal and ter_internal in ter_y:
+                ter_vals.append(ter_y[ter_internal])
+            elif len(all_classes) == 1 and ter_global_by_year.get(y):
+                # Single class fund: use global TER
+                ter_vals.append(ter_global_by_year[y])
+            else:
+                ter_vals.append(None)
+
+        com_by_class[cls] = com_vals
+        ter_by_class[cls] = ter_vals
+
+    # For the chart: TER = per-class TER of selected class (not global)
+    # Default to first class
+    default_cls = all_classes[0] if all_classes else "A"
+    ter_aligned = ter_by_class.get(default_cls, [None] * len(all_com_years))
+
+    # Comisión de éxito: importes REALES cobrados por año (no el residual TER-com)
+    # Estructura en serie_comisiones_por_clase: {'periodo': '2025', 'exito': {'UNICA': 0.62}}
+    exito_by_year_real = {}
+    for s in com_a:
+        y = str(s.get("periodo", ""))
+        ex = s.get("exito", {})
+        if ex:
+            # Tomar cualquier valor (UNICA o primera clase)
+            val = next((v for v in ex.values() if v is not None), None)
+            if val is not None:
+                exito_by_year_real[y] = val
+    # Array alineado a com_years con los importes cobrados (o null si no hubo)
+    exito_real_aligned = [exito_by_year_real.get(y) for y in all_com_years]
+
+    # TER EFECTIVO (ter_oficial + exito_cobrado) — lo que realmente paga el inversor
+    # Fuente: serie_ter[].ter_efectivo_pct calculado por cnmv_agent
+    ter_efectivo_by_year = {}
+    for s in ter:
+        y = str(s.get("periodo", ""))
+        tef = s.get("ter_efectivo_pct")
+        if tef is not None:
+            ter_efectivo_by_year[y] = tef
+    # Array alineado: si no hay ter_efectivo, usar ter_pct (mismo que oficial)
+    ter_efectivo_aligned = []
+    for i, y in enumerate(all_com_years):
+        if y in ter_efectivo_by_year:
+            ter_efectivo_aligned.append(ter_efectivo_by_year[y])
+        elif ter_aligned[i] is not None and exito_real_aligned[i] is not None:
+            # Calcular on-the-fly si no viene en cnmv_data
+            ter_efectivo_aligned.append(round(ter_aligned[i] + exito_real_aligned[i], 4))
+        else:
+            ter_efectivo_aligned.append(ter_aligned[i])
+
+    com_years = all_com_years
 
     # Position history for charts
     hist_sorted = sorted(pos_hist, key=lambda x: x.get("periodo",""))
@@ -1199,41 +1848,71 @@ const valPlugin={{
 function buildCharts(){{
   mk('c-aum',{{type:'bar',data:{{labels:Y,datasets:[{{data:{json.dumps(aum_v)},backgroundColor:A1()+'99'}}]}},options:{{...opt(),scales:sc(0)}},plugins:[valPlugin]}});
   mk('c-part',{{type:'bar',data:{{labels:Y,datasets:[{{data:{json.dumps(part_v)},backgroundColor:A2()+'99'}}]}},options:{{...opt(),scales:sc(0)}},plugins:[valPlugin]}});
-  mk('c-vl',{{type:'line',data:{{labels:Y,datasets:[{{data:{json.dumps(vl_v)},borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:2,pointBackgroundColor:A1()}}]}},options:{{...opt(),scales:sc(80)}},plugins:[valPlugin]}});
+  const vlCorrupta={'true' if data.get('serie_vl_corrupta') else 'false'};
+  if(vlCorrupta){{
+    const cvl=document.getElementById('c-vl');
+    if(cvl){{
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }}
+  }}else{{
+    const vlMin=Math.max(0,Math.floor(Math.min(...{json.dumps(vl_v)}.filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...{json.dumps(vl_v)})/10)*10+10;
+    mk('c-vl',{{type:'line',data:{{labels:Y,datasets:[{{data:{json.dumps(vl_v)},borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}}]}},options:{{...opt(),scales:sc(vlMin,vlMax)}},plugins:[valPlugin]}});
+  }}
   buildComChart();
-  mk('c-npos',{{type:'bar',data:{{labels:{json.dumps(ch_yrs)},datasets:[{{data:{json.dumps(ch_npos)},backgroundColor:A1()+'99'}}]}},options:{{...opt(),scales:sc(0)}},plugins:[valPlugin]}});
+  // Both charts share same X labels for alignment
+  const cartYrs={json.dumps(ch_yrs)};
+  const nposMax=Math.max(...{json.dumps(ch_npos)})+10;
+  mk('c-npos',{{type:'bar',data:{{labels:cartYrs,datasets:[{{data:{json.dumps(ch_npos)},backgroundColor:A1()+'99'}}]}},options:{{...opt(),scales:sc(0,nposMax)}},plugins:[valPlugin]}});
   const concLblPlugin={{
     id:'concLabels',
     afterDatasetsDraw(chart){{
       drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
     }}
   }};
-  mk('c-conc',{{type:'line',data:{{labels:{json.dumps(ch_yrs)},datasets:[
-    {{label:'Top 5',data:{json.dumps(ch_t5)},borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:2,pointBackgroundColor:A1()}},
-    {{label:'Top 10',data:{json.dumps(ch_t10)},borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:2,pointBackgroundColor:A1()+'99'}},
-    {{label:'Top 15',data:{json.dumps(ch_t15)},borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:2,pointBackgroundColor:A1()+'66'}}
-  ]}},options:{{...opt(true),scales:sc(0,70)}},plugins:[concLblPlugin]}});
+  const concAllVals=[...{json.dumps(ch_t5)},...{json.dumps(ch_t10)},...{json.dumps(ch_t15)}].filter(v=>v!=null);
+  const concMax=Math.min(100,Math.ceil(Math.max(...concAllVals)/10)*10+10);
+  mk('c-conc',{{type:'line',data:{{labels:cartYrs,datasets:[
+    {{label:'Top 5',data:{json.dumps(ch_t5)},borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}},
+    {{label:'Top 10',data:{json.dumps(ch_t10)},borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'}},
+    {{label:'Top 15',data:{json.dumps(ch_t15)},borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}}
+  ]}},options:{{...opt(true),scales:sc(0,concMax)}},plugins:[concLblPlugin]}});
 }}
-const COM_A={json.dumps(com_a_data)};
-const COM_B={json.dumps(com_b_data)};
-const TER={json.dumps(ter_a)};
+const COM_DATA={json.dumps(com_by_class)};
+const TER_DATA={json.dumps(ter_by_class)};
+const TER_EFECTIVO={json.dumps(ter_efectivo_aligned)};
 const CY={json.dumps([y[-2:] for y in com_years])};
-// Comisión de éxito — dummy data for visual validation
-const EXITO_DUMMY=[null,null,null,null,null,0.45,0.00,0.00,0.32,0.00];
-const HAS_EXITO=true; // TEMP forced true (real: {json.dumps(has_perf_fee)})
+const HAS_EXITO={json.dumps(has_perf_fee)};
+const EXITO_REAL={json.dumps(exito_real_aligned)};
 function buildComChart(){{
   const sel=document.getElementById('com-sel');
-  const cls=sel?sel.value:'A';
-  const d=cls==='B'?COM_B:COM_A;
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
   const pctCb=function(v){{return v.toFixed(1)+'%';}};
-  // Compute exito as TER - gestion - ~depositario (what's left)
-  const exito=HAS_EXITO?EXITO_DUMMY:TER.map(()=>null);
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }}):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
   const datasets=[
-    {{label:'TER total',data:TER,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:2,pointBackgroundColor:A1(),order:1}},
-    {{label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:2,pointBackgroundColor:A2(),order:2}},
-    {{label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:2,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}}
+    {{label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1}},
+    {{label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2}},
+    {{label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}}
   ];
-  const allVals=[...TER,...d,...exito].filter(v=>v!=null);
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
   const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
   const comLblPlugin={{
     id:'comAreaLabels',
@@ -1322,13 +2001,37 @@ function calcYearlyVol(me){{
 
 function calcDrawdown(series){{
   let peak=series[0].nav;
+  let peakDate=series[0].date;
   const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
   for(const p of series){{
-    if(p.nav>peak)peak=p.nav;
+    if(p.nav>peak){{peak=p.nav;peakDate=p.date;}}
     const d=(p.nav-peak)/peak;
     dates.push(p.date);dd.push(d);
+    if(d<worstDD){{worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}}
   }}
-  return {{dates,dd}};
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){{
+    let peakVal=0;
+    for(const p of series){{if(p.date===worstPeakDate){{peakVal=p.nav;break;}}}}
+    for(const p of series){{
+      if(p.date>worstDate && p.nav>=peakVal){{recoveredDate=p.date;break;}}
+    }}
+  }}
+  return {{dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate}};
+}}
+
+function monthsBetween(d1,d2){{
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}}
+function fmtDate(d){{
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
 }}
 
 function calcRolling(me,months){{
@@ -1392,8 +2095,8 @@ function renderMST(series){{
       options:{{...opt(),scales:{{x:{{grid:{{display:false}},ticks:{{color:TC(),font:{{family:'Source Code Pro',size:9}}}}}},
         y:{{grid:{{display:false}},ticks:{{color:dk()?'#908c84':'#555',font:{{family:'Source Code Pro',size:9}},callback:function(v){{return fmtES(v,1)+'%';}}}},
           // Extra range so labels don't touch edges
-          suggestedMax:Math.ceil(Math.max(...retYs)*100)+5,
-          suggestedMin:Math.floor(Math.min(...retYs)*100)-5
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
         }}
       }}}},
       plugins:[{{id:id+'L',afterDatasetsDraw(chart){{
@@ -1401,7 +2104,7 @@ function renderMST(series){{
         ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
         chart.getDatasetMeta(0).data.forEach((el,i)=>{{
           const v=retYs[i];if(v==null)return;
-          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-8:el.y+14);
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
         }});
       }}}}]
     }});
@@ -1416,8 +2119,8 @@ function renderMST(series){{
         plugins:{{legend:{{display:true,position:'bottom',labels:{{color:TC(),font:{{size:9,family:'Source Code Pro'}},boxWidth:8,padding:8}}}}}},
         scales:{{x:{{grid:{{display:false}},stacked:true,ticks:{{color:TC(),font:{{family:'Source Code Pro',size:9}}}}}},
           y:{{grid:{{display:false}},stacked:true,ticks:{{color:dk()?'#908c84':'#555',font:{{family:'Source Code Pro',size:9}},callback:function(v){{return fmtES(v,1)+'%';}}}},
-            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+4,
-            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-4
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
           }}
         }}
       }},
@@ -1463,10 +2166,19 @@ function renderMST(series){{
   const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
 
   const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
   if(kpiEl)kpiEl.innerHTML=`
     <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
     <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
     <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
   `;
 
@@ -1479,7 +2191,7 @@ function renderMST(series){{
   const gVals=gPts.map(p=>p.nav/series[0].nav*100);
   // Find max point for annotation
   const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
-  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?4:0);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
   mk('mst-growth',{{type:'line',data:{{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}}]}},
     options:lineOpt(),
     plugins:[{{id:'gLbl',afterDatasetsDraw(chart){{
@@ -1506,7 +2218,7 @@ function renderMST(series){{
   for(let i=0;i<ddVpct.length;i++){{
     if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){{dd2Val=ddVpct[i];dd2Idx=i;}}
   }}
-  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?4:0);
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
   mk('mst-dd',{{type:'line',data:{{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}}]}},
     options:lineOpt(),
     plugins:[{{id:'ddLbl',afterDatasetsDraw(chart){{
@@ -1535,7 +2247,7 @@ function updateRollingRet(){{
   const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
   const vpct=vals.map(v=>v*100);
   const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
-  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?4:0);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
   mk('mst-roll-ret',{{type:'line',data:{{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}}]}},
     options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},
       plugins:{{legend:{{display:false}},tooltip:{{enabled:true,callbacks:{{label:function(ctx){{return fmtES(ctx.parsed.y,1)+'%';}}}}}}}},
@@ -1557,7 +2269,7 @@ function updateRollingVol(){{
   const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
   const vpct=vals.map(v=>v*100);
   const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
-  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?4:0);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
   mk('mst-roll-vol',{{type:'line',data:{{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}}]}},
     options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},
       plugins:{{legend:{{display:false}},tooltip:{{enabled:true,callbacks:{{label:function(ctx){{return fmtES(ctx.parsed.y,1)+'%';}}}}}}}},
@@ -1613,6 +2325,7 @@ def generate():
 {build_tab_cartera(data)}
 {build_tab_fuentes(data)}
 {build_tab_documentos(data)}
+{build_tab_chat(data)}
 </main>
 {build_scripts(data)}
 </body>

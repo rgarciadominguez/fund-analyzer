@@ -133,14 +133,40 @@ class AnalystAgent:
         existing_cuant = existing_output.get("cuantitativo", {}) if existing_output else {}
         new_cuant = cnmv.get("cuantitativo", {})
 
-        # Merge: for each series, keep whichever has more data points
+        # Merge: for each series, prefer the richer data.
+        # Priority: (a) if new_val has more items → new; (b) if same items but new has MORE fields per item → new;
+        # (c) otherwise old (preserve historical if no improvement)
+        def _richer_list(old_list, new_list):
+            """Return whichever list has more data (items + fields per item)."""
+            old_n = len(old_list or [])
+            new_n = len(new_list or [])
+            if new_n > old_n:
+                return new_list
+            if old_n > new_n:
+                return old_list
+            # Same length: check if new items have MORE fields (richer schema)
+            if old_n == 0:
+                return new_list
+            old_fields = set()
+            new_fields = set()
+            for x in old_list:
+                if isinstance(x, dict):
+                    old_fields.update(x.keys())
+            for x in new_list:
+                if isinstance(x, dict):
+                    new_fields.update(x.keys())
+            # New has fields old doesn't → new is richer
+            if new_fields - old_fields:
+                return new_list
+            return old_list
+
         merged_cuant = {}
         all_keys = set(list(existing_cuant.keys()) + list(new_cuant.keys()))
         for key in all_keys:
             old_val = existing_cuant.get(key)
             new_val = new_cuant.get(key)
             if isinstance(old_val, list) and isinstance(new_val, list):
-                merged_cuant[key] = old_val if len(old_val) >= len(new_val) else new_val
+                merged_cuant[key] = _richer_list(old_val, new_val)
             elif isinstance(old_val, list) and not new_val:
                 merged_cuant[key] = old_val
             elif isinstance(new_val, list) and not old_val:
@@ -173,6 +199,18 @@ class AnalystAgent:
         # Propagate comision_exito_pct in kpis if present
         if cnmv.get("kpis", {}).get("comision_exito_pct"):
             consolidated["kpis"]["comision_exito_pct"] = cnmv["kpis"]["comision_exito_pct"]
+
+        # Extracción del % teórico desde el KIID (única fuente oficial regulada).
+        # Si cnmv_agent no lo encontró, intentar descargar/parsear el KIID del fondo.
+        ce = consolidated["comision_exito"] or {}
+        if ce.get("existe") and not ce.get("pct_teorico"):
+            teorico = self._extract_exito_teorico_from_kiid(cnmv)
+            if teorico is not None:
+                ce["pct_teorico"] = teorico
+                ce["pct_teorico_fuente"] = "kiid"
+                consolidated["comision_exito"] = ce
+                consolidated["kpis"]["comision_exito_pct"] = teorico
+                self._log("OK", f"Comisión éxito teórica extraída del KIID: {teorico}%")
 
         # ── CAPA 3: Analyst Senior — 8 secciones ────────────────────────
         self._log("START", "Capa 3: Síntesis Analyst Senior (8 secciones)")
@@ -391,6 +429,97 @@ class AnalystAgent:
         n_multi = len(result["multimedia"])
         self._log("INFO", f"Lecturas filtradas: {n_analisis} análisis, {n_multi} multimedia")
         return result
+
+    def _extract_exito_teorico_from_kiid(self, cnmv: dict) -> float | None:
+        """Busca el % teórico de comisión éxito EXCLUSIVAMENTE en el KIID/DFI del fondo.
+        El KIID (Key Investor Information Document, antes DFI) es el documento oficial
+        regulado que define la estructura de comisiones. No usar cartas ni readings
+        (pueden tener info anecdótica o desactualizada).
+
+        Fuentes válidas (en orden):
+          1) Archivo raw/documents/kiid.pdf si existe
+          2) PDF con "KIID" / "DFI" / "DIC" en nombre dentro de raw/letters/
+          3) Descarga on-demand desde CNMV si se implementa
+
+        Patrones admitidos (texto del KIID):
+          - "comisión de éxito del 9%" / "comisión de éxito 9%"
+          - "9% sobre resultados positivos" / "9% sobre la rentabilidad positiva"
+          - "performance fee: 9%"
+
+        Aplica a cualquier fondo. Valores admisibles: 1-30%.
+        """
+        import re
+        from pathlib import Path
+        from tools.pdf_extractor import extract_page_range, get_pdf_metadata
+
+        # Buscar el KIID/DFI del fondo. NO confundir con:
+        #  - "Cuadernillo" / "Reducido" → informe semestral CNMV comercial (no es KIID)
+        #  - Cartas del gestor, auditorías, fichas comerciales
+        # El KIID oficial CNMV siempre se llama KIID/DFI/DIC o "Datos Fundamentales"
+        kiid_rx = re.compile(
+            r"\bkiid\b|\bkid\b|\bdfi\b|\bdic\b|datos[_\-\s]*fundamentales|\bfolleto\b",
+            re.IGNORECASE,
+        )
+        candidates: list[Path] = []
+        raw_dir = self.fund_dir / "raw"
+        for subdir in ("documents", "letters", "reports"):
+            sd = raw_dir / subdir
+            if sd.exists():
+                for p in sd.glob("*.pdf"):
+                    if kiid_rx.search(p.name):
+                        candidates.append(p)
+
+        if not candidates:
+            self._log("INFO", "KIID no encontrado en raw/. % teórico queda pendiente (quality agent lo reportará)")
+            return None
+
+        self._log("INFO", f"Buscando % éxito en {len(candidates)} KIID candidato(s): {[p.name for p in candidates]}")
+        # Patrones robustos que exigen proximidad a palabras clave de comisión éxito
+        exito_keywords = (
+            r"(?:comisi[óo]n\s+(?:de\s+)?(?:\u00e9xito|exito|resultados?|performance)|"
+            r"performance\s+fee|success\s+fee|"
+            r"sobre\s+(?:los\s+)?(?:beneficios|resultados|rentabilidad)|"
+            r"s/\s*(?:resultados?|beneficios|rentabilidad))"
+        )
+        pct_rx = r"(\d{1,2}(?:[.,]\d{1,2})?)\s*%"
+        patterns = [
+            # "comisión de éxito 7,5%" o "éxito 7,5%" (palabra éxito + % inmediato, sin conector)
+            rf"(?:comisi[óo]n\s+de\s+)?\u00e9xito[:\s]+{pct_rx}",
+            # "comisión de éxito del 9%" o "comisión sobre resultados del 9%"
+            rf"{exito_keywords}[^.]{{0,80}}?(?:del|de|es|es\s+del|asciende\s+al|alcanza\s+el|aplica\s+un|se\s+aplica\s+un)\s+{pct_rx}",
+            # "9% sobre beneficios/resultados/rentabilidad"
+            rf"{pct_rx}\s*(?:sobre|s/|de)\s*(?:la\s+|los\s+)?(?:beneficios|resultados|rentabilidad)",
+            # "9% de comisión de éxito" / "9% de éxito"
+            rf"{pct_rx}\s+de\s+(?:comisi[óo]n\s+de\s+)?\u00e9xito",
+            # "Tipo aplicable s/resultados: 9%"
+            rf"tipo\s+aplicable\s+s/\s*resultados?[\s:]+{pct_rx}",
+            # "performance fee: 9%" / "performance fee of 9%"
+            rf"performance\s+fee[:\s]+(?:of\s+)?{pct_rx}",
+        ]
+
+        # Extraer texto de los PDFs KIID candidatos
+        textos: list[str] = []
+        for p in candidates:
+            try:
+                meta = get_pdf_metadata(str(p))
+                txt = extract_page_range(str(p), 0, meta["num_pages"])
+                txt = re.sub(r"\(cid:\d+\)", " ", txt)
+                textos.append(txt)
+            except Exception as exc:
+                self._log("WARN", f"No se pudo leer KIID {p.name}: {exc}")
+
+        # Aplicar patrones
+        for texto in textos:
+            for pat in patterns:
+                for m in re.finditer(pat, texto, re.IGNORECASE):
+                    try:
+                        val_str = m.group(1).replace(",", ".")
+                        val = float(val_str)
+                        if 1 <= val <= 30:
+                            return val
+                    except (ValueError, IndexError):
+                        continue
+        return None
 
     # ═══════════════════════════════════════════════════════════════════════════
     # CAPA 2: CONSOLIDADOR
@@ -1033,9 +1162,17 @@ class AnalystAgent:
         time.sleep(2)
 
         # Call 3: DATOS — TIER 2 (Flash) — perfiles estructurados con trayectoria extensa
+        # Detect gestores mencionados en manager_profile para forzar extracción de TODOS
+        n_equipo_hint = len(gestores.get("equipo", []) or [])
+        n_perfiles_disponibles = len(gestores.get("perfiles", []) or [])
+        # Si hay >1 nombre en equipo o >1 perfil extraído, pedir explícitamente múltiples
+        min_perfiles = max(2, min(n_perfiles_disponibles, 3)) if n_perfiles_disponibles > 1 or n_equipo_hint > 1 else 1
         datos = self._gemini_call(
             f"Extrae perfiles del equipo gestor para FICHAS de un dashboard profesional.\n"
-            f"Para CADA gestor principal incluye:\n"
+            f"OBLIGATORIO: genera perfiles para TODOS los gestores mencionados en los datos.\n"
+            f"Mínimo esperado: {min_perfiles} perfiles (si hay cofundadores, cogestores o co-CIOs, incluir a TODOS).\n"
+            f"NO te limites al lead manager — cofundadores y equipo senior deben aparecer.\n"
+            f"Para CADA gestor incluye:\n"
             f"- nombre: nombre completo\n"
             f"- cargo: cargo actual\n"
             f"- cv_bullets: 4-6 strings CORTOS tipo CV bullet, ej:\n"
@@ -1063,6 +1200,29 @@ class AnalystAgent:
         )
 
         result = datos if datos else {}
+
+        # Anti-regresión: si el output anterior (o backup good) tenía más perfiles, preservarlos
+        new_perfiles = result.get("perfiles", []) or []
+        # Buscar en múltiples fuentes (prioridad: output actual > output_good_v1 backup)
+        candidates = [
+            self._load_json("output.json") or {},
+            self._load_json("output_good_v1.json") or {},
+        ]
+        best_prev = []
+        for cand in candidates:
+            prev = (cand.get("analyst_synthesis", {}) or {}).get(
+                "gestores", {}).get("perfiles", []) or []
+            if len(prev) > len(best_prev):
+                best_prev = prev
+
+        if len(best_prev) > len(new_perfiles):
+            new_names = {(p.get("nombre") or "").strip().lower() for p in new_perfiles}
+            for old_p in best_prev:
+                name = (old_p.get("nombre") or "").strip().lower()
+                if name and name not in new_names:
+                    new_perfiles.append(old_p)
+                    self._log("INFO", f"Preservando perfil '{old_p.get('nombre')}' del backup")
+            result["perfiles"] = new_perfiles
 
         # Call 4: SIEMPRE extraer filosofía del gestor principal si hay fuentes web
         # (resuelve el caso 'gestor sin filosofía' del quality_agent)
