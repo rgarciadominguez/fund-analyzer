@@ -178,10 +178,64 @@ def _check_any_field_present(rule: dict, data: dict) -> tuple[bool, dict]:
     return False, {}
 
 
+def _check_no_bold_headers(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Text must NOT have standalone **bold** headers (subsections). Pure prose only."""
+    text = _get_nested(data, rule["field_path"]) or ""
+    if not isinstance(text, str):
+        return True, {"actual": 0}
+    headers = 0
+    for para in text.split("\n\n"):
+        ps = para.strip()
+        if ps.startswith("**") and ps.endswith("**") and ps.count("**") == 2 and len(ps) > 4:
+            headers += 1
+    ok = headers <= rule.get("value", 0)  # value = max allowed headers (usually 0)
+    return ok, {"actual": headers, "expected": rule.get("value", 0)}
+
+
+def _check_min_chars_nested(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Nested field (e.g. perfiles[0].trayectoria) must have min chars."""
+    val = _get_nested(data, rule["field_path"]) or ""
+    if not isinstance(val, str):
+        val = ""
+    actual = len(val)
+    expected = rule["value"]
+    ok = actual >= expected
+    # Get name for template
+    perfiles = _get_nested(data, "analyst_synthesis.gestores.perfiles") or []
+    lead_name = perfiles[0].get("nombre", "") if perfiles else ""
+    return ok, {"actual": actual, "expected": expected, "lead_name": lead_name}
+
+
+def _check_has_quotes(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Section must have quotes array with min items."""
+    val = _get_nested(data, rule["field_path"]) or []
+    if not isinstance(val, list):
+        val = []
+    actual = len(val)
+    expected = rule["value"]
+    ok = actual >= expected
+    return ok, {"actual": actual, "expected": expected}
+
+
+def _check_has_field_in_hitos(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Each hito in array must have specific fields (e.g. contexto_mercado, decisiones, resultado)."""
+    hitos = _get_nested(data, rule["field_path"]) or []
+    if not isinstance(hitos, list) or not hitos:
+        return False, {"actual": 0, "expected": rule.get("value", 1)}
+    required_field = rule.get("required_field", "")
+    count_with = sum(1 for h in hitos if isinstance(h, dict) and h.get(required_field))
+    ok = count_with >= rule.get("value", 1)
+    return ok, {"actual": count_with, "expected": rule.get("value", 1)}
+
+
 # Registro de validadores
 CHECK_REGISTRY = {
     "min_chars": _check_min_chars,
     "min_count_array": _check_min_count_array,
+    "no_bold_headers": _check_no_bold_headers,
+    "min_chars_nested": _check_min_chars_nested,
+    "has_quotes": _check_has_quotes,
+    "has_field_in_hitos": _check_has_field_in_hitos,
     "min_bold_headers": _check_min_bold_headers,
     "min_cifras": _check_min_cifras,
     "must_contain_fund_name": _check_must_contain_fund_name,
@@ -280,15 +334,32 @@ class DashboardQualityAgent:
                 fallos.append({
                     "regla_id": rule.get("id"),
                     "seccion": rule.get("section", "global"),
+                    "fail_type": rule.get("fail_type", "estructura"),
                     "problema": problema,
                     "agente_responsable": rule.get("agente_responsable", "analyst_agent"),
                     "accion": accion,
                 })
 
+        # Compute scoring metrics
+        total_reglas = len([r for r in self.rules.get("rules", []) if _rule_applies(r, data)])
+        fallos_estructura = sum(1 for f in fallos if f.get("fail_type") in ("estructura", "content"))
+        fallos_scarcity = sum(1 for f in fallos if f.get("fail_type") == "scarcity")
+        reglas_ok = total_reglas - len(fallos)
+        aceptable = fallos_estructura == 0
+        score_display = f"{reglas_ok}/{total_reglas} reglas OK"
+        if fallos_scarcity > 0:
+            score_display += f" ({fallos_scarcity} pendientes de datos)"
+
         report = {
             "fund": self.isin,
             "nombre": data.get("nombre", ""),
             "fallos": fallos,
+            "fallos_estructura": fallos_estructura,
+            "fallos_scarcity": fallos_scarcity,
+            "total_reglas": total_reglas,
+            "reglas_ok": reglas_ok,
+            "aceptable": aceptable,
+            "score_display": score_display,
             "secciones_evaluadas": self.rules.get("sections", []),
             "evaluado_at": datetime.now().isoformat(),
         }
@@ -315,7 +386,7 @@ class DashboardQualityAgent:
         )
         table.add_column("Sección", width=22)
         table.add_column("Fallos", width=8, justify="right")
-        table.add_column("Estado", width=10)
+        table.add_column("Estado", width=30)
 
         for sec in report.get("secciones_evaluadas", []):
             n = per_section.get(sec, 0)
@@ -331,6 +402,16 @@ class DashboardQualityAgent:
         total_color = "green" if total == 0 else "yellow"
         table.add_row("[bold]TOTAL", f"[bold {total_color}]{total}",
                       f"[bold {total_color}]{'OK' if total == 0 else 'REVISAR'}")
+
+        # Show scoring summary
+        aceptable = report.get("aceptable", False)
+        score_display = report.get("score_display", "")
+        accept_color = "green" if aceptable else "yellow"
+        table.add_row(
+            f"[bold {accept_color}]Score",
+            f"[bold {accept_color}]{score_display}",
+            f"[bold {accept_color}]{'ACEPTABLE' if aceptable else 'NO ACEPTABLE'}",
+        )
 
         console.print(table)
 

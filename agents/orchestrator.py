@@ -574,17 +574,21 @@ async def _run_quality_loop(
 
     quality = DashboardQualityAgent(isin)
     report = quality.run()
-    n_fallos = len(report.get("fallos", []))
-    log("QUALITY", "INFO", f"Iteración 0 — {n_fallos} fallos")
+    n_fallos_estructura = report.get("fallos_estructura", len(report.get("fallos", [])))
+    n_fallos_total = len(report.get("fallos", []))
+    aceptable = report.get("aceptable", n_fallos_estructura == 0)
+    log("QUALITY", "INFO",
+        f"Iteración 0 — {n_fallos_total} fallos ({n_fallos_estructura} estructura/content, "
+        f"{report.get('fallos_scarcity', 0)} scarcity) — {report.get('score_display', '')}")
 
     iteration = 0
-    while n_fallos > 0 and iteration < max_iter:
+    while not aceptable and n_fallos_estructura > 0 and iteration < max_iter:
         iteration += 1
-        prev_fallos = n_fallos
-        log("QUALITY", "INFO", f"Iteración {iteration}/{max_iter} — reagenting upstream agents")
+        prev_fallos_estructura = n_fallos_estructura
+        log("QUALITY", "INFO", f"Iteración {iteration}/{max_iter} — reagenting upstream agents (solo estructura/content)")
 
-        # Agrupar fallos por agente responsable
-        fallos = report.get("fallos", [])
+        # Agrupar fallos corregibles (estructura + content) por agente responsable
+        fallos = [f for f in report.get("fallos", []) if f.get("fail_type") in ("estructura", "content")]
         fallos_por_agente: dict = {}
         for f in fallos:
             agente = f.get("agente_responsable", "analyst_agent")
@@ -658,12 +662,17 @@ async def _run_quality_loop(
 
         # ── Re-evaluar ───────────────────────────────────────────────────────
         report = quality.run()
-        n_fallos = len(report.get("fallos", []))
-        log("QUALITY", "INFO", f"Iteración {iteration} — {n_fallos} fallos (antes: {prev_fallos})")
+        n_fallos_estructura = report.get("fallos_estructura", len(report.get("fallos", [])))
+        n_fallos_total = len(report.get("fallos", []))
+        aceptable = report.get("aceptable", n_fallos_estructura == 0)
+        log("QUALITY", "INFO",
+            f"Iteración {iteration} — {n_fallos_total} fallos ({n_fallos_estructura} estructura/content, "
+            f"{report.get('fallos_scarcity', 0)} scarcity) — antes: {prev_fallos_estructura} estructura")
 
-        # Abortar si no estamos reduciendo fallos
-        if n_fallos >= prev_fallos:
-            log("QUALITY", "WARN", f"Iteración {iteration} no redujo fallos — abortando loop")
+        # Abortar si no estamos reduciendo fallos de estructura/content
+        if n_fallos_estructura >= prev_fallos_estructura:
+            log("QUALITY", "WARN",
+                f"Iteración {iteration} no redujo fallos estructura ({n_fallos_estructura} >= {prev_fallos_estructura}) — abortando loop")
             break
 
     # ── Re-generar dashboard HTML con el output final del loop ──────────────
@@ -682,18 +691,27 @@ async def _run_quality_loop(
         log("QUALITY", "WARN", f"No se pudo regenerar dashboard: {exc}")
 
     final_fallos = len(report.get("fallos", []))
-    if final_fallos == 0:
+    final_estructura = report.get("fallos_estructura", 0)
+    final_scarcity = report.get("fallos_scarcity", 0)
+    final_aceptable = report.get("aceptable", False)
+    score_display = report.get("score_display", f"{final_fallos} fallos")
+
+    if final_aceptable:
+        scarcity_note = f" ({final_scarcity} pendientes de datos)" if final_scarcity > 0 else ""
         console.print(Panel(
-            f"[bold green]Quality loop OK — 0 fallos (iteración {iteration})[/bold green]",
+            f"[bold green]Quality loop ACEPTABLE — {score_display} (iteración {iteration})[/bold green]\n"
+            f"Todos los fallos de estructura/content resueltos.{scarcity_note}",
             border_style="green",
         ))
     else:
         fallos_summary = "\n".join(
-            f"  • [{f.get('seccion','?')}] {f.get('problema','')[:90]}"
+            f"  • [{f.get('seccion','?')}] [{f.get('fail_type','?')}] {f.get('problema','')[:80]}"
             for f in report.get("fallos", [])[:8]
         )
         console.print(Panel(
-            f"[bold yellow]Quality loop terminó con {final_fallos} fallos restantes[/bold yellow]\n"
+            f"[bold yellow]Quality loop terminó con {final_fallos} fallos restantes "
+            f"({final_estructura} estructura, {final_scarcity} scarcity)[/bold yellow]\n"
+            f"{score_display}\n"
             f"Tras {iteration} iteraciones quedan:\n{fallos_summary}",
             title="Quality con fallos pendientes",
             border_style="yellow",

@@ -106,11 +106,44 @@ class AnalystAgent:
         consolidated["tipo"] = cnmv.get("tipo", "ES")
         consolidated["ultima_actualizacion"] = datetime.now().isoformat()
 
-        # Also pass through raw cuantitativo (untouched by filters)
-        consolidated["cuantitativo"] = cnmv.get("cuantitativo", {})
-        consolidated["kpis"] = cnmv.get("kpis", {})
-        consolidated["posiciones"] = cnmv.get("posiciones", {})
-        consolidated["fuentes"] = cnmv.get("fuentes", {})
+        # Pass through raw cuantitativo — but PRESERVE existing output.json data
+        # if it has MORE data points (e.g. from a previous full pipeline run).
+        # This prevents re-running analyst from losing historical series.
+        existing_output = self._load_json("output.json")
+        existing_cuant = existing_output.get("cuantitativo", {}) if existing_output else {}
+        new_cuant = cnmv.get("cuantitativo", {})
+
+        # Merge: for each series, keep whichever has more data points
+        merged_cuant = {}
+        all_keys = set(list(existing_cuant.keys()) + list(new_cuant.keys()))
+        for key in all_keys:
+            old_val = existing_cuant.get(key)
+            new_val = new_cuant.get(key)
+            if isinstance(old_val, list) and isinstance(new_val, list):
+                merged_cuant[key] = old_val if len(old_val) >= len(new_val) else new_val
+            elif isinstance(old_val, list) and not new_val:
+                merged_cuant[key] = old_val
+            elif isinstance(new_val, list) and not old_val:
+                merged_cuant[key] = new_val
+            else:
+                merged_cuant[key] = new_val if new_val is not None else old_val
+
+        consolidated["cuantitativo"] = merged_cuant
+        consolidated["kpis"] = cnmv.get("kpis", {}) or existing_output.get("kpis", {})
+
+        # Same for posiciones — keep richer data
+        new_pos = cnmv.get("posiciones", {})
+        old_pos = existing_output.get("posiciones", {}) if existing_output else {}
+        merged_pos = {}
+        for key in set(list(new_pos.keys()) + list(old_pos.keys())):
+            ov = old_pos.get(key, [])
+            nv = new_pos.get(key, [])
+            if isinstance(ov, list) and isinstance(nv, list):
+                merged_pos[key] = ov if len(ov) >= len(nv) else nv
+            else:
+                merged_pos[key] = nv if nv else ov
+        consolidated["posiciones"] = merged_pos
+        consolidated["fuentes"] = cnmv.get("fuentes", {}) or existing_output.get("fuentes", {})
 
         # ── CAPA 3: Analyst Senior — 8 secciones ────────────────────────
         self._log("START", "Capa 3: Síntesis Analyst Senior (8 secciones)")
@@ -413,8 +446,119 @@ class AnalystAgent:
         return result
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # CAPA 3: GEMINI SYNTHESIS — 8 SECCIONES
+    # CAPA 3: LLM SYNTHESIS — 8 SECCIONES (multi-tier: Sonnet T1, Flash T2, Flash-lite T3)
     # ═══════════════════════════════════════════════════════════════════════════
+
+    # Model tiers:
+    #   T1 (Sonnet or Flash) — critical narratives: resumen.texto, estrategia.texto, gestores.trayectoria
+    #   T2 (Flash)  — secondary narratives: historia, cartera, fuentes, filosofia
+    #   T3 (Lite)   — mechanical extraction: JSON (criterios, hitos, quotes, cv_bullets)
+    # Set USE_SONNET=true in .env to enable Claude Sonnet for T1 (requires Anthropic credits)
+    GEMINI_FLASH = "gemini-2.5-flash"
+    GEMINI_LITE = "gemini-2.5-flash-lite"
+    SONNET_MODEL = "claude-sonnet-4-5-20241022"
+    USE_SONNET = os.getenv("USE_SONNET", "").lower() in ("true", "1", "yes")
+
+    def _get_anthropic_client(self):
+        """Get or create Anthropic client for Sonnet calls."""
+        if not hasattr(self, '_anthropic_client'):
+            import anthropic
+            self._anthropic_client = anthropic.Anthropic(
+                api_key=os.getenv("ANTHROPIC_API_KEY", "")
+            )
+        return self._anthropic_client
+
+    def _sonnet_text(self, system: str, prompt: str, max_tokens: int = 8000, retries: int = 2) -> str:
+        """Call Claude Sonnet for high-quality text generation (Tier 1).
+        Falls back to Gemini Flash if USE_SONNET is not set or Sonnet fails."""
+        if not self.USE_SONNET:
+            self._log("INFO", "T1 using Flash (USE_SONNET not set)")
+            return self._gemini_text(f"{system}\n\n{prompt}", max_tokens, retries)
+        try:
+            client = self._get_anthropic_client()
+        except Exception as exc:
+            self._log("WARN", f"Sonnet init failed, falling back to Flash: {exc}")
+            return self._gemini_text(f"{system}\n\n{prompt}", max_tokens, retries)
+
+        for attempt in range(retries + 1):
+            try:
+                resp = client.messages.create(
+                    model=self.SONNET_MODEL,
+                    max_tokens=max_tokens,
+                    system=system,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.2,
+                )
+                text = resp.content[0].text.strip() if resp.content else ""
+                if not text:
+                    raise ValueError("Empty Sonnet response")
+                self._log("INFO", f"Sonnet T1: {len(text)} chars")
+                return text
+            except Exception as exc:
+                exc_str = str(exc)
+                if "overloaded" in exc_str.lower() or "529" in exc_str:
+                    wait = 30 * (attempt + 1)
+                    self._log("WARN", f"Sonnet overloaded — espera {wait}s")
+                    time.sleep(wait)
+                elif "rate_limit" in exc_str.lower() or "429" in exc_str:
+                    wait = 45 * (attempt + 1)
+                    self._log("WARN", f"Sonnet rate limit — espera {wait}s")
+                    time.sleep(wait)
+                elif attempt < retries:
+                    self._log("WARN", f"Sonnet error (intento {attempt+1}): {exc}")
+                    time.sleep(5)
+                else:
+                    self._log("WARN", f"Sonnet falló, falling back to Flash: {exc}")
+                    return self._gemini_text(f"{system}\n\n{prompt}", max_tokens, retries=1)
+        # Fallback to Flash
+        return self._gemini_text(f"{system}\n\n{prompt}", max_tokens, retries=1)
+
+    def _sonnet_call(self, system: str, prompt: str, max_tokens: int = 8000, retries: int = 2) -> dict | None:
+        """Call Claude Sonnet for JSON extraction (Tier 1). Falls back to Gemini Flash."""
+        if not self.USE_SONNET:
+            return self._gemini_call(f"{system}\n\n{prompt}", max_tokens, retries)
+        try:
+            client = self._get_anthropic_client()
+        except Exception as exc:
+            self._log("WARN", f"Sonnet init failed, falling back to Flash: {exc}")
+            return self._gemini_call(f"{system}\n\n{prompt}", max_tokens, retries)
+
+        for attempt in range(retries + 1):
+            try:
+                resp = client.messages.create(
+                    model=self.SONNET_MODEL,
+                    max_tokens=max_tokens,
+                    system=system + "\nResponde SOLO JSON válido, sin markdown ni texto adicional.",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.1,
+                )
+                raw = resp.content[0].text.strip() if resp.content else ""
+                if not raw:
+                    raise ValueError("Empty Sonnet response")
+                # Strip markdown code fences if present
+                if raw.startswith("```"):
+                    raw = re.sub(r"^```(?:json)?\s*", "", raw)
+                    raw = re.sub(r"\s*```$", "", raw)
+                try:
+                    return json.loads(raw)
+                except json.JSONDecodeError:
+                    repaired = self._repair_json(raw)
+                    if repaired:
+                        return repaired
+                    raise
+            except Exception as exc:
+                exc_str = str(exc)
+                if "429" in exc_str or "rate_limit" in exc_str.lower():
+                    wait = 45 * (attempt + 1)
+                    self._log("WARN", f"Sonnet rate limit — espera {wait}s")
+                    time.sleep(wait)
+                elif attempt < retries:
+                    self._log("WARN", f"Sonnet JSON error (intento {attempt+1}): {exc}")
+                    time.sleep(5)
+                else:
+                    self._log("WARN", f"Sonnet JSON falló, falling back to Flash: {exc}")
+                    return self._gemini_call(f"{system}\n\n{prompt}", max_tokens, retries=1)
+        return self._gemini_call(f"{system}\n\n{prompt}", max_tokens, retries=1)
 
     def _get_gemini_client(self):
         """Get or create Gemini client (new google-genai SDK)."""
@@ -423,8 +567,9 @@ class AnalystAgent:
             self._gemini_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY", ""))
         return self._gemini_client
 
-    def _gemini_call(self, prompt: str, max_tokens: int = 8000, retries: int = 2) -> dict | None:
-        """Call Gemini with JSON response. Retry on rate limit. Repair truncated JSON."""
+    def _gemini_call(self, prompt: str, max_tokens: int = 8000, retries: int = 2, tier: str = "standard") -> dict | None:
+        """Call Gemini with JSON response. tier='lite' uses Flash-lite (T3), 'standard' uses Flash (T2)."""
+        model = self.GEMINI_LITE if tier == "lite" else self.GEMINI_FLASH
         try:
             from google.genai import types
             client = self._get_gemini_client()
@@ -435,7 +580,7 @@ class AnalystAgent:
         for attempt in range(retries + 1):
             try:
                 resp = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model=model,
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
@@ -468,8 +613,9 @@ class AnalystAgent:
                     return None
         return None
 
-    def _gemini_text(self, prompt: str, max_tokens: int = 8000, retries: int = 2) -> str:
-        """Call Gemini for FREE TEXT (no JSON mode). Returns plain string."""
+    def _gemini_text(self, prompt: str, max_tokens: int = 8000, retries: int = 2, tier: str = "standard") -> str:
+        """Call Gemini for FREE TEXT. tier='lite' uses Flash-lite (T3), 'standard' uses Flash (T2)."""
+        model = self.GEMINI_LITE if tier == "lite" else self.GEMINI_FLASH
         try:
             from google.genai import types
             client = self._get_gemini_client()
@@ -480,7 +626,7 @@ class AnalystAgent:
         for attempt in range(retries + 1):
             try:
                 resp = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model=model,
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.2,
@@ -582,9 +728,9 @@ class AnalystAgent:
 
     def _run_capa3(self, data: dict) -> dict:
         synthesis = {
-            "version": "3.0",
+            "version": "3.1",
             "generated_at": datetime.now().isoformat(),
-            "model": "gemini-2.5-flash",
+            "model": "multi-tier: sonnet-t1 + flash-t2 + flash-lite-t3",
             "sections_completed": 0,
         }
 
@@ -635,67 +781,100 @@ class AnalystAgent:
             "gestores_info": data.get("gestores", {}).get("info_cartas", [])[:2],
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO libre — prompt nivel Avantage
-        texto = self._gemini_text(
-            f"{self._system_role(data)}\n\n"
+        # Call 1: TEXTO — TIER 1 (Sonnet) — narrativa corta SIN subsecciones
+        texto = self._sonnet_text(
+            self._system_role(data),
             f"{self._quality_hint('resumen')}"
-            f"Escribe un RESUMEN EJECUTIVO que permita entender el fondo completo en un solo vistazo.\n"
-            f"El texto debe ser NARRATIVA FLUIDA con hilo conductor — NO una lista de datos.\n"
-            f"Cada párrafo debe fluir al siguiente con transiciones naturales.\n\n"
-            f"ESTRUCTURA OBLIGATORIA (usa **Título** en negrita para cada subsección):\n"
-            f"**Descripción general**: Qué es el fondo, quién lo gestiona y asesora, cuándo se creó, AUM actual, partícipes. "
-            f"Contextualizar la posición del fondo en su categoría.\n"
-            f"**Filosofía y proceso de inversión**: Cómo invierte, qué criterios aplica, qué le diferencia. "
-            f"Incluir citas del gestor si las hay. Explicar la evolución del enfoque si ha habido cambios.\n"
-            f"**Track record**: TODAS las rentabilidades anuales con cifras concretas, VL base 100, "
-            f"comparación con categoría. Destacar los mejores y peores años con contexto.\n"
-            f"**Evolución del patrimonio**: Crecimiento del AUM y partícipes año a año, fases de crecimiento, "
-            f"episodios de salidas/entradas masivas y sus causas.\n"
-            f"**Conclusión**: 2-3 frases que sinteticen la propuesta de valor del fondo, para quién es adecuado, "
-            f"y los principales riesgos a considerar.\n\n"
-            f"MÍNIMO 3.000 caracteres. Cada subsección 2-3 párrafos FLUIDOS.\n\n"
+            f"Escribe un RESUMEN EJECUTIVO CONCISO del fondo en MÁXIMO 4 PÁRRAFOS.\n"
+            f"NO uses subsecciones, NO uses **títulos en negrita**, NO uses headers.\n"
+            f"Es narrativa fluida pura — cada párrafo conecta con el siguiente.\n\n"
+            f"Párrafo 1: Qué es el fondo, quién lo gestiona/asesora, fecha de creación, "
+            f"clasificación Morningstar, AUM actual, nº de partícipes.\n"
+            f"Párrafo 2: Rentabilidad acumulada desde inicio (VL base 100), CAGR, "
+            f"volatilidad registrada, posición en categoría, rating Morningstar si lo tiene.\n"
+            f"Párrafo 3: Composición actual de la cartera (% RV, % RF, % liquidez), "
+            f"nº de posiciones, temáticas principales, exposición geográfica.\n"
+            f"Párrafo 4: Crecimiento del patrimonio (de X a Y M€), evolución de partícipes, "
+            f"confianza de los inversores.\n\n"
+            f"IMPORTANTE: Usar cifras CONCRETAS con negritas (**151,6 M€**, **5.176 partícipes**).\n"
+            f"MÁXIMO 1.500 caracteres. Denso, cada frase aporta info nueva.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # Call 2: DATOS estructurados — FORZAR mínimo 4 fortalezas y 3 riesgos
+        # Call 2: FILOSOFÍA DE INVERSIÓN (2-3 párrafos para columna izquierda)
+        filosofia = self._gemini_text(
+            f"{self._system_role(data)}\n\n"
+            f"Escribe la FILOSOFÍA DE INVERSIÓN del fondo en 2-3 párrafos.\n"
+            f"NO uses **títulos** ni headers — es texto fluido puro.\n"
+            f"Describe: enfoque de inversión (bottom-up/top-down/macro), universo de inversión, "
+            f"criterios de selección, horizonte temporal, rotación de cartera, "
+            f"cómo se ha adaptado el enfoque con el tiempo.\n"
+            f"Usa cifras y datos concretos (% exposición, nº posiciones, rotación histórica).\n"
+            f"Si hay citas del gestor, inclúyelas entrecomilladas.\n"
+            f"MÁXIMO 800 caracteres.\n\n"
+            f"DATOS:\n{input_data}"
+        )
+        time.sleep(2)
+
+        # Call 3: CRITERIOS — TIER 3 (Flash-lite) — JSON extraction
+        criterios_data = self._gemini_call(
+            f"Extrae los 3 CRITERIOS DE INVERSIÓN principales del fondo.\n"
+            f"Cada criterio tiene un título corto (2-4 palabras) y una descripción (2-3 frases).\n"
+            f"Los criterios deben ser ESPECÍFICOS del fondo, no genéricos.\n"
+            f"Ejemplos de buenos criterios: 'Alineación de intereses', 'Modelo de negocio excelente', "
+            f"'Precio razonable', 'Diversificación estructural', 'Ventaja competitiva duradera'.\n"
+            f"Responde SOLO JSON:\n"
+            f"{{\"criterios\":[{{\"titulo\":\"string corto\",\"descripcion\":\"string 2-3 frases\"}},"
+            f"{{\"titulo\":\"\",\"descripcion\":\"\"}},{{\"titulo\":\"\",\"descripcion\":\"\"}}]}}\n\n"
+            f"DATOS:\n{input_data}",
+            tier="lite"
+        )
+        time.sleep(2)
+
+        # Call 4: DATOS — TIER 3 (Flash-lite) — JSON extraction
         datos = self._gemini_call(
-            f"Extrae datos estructurados de este fondo a partir del análisis y los datos brutos.\n"
-            f"OBLIGATORIO: mínimo 4 fortalezas concretas y mínimo 3 riesgos concretos.\n"
-            f"Cada fortaleza/riesgo debe ser una frase específica del fondo (no genérica).\n"
-            f"Responde SOLO JSON.\n"
-            f"Schema: {{\"fortalezas\":[\"string específica\",\"string\",\"string\",\"string\"],"
-            f"\"riesgos\":[\"string específica\",\"string\",\"string\"],"
-            f"\"para_quien_es\":\"string descriptivo del perfil del inversor adecuado\","
-            f"\"compromiso_gestor\":\"string sobre coinversión, % capital propio, alineamiento\","
+            f"Extrae datos estructurados de este fondo.\n"
+            f"OBLIGATORIO: mínimo 4 fortalezas y 3 riesgos concretos y específicos del fondo.\n"
+            f"'para_quien_es': 3-4 frases describiendo el perfil EXACTO del inversor adecuado "
+            f"(tolerancia al riesgo, horizonte, necesidades, qué NO debería esperar).\n"
+            f"'compromiso_gestor': info CONCRETA sobre coinversión del gestor (% capital propio, "
+            f"si come su propia cocina, alineamiento de intereses). Si no hay info, indicarlo.\n"
+            f"Responde SOLO JSON:\n"
+            f"{{\"fortalezas\":[\"string\",\"string\",\"string\",\"string\"],"
+            f"\"riesgos\":[\"string\",\"string\",\"string\"],"
+            f"\"para_quien_es\":\"string 3-4 frases\","
+            f"\"compromiso_gestor\":\"string concreto\","
             f"\"signal\":\"POSITIVO|NEUTRAL|NEGATIVO\",\"signal_rationale\":\"string\"}}\n\n"
-            f"TEXTO DEL ANÁLISIS:\n{texto[:4000]}\n\n"
-            f"DATOS BRUTOS:\n{input_data}"
+            f"TEXTO DEL ANÁLISIS:\n{texto[:3000]}\n\n"
+            f"DATOS BRUTOS:\n{input_data}",
+            tier="lite"
         )
         if not datos:
             datos = {}
 
-        # Reintentro condicional: si <3 riesgos o <4 fortalezas, hacer una segunda extracción
+        # Reintentro si faltan fortalezas/riesgos
         n_fort = len(datos.get("fortalezas", []) or [])
         n_riesg = len(datos.get("riesgos", []) or [])
         if n_riesg < 3 or n_fort < 4:
-            self._log("RETRY", f"Resumen: solo {n_fort} fortalezas / {n_riesg} riesgos — re-extrayendo")
+            self._log("RETRY", f"Resumen: {n_fort} fort / {n_riesg} riesg — re-extrayendo")
             time.sleep(2)
             extra = self._gemini_call(
-                f"Del siguiente texto sobre un fondo, extrae EXACTAMENTE 4 fortalezas concretas "
-                f"y 3 riesgos concretos. Cada item debe ser una frase específica del fondo "
-                f"(referenciar cifras, gestor, estrategia, posiciones).\n"
-                f"Responde SOLO JSON: {{\"fortalezas\":[\"\",\"\",\"\",\"\"],\"riesgos\":[\"\",\"\",\"\"]}}\n\n"
-                f"TEXTO:\n{texto[:5000]}"
+                f"Extrae EXACTAMENTE 4 fortalezas y 3 riesgos concretos del fondo.\n"
+                f"Cada item: frase específica con cifras/nombres (no genérica).\n"
+                f"JSON: {{\"fortalezas\":[\"\",\"\",\"\",\"\"],\"riesgos\":[\"\",\"\",\"\"]}}\n\n"
+                f"TEXTO:\n{texto[:5000]}",
+                tier="lite"
             )
             if extra:
                 if len(extra.get("fortalezas", []) or []) >= 4:
                     datos["fortalezas"] = extra["fortalezas"]
                 if len(extra.get("riesgos", []) or []) >= 3:
                     datos["riesgos"] = extra["riesgos"]
-                self._log("OK", f"Resumen retry: {len(datos.get('fortalezas',[]))} fortalezas / {len(datos.get('riesgos',[]))} riesgos")
 
         datos["texto"] = texto
+        datos["filosofia_inversion"] = filosofia or ""
+        datos["criterios_inversion"] = (criterios_data or {}).get("criterios", [])
         return datos if texto else None
 
     # ── Sección 2: Historia (2 llamadas) ──────────────────────────────────
@@ -715,43 +894,57 @@ class AnalystAgent:
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
             f"{self._quality_hint('historia')}"
-            f"Escribe la HISTORIA del fondo como una NARRATIVA CRONOLÓGICA FLUIDA — NO como lista de bullets.\n"
-            f"El texto debe leer como un artículo de análisis, con párrafos conectados por transiciones naturales.\n"
-            f"Agrupa los años en FASES temáticas (no año por año mecánicamente).\n"
-            f"Estructura con subsecciones usando **Periodo: Título descriptivo** en negrita:\n"
-            f"Ejemplo: **2017-2019: Los primeros años de construcción**, **2020: COVID como punto de inflexión**\n"
-            f"Cada subsección: 1-2 párrafos con datos concretos (AUM, partícipes, VL, rentabilidad).\n"
-            f"Incluye episodios de crecimiento, crisis, cambios regulatorios, hitos.\n\n"
+            f"Escribe la HISTORIA del fondo en 4-6 PÁRRAFOS FLUIDOS.\n"
+            f"NO uses subsecciones ni **títulos en negrita como headers**.\n"
+            f"SÍ usa **negritas** para resaltar datos clave dentro del texto "
+            f"(cifras, nombres, fechas, hitos importantes).\n"
+            f"Es narrativa fluida — un resumen extenso de la historia completa.\n"
+            f"Agrupa los años en FASES temáticas con transiciones naturales.\n\n"
+            f"CONTENIDO OBLIGATORIO:\n"
+            f"- Fundación: quién, cuándo, con qué patrimonio y partícipes iniciales\n"
+            f"- Primeros años: crecimiento orgánico, primeras decisiones, filosofía inicial\n"
+            f"- Puntos de inflexión: crisis de mercado, cambios de gestora, fusiones, "
+            f"entradas/salidas masivas de partícipes, cambios regulatorios\n"
+            f"- Evolución de la estrategia: cómo ha cambiado el enfoque con el tiempo\n"
+            f"- Estado actual: AUM, partícipes, posición en categoría, rating\n\n"
+            f"Cifras concretas con negritas: **X M€**, **X partícipes**, **+X%**, **VL X**.\n"
+            f"NO entres en detalles concretos por año (eso va en la cronología).\n"
+            f"MÍNIMO 2.500 caracteres — extenso pero con hilo conductor.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # DATOS: extraer mínimo 5 hitos del texto generado
+        # DATOS: cronología — TIER 3 (Flash-lite) — JSON extraction
         datos = self._gemini_call(
-            f"Del siguiente texto sobre la historia de un fondo, extrae MÍNIMO 5 hitos cronológicos.\n"
-            f"Cada hito debe tener año concreto y descripción del evento (no genérica).\n"
-            f"Incluye lanzamiento del fondo, hechos relevantes, cambios de gestor, crisis, decisiones clave.\n"
-            f"Responde SOLO JSON: {{\"hitos\":[{{\"anio\":\"YYYY\",\"evento\":\"string concreto\"}},...]}}\n"
-            f"OBLIGATORIO: mínimo 5 hitos.\n\n"
-            f"TEXTO:\n{texto[:5000]}\n\n"
-            f"DATOS BRUTOS:\n{input_data}"
+            f"Genera una CRONOLOGÍA DETALLADA del fondo con un hito por cada año relevante.\n"
+            f"Cubre TODOS los años desde la creación del fondo (o los últimos 10 años como mínimo).\n"
+            f"Cada hito tiene:\n"
+            f"- 'anio': año (YYYY o MES YYYY para hitos puntuales)\n"
+            f"- 'titulo': frase corta que resume el año (ej: 'Patrimonio se cuadruplica a 34,5 M€')\n"
+            f"- 'evento': 2-4 frases con: contexto de mercado ese año, decisiones/tesis del gestor, "
+            f"resultado concreto (AUM, partícipes, VL, rentabilidad), hecho diferencial.\n"
+            f"- 'tipo': 'hito'|'crisis'|'estrategia'|'regulatorio'|'crecimiento'\n\n"
+            f"OBLIGATORIO: mínimo 7 hitos. Para años donde pasó poco, resaltar posicionamiento del fondo vs mercado.\n"
+            f"Responde SOLO JSON:\n"
+            f"{{\"hitos\":[{{\"anio\":\"YYYY\",\"titulo\":\"frase corta\",\"evento\":\"2-4 frases con contexto\",\"tipo\":\"string\"}}]}}\n\n"
+            f"DATOS:\n{input_data}",
+            tier="lite"
         )
 
         result = datos if datos else {}
 
-        # Reintentro condicional: si <5 hitos, re-extraer del texto
+        # Reintentro si pocos hitos
         n_hitos = len(result.get("hitos", []) or [])
-        if n_hitos < 5:
-            self._log("RETRY", f"Historia: solo {n_hitos} hitos — re-extrayendo del texto")
+        if n_hitos < 7:
+            self._log("RETRY", f"Historia: solo {n_hitos} hitos — re-extrayendo")
             time.sleep(2)
             extra = self._gemini_call(
-                f"Lee el siguiente texto sobre la historia de un fondo y extrae los 5+ eventos "
-                f"más importantes en orden cronológico. Cada uno con año y descripción concreta.\n"
-                f"Responde SOLO JSON: {{\"hitos\":[{{\"anio\":\"YYYY\",\"evento\":\"string\"}}]}}\n"
-                f"DEBE haber MÍNIMO 5 hitos. Si el texto solo menciona 3, busca años en el texto y crea hitos adicionales.\n\n"
-                f"TEXTO:\n{texto[:6000]}"
+                f"Genera MÍNIMO 7 hitos cronológicos del fondo, uno por cada año relevante.\n"
+                f"Cada uno con: anio, titulo (frase corta), evento (2-4 frases con contexto mercado + decisiones + resultado), tipo.\n"
+                f"JSON: {{\"hitos\":[{{\"anio\":\"\",\"titulo\":\"\",\"evento\":\"\",\"tipo\":\"\"}}]}}\n\n"
+                f"DATOS:\n{input_data}"
             )
-            if extra and len(extra.get("hitos", []) or []) >= 5:
+            if extra and len(extra.get("hitos", []) or []) >= 7:
                 result["hitos"] = extra["hitos"]
                 self._log("OK", f"Historia retry: {len(result['hitos'])} hitos")
 
@@ -777,47 +970,66 @@ class AnalystAgent:
             "info_cartas": gestores.get("info_cartas", []),
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO — perfil detallado del gestor principal
-        texto_principal = self._gemini_text(
-            f"{self._system_role(data)}\n\n"
-            f"{self._quality_hint('gestores')}"
-            f"Escribe un PERFIL DETALLADO de CADA gestor del fondo (no solo el principal).\n"
-            f"Para el gestor principal, escribe extensamente (mín 2.000 chars). Para los demás, 1-2 párrafos.\n\n"
-            f"Para CADA gestor incluye:\n"
-            f"**[Nombre del gestor] — [Cargo]**\n"
-            f"- Trayectoria profesional: formación, experiencia previa, años en el fondo\n"
-            f"- Filosofía de inversión: cómo piensa, qué le diferencia, CITAS TEXTUALES si las hay\n"
-            f"- Decisiones clave documentadas: con CONTEXTO de mercado + qué hizo + RESULTADO concreto\n"
-            f"- Rasgos diferenciales: estilo de comunicación, transparencia, coinversión\n\n"
-            f"IMPORTANTE: Escribe NARRATIVA FLUIDA, no bullets. Los párrafos deben fluir con transiciones.\n"
-            f"Si hay citas del gestor en las fuentes, inclúyelas entrecomilladas.\n"
-            f"MÍNIMO 4.000 caracteres total.\n\n"
-            f"DATOS:\n{input_data}"
-        )
-        time.sleep(2)
-
-        # Call 2: TEXTO — overview del equipo y roles
+        # Call 1: TEXTO — overview del equipo (para los párrafos de arriba)
         texto_equipo = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"Escribe 3 párrafos sobre el equipo gestor en su conjunto:\n"
-            f"1. Composición, estructura, número de personas, estabilidad (¿ha habido cambios?)\n"
-            f"2. Filosofía compartida, cómo se complementan los gestores\n"
-            f"3. Conclusión: fortalezas y riesgos del equipo (ej: persona clave, experiencia, etc.)\n"
-            f"para cada persona: **Nombre — Cargo** seguido de 1-2 frases con su rol.\n\n"
+            f"{self._quality_hint('gestores')}"
+            f"Escribe 2-3 PÁRRAFOS sobre el equipo gestor SIN headers ni subsecciones.\n"
+            f"Narrativa fluida pura que cubra:\n"
+            f"- Composición del equipo: cuántas personas, quién lidera, roles clave\n"
+            f"- Estabilidad: si ha habido cambios en el equipo (SIEMPRE destacar, positivo o negativo)\n"
+            f"- Filosofía compartida del equipo y cómo se complementan los perfiles\n"
+            f"- Fortalezas del equipo y riesgos (ej: dependencia de persona clave)\n"
+            f"NO menciones nombres con **negrita** ni con formato **Nombre — Cargo**.\n"
+            f"Máximo 1.000 caracteres.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # Call 3: DATOS estructurados perfiles
+        # Call 2: TEXTO — TIER 1 (Sonnet) — perfil narrativo extenso de cada gestor
+        texto_principal = self._sonnet_text(
+            self._system_role(data),
+            f"Para CADA gestor principal del fondo, escribe un perfil narrativo EXTENSO.\n"
+            f"Usa **Nombre del gestor — Cargo** como separador entre gestores.\n"
+            f"Para el gestor PRINCIPAL (lead), escribe 3-4 párrafos cubriendo:\n"
+            f"- Trayectoria profesional y formación académica\n"
+            f"- Filosofía de inversión con CITAS TEXTUALES del gestor si las hay (entrecomilladas)\n"
+            f"- Decisiones clave documentadas: contexto de mercado + qué hizo + resultado concreto\n"
+            f"- Rasgos diferenciales: transparencia, coinversión, comunicación\n"
+            f"Para gestores SECUNDARIOS: 1-2 párrafos con su rol y contribución al equipo.\n"
+            f"NARRATIVA FLUIDA, no bullets.\n"
+            f"Mínimo 3.000 caracteres total.\n\n"
+            f"DATOS:\n{input_data}"
+        )
+        time.sleep(2)
+
+        # Call 3: DATOS — TIER 2 (Flash) — perfiles estructurados con trayectoria extensa
         datos = self._gemini_call(
-            f"Extrae perfiles del equipo gestor. Para CADA perfil incluye nombre, cargo, "
-            f"decisiones_clave (lista de 2-4 strings concretas), trayectoria (string), "
-            f"y filosofia (string con su filosofía de inversión, 3-5 frases concretas).\n"
+            f"Extrae perfiles del equipo gestor para FICHAS de un dashboard profesional.\n"
+            f"Para CADA gestor principal incluye:\n"
+            f"- nombre: nombre completo\n"
+            f"- cargo: cargo actual\n"
+            f"- cv_bullets: 4-6 strings CORTOS tipo CV bullet, ej:\n"
+            f"  ['Fundador de X Capital', 'Rating AA Citywire', '+15 años en gestión', "
+            f"  'Dirige: Fondo A, Fondo B', 'CFA / MBA IESE', 'Experto en value investing']\n"
+            f"- trayectoria: TEXTO EXTENSO de 3-4 párrafos (mín 1000 chars) separados por \\n\\n.\n"
+            f"  USA **negritas** para resaltar: nombres propios, fondos que gestiona, cifras, "
+            f"conceptos clave de inversión, hitos profesionales.\n"
+            f"  Párrafo 1: Quién es, **formación académica**, carrera profesional, **otros fondos** que gestiona.\n"
+            f"  Párrafo 2: **Estilo de inversión** y en qué basa su filosofía/estrategia. "
+            f"Citas textuales entrecomilladas si hay. **Referentes intelectuales** (Graham, Browne, Buffett...).\n"
+            f"  Párrafo 3: **Decisiones documentadas** que ilustren su capacidad. "
+            f"Contexto de mercado + qué hizo + **resultado concreto con cifras**.\n"
+            f"  Párrafo 4 (opcional): **Rasgos diferenciales** — transparencia, coinversión, comunicación.\n"
+            f"- filosofia: 3-5 frases con su filosofía CONCRETA de inversión (para bloque italic)\n"
+            f"- decisiones_clave: lista de 2-4 strings (contexto + acción + resultado)\n"
+            f"- rasgos_diferenciales: 1-2 frases\n"
+            f"IMPORTANTE: la 'trayectoria' es lo que se muestra visible en la ficha — debe ser EXTENSO y rico.\n"
             f"Responde SOLO JSON:\n"
-            f"{{\"perfiles\":[{{\"nombre\":\"\",\"cargo\":\"\",\"trayectoria\":\"\","
-            f"\"filosofia\":\"string con filosofía concreta\","
-            f"\"decisiones_clave\":[\"string\",\"string\"],"
-            f"\"rasgos_diferenciales\":\"\"}}]}}\n"
+            f"{{\"perfiles\":[{{\"nombre\":\"\",\"cargo\":\"\",\"cv_bullets\":[\"\",\"\",\"\",\"\"],"
+            f"\"trayectoria\":\"3-4 parrafos extensos separados por newlines\","
+            f"\"filosofia\":\"3-5 frases\","
+            f"\"decisiones_clave\":[\"\",\"\"],\"rasgos_diferenciales\":\"\"}}]}}\n"
             f"DATOS:\n{input_data}"
         )
 
@@ -1007,38 +1219,61 @@ class AnalystAgent:
             "rotacion": [{"p": s.get("periodo"), "v": s.get("rotacion_pct")} for s in cuant.get("serie_rotacion", [])],
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO narrativo — nivel Avantage
-        texto = self._gemini_text(
-            f"{self._system_role(data)}\n\n"
+        # Call 1: TEXTO — TIER 1 (Sonnet) — análisis evaluativo extenso
+        texto = self._sonnet_text(
+            self._system_role(data),
             f"{self._quality_hint('estrategia')}"
-            f"Escribe un ANÁLISIS DE LA ESTRATEGIA Y COHERENCIA del fondo.\n"
-            f"Este NO es un resumen de hechos — es una EVALUACIÓN con pensamiento detrás.\n\n"
-            f"ESTRUCTURA:\n"
-            f"Párrafo 1-2: Visión general de la evolución estratégica. ¿Han sido coherentes entre lo que dicen y lo que hacen?\n"
-            f"¿Qué ha cambiado y qué se ha mantenido? ¿Hay aprendizaje institucional?\n\n"
-            f"Luego organiza por FASES con **Periodo — Título** en negrita:\n"
-            f"Para CADA fase (mínimo 4 fases):\n"
-            f"- Contexto de mercado en ese periodo\n"
-            f"- Qué decisiones tomó el equipo (nombres de posiciones, % de exposición)\n"
-            f"- Qué resultado obtuvieron (rentabilidad concreta, AUM, partícipes)\n"
-            f"- ¿Fue coherente con lo que decían? ¿Aprendieron algo?\n\n"
-            f"Párrafo final: Síntesis evaluativa — ¿es un equipo coherente? ¿cuáles son sus patrones de acierto y error?\n\n"
-            f"MÍNIMO 4.000 caracteres. NARRATIVA FLUIDA, no lista de hechos.\n\n"
+            f"Escribe un ANÁLISIS EVALUATIVO EXTENSO de la estrategia del fondo en 4-6 PÁRRAFOS.\n"
+            f"NO uses subsecciones ni líneas que sean solo **título** como headers.\n"
+            f"SÍ usa **negritas** dentro del texto para resaltar conceptos clave, "
+            f"nombres de posiciones, cifras, decisiones importantes.\n\n"
+            f"CONTENIDO OBLIGATORIO:\n"
+            f"- Párrafo 1: **Filosofía de inversión** del fondo — criterios, enfoque, "
+            f"qué le diferencia de la competencia. Evolución del enfoque con el tiempo.\n"
+            f"- Párrafo 2: **Coherencia discurso vs acción** — ¿han sido fieles a lo que dicen? "
+            f"Ejemplos concretos con posiciones y % de exposición.\n"
+            f"- Párrafo 3: **Momentos clave de decisión** — las 2-3 decisiones más importantes "
+            f"del equipo gestor con contexto de mercado, qué hicieron y resultado.\n"
+            f"- Párrafo 4: **Evolución del mix de activos** — cómo ha cambiado la composición "
+            f"de la cartera (% RV, RF, liquidez) y por qué.\n"
+            f"- Párrafo 5-6: **Conclusión evaluativa** — patrones de acierto y error, "
+            f"¿es un equipo que aprende? ¿cuáles son sus sesgos?\n\n"
+            f"MÍNIMO 2.500 caracteres — extenso, con cifras concretas y análisis propio.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # Call 2: DATOS hitos — forzar al menos 4
+        # Call 2: QUOTES — TIER 3 (Flash-lite) — JSON extraction
+        quotes_data = self._gemini_call(
+            f"Extrae 2-4 CITAS TEXTUALES o frases representativas del gestor del fondo.\n"
+            f"Cada quote debe ayudar a entender la filosofía de inversión.\n"
+            f"Si no hay citas textuales, genera frases que resuman fielmente su pensamiento "
+            f"basándote en sus decisiones documentadas y comunicaciones.\n"
+            f"Responde SOLO JSON:\n"
+            f"{{\"quotes\":[{{\"texto\":\"frase entrecomillada\",\"autor\":\"nombre del gestor\",\"contexto\":\"cuándo/dónde lo dijo\"}}]}}\n\n"
+            f"DATOS:\n{input_data}",
+            tier="lite"
+        )
+        time.sleep(2)
+
+        # Call 3: MATRIZ — TIER 3 (Flash-lite) — JSON extraction
         datos = self._gemini_call(
-            f"Extrae AL MENOS 4 hitos estratégicos del fondo, uno por cada fase temporal relevante.\n"
-            f"JSON: {{\"hitos_estrategia\":[{{\"periodo\":\"2017-2019\",\"cambio\":\"descripción concreta\"}}],"
-            f"\"estrategia_actual_resumen\":\"resumen de la estrategia actual en 2-3 frases\"}}\n"
-            f"IMPORTANTE: Genera MÍNIMO 4 hitos con periodos diferentes.\n"
-            f"DATOS:\n{input_data}"
+            f"Genera una MATRIZ de consistencia estratégica del fondo.\n"
+            f"Para cada periodo temporal relevante (mínimo 4 periodos):\n"
+            f"- periodo: rango de años (ej: '2017-2019')\n"
+            f"- contexto_mercado: qué pasaba en el mercado y qué esperaban los gestores\n"
+            f"- decisiones: qué hicieron realmente (posiciones, exposición, cambios)\n"
+            f"- resultado: qué resultado obtuvieron (rentabilidad, AUM, vs mercado)\n"
+            f"Responde SOLO JSON:\n"
+            f"{{\"hitos_estrategia\":[{{\"periodo\":\"\",\"contexto_mercado\":\"\",\"decisiones\":\"\",\"resultado\":\"\"}}],"
+            f"\"estrategia_actual_resumen\":\"2-3 frases\"}}\n\n"
+            f"DATOS:\n{input_data}",
+            tier="lite"
         )
 
         result = datos if datos else {}
         result["texto"] = texto
+        result["quotes"] = (quotes_data or {}).get("quotes", [])
         return result if texto else None
 
     # ── Sección 6: Cartera (2 llamadas) ───────────────────────────────────
@@ -1069,29 +1304,32 @@ class AnalystAgent:
             "fecha_datos": last_period,
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO análisis
+        # Call 1: TEXTO análisis — conciso, sin subsecciones
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
             f"{self._quality_hint('cartera')}"
-            f"Escribe un ANÁLISIS de la cartera actual (datos a fecha {last_period}).\n"
-            f"IMPORTANTE: La fecha de los datos es {last_period}. NO inventes otra fecha.\n"
-            f"Estructura con subsecciones usando **Título** en negrita:\n"
-            f"- **Composición general** — nº posiciones, distribución RV/RF/liquidez\n"
-            f"- **Renta Variable España** — principales posiciones con peso y por qué\n"
-            f"- **Renta Variable Internacional** — por bloques temáticos (tech, emergentes, Europa)\n"
-            f"- **Renta Fija** — emisores, cupones, vencimientos, riesgo\n"
-            f"- **Concentración y riesgos** — temática (ej: total Argentina), top 5/10\n"
-            f"Cada subsección: 1-2 párrafos con nombres y cifras concretas.\n\n"
+            f"Escribe un ANÁLISIS CONCISO de la cartera actual en 2-3 PÁRRAFOS.\n"
+            f"NO uses subsecciones ni **headers** — narrativa fluida pura.\n"
+            f"Datos a fecha {last_period}. NO inventes otra fecha.\n\n"
+            f"Párrafo 1: Composición general — nº posiciones, distribución RV/RF/liquidez/otros, "
+            f"exposición geográfica principal, cambios más significativos vs periodo anterior.\n"
+            f"Párrafo 2: Posiciones más relevantes y por qué están en cartera — "
+            f"tesis del gestor, apuestas temáticas (ej: Argentina, tecnología, renta fija emergente).\n"
+            f"Párrafo 3 (opcional): Concentración y riesgos — top 5/10 vs media histórica, "
+            f"exposición temática, riesgo de divisa.\n\n"
+            f"Incluye nombres de posiciones en NEGRITA y cifras concretas (**X%**, **Y M€**).\n"
+            f"Máximo 1.200 caracteres — denso, cada frase con dato concreto.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # Call 2: DATOS estructurados
+        # Call 2: DATOS — TIER 3 (Flash-lite) — JSON extraction
         datos = self._gemini_call(
             f"Extrae distribución de cartera. JSON:\n"
             f"{{\"concentracion\":{{\"top5_pct\":0,\"top10_pct\":0,\"top15_pct\":0}},"
             f"\"distribucion_tipo\":{{\"rv_españa_pct\":0,\"rv_internacional_pct\":0,\"rf_pct\":0,\"liquidez_pct\":0}}}}\n"
-            f"DATOS:\n{input_data}"
+            f"DATOS:\n{input_data}",
+            tier="lite"
         )
 
         result = datos if datos else {}
@@ -1107,6 +1345,7 @@ class AnalystAgent:
         gestora_name = (data.get("gestora", "") or "").lower()
         gestora_domain = gestora_name.split()[0] if gestora_name else ""
 
+        # Collect from readings
         for item in lecturas.get("analisis_escritos", []) + lecturas.get("multimedia", []):
             url = item.get("url", "")
             titulo = (item.get("titulo", "") or "").lower()
@@ -1121,7 +1360,23 @@ class AnalystAgent:
                 "texto": self._truncate(item.get("texto_completo", ""), 600),
             })
 
-        input_data = json.dumps({"fuentes": items_compact[:15]}, ensure_ascii=False)
+        # Also include manager web sources (entrevistas, artículos sobre gestores)
+        gestores = data.get("gestores", {})
+        seen_urls = {i["url"] for i in items_compact}
+        for f in gestores.get("fuentes_web", []):
+            url = f.get("url", "")
+            if url and url not in seen_urls:
+                items_compact.append({
+                    "fuente": f.get("dominio", "web"),
+                    "tipo": "articulo",
+                    "titulo": f.get("titulo", ""),
+                    "url": url,
+                    "fecha": "",
+                    "texto": self._truncate(f.get("texto", ""), 400),
+                })
+                seen_urls.add(url)
+
+        input_data = json.dumps({"fuentes": items_compact[:25]}, ensure_ascii=False)
 
         # Call 1: TEXTO síntesis
         texto = self._gemini_text(
@@ -1135,11 +1390,27 @@ class AnalystAgent:
         )
         time.sleep(2)
 
-        # Call 2: DATOS opiniones (con titulo y url)
+        # Call 2: DATOS opiniones — TIER 3 (Flash-lite) — JSON extraction
         datos = self._gemini_call(
-            f"Extrae opiniones clave de cada fuente. JSON:\n"
-            f"{{\"opiniones_clave\":[{{\"fuente\":\"\",\"titulo\":\"titulo del análisis\",\"url\":\"url de la fuente\",\"opinion\":\"resumen sustancial de lo que dice\",\"sentimiento\":\"POSITIVO|NEUTRAL|NEGATIVO\"}}]}}\n"
-            f"DATOS:\n{input_data}"
+            f"Extrae MÍNIMO 10 opiniones/fuentes relevantes sobre el fondo o sus gestores.\n"
+            f"PRIORIDAD (de mayor a menor):\n"
+            f"1. Análisis profesionales de fuentes fiables (Rankia, Finect, Substack, blogs financieros)\n"
+            f"2. Entrevistas/artículos en prensa (El Confidencial, Expansión, Citywire)\n"
+            f"3. Vídeos/podcasts sobre el fondo o el gestor\n"
+            f"4. Noticias relevantes sobre el fondo\n"
+            f"Excluir: páginas genéricas, fichas sin contenido, listados de fondos.\n"
+            f"Cada titulo debe ser DESCRIPTIVO — indicar de qué trata específicamente.\n"
+            f"Responde SOLO JSON:\n"
+            f"{{\"opiniones_clave\":[{{\"fuente\":\"nombre de la fuente\","
+            f"\"titulo\":\"titulo descriptivo del contenido\","
+            f"\"url\":\"url completa\","
+            f"\"tipo\":\"analisis|entrevista|video|podcast|noticia\","
+            f"\"opinion\":\"resumen de 2-3 frases de lo que dice\","
+            f"\"fecha\":\"YYYY o YYYY-MM si se conoce\"}}]}}\n"
+            f"OBLIGATORIO: mínimo 10 items. Si hay menos de 10 fuentes disponibles, "
+            f"incluir todas las que hay.\n"
+            f"DATOS:\n{input_data}",
+            tier="lite"
         )
 
         result = datos if datos else {}
