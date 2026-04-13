@@ -606,6 +606,20 @@ class CNMVAgent:
                     # Enrich existing entry with VL from this PDF's own-year data
                     found["vl"] = entry["vl"]
 
+            # Accumulate VL from CNMV table "Fecha Patrimonio Valor liquidativo"
+            # Each PDF has ~4 años. Accumulating across all PDFs da cobertura completa
+            vl_hist = parsed.get("vl_historico_pdf", [])
+            if vl_hist:
+                existing_vl = merged.setdefault("_pdf_per_year_vl", [])
+                for entry in vl_hist:
+                    p = str(entry.get("periodo", ""))[:4]
+                    v = entry.get("vl")
+                    if not p or not v:
+                        continue
+                    # Deduplicar por periodo (más reciente PDF tiene prioridad)
+                    if not any(e.get("periodo") == p for e in existing_vl):
+                        existing_vl.append({"periodo": p, "vl": float(v)})
+
             # Accumulate serie_ter_pdf from ALL PDFs (dedup by periodo)
             for entry in parsed.get("serie_ter_pdf", []):
                 periodo = entry.get("periodo", "")
@@ -1335,6 +1349,33 @@ class CNMVAgent:
         if m:
             result["coste_deposito_pct"] = float(m.group(2).replace(",", "."))
 
+        # Comisión éxito TEÓRICA (parámetro del folleto, ej 5% sobre beneficios)
+        # Patrones típicos en PDF CNMV:
+        #   "Comisión sobre resultados: 5,00%"
+        #   "aplicable del 5% sobre los resultados positivos"
+        #   "Tipo aplicable: 5,00 %" dentro de sección "s/ resultados"
+        #   "9,00 % sobre resultados" / "9 % sobre resultados"
+        exito_teorico_patterns = [
+            r'Comisi[oó]n\s+sobre\s+resultados[\s:]+([\d,]+)\s*%',
+            r'aplicable\s+del\s+([\d,]+)\s*%\s+sobre\s+(?:los\s+)?resultados',
+            r's/\s*resultados[\s\S]{0,60}?Tipo[\s:]+([\d,]+)\s*%',
+            r'Tipo\s+aplicable\s+s/\s*resultados[\s:]+([\d,]+)\s*%',
+            r'([\d,]+)\s*%\s+sobre\s+(?:los\s+)?resultados\s+positivos',
+            r'performance\s+fee[\s:]+([\d,]+)\s*%',
+            r'comisi[oó]n\s+de\s+\u00e9xito[\s:]+([\d,]+)\s*%',
+        ]
+        for pat in exito_teorico_patterns:
+            m = re.search(pat, text, re.IGNORECASE)
+            if m:
+                try:
+                    val = float(m.group(1).replace(",", "."))
+                    # Sanity check: la comisión éxito suele ser 5-20%
+                    if 0 < val <= 30:
+                        result["comision_exito_pct"] = val
+                        break
+                except (ValueError, IndexError):
+                    continue
+
         # Gestora name from cover
         m = re.search(r'Gestora:\s*(.+?)(?:\s+Depositario:|$)', text)
         if m:
@@ -1344,6 +1385,53 @@ class CNMVAgent:
         m = re.search(r'Depositario:\s*(.+?)(?:\s+Auditor:|$)', text)
         if m:
             result["depositario"] = m.group(1).strip()
+
+        # ── VL HISTÓRICO (tabla "Fecha Patrimonio Valor liquidativo") ──
+        # Formato CNMV (sección 2.1.b):
+        #   Periodo del informe   {patrimonio_keuros}   {VL_decimal}
+        #   2024                  {patrimonio_keuros}   {VL_decimal}
+        #   2023                  ...
+        # VL suele ser decimal (ej 2.473,6062 o 127,4832)
+        vl_historico = []
+        # Buscar la tabla
+        tabla_match = re.search(
+            r'Fecha\s+Patrimonio[\s\S]{0,80}Valor\s+liquidativo[\s\S]{0,1500}',
+            text, re.IGNORECASE,
+        )
+        if tabla_match:
+            tabla_text = tabla_match.group(0)
+            # Filas tipo: "Periodo del informe  464.061  2.473,6062" o "2024  320.383  2.271,5816"
+            row_pattern = re.compile(
+                r'(Periodo\s+del\s+informe|\b(?:20\d{2}|19\d{2})\b)'
+                r'\s+([\d\.]+)'  # patrimonio (miles euros)
+                r'\s+([\d\.]+,[\d]+)',  # VL decimal
+                re.IGNORECASE,
+            )
+            for m in row_pattern.finditer(tabla_text):
+                label = m.group(1).strip()
+                vl_str = m.group(3).replace(".", "").replace(",", ".")
+                try:
+                    vl_val = float(vl_str)
+                    if 0.01 < vl_val < 100000:  # sanity
+                        # Asociar periodo: "Periodo del informe" = año del PDF, "YYYY" = año explícito
+                        if label.lower().startswith("periodo") and year:
+                            periodo = str(year)
+                        elif label.isdigit():
+                            periodo = label
+                        else:
+                            continue
+                        vl_historico.append({"periodo": periodo, "vl": vl_val})
+                except ValueError:
+                    continue
+
+        if vl_historico:
+            # Dedup por periodo
+            seen = {}
+            for item in vl_historico:
+                seen[item["periodo"]] = item["vl"]
+            result["vl_historico_pdf"] = [
+                {"periodo": p, "vl": v} for p, v in sorted(seen.items())
+            ]
 
         return result
 
@@ -1861,15 +1949,36 @@ class CNMVAgent:
             if latest_pdf_periodo >= latest_xml_periodo or result["kpis"].get("aum_actual_meur") is None:
                 result["kpis"]["aum_actual_meur"] = sorted_pdf[-1]["valor_meur"]
 
-        # VL base 100 — calcular crecimiento desde primer VL conocido
-        aum_with_vl = [e for e in result.get("cuantitativo", {}).get("serie_aum", []) if e.get("vl")]
-        if len(aum_with_vl) >= 2:
-            vl_sorted = sorted(aum_with_vl, key=lambda x: x["periodo"])
-            base_vl = vl_sorted[0]["vl"]
+        # ── VL base 100 ──
+        # PRIORIDAD: 1) PDF CNMV tabla "Fecha Patrimonio Valor liquidativo" (decimales reales)
+        #            2) XML FONDMENS/FONDREGISTRO VL campo
+        #            3) Fallback: serie_aum[i].vl (menos fiable si es entero)
+        vl_sources = {}  # periodo -> vl
+
+        # Usar serie acumulada de TODOS los PDFs (cada PDF aporta ~4 años)
+        for pdf_entry in (pdf_data.get("_pdf_per_year_vl") or []):
+            p = str(pdf_entry.get("periodo", ""))[:4]
+            v = pdf_entry.get("vl")
+            if p and v and v > 0.01:
+                vl_sources[p] = float(v)
+
+        # Si no hay datos del PDF, fallback a serie_aum
+        if not vl_sources:
+            aum_with_vl = [e for e in result.get("cuantitativo", {}).get("serie_aum", []) if e.get("vl")]
+            for e in aum_with_vl:
+                p = str(e.get("periodo", ""))[:4]
+                v = e.get("vl")
+                if p and v and v > 0:
+                    vl_sources[p] = float(v)
+
+        if len(vl_sources) >= 2:
+            periodos = sorted(vl_sources.keys())
+            base_vl = vl_sources[periodos[0]]
             if base_vl and base_vl > 0:
                 result.setdefault("cuantitativo", {})["serie_vl_base100"] = [
-                    {"periodo": e["periodo"], "vl": e["vl"], "base100": round(e["vl"] / base_vl * 100, 1)}
-                    for e in vl_sorted
+                    {"periodo": p, "vl": round(vl_sources[p], 4),
+                     "base100": round(vl_sources[p] / base_vl * 100, 2)}
+                    for p in periodos
                 ]
 
         # TER por clase → cuantitativo
@@ -2008,15 +2117,48 @@ class CNMVAgent:
                 if any(v > 0 for v in exito.values()):
                     has_exito = True
         # Check pdf_data for base_comision (mixta = has performance fee structure)
+        exito_teorico_pct = None
         if isinstance(pdf_data, dict):
             base_com = pdf_data.get("base_comision", base_com)
             if pdf_data.get("cobra_comision_exito"):
                 has_exito = True
+            exito_teorico_pct = pdf_data.get("comision_exito_pct")
+
         result["comision_exito"] = {
             "existe": has_exito or base_com == "mixta",
             "serie_historica": exito_serie,
             "base_comision": base_com,
+            "pct_teorico": exito_teorico_pct,  # 5% del KID/folleto
         }
+        if exito_teorico_pct is not None:
+            result["kpis"]["comision_exito_pct"] = exito_teorico_pct
+
+        # ── TER EFECTIVO (incluye comisión éxito, lo que paga el inversor) ──
+        # TER oficial CNMV excluye comisión éxito por regulación.
+        # El inversor paga: gestión_s/patrimonio + éxito_s/patrimonio + depositario + otros
+        # Fórmula: ter_efectivo_pct = ter_pct (oficial) + exito_s_patrimonio (cobrado)
+        ter_series_mut = cuant_result.get("serie_ter", [])
+        exito_by_year = {}
+        for entry in serie_com:
+            y = str(entry.get("periodo", ""))[:4]
+            ex = entry.get("exito", {}) or {}
+            if ex and y:
+                val = next((v for v in ex.values() if v is not None), None)
+                if val is not None:
+                    exito_by_year[y] = float(val)
+
+        for t in ter_series_mut:
+            y = str(t.get("periodo", ""))[:4]
+            ter_off = t.get("ter_pct")
+            exito_ano = exito_by_year.get(y, 0) or 0
+            if ter_off is not None:
+                t["ter_efectivo_pct"] = round(ter_off + exito_ano, 4)
+
+        # KPI: TER efectivo actual
+        if ter_series_mut:
+            last_ter = ter_series_mut[-1]
+            if last_ter.get("ter_efectivo_pct") is not None:
+                result["kpis"]["ter_efectivo_pct"] = last_ter["ter_efectivo_pct"]
 
     def _save(self, result: dict) -> None:
         """Guarda el resultado parcial o final en cnmv_data.json."""

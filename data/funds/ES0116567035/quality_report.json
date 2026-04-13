@@ -3,44 +3,20 @@
   "nombre": "CARTESIO X, FI",
   "fallos": [
     {
+      "regla_id": "resumen_has_cifras",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen con pocas cifras concretas (4 encontradas, mínimo 5). Parece genérico.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
+    },
+    {
       "regla_id": "gestores_min_perfiles",
       "seccion": "gestores",
       "fail_type": "scarcity",
-      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
+      "problema": "Solo 1 perfiles de gestores (mínimo 2)",
       "agente_responsable": "manager_deep_agent",
       "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
-    },
-    {
-      "regla_id": "gestores_lead_has_filosofia",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal '' sin filosofía de inversión.",
-      "agente_responsable": "manager_deep_agent",
-      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
-    },
-    {
-      "regla_id": "gestores_lead_has_decisiones",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal sin decisiones_clave documentadas.",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
-    },
-    {
-      "regla_id": "gestores_lead_trayectoria_min",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Trayectoria del gestor principal solo 0 chars (minimo 1000)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar perfiles con trayectoria EXTENSA (3-4 parrafos)."
-    },
-    {
-      "regla_id": "gestores_lead_cv_bullets",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
     },
     {
       "regla_id": "cuant_serie_vl_valid",
@@ -59,22 +35,6 @@
       "accion": "Re-ejecutar manager_deep_agent o revisar orchestrator fallback. Los perfiles estan en manager_profile.json, mover nombres reales a gestores.equipo."
     },
     {
-      "regla_id": "cuant_mix_activos_sum_100",
-      "seccion": "datos_cuantitativos",
-      "fail_type": "estructura",
-      "problema": "Mix de activos con sumas incorrectas (suma_incorrecta): 2025=194%, 2024=194%, 2023=193%, 2022=188%, 2021=187%. Cada año debe sumar ~100%.",
-      "agente_responsable": "cnmv_agent",
-      "accion": "Revisar extraccion XML CNMV seccion 3.1. Tomar solo valores TOTAL (no sumar subtotales + totales). Verificar que renta_fija_pct incluya solo RF pura, no depositos ni otros."
-    },
-    {
-      "regla_id": "cuant_mix_activos_no_over_100",
-      "seccion": "datos_cuantitativos",
-      "fail_type": "estructura",
-      "problema": "Componente individual supera 100% (componente_sobre_100): 2025 RF=159%, 2024 RF=154%, 2023 RF=149%, 2022 RF=125%, 2020 RF=114%. Imposible — datos duplicados.",
-      "agente_responsable": "cnmv_agent",
-      "accion": "cnmv_agent esta sumando filas duplicadas del XML (subtotales + totales). Filtrar para tomar solo la fila global de cada tipo de activo."
-    },
-    {
       "regla_id": "cartera_posiciones_nombre_limpio",
       "seccion": "cartera",
       "fail_type": "estructura",
@@ -89,14 +49,54 @@
       "problema": "Posiciones sin sector (sectores_ausentes): 0/116 (0%) con sector. Minimo 60% deben tener sector.",
       "agente_responsable": "cnmv_agent",
       "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "comision_exito_teorica_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Falta comision de exito teorica (%). Si cobra_comision_exito=true, debe extraerse el % del folleto/KID.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar extraccion en cnmv_agent seccion comisiones del PDF semestral. Buscar patrones: \"sobre resultados: X%\", \"X% sobre beneficios positivos\", \"Tipo aplicable s/resultados\"."
+    },
+    {
+      "regla_id": "cuant_serie_clases_info_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_clases_info vacia: no se identifican las clases del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+    },
+    {
+      "regla_id": "cuant_ter_efectivo_coherente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "TER efectivo incoherente (falta_ter_efectivo): Años con éxito>0 sin ter_efectivo_pct: ['2012', '2013', '2014', '2015', '2016']. El TER efectivo = TER oficial CNMV + comision exito cobrada s/patrimonio.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe calcular ter_efectivo_pct = ter_pct + exito_s_patrimonio para cada año y guardarlo en serie_ter[i].ter_efectivo_pct. TER oficial CNMV excluye comision exito por regulacion, pero el inversor la paga."
+    },
+    {
+      "regla_id": "cuant_vl_desde_fuentes_oficiales",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "Serie VL construida desde fuente incorrecta (vls_enteros_sospechosos): 17/17 VLs son enteros (normal: tiene decimales)",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe leer VL de: 1) tabla PDF CNMV cierre año por clase (pagina con Valor liquidativo / Participaciones), 2) XMLs FONDREGISTRO mensuales campo VL, 3) Morningstar diario como fallback. VL normal es decimal (ej 10.5234), no entero."
+    },
+    {
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
     }
   ],
-  "fallos_estructura": 9,
-  "fallos_scarcity": 2,
-  "total_reglas": 50,
-  "reglas_ok": 39,
+  "fallos_estructura": 6,
+  "fallos_scarcity": 5,
+  "total_reglas": 55,
+  "reglas_ok": 44,
   "aceptable": false,
-  "score_display": "39/50 reglas OK (2 pendientes de datos)",
+  "score_display": "44/55 reglas OK (5 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -106,5 +106,5 @@
     "fuentes_externas",
     "datos_cuantitativos"
   ],
-  "evaluado_at": "2026-04-13T18:57:10.039936"
+  "evaluado_at": "2026-04-13T20:46:14.982985"
 }

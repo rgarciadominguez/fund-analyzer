@@ -82,6 +82,26 @@ class AnalystAgent:
         manager = self._load_json("manager_profile.json")
         readings = self._load_json("readings_data.json")
 
+        # Load previous output to preserve richer data if re-execution regressed
+        existing_output = self._load_json("output.json") or {}
+
+        # PROTECCIÓN: si manager_profile re-ejecutado tiene menos info, reconstruir
+        # desde el output anterior. Previene regresiones del manager_deep_agent.
+        prev_perfiles = (existing_output.get("analyst_synthesis", {})
+                         .get("gestores", {}).get("perfiles", []) or [])
+        prev_gestores = existing_output.get("gestores", {}) or {}
+
+        new_equipo_detalle = manager.get("equipo_detalle_web", []) or []
+        new_fuentes = manager.get("fuentes_web_raw", []) or manager.get("fuentes_web", []) or []
+
+        # Si el manager actual perdió los detalles Y el anterior los tenía, restaurar
+        if not new_equipo_detalle and prev_gestores.get("equipo_detalle_web"):
+            manager["equipo_detalle_web"] = prev_gestores["equipo_detalle_web"]
+            self._log("WARN", f"Preservando equipo_detalle_web del output anterior ({len(prev_gestores['equipo_detalle_web'])} items)")
+        if not new_fuentes and prev_gestores.get("fuentes_web"):
+            manager["fuentes_web"] = prev_gestores["fuentes_web"]
+            self._log("WARN", f"Preservando fuentes_web del output anterior ({len(prev_gestores['fuentes_web'])} items)")
+
         # ── CAPA 1: Filtradores especializados ───────────────────────────────
         self._log("START", "Capa 1: Filtradores especializados")
         filtered_cnmv = self._filter_cnmv(cnmv)
@@ -144,6 +164,15 @@ class AnalystAgent:
                 merged_pos[key] = nv if nv else ov
         consolidated["posiciones"] = merged_pos
         consolidated["fuentes"] = cnmv.get("fuentes", {}) or existing_output.get("fuentes", {})
+        # Propagar comision_exito (incluye pct_teorico del folleto + serie_historica)
+        consolidated["comision_exito"] = (
+            cnmv.get("comision_exito")
+            or existing_output.get("comision_exito")
+            or {}
+        )
+        # Propagate comision_exito_pct in kpis if present
+        if cnmv.get("kpis", {}).get("comision_exito_pct"):
+            consolidated["kpis"]["comision_exito_pct"] = cnmv["kpis"]["comision_exito_pct"]
 
         # ── CAPA 3: Analyst Senior — 8 secciones ────────────────────────
         self._log("START", "Capa 3: Síntesis Analyst Senior (8 secciones)")
@@ -1147,6 +1176,78 @@ class AnalystAgent:
             })
         return result
 
+    def _compute_drawdown(self, data: dict) -> dict:
+        """Calcula drawdown máximo desde serie_vl_base100.
+        Devuelve: valor_pct, fecha_min (periodo del mínimo), fecha_peak (pico previo),
+                  duracion_meses (de peak a fecha_min), duracion_recuperacion_meses (si recuperó)."""
+        vl_series = data.get("cuantitativo", {}).get("serie_vl_base100", []) or []
+        if len(vl_series) < 3:
+            return {}
+
+        # Extraer serie ordenada (periodo, base100)
+        series = [(str(v.get("periodo", ""))[:7], float(v.get("base100", 0) or 0))
+                  for v in vl_series if isinstance(v, dict) and v.get("base100")]
+        series = [(p, b) for p, b in series if p and b > 0]
+        series.sort()
+        if len(series) < 3:
+            return {}
+
+        # Running max + drawdown por punto
+        max_so_far = series[0][1]
+        peak_period = series[0][0]
+        worst_dd = 0.0
+        worst_dd_period = series[0][0]
+        worst_dd_peak = series[0][0]
+        recovered_period = None
+
+        dd_states = []  # (periodo, dd_pct, peak_period)
+        for p, b in series:
+            if b >= max_so_far:
+                max_so_far = b
+                peak_period = p
+            dd = (b / max_so_far - 1) * 100  # negativo o 0
+            dd_states.append((p, dd, peak_period))
+            if dd < worst_dd:
+                worst_dd = dd
+                worst_dd_period = p
+                worst_dd_peak = peak_period
+
+        # ¿Se recuperó tras el peor drawdown?
+        peak_val = 0
+        for p, b in series:
+            if p == worst_dd_peak:
+                peak_val = b
+                break
+        for p, b in series:
+            if p > worst_dd_period and b >= peak_val:
+                recovered_period = p
+                break
+
+        def _months_between(a: str, b: str) -> int:
+            """a, b en formato YYYY, YYYY-MM, o YYYY-S1/S2."""
+            def parse(p):
+                p = p.replace("S1", "-06").replace("S2", "-12")
+                parts = p.split("-")
+                y = int(parts[0]) if parts[0].isdigit() else 0
+                m = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 12
+                return y * 12 + m
+            try:
+                return abs(parse(b) - parse(a))
+            except Exception:
+                return 0
+
+        duracion_meses = _months_between(worst_dd_peak, worst_dd_period)
+        duracion_recuperacion = _months_between(worst_dd_period, recovered_period) if recovered_period else None
+
+        return {
+            "valor_pct": round(worst_dd, 2),
+            "fecha_min": worst_dd_period,
+            "fecha_peak": worst_dd_peak,
+            "duracion_meses": duracion_meses,
+            "duracion_recuperacion_meses": duracion_recuperacion,
+            "recuperado": recovered_period is not None,
+        }
+
     def _compute_positions_count(self, data: dict) -> list[dict]:
         result = []
         actuales = data.get("posiciones", {}).get("actuales", [])
@@ -1196,6 +1297,7 @@ class AnalystAgent:
             "num_posiciones_por_anio": self._compute_positions_count(data),
             "concentracion_historica": self._compute_concentration(data),
             "rentabilidades_anuales": self._compute_annual_returns(data),
+            "drawdown": self._compute_drawdown(data),
         }
 
         return {"texto": texto, "datos_graficos": datos_graficos} if texto else None
@@ -1219,27 +1321,39 @@ class AnalystAgent:
             "rotacion": [{"p": s.get("periodo"), "v": s.get("rotacion_pct")} for s in cuant.get("serie_rotacion", [])],
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO — TIER 1 (Sonnet) — análisis evaluativo extenso
+        # Call 1: TEXTO — TIER 1 (Sonnet con fallback a Flash) — análisis evaluativo EXTENSO
         texto = self._sonnet_text(
             self._system_role(data),
             f"{self._quality_hint('estrategia')}"
-            f"Escribe un ANÁLISIS EVALUATIVO EXTENSO de la estrategia del fondo en 4-6 PÁRRAFOS.\n"
+            f"Escribe un ANÁLISIS EVALUATIVO PROFUNDO Y EXTENSO de la estrategia del fondo en 6-9 PÁRRAFOS DENSOS.\n"
+            f"Este es el apartado MÁS IMPORTANTE del informe — debe ser pensamiento analítico elaborado, "
+            f"NO una descripción superficial.\n"
             f"NO uses subsecciones ni líneas que sean solo **título** como headers.\n"
             f"SÍ usa **negritas** dentro del texto para resaltar conceptos clave, "
             f"nombres de posiciones, cifras, decisiones importantes.\n\n"
-            f"CONTENIDO OBLIGATORIO:\n"
-            f"- Párrafo 1: **Filosofía de inversión** del fondo — criterios, enfoque, "
-            f"qué le diferencia de la competencia. Evolución del enfoque con el tiempo.\n"
-            f"- Párrafo 2: **Coherencia discurso vs acción** — ¿han sido fieles a lo que dicen? "
-            f"Ejemplos concretos con posiciones y % de exposición.\n"
-            f"- Párrafo 3: **Momentos clave de decisión** — las 2-3 decisiones más importantes "
-            f"del equipo gestor con contexto de mercado, qué hicieron y resultado.\n"
-            f"- Párrafo 4: **Evolución del mix de activos** — cómo ha cambiado la composición "
-            f"de la cartera (% RV, RF, liquidez) y por qué.\n"
-            f"- Párrafo 5-6: **Conclusión evaluativa** — patrones de acierto y error, "
-            f"¿es un equipo que aprende? ¿cuáles son sus sesgos?\n\n"
-            f"MÍNIMO 2.500 caracteres — extenso, con cifras concretas y análisis propio.\n\n"
-            f"DATOS:\n{input_data}"
+            f"CONTENIDO OBLIGATORIO (cada párrafo debe tener 400-600 chars con cifras concretas):\n"
+            f"- Párrafo 1: **Filosofía de inversión declarada** — universo elegible, criterios de selección, "
+            f"estilo (value/growth/quality/momentum), tolerancia al riesgo, benchmark o referencia, "
+            f"horizonte temporal. Cita textual si la hay.\n"
+            f"- Párrafo 2: **Qué les diferencia** — lo que NO hacen los competidores, edge informacional o analítico, "
+            f"sesgo sectorial/geográfico característico, uso de derivados para cobertura/apalancamiento.\n"
+            f"- Párrafo 3: **Evolución del enfoque** — cómo ha cambiado la filosofía desde inicio hasta hoy, "
+            f"qué aprendieron de crisis (2008, 2011, COVID, 2022), ajustes explícitos en política.\n"
+            f"- Párrafo 4: **Coherencia discurso vs acción** — ¿lo que dicen en cartas cuadra con posiciones reales? "
+            f"Ejemplos CONCRETOS: si dicen ser value pero tienen momentum, si prometen low-vol pero han tenido volatilidad. "
+            f"% de exposición antes vs ahora.\n"
+            f"- Párrafo 5: **3 momentos clave de decisión** documentados — contexto de mercado + tesis del gestor + "
+            f"qué hicieron + resultado con cifras. Usar hechos relevantes, cartas semestrales.\n"
+            f"- Párrafo 6: **Evolución del mix de activos** — cómo ha rotado %RV/%RF/%liquidez/%derivados, "
+            f"por qué (cambios ciclo, tesis macro), coherencia con filosofía declarada.\n"
+            f"- Párrafo 7: **Patrón de aciertos y errores** — ¿ciclos donde acertaron sistemáticamente? "
+            f"¿sesgos recurrentes? ¿es un equipo que aprende o repite errores?\n"
+            f"- Párrafo 8: **Conclusión evaluativa** — para qué tipo de inversor es apropiado, "
+            f"qué esperar en ciclos alcistas vs bajistas, principales red flags.\n\n"
+            f"MÍNIMO 3.500 caracteres — extenso, evaluativo, con cifras concretas y análisis propio.\n"
+            f"ESCRIBE COMO ANALISTA SENIOR, no como descripción neutra.\n\n"
+            f"DATOS:\n{input_data}",
+            max_tokens=12000
         )
         time.sleep(2)
 
@@ -1304,22 +1418,32 @@ class AnalystAgent:
             "fecha_datos": last_period,
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO análisis — conciso, sin subsecciones
+        # Call 1: TEXTO análisis EXTENSO de cartera (mínimo 3000 chars)
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
             f"{self._quality_hint('cartera')}"
-            f"Escribe un ANÁLISIS CONCISO de la cartera actual en 2-3 PÁRRAFOS.\n"
-            f"NO uses subsecciones ni **headers** — narrativa fluida pura.\n"
+            f"Escribe un ANÁLISIS EXTENSO Y PROFUNDO de la cartera en 5-7 PÁRRAFOS DENSOS.\n"
+            f"NO uses subsecciones ni **headers** — narrativa fluida pura, cada párrafo conecta con el siguiente.\n"
             f"Datos a fecha {last_period}. NO inventes otra fecha.\n\n"
-            f"Párrafo 1: Composición general — nº posiciones, distribución RV/RF/liquidez/otros, "
-            f"exposición geográfica principal, cambios más significativos vs periodo anterior.\n"
-            f"Párrafo 2: Posiciones más relevantes y por qué están en cartera — "
-            f"tesis del gestor, apuestas temáticas (ej: Argentina, tecnología, renta fija emergente).\n"
-            f"Párrafo 3 (opcional): Concentración y riesgos — top 5/10 vs media histórica, "
-            f"exposición temática, riesgo de divisa.\n\n"
-            f"Incluye nombres de posiciones en NEGRITA y cifras concretas (**X%**, **Y M€**).\n"
-            f"Máximo 1.200 caracteres — denso, cada frase con dato concreto.\n\n"
-            f"DATOS:\n{input_data}"
+            f"CONTENIDO OBLIGATORIO (cada párrafo 400-500 chars con cifras concretas):\n\n"
+            f"- Párrafo 1: **Composición general** — nº posiciones total, distribución RV/RF/liquidez/otros, "
+            f"cambios vs hace 1 año, hace 3 años, hace 5 años. Ritmo de rotación de cartera (rotación %).\n"
+            f"- Párrafo 2: **Exposición geográfica** — países/regiones principales, % en cada uno, "
+            f"evolución de la exposición geográfica histórica, apuestas regionales diferenciales vs categoría.\n"
+            f"- Párrafo 3: **Exposición sectorial** — sectores principales con % concretos, "
+            f"sobre/infra-ponderaciones vs benchmark, cambios sectoriales recientes.\n"
+            f"- Párrafo 4: **Top 10-15 posiciones actuales** — nombres concretos con % y racional de por qué están. "
+            f"Tesis del gestor para las posiciones de mayor convicción. Distinguir bonos corporativos vs equity.\n"
+            f"- Párrafo 5: **Concentración** — top5%, top10%, top15%, comparado con media histórica y categoría. "
+            f"Número de posiciones en ventana histórica (tendencia a concentrar o diversificar).\n"
+            f"- Párrafo 6: **Riesgos de cartera** — divisa, duración (si hay RF), calidad crediticia, "
+            f"concentración sectorial/regional, liquidez de posiciones.\n"
+            f"- Párrafo 7: **Cambios recientes significativos** — entradas/salidas notables en últimos periodos "
+            f"(según XMLs trimestrales o cartas del gestor), rebalanceos relevantes.\n\n"
+            f"Incluye nombres de posiciones en **negrita** y cifras concretas (**X%**, **Y M€**).\n"
+            f"MÍNIMO 3.000 caracteres — denso, cada frase con dato concreto, sin relleno.\n\n"
+            f"DATOS:\n{input_data}",
+            max_tokens=8000
         )
         time.sleep(2)
 

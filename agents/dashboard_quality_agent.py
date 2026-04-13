@@ -244,6 +244,12 @@ def _check_serie_vl_valid(rule: dict, data: dict) -> tuple[bool, dict]:
     if len(unique_vals) <= 2 and all(v == int(v) for v in unique_vals if v > 0):
         return False, {"reason": "enteros_repetidos", "actual": f"VLs={sorted(unique_vals)}"}
 
+    # Patrón 1b: TODOS los VLs son enteros (1.0, 2.0, 3.0, 4.0...) — VL real tiene decimales
+    # Un fondo con 17 años de datos NO puede tener todos los VLs exactamente enteros
+    if len(vls) >= 5 and all(v == int(v) for v in vls if v > 0):
+        return False, {"reason": "todos_enteros",
+                       "actual": f"{len(vls)} VLs, todos enteros: {sorted(unique_vals)[:5]}..."}
+
     # Patrón de corrupción 2: primer VL muy alto o muy bajo (corrupto)
     first_vl = vls[0]
     if first_vl > 200 or (first_vl > 0 and first_vl < 0.1):
@@ -531,6 +537,238 @@ def _check_clasificacion_vs_cartera(rule: dict, data: dict) -> tuple[bool, dict]
     return True, {"actual": "coherente"}
 
 
+def _check_comision_exito_coherente(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Los importes anuales cobrados (%) no pueden superar el tipo teórico del folleto.
+    Si teórico=5%, cobros anuales deberían estar en 0-1% del patrimonio (nunca >5%)."""
+    ce = data.get("comision_exito", {}) or {}
+    if not ce.get("existe"):
+        return True, {"actual": "no_aplica"}
+    teorico = ce.get("pct_teorico") or data.get("kpis", {}).get("comision_exito_pct")
+    serie = ce.get("serie_historica", []) or []
+    if not teorico or not serie:
+        return True, {"actual": "sin_datos_para_comparar"}
+
+    violations = []
+    for entry in serie:
+        periodo = entry.get("periodo", "")
+        exito = entry.get("exito", {}) or {}
+        for cls, val in exito.items():
+            try:
+                v = float(val)
+            except (TypeError, ValueError):
+                continue
+            if v > teorico * 1.1:  # 10% tolerance
+                violations.append(f"{periodo} {cls}={v}% > teórico {teorico}%")
+
+    if violations:
+        return False, {"reason": "cobros_superan_teorico",
+                       "actual": " | ".join(violations[:3])}
+    return True, {"actual": f"{len(serie)} años coherentes"}
+
+
+def _check_ter_efectivo_coherente(rule: dict, data: dict) -> tuple[bool, dict]:
+    """TER efectivo (lo que paga el partícipe) debe incluir comisión éxito cobrada.
+    Para cada año con éxito > 0:
+      ter_efectivo_pct ≈ ter_pct (oficial) + exito_s_patrimonio  (tolerancia 0.05%)
+
+    Si no existe ter_efectivo_pct pero hay éxito cobrado > 0 → fallo (cnmv_agent debe calcularlo).
+    Si existe pero no cuadra con gestión + éxito + depositario → fallo de cálculo.
+    """
+    cuant = data.get("cuantitativo", {}) or {}
+    serie_ter = cuant.get("serie_ter", []) or []
+    serie_com = cuant.get("serie_comisiones_por_clase", []) or []
+    if not serie_ter or not serie_com:
+        return True, {"actual": "sin_datos"}
+
+    # Mapear por año
+    ter_by_year = {}
+    for x in serie_ter:
+        y = str(x.get("periodo", ""))[:4]
+        if y:
+            ter_by_year[y] = {
+                "ter_pct": x.get("ter_pct"),
+                "ter_efectivo_pct": x.get("ter_efectivo_pct"),
+            }
+    com_by_year = {}
+    exito_by_year = {}
+    for x in serie_com:
+        y = str(x.get("periodo", ""))[:4]
+        cls = x.get("clases", {}) or {}
+        ex = x.get("exito", {}) or {}
+        if cls:
+            com_by_year[y] = list(cls.values())[0]
+        if ex:
+            exito_by_year[y] = list(ex.values())[0]
+
+    missing_efectivo = []
+    inconsistent = []
+    for y, ter in ter_by_year.items():
+        exito = exito_by_year.get(y, 0) or 0
+        gest = com_by_year.get(y, 0) or 0
+        if exito > 0.05:  # Hubo éxito cobrado significativo
+            # Debería existir ter_efectivo_pct
+            ter_ef = ter.get("ter_efectivo_pct")
+            ter_off = ter.get("ter_pct")
+            if ter_ef is None:
+                missing_efectivo.append(y)
+            elif ter_off is not None:
+                # ter_efectivo debería ser al menos ter_oficial + éxito (±0.05 tolerancia)
+                expected = ter_off + exito
+                if ter_ef + 0.05 < expected:
+                    inconsistent.append(f"{y}: ter_ef={ter_ef}% < ter_off+exito={expected:.2f}%")
+                # También: ter_efectivo >= gestion + exito (invariante del inversor)
+                if ter_ef + 0.05 < gest + exito:
+                    inconsistent.append(f"{y}: ter_ef={ter_ef}% < gest+exito={gest+exito:.2f}%")
+
+    if missing_efectivo:
+        return False, {"reason": "falta_ter_efectivo",
+                       "actual": f"Años con éxito>0 sin ter_efectivo_pct: {missing_efectivo[:5]}"}
+    if inconsistent:
+        return False, {"reason": "ter_efectivo_inconsistente",
+                       "actual": " | ".join(inconsistent[:3])}
+    return True, {"actual": "coherente"}
+
+
+def _check_vl_desde_fuentes_oficiales(rule: dict, data: dict) -> tuple[bool, dict]:
+    """La serie_vl_base100 debe derivarse de VLs decimales reales (tabla CNMV o XML FONDREGISTRO),
+    no de valores enteros redondeados.
+    Si hay ≥5 años de VL y todos son enteros o solo hay 2 valores únicos → fuente de datos errónea.
+    Complementa serie_vl_valid con check de fuente de datos.
+    """
+    vl_series = _get_nested(data, rule.get("field_path", "cuantitativo.serie_vl_base100")) or []
+    if len(vl_series) < 5:
+        return True, {"actual": "pocos_datos"}
+
+    vls = [float(v.get("vl", 0) or 0) for v in vl_series if isinstance(v, dict)]
+    # VL normal tiene 2-6 decimales (ej: 10.5234, 21.8765).
+    # Si el 80%+ son enteros exactos → fuente errónea.
+    enteros = sum(1 for v in vls if v > 0 and v == int(v))
+    if len(vls) > 0 and enteros / len(vls) > 0.8:
+        return False, {"reason": "vls_enteros_sospechosos",
+                       "actual": f"{enteros}/{len(vls)} VLs son enteros (normal: tiene decimales)"}
+    return True, {"actual": f"VL con decimales OK"}
+
+
+def _check_historia_kpis_calculables(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Los KPIs de Historia (CAGR, peor año, mejor año) deben ser calculables.
+    Requisito: serie_vl_base100 con al menos 3 años de datos VÁLIDOS y diferenciados."""
+    vl_series = _get_nested(data, "cuantitativo.serie_vl_base100") or []
+    if len(vl_series) < 3:
+        return False, {"reason": "serie_vl_insuficiente",
+                       "actual": f"Solo {len(vl_series)} años, mínimo 3 para CAGR"}
+
+    # Calcular rentabilidades anuales
+    base = [(str(v.get("periodo",""))[:4], float(v.get("base100", 0) or 0))
+            for v in vl_series if isinstance(v, dict)]
+    base = [(y, b) for y, b in base if y and b > 0]
+    base.sort()
+    if len(base) < 3:
+        return False, {"reason": "datos_vl_validos_insuficientes",
+                       "actual": f"{len(base)} puntos válidos"}
+
+    rents = []
+    for i in range(1, len(base)):
+        prev = base[i-1][1]
+        curr = base[i][1]
+        if prev > 0:
+            rents.append((base[i][0], (curr/prev - 1) * 100))
+
+    # Todos 0% o todos iguales → VL corrupto
+    if not rents:
+        return False, {"reason": "no_rentabilidades", "actual": "0"}
+    unique_rents = set(round(r, 2) for _, r in rents)
+    if len(unique_rents) == 1:
+        return False, {"reason": "rentabilidades_todas_iguales",
+                       "actual": f"Todas = {list(unique_rents)[0]}%"}
+
+    return True, {"actual": f"{len(rents)} años de rentabilidades calculables"}
+
+
+def _check_drawdown_con_fecha(rule: dict, data: dict) -> tuple[bool, dict]:
+    """El análisis de evolución debe incluir info del drawdown máximo: valor, fecha, duración.
+    Mínimo: drawdown_max_pct, drawdown_fecha_min, drawdown_duracion_meses (o similar)."""
+    evol = data.get("analyst_synthesis", {}).get("evolucion", {}) or {}
+    graficos = evol.get("datos_graficos", {}) or {}
+    drawdown = graficos.get("drawdown") or evol.get("drawdown") or {}
+
+    required = ["valor_pct", "fecha_min", "duracion"]
+    # Variants posibles
+    variants = {
+        "valor_pct": ["valor_pct", "max_pct", "maximo_pct", "peak_to_trough_pct"],
+        "fecha_min": ["fecha_min", "fecha_minimo", "fecha", "date"],
+        "duracion": ["duracion", "duracion_meses", "duration", "duracion_dias"],
+    }
+    present = {}
+    for key, vs in variants.items():
+        present[key] = any(drawdown.get(v) not in (None, "", 0) for v in vs)
+
+    missing = [k for k, v in present.items() if not v]
+    if missing:
+        return False, {"reason": "datos_drawdown_incompletos",
+                       "actual": f"Faltan: {missing}"}
+    return True, {"actual": "drawdown completo"}
+
+
+def _check_hitos_percentages_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Cada % mencionado en un hito de historia debe cuadrar con serie_rentabilidad (±3pp)."""
+    hitos = _get_nested(data, rule.get("field_path", "analyst_synthesis.historia.hitos")) or []
+    if not isinstance(hitos, list) or not hitos:
+        return True, {"actual": "no_hitos"}
+
+    # Real returns por año
+    real_returns = {}
+    serie_rent = _get_nested(data, "cuantitativo.serie_rentabilidad") or []
+    for item in serie_rent:
+        if isinstance(item, dict):
+            periodo = str(item.get("periodo", ""))[:4]
+            rent = item.get("rentabilidad_pct")
+            if periodo and rent is not None:
+                real_returns[periodo] = float(rent)
+    if not real_returns:
+        # Calcular de base100
+        vl_series = _get_nested(data, "cuantitativo.serie_vl_base100") or []
+        base_by_year = {str(v.get("periodo", ""))[:4]: float(v.get("base100", 0) or 0)
+                        for v in vl_series if isinstance(v, dict)}
+        years_sorted = sorted(base_by_year.keys())
+        for i in range(1, len(years_sorted)):
+            y = years_sorted[i]
+            prev_b = base_by_year[years_sorted[i-1]]
+            curr_b = base_by_year[y]
+            if prev_b > 0:
+                real_returns[y] = (curr_b / prev_b - 1) * 100
+
+    if not real_returns:
+        return True, {"actual": "sin_datos_reales"}
+
+    discrepancies = []
+    for hito in hitos:
+        if not isinstance(hito, dict):
+            continue
+        anio = str(hito.get("anio", ""))[:4]
+        evento = str(hito.get("evento", "") or "")
+        if not anio or anio not in real_returns:
+            continue
+        # Buscar % en evento
+        pcts = re.findall(r"([+-]?\d{1,3}[,.]?\d{0,2})\s*%", evento)
+        for pct_str in pcts:
+            try:
+                claimed = float(pct_str.replace(",", "."))
+            except ValueError:
+                continue
+            # Skip valores muy pequeños (probablemente volatilidad, no rentabilidad)
+            if abs(claimed) < 0.5:
+                continue
+            real = real_returns[anio]
+            if abs(claimed - real) > 3:
+                discrepancies.append(f"{anio}: hito dice {claimed}%, real {real:.1f}%")
+                break  # Solo 1 por hito
+
+    if discrepancies:
+        return False, {"reason": "porcentajes_no_verificables",
+                       "actual": " | ".join(discrepancies[:3])}
+    return True, {"actual": f"{len(hitos)} hitos verificados"}
+
+
 def _check_text_returns_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
     """Detecta alucinaciones en el texto: si el texto menciona rentabilidades concretas
     (ej. '+15,4% en 2023'), deben cuadrar con serie_rentabilidad o serie_vl_base100.
@@ -626,6 +864,12 @@ CHECK_REGISTRY = {
     "posiciones_historicas_cobertura": _check_posiciones_historicas_cobertura,
     "fortalezas_no_contradict_riesgos": _check_fortalezas_no_contradict_riesgos,
     "clasificacion_vs_cartera": _check_clasificacion_vs_cartera,
+    "comision_exito_coherente": _check_comision_exito_coherente,
+    "hitos_percentages_match_data": _check_hitos_percentages_match_data,
+    "ter_efectivo_coherente": _check_ter_efectivo_coherente,
+    "vl_desde_fuentes_oficiales": _check_vl_desde_fuentes_oficiales,
+    "historia_kpis_calculables": _check_historia_kpis_calculables,
+    "drawdown_con_fecha": _check_drawdown_con_fecha,
 }
 
 
@@ -649,6 +893,12 @@ def _rule_applies(rule: dict, data: dict) -> bool:
     # fund_name_not_contains: NO aplica si el nombre contiene alguno
     if "fund_name_not_contains" in cond:
         if any(s.lower() in fund_name for s in cond["fund_name_not_contains"]):
+            return False
+
+    # fund_has_perf_fee: aplica solo si el fondo cobra comisión de éxito
+    if "fund_has_perf_fee" in cond:
+        has_perf = bool((data.get("comision_exito") or {}).get("existe"))
+        if cond["fund_has_perf_fee"] != has_perf:
             return False
 
     return True
