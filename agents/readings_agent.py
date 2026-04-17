@@ -35,26 +35,44 @@ console = Console(highlight=False, force_terminal=False)
 
 # Priority sources for fund analysis in Spain
 PRIORITY_SOURCES = [
+    # ── Medios financieros españoles ──
     ("saludfinanciera.substack.com", "Substack Salud Financiera"),
     ("astralisfundsacademy.com", "Astralis Funds Academy"),
     ("astralis.es", "Astralis"),
     ("rankia.com", "Rankia"),
     ("finect.com", "Finect"),
-    ("masdividendos.com", "Más Dividendos"),
+    ("masdividendos.com", "Mas Dividendos"),
     ("valueschool.es", "Value School"),
-    ("morningstar.es", "Morningstar España"),
     ("quenoteloinviertan.com", "Que No Te Lo Inviertan"),
     ("inversor-tranquilo.com", "Inversor Tranquilo"),
+    # ── Medios financieros internacionales ──
+    ("morningstar.es", "Morningstar ES"),
+    ("morningstar.co.uk", "Morningstar UK"),
+    ("morningstar.com", "Morningstar US"),
+    ("citywire.com", "Citywire Global"),
+    ("citywire.co.uk", "Citywire UK"),
+    ("trustnet.com", "Trustnet"),
+    ("fundspeople.com", "FundsPeople"),
+    ("allfunds.com", "AllFunds"),
+    ("ft.com", "Financial Times"),
+    ("institutionalinvestor.com", "Institutional Investor"),
+    ("seekingalpha.com", "Seeking Alpha"),
+    ("youtube.com", "YouTube"),
 ]
 
-# Content types to find
+# Content types to find (multi-idioma)
 CONTENT_TYPES = {
-    "analisis": ["análisis", "review", "reseña", "opinión", "valoración"],
-    "entrevista": ["entrevista", "interview", "conversación"],
-    "podcast": ["podcast", "audio", "episodio"],
-    "video": ["youtube", "vídeo", "video", "conferencia", "webinar"],
-    "articulo": ["artículo", "blog", "post", "columna"],
-    "comunidad": ["foro", "hilo", "debate", "comentarios"],
+    "analisis": ["analysis", "review", "opinion", "rating", "outlook",
+                 "analisis", "resena", "valoracion", "analyse", "bewertung"],
+    "entrevista": ["interview", "Q&A", "conversation", "entrevista",
+                   "entretien", "gesprach"],
+    "podcast": ["podcast", "audio", "episode", "episodio"],
+    "video": ["youtube", "video", "conference", "webinar", "presentation",
+              "conferencia", "presentacion"],
+    "articulo": ["article", "blog", "post", "column", "commentary",
+                 "articulo", "columna", "beitrag"],
+    "comunidad": ["forum", "thread", "discussion", "comments",
+                  "foro", "hilo", "debate", "comentarios"],
 }
 
 

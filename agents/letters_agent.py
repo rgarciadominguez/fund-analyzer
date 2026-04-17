@@ -160,30 +160,64 @@ class LettersAgent:
     # ═══════════════════════════════════════════════════════════════════════════
 
     async def _find_letter_sources(self) -> list[dict]:
-        """Google search for letter/report sources."""
+        """Google search for letter/report sources (ES + INT multi-idioma)."""
         queries = []
+        is_int = not self.isin.startswith("ES")
+
         if self.fund_short:
+            # Keywords ES (siempre incluir por si hay versión española)
             queries.extend([
                 f'"{self.fund_short}" carta semestral',
                 f'"{self.fund_short}" carta trimestral',
                 f'"{self.fund_short}" informe inversores',
                 f'"{self.fund_short}" carta anual',
-                f'"{self.fund_short}" cartas semestrales históricas',
             ])
+            if is_int:
+                # Keywords EN/FR/DE para fondos internacionales
+                queries.extend([
+                    f'"{self.fund_short}" quarterly letter',
+                    f'"{self.fund_short}" investor letter',
+                    f'"{self.fund_short}" fund commentary',
+                    f'"{self.fund_short}" investment report',
+                    f'"{self.fund_short}" lettre trimestrielle',
+                    f'"{self.fund_short}" Quartalsbericht',
+                ])
         if self.gestora:
             queries.extend([
                 f'"{self.gestora}" cartas inversores informes',
-                f'"{self.gestora}" cartas semestrales',
-                f'site:{self.gestora.lower().replace(" ", "")}.com cartas',
             ])
+            if is_int:
+                queries.extend([
+                    f'"{self.gestora}" investor letter filetype:pdf',
+                    f'"{self.gestora}" quarterly commentary {self.isin}',
+                ])
         if not queries:
-            queries.append(f'{self.isin} carta informe')
+            queries.append(f'{self.isin} carta informe investor letter')
+
+        # Para INT: recoger cartas ya descubiertas por discovery v2
+        disc_letters: list[dict] = []
+        if is_int:
+            disc_path = self.fund_dir / "intl_discovery_data.json"
+            if disc_path.exists():
+                import json as _json
+                try:
+                    disc = _json.loads(disc_path.read_text(encoding="utf-8"))
+                    for doc in disc.get("documents", []):
+                        if doc.get("doc_type") in ("quarterly_letter", "manager_presentation"):
+                            disc_letters.append({
+                                "url": doc.get("url", ""),
+                                "title": f"[discovery] {doc.get('doc_type')} @ {doc.get('periodo','')}",
+                                "local_path": doc.get("local_path", ""),
+                            })
+                except Exception:
+                    pass
 
         results = await self.search.search_multiple(queries, num_per_query=5, agent="letters")
 
         # Also get cached results from other agents
         cached = self.search.get_cached_for_agent("letters")
         results.extend(cached)
+        results.extend(disc_letters)
 
         # Filter: only URLs that look like letters/documents
         filtered = []

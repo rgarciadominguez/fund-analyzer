@@ -1,0 +1,28 @@
+{
+  "isin": "IE00B6T42S66",
+  "nombre": "Trojan Fund (Ireland)",
+  "timestamp": "2026-04-17T16:23:51.785793",
+  "completeness_pct": 72.2,
+  "dashboard_ready": true,
+  "dashboard_blockers": [],
+  "issues": [
+    "gestora vacía",
+    "gestores vacíos — buscar en Citywire / Finect",
+    "serie AUM muy corta (1 puntos) — añadir XMLs históricos",
+    "mix_activos 2025 suma 49.7% (esperado ~100%)",
+    "sin análisis externos — ejecutar readings_agent",
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)",
+    "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
+  ],
+  "suggestions": [
+    "Años sin datos AUM: 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 -> descargar XMLs CNMV de esos años",
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin IE00B6T42S66 --auto"
+  ],
+  "feedback_previo": [],
+  "stats": {
+    "periodos_consistencia": 4,
+    "posiciones_actuales": 10,
+    "puntos_aum": 1,
+    "gestores": 0
+  }
+}

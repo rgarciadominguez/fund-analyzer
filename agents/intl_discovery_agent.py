@@ -32,26 +32,36 @@ from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
-import httpx
 from rich.console import Console
 from rich.panel import Panel
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from agents.discovery import kb as kb_mod
-from agents.discovery.gestora_crawler import crawl_gestora
 from agents.discovery.state import SharedState
-from agents.discovery.tracks import run_commercial_track, run_reports_track
 
 console = Console()
 
 
 async def _default_web_search(query: str) -> list[dict]:
     """
-    Stub offline por defecto. El orchestrator real debe pasar una implementación
-    (Google Search via tools.google_search o WebSearch API de Claude).
+    Stub offline por defecto. Se reemplaza al instanciar con Serper si hay key.
     """
     return []
+
+
+def _serper_or_stub(isin: str):
+    """Devuelve el web_search_fn de Serper si SERPER_API_KEY está, sino el stub."""
+    import os
+    if not os.getenv("SERPER_API_KEY"):
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(Path(__file__).parent.parent / ".env")
+        except Exception:
+            pass
+    if os.getenv("SERPER_API_KEY"):
+        from agents.discovery.serper_adapter import make_web_search_fn
+        return make_web_search_fn(isin)
+    return _default_web_search
 
 
 class IntlDiscoveryAgent:
@@ -66,7 +76,8 @@ class IntlDiscoveryAgent:
         self.isin = isin.strip().upper()
         self.identity = identity or {"isin": self.isin}
         self.gap = gap or {}
-        self.web_search_fn = web_search_fn or _default_web_search
+        # Si el caller no inyecta función, usar Serper si hay API key, sino stub
+        self.web_search_fn = web_search_fn or _serper_or_stub(self.isin)
         self.config = config or {}
         root = Path(__file__).parent.parent
         self.fund_dir = root / "data" / "funds" / self.isin
@@ -74,60 +85,32 @@ class IntlDiscoveryAgent:
 
     async def run(self) -> dict:
         console.print(Panel(
-            f"[bold yellow]IntlDiscoveryAgent[/bold yellow]\n"
+            f"[bold yellow]IntlDiscoveryAgent (v2)[/bold yellow]\n"
             f"ISIN: [green]{self.isin}[/green]  "
             f"Gestora: [cyan]{self.identity.get('gestora_oficial','-')}[/cyan]",
             expand=False,
         ))
 
-        kb_data = kb_mod.load_kb(self.fund_dir, self.isin)
-        state = SharedState(
+        from agents.discovery_v2 import DiscoveryV2
+        pipeline = DiscoveryV2(
             isin=self.isin,
             identity=self.identity,
             gap=self.gap,
             fund_dir=self.fund_dir,
-            kb=kb_data,
+            web_search_fn=self.web_search_fn,
+            config=self.config,
         )
-
-        targets = state.missing_doc_targets()
-        console.log(f"[yellow]Targets iniciales: {len(targets)}")
-        for t in targets[:10]:
-            console.log(f"  - {t[0]}@{t[1] or 'latest'}")
-
-        if state.is_fully_covered():
-            console.log("[green]Nada que buscar, todo ya cubierto por el regulator.")
-            self._save(state)
-            return self._to_output(state)
-
-        async with httpx.AsyncClient(
-            follow_redirects=True,
-            timeout=60,
-            headers={"User-Agent": "Mozilla/5.0"},
-        ) as c:
-            # 1) Crawl de gestora UNA vez, resultado compartido por ambos tracks
-            gestora = self.identity.get("gestora_oficial", "")
-            candidates: list[dict] = []
-            if gestora:
-                console.log(f"[blue]Crawl gestora: {gestora}")
-                candidates = await crawl_gestora(state, c, gestora)
-                console.log(f"[blue]  {len(candidates)} candidatos del crawl")
-
-            # 2) Dos tracks en paralelo con el mismo state
-            await asyncio.gather(
-                run_reports_track(state, c, candidates, self.web_search_fn),
-                run_commercial_track(state, c, candidates, self.web_search_fn),
-            )
-
-        # 3) Persistir KB actualizado + guardar output
-        kb_mod.save_kb(self.fund_dir, state.kb)
+        state = await pipeline.run()
         self._save(state)
         return self._to_output(state)
+
 
     def _to_output(self, state: SharedState) -> dict:
         docs = []
         for d in state.downloaded_docs:
             dd = asdict(d)
             dd["contains"] = sorted(list(d.contains))
+            dd["isins_inside"] = sorted(list(d.isins_inside))
             docs.append(dd)
         still_missing = [
             {"doc_type": dt, "periodo": p}
@@ -137,8 +120,9 @@ class IntlDiscoveryAgent:
             "isin": self.isin,
             "ultima_actualizacion": datetime.now().isoformat(timespec="seconds"),
             "budget_spent": {
-                "http_used": 60 - state.budget.http_remaining,
-                "google_used": 10 - state.budget.google_remaining,
+                "http_used": 80 - state.budget.http_remaining,
+                "download_used": 120 - state.budget.download_remaining,
+                "google_used": 15 - state.budget.google_remaining,
                 "llm_used": 4 - state.budget.llm_remaining,
             },
             "documents": docs,

@@ -76,8 +76,13 @@ class AnalystAgent:
     def run(self) -> dict:
         self._log("START", f"Analyst Agent — {self.isin}")
 
-        # Load all raw data from other agents
-        cnmv = self._load_json("cnmv_data.json")
+        # Load fund data: cnmv_data.json for ES, intl_data.json for INT
+        if self.isin[:2] in ("ES",):
+            cnmv = self._load_json("cnmv_data.json")
+        else:
+            cnmv = self._load_json("intl_data.json")
+            if not cnmv:
+                cnmv = self._load_json("cnmv_data.json")  # fallback
         letters = self._load_json("letters_data.json")
         manager = self._load_json("manager_profile.json")
         readings = self._load_json("readings_data.json")
@@ -190,6 +195,18 @@ class AnalystAgent:
                 merged_pos[key] = nv if nv else ov
         consolidated["posiciones"] = merged_pos
         consolidated["fuentes"] = cnmv.get("fuentes", {}) or existing_output.get("fuentes", {})
+
+        # ── INT-specific: propagar campos extra del extractor v3 ──
+        for extra_key in ("analisis_consistencia", "clases", "economia_fondo", "cualitativo"):
+            val = cnmv.get(extra_key)
+            if val and extra_key not in consolidated:
+                consolidated[extra_key] = val
+            elif val and isinstance(val, dict) and isinstance(consolidated.get(extra_key), dict):
+                # Merge: keep existing + fill gaps from new
+                for k, v in val.items():
+                    if v and not consolidated[extra_key].get(k):
+                        consolidated[extra_key][k] = v
+
         # Propagar comision_exito (incluye pct_teorico del folleto + serie_historica)
         consolidated["comision_exito"] = (
             cnmv.get("comision_exito")

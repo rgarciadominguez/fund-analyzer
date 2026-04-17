@@ -619,13 +619,13 @@ class LettersDeepAgent:
         """
         periodo = carta.get("periodo", carta.get("fecha", ""))
         context = (
-            f"Carta {periodo} del fondo {self.fund_name} ({self.isin}). "
-            f"Extraer TODOS los datos numericos y cualitativos. "
-            f"Para entradas y salidas incluir TODAS las mencionadas. "
-            f"Las citas textuales deben ser literales del gestor (max 15 palabras). "
-            f"Vision macro: max 5 puntos concretos. "
-            f"Resumen ejecutivo: 4-5 lineas cubriendo rentabilidad, movimientos "
-            f"clave y perspectivas."
+            f"Investor letter/commentary {periodo} of fund {self.fund_name} ({self.isin}). "
+            f"The document may be in any language (EN/ES/FR/DE). "
+            f"Extract ALL numeric and qualitative data. "
+            f"For portfolio changes (entries/exits), include ALL mentioned. "
+            f"Textual quotes must be literal from the manager (max 15 words). "
+            f"Macro vision: max 5 concrete points. "
+            f"Executive summary: 4-5 lines covering performance, key moves, and outlook."
         )
 
         # Use unified LLM extractor (Gemini first, Claude fallback)

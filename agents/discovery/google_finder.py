@@ -18,36 +18,56 @@ from urllib.parse import urlparse
 from agents.discovery.state import SharedState
 
 
-# Query templates por doc_type. {isin} y {fund} se sustituyen.
-QUERY_TEMPLATES: dict[str, list[str]] = {
+# Query templates por doc_type. {isin} {fund} {year} se sustituyen.
+# Si el periodo conocido tiene año, usaremos las plantillas YEAR-specific.
+# Si no, las generales (sin año).
+QUERY_TEMPLATES_GENERAL: dict[str, list[str]] = {
     "annual_report": [
         '"{isin}" "annual report" filetype:pdf',
         '"{isin}" "rapport annuel" filetype:pdf',
-        '"{fund}" "annual report" {year} filetype:pdf',
+        '"{isin}" jahresbericht OR rechenschaftsbericht filetype:pdf',
     ],
     "semi_annual_report": [
         '"{isin}" "semi-annual report" filetype:pdf',
-        '"{isin}" "rapport semestriel" filetype:pdf',
-        '"{fund}" "semi-annual" {year} filetype:pdf',
+        '"{isin}" "rapport semestriel" OR halbjahresbericht filetype:pdf',
     ],
     "quarterly_letter": [
         '"{fund}" "quarterly letter" filetype:pdf',
-        '"{fund}" "letter to shareholders" {year} filetype:pdf',
         '"{isin}" "carta trimestral" OR "quarterly letter"',
+        '"{fund}" "letter to shareholders" filetype:pdf',
     ],
     "factsheet": [
         '"{isin}" factsheet filetype:pdf',
-        '"{fund}" "monthly report" filetype:pdf',
+        '"{fund}" "monthly report" OR "monthly factsheet" filetype:pdf',
     ],
     "prospectus": [
-        '"{isin}" prospectus filetype:pdf',
+        '"{isin}" prospectus OR prospekt OR verkaufsprospekt filetype:pdf',
     ],
     "kid": [
         '"{isin}" KID OR KIID OR PRIIPS filetype:pdf',
     ],
     "manager_presentation": [
-        '"{fund}" presentation filetype:pdf',
-        '"{fund}" "investor" OR "webinar" filetype:pdf',
+        '"{fund}" presentation OR pitch filetype:pdf',
+        '"{fund}" "investor day" OR "webinar" filetype:pdf',
+    ],
+}
+
+QUERY_TEMPLATES_BY_YEAR: dict[str, list[str]] = {
+    "annual_report": [
+        '"{isin}" "annual report" {year} filetype:pdf',
+        '"{isin}" jahresbericht {year} filetype:pdf',
+        '"{fund}" "annual report" {year} filetype:pdf',
+        '"{isin}" {year}1231 OR {year}-12-31 filetype:pdf',
+    ],
+    "semi_annual_report": [
+        '"{isin}" "semi-annual" {year} filetype:pdf',
+        '"{isin}" halbjahresbericht {year} filetype:pdf',
+        '"{isin}" {year}0630 OR {year}-06-30 filetype:pdf',
+    ],
+    "quarterly_letter": [
+        '"{fund}" "quarterly letter" {year} filetype:pdf',
+        '"{fund}" "letter to shareholders" {year} filetype:pdf',
+        '"{fund}" "carta trimestral" {year}',
     ],
 }
 
@@ -80,17 +100,49 @@ def _year_from_periodo(periodo: str) -> str:
     return m.group(1) if m else ""
 
 
-def build_queries(doc_type: str, periodo: str, isin: str, fund_name: str) -> list[str]:
-    """Genera queries Google ordenadas (del más general al más específico)."""
-    templates = QUERY_TEMPLATES.get(doc_type, [])
+def build_queries(
+    doc_type: str, periodo: str, isin: str, fund_name: str,
+    sicav_paraguas: str = "", umbrella_mode: bool = False,
+) -> list[str]:
+    """
+    Genera queries Google. Si hay año en el período usa templates dirigidos
+    AL AÑO (más específicos). Si no, los generales.
+
+    Si umbrella_mode=True, prioriza el SICAV name como anchor (la gestora
+    publica un único AR para todos los sub-fondos).
+    """
     year = _year_from_periodo(periodo)
+    if year:
+        templates = QUERY_TEMPLATES_BY_YEAR.get(doc_type, []) or \
+                    QUERY_TEMPLATES_GENERAL.get(doc_type, [])
+    else:
+        templates = QUERY_TEMPLATES_GENERAL.get(doc_type, [])
+
     queries = []
+    # Si umbrella mode, primero queries con SICAV name (más probable de cubrir varios años)
+    if umbrella_mode and sicav_paraguas and doc_type in ("annual_report", "semi_annual_report"):
+        anchor = sicav_paraguas
+        umbrella_templates = []
+        if doc_type == "annual_report":
+            umbrella_templates = [
+                f'"{anchor}" "annual report" {year} filetype:pdf' if year else f'"{anchor}" "annual report" filetype:pdf',
+                f'"{anchor}" jahresbericht {year} filetype:pdf' if year else f'"{anchor}" jahresbericht filetype:pdf',
+                f'"{anchor}" {year}1231 filetype:pdf' if year else f'"{anchor}" rechenschaftsbericht filetype:pdf',
+            ]
+        else:  # semi_annual_report
+            umbrella_templates = [
+                f'"{anchor}" "semi-annual" {year} filetype:pdf' if year else f'"{anchor}" "semi-annual" filetype:pdf',
+                f'"{anchor}" halbjahresbericht {year} filetype:pdf' if year else f'"{anchor}" halbjahresbericht filetype:pdf',
+                f'"{anchor}" {year}0630 filetype:pdf' if year else f'"{anchor}" "rapport semestriel" filetype:pdf',
+            ]
+        queries = [re.sub(r"\s{2,}", " ", q).strip() for q in umbrella_templates]
+
+    # Después, las queries normales por ISIN
     for t in templates:
         try:
             q = t.format(isin=isin, fund=fund_name or isin, year=year).strip()
         except KeyError:
             continue
-        # Si no hay año y la plantilla lo usa, limpiar "  filetype" → "filetype"
         q = re.sub(r"\s{2,}", " ", q).strip()
         queries.append(q)
     return queries

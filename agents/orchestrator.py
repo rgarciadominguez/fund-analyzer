@@ -235,9 +235,56 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
                 log("CSSF", "ERROR", f"Paso CSSF falló: {exc}")
             progress.advance(main_task)
 
-        # ── Paso 1: Agente fuente ─────────────────────────────────────────────
+        # ── Paso 1a (INT): Discovery v2 — descargar PDFs de web gestora ─────
+        if not is_es:
+            progress.update(main_task, description="Discovery v2: buscando documentos del fondo")
+            # Skip discovery si ya tiene docs suficientes (evita sobrescribir
+            # un discovery bueno con uno peor por falta de identity en re-run)
+            import json as _json
+            existing_disc = fund_dir / "intl_discovery_data.json"
+            skip_discovery = False
+            if existing_disc.exists():
+                try:
+                    ed = _json.loads(existing_disc.read_text(encoding="utf-8"))
+                    n_existing = len(ed.get("documents", []))
+                    if n_existing >= 3:
+                        log("DISCOVERY", "SKIP", f"Ya tiene {n_existing} docs, reutilizando")
+                        skip_discovery = True
+                except Exception:
+                    pass
+
+            if skip_discovery:
+                pass
+            else:
+                log("ORCHESTRATOR", "START", "Paso 1a: Discovery v2 (web gestora + wayback)")
+                try:
+                    from agents.intl_discovery_agent import IntlDiscoveryAgent
+                    identity = {}
+                    gap = {}
+                    for reg_file in ("cssf_data.json", "cbi_data.json", "amf_data.json", "bundesanzeiger_data.json"):
+                        reg_path = fund_dir / reg_file
+                        if reg_path.exists():
+                            reg_data = _json.loads(reg_path.read_text(encoding="utf-8"))
+                            identity = reg_data.get("identity", {})
+                            break
+                    from agents.regulator_router import compute_gap
+                    gap = compute_gap({"identity": identity}, config)
+                    disc_agent = IntlDiscoveryAgent(
+                        isin=isin, identity=identity, gap=gap,
+                        web_search_fn=None, config=config,
+                    )
+                    results["discovery"] = await disc_agent.run()
+                    n_docs = len(results["discovery"].get("documents", []))
+                    log("DISCOVERY", "OK", f"{n_docs} docs descubiertos")
+                except Exception as exc:
+                    log("DISCOVERY", "ERROR", f"Discovery falló: {exc}")
+                    import traceback
+                    log("DISCOVERY", "TRACE", traceback.format_exc()[:300])
+            progress.advance(main_task)
+
+        # ── Paso 1b: Agente extractor ─────────────────────────────────────────
         progress.update(main_task, description=steps[0][1] if not is_lu else steps[1][1])
-        log("ORCHESTRATOR", "START", f"Paso 1: {'CNMV' if is_es else 'INTL'} Agent")
+        log("ORCHESTRATOR", "START", f"Paso 1b: {'CNMV' if is_es else 'INTL Extractor v3'}")
 
         try:
             if is_es:
@@ -246,12 +293,12 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
                 results["cnmv"] = await agent.run()
                 log("CNMV", "OK", f"cnmv_data.json generado")
             else:
-                from agents.intl_agent import IntlAgent
-                agent = IntlAgent(isin, config)
+                from agents.intl_extractor_v2 import IntlExtractor
+                agent = IntlExtractor(isin, config)
                 results["intl"] = await agent.run()
-                log("INTL", "OK", f"intl_data.json generado")
+                log("INTL", "OK", f"intl_data.json generado (extractor v3 concept-first)")
         except Exception as exc:
-            log("ORCHESTRATOR", "ERROR", f"Paso 1 falló: {exc}")
+            log("ORCHESTRATOR", "ERROR", f"Paso 1b falló: {exc}")
             import traceback
             log("ORCHESTRATOR", "TRACE", traceback.format_exc()[:300])
 

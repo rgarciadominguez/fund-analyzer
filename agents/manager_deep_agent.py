@@ -476,18 +476,35 @@ class ManagerDeepAgent:
     # ═══════════════════════════════════════════════════════════════════════════
 
     async def _search_for_manager(self, name: str) -> list[dict]:
-        """Run targeted searches for a specific manager."""
+        """Run targeted searches for a specific manager (ES + INT)."""
+        is_int = not self.isin.startswith("ES")
         queries = [
             f'"{name}" citywire',
             f'"{name}" trustnet',
             f'"{name}" fundsociety',
-            f'"{name}" rankia',
             f'"{name}" "{self.fund_short}"' if self.fund_short else f'"{name}" {self.isin}',
-            f'"{name}" entrevista',
-            f'"{name}" podcast',
-            f'"{name}" youtube conferencia',
-            f'"{name}" El Confidencial OR Cinco Dias OR Expansion',
         ]
+        if is_int:
+            # Queries internacionales multi-idioma
+            queries.extend([
+                f'"{name}" interview fund manager',
+                f'"{name}" "fund manager" profile OR biography OR track record',
+                f'"{name}" fundspeople',
+                f'"{name}" institutionalinvestor.com',
+                f'"{name}" youtube presentation OR conference OR webinar',
+                f'"{name}" podcast investment',
+                f'site:citywire.co.uk "{name}"',
+                f'site:morningstar.co.uk "{name}"',
+            ])
+        else:
+            # Queries ES
+            queries.extend([
+                f'"{name}" rankia',
+                f'"{name}" entrevista',
+                f'"{name}" podcast',
+                f'"{name}" youtube conferencia',
+                f'"{name}" El Confidencial OR Cinco Dias OR Expansion',
+            ])
         return await self.search.search_multiple(queries, num_per_query=3, agent="manager_deep")
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -522,9 +539,10 @@ class ManagerDeepAgent:
             if has_manager or has_fund:
                 filtered.append(r)
 
-        # Prioritize: citywire > trustnet > web gestora > rankia > rest
+        # Prioritize: citywire > trustnet > morningstar > fundspeople > rest
         priority_domains = ["citywire", "trustnet", "fundsociety", "morningstar",
-                           "avantagecapital", "rankia", "finect", "substack"]
+                           "fundspeople", "institutionalinvestor", "ft.com",
+                           "rankia", "finect", "substack"]
 
         def _priority(r):
             url = r.get("url", "").lower()

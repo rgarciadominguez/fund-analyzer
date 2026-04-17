@@ -46,7 +46,7 @@ DDG_HEADERS = {
 # Delay between DDG searches to avoid rate-limiting
 DDG_DELAY_S = 1.0
 
-# Known gestora domains for site:-scoped searches
+# Known gestora domains for site:-scoped searches (ES)
 KNOWN_GESTORA_DOMAINS = {
     "avantage": "avantage-capital.es",
     "cobas": "cobasam.com",
@@ -63,6 +63,44 @@ KNOWN_GESTORA_DOMAINS = {
     "abante": "abanteasesores.com",
     "cartesio": "cartesio.com",
     "narval": "narvalinvest.com",
+}
+
+# Dominios internacionales para buscar analisis, entrevistas y perfiles
+# de gestores de fondos INT.
+INT_ANALYSIS_DOMAINS = [
+    "citywire.com", "citywire.co.uk",     # Perfiles gestores + ratings
+    "fundspeople.com",                     # Entrevistas, analisis EU
+    "trustnet.com",                        # Fund analysis UK
+    "morningstar.co.uk", "morningstar.com",# Analyst reports
+    "ft.com",                              # Press + fund profiles
+    "institutionalinvestor.com",           # Entrevistas institutional
+    "allfunds.com",                        # Platform analysis
+    "youtube.com",                         # Videos gestores, conferencias
+]
+
+# Keywords multi-idioma para buscar cartas e info de gestores INT
+INT_SEARCH_KEYWORDS = {
+    "cartas": [
+        "quarterly letter", "investor letter", "fund commentary",
+        "investment report", "carta trimestral", "lettre trimestrielle",
+        "Quartalsbericht", "manager commentary", "market outlook",
+    ],
+    "entrevistas_gestor": [
+        "interview", "Q&A", "entrevista", "entretien",
+        "fund manager", "portfolio manager", "CIO",
+    ],
+    "analisis_fondo": [
+        "fund review", "fund analysis", "analyst report", "opinion",
+        "fund rating", "due diligence",
+    ],
+    "perfil_gestor": [
+        "manager profile", "track record", "biography", "background",
+        "perfil gestor", "Citywire rating",
+    ],
+    "conferencias": [
+        "conference", "webinar", "presentation", "investor day",
+        "annual meeting", "AGM",
+    ],
 }
 
 
@@ -585,6 +623,85 @@ class SourcesAgent:
                 self._log("WARN", f"Articles search error: {exc}")
 
     # ══════════════════════════════════════════════════════════════════════════
+    # INT Ultra-detail: cartas, entrevistas gestores, analisis especializados
+    # ══════════════════════════════════════════════════════════════════════════
+
+    async def _search_int_ultra_detail(self):
+        """
+        Para fondos INT: busca ultra-detalle que discovery v2 no cubre:
+        - Entrevistas del gestor en medios especializados
+        - Cartas trimestrales en blogs/insights de la gestora
+        - Analisis de terceros (Citywire, FundsPeople, Trustnet)
+        - Perfiles de gestores (Citywire manager ratings)
+        - Videos/conferencias del gestor (YouTube, Vimeo)
+        """
+        fund_short = self._short_fund_name()
+        queries: list[str] = []
+
+        # ── Cartas y commentary del gestor (multi-idioma) ──
+        for kw in INT_SEARCH_KEYWORDS.get("cartas", [])[:4]:
+            if fund_short:
+                queries.append(f'"{fund_short}" "{kw}"')
+
+        # ── Entrevistas del gestor en medios INT ──
+        for gestor in self.gestores[:2]:
+            for kw in INT_SEARCH_KEYWORDS.get("entrevistas_gestor", [])[:3]:
+                queries.append(f'"{gestor}" "{kw}"')
+            # Citywire manager profile
+            queries.append(f'site:citywire.com "{gestor}"')
+            queries.append(f'site:citywire.co.uk "{gestor}"')
+
+        # ── Analisis del fondo en medios INT ──
+        for domain in INT_ANALYSIS_DOMAINS[:6]:
+            if fund_short:
+                queries.append(f'site:{domain} "{fund_short}"')
+
+        # ── Perfil gestores en dominios especializados ──
+        for gestor in self.gestores[:2]:
+            for kw in INT_SEARCH_KEYWORDS.get("perfil_gestor", [])[:2]:
+                queries.append(f'"{gestor}" "{kw}"')
+
+        # ── Videos / conferencias ──
+        if fund_short:
+            queries.append(f'site:youtube.com "{fund_short}" OR "{self.gestora}"')
+        for gestor in self.gestores[:2]:
+            queries.append(f'site:youtube.com "{gestor}" {self._current_year}')
+
+        # Ejecutar queries (limitar para no saturar DDG)
+        for q in queries[:25]:
+            try:
+                results = await self._ddg_search(q, max_results=3)
+                for r in results:
+                    url_lower = r["url"].lower()
+                    if any(d in url_lower for d in ("google.com", "duckduckgo.com", "bing.com")):
+                        continue
+                    tipo = "analisis_int"
+                    if "youtube" in url_lower or "vimeo" in url_lower:
+                        tipo = "video"
+                    elif "citywire" in url_lower:
+                        tipo = "perfil_gestor"
+                    elif any(kw in url_lower for kw in ("interview", "entrevista", "entretien")):
+                        tipo = "entrevista"
+                    elif any(kw in url_lower for kw in ("letter", "commentary", "carta")):
+                        tipo = "carta_gestor"
+                    self._add_source(r["url"], tipo, titulo=r["titulo"])
+                await asyncio.sleep(DDG_DELAY_S)
+            except Exception as exc:
+                self._log("WARN", f"INT ultra-detail query error: {exc}")
+
+        # ── Reuse discovery v2 URLs as sources (si existen) ──
+        disc_path = self.fund_dir / "intl_discovery_data.json"
+        if disc_path.exists():
+            try:
+                disc = json.loads(disc_path.read_text(encoding="utf-8"))
+                for doc in disc.get("documents", []):
+                    url = doc.get("url", "")
+                    if url and "manual://" not in url:
+                        self._add_source(url, f"doc_discovery_{doc.get('doc_type', 'unknown')}")
+            except Exception:
+                pass
+
+    # ══════════════════════════════════════════════════════════════════════════
     # Main run
     # ══════════════════════════════════════════════════════════════════════════
 
@@ -665,7 +782,15 @@ class SourcesAgent:
         except Exception as exc:
             self._log("ERROR", f"Articles search failed: {exc}")
 
-        # ── STEP 10: Accessibility check ────────────────────────────────────
+        # ── STEP 10: INT Ultra-detail (cartas, entrevistas, perfiles gestores) ──
+        if not self.isin.startswith("ES"):
+            self._log("INFO", "Step 10: INT ultra-detail search (cartas, manager profiles, analysis)")
+            try:
+                await self._search_int_ultra_detail()
+            except Exception as exc:
+                self._log("ERROR", f"INT ultra-detail failed: {exc}")
+
+        # ── STEP 11: Accessibility check ────────────────────────────────────
         self._log("INFO", "Step 10: Verifying URL accessibility")
         try:
             await self._check_all_accessible()

@@ -24,15 +24,40 @@ from bs4 import BeautifulSoup
 from agents.discovery.state import SharedState
 
 
-# ── Paterns de documento por KEYWORD en URL o texto del link ────────────────
+# Patterns de doc_type. ORDEN IMPORTA: los más específicos arriba para no
+# ser robados por matches genéricos.
+#
+# Cada tipo incluye:
+#   - Palabras completas (annual report, jahresbericht, etc.)
+#   - Abreviaturas industria (AR-, SAR-, MR-, KID-, PRS-) como prefijo en paths
+#     de URL — las usan la mayoría de CDNs de distribuidores (Natixis, BlackRock,
+#     Amundi, etc.) con formato `/{TYPE}-{share_slug}/...`
 DOC_KEYWORDS: list[tuple[re.Pattern, str]] = [
-    (re.compile(r"\b(annual[_\-\s]*report|rapport[_\-\s]*annuel|jahresbericht|informe[_\-\s]*anual|memoria[_\-\s]*anual|ar[_\-\s]+\d{4}|_AR_|ANNREP)\b", re.I), "annual_report"),
-    (re.compile(r"\b(semi[_\-\s]?annual|half[_\-\s]?year|rapport[_\-\s]*semestriel|halbjahresbericht|_SAR_|SEMIREP)\b", re.I), "semi_annual_report"),
-    (re.compile(r"\b(quarterly[_\-\s]+letter|letter[_\-\s]+to[_\-\s]+(share|unit)holders?|carta[_\-\s]+trimestral|lettre[_\-\s]+trimestrielle|[-_]QR[-_]|commentary)\b", re.I), "quarterly_letter"),
-    (re.compile(r"\b(factsheet|fact[_\-\s]sheet|monthly[_\-\s]report|ficha[_\-\s]mensual|reporting[_\-\s]mensuel|[-_]MR[-_]|MMF)\b", re.I), "factsheet"),
-    (re.compile(r"\b(prospectus|prospekt|folleto)\b", re.I), "prospectus"),
-    (re.compile(r"\b(kid|kiid|priips|wesentliche[_\-\s]*anlegerinformationen|dic[_\-\s]priips)\b", re.I), "kid"),
-    (re.compile(r"\b(presentation|pitch[_\-\s]deck|webinar|conference)\b", re.I), "manager_presentation"),
+    # Semi-annual primero (contiene "annual" como substring)
+    (re.compile(r"\b(semi[_\-\s]?annual|half[_\-\s]?year|rapport[_\-\s]*semestriel|halbjahresbericht|halbjahres|SEMIREP|informe[_\-\s]*semestral)\b", re.I), "semi_annual_report"),
+    # Prefijo industrial /SAR- en URL path (Natixis/DNCA y otros)
+    (re.compile(r"[/_-]SAR[_\-][a-z]", re.I), "semi_annual_report"),
+    # KID/KIID
+    (re.compile(r"\b(kiid|priips|wesentliche[_\-\s]*anlegerinformationen|dic[_\-\s]priips|datos[_\-\s]+fundamentales)\b", re.I), "kid"),
+    (re.compile(r"\bkid\b", re.I), "kid"),
+    (re.compile(r"[/_-]KI?ID[_\-]", re.I), "kid"),
+    # Prospectus (Verkaufsprospekt en alemán = VKP)
+    (re.compile(r"\b(prospectus|prospekt|verkaufsprospekt|folleto[_\-\s]*informativo)\b", re.I), "prospectus"),
+    # VKP abreviatura — rodeada de no-alfanumérico (incluye underscore)
+    (re.compile(r"(?<![A-Za-z0-9])VKP(?![A-Za-z0-9])"), "prospectus"),
+    (re.compile(r"[/_-]PRS?[_\-]", re.I), "prospectus"),
+    # Factsheet / Monthly report
+    (re.compile(r"\b(factsheet|fact[_\-\s]sheet|monthly[_\-\s]report|monatsbericht|ficha[_\-\s]mensual|reporting[_\-\s]mensuel|MMF)\b", re.I), "factsheet"),
+    (re.compile(r"[/_-]MR[_\-][a-z]", re.I), "factsheet"),  # /MR-share_slug/ pattern
+    # Quarterly letter
+    (re.compile(r"\b(quarterly[_\-\s]+letter|letter[_\-\s]+to[_\-\s]+(share|unit)holders?|carta[_\-\s]+trimestral|lettre[_\-\s]+trimestrielle|investor[_\-\s]+letter|commentary)\b", re.I), "quarterly_letter"),
+    # Prefijo industrial /LETTER- (DNCA y otros)
+    (re.compile(r"[/_-]LETTER[_\-][a-z]", re.I), "quarterly_letter"),
+    # Annual report
+    (re.compile(r"\b(annual[_\-\s]*report|rapport[_\-\s]*annuel|jahresbericht|jahresabschluss|rechenschaftsbericht|RECHENSCHAFT|informe[_\-\s]*anual|memoria[_\-\s]*anual|ANNREP)\b", re.I), "annual_report"),
+    (re.compile(r"[/_-]AR[_\-][a-z]", re.I), "annual_report"),  # /AR-share_slug/
+    # Presentation
+    (re.compile(r"\b(presentation|pitch[_\-\s]deck|webinar|conference|investor[_\-\s]+day)\b", re.I), "manager_presentation"),
 ]
 
 # ── Rutas candidatas donde suelen estar los documentos en webs de gestoras ──
@@ -43,6 +68,8 @@ DOCS_PATHS = [
     "/reports", "/en/reports", "/regulatory-documents",
     "/downloads", "/en/downloads",
     "/media",
+    # Gestoras que exponen docs via páginas de fondo
+    "/funds", "/our-funds", "/portfolio", "/portfolios", "/products", "/strategies",
 ]
 
 
@@ -52,7 +79,55 @@ def classify_link(text: str, href: str) -> str | None:
     for pat, kind in DOC_KEYWORDS:
         if pat.search(combined):
             return kind
+    # Fallback: patrón "YYYY-MM-{fund}.pdf" → factsheet mensual
+    # (ej. 2018-01-Storm-Bond-Fund.pdf, 2024-02_Fund_Name.pdf)
+    if re.search(r"\b(19|20)\d{2}[-_.](0[1-9]|1[0-2])\b.*\.pdf", combined, re.I):
+        return "factsheet"
     return None
+
+
+def detect_factsheet_month(url: str, text: str = "") -> tuple[str, str]:
+    """
+    Devuelve (year, month) del factsheet basándose en el FILENAME.
+    El filename suele tener patrón `YYYY-MM-{name}.pdf` que indica el
+    mes fiscal — incluso si el path dice otro mes de subida.
+
+    Ej: `stormcapital.no/wp-content/uploads/2024/01/2023-12-Fund.pdf`
+      → path dice 2024/01 (mes de subida)
+      → filename dice 2023-12 (mes fiscal) ← este prevalece
+      → devuelve ("2023", "12")
+    """
+    # Extraer solo el filename (última parte después del slash)
+    filename = url.rsplit("/", 1)[-1]
+
+    # Patrón YYYY-MM en filename (prioridad)
+    m = re.search(r"\b((?:19|20)\d{2})[-_.](0[1-9]|1[0-2])\b", filename)
+    if m:
+        return (m.group(1), m.group(2))
+
+    # Fallback: cualquier texto asociado al link (poco fiable)
+    if text:
+        m = re.search(r"\b((?:19|20)\d{2})[-_.](0[1-9]|1[0-2])\b", text)
+        if m:
+            return (m.group(1), m.group(2))
+
+    return ("", "")
+
+
+def factsheet_subtype(month: str) -> str:
+    """
+    Dado un mes (MM), devuelve el subtipo del factsheet:
+      "eoy"       → diciembre (year-end snapshot, sustituto parcial de AR)
+      "mid_year"  → junio (snapshot semestral, sustituto parcial de SAR)
+      "monthly"   → cualquier otro
+    """
+    if month == "12":
+        return "eoy"
+    if month == "06":
+        return "mid_year"
+    if month:
+        return "monthly"
+    return ""
 
 
 def gestora_domain_candidates(gestora_name: str) -> list[str]:
@@ -153,7 +228,8 @@ async def find_gestora_base_urls(
 async def fetch_page(
     state: SharedState, c: httpx.AsyncClient, url: str,
 ) -> str | None:
-    """GET con dedup via SharedState (cache + fetched_urls)."""
+    """GET con dedup via SharedState + fallback Cloudflare (curl_cffi)."""
+    from agents.discovery.cloudflare_bypass import fetch_with_fallback
     cached = state.page_cached(url)
     if cached is not None:
         return cached
@@ -162,10 +238,13 @@ async def fetch_page(
     if not state.budget.try_http():
         return None
     try:
-        r = await c.get(url, timeout=20)
-        if r.status_code == 200 and r.headers.get("content-type", "").startswith("text/html"):
-            await state.cache_page(url, r.text)
-            return r.text
+        status, body, hdrs = await fetch_with_fallback(c, url, timeout=20)
+        if status == 200:
+            ct = (hdrs.get("content-type") or "").lower()
+            if "text/html" in ct or body[:100].lower().startswith((b"<!doctype", b"<html")):
+                text = body.decode("utf-8", errors="ignore")
+                await state.cache_page(url, text)
+                return text
         await state.mark_fetched(url)
     except Exception:
         await state.mark_fetched(url)
@@ -174,16 +253,31 @@ async def fetch_page(
 
 async def crawl_gestora(
     state: SharedState, c: httpx.AsyncClient, gestora: str,
+    extra_bases: list[str] | None = None,
 ) -> list[dict]:
     """
     Crawl BFS limitado a las rutas de documentos de la gestora.
     Prueba hasta 3 dominios candidatos (algunas gestoras tienen sitio
     corporate + sitio AM separados).
 
+    extra_bases: dominios adicionales (con o sin scheme) descubiertos por
+    otros métodos. Se añaden al pool de crawl.
+
     Devuelve [{url, text, doc_type, depth, page_found_at}, ...] sin
     descargar los PDFs.
     """
-    bases = await find_gestora_base_urls(state, c, gestora, max_bases=3)
+    bases: list[str] = []
+    if gestora:
+        bases = await find_gestora_base_urls(state, c, gestora, max_bases=3)
+
+    if extra_bases:
+        for b in extra_bases:
+            if not b.startswith("http"):
+                b = f"https://{b}"
+            base_clean = b.rstrip("/")
+            if base_clean not in bases:
+                bases.append(base_clean)
+
     if not bases:
         return []
 
@@ -215,28 +309,29 @@ async def crawl_gestora(
                 continue
             full = urljoin(page_url, href)
 
-            # Descartar externos y anchors
-            if not full.startswith(base) and not _is_known_cdn(full):
+            # Descartar externos (que no estén en ninguno de los bases) y anchors
+            if not full.startswith(base_prefixes) and not _is_known_cdn(full):
                 continue
             if full == page_url or "#" == href[:1]:
                 continue
 
-            # Si apunta a PDF/HTML de documento, clasificar y guardar
+            # PDFs/docs candidatos: clasificar pero NO descartar si no hay keyword.
+            # El validator post-download decide. Esto permite ADAPTACIÓN a
+            # cualquier formato de URL que use la gestora.
             if _looks_like_doc(full):
                 if full in seen_pdfs:
                     continue
                 seen_pdfs.add(full)
-                dt = classify_link(text, full)
-                if dt:
-                    found.append({
-                        "url": full,
-                        "text": text,
-                        "doc_type": dt,
-                        "depth": depth,
-                        "page_found_at": page_url,
-                    })
+                dt = classify_link(text, full) or "unknown_pdf"
+                found.append({
+                    "url": full,
+                    "text": text,
+                    "doc_type": dt,
+                    "depth": depth,
+                    "page_found_at": page_url,
+                })
             # Si es una sub-página candidata a tener más docs, encolar (depth<=1)
-            elif depth < 1 and _is_docs_subpage(full, base):
+            elif depth < 1 and any(_is_docs_subpage(full, b) for b in bases):
                 queue.append((full, depth + 1))
 
     return found
@@ -260,6 +355,9 @@ def _is_docs_subpage(url: str, base: str) -> bool:
     return any(kw in u for kw in [
         "document", "publication", "report", "regulatory",
         "download", "media", "investor",
+        # Las gestoras suelen exponer docs por fondo en /funds/{slug}/,
+        # /portfolios/{slug}/, /products/{slug}/ o /strateg(y|ies)/.
+        "fund", "portfolio", "product", "strateg",
     ])
 
 
