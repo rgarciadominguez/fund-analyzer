@@ -763,13 +763,50 @@ class IntlExtractor:
                 "Morningstar NAV diarios (herramienta GitHub externa)."
             )
 
+        # ── MERGE INCREMENTAL: nunca sobrescribir con menos datos ──
+        # Si intl_data.json ya existe con datos más ricos, preservarlos.
         out_path = self.fund_dir / "intl_data.json"
+        if out_path.exists():
+            try:
+                existing = json.loads(out_path.read_text(encoding="utf-8"))
+                out = self._merge_preserve_richer(existing, out)
+                console.log("[dim]merge incremental: preservado lo mejor de existente + nuevo")
+            except Exception:
+                pass
+
         out_path.write_text(
             json.dumps(out, ensure_ascii=False, indent=2, default=str),
             encoding="utf-8",
         )
         console.log(f"[bold green]Guardado {out_path.name}")
         return out
+
+    @staticmethod
+    def _merge_preserve_richer(old: dict, new: dict) -> dict:
+        """
+        Merge incremental: para cada campo, mantener el más rico.
+        - Strings: el más largo
+        - Lists: la con más entries
+        - Dicts: recursivo
+        - Numéricos: el no-null (preferir new si ambos tienen)
+        """
+        def _richer(o, n):
+            if n is None or n == "" or n == [] or n == {}:
+                return o  # new vacío → mantener old
+            if o is None or o == "" or o == [] or o == {}:
+                return n  # old vacío → usar new
+            if isinstance(o, str) and isinstance(n, str):
+                return n if len(n) >= len(o) else o
+            if isinstance(o, list) and isinstance(n, list):
+                return n if len(n) >= len(o) else o
+            if isinstance(o, dict) and isinstance(n, dict):
+                merged = dict(o)
+                for k, v in n.items():
+                    merged[k] = _richer(o.get(k), v)
+                return merged
+            return n if n is not None else o
+
+        return _richer(old, new)
 
 
 # Alias retro-compatibilidad

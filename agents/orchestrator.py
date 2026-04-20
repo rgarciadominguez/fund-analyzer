@@ -322,10 +322,17 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
                         gestora_hint = src.get("gestora", "") or src.get("gestora_oficial", "")
                     if not anio_creacion_hint:
                         anio_creacion_hint = (src.get("kpis") or {}).get("anio_creacion")
+                    # INT: gestores del extractor v3 (cualitativo.gestores[])
+                    if not gestores_hint:
+                        for g in (src.get("cualitativo") or {}).get("gestores", []):
+                            if isinstance(g, dict) and g.get("nombre"):
+                                gestores_hint.append(g["nombre"])
                 except Exception:
                     pass
 
-        log("ORCHESTRATOR", "INFO", f"Metadata: nombre={fund_name_hint[:40]}, gestora={gestora_hint[:30]}")
+        log("ORCHESTRATOR", "INFO",
+            f"Metadata: nombre={fund_name_hint[:40]}, gestora={gestora_hint[:30]}, "
+            f"gestores={gestores_hint[:3]}")
 
         # ── Paso 2: Sources Agent (descubrimiento de fuentes) ─────────────────
         progress.update(main_task, description="Sources Agent")

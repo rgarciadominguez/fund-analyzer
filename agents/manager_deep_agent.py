@@ -69,11 +69,44 @@ class ManagerDeepAgent:
     async def run(self) -> dict:
         self._log("START", f"Manager Deep Agent — {self.isin} ({self.fund_short})")
 
+        # ── Paso 0 (INT): buscar gestores en Citywire fund page por ISIN ──
+        if not self.manager_names and not self.isin.startswith("ES"):
+            self._log("INFO", "INT: buscando gestores en Citywire fund page")
+            try:
+                cw_results = await self.search.search_multiple(
+                    [f'site:citywire.com "{self.isin}"',
+                     f'site:citywire.co.uk "{self.isin}"',
+                     f'citywire "{self.fund_short}" fund manager'],
+                    num_per_query=3, agent="manager_deep",
+                )
+                for r in cw_results:
+                    if "citywire" in r.get("url", "").lower():
+                        self._log("INFO", f"Citywire found: {r.get('url','')[:80]}")
+                        break
+            except Exception as exc:
+                self._log("WARN", f"Citywire search failed: {exc}")
+
+            # Leer gestores de intl_data.json si existen (del extractor v3)
+            intl_path = self.fund_dir / "intl_data.json"
+            if intl_path.exists():
+                try:
+                    import json as _json
+                    intl = _json.loads(intl_path.read_text(encoding="utf-8"))
+                    for g in (intl.get("cualitativo") or {}).get("gestores", []):
+                        if isinstance(g, dict) and g.get("nombre"):
+                            name = g["nombre"]
+                            if name not in self.manager_names:
+                                self.manager_names.append(name)
+                    if self.manager_names:
+                        self._log("OK", f"Gestores desde intl_data.json: {self.manager_names}")
+                except Exception:
+                    pass
+
         # ── Paso 1: Identificar equipo gestor ────────────────────────────────
         if not self.manager_names:
             self.manager_names = await self._discover_team()
         if not self.manager_names:
-            self._log("WARN", "No se encontró nombre de gestor")
+            self._log("WARN", "No se encontro nombre de gestor")
             return self._save({"error": "gestor no encontrado", "isin": self.isin})
 
         self._log("OK", f"Equipo gestor identificado: {self.manager_names}")

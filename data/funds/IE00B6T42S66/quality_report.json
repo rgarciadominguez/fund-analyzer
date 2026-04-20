@@ -6,9 +6,17 @@
       "regla_id": "resumen_min_chars",
       "seccion": "resumen",
       "fail_type": "estructura",
-      "problema": "Resumen demasiado corto: 1160 chars (mínimo 1200)",
+      "problema": "Resumen demasiado corto: 716 chars (mínimo 1200)",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar resumen con prompt más detallado. Mínimo 1200 chars con subsecciones."
+    },
+    {
+      "regla_id": "resumen_mentions_fund_name",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen no menciona el nombre del fondo 'Trojan Fund (Ireland)' — posible texto genérico",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar: el texto debe ser específico de este fondo, no genérico."
     },
     {
       "regla_id": "resumen_has_cifras",
@@ -17,6 +25,46 @@
       "problema": "Resumen con pocas cifras concretas (2 encontradas, mínimo 5). Parece genérico.",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
+    },
+    {
+      "regla_id": "resumen_min_fortalezas",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 0 fortalezas (mínimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con al menos 4 fortalezas específicas del fondo."
+    },
+    {
+      "regla_id": "resumen_min_riesgos",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 0 riesgos (mínimo 3)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con al menos 3 riesgos específicos del fondo."
+    },
+    {
+      "regla_id": "resumen_has_para_quien",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Resumen sin campo 'para_quien_es' — falta perfil del inversor adecuado",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo el perfil de inversor para el que el fondo es adecuado."
+    },
+    {
+      "regla_id": "resumen_has_signal",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Resumen sin campo 'signal' (POSITIVO/NEUTRAL/NEGATIVO)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo signal de evaluación."
+    },
+    {
+      "regla_id": "historia_min_chars",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Historia demasiado corta: 255 chars (mínimo 2500)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia con prompt más detallado. Mínimo 2500 chars con subsecciones."
     },
     {
       "regla_id": "historia_has_cifras",
@@ -30,9 +78,41 @@
       "regla_id": "gestores_min_perfiles",
       "seccion": "gestores",
       "fail_type": "scarcity",
-      "problema": "Solo 1 perfiles de gestores (mínimo 2)",
+      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
       "agente_responsable": "manager_deep_agent",
       "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "gestores_lead_has_filosofia",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal '' sin filosofía de inversión.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "estrategia_min_chars",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia demasiado corta: 2137 chars (minimo 3500). Debe ser analisis evaluativo profundo.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia con Sonnet (tier 1) — analisis evaluativo extenso: filosofia, coherencia discurso-accion, decisiones clave con contexto, evolucion mix, conclusion evaluativa. Minimo 3500 chars."
+    },
+    {
+      "regla_id": "estrategia_has_cifras",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia con pocas cifras (1). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
     },
     {
       "regla_id": "cartera_min_positions",
@@ -75,6 +155,62 @@
       "accion": "Verificar extracción de rotación de los PDFs semestrales."
     },
     {
+      "regla_id": "resumen_has_filosofia",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Resumen sin campo filosofia_inversion",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con filosofia_inversion como campo separado (2-3 parrafos)."
+    },
+    {
+      "regla_id": "resumen_has_criterios",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 0 criterios de inversion (minimo 3 numerados)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con 3 criterios de inversion numerados (titulo + descripcion)."
+    },
+    {
+      "regla_id": "historia_min_hitos_7",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Solo 0 hitos en cronologia (minimo 7)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con minimo 7 hitos con anio, titulo, evento, tipo."
+    },
+    {
+      "regla_id": "historia_hitos_have_titulo",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Solo 0 hitos con titulo (minimo 5)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Cada hito debe tener campo titulo descriptivo."
+    },
+    {
+      "regla_id": "gestores_lead_trayectoria_min",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Trayectoria del gestor principal solo 0 chars (minimo 1000)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con trayectoria EXTENSA (3-4 parrafos)."
+    },
+    {
+      "regla_id": "gestores_lead_cv_bullets",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+    },
+    {
+      "regla_id": "estrategia_has_quotes",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia sin quotes del gestor (0 encontradas)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con 2-3 citas/frases representativas del gestor."
+    },
+    {
       "regla_id": "cartera_posiciones_sectores",
       "seccion": "cartera",
       "fail_type": "scarcity",
@@ -107,12 +243,12 @@
       "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
     }
   ],
-  "fallos_estructura": 3,
+  "fallos_estructura": 20,
   "fallos_scarcity": 10,
   "total_reglas": 54,
-  "reglas_ok": 41,
+  "reglas_ok": 24,
   "aceptable": false,
-  "score_display": "41/54 reglas OK (10 pendientes de datos)",
+  "score_display": "24/54 reglas OK (10 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -122,5 +258,5 @@
     "fuentes_externas",
     "datos_cuantitativos"
   ],
-  "evaluado_at": "2026-04-17T16:23:52.823133"
+  "evaluado_at": "2026-04-20T09:33:42.408870"
 }

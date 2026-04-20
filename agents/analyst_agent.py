@@ -128,7 +128,7 @@ class AnalystAgent:
         consolidated["isin"] = self.isin
         consolidated["nombre"] = cnmv.get("nombre", "")
         consolidated["gestora"] = cnmv.get("gestora", "")
-        consolidated["tipo"] = cnmv.get("tipo", "ES")
+        consolidated["tipo"] = cnmv.get("tipo", "INT" if self.isin[:2] not in ("ES",) else "ES")
         consolidated["ultima_actualizacion"] = datetime.now().isoformat()
 
         # Pass through raw cuantitativo — but PRESERVE existing output.json data
@@ -229,8 +229,49 @@ class AnalystAgent:
                 consolidated["kpis"]["comision_exito_pct"] = teorico
                 self._log("OK", f"Comisión éxito teórica extraída del KIID: {teorico}%")
 
+        # ── PRE-CAPA 3: Para INT, inyectar datos del extractor v3 ──────
+        # El extractor v3 produce cualitativo rico (estrategia, filosofía,
+        # proceso, gestores). Lo inyectamos para que las secciones de
+        # capa3 lo usen en vez de inventar texto genérico.
+        is_int_fund = self.isin[:2] not in ("ES",)
+        if is_int_fund:
+            int_cual = cnmv.get("cualitativo", {})
+            int_consist = cnmv.get("analisis_consistencia", {})
+            int_clases = cnmv.get("clases", [])
+            int_econ = cnmv.get("economia_fondo", {})
+
+            # Poblar campos que las secciones esperan
+            if not consolidated.get("nombre"):
+                consolidated["nombre"] = cnmv.get("nombre", "")
+            if not consolidated.get("gestora"):
+                consolidated["gestora"] = cnmv.get("gestora", "")
+
+            # Estrategia/filosofía literal del extractor
+            consolidated["_int_estrategia"] = int_cual.get("estrategia", "")
+            consolidated["_int_filosofia"] = int_cual.get("filosofia_inversion", "")
+            consolidated["_int_proceso"] = int_cual.get("proceso_seleccion", "")
+            consolidated["_int_tipo_activos"] = int_cual.get("tipo_activos", "")
+            consolidated["_int_objetivos"] = int_cual.get("objetivos_reales", "")
+            consolidated["_int_historia"] = int_cual.get("historia_fondo", "")
+            consolidated["_int_gestores"] = int_cual.get("gestores", [])
+            consolidated["_int_consistencia"] = int_consist
+            consolidated["_int_clases"] = int_clases
+            consolidated["_int_economia"] = int_econ
+
+            # Anti-filler flag: las secciones deben usar datos, no inventar
+            consolidated["_anti_filler"] = True
+
+            # ── Traducción a ES de textos del extractor (vienen en EN/FR/DE) ──
+            self._translate_int_fields_to_es(consolidated)
+
+            # ── READINGS FALLBACK: si campos INT vacíos, buscar en readings ──
+            self._fill_gaps_from_readings(consolidated, readings)
+
+            self._log("OK", f"INT data injected: estrategia={len(consolidated['_int_estrategia'])}ch, "
+                      f"gestores={len(consolidated['_int_gestores'])}, clases={len(int_clases)}")
+
         # ── CAPA 3: Analyst Senior — 8 secciones ────────────────────────
-        self._log("START", "Capa 3: Síntesis Analyst Senior (8 secciones)")
+        self._log("START", "Capa 3: Sintesis Analyst Senior (8 secciones)")
         synthesis = self._run_capa3(consolidated)
         consolidated["analyst_synthesis"] = synthesis
         self._log("OK", f"Capa 3: {synthesis.get('sections_completed', 0)}/8 secciones")
@@ -943,6 +984,8 @@ class AnalystAgent:
     # ── Sección 1: Resumen (2 llamadas: texto + datos) ──────────────────
 
     def _section_resumen(self, data: dict) -> dict | None:
+        if data.get("_anti_filler"):
+            return self._section_resumen_int(data)
         kpis = data.get("kpis", {})
         rentabilidades = self._compute_annual_returns(data)
 
@@ -1055,6 +1098,8 @@ class AnalystAgent:
     # ── Sección 2: Historia (2 llamadas) ──────────────────────────────────
 
     def _section_historia(self, data: dict) -> dict | None:
+        if data.get("_anti_filler"):
+            return self._section_historia_int(data)
         input_data = json.dumps({
             "nombre": data.get("nombre", ""),
             "gestora": data.get("gestora", ""),
@@ -1129,6 +1174,8 @@ class AnalystAgent:
     # ── Sección 3: Gestores (3 llamadas) ──────────────────────────────────
 
     def _section_gestores(self, data: dict) -> dict | None:
+        if data.get("_anti_filler") and data.get("_int_gestores"):
+            return self._section_gestores_int(data)
         gestores = data.get("gestores", {})
         fuentes_compact = []
         for f in gestores.get("fuentes_web", []):
@@ -1482,6 +1529,10 @@ class AnalystAgent:
     # ── Sección 5: Estrategia (2 llamadas) ────────────────────────────────
 
     def _section_estrategia(self, data: dict) -> dict | None:
+        # ── INT: usar datos literales del extractor v3 (R8) ──
+        if data.get("_anti_filler"):
+            return self._section_estrategia_int(data)
+
         timeline_compact = []
         for t in data.get("timeline", []):
             timeline_compact.append({
@@ -1863,6 +1914,225 @@ class AnalystAgent:
     # ═══════════════════════════════════════════════════════════════════════════
     # HELPERS
     # ═══════════════════════════════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # INT HELPERS: traduccion + readings fallback
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _translate_int_fields_to_es(self, data: dict) -> None:
+        """Traduce campos INT del extractor (EN/FR/DE) a ES via Gemini Flash."""
+        fields_to_translate = [
+            "_int_estrategia", "_int_filosofia", "_int_proceso",
+            "_int_tipo_activos", "_int_objetivos", "_int_historia",
+        ]
+        texts_to_translate = []
+        for f in fields_to_translate:
+            v = data.get(f, "")
+            if v and len(v) > 30:
+                texts_to_translate.append((f, v))
+
+        if not texts_to_translate:
+            return
+
+        # Batch: traducir todos juntos en 1 call
+        combined = "\n---\n".join(
+            f"[{f}]: {v}" for f, v in texts_to_translate
+        )
+        try:
+            from tools.gemini_wrapper import extract_fast
+            result = extract_fast(
+                text=combined,
+                schema={"traducciones": [{"campo": "str", "texto_es": "str"}]},
+                context="Traduce cada campo al espanol. Mantener tecnicismos financieros. NO resumir ni alterar el significado.",
+            )
+            if isinstance(result, dict):
+                for t in result.get("traducciones", []):
+                    campo = t.get("campo", "")
+                    texto = t.get("texto_es", "")
+                    if campo and texto and campo in data:
+                        data[campo] = texto
+                self._log("OK", f"Traducidos {len(result.get('traducciones',[]))} campos a ES")
+        except Exception as exc:
+            self._log("WARN", f"Traduccion ES fallo: {exc}")
+
+    def _fill_gaps_from_readings(self, data: dict, readings: dict) -> None:
+        """
+        Si campos INT estan vacios, buscar en readings_data.json analisis
+        completos del fondo (Astralis, Morningstar) como FALLBACK.
+        Solo para campos que el extractor dejo vacios.
+        """
+        if not readings:
+            return
+        # Buscar el analisis mas completo (mas texto sobre el fondo)
+        best_analysis = ""
+        best_url = ""
+        for item in readings.get("analisis", []) + readings.get("lecturas", []):
+            text = item.get("texto_completo", "") or item.get("resumen", "")
+            if len(text) > len(best_analysis):
+                best_analysis = text
+                best_url = item.get("url", "")
+
+        if len(best_analysis) < 500:
+            return  # no hay analisis externo sustancial
+
+        self._log("INFO", f"Readings fallback: {len(best_analysis)} chars de {best_url[:50]}")
+
+        # Rellenar gaps con datos del analisis externo
+        gap_fields = {
+            "_int_estrategia": "estrategia de inversion del fondo",
+            "_int_historia": "historia y trayectoria del fondo",
+        }
+        for field, concept in gap_fields.items():
+            if data.get(field):
+                continue  # ya tiene datos, no sobrescribir
+            try:
+                from tools.gemini_wrapper import extract_fast
+                result = extract_fast(
+                    text=best_analysis[:10000],
+                    schema={field: f"str | extrae {concept} del texto. En espanol. Solo datos verificables, no inventar."},
+                    context=f"Fondo {data.get('nombre','')} ({data.get('isin','')}). Fuente: analisis externo.",
+                )
+                if isinstance(result, dict) and result.get(field):
+                    data[field] = result[field]
+                    self._log("OK", f"Gap '{field}' rellenado desde readings ({len(result[field])} chars)")
+            except Exception:
+                pass
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # SECCIONES INT — usan datos literales del extractor v3, NO re-generan LLM
+    # Aplican reglas R1-R9 del feedback dashboard INT.
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _section_estrategia_int(self, data: dict) -> dict | None:
+        """R8: usar texto literal del extractor v3, no regenerar."""
+        estrategia = data.get("_int_estrategia", "")
+        filosofia = data.get("_int_filosofia", "")
+        proceso = data.get("_int_proceso", "")
+        tipo_activos = data.get("_int_tipo_activos", "")
+        objetivos = data.get("_int_objetivos", "")
+
+        parts = []
+        if estrategia:
+            parts.append(f"**Estrategia de inversion:** {estrategia}")
+        if filosofia:
+            parts.append(f"**Filosofia:** {filosofia}")
+        if proceso:
+            parts.append(f"**Proceso de seleccion:** {proceso}")
+        if tipo_activos:
+            parts.append(f"**Tipo de activos:** {tipo_activos}")
+        if objetivos:
+            parts.append(f"**Objetivos:** {objetivos}")
+
+        texto = "\n\n".join(parts) if parts else ""
+
+        # Consistencia desde extractor
+        consist = data.get("_int_consistencia", {})
+        periodos = consist.get("periodos", [])
+        hitos = []
+        for p in periodos[:6]:
+            hitos.append({
+                "periodo": p.get("periodo", ""),
+                "contexto_mercado": p.get("contexto_mercado", ""),
+                "decisiones": p.get("decisiones_tomadas", ""),
+                "resultado": p.get("resultado_real", ""),
+            })
+
+        return {
+            "texto": texto,
+            "quotes": [],
+            "hitos_estrategia": hitos,
+            "estrategia_actual_resumen": estrategia[:300] if estrategia else "",
+        } if texto else None
+
+    def _section_resumen_int(self, data: dict) -> dict | None:
+        """R4: resumen con datos concretos del fondo, no generico."""
+        kpis = data.get("kpis", {})
+        estrategia = data.get("_int_estrategia", "")
+        tipo_act = data.get("_int_tipo_activos", "")
+        clases = data.get("_int_clases", [])
+        econ = data.get("_int_economia", {})
+
+        aum = kpis.get("aum_actual_meur")
+        ter = kpis.get("ter_pct")
+        bench = kpis.get("benchmark", "")
+        clasif = kpis.get("clasificacion", "")
+        inception = kpis.get("anio_creacion")
+        top10 = kpis.get("concentracion_top10_pct")
+
+        parts = []
+        if estrategia:
+            parts.append(estrategia[:500])
+        fund_facts = []
+        if clasif:
+            fund_facts.append(f"Clasificacion: {clasif}")
+        if bench:
+            fund_facts.append(f"Benchmark: {bench}")
+        if inception:
+            fund_facts.append(f"Inicio: {inception}")
+        if aum:
+            fund_facts.append(f"AUM: {aum:.1f} M EUR")
+        if ter:
+            fund_facts.append(f"TER: {ter}%")
+        if top10:
+            fund_facts.append(f"Top 10 concentracion: {top10}%")
+        if fund_facts:
+            parts.append("**Datos clave:** " + " | ".join(fund_facts))
+
+        if clases:
+            cls_text = ", ".join(
+                f"{c.get('code','')} (fee {c.get('mgmt_fee_pct','-')}%)"
+                for c in clases[:6] if isinstance(c, dict)
+            )
+            if cls_text:
+                parts.append(f"**Clases EUR disponibles:** {cls_text}")
+
+        viab = econ.get("viabilidad_nota", "")
+        if viab:
+            parts.append(f"**Viabilidad gestora:** {viab}")
+
+        texto = "\n\n".join(parts)
+        return {"texto": texto, "datos": kpis} if texto else None
+
+    def _section_historia_int(self, data: dict) -> dict | None:
+        """R6: historia del FONDO, no del mercado."""
+        historia = data.get("_int_historia", "")
+        kpis = data.get("kpis", {})
+        serie_aum = data.get("cuantitativo", {}).get("serie_aum", [])
+
+        parts = []
+        inception = kpis.get("anio_creacion")
+        if inception:
+            parts.append(f"Fondo lanzado en {inception}.")
+        if historia:
+            parts.append(historia)
+
+        if serie_aum:
+            aum_str = ", ".join(f"{s.get('periodo','')}: {s.get('valor_meur',0):.0f} M EUR" for s in serie_aum)
+            parts.append(f"**Evolucion AUM:** {aum_str}")
+
+        aum_actual = kpis.get("aum_actual_meur")
+        if aum_actual:
+            parts.append(f"AUM actual: {aum_actual:.1f} M EUR.")
+
+        texto = " ".join(parts)
+        return {"texto": texto} if texto else {"texto": f"Fondo lanzado en {inception or '?'}."}
+
+    def _section_gestores_int(self, data: dict) -> dict | None:
+        """R7: usar gestores del extractor, no de manager_deep."""
+        gestores_ext = data.get("_int_gestores", [])
+        if not gestores_ext:
+            return {"equipo": [], "perfiles": []}
+        equipo = []
+        for g in gestores_ext:
+            if not isinstance(g, dict):
+                continue
+            equipo.append({
+                "nombre": g.get("nombre", ""),
+                "cargo": g.get("cargo", ""),
+                "background": g.get("background", ""),
+                "anio_incorporacion": g.get("anio_incorporacion"),
+            })
+        return {"equipo": equipo, "perfiles": []}
 
     def _load_json(self, filename: str) -> dict:
         path = self.fund_dir / filename
