@@ -1,0 +1,78 @@
+{
+  "fund": "ES0128520006",
+  "nombre": "RENTA 4 MONETARIO, FI",
+  "fallos": [
+    {
+      "regla_id": "resumen_min_chars",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Resumen demasiado corto: 1177 chars (mínimo 1200)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen con prompt más detallado. Mínimo 1200 chars con subsecciones."
+    },
+    {
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 1 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "estrategia_min_chars",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia demasiado corta: 2135 chars (minimo 3500). Debe ser analisis evaluativo profundo.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia con Sonnet (tier 1) — analisis evaluativo extenso: filosofia, coherencia discurso-accion, decisiones clave con contexto, evolucion mix, conclusion evaluativa. Minimo 3500 chars."
+    },
+    {
+      "regla_id": "estrategia_has_cifras",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia con pocas cifras (0). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
+    },
+    {
+      "regla_id": "cartera_no_headers",
+      "seccion": "cartera",
+      "fail_type": "estructura",
+      "problema": "Cartera tiene 1 subsecciones — debe ser 2-3 parrafos concisos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar cartera como narrativa concisa sin headers (max 1200 chars)."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/173 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "cuant_serie_clases_info_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_clases_info vacia: no se identifican las clases del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+    }
+  ],
+  "fallos_estructura": 4,
+  "fallos_scarcity": 3,
+  "total_reglas": 54,
+  "reglas_ok": 47,
+  "aceptable": false,
+  "score_display": "47/54 reglas OK (3 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos"
+  ],
+  "evaluado_at": "2026-04-23T20:45:37.920490"
+}

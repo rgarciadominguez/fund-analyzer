@@ -1,0 +1,33 @@
+{
+  "isin": "ES0128520006",
+  "nombre": "RENTA 4 MONETARIO, FI",
+  "timestamp": "2026-04-23T20:45:37.867572",
+  "completeness_pct": 72.2,
+  "dashboard_ready": true,
+  "dashboard_blockers": [],
+  "issues": [
+    "gestores vacíos — buscar en Citywire / Finect",
+    "sin estrategia ni filosofía de inversión — necesita PDFs cualitativos",
+    "mix_activos 2025 suma 195.9% (esperado ~100%)",
+    "mix_activos 2024 suma 196.9% (esperado ~100%)",
+    "mix_activos 2023 suma 194.8% (esperado ~100%)",
+    "mix_activos 2022 suma 196.0% (esperado ~100%)",
+    "mix_activos 2021 suma 193.7% (esperado ~100%)",
+    "mix_activos 2020 suma 188.7% (esperado ~100%)",
+    "mix_activos 2019 suma 186.7% (esperado ~100%)",
+    "sin análisis externos — ejecutar readings_agent",
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)"
+  ],
+  "suggestions": [
+    "Años sin datos AUM: 2026 -> descargar XMLs CNMV de esos años",
+    "-> Anadir más PDFs semestrales en raw/reports/",
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0128520006 --auto"
+  ],
+  "feedback_previo": [],
+  "stats": {
+    "periodos_consistencia": 17,
+    "posiciones_actuales": 173,
+    "puntos_aum": 17,
+    "gestores": 0
+  }
+}
