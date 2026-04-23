@@ -1,0 +1,34 @@
+{
+  "isin": "ES0140794001",
+  "nombre": "GAMMA GLOBAL, FI",
+  "timestamp": "2026-04-23T19:50:15.920879",
+  "completeness_pct": 66.7,
+  "dashboard_ready": true,
+  "dashboard_blockers": [],
+  "issues": [
+    "gestores vacíos — buscar en Citywire / Finect",
+    "sin estrategia ni filosofía de inversión — necesita PDFs cualitativos",
+    "sin posiciones actuales — revisar extracción de cartera",
+    "serie AUM muy corta (2 puntos) — añadir XMLs históricos",
+    "mix_activos 2025 suma 187.7% (esperado ~100%)",
+    "mix_activos 2024 suma 192.6% (esperado ~100%)",
+    "mix_activos 2023 suma 177.1% (esperado ~100%)",
+    "mix_activos 2022 suma 183.0% (esperado ~100%)",
+    "mix_activos 2021 suma 190.0% (esperado ~100%)",
+    "sin análisis externos — ejecutar readings_agent",
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)",
+    "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
+  ],
+  "suggestions": [
+    "Años sin datos AUM: 2023, 2024, 2025, 2026 -> descargar XMLs CNMV de esos años",
+    "-> Anadir más PDFs semestrales en raw/reports/",
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0140794001 --auto"
+  ],
+  "feedback_previo": [],
+  "stats": {
+    "periodos_consistencia": 5,
+    "posiciones_actuales": 0,
+    "puntos_aum": 2,
+    "gestores": 0
+  }
+}

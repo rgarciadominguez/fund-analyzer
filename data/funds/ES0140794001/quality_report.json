@@ -1,0 +1,118 @@
+{
+  "fund": "ES0140794001",
+  "nombre": "GAMMA GLOBAL, FI",
+  "fallos": [
+    {
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "gestores_lead_has_filosofia",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal '' sin filosofía de inversión.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "cartera_min_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 posiciones actuales (mínimo 15).",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones de sección 10 del PDF semestral."
+    },
+    {
+      "regla_id": "cuant_min_serie_aum",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_aum: 2 puntos (mínimo 4)",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Re-ejecutar cnmv_agent con horizonte_historico='1' para descargar todos los informes."
+    },
+    {
+      "regla_id": "cuant_min_serie_vl",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_vl_base100: 2 puntos (mínimo 3)",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Re-ejecutar cnmv_agent para obtener VL histórico."
+    },
+    {
+      "regla_id": "cuant_min_serie_participes",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_participes: 2 puntos (mínimo 3)",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Re-ejecutar cnmv_agent para obtener serie de partícipes."
+    },
+    {
+      "regla_id": "gestores_lead_trayectoria_min",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Trayectoria del gestor principal solo 0 chars (minimo 1000)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con trayectoria EXTENSA (3-4 parrafos)."
+    },
+    {
+      "regla_id": "gestores_lead_cv_bullets",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+    },
+    {
+      "regla_id": "cuant_serie_clases_info_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_clases_info vacia: no se identifican las clases del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+    },
+    {
+      "regla_id": "historia_kpis_calculables",
+      "seccion": "historia",
+      "fail_type": "scarcity",
+      "problema": "KPIs de historia no calculables (serie_vl_insuficiente): Solo 2 años, mínimo 3 para CAGR. CAGR, mejor/peor año requieren serie_vl_base100 valida.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe proveer serie_vl_base100 con VLs reales. Si esta corrupta, el dashboard mostrara guiones en lugar de 0,0% enganosos."
+    },
+    {
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+    }
+  ],
+  "fallos_estructura": 4,
+  "fallos_scarcity": 8,
+  "total_reglas": 54,
+  "reglas_ok": 42,
+  "aceptable": false,
+  "score_display": "42/54 reglas OK (8 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos"
+  ],
+  "evaluado_at": "2026-04-23T19:50:15.936642"
+}
