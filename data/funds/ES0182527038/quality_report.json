@@ -1,0 +1,134 @@
+{
+  "fund": "ES0182527038",
+  "nombre": "CARTESIO Y, FI",
+  "fallos": [
+    {
+      "regla_id": "resumen_min_chars",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Resumen demasiado corto: 978 chars (mínimo 1200)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen con prompt más detallado. Mínimo 1200 chars con subsecciones."
+    },
+    {
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "gestores_lead_has_filosofia",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal '' sin filosofía de inversión.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "resumen_has_criterios",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 2 criterios de inversion (minimo 3 numerados)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con 3 criterios de inversion numerados (titulo + descripcion)."
+    },
+    {
+      "regla_id": "gestores_lead_trayectoria_min",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Trayectoria del gestor principal solo 0 chars (minimo 1000)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con trayectoria EXTENSA (3-4 parrafos)."
+    },
+    {
+      "regla_id": "gestores_lead_cv_bullets",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+    },
+    {
+      "regla_id": "cuant_serie_vl_valid",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "Serie VL corrupta (primer_vl_anomalo): VL inicial=1417.1966. No refleja VLs reales del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar extraccion de VL en cnmv_agent. Puede estar leyendo AUM, numero de participes u otro campo como VL."
+    },
+    {
+      "regla_id": "estrategia_returns_match_data",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2019: texto dice 20.6%, real 10.0%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia sin inventar porcentajes. Usar solo serie_rentabilidad real."
+    },
+    {
+      "regla_id": "cartera_posiciones_nombre_limpio",
+      "seccion": "cartera",
+      "fail_type": "estructura",
+      "problema": "Posiciones con nombres corruptos (nombres_con_separadores): 36/36 (100%) - ejemplos: ['Bonos|ESTADO ESPAÑOL|0,000|2026-06-05', 'Acciones|ACERINOX SA', 'Acciones|MERLIN PROPERTIES SOCIMI']",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent esta concatenando varios campos (tipo|nombre|cupon|vto) en el campo nombre. Parsear correctamente: nombre limpio, cupon/vto en campos separados."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/36 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "comision_exito_teorica_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Falta comision de exito teorica (%). Si cobra_comision_exito=true, debe descargarse el KIID del fondo.",
+      "agente_responsable": "discovery_agent",
+      "accion": "discovery_agent debe buscar KIID/DFI del fondo (keywords: KIID, DFI, DIC, Datos Fundamentales, Folleto) en web de la gestora y CNMV. Guardar en raw/letters/ o raw/documents/. El analyst_agent lo lee con _extract_exito_teorico_from_kiid."
+    },
+    {
+      "regla_id": "cuant_serie_clases_info_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_clases_info vacia: no se identifican las clases del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+    },
+    {
+      "regla_id": "hitos_historia_percentages_verifiable",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2018: hito dice 4.2%, real -4.9%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    }
+  ],
+  "fallos_estructura": 10,
+  "fallos_scarcity": 4,
+  "total_reglas": 55,
+  "reglas_ok": 41,
+  "aceptable": false,
+  "score_display": "41/55 reglas OK (4 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos"
+  ],
+  "evaluado_at": "2026-04-23T20:25:33.277527"
+}
