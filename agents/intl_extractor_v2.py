@@ -394,17 +394,27 @@ def _merge_top_holdings(out: dict, v: Any) -> None:
             "nombre": h.get("name", ""),
             "ticker": h.get("ticker", ""),
             "peso_pct": _safe_float(h.get("weight_pct")),
+            "asset_type": h.get("asset_type", ""),
             "sector": h.get("sector", ""),
             "pais": h.get("country", ""),
             "racional": h.get("rationale", ""),
         })
-    if not out["posiciones"]["actuales"]:
-        out["posiciones"]["actuales"] = normalized[:10]
+    # Mantener la extracción más rica: si tenemos pocas posiciones ahora
+    # y la nueva tiene más, reemplazar.
+    existing = out["posiciones"].get("actuales", []) or []
+    if len(normalized) > len(existing):
+        out["posiciones"]["actuales"] = normalized
     as_of = v.get("as_of_date") or ""
     year = str(as_of)[:4]
     if year:
         if not any(e.get("periodo") == year for e in out["posiciones"]["historicas"]):
-            out["posiciones"]["historicas"].append({"periodo": year, "top10": normalized[:10]})
+            # Guardar TODAS las posiciones (no solo top10). Nombre 'todas' refleja
+            # esto; conservamos 'top10' como backward-compat.
+            out["posiciones"]["historicas"].append({
+                "periodo": year,
+                "todas": normalized,
+                "top10": normalized[:10],
+            })
 
 
 def _merge_performance(out: dict, v: Any) -> None:
@@ -774,8 +784,27 @@ class IntlExtractor:
             except Exception:
                 pass
 
+        def _safe_default(o):
+            """Serializer tolerante. Maneja NaT / None / pandas.Timestamp."""
+            try:
+                if o is None:
+                    return None
+                # pandas.Timestamp / datetime / date
+                if hasattr(o, "isoformat"):
+                    try:
+                        return o.isoformat()
+                    except Exception:
+                        return None
+                # pandas.NaT → str → "NaT"
+                import math
+                if isinstance(o, float) and math.isnan(o):
+                    return None
+                return str(o)
+            except Exception:
+                return None
+
         out_path.write_text(
-            json.dumps(out, ensure_ascii=False, indent=2, default=str),
+            json.dumps(out, ensure_ascii=False, indent=2, default=_safe_default),
             encoding="utf-8",
         )
         console.log(f"[bold green]Guardado {out_path.name}")
@@ -842,6 +871,6 @@ if __name__ == "__main__":
             "viabilidad": result["economia_fondo"]["viabilidad_nota"],
             "fuentes_informes": len(result["fuentes"]["informes_descargados"]),
             "fuentes_cartas": len(result["fuentes"]["cartas_gestores"]),
-        }, ensure_ascii=False, indent=2, default=str))
+        }, ensure_ascii=False, indent=2, default=lambda o: getattr(o, "isoformat", lambda: str(o))()))
 
     asyncio.run(main())

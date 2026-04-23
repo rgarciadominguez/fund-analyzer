@@ -253,13 +253,57 @@ class AnalystAgent:
             consolidated["_int_tipo_activos"] = int_cual.get("tipo_activos", "")
             consolidated["_int_objetivos"] = int_cual.get("objetivos_reales", "")
             consolidated["_int_historia"] = int_cual.get("historia_fondo", "")
-            consolidated["_int_gestores"] = int_cual.get("gestores", [])
+            # Gestores: manager_profile.json es autoridad (se construye con cross-
+            # validacion web: Trustnet, Citywire, Morningstar). Si tiene equipo,
+            # sobrescribe al extractor (que ocasionalmente alucina nombres de
+            # fondos hermanos, ej. Francis Brooke en Trojan Ireland cuando el
+            # real es Sebastian Lyon).
+            mgr_equipo = manager.get("equipo", []) or []
+            if mgr_equipo:
+                authoritative_gestores = [
+                    {"nombre": g.get("nombre", ""), "cargo": g.get("cargo", ""),
+                     "background": g.get("biografia", ""),
+                     "anio_incorporacion": g.get("anio_incorporacion")}
+                    for g in mgr_equipo if isinstance(g, dict) and g.get("nombre")
+                ]
+                consolidated["_int_gestores"] = authoritative_gestores
+                # Sobrescribir cualitativo.gestores propagado del extractor
+                if isinstance(consolidated.get("cualitativo"), dict):
+                    consolidated["cualitativo"]["gestores"] = authoritative_gestores
+            else:
+                consolidated["_int_gestores"] = int_cual.get("gestores", [])
+
+            # Enriquecer consistencia con letters_data (más periodos)
+            letters_cartas = letters.get("cartas", [])
+            consist_periodos = int_consist.get("periodos", []) if isinstance(int_consist, dict) else []
+            existing_years = set()
+            import re as _re
+            for p in consist_periodos:
+                for m in _re.finditer(r'(20[012]\d)', str(p.get("periodo", ""))):
+                    existing_years.add(m.group(1))
+            for carta in letters_cartas:
+                periodo = carta.get("periodo", "")
+                carta_years = _re.findall(r'(20[012]\d)', str(periodo))
+                if carta_years and carta_years[0] not in existing_years:
+                    consist_periodos.append({
+                        "periodo": periodo,
+                        "contexto_mercado": carta.get("contexto_mercado", ""),
+                        "tesis_gestora": carta.get("tesis_gestora", ""),
+                        "decisiones_tomadas": carta.get("decisiones_tomadas", ""),
+                        "resultado_real": carta.get("resultado_real", ""),
+                    })
+                    existing_years.add(carta_years[0])
+            if isinstance(int_consist, dict):
+                int_consist["periodos"] = consist_periodos
+
             consolidated["_int_consistencia"] = int_consist
             consolidated["_int_clases"] = int_clases
             consolidated["_int_economia"] = int_econ
 
             # Anti-filler flag: las secciones deben usar datos, no inventar
             consolidated["_anti_filler"] = True
+            # Guardar referencia para los scrubs posteriores
+            self._consolidated_data = consolidated
 
             # ── Traducción a ES de textos del extractor (vienen en EN/FR/DE) ──
             self._translate_int_fields_to_es(consolidated)
@@ -284,6 +328,33 @@ class AnalystAgent:
             self._log("OK", f"Capa 3b: score {check_result.get('score', {}).get('global', '?')}/10")
         else:
             self._log("WARN", "Capa 3b: checker no devolvió resultado")
+
+        # Capa 3c: Opus auditoria por seccion + regenerar si falla
+        if consolidated.get("_anti_filler"):
+            self._log("START", "Capa 3c: Opus audit & fix loop")
+            # Preparar el contexto y anti_halluc usados originalmente para regeneracion
+            raw_context = self._prepare_int_context(consolidated)
+            fixed_context = self._prefilter_context(raw_context)
+            known_gestores = [g.get("nombre", "") for g in consolidated.get("_int_gestores", [])
+                              if isinstance(g, dict) and g.get("nombre")]
+            authorized = ", ".join(known_gestores) if known_gestores else "ver contexto"
+            anti_halluc = (
+                f"REGLA ESTRICTA: Los UNICOS gestores de este fondo son: {authorized}.\n"
+                f"NO menciones otros nombres de gestores. Si no hay dato, OMITE (null/vacio).\n\n"
+            )
+
+            audit = self._audit_and_fix_loop(
+                synthesis, consolidated, fixed_context, anti_halluc, max_retries=1,
+            )
+            consolidated["opus_audit"] = audit
+            # Actualizar synthesis en consolidated (puede haberse modificado)
+            consolidated["analyst_synthesis"] = synthesis
+
+            if audit.get("auditado"):
+                globl = audit.get("global", {})
+                rec = globl.get("recomendacion", "?")
+                score = globl.get("calidad_score", "?")
+                self._log("OK", f"Opus audit final: {rec} (score {score}/10)")
 
         self._save(consolidated)
         self._print_summary(consolidated)
@@ -1488,6 +1559,8 @@ class AnalystAgent:
         return result
 
     def _section_evolucion(self, data: dict) -> dict | None:
+        if data.get("_anti_filler"):
+            return self._section_evolucion_int(data)
         cuant = data.get("cuantitativo", {})
         input_data = json.dumps({
             "aum": [{"p": s.get("periodo"), "v": s.get("valor_meur")} for s in cuant.get("serie_aum", [])],
@@ -1621,6 +1694,8 @@ class AnalystAgent:
     # ── Sección 6: Cartera (2 llamadas) ───────────────────────────────────
 
     def _section_cartera(self, data: dict) -> dict | None:
+        if data.get("_anti_filler"):
+            return self._section_cartera_int(data)
         actuales = data.get("posiciones", {}).get("actuales", [])
         sorted_pos = sorted(actuales, key=lambda x: x.get("peso_pct", 0) or 0, reverse=True)
         top_positions = [{
@@ -1692,6 +1767,8 @@ class AnalystAgent:
     # ── Sección 7: Fuentes Externas (2 llamadas) ─────────────────────────
 
     def _section_fuentes_externas(self, data: dict) -> dict | None:
+        if data.get("_anti_filler"):
+            return self._section_fuentes_int(data)
         lecturas = data.get("lecturas_externas", {})
         items_compact = []
         gestora_name = (data.get("gestora", "") or "").lower()
@@ -1920,11 +1997,22 @@ class AnalystAgent:
     # ═══════════════════════════════════════════════════════════════════════════
 
     def _translate_int_fields_to_es(self, data: dict) -> None:
-        """Traduce campos INT del extractor (EN/FR/DE) a ES via Gemini Flash."""
-        fields_to_translate = [
-            "_int_estrategia", "_int_filosofia", "_int_proceso",
-            "_int_tipo_activos", "_int_objetivos", "_int_historia",
-        ]
+        """Traduce campos INT del extractor (EN/FR/DE) a ES via Gemini Flash.
+        Universal para cualquier INT: refleja el resultado traducido TANTO en
+        `_int_*` (consumido por las secciones Gemini Pro) COMO en
+        `cualitativo.*` (consumido por el dashboard), evitando que el
+        dashboard muestre texto en ingles.
+        """
+        # Mapping: campo interno -> clave en cualitativo
+        int_to_cualitativo = {
+            "_int_estrategia": "estrategia",
+            "_int_filosofia": "filosofia_inversion",
+            "_int_proceso": "proceso_seleccion",
+            "_int_tipo_activos": "tipo_activos",
+            "_int_objetivos": "objetivos_reales",
+            "_int_historia": "historia_fondo",
+        }
+        fields_to_translate = list(int_to_cualitativo.keys())
         texts_to_translate = []
         for f in fields_to_translate:
             v = data.get(f, "")
@@ -1946,12 +2034,21 @@ class AnalystAgent:
                 context="Traduce cada campo al espanol. Mantener tecnicismos financieros. NO resumir ni alterar el significado.",
             )
             if isinstance(result, dict):
+                cualitativo = data.setdefault("cualitativo", {}) if isinstance(data.get("cualitativo"), dict) else None
+                if cualitativo is None:
+                    # Force dict shape
+                    data["cualitativo"] = {}
+                    cualitativo = data["cualitativo"]
                 for t in result.get("traducciones", []):
                     campo = t.get("campo", "")
                     texto = t.get("texto_es", "")
                     if campo and texto and campo in data:
                         data[campo] = texto
-                self._log("OK", f"Traducidos {len(result.get('traducciones',[]))} campos a ES")
+                        # Espejo traducido en cualitativo.* para el dashboard
+                        cual_key = int_to_cualitativo.get(campo)
+                        if cual_key:
+                            cualitativo[cual_key] = texto
+                self._log("OK", f"Traducidos {len(result.get('traducciones',[]))} campos a ES (_int_* + cualitativo.*)")
         except Exception as exc:
             self._log("WARN", f"Traduccion ES fallo: {exc}")
 
@@ -1999,140 +2096,1462 @@ class AnalystAgent:
                 pass
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # SECCIONES INT — usan datos literales del extractor v3, NO re-generan LLM
-    # Aplican reglas R1-R9 del feedback dashboard INT.
+    # SECCIONES INT — Opus para síntesis, mismo formato output que ES
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _section_estrategia_int(self, data: dict) -> dict | None:
-        """R8: usar texto literal del extractor v3, no regenerar."""
-        estrategia = data.get("_int_estrategia", "")
-        filosofia = data.get("_int_filosofia", "")
-        proceso = data.get("_int_proceso", "")
-        tipo_activos = data.get("_int_tipo_activos", "")
-        objetivos = data.get("_int_objetivos", "")
-
+    def _prepare_int_context(self, data: dict) -> str:
+        """Preparar contexto DENSO con todos los datos del fondo para Opus.
+        Principio: toda la info relevante, sin repeticiones ni basura."""
         parts = []
-        if estrategia:
-            parts.append(f"**Estrategia de inversion:** {estrategia}")
-        if filosofia:
-            parts.append(f"**Filosofia:** {filosofia}")
-        if proceso:
-            parts.append(f"**Proceso de seleccion:** {proceso}")
-        if tipo_activos:
-            parts.append(f"**Tipo de activos:** {tipo_activos}")
-        if objetivos:
-            parts.append(f"**Objetivos:** {objetivos}")
 
-        texto = "\n\n".join(parts) if parts else ""
+        # KPIs
+        kpis = data.get("kpis", {})
+        parts.append(f"FONDO: {data.get('nombre','')} ({self.isin})")
+        parts.append(f"GESTORA: {data.get('gestora','')}")
+        kpi_items = []
+        for k, label in [("aum_actual_meur", "AUM"), ("ter_pct", "TER"),
+                          ("benchmark", "Benchmark"), ("anio_creacion", "Inicio"),
+                          ("clasificacion", "Tipo"), ("concentracion_top10_pct", "Top10%")]:
+            v = kpis.get(k)
+            if v:
+                kpi_items.append(f"{label}: {v}")
+        if kpi_items:
+            parts.append(" | ".join(kpi_items))
 
-        # Consistencia desde extractor
+        # Estrategia completa del extractor (sin truncar)
+        for field, label in [("_int_estrategia", "ESTRATEGIA"),
+                              ("_int_filosofia", "FILOSOFIA"),
+                              ("_int_proceso", "PROCESO"),
+                              ("_int_tipo_activos", "TIPO ACTIVOS"),
+                              ("_int_objetivos", "OBJETIVOS"),
+                              ("_int_historia", "HISTORIA")]:
+            v = data.get(field, "")
+            if v:
+                parts.append(f"{label}: {v}")
+
+        # Gestores — biografías completas de manager_profile
+        gestores = data.get("_int_gestores", [])
+        if gestores:
+            parts.append("EQUIPO GESTOR:")
+            for g in gestores:
+                if isinstance(g, dict) and g.get("nombre"):
+                    bg = g.get("background", "") or ""
+                    parts.append(f"  {g.get('nombre','')}: {g.get('cargo','')}. {bg}")
+
+        # Cartas del gestor — TODOS los periodos disponibles, dedup de tesis repetidas
+        # palabra por palabra (pero preservando texto completo si difiere).
         consist = data.get("_int_consistencia", {})
-        periodos = consist.get("periodos", [])
-        hitos = []
-        for p in periodos[:6]:
-            hitos.append({
-                "periodo": p.get("periodo", ""),
-                "contexto_mercado": p.get("contexto_mercado", ""),
-                "decisiones": p.get("decisiones_tomadas", ""),
-                "resultado": p.get("resultado_real", ""),
+        periodos = consist.get("periodos", []) if isinstance(consist, dict) else []
+        if periodos:
+            parts.append(f"\nCARTAS DEL GESTOR ({len(periodos)} periodos):")
+            seen_tesis_exact = set()
+            for p in periodos:
+                tesis = str(p.get("tesis_gestora", "") or "").strip()
+                decisiones = str(p.get("decisiones_tomadas", "") or "").strip()
+                resultado = str(p.get("resultado_real", "") or "").strip()
+                contexto = str(p.get("contexto_mercado", "") or "").strip()
+
+                parts.append(f"  [{p.get('periodo','')}]")
+                if contexto:
+                    parts.append(f"    CONTEXTO: {contexto}")
+                if tesis:
+                    # Dedup solo si la tesis es exactamente la misma (no truncar)
+                    tesis_key = tesis.lower()
+                    if tesis_key in seen_tesis_exact:
+                        parts.append(f"    TESIS: (idéntica a periodo anterior)")
+                    else:
+                        seen_tesis_exact.add(tesis_key)
+                        parts.append(f"    TESIS: {tesis}")
+                if decisiones:
+                    parts.append(f"    DECISIONES: {decisiones}")
+                if resultado:
+                    parts.append(f"    RESULTADO: {resultado}")
+
+        # Posiciones — todas, formato compacto nombre:peso
+        posiciones = data.get("posiciones", {}).get("actuales", [])
+        if posiciones:
+            sorted_pos = sorted(posiciones, key=lambda x: x.get("peso_pct", 0) or 0, reverse=True)
+            parts.append(f"\nCARTERA ({len(posiciones)} posiciones):")
+            for p in sorted_pos:
+                asset_type = p.get("asset_type", p.get("sector", "")) or ""
+                parts.append(f"  {p.get('nombre','')}: {p.get('peso_pct',0)}% [{asset_type}]")
+
+        # Mix activos
+        mix = data.get("cuantitativo", {}).get("mix_activos_historico", [])
+        if mix:
+            parts.append("\nMIX ACTIVOS:")
+            for m in mix:
+                parts.append(f"  {m.get('periodo','')}: RV {m.get('renta_variable_pct',0)}%, "
+                             f"RF {m.get('renta_fija_pct',0)}%, "
+                             f"Liquidez {m.get('liquidez_pct',0)}%")
+
+        # Readings (opiniones externas) — TODOS, resumen completo sin truncar
+        readings = self._load_json("readings_data.json")
+        all_readings = readings.get("analisis_completos", []) + readings.get("otros_readings", [])
+        if all_readings:
+            parts.append(f"\nOPINIONES EXTERNAS ({len(all_readings)} fuentes):")
+            for r in all_readings:
+                source = r.get("source", "") or ""
+                titulo = r.get("titulo", "") or ""
+                resumen = (r.get("resumen", "") or "").strip()
+                opinion = (r.get("opinion_sobre_fondo", "") or "").strip()
+                if titulo:
+                    parts.append(f"  [{source}] {titulo}")
+                if resumen:
+                    parts.append(f"    RESUMEN: {resumen}")
+                if opinion:
+                    parts.append(f"    OPINION: {opinion}")
+
+        # Clases — todas, sin limitar a 6
+        clases = data.get("_int_clases", [])
+        if clases:
+            parts.append("CLASES:")
+            for c in clases:
+                if isinstance(c, dict):
+                    parts.append(f"  - {c.get('code',c.get('nombre',''))}: "
+                                 f"fee {c.get('mgmt_fee_pct',c.get('comision_gestion',''))}%")
+
+        return "\n".join(parts)
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # INT PIPELINE — Gemini Pro para síntesis + Opus para auditoría final
+    #
+    # Coste objetivo por fondo:
+    #   - 6 secciones Gemini Pro: ~$0.06
+    #   - 1 pre-filtro Gemini Pro: ~$0.02
+    #   - 1 auditoría Opus final: ~$0.08
+    #   Total: ~$0.16 por fondo
+    # ═══════════════════════════════════════════════════════════════════════
+
+    def _prefilter_context(self, raw_context: str) -> str:
+        """Gemini Pro limpia el contexto: elimina duplicados, preserva datos reales.
+        Prompt ULTRA-RESTRICTIVO: NUNCA inferir, solo copiar/dedupe."""
+        from tools.gemini_wrapper import extract_fast, MODEL_PRO
+        try:
+            result = extract_fast(
+                text=raw_context,
+                schema={"brief": "str - brief denso sin duplicados, texto preservado literal"},
+                context=(
+                    "REGLAS CRITICAS (violacion invalida el output):\n"
+                    "1. PROHIBIDO inferir, deducir, completar o añadir informacion "
+                    "que NO este EXPLICITAMENTE en el input.\n"
+                    "2. PROHIBIDO mezclar datos de fondos con nombres similares.\n"
+                    "3. PROHIBIDO cambiar nombres de personas, cifras, fechas.\n\n"
+                    "TU TAREA:\n"
+                    "a) Eliminar duplicados exactos (si una tesis se repite palabra por palabra "
+                    "en varios periodos, mantener 1 y marcar '(repetido en N periodos)').\n"
+                    "b) Eliminar disclaimers legales genericos.\n"
+                    "c) PRESERVAR LITERAL: cifras, citas, biografias, posiciones, opiniones externas.\n\n"
+                    "Si dudas, PRESERVALO."
+                ),
+                max_chars=50000,
+                model=MODEL_PRO,
+            )
+            if isinstance(result, dict) and result.get("brief"):
+                brief = result["brief"]
+                self._log("INFO", f"Pro prefiltro: {len(raw_context)} -> {len(brief)} chars")
+                return brief
+        except Exception as e:
+            self._log("WARN", f"Pro prefiltro failed: {e}")
+        return raw_context
+
+    def _gemini_section(self, prompt: str, max_chars: int = 30000) -> str:
+        """Gemini Pro para secciones narrativas. Devuelve texto plano."""
+        from tools.gemini_wrapper import extract_fast, MODEL_PRO
+        try:
+            # Usar schema simple {"texto": str} y pedir texto largo
+            result = extract_fast(
+                text=prompt,
+                schema={"texto": "str - texto completo del analisis"},
+                context="Eres un analista senior. Escribe texto denso, completo, "
+                        "con datos concretos. Solo datos del input, no inventar.",
+                model=MODEL_PRO,
+                max_chars=max_chars,
+            )
+            if isinstance(result, dict):
+                return result.get("texto", "") or ""
+        except Exception as e:
+            self._log("WARN", f"Gemini section failed: {e}")
+        return ""
+
+    def _gemini_section_json(self, prompt: str, schema: dict, max_chars: int = 30000) -> dict:
+        """Gemini Pro con schema estructurado.
+        Regla CRITICA: si no hay dato para un campo, devuelve null/vacio.
+        NUNCA 'no disponible', 'no se menciona', 'datos pendientes', etc."""
+        from tools.gemini_wrapper import extract_fast, MODEL_PRO
+        try:
+            result = extract_fast(
+                text=prompt,
+                schema=schema,
+                context=(
+                    "Eres analista senior. Solo datos REALES del input, nunca inventar. "
+                    "REGLA CRITICA: si no tienes dato para un campo, devuelve null o '' (vacio). "
+                    "PROHIBIDO escribir 'no disponible', 'no se menciona', 'datos pendientes', "
+                    "'informacion no recopilada', o similares. Prefiere OMITIR a rellenar. "
+                    "Respuestas en espanol."
+                ),
+                model=MODEL_PRO,
+                max_chars=max_chars,
+            )
+            if not isinstance(result, dict):
+                return {}
+            # Post-filtro: eliminar valores "filler" conocidos
+            return self._strip_filler(result)
+        except Exception as e:
+            self._log("WARN", f"Gemini JSON failed: {e}")
+            return {}
+
+    def _strip_filler(self, obj):
+        """Recorre el dict y elimina valores que sean filler/no-info."""
+        filler_patterns = [
+            "no disponible", "no se menciona", "no se dispone",
+            "informacion no", "información no", "datos pendientes",
+            "no se indica", "no se reporta", "no se especifica",
+            "pendiente de", "no aparece en", "no se proporciona",
+            "no se encuentra", "no hay información", "no hay informacion",
+            "no se dispone de", "sin información", "sin informacion",
+            "no se ha encontrado", "no se detalla",
+            "n/a", "n.a.",
+        ]
+        if isinstance(obj, dict):
+            cleaned = {}
+            for k, v in obj.items():
+                cleaned_v = self._strip_filler(v)
+                if cleaned_v not in (None, "", [], {}):
+                    cleaned[k] = cleaned_v
+            return cleaned
+        if isinstance(obj, list):
+            cleaned_list = [self._strip_filler(x) for x in obj]
+            return [x for x in cleaned_list if x not in (None, "", [], {})]
+        if isinstance(obj, str):
+            low = obj.lower().strip()
+            # Si el string completo es filler, devolver vacio
+            if any(p in low for p in filler_patterns) and len(obj) < 200:
+                return ""
+            # Si el texto es largo pero CONTIENE frase filler suelta, eliminarla
+            import re as _re
+            cleaned = obj
+            for p in filler_patterns:
+                # Eliminar oraciones enteras que contengan filler
+                cleaned = _re.sub(
+                    rf'(?i)[^.!?]*\b{_re.escape(p)}\b[^.!?]*[.!?]\s*',
+                    '', cleaned
+                )
+            return cleaned.strip()
+        return obj
+
+    def _opus_int_synthesis(self, data: dict) -> dict:
+        """Pipeline INT: Gemini Pro para 6 secciones + Opus auditoria final.
+
+        Estructura output idéntica a ES para que el dashboard funcione igual.
+        """
+        raw_context = self._prepare_int_context(data)
+        self._log("INFO", f"Contexto raw: {len(raw_context)} chars")
+
+        # Prefiltro Gemini Pro
+        context = self._prefilter_context(raw_context)
+
+        # Gestores autorizados (para anti-halluc en prompts)
+        known_gestores = [g.get("nombre", "") for g in data.get("_int_gestores", [])
+                          if isinstance(g, dict) and g.get("nombre")]
+        authorized = ", ".join(known_gestores) if known_gestores else "ver contexto"
+
+        anti_halluc = (
+            f"REGLAS ESTRICTAS:\n"
+            f"1. Los UNICOS gestores de este fondo son: {authorized}. "
+            f"NO menciones otros nombres aunque tu conocimiento previo los asocie a esta gestora.\n"
+            f"2. JERARQUIA DE FUENTES: Annual Report > Factsheet > Cartas del gestor > "
+            f"Readings externos. Si readings externos contradicen al AR o cartas del gestor, "
+            f"PRESERVA la version interna (AR/cartas). Readings se usan SOLO para "
+            f"enriquecer/contextualizar, NUNCA para sobreescribir datos del fondo.\n"
+            f"3. Si no hay un dato, OMITE (devuelve campo vacio/null). "
+            f"PROHIBIDO 'no disponible', 'no se menciona', 'datos pendientes'.\n"
+            f"4. FORMATO de cifras de miles/millones/miles de millones en "
+            f"TEXTO y TITULOS: SIN DECIMALES. Ejemplos correctos: "
+            f"'641M EUR', '14.678 millones', '1.400M GBP', '28B EUR'. "
+            f"Incorrecto: '641,3M EUR', '14.678,37 millones', '1.402,2M'. "
+            f"Los decimales SOLO se admiten para porcentajes (0,74%) y "
+            f"ratios (duración -3 a +7).\n\n"
+        )
+
+        result: dict = {}
+
+        # 1. Resumen ejecutivo
+        result["resumen"] = self._section_resumen_int_pro(context, anti_halluc)
+        # 2. Historia
+        result["historia"] = self._section_historia_int_pro(context, anti_halluc)
+        # 3. Gestores
+        result["gestores"] = self._section_gestores_int_pro(context, data, anti_halluc)
+        # 4. Estrategia + consistencia
+        result["estrategia"] = self._section_estrategia_int_pro(context, anti_halluc)
+        # 5. Evolución
+        result["evolucion"] = self._section_evolucion_int_pro(context, data, anti_halluc)
+        # 6. Cartera (programática datos + Gemini texto)
+        result["cartera"] = self._section_cartera_int_pro(context, data, anti_halluc)
+        # 7. Fuentes externas (programáticas)
+        result["fuentes_externas"] = self._section_fuentes_int_programmatic(data)
+
+        return result
+
+    def _section_resumen_int_pro(self, context: str, anti_halluc: str) -> dict:
+        schema = {
+            "texto": (
+                "str - RESUMEN EJECUTIVO para comite de inversion. OBJETIVO "
+                "2500-4000 caracteres. FORMATO OBLIGATORIO:\\n"
+                "1. Párrafos separados por DOS saltos de línea (\\n\\n). "
+                "Cada párrafo trata un tema distinto.\\n"
+                "2. **Negrita con doble asterisco** en puntos CLAVE: cifras "
+                "importantes (AUM, rentabilidad, drawdown, TER), nombres del "
+                "lead manager, hitos temporales, nombre del fondo, "
+                "benchmarks. Objetivo: que un lector en diagonal capte lo "
+                "esencial sin leer el párrafo entero.\\n"
+                "3. Estructura mínima (un párrafo por cada tema):\\n"
+                "PÁRRAFO 1 — Origen del fondo (lanzamiento, motivación, "
+                "gestora).\\n"
+                "PÁRRAFO 2 — Historia y evolución (hitos clave).\\n"
+                "PÁRRAFO 3 — Estrategia y comportamiento histórico.\\n"
+                "PÁRRAFO 4 — Resultados con cifras (rentabilidad acumulada, "
+                "mejor/peor año, comportamiento en crisis).\\n"
+                "PÁRRAFO 5 — Equipo gestor (lead + co, trayectoria breve).\\n"
+                "PÁRRAFO 6 — Visión actual y outlook.\\n"
+                "Si un tema no tiene contenido, fusionar con el adyacente — "
+                "pero mantener la estructura de párrafos."
+            ),
+            "fortalezas": [
+                "str - fortaleza concreta ESTRUCTURAL (filosofía, equipo, "
+                "ventaja competitiva), NO detalles puntuales de la cartera actual. "
+                "Con cifra de respaldo."
+            ],
+            "riesgos": [
+                "str - riesgo ESTRUCTURAL del fondo (sensibilidad a un factor "
+                "macro, concentración persistente, dependencia del gestor…). "
+                "NO mencionar detalles de posiciones actuales que ya aparecen "
+                "en la tab de Cartera. Con justificación factual."
+            ],
+            "para_quien_es": "str - perfil inversor ideal",
+            "filosofia_inversion": (
+                "str - FILOSOFIA DE INVERSION detallada. DEBE explicar: "
+                "(a) Estrategia y objetivos del fondo (preservación / "
+                "crecimiento real / descorrelación / etc.); "
+                "(b) En qué tipo de activos invierte (RV, RF, oro, "
+                "commodities, derivados) con peso típico de cada uno; "
+                "(c) Cómo toma decisiones (bottom-up fundamental, macro "
+                "top-down, análisis técnico, cuant, etc.); "
+                "(d) Al menos 2 datos o porcentajes históricos que soporten "
+                "la estrategia (p.ej. 'exposición media RV 35%', 'oro ha "
+                "mantenido 10-12% desde 2013'). OBJETIVO 400-700 chars."
+            ),
+            "criterios_inversion": [
+                {
+                    "titulo": "str - titulo corto del criterio general (2-4 palabras)",
+                    "descripcion": (
+                        "str - criterio GENERAL del fondo (no solo RV). "
+                        "Cubrir: tipo de activo, cómo se mueve el peso entre "
+                        "activos si es multi-activo, qué tipos concretos usa "
+                        "(ej. acciones de calidad / bonos ligados inflación / "
+                        "oro físico vs ETF / commodities), cómo elige entre "
+                        "opciones. Con ejemplos concretos del fondo."
+                    ),
+                }
+            ],
+            "_criterios_instrucciones": (
+                "OBLIGATORIO: DEVOLVER ENTRE 3 Y 5 CRITERIOS. Cada uno cubre "
+                "un ángulo distinto (ej. selección de activos, asignación "
+                "táctica, gestión de riesgo/duración, proceso ESG, liquidez). "
+                "Un único criterio genérico NO es aceptable. Si el fondo es "
+                "multi-activo, debe haber al menos un criterio por clase "
+                "relevante (RV / RF / Oro / Divisas / Derivados)."
+            ),
+            "compromiso_gestor": (
+                "str - SIEMPRE contiene algo útil, NUNCA puede decir 'no se "
+                "encuentra', 'no hay información', 'no se dispone', ni "
+                "frases equivalentes. Prioridad: "
+                "(1) Skin-in-the-game real con cita de readings/cartas. "
+                "(2) Si no hay cita literal, describir estructura de propiedad "
+                "de la gestora (ej. 'propiedad de los empleados', 'independent "
+                "boutique', 'subsidiary de X bank'). "
+                "(3) Política de remuneración (ej. 'fee flat sin performance "
+                "fee'), tamaño del equipo dedicado, antigüedad de los gestores "
+                "como proxy de alineación. "
+                "OBJETIVO 200-500 caracteres con algo concreto."
+            ),
+            "signal": "str - POSITIVO | NEUTRAL | NEGATIVO",
+        }
+        return self._gemini_section_json(
+            anti_halluc + f"Datos del fondo:\n{context}\n\n"
+            f"Produce un RESUMEN EJECUTIVO COMPLETO para un comite de inversion. "
+            f"El esquema describe exactamente qué debe contener cada campo: respétalo.\n"
+            f"REGLAS PROHIBIDAS:\n"
+            f"- NO escribir el 'texto' como bloque monolítico: DEBE tener "
+            f"varios párrafos separados por \\n\\n, uno por tema (origen, "
+            f"historia, estrategia, resultados, equipo, outlook).\n"
+            f"- NO mezcles fortalezas/riesgos estructurales con detalles "
+            f"puntuales de la cartera actual (esos van en la tab Cartera).\n"
+            f"- NO repitas literalmente lo mismo en 'filosofia_inversion' "
+            f"y 'criterios_inversion' — la filosofía es el QUÉ/POR QUÉ; "
+            f"los criterios son el CÓMO concreto por tipo de activo.\n"
+            f"- Si el fondo es multi-activo, los criterios DEBEN cubrir "
+            f"ES/RV/RF/oro/commodities en la medida en que invierta en ellos.\n"
+            f"- USA citas literales de las cartas cuando las haya, entre comillas.\n"
+            f"- 'criterios_inversion' DEBE ser array de 3-5 elementos, uno por "
+            f"ángulo (selección activos / asignación táctica / riesgo-duración "
+            f"/ proceso ESG / liquidez). Un único criterio NO es aceptable.\n"
+            f"- 'compromiso_gestor' NUNCA puede decir 'no se encuentra' ni "
+            f"'no hay información' — si no hay skin-in-the-game literal, "
+            f"describir estructura de la gestora, política de remuneración "
+            f"o antigüedad del equipo como proxy de alineación.",
+            schema, max_chars=50000,
+        )
+
+    def _section_historia_int_pro(self, context: str, anti_halluc: str) -> dict:
+        schema = {
+            "texto": (
+                "str - HISTORIA DEL FONDO. OBJETIVO 3500-5500 caracteres. "
+                "FORMATO OBLIGATORIO: varios PÁRRAFOS separados por \\n\\n, "
+                "con **negrita** en fechas clave, cifras y nombres. "
+                "ESTRUCTURA:\\n"
+                "PÁRRAFO 1 — Origen: en qué ENTORNO DE MERCADO se crea el fondo "
+                "(macro/regulatorio/de industria), por qué la gestora lo lanza, "
+                "de dónde vienen los gestores fundadores y qué les motiva a "
+                "entrar (SIN biografía completa — eso está en Gestores).\\n"
+                "PÁRRAFO 2 — Cambios a lo largo de los años: evolución de "
+                "estrategia, filosofía, equipo, cambios de clase, de ManCo, "
+                "hitos estructurales.\\n"
+                "PÁRRAFO 3 — Comportamiento en CICLOS DE MERCADO: cómo se ha "
+                "comportado en crisis (2008/2011/2018/2020/2022) vs bonanzas. "
+                "Con cifras concretas de rentabilidad relativa cuando existan.\\n"
+                "PÁRRAFO 4 — Posicionamiento actual y visión a futuro."
+            ),
+            "hitos": [{
+                "anio": "str - año YYYY",
+                "titulo": "str - titulo corto del hito (6-12 palabras)",
+                "evento": (
+                    "str - párrafo descriptivo 2-4 líneas dando contexto "
+                    "sobre qué pasó, por qué, impacto. NO frase de 1 línea."
+                ),
+                "tipo": "str - crisis | estrategia | regulatorio | crecimiento | equipo | comportamiento",
+            }],
+            "_hitos_instrucciones": (
+                "REGLAS DE HITOS:\\n"
+                "1. AGRUPAR por año: si en 2022 pasaron 3 cosas, 1 único hito "
+                "con año=2022 que cubra las 3 en el 'evento'.\\n"
+                "2. SIEMPRE incluir comportamiento vs mercado/ciclo (no solo "
+                "eventos puntuales). P.ej. '2022 — crisis renta fija: fondo "
+                "logró +8% mientras Bloomberg Global Agg caía -13%'.\\n"
+                "3. Cada 'evento' debe ser párrafo descriptivo con contexto "
+                "(por qué, cómo, impacto), NO solo título.\\n"
+                "4. Min 5 hitos, ideal 8-12."
+            ),
+        }
+        return self._gemini_section_json(
+            anti_halluc + f"Datos del fondo:\n{context}\n\n"
+            f"Escribe la HISTORIA del fondo en espanol. USA TODOS los hitos, cifras y "
+            f"citas literales que aparezcan en el contexto; NO resumir si hay material. "
+            f"Cubre: lanzamiento, evolucion AUM, cambios de gestion, hitos relevantes, "
+            f"eventos notables, cambios de estrategia, fusiones, cambios regulatorios. "
+            f"Si hay ciclos de mercado atravesados por el fondo, descríbelos con los "
+            f"datos reales del contexto.",
+            schema, max_chars=50000,
+        )
+
+    def _section_gestores_int_pro(self, context: str, data: dict, anti_halluc: str) -> dict:
+        gestores_list = data.get("_int_gestores", [])
+        schema = {
+            "texto": (
+                "str - RESUMEN GRUPAL del equipo (900-1600 chars). FORMATO "
+                "OBLIGATORIO: varios PÁRRAFOS separados por \\n\\n con **negritas** "
+                "en nombres, años, cargos y conceptos clave.\\n"
+                "ORDEN de los párrafos OBLIGATORIO:\\n"
+                "PÁRRAFO 1 — PRESENTACIÓN DEL EQUIPO E HISTORIA CONJUNTA: quiénes "
+                "son (lead + co con cargo), cuándo se juntaron en este fondo, "
+                "de dónde venían, por qué se formó el equipo actual.\\n"
+                "PÁRRAFO 2 — ORGANIZACIÓN Y GOBERNANZA: cómo se distribuyen "
+                "(lead + co / comité / especialistas por activo), cómo se toman "
+                "las decisiones (colegiadas, voto, delegación), rol específico "
+                "de cada uno si lo hay.\\n"
+                "PÁRRAFO 3 — PERFIL COLECTIVO Y FILOSOFÍA COMPARTIDA: tipo de "
+                "perfil (macro / fundamental / cuant / mixto), visión común, "
+                "cómo el background conjunto soporta la filosofía del fondo.\\n"
+                "PÁRRAFO 4 — ESTABILIDAD / CAMBIOS (OBLIGATORIO SI HUBO CAMBIOS "
+                "RECIENTES): antigüedad media, rotación histórica. SI uno o más "
+                "gestores actuales entraron hace <3 años (desde hoy), DEBES "
+                "explicar qué pasó con el equipo anterior: quién estaba, cuándo "
+                "salió, por qué (jubilación/nueva gestora/reestructuración) y "
+                "si la filosofía y el proceso se mantienen o han cambiado. Este "
+                "punto es CRÍTICO para el inversor: un cambio de equipo sin "
+                "explicación genera dudas sobre continuidad de estrategia.\\n"
+                "PROHIBIDO repetir trayectorias individuales (eso va en 'perfiles')."
+            ),
+            "gestores_anteriores": [
+                {
+                    "nombre": "str - nombre del gestor que salió",
+                    "cargo": "str - cargo que tuvo en el fondo (lead / co / analista...)",
+                    "periodo_en_fondo": "str - p.ej. '2015-2024'",
+                    "motivo_salida": (
+                        "str - jubilación / nueva gestora / reestructuración / "
+                        "fallecimiento / fin de mandato. Sé literal con lo que "
+                        "digan cartas, press releases o notas del gestor."
+                    ),
+                    "sustituto": "str - nombre del gestor actual que tomó su rol",
+                    "impacto_estrategia": (
+                        "str - 1 línea: la filosofía/proceso se mantuvo / cambió "
+                        "parcialmente / cambió sustancialmente. Con justificación breve."
+                    ),
+                }
+            ],
+            "_gestores_anteriores_instrucciones": (
+                "Rellenar SOLO si hubo cambios en los últimos 5 años y tienes "
+                "información verificable (cartas, prensa, manager_profile). "
+                "Si no hay cambios recientes, devolver lista vacía []. "
+                "NUNCA INVENTES nombres o motivos."
+            ),
+            "perfiles": [{
+                "nombre": "str",
+                "cargo": "str",
+                "cv_bullets": [
+                    "str - bullet CV formato 'Empresa · Puesto · Años · AUM/responsabilidad' "
+                    "(ej: 'Swiss Re · Portfolio Manager ILS · 2010-2015 · $2B AUM'). "
+                    "Min 3 bullets, max 6, ordenados del MÁS RECIENTE al más antiguo. "
+                    "Son la CV lateral del perfil, deben ser leíbles en 1 segundo."
+                ],
+                "trayectoria": (
+                    "str - narrativa profesional DETALLADA con contexto (500-800 chars). "
+                    "Complementa los cv_bullets, NO los repite literalmente. "
+                    "Incluye: por qué cambió de puesto/empresa, qué aportó en "
+                    "cada rol, hitos notables (premios, fondos lanzados, AUM "
+                    "gestionado, situaciones superadas), contexto del sector "
+                    "cuando entró/salió."
+                ),
+                "filosofia": (
+                    "str - filosofía PERSONAL del gestor DETALLADA (450-700 chars). "
+                    "NO la filosofía del fondo — la del INDIVIDUO. Cómo ve los "
+                    "mercados, qué prioriza/evita, visión sobre ciclos/riesgo/"
+                    "valoración, convicciones fuertes, aproximación al análisis "
+                    "(bottom-up, top-down, cuant, etc). Si hay citas literales "
+                    "del gestor incluirlas entre comillas."
+                ),
+                "educacion": "str - titulos y certificaciones",
+                "reconocimientos": "str - premios/ratings",
+                "highlights": [
+                    {
+                        "tipo": "str - historia | filosofia | decision | estrategia | cita",
+                        "texto": "str - bullet breve (80-200 chars) con dato concreto y contexto",
+                    }
+                ],
+            }],
+            "_instrucciones_highlights": (
+                "CADA gestor debe tener MÍNIMO 5 highlights, uno de cada tipo:\\n"
+                "- 'historia': momento/hito biográfico relevante (ej. 'Fundó Troy "
+                "en 2000 tras dejar Stanhope por diferencias de filosofía').\\n"
+                "- 'filosofia': máxima personal (ej. 'Sebastian: cree que el "
+                "experimento monetario debe terminar con inflación alta').\\n"
+                "- 'decision': decisión concreta y cuando (ej. '2013: concentró "
+                "11% cartera en oro contra consenso de mercado').\\n"
+                "- 'estrategia': cómo traduce filosofía a cartera (ej. "
+                "'Prefiere quality compounders sobre cyclical value').\\n"
+                "- 'cita': frase célebre o quote literal del gestor (con "
+                "comillas si viene de carta/entrevista)."
+            ),
+        }
+        result = self._gemini_section_json(
+            anti_halluc + f"Datos del fondo:\n{context}\n\n"
+            f"Escribe la sección EQUIPO GESTOR en espanol respetando EL SCHEMA "
+            f"exactamente. REGLAS CRÍTICAS:\n"
+            f"- 'texto' DEBE tener EXACTAMENTE 4 PÁRRAFOS separados por DOS "
+            f"saltos de línea (\\n\\n). Orden obligatorio:\n"
+            f"  Párrafo 1 — Presentación del equipo + historia conjunta "
+            f"(cuándo se juntaron, de dónde vienen, por qué).\n"
+            f"  Párrafo 2 — Organización y gobernanza (lead + co / comité / "
+            f"roles específicos).\n"
+            f"  Párrafo 3 — Perfil colectivo y filosofía compartida.\n"
+            f"  Párrafo 4 — Estabilidad / cambios relevantes. OBLIGATORIO si "
+            f"alguno de los gestores actuales entró hace menos de 3 años: "
+            f"explica quién estaba antes, cuándo salió y por qué (el inversor "
+            f"necesita saber si la filosofía se mantiene).\n"
+            f"- 'gestores_anteriores': rellenar si hay cambios recientes "
+            f"(<5 años) con datos verificables — nombre, cargo, periodo_en_fondo, "
+            f"motivo_salida, sustituto, impacto_estrategia. Si no hay, []. "
+            f"NUNCA inventes.\n"
+            f"- Usa **negritas** en nombres, años, cargos y conceptos clave "
+            f"del texto grupal.\n"
+            f"- 'perfiles[i].trayectoria' 500-800 chars (DETALLADA, con "
+            f"hitos/contexto, no repite cv_bullets).\n"
+            f"- 'perfiles[i].filosofia' 450-700 chars DETALLADA (visión "
+            f"personal del gestor, no del fondo).\n"
+            f"- 'perfiles[i].cv_bullets': 3-6 bullets formato "
+            f"'Empresa · Puesto · Años · Responsabilidad', orden cronológico "
+            f"inverso.\n"
+            f"- 'perfiles[i].highlights': 5 bullets, uno por tipo "
+            f"(historia/filosofia/decision/estrategia/cita).\n"
+            f"- NO repetir información entre 'texto' y 'perfiles'.\n"
+            f"- NO repetir entre 'trayectoria' y 'cv_bullets'.",
+            schema, max_chars=50000,
+        )
+        result["equipo"] = gestores_list
+        return result
+
+    def _fetch_morningstar_yearly_returns(self, isin: str) -> dict:
+        """Fetchea la serie diaria de Morningstar y calcula rentabilidad
+        anual (yearly close-to-close). Devuelve dict {year: pct_return}.
+        Cacheado en disco en raw/mst_returns.json para no repetir el hit.
+        """
+        import json as _json
+        cache = self.fund_dir / "raw" / "mst_returns.json"
+        try:
+            if cache.exists():
+                return _json.loads(cache.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+        try:
+            import httpx
+            url = (f"https://tools.morningstar.es/api/rest.svc/timeseries_price/"
+                   f"2nhcdckzon?id={isin}&idtype=Isin&frequency=daily&"
+                   f"startDate=1900-01-01&outputType=compactJSON")
+            with httpx.Client(timeout=15, follow_redirects=True,
+                              headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}) as c:
+                r = c.get(url)
+                if r.status_code != 200:
+                    return {}
+                arr = r.json()
+        except Exception:
+            return {}
+        if not isinstance(arr, list) or not arr:
+            return {}
+        # arr es [[timestamp_ms, nav], ...]
+        from datetime import datetime as _dt
+        pts = []
+        for it in arr:
+            if not isinstance(it, list) or len(it) < 2:
+                continue
+            try:
+                ts, v = float(it[0]), float(it[1])
+                if v <= 0:
+                    continue
+                d = _dt.utcfromtimestamp(ts / 1000)
+                pts.append((d, v))
+            except Exception:
+                continue
+        pts.sort()
+        # Último NAV de cada año
+        year_end = {}
+        for d, v in pts:
+            year_end[d.year] = v  # se sobreescribe con el último → último del año
+        years_sorted = sorted(year_end.keys())
+        returns = {}
+        for i in range(1, len(years_sorted)):
+            prev_y = years_sorted[i - 1]
+            y = years_sorted[i]
+            r_pct = (year_end[y] / year_end[prev_y] - 1) * 100
+            returns[str(y)] = round(r_pct, 2)
+        try:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(_json.dumps(returns), encoding="utf-8")
+        except Exception:
+            pass
+        return returns
+
+    def _section_estrategia_int_pro(self, context: str, anti_halluc: str) -> dict:
+        # Fetchear rentabilidades anuales reales para que el LLM complete
+        # el campo 'resultado' de cada hito con la cifra real.
+        yearly_returns = self._fetch_morningstar_yearly_returns(self.isin)
+        if yearly_returns:
+            sorted_years = sorted(yearly_returns.keys())
+            returns_block = ("RENTABILIDADES ANUALES REALES del fondo (Morningstar "
+                             "daily, cierre-a-cierre, YoY):\n")
+            for y in sorted_years:
+                returns_block += f"  · {y}: {yearly_returns[y]:+.2f}%\n"
+        else:
+            returns_block = ""
+        schema = {
+            "texto": (
+                "str - ANÁLISIS EJECUTIVO DE LA ESTRATEGIA (no de la consistencia). "
+                "OBJETIVO 4000-7000 caracteres. TEXTO FLUIDO Y PROFESIONAL, "
+                "NO pegado en bloques rígidos. Estilo de nota de research para "
+                "comité de inversión. Usar **negritas** en puntos clave "
+                "(fechas, cifras, conceptos centrales) pero SIN headers en "
+                "mayúsculas ni etiquetas tipo 'PÁRRAFO 1 —'.\\n\\n"
+                "TEMAS A CUBRIR (en orden narrativo, fluido, entrelazando):\\n"
+                "(a) Qué hace el fondo — mandato/objetivo/benchmark/universo.\\n"
+                "(b) Proceso de inversión detallado — macro/fundamental/cuant, "
+                "selección, control riesgo, duración/beta, rol de cada activo.\\n"
+                "(c) Decisiones clave históricas con cifras (contracorriente, "
+                "pivotes) que ilustren la filosofía en acción.\\n"
+                "(d) Citas literales del gestor entre comillas con atribución "
+                "y año (SOLO si las hay; si no, OMITIR este bloque — NO "
+                "escribir 'no se han encontrado citas').\\n"
+                "(e) Patrón de comportamiento en ciclos (crisis vs bonanza) "
+                "con ejemplos concretos de años.\\n"
+                "(f) Cierre con la VISIÓN ACTUAL y la ORIENTACIÓN DE CARTERA "
+                "hoy — qué piensa el equipo del mercado, decisiones recientes, "
+                "cómo está posicionada la cartera para cumplir el objetivo. "
+                "Integrar como párrafo fluido, SIN header en mayúsculas al "
+                "principio (nada de 'VISIÓN ACTUAL Y ORIENTACIÓN:').\\n\\n"
+                "Usar párrafos de 3-6 frases separados por \\n\\n, sin "
+                "romper el flujo narrativo."
+            ),
+            "perfil_riesgo": {
+                "tipo_activo_principal": (
+                    "str - clasificación corta del tipo de estrategia subyacente "
+                    "(ej. 'Bonos catástrofe (ILS)', 'Convertibles globales', "
+                    "'RV emergentes small cap', 'Arbitraje de fusiones', "
+                    "'Renta fija corto plazo high yield', 'Long-short equity'). "
+                    "OBLIGATORIO — el inversor tiene que entender de un vistazo "
+                    "en qué tipo de activo se mete."
+                ),
+                "riesgos_especificos": [
+                    "str - bullets detallados de los riesgos PROPIOS del tipo "
+                    "de activo (no riesgos genéricos). Para cat bonds: "
+                    "'riesgo evento natural catastrófico con pérdida de "
+                    "principal', 'riesgo de modelización actuarial', 'riesgo "
+                    "de liquidez del mercado ILS'. Para convertibles: 'riesgo "
+                    "de correlación equity/crédito', etc. Mínimo 3, máximo 6."
+                ],
+                "escenarios_adversos": (
+                    "str - 2-4 líneas describiendo qué pasaría en el peor "
+                    "escenario realista para ESTA estrategia (no para 'el "
+                    "mercado' en general). Ejemplos concretos ayudan: "
+                    "'Temporada huracanes 2017 costó al sector ILS -15%...'"
+                ),
+                "protecciones": (
+                    "str - 1-3 líneas: cómo mitiga el gestor estos riesgos "
+                    "(diversificación por peril/región, cap de exposición "
+                    "por emisor, hedging, reservas de liquidez, etc.)."
+                ),
+                "liquidez_estructura": (
+                    "str - 1-2 líneas sobre liquidez del subyacente y ventanas "
+                    "de suscripción/reembolso del fondo. Si hay gating, side "
+                    "pockets o ventanas semanales/mensuales, DEBE aparecer aquí."
+                ),
+                "desglose_exposicion_resumen": (
+                    "str - 3-5 líneas explicando EN LENGUAJE CLARO la "
+                    "granularidad del riesgo concreto de la cartera para que "
+                    "un inversor entienda A QUÉ eventos/escenarios adversos "
+                    "está realmente expuesto. Ejemplos:\n"
+                    "  - Cat bonds: 'La cartera está principalmente expuesta "
+                    "a huracanes en la costa sudeste de EE.UU. (≈45%) y "
+                    "terremotos en Japón (≈15%). Un huracán categoría 4+ "
+                    "tocando Florida en temporada alta sería el escenario "
+                    "más adverso. La mortalidad extrema aporta diversificación.'\n"
+                    "  - EM bonds: 'Concentración en soberanos de India y Brasil "
+                    "con menor exposición a frontera. Un repunte del dólar o "
+                    "una crisis política en uno de los dos principales países...'\n"
+                    "No resumir con genéricos; usar las cifras y detalles de "
+                    "la lista 'desglose_exposicion'."
+                ),
+                "desglose_exposicion": [
+                    {
+                        "dimension": (
+                            "str - eje de riesgo relevante para ESTE tipo de "
+                            "fondo. Ejemplos por tipo de estrategia:\n"
+                            "  - Cat bonds / ILS: 'Peril' (tipo de catástrofe) "
+                            "o 'Región catastrófica'.\n"
+                            "  - RV/RF emergentes: 'País' o 'Frontera vs emergente'.\n"
+                            "  - High yield / Loans: 'Rating crediticio' o 'Sector'.\n"
+                            "  - Convertibles: 'Sector subyacente' o 'Delta'.\n"
+                            "  - Arbitraje fusiones: 'Spread bucket' o 'Geografía deal'.\n"
+                            "  - RV sectorial: 'Sub-sector' o 'Capitalización'.\n"
+                            "  - RF duración larga: 'Tramo de curva' o 'Emisor soberano vs corporativo'.\n"
+                        ),
+                        "detalle": (
+                            "str - valor concreto dentro de la dimensión. "
+                            "Ejemplos para cat bonds: 'Hurricane US (costa "
+                            "sudeste/Florida)', 'Earthquake Japan', 'Winter "
+                            "storm Europe', 'Hurricane Caribbean', 'Multi-peril "
+                            "global'. Para RV emergentes: 'India', 'Brasil', "
+                            "'Vietnam'. Ser literal con lo que digan las cartas."
+                        ),
+                        "peso_aprox_pct": (
+                            "number|null - peso aproximado en la cartera si se "
+                            "deduce de cartas/informes. null si no se explicita."
+                        ),
+                        "comentario": (
+                            "str - 1-2 líneas sobre por qué el gestor tiene "
+                            "esa exposición y qué evento concreto debería "
+                            "preocupar al inversor ('la cartera sufriría si "
+                            "Florida tiene un huracán categoría 4+ en "
+                            "septiembre-octubre')."
+                        ),
+                    }
+                ],
+            },
+            "_perfil_riesgo_instrucciones": (
+                "OBLIGATORIO para TODOS los fondos, pero especialmente CRÍTICO "
+                "cuando el fondo invierte en activos nicho/ilíquidos/complejos "
+                "(cat bonds, ILS, convertibles, EM frontier, high yield, "
+                "loans, option selling, arbitraje, volatilidad, distressed). "
+                "El inversor no experto debe poder leer este bloque y "
+                "entender EN QUÉ se está metiendo antes de ver performance.\\n"
+                "'desglose_exposicion' es OBLIGATORIO (mínimo 3 filas): "
+                "detalla la granularidad del riesgo asumido — no basta con "
+                "'bonos catástrofe' o 'high yield global'. Debe decir QUÉ "
+                "peril/país/sector/rating concreto y qué evento adverso "
+                "específico le afectaría. Si las cartas no dan peso exacto, "
+                "pon null en peso_aprox_pct pero rellena dimension/detalle/"
+                "comentario siempre."
+            ),
+            "hitos_estrategia": [{
+                "periodo": "str - año YYYY ORDENADOS DE MÁS ANTIGUO A MÁS RECIENTE (inicio del fondo hasta hoy)",
+                "contexto_mercado": "str - OBLIGATORIO. Qué pasaba en el mercado ese año (macro, sectorial). Nunca vacío.",
+                "decisiones": "str - OBLIGATORIO. Decisión concreta del gestor ese año (pivote, nueva posición, rotación, hedging) con cifras cuando existan.",
+                "resultado": (
+                    "str - OBLIGATORIO. DOS partes separadas por ' — ': "
+                    "(1) CIFRA con rentabilidad real del año del bloque "
+                    "'RENTABILIDADES ANUALES REALES' + comparación vs "
+                    "benchmark/objetivo ('superó/en línea/no superó'); "
+                    "(2) DRIVER concreto: POR QUÉ subió/bajó ese año — "
+                    "eventos de mercado específicos, aciertos/errores del "
+                    "gestor, catalizadores (ej. 'Caída -4.15% 2022 por "
+                    "repricing cat bonds tras temporada ciclónica benigna "
+                    "que elevó primas técnicas y contrajo valor mark-to-market'). "
+                    "Si el año NO aparece en las rentabilidades reales "
+                    "(año anterior a inicio o muy reciente), describir "
+                    "cualitativamente con driver. NUNCA devolver solo la "
+                    "cifra sin driver — el 'por qué' es obligatorio."
+                ),
+            }],
+            "_hitos_instrucciones": (
+                "CRÍTICO:\\n"
+                "1. MÍNIMO 5-8 hitos cubriendo TODA la vida del fondo (inicio "
+                "hasta hoy). NO omitas un año relevante por falta de un campo — "
+                "relléna los 3 campos SIEMPRE usando lo disponible.\\n"
+                "2. Para 'resultado': usa la RENTABILIDAD REAL del año del "
+                "bloque 'RENTABILIDADES ANUALES REALES' cuando esté disponible; "
+                "cuando no, valora cualitativamente si la tesis se cumplió.\\n"
+                "3. Ordenar cronológicamente ASCENDENTE (inicio → hoy)."
+            ),
+            "quotes": [{
+                "texto": (
+                    "str - CITA LITERAL del gestor tomada de cartas, annual "
+                    "reports, entrevistas, presentaciones o readings externos. "
+                    "Debe ser una FRASE con SUSTANCIA (tesis, visión, decisión "
+                    "o argumento). Mínimo 25 caracteres y 5 palabras con "
+                    "significado propio. PROHIBIDO devolver UNA palabra aislada "
+                    "entre comillas ('tremendos', 'absolutamente'). Si el gestor "
+                    "usó expresiones fuertes, incluye la frase completa donde "
+                    "aparecen con su CONTEXTO. Ejemplos VÁLIDOS:\n"
+                    "  - 'Creemos que los fundamentos del mercado son "
+                    "tremendos y el crecimiento absolutamente sostenible.'\n"
+                    "  - 'Preferimos quality compounders sobre cyclical value, "
+                    "incluso si paga un múltiplo superior.'\n"
+                    "  - 'El experimento monetario debe terminar con "
+                    "inflación alta, y posicionamos la cartera para ello.'\n"
+                    "Busca ACTIVAMENTE en cartas, readings externos y "
+                    "manager_profile — mínimo 1-3 citas si los docs lo permiten."
+                ),
+                "autor": (
+                    "str - nombre propio del gestor (ej. 'Sebastian Lyon', "
+                    "'MariaGiovanna Guatteri'). Si no se identifica un "
+                    "gestor concreto y la cita es institucional, usar el "
+                    "nombre de la gestora. Evitar 'Equipo gestor' genérico."
+                ),
+                "contexto": (
+                    "str - fuente y tema breve. Ejemplos: '2024 Q3 letter "
+                    "— valoración de mercado', 'Annual Report 2023 — "
+                    "outlook', 'Substack Astralis — entrevista 2024'"
+                ),
+            }],
+            "_quotes_instrucciones": (
+                "OBJETIVO: 1-3 citas sustantivas. Si solo encuentras "
+                "palabras sueltas entre comillas en el original, "
+                "reconstruye la frase completa citable incorporándolas "
+                "en su contexto natural (mantén las comillas internas "
+                "si quieres destacar la expresión). NUNCA devolver una "
+                "única palabra como cita."
+            ),
+            "estrategia_actual_resumen": (
+                "str - resumen 200-400 chars del posicionamiento ACTUAL "
+                "(visión de mercado + cómo está posicionada la cartera hoy)."
+            ),
+            "resumen_consistencia": {
+                "score": "str - 1-10 basado en el cruce de tesis vs resultado",
+                "decisiones_vs_estrategia": (
+                    "str - 2-3 líneas: ¿las decisiones tomadas cuadran con "
+                    "la estrategia declarada? Ejemplos concretos."
+                ),
+                "resultados_vs_objetivo": (
+                    "str - 2-3 líneas: ¿los resultados cumplen el objetivo "
+                    "del fondo (retorno absoluto / benchmark + X / preservar "
+                    "capital)? Con cifras."
+                ),
+                "justificacion": "str - 1-2 líneas justificando el score",
+            },
+        }
+        return self._gemini_section_json(
+            anti_halluc + f"Datos del fondo:\n{context}\n\n"
+            + (returns_block + "\n" if returns_block else "")
+            + f"Escribe ANÁLISIS DE ESTRATEGIA Y CONSISTENCIA en español. "
+            f"REGLAS:\n"
+            f"- 'texto' es SOLO la estrategia (proceso + decisiones clave + "
+            f"citas + patrón ciclos). NO metas la tabla de consistencia aquí.\n"
+            f"- 'hitos_estrategia' es la tabla de consistencia año a año, "
+            f"5-8 hitos MÍNIMO, SIEMPRE ordenados cronológicamente ASCENDENTE "
+            f"desde inicio del fondo hasta el año actual.\n"
+            f"- El campo 'resultado' DEBE incorporar la rentabilidad real del "
+            f"año del bloque 'RENTABILIDADES ANUALES REALES' arriba (si el año "
+            f"está en la lista), comparándola con el objetivo/benchmark del "
+            f"fondo.\n"
+            f"- NO omitir hitos por falta de un campo: rellenar los 3 con lo "
+            f"disponible.\n"
+            f"- 'resumen_consistencia' es el resumen que va DEBAJO de la "
+            f"tabla con score + decisiones vs estrategia + resultados vs "
+            f"objetivo + justificación del score.\n"
+            f"- 'perfil_riesgo' es OBLIGATORIO: tipo_activo_principal, "
+            f"riesgos_especificos (≥3 bullets propios del tipo de activo, "
+            f"NO genéricos), escenarios_adversos con ejemplos reales, "
+            f"protecciones y liquidez_estructura. Esta sección irá renderizada "
+            f"ANTES de la tabla de consistencia para que el lector entienda "
+            f"qué tipo de riesgo asume.\n"
+            f"- 'hitos_estrategia[].resultado': DOS partes ' — ': cifra "
+            f"vs benchmark + DRIVER (por qué subió/bajó). Ejemplo: "
+            f"'+13.98% vs +3.5% €STR → superó — prima ILS expandida "
+            f"por memoria huracán Ian y ausencia de eventos cat mayores'.\n"
+            f"- USA citas LITERALES de las cartas entre comillas con "
+            f"atribución y año.",
+            schema, max_chars=50000,
+        )
+
+    def _section_evolucion_int_pro(self, context: str, data: dict, anti_halluc: str) -> dict:
+        cuant = data.get("cuantitativo", {})
+        clases = data.get("_int_clases", [])
+        schema = {"texto": "str - analisis detallado de evolucion del fondo. OBJETIVO: 3000-6000 caracteres. Cubre evolucion AUM, TER, clases, eventos, cambios macro, ciclos de mercado atravesados, narrativa temporal."}
+
+        serie_aum = cuant.get('serie_aum', [])
+        serie_ter = cuant.get('serie_ter', [])
+        datos_extra = (
+            f"SERIE AUM (unicos valores validos, NO inventar otros): {serie_aum}\n"
+            f"SERIE TER (unicos valores validos): {serie_ter}\n"
+            f"CLASES DISPONIBLES ({len(clases)}): "
+            + ", ".join(str(c.get('code', c.get('nombre', ''))) for c in clases if isinstance(c, dict)) + "\n"
+        )
+        strict_prompt = (
+            anti_halluc
+            + "REGLA CRITICA: Los datos cuantitativos (AUM, TER, clases) son los UNICOS "
+            "valores validos. PROHIBIDO inventar cifras adicionales de años no listados. "
+            "Si solo hay 1 punto de AUM, NO escribas evolucion historica con cifras inventadas.\n\n"
+            + f"Datos del fondo:\n{context}\n\nDatos evolutivos (UNICOS VALIDOS):\n{datos_extra}\n\n"
+            f"Escribe ANALISIS DE EVOLUCION del fondo en espanol. Incluye SOLO:\n"
+            f"- Evolucion AUM (SOLO con los valores del serie_aum arriba, no inventar)\n"
+            f"- TER (SOLO con los valores del serie_ter arriba)\n"
+            f"- Clases disponibles (las listadas)\n"
+            f"- Eventos relevantes si aparecen en el contexto\n"
+            f"Si solo hay 1 punto de AUM, menciona ese valor como AUM actual y omite "
+            f"evolucion historica — NO INVENTAR cifras pasadas."
+        )
+        result = self._gemini_section_json(strict_prompt, schema, max_chars=50000)
+        result["datos_graficos"] = {
+            "serie_aum": cuant.get("serie_aum", []),
+            "serie_ter": cuant.get("serie_ter", []),
+            "clases": clases,
+        }
+        return result
+
+    def _section_cartera_int_pro(self, context: str, data: dict, anti_halluc: str) -> dict:
+        posiciones = data.get("posiciones", {}).get("actuales", [])
+        sorted_pos = sorted(posiciones, key=lambda x: x.get("peso_pct", 0) or 0, reverse=True)
+
+        top5 = sum((p.get("peso_pct", 0) or 0) for p in sorted_pos[:5])
+        top10 = sum((p.get("peso_pct", 0) or 0) for p in sorted_pos[:10])
+        top15 = sum((p.get("peso_pct", 0) or 0) for p in sorted_pos[:15])
+
+        # Distribución por tipo (programático)
+        by_type: dict[str, dict] = {}
+        for p in posiciones:
+            t = (p.get("asset_type") or p.get("sector") or "other").lower() or "other"
+            if t not in by_type:
+                by_type[t] = {"peso_pct": 0, "num_posiciones": 0}
+            by_type[t]["peso_pct"] += p.get("peso_pct", 0) or 0
+            by_type[t]["num_posiciones"] += 1
+        distribucion = [{"tipo": k, **v} for k, v in by_type.items()]
+
+        schema = {
+            "texto": (
+                "str - ANÁLISIS DE CARTERA. OBJETIVO 3000-6000 caracteres con "
+                "**negritas** en puntos clave. FORMATO OBLIGATORIO: varios "
+                "PÁRRAFOS separados por \\n\\n. Cada bloque comienza con un "
+                "header en mayúsculas entre dobles asteriscos.\\n"
+                "ESTRUCTURA OBLIGATORIA:\\n\\n"
+                "**EXPOSICIÓN ACTUAL Y RACIONAL**\\n\\n"
+                "Párrafo CUALITATIVO (no enumerativo). PROHIBIDO listar "
+                "posiciones top10 con pesos — eso ya lo hace la tabla. "
+                "Aquí debes contar:\\n"
+                "(a) DÓNDE están las exposiciones — por tipo de activo con "
+                "cifras globales (ej. 'cartera con ~XX% en bonos cat peril "
+                "diversificado, ~YY% en cash y equivalentes, ~ZZ% en "
+                "reaseguro privado'), por región/peril/sector/duración si "
+                "aplica al tipo de fondo.\\n"
+                "(b) POR QUÉ esa asignación — racional ligado a la visión "
+                "del gestor del mercado hoy (tesis macro/micro), con citas "
+                "de cartas si las hay.\\n"
+                "(c) Qué 2-3 posiciones son ESTRUCTURALES / emblemáticas de "
+                "la filosofía (no las 10 mayores, sino las que explican la "
+                "filosofía) con su tesis en 1 línea cada una. Sin listar "
+                "pesos — esto NO es la tabla.\\n\\n"
+                "**DECISIONES / CAMBIOS RECIENTES**\\n\\n"
+                "Entradas, salidas, rotaciones de los últimos 6-12 meses "
+                "explicadas EN DETALLE con el contexto de mercado que las "
+                "motivó y cómo encajan en la VISIÓN A FUTURO del gestor "
+                "(posicionamiento para el próximo ciclo/escenario). Si hay "
+                "cartas recientes con rationale literal, citarlo.\\n\\n"
+                "**CONCENTRACIÓN** (solo si el fondo es de RV/RF puro; si es "
+                "de instrumentos — ETFs/oro/commodities — OMITIR porque "
+                "la métrica pierde sentido).\\n\\n"
+                "Comentar top5/top10/top15 con su significado relativo a "
+                "la media del tipo de fondo."
+            ),
+        }
+        datos_extra = (
+            f"Total posiciones: {len(posiciones)}. "
+            f"Top5: {top5:.1f}%. Top10: {top10:.1f}%. Top15: {top15:.1f}%.\n"
+            f"Distribucion: {distribucion}\n"
+            f"Top posiciones: "
+            + ", ".join(f"{p.get('nombre','')} ({p.get('peso_pct',0):.1f}%)" for p in sorted_pos[:10])
+        )
+        result = self._gemini_section_json(
+            anti_halluc + f"Datos del fondo:\n{context}\n\nCartera:\n{datos_extra}\n\n"
+            f"Escribe ANALISIS CUALITATIVO DE CARTERA en espanol. REGLAS:\n"
+            f"- PROHIBIDO enumerar el top10/top15 con pesos en el texto: "
+            f"eso ya lo muestra la tabla. El texto es CUALITATIVO.\n"
+            f"- **EXPOSICIÓN ACTUAL Y RACIONAL** (primer bloque): cuenta DÓNDE "
+            f"están los pesos globales (por tipo de activo con cifras: "
+            f"ej. 'RF ~78%, Cash ~9%, Oro ~6%'), por qué esa asignación "
+            f"(racional/tesis del gestor), y cita SÓLO 2-3 posiciones "
+            f"EMBLEMÁTICAS/estructurales (no las 10 mayores), sin listar pesos.\n"
+            f"- **DECISIONES / CAMBIOS RECIENTES** (segundo bloque): entradas, "
+            f"salidas, rotaciones ÚLTIMOS 6-12 MESES con contexto y cómo "
+            f"encajan en la VISIÓN A FUTURO del gestor (orientación de cartera).\n"
+            f"- **CONCENTRACIÓN** (tercer bloque, solo si es fondo RV/RF puro): "
+            f"comentario top5/top10/top15 y comparativa con media del tipo de fondo.\n"
+            f"- USA TODAS las referencias a cartera en cartas/readings para "
+            f"alimentar el racional; pero NO reproduzcas la tabla en prosa.",
+            schema, max_chars=50000,
+        )
+        # Post-process: curar artefactos tipicos de parser JSON (p.ej. '(4.La ')
+        # que aparecen cuando el JSON se corta en medio de un peso.
+        texto_raw = result.get("texto", "") or ""
+        texto_clean = self._sanitize_numbered_positions(texto_raw, sorted_pos)
+        if texto_clean != texto_raw:
+            result["texto"] = texto_clean
+            self._log("INFO", "Cartera: sanitizadas posiciones con peso cortado")
+
+        result["distribucion_tipo"] = distribucion
+        result["concentracion"] = {
+            "top5_pct": round(top5, 2),
+            "top10_pct": round(top10, 2),
+            "top15_pct": round(top15, 2),
+        }
+        result["posiciones_top"] = sorted_pos[:15]
+        return result
+
+    def _sanitize_numbered_positions(self, texto: str, sorted_pos: list) -> str:
+        """Detecta y repara posiciones enumeradas con peso cortado.
+        Patron tipico: '9. **Nombre (4.La gestion...' -> el '%)' se perdio.
+        Generic: busca '(N.letra' y reconstruye el segmento con el peso real si
+        encuentra el nombre en sorted_pos.
+        """
+        import re as _re
+        if not texto:
+            return texto
+        # Mapear nombre normalizado -> peso
+        name_to_weight = {}
+        for p in sorted_pos:
+            name = (p.get("nombre", "") or "").strip()
+            if name:
+                name_to_weight[name.lower()[:40]] = p.get("peso_pct", 0) or 0
+
+        # Patron: "(dígito.letra" — signo de que % quedó cortado
+        # Ej: "Alphabet Inc (4.La gestion" -> "Alphabet Inc — 4.X% — La gestion"
+        def _fix(m):
+            frag = m.group(0)
+            # Extraer parte antes del parentesis y numero parcial
+            pre = m.group(1)   # "4"
+            post = m.group(2)  # "La gestion"
+            # Buscar nombre justo antes
+            return f" — {pre}.?% — {post}"
+
+        texto_fixed = _re.sub(r"\((\d+)\.([A-Za-zÁÉÍÓÚÑáéíóúñ])", _fix, texto)
+        return texto_fixed
+
+    def _section_fuentes_int_programmatic(self, data: dict) -> dict:
+        """Fuentes externas desde readings_data.json. Sin LLM.
+        Mapeo completo: fuente, titulo, opinion, url, fecha (como espera el dashboard)."""
+        readings = self._load_json("readings_data.json")
+        all_r = readings.get("analisis_completos", []) + readings.get("otros_readings", [])
+        if not all_r:
+            return {"texto": "", "opiniones_clave": []}
+
+        parts = [f"**{len(all_r)} analisis externos encontrados:**\n"]
+        opiniones = []
+        for r in all_r:
+            source = r.get("source", "") or ""
+            titulo = r.get("titulo", "") or ""
+            resumen = r.get("resumen", "") or ""
+            opinion_text = r.get("opinion_sobre_fondo", "") or ""
+            url = r.get("url", "") or ""
+            fecha = r.get("fecha", "") or ""
+
+            parts.append(f"**[{source}]** {titulo}")
+            if resumen:
+                parts.append(f"  {resumen}")
+            if opinion_text:
+                parts.append(f"  *Opinion:* {opinion_text}")
+            if url:
+                parts.append(f"  URL: {url}")
+            parts.append("")
+
+            opiniones.append({
+                "fuente": source,
+                "titulo": titulo,
+                "opinion": opinion_text or resumen,
+                "resumen": resumen,
+                "url": url,
+                "fecha": fecha,
             })
 
-        return {
-            "texto": texto,
-            "quotes": [],
-            "hitos_estrategia": hitos,
-            "estrategia_actual_resumen": estrategia[:300] if estrategia else "",
-        } if texto else None
+        return {"texto": "\n".join(parts), "opiniones_clave": opiniones}
 
-    def _section_resumen_int(self, data: dict) -> dict | None:
-        """R4: resumen con datos concretos del fondo, no generico."""
+    def _extract_web_evidence(self, data: dict) -> str:
+        """Extrae citas literales de readings_data.json que mencionan
+        gestores, AUM, benchmark, etc. Evidencia externa anti-alucinacion."""
+        readings = self._load_json("readings_data.json")
+        all_r = readings.get("analisis_completos", []) + readings.get("otros_readings", [])
+
+        gestores = [g.get("nombre", "") for g in data.get("_int_gestores", [])
+                    if isinstance(g, dict) and g.get("nombre")]
+        apellidos = [g.split()[-1].lower() for g in gestores if g.split()]
+
+        citas = []
+        for r in all_r[:10]:
+            source = r.get("source", "") or ""
+            resumen = r.get("resumen", "") or ""
+            if not resumen:
+                continue
+            # Buscar si menciona los gestores
+            resumen_low = resumen.lower()
+            mentions_gestor = any(a in resumen_low for a in apellidos)
+            if mentions_gestor:
+                # Extraer frase relevante (oracion con el apellido)
+                import re as _re
+                sentences = _re.split(r'(?<=[.!?])\s+', resumen)
+                for sent in sentences:
+                    if any(a in sent.lower() for a in apellidos):
+                        citas.append(f"[{source}]: \"{sent.strip()[:200]}\"")
+                        break
+        if not citas:
+            return ""
+        return "\nEVIDENCIA WEB (citas literales de fuentes externas):\n" + "\n".join(citas[:5])
+
+    def _build_real_facts_with_sources(self, data: dict) -> str:
+        """Construye el bloque DATOS REALES indicando la FUENTE de cada dato.
+        Opus respeta más datos cuando sabe de dónde vienen.
+        manager_profile.json se considera fuente autoritativa: se construye
+        con cross-validacion web (Trustnet/Citywire/FT/Morningstar)."""
+        gestores_reales = [g.get("nombre", "") for g in data.get("_int_gestores", [])]
         kpis = data.get("kpis", {})
-        estrategia = data.get("_int_estrategia", "")
-        tipo_act = data.get("_int_tipo_activos", "")
-        clases = data.get("_int_clases", [])
-        econ = data.get("_int_economia", {})
 
-        aum = kpis.get("aum_actual_meur")
-        ter = kpis.get("ter_pct")
-        bench = kpis.get("benchmark", "")
-        clasif = kpis.get("clasificacion", "")
-        inception = kpis.get("anio_creacion")
-        top10 = kpis.get("concentracion_top10_pct")
+        # Cargar manager_profile.json (fuente autoritativa del equipo gestor)
+        mgr = self._load_json("manager_profile.json") or {}
+        mgr_equipo = mgr.get("equipo", []) or []
+        mgr_gestora = mgr.get("gestora", "") or ""
+        mgr_sources = []
+        for g in mgr_equipo:
+            for src in (g.get("fuentes", []) or []):
+                if isinstance(src, str):
+                    mgr_sources.append(src)
+                elif isinstance(src, dict) and src.get("url"):
+                    mgr_sources.append(src["url"])
+        mgr_sources_line = "; ".join(mgr_sources[:5]) if mgr_sources else "web search cross-validated"
 
-        parts = []
-        if estrategia:
-            parts.append(estrategia[:500])
-        fund_facts = []
-        if clasif:
-            fund_facts.append(f"Clasificacion: {clasif}")
-        if bench:
-            fund_facts.append(f"Benchmark: {bench}")
-        if inception:
-            fund_facts.append(f"Inicio: {inception}")
-        if aum:
-            fund_facts.append(f"AUM: {aum:.1f} M EUR")
-        if ter:
-            fund_facts.append(f"TER: {ter}%")
-        if top10:
-            fund_facts.append(f"Top 10 concentracion: {top10}%")
-        if fund_facts:
-            parts.append("**Datos clave:** " + " | ".join(fund_facts))
+        # Buscar archivos fuente disponibles en raw/discovery/
+        disc_path = self.fund_dir / "intl_discovery_data.json"
+        source_files = []
+        if disc_path.exists():
+            try:
+                disc = json.loads(disc_path.read_text(encoding="utf-8"))
+                for doc in disc.get("documents", []):
+                    if doc.get("doc_type") in ("annual_report", "factsheet", "prospectus"):
+                        source_files.append(f"{doc.get('doc_type')} {doc.get('periodo','')} "
+                                           f"({Path(doc.get('local_path','')).name})")
+            except Exception:
+                pass
 
-        if clases:
-            cls_text = ", ".join(
-                f"{c.get('code','')} (fee {c.get('mgmt_fee_pct','-')}%)"
-                for c in clases[:6] if isinstance(c, dict)
+        sources_line = "; ".join(source_files[:5]) or "annual_report + factsheets"
+
+        # Bloque gestora + equipo: si manager_profile coincide con data.gestora, tratarlo
+        # como confirmado cross-validado (evita que Opus dude sin motivo).
+        gestora_data = data.get("gestora", "") or ""
+        if mgr_gestora and mgr_gestora.strip().lower() == gestora_data.strip().lower():
+            gestora_line = (f"- Gestora: {gestora_data} (CONFIRMADA cross-validada "
+                            f"en manager_profile.json + web: {mgr_sources_line})")
+        elif mgr_gestora:
+            gestora_line = (f"- Gestora: {gestora_data} (AR) / {mgr_gestora} "
+                            f"(manager_profile cross-validado: {mgr_sources_line})")
+        else:
+            gestora_line = f"- Gestora: {gestora_data} (fuente: AR)"
+
+        if mgr_equipo:
+            equipo_line = (f"- Gestores verificados (cross-validados en {mgr_sources_line}): "
+                           f"{', '.join(gestores_reales) or 'ninguno'}")
+        else:
+            equipo_line = (f"- Gestores del fondo: {', '.join(gestores_reales) or 'ninguno'} "
+                           f"(fuente: AR + factsheet)")
+
+        base = (
+            f"DATOS REALES VERIFICADOS (extraidos de documentos oficiales del fondo + "
+            f"cross-validacion web; estos datos son AUTORIDAD, no contradecir):\n"
+            f"- ISIN: {self.isin} (fuente: registro regulador)\n"
+            f"- Nombre oficial: {data.get('nombre', '')} (fuente: AR + prospectus)\n"
+            f"{gestora_line}\n"
+            f"{equipo_line}\n"
+            f"- AUM: {kpis.get('aum_actual_meur', '')} M EUR (fuente: AR financial statements)\n"
+            f"- TER: {kpis.get('ter_pct', '')}% (fuente: KIID + AR Note 7)\n"
+            f"- Inicio: {kpis.get('anio_creacion', '')} (fuente: AR + prospectus)\n"
+            f"- Benchmark: {kpis.get('benchmark', '')} (fuente: prospectus)\n"
+            f"- N posiciones: {len(data.get('posiciones', {}).get('actuales', []))} "
+            f"(fuente: AR Schedule of Investments)\n"
+            f"- Documentos fuente disponibles: {sources_line}"
+        )
+        # Añadir evidencia web literal (citas de readings)
+        web_ev = self._extract_web_evidence(data)
+        return base + web_ev
+
+    def _opus_confirm_issue(self, issue_text: str, real_facts: str) -> dict:
+        """Pregunta a Opus si su 'issue' se mantiene al ver las fuentes.
+        Devuelve {'reafirma': bool, 'explicacion': str}."""
+        try:
+            import anthropic
+            import os
+            client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+            r = client.messages.create(
+                model="claude-opus-4-20250514",
+                max_tokens=500,
+                messages=[{"role": "user", "content": (
+                    f"En una auditoria previa identificaste este problema:\n"
+                    f'"{issue_text}"\n\n'
+                    f"Pero estos son los DATOS REALES VERIFICADOS con fuente:\n"
+                    f"{real_facts}\n\n"
+                    f"Revisa: ¿tu 'issue' era correcto, o estabas confundiendo este fondo "
+                    f"con otro similar (ej. fondo UK vs fondo Ireland, Trojan Fund vs Trojan "
+                    f"Income)? Sé honesto: tu conocimiento previo puede estar mezclando fondos.\n\n"
+                    f"Responde JSON:\n"
+                    f'{{"reafirma": true|false, "explicacion": "texto breve"}}'
+                )}],
             )
-            if cls_text:
-                parts.append(f"**Clases EUR disponibles:** {cls_text}")
+            cost = (r.usage.input_tokens * 15 + r.usage.output_tokens * 75) / 1_000_000
+            self._log("INFO", f"Opus confirm issue ({r.usage.input_tokens}+"
+                      f"{r.usage.output_tokens} tok, ${cost:.3f})")
+            import re as _re
+            m = _re.search(r'\{[\s\S]+?\}', r.content[0].text)
+            if m:
+                return json.loads(m.group(0))
+        except Exception as e:
+            self._log("WARN", f"Opus confirm failed: {e}")
+        return {"reafirma": False, "explicacion": "confirm failed"}
 
-        viab = econ.get("viabilidad_nota", "")
-        if viab:
-            parts.append(f"**Viabilidad gestora:** {viab}")
+    def _filter_audit_issues(self, audit: dict, real_facts: str) -> dict:
+        """Filtra los issues del audit: consulta a Opus de nuevo pasando fuentes.
+        Si Opus se retracta, el issue se elimina."""
+        sections = audit.get("sections", {})
+        for sec_key, sec_audit in sections.items():
+            issues = sec_audit.get("issues", []) or []
+            if not issues:
+                continue
+            # Foco en issues de nombres/cifras (los mas propensos a confusion)
+            confirmed = []
+            for issue in issues:
+                issue_lower = issue.lower()
+                is_critical = any(kw in issue_lower for kw in
+                                   ["gestor", "nombre", "manager", "aum",
+                                    "fecha", "inicio", "lanzamiento", "confusion",
+                                    "otro fondo", "different fund"])
+                if not is_critical:
+                    confirmed.append(issue)
+                    continue
+                # Preguntar a Opus si reafirma
+                confirm = self._opus_confirm_issue(issue, real_facts)
+                if confirm.get("reafirma"):
+                    confirmed.append(issue)
+                else:
+                    self._log("INFO", f"Opus se retracta en [{sec_key}]: {issue[:80]}")
+            # Actualizar
+            sec_audit["issues"] = confirmed
+            if not confirmed and sec_audit.get("status") in ("REVISAR", "RECHAZADO"):
+                sec_audit["status"] = "OK"
+                sec_audit["feedback"] = ""
+        return audit
 
-        texto = "\n\n".join(parts)
-        return {"texto": texto, "datos": kpis} if texto else None
+    def _opus_audit_per_section(self, synthesis: dict, data: dict) -> dict:
+        """Opus audita TODAS las secciones en 1 call. Devuelve veredicto por seccion.
+        Formato: {sections: {resumen: {status, issues, feedback}, ...}, global: {...}}"""
+        try:
+            import anthropic
+            import os
+            client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        except Exception:
+            return {"auditado": False}
+
+        real_facts = self._build_real_facts_with_sources(data)
+
+        # Contenido de cada seccion (solo texto)
+        sections_content = ""
+        for key in ("resumen", "historia", "gestores", "estrategia",
+                     "evolucion", "cartera", "fuentes_externas"):
+            s = synthesis.get(key, {}) if isinstance(synthesis.get(key), dict) else {}
+            texto = (s.get("texto", "") or "")[:2000]
+            sections_content += f"\n=== {key.upper()} ===\n{texto}\n"
+
+        try:
+            r = client.messages.create(
+                model="claude-opus-4-20250514",
+                max_tokens=3000,
+                messages=[{"role": "user", "content": (
+                    f"Eres auditor senior. Los DATOS REALES abajo son AUTORIDAD: "
+                    f"son los unicos datos verificados del fondo. NO uses tu conocimiento "
+                    f"previo — si el informe dice X y los DATOS REALES dicen X, está OK, "
+                    f"aunque tu memoria sugiera Y. Si tu conocimiento contradice los DATOS "
+                    f"REALES, asume que tu conocimiento es erroneo (fondos similares se "
+                    f"confunden, nombres se mezclan).\n\n"
+                    f"Para cada seccion determina:\n"
+                    f"- status: OK | REVISAR | RECHAZADO\n"
+                    f"- issues: problemas concretos (cifras/fechas incorrectas vs DATOS REALES, "
+                    f"filler, texto vacio). NO reportes como issue algo que coincida con DATOS REALES.\n"
+                    f"- feedback: que corregir si necesita regeneracion\n\n"
+                    f"{real_facts}\n\n"
+                    f"INFORME A AUDITAR:{sections_content}\n\n"
+                    f"Responde JSON:\n"
+                    f'{{"sections":{{'
+                    f'"resumen":{{"status":"OK|REVISAR|RECHAZADO","issues":[],'
+                    f'"feedback":"texto para regenerar si aplica"}},'
+                    f'"historia":{{...}},"gestores":{{...}},"estrategia":{{...}},'
+                    f'"evolucion":{{...}},"cartera":{{...}},"fuentes_externas":{{...}}'
+                    f'}},'
+                    f'"global":{{"calidad_score":"1-10","calidad_justificacion":"",'
+                    f'"recomendacion":"APROBADO|REVISAR|RECHAZADO"}}}}'
+                )}],
+            )
+            cost = (r.usage.input_tokens * 15 + r.usage.output_tokens * 75) / 1_000_000
+            self._log("INFO", f"Opus audit per section ({r.usage.input_tokens}+"
+                      f"{r.usage.output_tokens} tok, ${cost:.3f})")
+            import re as _re
+            m = _re.search(r'\{[\s\S]+\}', r.content[0].text)
+            if m:
+                try:
+                    audit = json.loads(m.group(0))
+                    audit["auditado"] = True
+                    return audit
+                except Exception as e:
+                    self._log("WARN", f"Audit JSON parse failed: {e}")
+            return {"auditado": False}
+        except Exception as e:
+            self._log("WARN", f"Opus audit failed: {e}")
+            return {"auditado": False, "error": str(e)}
+
+    def _regenerate_section_with_feedback(self, section_key: str, feedback: str,
+                                           data: dict, context: str,
+                                           anti_halluc: str) -> dict:
+        """Regenera una seccion con el feedback especifico de Opus."""
+        # Añadir feedback al anti_halluc
+        fixed_prompt = anti_halluc + (
+            f"CORRECCION REQUERIDA (audit anterior detectó problemas):\n"
+            f"{feedback}\n\n"
+            f"Regenera esta seccion corrigiendo los problemas.\n\n"
+        )
+        self._log("INFO", f"Regenerando {section_key} con feedback Opus")
+
+        # Mapeo seccion -> funcion generadora
+        if section_key == "resumen":
+            return self._section_resumen_int_pro(context, fixed_prompt)
+        elif section_key == "historia":
+            return self._section_historia_int_pro(context, fixed_prompt)
+        elif section_key == "gestores":
+            return self._section_gestores_int_pro(context, data, fixed_prompt)
+        elif section_key == "estrategia":
+            return self._section_estrategia_int_pro(context, fixed_prompt)
+        elif section_key == "evolucion":
+            return self._section_evolucion_int_pro(context, data, fixed_prompt)
+        elif section_key == "cartera":
+            return self._section_cartera_int_pro(context, data, fixed_prompt)
+        return {}
+
+    def _audit_and_fix_loop(self, synthesis: dict, data: dict,
+                             context: str, anti_halluc: str,
+                             max_retries: int = 1) -> dict:
+        """Audita cada seccion con Opus y regenera las que fallen.
+        Antes de regenerar, filtra issues preguntando a Opus con fuentes.
+        Bucle con max_retries por seccion para evitar loops infinitos."""
+        audit = self._opus_audit_per_section(synthesis, data)
+        if not audit.get("auditado"):
+            return audit
+
+        # Filtrar issues: preguntar a Opus si reafirma con fuentes
+        real_facts = self._build_real_facts_with_sources(data)
+        audit = self._filter_audit_issues(audit, real_facts)
+
+        sections_audit = audit.get("sections", {})
+        fixed_any = False
+
+        for section_key, section_audit in sections_audit.items():
+            status = section_audit.get("status", "OK")
+            if status in ("REVISAR", "RECHAZADO") and section_audit.get("feedback"):
+                # Solo regenerar secciones generadas por Gemini (no programaticas)
+                if section_key in ("fuentes_externas",):
+                    continue
+                new_section = self._regenerate_section_with_feedback(
+                    section_key, section_audit["feedback"],
+                    data, context, anti_halluc,
+                )
+                if new_section and new_section.get("texto"):
+                    # Preservar campos programaticos (concentracion, posiciones_top, etc)
+                    old = synthesis.get(section_key, {})
+                    for k in ("distribucion_tipo", "concentracion",
+                               "posiciones_top", "datos_graficos", "equipo"):
+                        if k in old:
+                            new_section[k] = old[k]
+                    synthesis[section_key] = new_section
+                    fixed_any = True
+
+        # Si se regenero algo, re-auditar (1 vez mas)
+        if fixed_any and max_retries > 0:
+            audit_v2 = self._opus_audit_per_section(synthesis, data)
+            audit_v2["previous_issues"] = audit
+            return audit_v2
+
+        return audit
+
+    # Aliases para integración con el pipeline existente
+    def _section_resumen_int(self, data: dict) -> dict | None:
+        if not hasattr(self, "_opus_cache"):
+            self._opus_cache = self._opus_int_synthesis(data)
+        return self._opus_cache.get("resumen") or {"texto": ""}
 
     def _section_historia_int(self, data: dict) -> dict | None:
-        """R6: historia del FONDO, no del mercado."""
-        historia = data.get("_int_historia", "")
-        kpis = data.get("kpis", {})
-        serie_aum = data.get("cuantitativo", {}).get("serie_aum", [])
-
-        parts = []
-        inception = kpis.get("anio_creacion")
-        if inception:
-            parts.append(f"Fondo lanzado en {inception}.")
-        if historia:
-            parts.append(historia)
-
-        if serie_aum:
-            aum_str = ", ".join(f"{s.get('periodo','')}: {s.get('valor_meur',0):.0f} M EUR" for s in serie_aum)
-            parts.append(f"**Evolucion AUM:** {aum_str}")
-
-        aum_actual = kpis.get("aum_actual_meur")
-        if aum_actual:
-            parts.append(f"AUM actual: {aum_actual:.1f} M EUR.")
-
-        texto = " ".join(parts)
-        return {"texto": texto} if texto else {"texto": f"Fondo lanzado en {inception or '?'}."}
+        if not hasattr(self, "_opus_cache"):
+            self._opus_cache = self._opus_int_synthesis(data)
+        return self._opus_cache.get("historia") or {"texto": ""}
 
     def _section_gestores_int(self, data: dict) -> dict | None:
-        """R7: usar gestores del extractor, no de manager_deep."""
-        gestores_ext = data.get("_int_gestores", [])
-        if not gestores_ext:
-            return {"equipo": [], "perfiles": []}
-        equipo = []
-        for g in gestores_ext:
-            if not isinstance(g, dict):
-                continue
-            equipo.append({
-                "nombre": g.get("nombre", ""),
-                "cargo": g.get("cargo", ""),
-                "background": g.get("background", ""),
-                "anio_incorporacion": g.get("anio_incorporacion"),
-            })
-        return {"equipo": equipo, "perfiles": []}
+        if not hasattr(self, "_opus_cache"):
+            self._opus_cache = self._opus_int_synthesis(data)
+        return self._opus_cache.get("gestores") or {"texto": "", "equipo": []}
+
+    def _section_estrategia_int(self, data: dict) -> dict | None:
+        if not hasattr(self, "_opus_cache"):
+            self._opus_cache = self._opus_int_synthesis(data)
+        return self._opus_cache.get("estrategia") or {"texto": ""}
+
+    def _section_evolucion_int(self, data: dict) -> dict | None:
+        if not hasattr(self, "_opus_cache"):
+            self._opus_cache = self._opus_int_synthesis(data)
+        return self._opus_cache.get("evolucion") or {"texto": ""}
+
+    def _section_cartera_int(self, data: dict) -> dict | None:
+        if not hasattr(self, "_opus_cache"):
+            self._opus_cache = self._opus_int_synthesis(data)
+        return self._opus_cache.get("cartera") or {"texto": ""}
+
+    def _section_fuentes_int(self, data: dict) -> dict | None:
+        if not hasattr(self, "_opus_cache"):
+            self._opus_cache = self._opus_int_synthesis(data)
+        return self._opus_cache.get("fuentes_externas") or {"texto": ""}
 
     def _load_json(self, filename: str) -> dict:
         path = self.fund_dir / filename

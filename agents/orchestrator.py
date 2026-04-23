@@ -359,11 +359,9 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
 
         async def _run_letters():
             try:
-                from agents.letters_agent import LettersAgent
-                gestora_url = config.get("gestora_url", "")
-                letters = LettersAgent(
-                    isin, config, gestora_url=gestora_url,
-                    fund_name=fund_name_hint,
+                from agents.letters_collector import LettersCollector
+                letters = LettersCollector(
+                    isin, fund_name=fund_name_hint,
                     gestora=gestora_hint,
                     anio_creacion=anio_creacion_hint,
                 )
@@ -374,8 +372,8 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
 
         async def _run_readings():
             try:
-                from agents.readings_agent import ReadingsAgent
-                readings = ReadingsAgent(
+                from agents.readings_collector import ReadingsCollector
+                readings = ReadingsCollector(
                     isin, fund_name=fund_name_hint,
                     gestora=gestora_hint, gestores=gestores_hint,
                 )
@@ -386,8 +384,8 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
 
         async def _run_manager_deep():
             try:
-                from agents.manager_deep_agent import ManagerDeepAgent
-                manager = ManagerDeepAgent(
+                from agents.manager_profiler import ManagerProfiler
+                manager = ManagerProfiler(
                     isin, fund_name=fund_name_hint,
                     gestora=gestora_hint, manager_names=gestores_hint or None,
                 )
@@ -653,48 +651,46 @@ async def _run_quality_loop(
                 f"{a}={len(fs)}" for a, fs in fallos_por_agente.items()))
 
         # ── Re-ejecutar upstream agents según fallos ─────────────────────────
-        # manager_deep_agent: filosofía/perfiles del gestor
+        # manager_profiler: filosofía/perfiles del gestor
         if "manager_deep_agent" in fallos_por_agente:
             try:
-                from agents.manager_deep_agent import ManagerDeepAgent
-                log("QUALITY", "RETRY", "Re-ejecutando manager_deep_agent")
-                manager = ManagerDeepAgent(
+                from agents.manager_profiler import ManagerProfiler
+                log("QUALITY", "RETRY", "Re-ejecutando manager_profiler")
+                manager = ManagerProfiler(
                     isin, fund_name=fund_name_hint,
                     gestora=gestora_hint, manager_names=gestores_hint or None,
                 )
                 await manager.run()
-                log("QUALITY", "OK", "manager_deep_agent re-ejecutado")
+                log("QUALITY", "OK", "manager_profiler re-ejecutado")
             except Exception as exc:
-                log("QUALITY", "ERROR", f"manager_deep retry falló: {exc}")
+                log("QUALITY", "ERROR", f"manager_profiler retry falló: {exc}")
 
         # readings_agent: fuentes externas
         if "readings_agent" in fallos_por_agente:
             try:
-                from agents.readings_agent import ReadingsAgent
-                log("QUALITY", "RETRY", "Re-ejecutando readings_agent")
-                readings = ReadingsAgent(
+                from agents.readings_collector import ReadingsCollector
+                log("QUALITY", "RETRY", "Re-ejecutando readings_collector")
+                readings = ReadingsCollector(
                     isin, fund_name=fund_name_hint,
                     gestora=gestora_hint, gestores=gestores_hint,
                 )
                 await readings.run()
-                log("QUALITY", "OK", "readings_agent re-ejecutado")
+                log("QUALITY", "OK", "readings_collector re-ejecutado")
             except Exception as exc:
                 log("QUALITY", "ERROR", f"readings retry falló: {exc}")
 
         # letters_agent: cartas trimestrales
         if "letters_agent" in fallos_por_agente:
             try:
-                from agents.letters_agent import LettersAgent
-                log("QUALITY", "RETRY", "Re-ejecutando letters_agent")
-                letters = LettersAgent(
-                    isin, config,
-                    gestora_url=config.get("gestora_url", ""),
-                    fund_name=fund_name_hint,
+                from agents.letters_collector import LettersCollector
+                log("QUALITY", "RETRY", "Re-ejecutando letters_collector")
+                letters = LettersCollector(
+                    isin, fund_name=fund_name_hint,
                     gestora=gestora_hint,
                     anio_creacion=anio_creacion_hint,
                 )
                 await letters.run()
-                log("QUALITY", "OK", "letters_agent re-ejecutado")
+                log("QUALITY", "OK", "letters_collector re-ejecutado")
             except Exception as exc:
                 log("QUALITY", "ERROR", f"letters retry falló: {exc}")
 

@@ -1,0 +1,33 @@
+{
+  "isin": "ES0175437039",
+  "nombre": "SEGURFONDO GESTION DINAMICA, FI",
+  "timestamp": "2026-04-23T19:32:54.608167",
+  "completeness_pct": 72.2,
+  "dashboard_ready": true,
+  "dashboard_blockers": [],
+  "issues": [
+    "gestores vacíos — buscar en Citywire / Finect",
+    "sin estrategia ni filosofía de inversión — necesita PDFs cualitativos",
+    "mix_activos 2025 suma 181.8% (esperado ~100%)",
+    "mix_activos 2024 suma 176.0% (esperado ~100%)",
+    "mix_activos 2023 suma 179.5% (esperado ~100%)",
+    "mix_activos 2022 suma 174.9% (esperado ~100%)",
+    "mix_activos 2021 suma 168.3% (esperado ~100%)",
+    "mix_activos 2020 suma 180.2% (esperado ~100%)",
+    "mix_activos 2019 suma 180.5% (esperado ~100%)",
+    "sin análisis externos — ejecutar readings_agent",
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)"
+  ],
+  "suggestions": [
+    "Años sin datos AUM: 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2026 -> descargar XMLs CNMV de esos años",
+    "-> Anadir más PDFs semestrales en raw/reports/",
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0175437039 --auto"
+  ],
+  "feedback_previo": [],
+  "stats": {
+    "periodos_consistencia": 17,
+    "posiciones_actuales": 173,
+    "puntos_aum": 17,
+    "gestores": 0
+  }
+}

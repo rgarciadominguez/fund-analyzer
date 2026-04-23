@@ -707,6 +707,117 @@ class DiscoveryV2:
         # Confidence multiplier
         return base * (confidence / 100.0)
 
+    def _reached_critical_minimums(self, state: "SharedState") -> bool:
+        """Minimo absoluto: ≥1 AR, ≥1 factsheet, ≥1 carta.
+        Pero este check se usa para ACTIVAR Opus hints, NO para parar la busqueda."""
+        counts: dict[str, int] = {}
+        for d in state.downloaded_docs:
+            if d.validated:
+                counts[d.doc_type] = counts.get(d.doc_type, 0) + 1
+        return (
+            counts.get("annual_report", 0) >= 1
+            and counts.get("factsheet", 0) >= 1
+            and counts.get("quarterly_letter", 0) >= 1
+        )
+
+    def _coverage_report(self, state: "SharedState") -> dict:
+        """Genera coverage report: que años tenemos, que años faltan, por doc_type."""
+        import re as _re
+        inception = state.identity.get("anio_creacion") or state.identity.get("inception_year")
+        if not inception:
+            # Intentar extraer de identity
+            for k in ("fecha_autorizacion", "fecha_lanzamiento"):
+                v = state.identity.get(k, "")
+                m = _re.search(r'(20[012]\d|19\d{2})', str(v))
+                if m:
+                    inception = int(m.group(1))
+                    break
+        current = 2026
+        if not inception:
+            inception = current - 10  # fallback: 10 años
+
+        target_years = list(range(inception, current + 1))
+        covered_by_type: dict[str, set] = {}
+
+        for d in state.downloaded_docs:
+            if not d.validated:
+                continue
+            dt = d.doc_type
+            periodo = d.periodo or ""
+            years = _re.findall(r'(20[012]\d|19\d{2})', str(periodo))
+            if years:
+                y = int(max(years))
+                covered_by_type.setdefault(dt, set()).add(y)
+
+        report = {
+            "inception_year": inception,
+            "target_years": target_years,
+            "by_doc_type": {},
+            "summary": {},
+        }
+        for dt in ("annual_report", "factsheet", "quarterly_letter", "semi_annual_report"):
+            covered = sorted(covered_by_type.get(dt, set()))
+            missing = sorted(set(target_years) - set(covered))
+            report["by_doc_type"][dt] = {
+                "covered": covered,
+                "missing": missing,
+                "coverage_pct": round(len(covered) * 100 / max(1, len(target_years)), 1),
+            }
+
+        # Score global
+        total_covered = sum(len(v["covered"]) for v in report["by_doc_type"].values())
+        total_target = len(target_years) * 4  # 4 tipos de doc
+        report["summary"]["coverage_score"] = round(total_covered * 100 / max(1, total_target), 1)
+        return report
+
+    def _opus_suggest_sources(self, httpc, missing: list) -> list[str]:
+        """Opus sugiere dominios adicionales donde buscar docs del fondo.
+        1 call, ~$0.02. Util cuando los targets criticos (AR, carta) siguen faltando."""
+        try:
+            import anthropic
+            import os
+            client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        except Exception:
+            return []
+
+        missing_types = sorted(set(t[0] for t in missing))
+        nombre = self.identity.get("nombre_oficial", "")
+        gestora = self.identity.get("gestora_oficial", "")
+
+        try:
+            r = client.messages.create(
+                model="claude-opus-4-20250514",
+                max_tokens=400,
+                messages=[{"role": "user", "content": (
+                    f"Fondo: {nombre} ({self.isin})\n"
+                    f"Gestora: {gestora}\n"
+                    f"Faltan: {missing_types}\n\n"
+                    f"Para encontrar {missing_types} historicos de este fondo, "
+                    f"¿en que 3-6 dominios web especificos buscarias? Piensa en:\n"
+                    f"- Web oficial de la gestora (dominio actual y subdominios tipo /funds/)\n"
+                    f"- Distribuidores especializados (fundinfo, allfunds, im.natixis, etc.)\n"
+                    f"- Plataformas jurisdiccionales (morningstar.{{cc}}, trustnet, etc.)\n"
+                    f"- Sites especializados por clase de activo si aplica\n\n"
+                    f"Devuelve SOLO dominios (uno por linea). NO URLs completas."
+                )}],
+            )
+            cost = (r.usage.input_tokens * 15 + r.usage.output_tokens * 75) / 1_000_000
+            console.log(f"[cyan]Opus hints ({r.usage.input_tokens}+"
+                        f"{r.usage.output_tokens} tok, ${cost:.3f})")
+            text = r.content[0].text
+            sites = []
+            for line in text.split("\n"):
+                w = line.strip().strip(",.;:()-*").replace("www.", "").lower()
+                if ("." in w and len(w) > 4 and len(w) < 60
+                    and "/" not in w
+                    and not any(bad in w for bad in ["google", "wikipedia",
+                                                     "linkedin", "facebook", "twitter"])):
+                    sites.append(w)
+            return sites[:6]
+        except Exception as e:
+            console.log(f"[yellow]Opus suggest failed: {e}")
+            return []
+
     # ── MAIN ──────────────────────────────────────────────────────────────
     async def run(self) -> SharedState:
         kb_data = kb_mod.load_kb(self.fund_dir, self.isin)
@@ -758,10 +869,49 @@ class DiscoveryV2:
                     m = re.search(r"(20\d{2})", periodo)
                     if m:
                         missing_years.append(int(m.group(1)))
+            # Expandir missing_years a TODO el rango desde inicio del fondo
+            inception = self.identity.get("anio_creacion")
+            if not inception:
+                for k in ("fecha_autorizacion", "fecha_lanzamiento"):
+                    v = self.identity.get(k, "")
+                    m = re.search(r"(20\d{2}|19\d{2})", str(v))
+                    if m:
+                        inception = int(m.group(1))
+                        break
+            if inception:
+                all_target_years = list(range(int(inception), 2027))
+                # Añadir todos los años target a missing (si no cubiertos)
+                already_covered = set()
+                for d in state.downloaded_docs:
+                    m = re.search(r"(20\d{2})", str(d.periodo or ""))
+                    if m:
+                        already_covered.add(int(m.group(1)))
+                missing_years = sorted(set(all_target_years) - already_covered)
+                console.log(f"[blue]expanded missing_years (hasta {inception}): {len(missing_years)} años")
+
             missing_years = sorted(set(missing_years))
             if missing_years and websites:
                 for site in websites[:2]:
                     all_candidates += await harvest_wayback(c, site, missing_years)
+
+            # Phase 2b — Opus hints: si faltan AR criticos, preguntar a Opus
+            # por dominios adicionales / URLs especificas (1 call, ~$0.02)
+            missing_critical = [t for t in state.missing_doc_targets()
+                                if t[0] in {"annual_report", "factsheet", "quarterly_letter"}]
+            if missing_critical and not self._reached_critical_minimums(state):
+                opus_sites = self._opus_suggest_sources(c, missing_critical)
+                for site in opus_sites:
+                    try:
+                        all_candidates += await harvest_website(state, c, site, fund_slugs)
+                    except Exception as e:
+                        console.log(f"[yellow]harvest {site}: {e}")
+                # También probar Wayback en los nuevos dominios sugeridos
+                if missing_years and opus_sites:
+                    for site in opus_sites[:2]:
+                        try:
+                            all_candidates += await harvest_wayback(c, site, missing_years)
+                        except Exception as e:
+                            console.log(f"[yellow]wayback {site}: {e}")
 
             console.log(f"[blue]total candidates: {len(all_candidates)}")
 
@@ -812,5 +962,27 @@ class DiscoveryV2:
                 maybe_draft_request(state)
             except Exception as e:
                 console.log(f"[yellow]email_agent: {e}")
+
+        # Coverage report final
+        try:
+            coverage = self._coverage_report(state)
+            score = coverage["summary"]["coverage_score"]
+            console.log(f"[bold magenta]Coverage: {score}% (inception {coverage['inception_year']})")
+            for dt, info in coverage["by_doc_type"].items():
+                if info["covered"]:
+                    console.log(f"  {dt}: {info['coverage_pct']}% "
+                                f"({len(info['covered'])}/{len(coverage['target_years'])} años)")
+            # Guardar en el state para que el dashboard lo consuma
+            try:
+                disc_path = self.fund_dir / "intl_discovery_data.json"
+                if disc_path.exists():
+                    disc = json.loads(disc_path.read_text(encoding="utf-8"))
+                    disc["coverage_report"] = coverage
+                    disc_path.write_text(json.dumps(disc, ensure_ascii=False, indent=2),
+                                          encoding="utf-8")
+            except Exception as e:
+                console.log(f"[yellow]coverage save: {e}")
+        except Exception as e:
+            console.log(f"[yellow]coverage report: {e}")
 
         return state

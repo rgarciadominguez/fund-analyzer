@@ -29,12 +29,16 @@ from rich.console import Console
 
 from agents.concepts import TAXONOMY
 from tools.gemini_wrapper import extract_fast, MODEL_FLASH
+from tools.holdings_fallback import extract_holdings_primary
 
 console = Console()
 
 
 # Cuántas páginas de contexto añadir en el retry si primer intento devuelve null
 _RETRY_MARGIN = 5
+# Para top_holdings: margen extra porque el Schedule of Investments suele
+# extenderse varias páginas (10-15) y el mapper a veces solo marca 2-3.
+_HOLDINGS_MARGIN = 12
 
 
 def _read_pages(pdf_path: Path, pages_1indexed: list[int]) -> str:
@@ -223,15 +227,20 @@ def extract_concept(
             except Exception:
                 pass
 
-    def _run(pp: list[int]) -> Any:
+    is_holdings = (concept_name == "top_holdings")
+
+    def _build_text_for_pages(pp: list[int]) -> str:
         text = _read_pages(pdf_path, pp)
         if not text:
-            return None
-        # Filtrar por delimiter solo si el bloque NO es target-only
-        # (porque target-only ya está limpio; si es global, filtramos ruido
-        # de otros sub-fondos)
+            return ""
         if delimiter_value and not covers_target_only:
             text = _filter_by_delimiter(text, delimiter_value)
+        return text
+
+    def _run_on_text(text: str) -> Any:
+        """Ejecuta Flash sobre un texto ya filtrado (para uso del cascade)."""
+        if not text:
+            return None
         prompt = _build_prompt(
             concept_name, description, computation_hints,
             format_clue, isin, fund_name,
@@ -246,14 +255,48 @@ def extract_concept(
             console.log(f"[yellow]extractor {concept_name} error: {e}")
             return None
 
-    result = _run(pages)
+    def _run(pp: list[int]) -> Any:
+        text = _build_text_for_pages(pp)
+        return _run_on_text(text)
 
-    # Retry con margen si empty
-    if _is_empty_result(result) and total_pages:
-        widened = _widen_pages(pages, _RETRY_MARGIN, total_pages)
-        if widened != pages:
-            console.log(f"[dim]retry {concept_name} con ±{_RETRY_MARGIN}pp (n={len(widened)})")
-            result = _run(widened)
+    # Para top_holdings: ensanchar automáticamente el rango de páginas para
+    # cubrir el Schedule of Investments completo (suele abarcar 8-15 páginas
+    # y el mapper a veces solo marca 2-3).
+    effective_pages = pages
+    if is_holdings and total_pages:
+        effective_pages = _widen_pages(pages, _HOLDINGS_MARGIN, total_pages)
+        if len(effective_pages) != len(pages):
+            console.log(
+                f"[dim]top_holdings: ensanchando rango a ±{_HOLDINGS_MARGIN}pp "
+                f"({len(pages)} → {len(effective_pages)} páginas)"
+            )
+
+    # top_holdings usa extractor PRIMARIO distinto (Haiku 4.5 con chunking
+    # siempre + merge deduplicado). Flash solo entra como fallback si Haiku
+    # no está disponible. Resto de conceptos siguen el flujo Flash estándar.
+    if is_holdings:
+        raw_text = _build_text_for_pages(effective_pages)
+        prompt_base = _build_prompt(
+            concept_name, description, computation_hints,
+            format_clue, isin, fund_name,
+        )
+        schema_wrapped = _build_schema_with_evidence(output_shape)
+        result = extract_holdings_primary(
+            raw_text=raw_text,
+            schema=schema_wrapped,
+            base_prompt=prompt_base,
+            run_flash_fn=_run_on_text,
+            isin=isin,
+            fund_name=fund_name,
+        )
+    else:
+        result = _run(effective_pages)
+        # Retry con margen si empty (resto de conceptos)
+        if _is_empty_result(result) and total_pages:
+            widened = _widen_pages(effective_pages, _RETRY_MARGIN, total_pages)
+            if widened != effective_pages:
+                console.log(f"[dim]retry {concept_name} con ±{_RETRY_MARGIN}pp (n={len(widened)})")
+                result = _run(widened)
 
     if _is_empty_result(result):
         return None

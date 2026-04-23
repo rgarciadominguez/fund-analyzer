@@ -335,11 +335,25 @@ TAXONOMY: dict[str, dict] = {
         "priority": "core",
         "applies_to": REPORTS | FACTSHEET,
         "description": (
-            "Principales posiciones de la cartera del sub-fondo ordenadas "
-            "por peso. Para cada posición queremos el nombre (emisor o "
-            "instrumento), peso como % del NAV, sector GICS o similar si "
-            "aparece, país del emisor si aparece, y racional de la "
-            "inversión si el documento lo explica."
+            "TODAS las posiciones de la cartera del sub-fondo (Schedule of "
+            "Investments / Securities Portfolio completo), ordenadas por peso. "
+            "CRÍTICO: extraer TODAS las posiciones listadas en el documento — "
+            "si hay 40 posiciones, devolver 40. Si hay 80, devolver 80. Solo "
+            "truncar si >100 (en ese caso devolver top 100). NUNCA truncar a "
+            "10 por defecto. Para cada posición: nombre del emisor o "
+            "instrumento, peso como % del NAV, sector o tipo de activo "
+            "(equity, government bond, corporate bond, ETF, gold, cash, "
+            "derivative, etc.), y país del emisor si aparece. "
+            "IMPORTANTE: el Schedule of Investments de un annual report "
+            "SICAV suele ocupar varias páginas (típicamente 5-15) y puede "
+            "incluir sub-secciones por tipo de activo (Equities, Bonds, "
+            "Derivatives, Money Market) — recorrer todas las sub-secciones."
+        ),
+        "computation_hints": (
+            "Cuando el documento reporte también breakdowns agregados por "
+            "país/sector, el num_holdings_total debe coincidir con la "
+            "longitud de la lista `holdings` — si divergen, significa que "
+            "falta extraer posiciones adicionales en otras páginas."
         ),
         "output_shape": {
             "as_of_date": "YYYY-MM-DD de la foto",
@@ -348,6 +362,7 @@ TAXONOMY: dict[str, dict] = {
                     "name": "nombre del emisor o instrumento",
                     "ticker": "ticker si aparece",
                     "weight_pct": "% NAV",
+                    "asset_type": "equity | government_bond | corporate_bond | ETF | gold | cash | derivative | other",
                     "sector": "sector GICS o similar si aparece",
                     "country": "país del emisor si aparece",
                     "rationale": "razón de la inversión si el documento la da",
