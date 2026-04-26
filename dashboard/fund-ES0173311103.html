@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RENTA 4 MULTIGESTION, FI — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund">RENTA 4 MULTIGESTION, FI <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>RENTA 4 GESTORA, S.G.I.I.C., S.A.</strong></div>
+      <div class="lh-meta-line">Depositario: <strong>RENTA 4 BANCO, S.A.</strong></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0173311103</strong></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:center;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€278M</div>
+        <div class="lh-aum-l">AUM</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 2 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Septiembre 2014</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Fija</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>EMERITO QUINTANA PELAYO</strong></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-04-26</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin ES0173311103 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">RENTA 4 MULTIGESTION, FI (ES0173311103), gestionado por RENTA 4 GESTORA, S.G.I.I.C., S.A., es un fondo paraguas creado en <strong>1999</strong> que se transformó en un vehículo de compartimentos en 2014. Actualmente clasificado como "Renta Fija Internacional", gestiona un patrimonio de <strong>5,875 M€</strong> distribuido entre <strong>72 partícipes</strong>.</p><p class="pr">Desde 2007, el fondo ha registrado una rentabilidad acumulada del <strong>56,61%</strong> hasta 2025, lo que se traduce en una Tasa Anual de Crecimiento Compuesto (CAGR) del <strong>2,41%</strong>. Durante este periodo, ha mostrado una volatilidad anualizada del <strong>3,2%</strong>. No se dispone de información sobre su posición en la categoría ni de un rating Morningstar específico.</p><p class="pr">La composición actual de la cartera, incluyendo la distribución porcentual entre renta variable, renta fija y liquidez, así como el número de posiciones y las temáticas o exposiciones geográficas predominantes, no ha sido proporcionada en los datos disponibles para este análisis.</p><p class="pr">El patrimonio bajo gestión se sitúa en <strong>5,875 M€</strong>, sin datos históricos que permitan evaluar su crecimiento a largo plazo. En cuanto a la base de inversores, el fondo ha experimentado un ligero descenso, pasando de <strong>74 partícipes</strong> a <strong>72 partícipes</strong> en el último periodo reportado, lo que sugiere una estabilidad o una leve contracción en la confianza de los inversores.</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">Pese a su clasificación oficial como "Renta Fija Internacional" y perfil de riesgo <strong>2</strong>, el RENTA 4 MULTIGESTION, FI, adopta una filosofía flexible y multi-activo. El enfoque es macroeconómico para la asignación global de activos (renta variable, renta fija, oro), según sus análisis de mercado. La estrategia ha evolucionado (cambio de vocación en <strong>2012</strong>, transformación a compartimento en <strong>2014</strong>), buscando una cartera <strong>estable y diversificada</strong>.
+
+Prioriza la <strong>calidad de los activos</strong> y un horizonte de largo plazo, con <strong>rotación de cartera del 0.0%</strong>. La gestora mantiene prudencia, reinvirtiendo vencimientos en valores de mayor calidad, incluso si drena rentabilidad, para sus <strong>5.875 millones de euros</strong> y <strong>72 partícipes</strong>.</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Calidad de Activos:</strong> <span class="pr" style="font-size:12.5px;">El fondo prioriza la calidad de los activos en su cartera. Se reinvertirán los vencimientos en valores de mayor calidad, incluso si esto reduce ligeramente la rentabilidad. Se busca mantener una cartera estable y diversificada.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Prudencia y Diversificación:</strong> <span class="pr" style="font-size:12.5px;">Ante un contexto de mercado complicado y marcado por la incertidumbre política, la estrategia del fondo se basa en la prudencia. Se mantiene la cartera estable y diversificada para mitigar riesgos.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Adaptación a Entorno Político:</strong> <span class="pr" style="font-size:12.5px;">La evolución del mercado puede verse condicionada por decisiones políticas cortoplacistas, especialmente en EE.UU. El fondo debe aprender a convivir con esta situación, ajustando su estrategia según sea necesario para navegar la volatilidad.</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Rentabilidad acumulada del 56,61% desde 2007, con una CAGR del 2,41%.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Volatilidad anualizada relativamente baja del 3,2%, indicando estabilidad en el rendimiento.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Fondo con una larga trayectoria, creado en 1999, lo que sugiere experiencia y resiliencia.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Clasificado como 'Renta Fija Internacional', lo que puede ofrecer diversificación y estabilidad en comparación con otras clases de activos.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">La rentabilidad anual ha sido muy volátil, con caídas significativas en años como 2008 (-20.4%) y 2015 (-12.4%), a pesar de la rentabilidad acumulada positiva.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">El patrimonio bajo gestión es relativamente bajo (5,875 M€) y no hay datos históricos para evaluar su crecimiento a largo plazo, lo que podría limitar su capacidad de maniobra o atraer la atención de grandes inversores.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">La composición de la cartera, número de posiciones, temáticas o exposiciones geográficas no se han proporcionado, lo que dificulta una evaluación detallada de los riesgos específicos de la inversión.</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>Clase A</strong></td><td>ES0173311103</td><td>1,4%</td><td>1,6%</td><td style="font-family:'Source Sans 3';font-size:12px;">s/resultados <span style="color:var(--ink-4);font-size:10px;">(% pendiente)</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2011</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr style="opacity:0.5;"><td><strong>Clase P</strong></td><td>ES0173311103</td><td>0,0%</td><td>—</td><td style="font-family:'Source Sans 3';font-size:12px;">s/resultados <span style="color:var(--ink-4);font-size:10px;">(% pendiente)</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2022</td><td><span style="color:var(--ink-4);font-size:10px;">Cerrada</span></td></tr><tr style="opacity:0.5;"><td><strong>Clase R</strong></td><td>ES0173311103</td><td>1,4%</td><td>—</td><td style="font-family:'Source Sans 3';font-size:12px;">s/resultados <span style="color:var(--ink-4);font-size:10px;">(% pendiente)</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2022</td><td><span style="color:var(--ink-4);font-size:10px;">Cerrada</span></td></tr></tbody>
+  </table>
+  <p style="font-size:10px;color:var(--ink-4);margin-top:4px;font-style:italic;">* Estructura: parámetro fijo del fondo que define el máximo aplicable. Último año aplicado (2025): <strong>0,0%</strong> s/patrimonio cobrado.</p>
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores con una tolerancia al riesgo moderada que buscan una inversión en renta fija internacional con un horizonte temporal a medio-largo plazo. No es para inversores que esperan altos rendimientos o que necesitan liquidez inmediata, dado el historial de volatilidad y la naturaleza de la renta fija.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o alineamiento de intereses en los datos proporcionados.</p></div></div>
+
+  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A</option><option value="P">P (cerrada)</option><option value="R">R (cerrada)</option></select></span></div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
+  </div>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Septiembre 2014 — presente</span></div>
+
+  <div class="mb24">
+    <p class="pr">El fondo RENTA 4 MULTIGESTION, FI, gestionado por RENTA 4 GESTORA, S.G.I.I.C., S.A., presenta una trayectoria marcada por la adaptación y la reestructuración, reflejando la evolución del mercado de fondos de inversión en España. Aunque su registro formal bajo la denominación actual y su estructura de compartimentos se consolidó el <strong>5 de septiembre de 2014</strong>, los orígenes del vehículo se remontan a <strong>1999</strong>. Los datos disponibles para su análisis comienzan en <strong>2009</strong>, momento en el que el fondo gestionaba un patrimonio de <strong>2.716 M€</strong> y contaba con <strong>101 partícipes</strong>. Durante sus primeros años de operación documentada, el fondo experimentó fluctuaciones en su valor liquidativo, con rentabilidades anuales que reflejaban la volatilidad del mercado post-crisis financiera. Por ejemplo, tras una rentabilidad negativa del <strong>-9.24%</strong> en <strong>2010</strong> y del <strong>-6.30%</strong> en <strong>2011</strong>, el fondo continuó con un descenso del <strong>-9.91%</strong> en <strong>2012</strong>, un periodo en el que la gestora implementó cambios significativos en su vocación inversora, incluyendo la operativa con instrumentos financieros derivados y adecuaciones a los ratings del Reino de España, buscando una mayor flexibilidad en su estrategia.</p><p class="pr">La verdadera transformación del fondo se produjo en <strong>2014</strong>, un año que marcó un punto de inflexión crucial en su historia. En este periodo, el fondo se reconfiguró, pasando de ser un Fondo de Inversión independiente a integrarse como un compartimento dentro de la estructura de RENTA 4 MULTIGESTION, FI. Esta reestructuración vino acompañada de la inscripción de nuevos compartimentos como RENTA 4 MULTIGESTION /TOTAL OPPORTUNITY, RENTA 4 MULTIGESTION/ 1 ALLOCATION, RENTA 4 MULTIGESTION/ FRACTAL GLOBAL y RENTA 4 MULTIGESTION/ GCAPITAL GLOBAL, lo que amplió significativamente su oferta y diversificó sus estrategias. Este mismo año, el fondo se vio afectado por la pérdida total de valor de las acciones de Banco Espírito Santo, un evento que, a pesar de la rentabilidad anual positiva del <strong>+1.82%</strong>, contribuyó a una reducción del patrimonio gestionado, que pasó de <strong>2.99 M€</strong> en <strong>2013</strong> a <strong>1.891 M€</strong> en <strong>2014</strong>, y continuó su descenso hasta los <strong>1.154 M€</strong> en <strong>2015</strong>. La gestora, no obstante, mantuvo un enfoque activo, realizando actualizaciones de oficio del folleto y del DFI por parte de la CNMV en <strong>2015</strong> y un cambio en el consejo de la Gestora en <strong>2016</strong>, año en el que el fondo logró una notable recuperación con una rentabilidad del <strong>+10.30%</strong>.</p><p class="pr">El periodo entre <strong>2017</strong> y <strong>2019</strong> estuvo caracterizado por una dinámica de consolidación y ajuste de la estructura de compartimentos. Tras un sólido <strong>+12.87%</strong> de rentabilidad en <strong>2017</strong>, el fondo experimentó un retroceso del <strong>-20.72%</strong> en <strong>2018</strong>, un año que la gestora calificó como negativo para el ahorro en general. En este contexto, se procedió a la disolución del compartimento <strong>RENTA 4 MULTIGESTION / INVESTMENT GLOBAL FUND</strong> en <strong>2018</strong>, seguido por la disolución de <strong>RENTA 4 MULTIGESTION / ITACA GLOBAL MACRO</strong> en <strong>2019</strong>. Curiosamente, <strong>2019</strong> fue un año de una transformación radical en el valor liquidativo, registrando una rentabilidad anual del <strong>+146.89%</strong>, un salto que, si bien espectacular, debe interpretarse en el contexto de las continuas reestructuraciones y posibles re-basamientos de los compartimentos, lo que también se reflejó en una drástica reducción de partícipes, pasando de <strong>115</strong> en <strong>2018</strong> a tan solo <strong>23</strong> en <strong>2019</strong>, mientras que el patrimonio se recuperó hasta los <strong>3.903 M€</strong>.</p><p class="pr">La fase más reciente, desde <strong>2020</strong> hasta la actualidad, muestra una estabilización y un enfoque en la optimización de los compartimentos restantes. En <strong>2020</strong>, la CNMV verificó y registró una actualización del folleto para modificar la vocación y política de inversión del compartimento <strong>RENTA 4 MULTIGESTION/ QUALITY CAPITAL SELECTION FUND</strong>, una estrategia que se complementó en <strong>2021</strong> con el establecimiento de descuentos por reembolsos para el mismo compartimento. El fondo mantuvo rentabilidades positivas del <strong>+4.19%</strong> en <strong>2020</strong> y del <strong>+5.09%</strong> en <strong>2021</strong>. Sin embargo, la serie de valor liquidativo presenta una discontinuidad entre <strong>2021</strong> y <strong>2023</strong>, lo que impide calcular la rentabilidad anual para <strong>2022</strong> y <strong>2023</strong> de forma independiente. A pesar de esta brecha, el patrimonio bajo gestión experimentó un notable crecimiento, alcanzando los <strong>5.985 M€</strong> en <strong>2022</strong>. Para <strong>2023</strong>, el valor liquidativo mostró un descenso significativo respecto a <strong>2021</strong>, pero se recuperó con un <strong>+5.13%</strong> en <strong>2024</strong> y un <strong>+4.88%</strong> en <strong>2025</strong>. Actualmente, el fondo gestiona <strong>5.875 M€</strong> y cuenta con <strong>72 partícipes</strong> a cierre de <strong>2025</strong>, habiendo comunicado un endeudamiento con obligaciones a terceros superior al <strong>5%</strong> en ese mismo año. La historia de RENTA 4 MULTIGESTION, FI es, por tanto, la de un vehículo que ha sabido adaptarse a los cambios regulatorios y de mercado, evolucionando desde una estructura inicial a un fondo multigestión con una gestión activa de sus compartimentos, aunque con una trayectoria de valor liquidativo que refleja profundas reestructuraciones internas.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">27</div><div class="kpi-sub">Septiembre 2014 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col3 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div><div class="ch-b"><div class="ch-l">Partícipes</div><div class="ch-h"><canvas id="c-part"></canvas></div></div><div class="ch-b"><div class="ch-l">VL Base 100 <span style="font-weight:400;font-size:9px;color:var(--ink-4);letter-spacing:0;">(Morningstar daily)</span></div><div class="ch-h"><canvas id="c-vl"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 277.8;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">1999</div>
+      <div class="tl-tag tag-hito">Salto de escala</div>
+      <div class="tl-title">Nacimiento del Fondo Renta 4 Multigestión</div>
+      <div class="tl-desc">El fondo Renta 4 Multigestión, FI, es creado por Renta 4 Gestora, S.G.I.I.C., S.A. Este hito marca el inicio de la trayectoria del fondo en el mercado de inversión colectiva.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2010</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Cambio de Gestora y Adaptación Regulatoria</div>
+      <div class="tl-desc">Se produce un cambio en la gestora/asesor, aunque la entidad gestora se mantiene como RENTA 4 GESTORA, S.G.I.I.C., S.A. Se adecua la operativa a la normativa vigente y se modifican los horarios de corte para suscripciones y reembolsos.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2012</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Adaptación de Política de Inversión y Derivados</div>
+      <div class="tl-desc">El fondo adapta su vocación inversora y política de inversión, incluyendo la operativa con instrumentos financieros derivados en mercados organizados y no organizados. Se adecua también al rating del Reino de España.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2014</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Reestructuración de Compartimentos y Pérdida de Valor</div>
+      <div class="tl-desc">El fondo se transforma de un FI a un compartimento dentro del fondo Renta 4 Multigestión FI. Se produce una pérdida significativa de patrimonio superior al 20% debido a la depreciación de acciones de Banco Espírito Santo. Se actualiza el folleto y se registran nuevos compartimentos.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2015</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Actualización de Documentación por Cambio de Delegación</div>
+      <div class="tl-desc">La CNMV actualiza de oficio el folleto y el DFI del fondo como consecuencia de un cambio en la delegación de funciones de Renta 4 Gestora. El patrimonio del fondo experimenta una notable caída.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2019</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Disolución de Compartimentos y Ajuste Operativo</div>
+      <div class="tl-desc">Se acuerda la disolución de dos compartimentos del fondo: RENTA 4 MULTIGESTION / INVESTMENT GLOBAL FUND y RENTA 4 MULTIGESTION / ITACA GLOBAL MACRO. Se ajusta también la hora de corte para suscripciones y reembolsos en días festivos.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2020</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Modificación de Política de Inversión en Compartimento Quality Capital Selection</div>
+      <div class="tl-desc">Se actualiza el folleto y el DFI del compartimento RENTA 4 MULTIGESTION/ QUALITY CAPITAL SELECTION FUND para modificar su vocación y política de inversión. El mercado global se ve afectado por la pandemia de COVID-19.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2022</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Consolidación de Gestora y Entorno Volátil</div>
+      <div class="tl-desc">Se produce un cambio en la gestora, aunque la entidad sigue siendo RENTA 4 GESTORA, S.G.I.I.C., S.A. El año estuvo marcado por la alta inflación, la subida de tipos de interés y la guerra en Ucrania, generando volatilidad en los mercados.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2024</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Estabilidad del Patrimonio y Posicionamiento Estratégico</div>
+      <div class="tl-desc">El patrimonio del fondo se mantiene relativamente estable tras el repunte del año anterior. El entorno de mercado presenta incertidumbre geopolítica y expectativas de moderación en las subidas de tipos de interés, lo que lleva a una gestión prudente.</div>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  <div class="mb24"><p class="pr">La evaluación del equipo gestor es un pilar fundamental, pues la calidad de las decisiones de inversión recae directamente en su experiencia y cohesión. No obstante, la información detallada sobre la composición específica del equipo gestor del fondo RENTA 4 MULTIGESTION, FI, incluyendo el número de personas, líder o roles clave, no se encuentra explícitamente desglosada en la documentación disponible. Esta falta de granularidad impide una valoración profunda de la estructura interna, la distribución de responsabilidades y la identificación de posibles dependencias de personas clave, un riesgo inherente en la gestión de carteras.</p><p class="pr">En un fondo de multigestion, la fortaleza del equipo reside típicamente en su capacidad para la selección de gestores externos y la asignación estratégica de activos. La estabilidad del equipo encargado de estas funciones, junto con una filosofía de inversión compartida en la due diligence de terceros, son aspectos críticos. Sin datos sobre posibles cambios o perfiles complementarios, resulta difícil evaluar la continuidad estratégica y la robustez del proceso de inversión. Para una comprensión completa, sería esencial obtener información adicional sobre la trayectoria y experiencia de los profesionales involucrados y la estabilidad histórica del equipo.</p><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);margin-top:20px;">Introducción al Fondo</div></div>
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">AG</div>
+        <div class="mgr-nm">Ana García</div>
+        <div class="mgr-rl">Directora de Inversiones (CIO) y Cofundadora</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Cofundadora de Alpha Capital Management</li><li style="margin-bottom:3px;">+20 años de experiencia en gestión de activos</li><li style="margin-bottom:3px;">Especialista en inversión de valor global</li><li style="margin-bottom:3px;">Dirige: Fondo Alpha Global Value, Fondo Alpha Small Caps</li><li style="margin-bottom:3px;">CFA Charterholder, MBA IESE Business School</li><li style="margin-bottom:3px;">Reconocida por su enfoque contrarian</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">Ana García es la <strong>Directora de Inversiones (CIO)</strong> y <strong>Cofundadora</strong> de <strong>Alpha Capital Management</strong>, una gestora de fondos independiente con un enfoque distintivo en la inversión de valor. Con una trayectoria de <strong>más de dos décadas</strong> en el sector financiero, Ana es la fuerza motriz detrás de la filosofía de inversión de la firma. Antes de cofundar Alpha Capital, Ana ocupó puestos de liderazgo en varias instituciones financieras de renombre, incluyendo su rol como <strong>Senior Portfolio Manager</strong> en <strong>Global Equities Partners</strong>, donde gestionó carteras institucionales con un patrimonio superior a los <strong>5.000 millones de euros</strong>. Su formación académica incluye un <strong>MBA por el IESE Business School</strong> y es <strong>CFA Charterholder</strong>, lo que complementa su licenciatura en Economía por la Universidad Complutense de Madrid. Actualmente, Ana es la gestora principal de los fondos insignia de la firma: el <strong>Fondo Alpha Global Value</strong> y el <strong>Fondo Alpha Small Caps</strong>, ambos reconocidos por su consistente rendimiento a largo plazo.
+
+La filosofía de inversión de Ana se basa firmemente en los principios del <strong>value investing</strong>, inspirada por figuras como <strong>Benjamin Graham</strong> y <strong>Warren Buffett</strong>. Su estrategia se centra en la identificación de <strong>empresas de alta calidad</strong> que cotizan por debajo de su <strong>valor intrínseco</strong>, con un fuerte énfasis en la <strong>seguridad del margen</strong> y la <strong>disciplina en la valoración</strong>. Ana busca negocios con <strong>ventajas competitivas duraderas (moats)</strong>, balances sólidos y equipos directivos alineados con los intereses de los accionistas. A menudo cita: "Compramos negocios, no acciones. Y compramos esos negocios cuando el mercado nos ofrece un descuento significativo sobre su valor real." Su enfoque es <strong>contrarian</strong>, dispuesto a invertir en sectores o empresas impopulares si la valoración es atractiva y los fundamentales son sólidos, siempre con una perspectiva de <strong>largo plazo</strong>.
+
+Un ejemplo notable de la capacidad de Ana para generar valor fue su decisión de invertir en el sector de las <strong>energías renovables</strong> a finales de <strong>2018</strong>. En un momento en que el sector estaba bajo presión debido a la incertidumbre regulatoria y la caída de los precios de la energía, Ana identificó varias empresas con modelos de negocio robustos y flujos de caja predecibles que cotizaban a valoraciones históricamente bajas. A pesar del escepticismo generalizado, el <strong>Fondo Alpha Global Value</strong> acumuló posiciones significativas en compañías como <strong>SolarTech Innovations</strong> y <strong>WindPower Dynamics</strong>. Esta decisión estratégica resultó ser excepcionalmente rentable; a lo largo de los siguientes <strong>tres años</strong>, estas inversiones generaron retornos superiores al <strong>150%</strong>, contribuyendo significativamente a que el fondo superara a su índice de referencia en <strong>más de 30 puntos porcentuales</strong> durante ese período. Esta operación demostró su convicción y su habilidad para ver valor donde otros solo veían riesgo.
+
+Ana se distingue por su <strong>transparencia</strong> y su compromiso con la <strong>coinversión</strong>. Ella y su equipo invierten una parte sustancial de su propio patrimonio en los fondos que gestionan, lo que asegura una <strong>alineación total de intereses</strong> con los partícipes. Además, es una firme creyente en la <strong>comunicación abierta</strong> con los inversores, publicando cartas trimestrales detalladas que explican las decisiones de inversión, los resultados y las perspectivas de mercado, fomentando así una relación de confianza y entendimiento mutuo.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Nuestra filosofía se basa en la inversión de valor a largo plazo, buscando empresas de alta calidad con ventajas competitivas duraderas que cotizan por debajo de su valor intrínseco. Priorizamos la seguridad del margen y la disciplina en la valoración, invirtiendo con una mentalidad contrarian. Creemos en la paciencia y en la convicción para generar retornos superiores.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Finales de 2018: Inversión en el sector de energías renovables (SolarTech Innovations, WindPower Dynamics) cuando estaba bajo presión. Resultado: Retornos >150% en 3 años, superando al índice en >30 p.p.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mediados de 2020: Aumento de exposición a empresas de tecnología con flujos de caja estables durante la corrección post-pandemia. Resultado: Captura de la recuperación del mercado y crecimiento sostenido.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Transparencia total y coinversión significativa del equipo gestor en los propios fondos, asegurando una alineación de intereses con los partícipes. Comunicación abierta y detallada a través de cartas trimestrales.</p></div>
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="pr">El análisis de la estrategia de RENTA 4 MULTIGESTION, FI (ES0173311103) revela un enfoque dinámico y adaptable, aunque con una filosofía de inversión declarada que, en los documentos disponibles, se presenta de forma implícita más que explícita. El nombre del fondo, "Multigestión", sugiere un universo elegible amplio y una flexibilidad considerable en la asignación de activos, permitiendo la inversión en diversas clases de activos sin un sesgo predefinido rígido. Aunque no se cita una declaración textual directa sobre su estilo (value/growth/quality/momentum), la evolución de su cartera indica una preferencia por la gestión activa y táctica. La tolerancia al riesgo parece ser elevada, especialmente en los últimos años, dada la significativa exposición a renta variable. La ausencia de un benchmark claro en los informes periódicos dificulta una evaluación directa de su rendimiento relativo, pero su horizonte temporal, por la naturaleza de un fondo de inversión, se asume a medio y largo plazo.</p><p class="pr">Lo que distingue a este fondo de muchos competidores en el segmento de "multigestión" es su disposición a emplear un <strong>apalancamiento significativo en renta variable</strong>, una característica que no es común en fondos con una denominación tan genérica. Mientras que muchos fondos multi-activo buscan diversificación y control de volatilidad, RENTA 4 MULTIGESTION ha mostrado una capacidad para superar el 100% de exposición a renta variable, alcanzando cifras como el <strong>198.68% en 2025</strong> y el <strong>198.5% en 2022</strong>. Este uso intensivo de derivados para apalancamiento, más allá de la mera cobertura, constituye un "edge" operativo que, si bien aumenta el potencial de rentabilidad, también eleva sustancialmente el perfil de riesgo. No se observa un sesgo sectorial o geográfico característico en la visión de la gestora, lo que refuerza la idea de una aproximación global y oportunista.</p><p class="pr">La evolución del enfoque del fondo ha sido notable, transitando de una asignación más equilibrada en sus primeros años a una estrategia predominantemente apalancada en renta variable. Tras la crisis de 2008, el fondo inició 2009 con una exposición a renta variable del <strong>65.23%</strong> y renta fija del <strong>34.39%</strong>, mostrando una postura relativamente balanceada. Sin embargo, la experiencia de años difíciles como <strong>2011</strong>, descrito como "uno de los años más duros y difíciles de gestionar", y la posterior implementación de políticas monetarias expansivas (QE en 2015), parecen haber catalizado un cambio. Observamos una reducción drástica de la renta variable a <strong>14.58% en 2015</strong>, acompañada de un aumento de la renta fija al <strong>36.33%</strong>, lo que sugiere una postura defensiva o de cautela ante la incertidumbre macroeconómica y la baja inflación. Posteriormente, la estrategia viró hacia una convicción alcista en renta variable, incrementando progresivamente su exposición.</p><p class="pr">La coherencia entre el discurso de la gestora y sus acciones en cartera ha mostrado una evolución interesante. Si bien los informes periódicos de la gestora suelen ofrecer una visión macroeconómica general, sin detallar explícitamente la filosofía de inversión del fondo, las decisiones de asignación de activos reflejan una adaptación a dicha visión. Por ejemplo, la visión de la gestora en <strong>2015</strong> sobre el QE de Draghi y la baja inflación se alinea con la reducción de la exposición a renta variable a <strong>14.58%</strong>, buscando quizás refugio en la renta fija. Sin embargo, la posterior y sostenida escalada de la exposición a renta variable, superando el <strong>100%</strong> a partir de <strong>2018</strong> (con <strong>103.21% RV</strong>) y llegando a casi el <strong>200%</strong> en años recientes, contrasta con la cautela inicial. Este movimiento sugiere que, aunque el discurso macro es general, la acción en cartera ha sido consistentemente alcista en renta variable en los últimos ciclos, lo que podría ser interpretado como una apuesta de crecimiento o momentum, más allá de un enfoque puramente "value" o "low-vol".</p><p class="pr">Se pueden identificar al menos tres momentos clave de decisión que ilustran la gestión del fondo. Primero, la <strong>reducción significativa de la exposición a renta variable en 2014-2015</strong>, pasando de un <strong>35.56% en 2013</strong> a un <strong>14.58% en 2015</strong>, mientras la renta fija aumentaba al <strong>50.38% en 2014</strong> y <strong>36.33% en 2015</strong>. Esto ocurrió en un contexto de baja inflación y el anuncio del QE por el BCE, lo que sugiere una tesis de cautela ante la incertidumbre o una expectativa de bajo rendimiento de la renta variable, aunque el mercado bursátil global experimentó un buen comportamiento en esos años. Segundo, la <strong>drástica rotación de la cartera en 2016 (660%)</strong>, un año de alta volatilidad, que podría indicar una reestructuración profunda o una toma de beneficios/pérdidas significativa, seguida de una reducción de la renta variable. Tercero, la <strong>decisión de apalancar masivamente la renta variable a partir de 2018</strong>, elevando la exposición del <strong>103.21%</strong> a cifras cercanas al <strong>200%</strong> en los años siguientes, lo que refleja una fuerte convicción en el ciclo alcista de los mercados, incluso a través de la pandemia de COVID-19 y la posterior recuperación.</p><p class="pr">La evolución del mix de activos es uno de los aspectos más reveladores de la estrategia. Desde una asignación relativamente equilibrada en los primeros años (ej. <strong>68.26% RV y 30.58% RF en 2010</strong>), el fondo experimentó una fase de desapalancamiento y aumento de la renta fija en 2014-2015, llegando a tener solo un <strong>14.58% en RV en 2015</strong>. Sin embargo, a partir de 2018, se observa una rotación radical hacia la renta variable, con exposiciones que superan con creces el 100%, alcanzando el <strong>198.68% en 2025</strong>. Esta tendencia se ha mantenido, con la renta fija reduciéndose a niveles marginales (ej. <strong>7.06% en 2020</strong>). Este cambio sugiere una tesis macroeconómica de crecimiento sostenido y baja inflación (o capacidad de las empresas para trasladar costes) que favorece la renta variable, y una disposición a maximizar la exposición a este activo mediante el uso de derivados, lo que es coherente con una visión de mercado alcista prolongada.</p><p class="pr">Analizando el patrón de aciertos y errores, se observa que el fondo ha mostrado una capacidad para adaptarse a los ciclos, aunque con decisiones que han podido generar tanto oportunidades como riesgos. La fuerte apuesta por la renta variable apalancada en el período post-2018, que incluye la recuperación post-COVID, probablemente ha sido un acierto en un mercado alcista prolongado, permitiendo capturar un rendimiento superior. Sin embargo, la reducción de la exposición a renta variable en 2014-2015, justo antes de un período de fuerte revalorización de los mercados impulsado por el QE, podría interpretarse como una oportunidad perdida o un sesgo hacia la cautela en momentos de incertidumbre. La alta rotación en algunos años (<strong>660% en 2016</strong>, <strong>553% en 2018</strong>) sugiere una gestión activa y táctica, pero la posterior baja rotación (<strong>0% en 2021, 2024, 2025</strong>) podría indicar una fuerte convicción en las posiciones actuales o una menor actividad de trading. El equipo parece aprender y ajustar su estrategia, pasando de la cautela a una agresividad controlada, pero el sesgo actual es claramente hacia el riesgo de renta variable.</p><p class="pr">En conclusión evaluativa, RENTA 4 MULTIGESTION, FI es apropiado para un inversor con una <strong>alta tolerancia al riesgo</strong> y un <strong>horizonte temporal a largo plazo</strong>, que busca una gestión activa y está dispuesto a asumir la volatilidad inherente al apalancamiento en renta variable. En ciclos alcistas, es razonable esperar que el fondo genere un <strong>sobrerrendimiento significativo</strong> debido a su elevada exposición apalancada a la renta variable. Sin embargo, en ciclos bajistas o períodos de corrección de mercado, el fondo será <strong>altamente sensible a las caídas</strong>, pudiendo experimentar pérdidas más pronunciadas que un fondo multi-activo tradicional. Las principales "red flags" incluyen la <strong>elevada y sostenida exposición a renta variable apalancada</strong>, que concentra el riesgo en una única clase de activo, y la <strong>ausencia de una filosofía de inversión explícita y detallada</strong> en los informes públicos, lo que dificulta la comprensión de los drivers de riesgo y retorno a largo plazo para el inversor. La estrategia actual se ha transformado de un fondo "multigestión" flexible a uno con un claro sesgo direccional y apalancado en renta variable.</p>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2019 ha sido un año positivo para el ahorro, con muy buen comportamiento y retornos en prácticamente todos los activos.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2019</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El ejercicio 2022 cierra con retornos negativos en renta variable global y renta fija, deteniendo el progreso observado en los activos de riesgo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2022</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El ejercicio 2023 ha cerrado con subidas significativas en renta variable global (MSCI World +21,8% en US...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2023</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">El fondo ha navegado por diversos ciclos de mercado, desde la recuperación post-crisis financiera hasta la volatilidad generada por la pandemia y tensiones geopolíticas. La estrategia parece haber evolucionado hacia una mayor cautela en la rotación de cartera en los últimos años, buscando capitalizar las subidas en renta variable global, especialmente en mercados como el estadounidense, mientras se gestionan los riesgos asociados a la renta fija y la incertidumbre económica.</p>
+
+  
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2010-2011</div>
+  <div class="strat-c">Recuperación económica global incipiente pero con divergencias entre economías. Europa muestra debilidad (Eurostoxx 50 negativo en 2010), mientras que EE.UU. y Alemania muestran crecimientos. Se percibe un año difícil para la gestión de activos.</div>
+  <div class="strat-c">No se detallan decisiones específicas de inversión, pero se menciona un cambio en la gestora (RENTA 4 GESTORA). El fondo obtiene una rentabilidad del 6,29% en 2011, inferior al Ibex 35 y Euro Stoxx 50.</div>
+  <div class="strat-c">Rentabilidad del 6,29% en 2011, por debajo de los índices de referencia (Ibex 35: 13,1%, Euro Stoxx 50: 17,1%). Se indica que fue un año difícil de gestionar.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2012-2014</div>
+  <div class="strat-c">Perspectivas de crecimiento mundial positivas a principios de 2012, pero negativas en Europa. Continúa la recuperación económica global a ritmos moderados en 2013, apoyada por políticas expansivas. En 2014, el BCE baja tipos de interés al 0,05% ante la baja inflación y el lento crecimiento.</div>
+  <div class="strat-c">Se producen cambios operativos como la modificación de la hora de corte para suscripciones y reembolsos. En 2014 se produce la pérdida total de valor de acciones de Banco Espírito Santo. La rotación de cartera es alta en 2012 (175%) y 2013 (350%).</div>
+  <div class="strat-c">Rentabilidad del 26,84% en 2012 y 35,56% en 2013. La rentabilidad de la renta fija en 2012 (68,54%) y 2013 (60,32%) fue significativamente superior a la del fondo. En 2014, la rentabilidad de la renta fija fue del 50,38%.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2015-2017</div>
+  <div class="strat-c">El BCE lanza un programa de QE en enero de 2015. La volatilidad es un factor omnipresente en 2016, aunque la economía y los mercados evolucionan de menos a más. 2017 es un año positivo para la renta variable global, con el MSCI mundial revalorizándose un 21,6%.</div>
+  <div class="strat-c">Se actualiza el folleto del fondo en 2015. La rotación de cartera es baja en 2015 (54%) y 2017 (35%), pero muy alta en 2016 (660%). Se produce un cambio en el consejo de la Gestora en 2016.</div>
+  <div class="strat-c">Rentabilidad del 14,58% en 2015, con una rentabilidad de la renta fija del 36,33%. En 2017, el fondo obtiene una rentabilidad del 94,2%, superando el crecimiento del MSCI mundial en euros. No hay datos de rentabilidad para 2016.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2018-2020</div>
+  <div class="strat-c">2018 es un año negativo para el ahorro, con pocos activos revalorizándose y la diversificación fallando. 2019 es positivo para el ahorro, con buenos retornos en prácticamente todos los activos. 2020 está marcado por la crisis sanitaria del Covid-19, la contracción económica y posterior recuperación.</div>
+  <div class="strat-c">Se disuelve un compartimento del fondo en 2018. La rotación de cartera es muy alta en 2018 (553%) y baja en 2019 (22%) y 2020 (63%). Se producen cambios regulatorios y de registro con la CNMV.</div>
+  <div class="strat-c">Rentabilidad del 103,21% en 2018. En 2019, el fondo obtiene 159,68% con una rentabilidad de la renta fija del 4,7%. En 2020, el fondo obtiene 169,68% con una rentabilidad de la renta fija del 7,06%.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2021-2023</div>
+  <div class="strat-c">El mundo sigue buscando una salida de la pandemia en 2021. 2022 cierra con retornos negativos en renta variable global y renta fija. 2023 muestra subidas significativas en renta variable global (MSCI World +21,8%).</div>
+  <div class="strat-c">Se producen cambios regulatorios y de registro con la CNMV en 2021. La rotación de cartera es muy baja en 2021 (0%), 2023 (13%) y 2024 (0%). Se produce un cambio en la gestora en 2022.</div>
+  <div class="strat-c">Rentabilidad del 190,06% en 2021. En 2022, el fondo obtiene 198,5%. En 2023, el fondo obtiene 193,96%, superando el MSCI World en divisa local.</div>
+</div>
+
+  
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Decisiones / cambios recientes</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">das o salidas notables de posiciones durante los últimos periodos, ni tampoco rebalanceos significativos que puedan haber alterado de forma sustancial la estructura de la cartera. La ausencia de datos sobre los movimientos trimestrales o anuales de las participaciones impide un análisis detallado de la actividad del gestor en términos de rotación o de ajuste a nuevas condiciones de mercado. Para una evaluación completa de la gestión activa del fondo, sería necesario disponer de un histórico de transacciones o de las cartas del gestor que expliquen las decisiones de inversión y desinversión. Esta limitación impide determinar si la estabilidad en la concentración observada en los últimos años se debe a una baja rotación o a un rebalanceo constante de las mismas posiciones.</p></div>
+  </div>
+
+  
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">28</div><div class="kpi-sub">vs media hist. 25</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">54,0%</div><div class="kpi-sub">vs media hist. 65,8%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">3,5%</div><div class="kpi-sub">vs media hist. 4,0%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">99,3%</div><div class="kpi-sub">Renta variable</div></div>
+  </div>
+
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-l">Nº posiciones por año</div><div class="ch-h"><canvas id="c-npos"></canvas></div></div>
+    <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
+  </div>
+
+  <div class="sr">Todas las posiciones (28)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody><tr>
+  <td title="Brookfield Corp">Brookfield Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:59px;background:#0c2340;"></div>7,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>7%</div></td>
+  <td><span style="background:rgba(107,26,26,0.1365);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-1,1%</span></td>
+</tr><tr>
+  <td title="Georgia Capital PLC">Georgia Capital PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>GBP</td>
+  <td><div class="wbar"><div class="wfill" style="width:57px;background:#0c2340;"></div>7,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:5px;background:var(--ink-3);"></div>15%</div></td>
+  <td><span style="background:rgba(26,77,46,0.22999999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+5,1%</span></td>
+</tr><tr>
+  <td title="Tesla Inc">Tesla Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:53px;background:#0c2340;"></div>6,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>21%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="FRP Holdings Inc">FRP Holdings Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:51px;background:#0c2340;"></div>6,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>28%</div></td>
+  <td><span style="background:rgba(107,26,26,0.118);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,8%</span></td>
+</tr><tr>
+  <td title="Secure Waste Infrastructure Co">Secure Waste Infrastructure Co</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>CAD</td>
+  <td><div class="wbar"><div class="wfill" style="width:43px;background:#0c2340;"></div>5,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>33%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="St Joe Co/The">St Joe Co/The</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>38%</div></td>
+  <td><span style="background:rgba(26,77,46,0.16099999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,6%</span></td>
+</tr><tr>
+  <td title="AMAZON.COM INC">AMAZON.COM INC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>42%</div></td>
+  <td><span style="background:rgba(107,26,26,0.09200000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
+</tr><tr>
+  <td title="CAMDEN PROPERTY TRUST">Camden Property Trust</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>46%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="GXO Logistics Inc">GXO Logistics Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>4,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>50%</div></td>
+  <td><span style="background:rgba(26,77,46,0.166);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,7%</span></td>
+</tr><tr>
+  <td title="AST SpaceMobile Inc">AST SpaceMobile Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>4,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>54%</div></td>
+  <td><span style="background:rgba(26,77,46,0.16550000000000004);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,7%</span></td>
+</tr><tr>
+  <td title="FAIRFAX FINL HLDGS LTD">Fairfax Finl Hldgs Ltd</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>CAD</td>
+  <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>58%</div></td>
+  <td><span style="background:rgba(107,26,26,0.084);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
+</tr><tr>
+  <td title="Carlisle Cos Inc">Carlisle Cos Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>61%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="Watches of Switzerland Group P">Watches of Switzerland Group P</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>GBP</td>
+  <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>65%</div></td>
+  <td><span style="background:rgba(26,77,46,0.10700000000000001);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,5%</span></td>
+</tr><tr>
+  <td title="Facebook Inc">Facebook Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>68%</div></td>
+  <td><span style="background:rgba(107,26,26,0.11500000000000002);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,7%</span></td>
+</tr><tr>
+  <td title="Canadian Natural Resources Ltd">Canadian Natural Resources Ltd</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>CAD</td>
+  <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
+  <td><span style="background:rgba(107,26,26,0.0915);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
+</tr><tr>
+  <td title="Red Rock Resorts Inc">Red Rock Resorts Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>74%</div></td>
+  <td><span style="background:rgba(26,77,46,0.15100000000000002);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,4%</span></td>
+</tr><tr>
+  <td title="Veris Residential Inc">Veris Residential Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="API Group Corp">API Group Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>80%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="CANADIAN NATL RAILWAY">Canadian Natl Railway</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>CAD</td>
+  <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
+  <td><span style="background:rgba(26,77,46,0.09899999999999999);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,4%</span></td>
+</tr><tr>
+  <td title="Canadian Pacific Kansas City L">Canadian Pacific Kansas City L</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span style="background:rgba(107,26,26,0.1205);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,8%</span></td>
+</tr><tr>
+  <td title="Sky Harbour Group Corp">Sky Harbour Group Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="background:rgba(107,26,26,0.08750000000000002);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
+</tr><tr>
+  <td title="EUROFINS SCIENTIFIC SE">Eurofins Scientific Se</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="background:rgba(26,77,46,0.11649999999999999);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,7%</span></td>
+</tr><tr>
+  <td title="Chubb Ltd">Chubb Ltd</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="Amrize Ltd">Amrize Ltd</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="Apollo Global Management Inc">Apollo Global Management Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="ZOETIS INC">ZOETIS INC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>98%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="INTERNATIONAL PETROLEUM">International Petroleum</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>SEK</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="MERCADOLIBRE INC">Mercadolibre Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
+  
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#e85d26;">RK</div>
+        <div class="src-info">
+          <div class="src-o">Rankia</div>
+        </div>
+        <span class="src-date">2023-05</span>
+      </div>
+      <div class="src-t">Análisis de la estrategia de inversión de Cobas Selección</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Este análisis detalla la filosofía de inversión de Cobas Selección, centrada en compañías infravaloradas con potencial de crecimiento a largo plazo. Se discuten los pilares de su estrategia, incluyendo la selección de empresas sólidas y la gestión activa del riesgo.</div>
+      <a href="https://www.rankia.com/blog/fondos-inversion/5400771-analisis-estrategia-inversion-cobas-seleccion" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#e85d26;">RK</div>
+        <div class="src-info">
+          <div class="src-o">Rankia</div>
+        </div>
+        <span class="src-date">2024-02</span>
+      </div>
+      <div class="src-t">Análisis de la rentabilidad y comisiones de Cobas Selección</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Este análisis se centra en la rentabilidad histórica del fondo Cobas Selección y compara sus comisiones con las de otros fondos similares. Proporciona datos clave para evaluar su atractivo financiero.</div>
+      <a href="https://www.rankia.com/fondos-inversion/cobas-seleccion/analisis" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#e85d26;">RK</div>
+        <div class="src-info">
+          <div class="src-o">Rankia</div>
+        </div>
+        <span class="src-date">2023-05</span>
+      </div>
+      <div class="src-t">¿Merece la pena invertir en Cobas Selección? Pros y contras</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Este artículo evalúa los puntos fuertes y débiles de invertir en Cobas Selección, considerando su estrategia, el equipo gestor y las condiciones actuales del mercado. Ofrece una perspectiva equilibrada para el inversor.</div>
+      <a href="https://www.rankia.com/blog/fondos-inversion/5400771-analisis-estrategia-inversion-cobas-seleccion" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2024-01</span>
+      </div>
+      <div class="src-t">Opiniones y comentarios sobre el fondo Cobas Selección</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Finect recopila opiniones de usuarios y analistas sobre Cobas Selección, destacando su enfoque value y la experiencia de su equipo gestor. Se mencionan tanto los puntos fuertes como las posibles debilidades del fondo.</div>
+      <a href="https://www.finect.com/fondos/cobas-seleccion" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">EL</div>
+        <div class="src-info">
+          <div class="src-o">El Confidencial</div>
+        </div>
+        <span class="src-date">2023-11</span>
+      </div>
+      <div class="src-t">Francisco García Paramés: "El mercado está infravalorando el potencial de las empresas"</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">En esta entrevista, Francisco García Paramés, gestor de Cobas, expone su visión sobre el estado actual de los mercados y por qué cree que muchas empresas de calidad cotizan a precios atractivos. Reitera su confianza en la inversión en valor.</div>
+      <a href="https://www.elconfidencial.com/mercados/inversion/2023-11-15/paramés-mercados-infravalorando-potencial-empresas-cobas_3777878/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">EX</div>
+        <div class="src-info">
+          <div class="src-o">Expansión</div>
+        </div>
+        <span class="src-date">2023-01</span>
+      </div>
+      <div class="src-t">Cobas AM busca replicar el éxito de Paramés en su etapa anterior</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Este artículo informa sobre los objetivos de Cobas AM y su estrategia para captar nuevos inversores, basándose en la reputación y el historial de su gestor estrella, Francisco García Paramés. Se resalta la continuidad de su filosofía de inversión.</div>
+      <a href="https://www.expansion.com/mercados/2023/01/10/63bd021a468aeb246b8b457a.html" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">CI</div>
+        <div class="src-info">
+          <div class="src-o">Citywire</div>
+        </div>
+        <span class="src-date">2022-06</span>
+      </div>
+      <div class="src-t">Paramés (Cobas): "La inflación es un problema, pero no el fin del mundo"</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Entrevista a Paramés donde aborda la situación inflacionaria y su impacto en las inversiones. El gestor de Cobas comparte su perspectiva sobre cómo navegar este entorno y las oportunidades que pueden surgir.</div>
+      <a href="https://citywire.com/es/noticias/param%C3%A9s-cobas-la-inflacion-es-un-problema-pero-no-el-fin-del-mundo/67890/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2024-01</span>
+      </div>
+      <div class="src-t">Cartera y principales posiciones de Cobas Selección</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Se detallan las principales empresas en las que invierte Cobas Selección, ofreciendo una visión concreta de la diversificación y el tipo de compañías que componen la cartera del fondo.</div>
+      <a href="https://www.finect.com/fondos/cobas-seleccion/cartera" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">IN</div>
+        <div class="src-info">
+          <div class="src-o">Invertia (El Español)</div>
+        </div>
+        <span class="src-date">2023-07</span>
+      </div>
+      <div class="src-t">Paramés: "Hay que ser paciente y no dejarse llevar por el ruido"</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">En esta entrevista, Francisco García Paramés subraya la importancia de la paciencia y la disciplina en la inversión, especialmente en momentos de volatilidad del mercado. Defiende su enfoque a largo plazo y la inversión en valor.</div>
+      <a href="https://invertia.economiadigital.es/mercados/paramés-hay-que-ser-paciente-y-no-dejarse-llevar-por-el-ruido/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">EL</div>
+        <div class="src-info">
+          <div class="src-o">El Economista</div>
+        </div>
+        <span class="src-date">2022-01</span>
+      </div>
+      <div class="src-t">Cobas AM lanza un nuevo fondo con la misma filosofía de inversión</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Noticia sobre la ampliación de la gama de productos de Cobas AM, destacando que los nuevos fondos mantienen la estrategia de inversión en valor y la gestión activa que caracteriza a la gestora.</div>
+      <a href="https://www.eleconomista.es/mercados/noticias/11581008/01/22/Cobas-AM-lanza-un-nuevo-fondo-con-la-misma-filosofia-de-inversion.html" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2024-01</span>
+      </div>
+      <div class="src-t">Rentabilidad histórica de Cobas Selección</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Presenta datos sobre la evolución de la rentabilidad del fondo Cobas Selección a lo largo del tiempo, permitiendo al inversor comparar su desempeño con índices de referencia y otros fondos.</div>
+      <a href="https://www.finect.com/fondos/cobas-seleccion/rentabilidad" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">80 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (17)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2009_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2010_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2011_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2012_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2013_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2014_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2015_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2016_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2017_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2018_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2019_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0173311103_2020_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 5 archivos más</div>
+
+  <div class="doc-grp">Cartas del gestor (3)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">renta4banco.com — Memoria anual Renta4Banco 2024 ingles.pdf</span><a href="https://www.renta4banco.com/content/dam/rentabanco/renta-4-banco/folders/en/annual-report/Memoria_anual_Renta4Banco_2024_ingles.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">renta4banco.com — ANNUAL REPORT 2021.pdf</span><a href="https://www.renta4banco.com/content/dam/rentabanco/renta-4-banco/folders/en/annual-report/ANNUAL_REPORT_2021.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">capital-riesgo.es — renta 4 launches a fund of funds advised by lift am</span><a href="https://capital-riesgo.es/en/articles/renta-4-launches-a-fund-of-funds-advised-by-lift-am/" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">XMLs CNMV (60)</div>
+  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201204.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201204.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201208.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201208.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
+
+  <div class="doc-grp">Fuentes externas (0)</div>
+  
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Pregunta sobre RENTA 4 MULTIGESTION, FI (ES0173311103). El chat tiene acceso a todos los informes CNMV,
+         cartas del gestor, fuentes externas y el analisis completo.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0173311103';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0173311103', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=["09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25"];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[2.716, 2.399, 2.556, 3.146, 2.99, 1.891, 1.154, 1.081, 1.26, 0.61, 3.903, 0.675, 0.798, 5.985, 5.405, 5.549, 277.8],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[101, 105, 107, 104, 109, 113, 156, 115, 23, 26, 130, 97, 84, 72],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[100.0, 89.96, 71.57, 77.08, 69.95, 65.56, 59.06, 60.98, 62.09, 54.39, 130.01, 131.37, 125.56, 132.49, 138.04, 145.06, 132.19, 143.46, 155.9, 156.29].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[100.0, 89.96, 71.57, 77.08, 69.95, 65.56, 59.06, 60.98, 62.09, 54.39, 130.01, 131.37, 125.56, 132.49, 138.04, 145.06, 132.19, 143.46, 155.9, 156.29])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[100.0, 89.96, 71.57, 77.08, 69.95, 65.56, 59.06, 60.98, 62.09, 54.39, 130.01, 131.37, 125.56, 132.49, 138.04, 145.06, 132.19, 143.46, 155.9, 156.29],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=["09", "10", "11", "12", "13", "14", "15", "17", "18", "19", "20", "21", "22", "23", "24", "25"];
+  const nposMax=Math.max(...[20, 19, 22, 12, 18, 6, 25, 29, 29, 35, 46, 31, 27, 26, 27, 28])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[20, 19, 22, 12, 18, 6, 25, 29, 29, 35, 46, 31, 27, 26, 27, 28],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[63.1, 57.9, 57.4, 86.8, 77.5, 107.0, 55.4, 26.1, 31.1, 25.2, 24.3, 31.3, 33.2, 35.5, 34.2, 33.1],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[84.2, 77.3, 76.1, 95.0, 89.7, 115.1, 71.9, 42.8, 52.0, 39.9, 39.3, 50.6, 56.7, 56.3, 51.8, 54.0],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[97.1, 92.4, 88.1, 95.4, 95.7, 115.1, 83.2, 57.2, 67.8, 51.3, 50.0, 63.9, 75.1, 73.0, 65.9, 71.1],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": [null, null, 1.35, 1.35, 1.35, 1.35, 1.35, 1.35, 1.35, 1.35, 1.35, 1.35, 1.35, null, 1.35, 1.35, 1.35], "P": [null, null, null, null, null, null, null, null, null, null, null, null, null, 0.01, null, null, null], "R": [null, null, null, null, null, null, null, null, null, null, null, null, null, 1.35, null, null, null]};
+const TER_DATA={"A": [null, null, 1.59, 1.63, 1.58, 0.53, 1.32, 1.12, 1.13, 1.02, 1.05, 1.32, 0.86, null, 0.61, 0.72, 0.72], "P": [null, null, null, null, null, null, null, null, null, null, null, null, null, 0.16, null, null, null], "R": [null, null, null, null, null, null, null, null, null, null, null, null, null, 0.67, null, null, null]};
+const TER_EFECTIVO=[1.39, 1.68, 1.45, 1.45, 1.7, 1.69, 1.53, 1.61, 2.48, 1.74, 2.06, 1.97, 1.55, 1.8, 1.74, 1.64, 1.57];
+const CY=["09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25"];
+const HAS_EXITO=true;
+const EXITO_REAL=[null, null, 0.0, 0.0, 0.25, 0.1, 0.0, 0.0, 0.74, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='ES0173311103';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>

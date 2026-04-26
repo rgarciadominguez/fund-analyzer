@@ -20,6 +20,15 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+# ── Fix Windows console encoding (charmap can't encode → and other unicode) ──
+# Without this, Quality Loop crashes when printing tracebacks/messages with
+# arrows or accented chars on Windows default cp1252 console.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn, SpinnerColumn

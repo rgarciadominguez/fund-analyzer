@@ -3,6 +3,14 @@
   "nombre": "SIGMA INTERNACIONAL, FI",
   "fallos": [
     {
+      "regla_id": "resumen_has_cifras",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen con pocas cifras concretas (4 encontradas, mínimo 5). Parece genérico.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
+    },
+    {
       "regla_id": "gestores_min_perfiles",
       "seccion": "gestores",
       "fail_type": "scarcity",
@@ -78,7 +86,7 @@
       "regla_id": "resumen_fortalezas_no_contradict_riesgos",
       "seccion": "resumen",
       "fail_type": "content",
-      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad del 15,5% en 2022, superando las expectativas en un año complejo.']",
+      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad del 15,5% en 2022, superando expectativas en un año complejo.']",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
     },
@@ -107,12 +115,12 @@
       "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
     }
   ],
-  "fallos_estructura": 5,
+  "fallos_estructura": 6,
   "fallos_scarcity": 8,
-  "total_reglas": 54,
+  "total_reglas": 55,
   "reglas_ok": 41,
   "aceptable": false,
-  "score_display": "41/54 reglas OK (8 pendientes de datos)",
+  "score_display": "41/55 reglas OK (8 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -120,7 +128,8 @@
     "estrategia",
     "cartera",
     "fuentes_externas",
-    "datos_cuantitativos"
+    "datos_cuantitativos",
+    "header"
   ],
-  "evaluado_at": "2026-04-23T22:28:06.006534"
+  "evaluado_at": "2026-04-26T17:30:32.607306"
 }

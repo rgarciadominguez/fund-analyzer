@@ -1,6 +1,6 @@
 {
   "fund": "ES0175437039",
-  "nombre": "SEGURFONDO GESTION DINAMICA, FI",
+  "nombre": "DUNAS VALOR PRUDENTE FI",
   "fallos": [
     {
       "regla_id": "gestores_min_perfiles",
@@ -22,7 +22,7 @@
       "regla_id": "resumen_returns_match_data",
       "seccion": "resumen",
       "fail_type": "content",
-      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2007: texto dice 6.67%, real 2.8%",
+      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2007: texto dice 7.24%, real 2.8%",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
     },
@@ -35,20 +35,28 @@
       "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
     },
     {
+      "regla_id": "resumen_fortalezas_no_contradict_riesgos",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del 7.24% entre 2007 y 2016, aunque con CAGR bajo.']",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
+    },
+    {
       "regla_id": "hitos_historia_percentages_verifiable",
       "seccion": "historia",
       "fail_type": "content",
-      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2012: hito dice 20.0%, real 2.9%",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2012: hito dice 20.0%, real 2.9% | 2016: hito dice 20.0%, real -1.0%",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
     }
   ],
-  "fallos_estructura": 3,
+  "fallos_estructura": 4,
   "fallos_scarcity": 2,
-  "total_reglas": 54,
+  "total_reglas": 55,
   "reglas_ok": 49,
   "aceptable": false,
-  "score_display": "49/54 reglas OK (2 pendientes de datos)",
+  "score_display": "49/55 reglas OK (2 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -56,7 +64,8 @@
     "estrategia",
     "cartera",
     "fuentes_externas",
-    "datos_cuantitativos"
+    "datos_cuantitativos",
+    "header"
   ],
-  "evaluado_at": "2026-04-23T19:32:54.687469"
+  "evaluado_at": "2026-04-26T17:24:17.877380"
 }

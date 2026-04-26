@@ -839,6 +839,74 @@ def _check_text_returns_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
     return True, {"actual": f"{len(mentions)} menciones verificadas"}
 
 
+def _check_nombre_match_pdf(rule: dict, data: dict) -> tuple[bool, dict]:
+    """El nombre del fondo en output.json debe coincidir con el nombre real del último
+    informe semestral CNMV (PDF). Detecta cuando el cnmv_agent guardó un nombre antiguo
+    del XML viejo en lugar del nombre actual del último PDF (caso típico: fondo cambió
+    de nombre tras cambio de gestora)."""
+    import re as _re
+
+    isin = (data.get("isin") or "").strip().upper()
+    nombre_output = (data.get("nombre") or "").strip()
+
+    if not isin:
+        return True, {"actual": "sin_isin"}
+
+    pdf_dir = ROOT / "data" / "funds" / isin / "raw" / "reports"
+    if not pdf_dir.exists():
+        return True, {"actual": "sin_pdfs"}
+
+    # Buscar último PDF semestral CNMV (ordenados ⇒ año ascendente)
+    pdfs = sorted(pdf_dir.glob(f"CNMV_{isin}_*_H*.pdf"))
+    if not pdfs:
+        return True, {"actual": "sin_pdfs_cnmv"}
+
+    latest = pdfs[-1]
+    try:
+        import pdfplumber
+        with pdfplumber.open(latest) as pdf:
+            text = pdf.pages[0].extract_text() or ""
+    except Exception as exc:
+        return True, {"actual": f"error_pdf:{str(exc)[:40]}"}
+
+    nombre_pdf = ""
+    for line in text.split("\n")[:8]:
+        line = line.strip()
+        if not line:
+            continue
+        if any(s in line.upper() for s in ("INFORME", "Nº REGISTRO", "REGISTRO CNMV")):
+            continue
+        if any(c.isalpha() for c in line) and line == line.upper() and len(line) > 5:
+            nombre_pdf = line
+            break
+
+    if not nombre_pdf:
+        return True, {"actual": "no_extraido_pdf"}
+
+    def _tokens(s):
+        return set(t for t in _re.findall(r"[A-ZÁÉÍÓÚÑ]{4,}", s.upper()))
+
+    GENERIC = {"FONDO", "FONDOS", "INVERSION", "INVERSIONES", "EURO", "EUROS", "MIXTO", "GLOBAL"}
+    toks_pdf_sig = _tokens(nombre_pdf) - GENERIC
+    toks_out_sig = _tokens(nombre_output) - GENERIC
+
+    if not toks_pdf_sig:
+        return True, {"actual": "tokens_genericos"}
+
+    common = toks_pdf_sig & toks_out_sig
+    overlap_ratio = len(common) / len(toks_pdf_sig) if toks_pdf_sig else 0
+
+    if overlap_ratio < 0.5:
+        return False, {
+            "actual": f"output='{nombre_output}' vs PDF='{nombre_pdf}'",
+            "nombre_pdf": nombre_pdf,
+            "nombre_output": nombre_output,
+            "pdf_file": latest.name,
+        }
+
+    return True, {"actual": f"OK: {nombre_pdf}"}
+
+
 # Registro de validadores
 CHECK_REGISTRY = {
     "min_chars": _check_min_chars,
@@ -870,6 +938,7 @@ CHECK_REGISTRY = {
     "vl_desde_fuentes_oficiales": _check_vl_desde_fuentes_oficiales,
     "historia_kpis_calculables": _check_historia_kpis_calculables,
     "drawdown_con_fecha": _check_drawdown_con_fecha,
+    "nombre_match_pdf": _check_nombre_match_pdf,
 }
 
 

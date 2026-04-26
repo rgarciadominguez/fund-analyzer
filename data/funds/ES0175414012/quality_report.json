@@ -1,0 +1,79 @@
+{
+  "fund": "ES0175414012",
+  "nombre": "DUNAS VALOR EQUILIBRADO FI",
+  "fallos": [
+    {
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 1 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "cartera_min_chars",
+      "seccion": "cartera",
+      "fail_type": "estructura",
+      "problema": "Cartera demasiado corta: 1554 chars (minimo 3000). Debe analizar composicion, concentracion, sectores, rotacion historica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar análisis de cartera con subsecciones por tipo de activo."
+    },
+    {
+      "regla_id": "cuant_min_serie_vl",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_vl_base100: 2 puntos (mínimo 3)",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Re-ejecutar cnmv_agent para obtener VL histórico."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/176 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "comision_exito_teorica_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Falta comision de exito teorica (%). Si cobra_comision_exito=true, debe descargarse el KIID del fondo.",
+      "agente_responsable": "discovery_agent",
+      "accion": "discovery_agent debe buscar KIID/DFI del fondo (keywords: KIID, DFI, DIC, Datos Fundamentales, Folleto) en web de la gestora y CNMV. Guardar en raw/letters/ o raw/documents/. El analyst_agent lo lee con _extract_exito_teorico_from_kiid."
+    },
+    {
+      "regla_id": "historia_kpis_calculables",
+      "seccion": "historia",
+      "fail_type": "scarcity",
+      "problema": "KPIs de historia no calculables (serie_vl_insuficiente): Solo 2 años, mínimo 3 para CAGR. CAGR, mejor/peor año requieren serie_vl_base100 valida.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe proveer serie_vl_base100 con VLs reales. Si esta corrupta, el dashboard mostrara guiones en lugar de 0,0% enganosos."
+    },
+    {
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+    }
+  ],
+  "fallos_estructura": 1,
+  "fallos_scarcity": 6,
+  "total_reglas": 56,
+  "reglas_ok": 49,
+  "aceptable": false,
+  "score_display": "49/56 reglas OK (6 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-04-26T17:18:41.706005"
+}

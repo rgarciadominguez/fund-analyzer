@@ -1,7 +1,38 @@
 {
   "fund": "ES0175316001",
   "nombre": "DUNAS VALOR FLEXIBLE FI",
-  "fallos": [],
+  "fallos": [
+    {
+      "regla_id": "cartera_no_headers",
+      "seccion": "cartera",
+      "fail_type": "estructura",
+      "problema": "Cartera tiene 1 subsecciones — debe ser 2-3 parrafos concisos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar cartera como narrativa concisa sin headers (max 1200 chars)."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/101 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "resumen_fortalezas_no_contradict_riesgos",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del 85,31% desde su creación, con una CAGR del 4,94%.']",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
+    }
+  ],
+  "fallos_estructura": 2,
+  "fallos_scarcity": 1,
+  "total_reglas": 55,
+  "reglas_ok": 52,
+  "aceptable": false,
+  "score_display": "52/55 reglas OK (1 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -9,7 +40,8 @@
     "estrategia",
     "cartera",
     "fuentes_externas",
-    "datos_cuantitativos"
+    "datos_cuantitativos",
+    "header"
   ],
-  "evaluado_at": "2026-04-12T13:33:57.285902"
+  "evaluado_at": "2026-04-26T17:07:45.787708"
 }

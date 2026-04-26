@@ -1,0 +1,39 @@
+{
+  "isin": "ES0173311103",
+  "nombre": "",
+  "timestamp": "2026-04-23T22:09:35.871885",
+  "completeness_pct": 66.7,
+  "dashboard_ready": false,
+  "dashboard_blockers": [
+    "nombre del fondo vacío"
+  ],
+  "issues": [
+    "nombre del fondo vacío",
+    "gestores vacíos — buscar en Citywire / Finect",
+    "sin estrategia ni filosofía de inversión — necesita PDFs cualitativos",
+    "mix_activos 2025 suma 202.2% (esperado ~100%)",
+    "mix_activos 2024 suma 181.0% (esperado ~100%)",
+    "mix_activos 2023 suma 197.8% (esperado ~100%)",
+    "mix_activos 2022 suma 199.3% (esperado ~100%)",
+    "mix_activos 2021 suma 192.1% (esperado ~100%)",
+    "mix_activos 2020 suma 177.8% (esperado ~100%)",
+    "mix_activos 2019 suma 167.9% (esperado ~100%)",
+    "mix_activos 2016 suma 24.7% (esperado ~100%)",
+    "mix_activos 2014 suma 115.5% (esperado ~100%)",
+    "sin análisis externos — ejecutar readings_agent",
+    "[patron_conocido:fondo_no_listo_para_dashboard] BLOQUEANTE: fondo no listo para dashboard — nombre del fondo vacío",
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)"
+  ],
+  "suggestions": [
+    "Años sin datos AUM: 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2026 -> descargar XMLs CNMV de esos años",
+    "-> Anadir más PDFs semestrales en raw/reports/",
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0173311103 --auto"
+  ],
+  "feedback_previo": [],
+  "stats": {
+    "periodos_consistencia": 17,
+    "posiciones_actuales": 28,
+    "puntos_aum": 17,
+    "gestores": 0
+  }
+}
