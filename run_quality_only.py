@@ -207,6 +207,18 @@ def run_quality_loop(isin: str, max_iter: int = 3) -> dict:
 
         log(isin, "QUALITY", f"Fallos por agente: " + ", ".join(f"{a}={len(fs)}" for a, fs in agentes.items()))
 
+        # CNMV enrichment retry (sectores, serie_rentabilidad, mix normalize)
+        # NO re-descarga, solo enriquece datos existentes (Gemini Flash batch)
+        if "cnmv_agent" in agentes:
+            try:
+                from agents.cnmv_enrichment import CNMVEnricher
+                log(isin, "RETRY", "cnmv_enrichment (sectores, rentabilidad, mix)")
+                enricher = CNMVEnricher(isin, quality_feedback=agentes["cnmv_agent"])
+                enricher.run()
+                log(isin, "OK", "cnmv_enrichment completado")
+            except Exception as exc:
+                log(isin, "ERROR", f"cnmv_enrichment fallo: {str(exc)[:120]}")
+
         # Manager profiler retry (ligero)
         if "manager_deep_agent" in agentes:
             try:
