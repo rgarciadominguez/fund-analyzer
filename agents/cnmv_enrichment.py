@@ -192,6 +192,135 @@ Sin texto adicional."""
             return True
         return False
 
+    # ── Fix 2b: posiciones desde sección 10 del PDF semestral ────────────
+    def _enrich_posiciones_desde_pdf(self, data: dict) -> bool:
+        """Si posiciones.actuales está vacío, parsea Section 10 'Detalle de
+        inversiones financieras' del último PDF semestral CNMV.
+        Format: (cid:9)+ ISIN - TIPO|NOMBRE|... DIVISA VALOR % VALOR_PREV %_PREV"""
+        import re
+        actuales = (data.get("posiciones") or {}).get("actuales") or []
+        if actuales:
+            return False  # ya hay posiciones
+
+        pdf_dir = self.fund_dir / "raw" / "reports"
+        pdfs = sorted(pdf_dir.glob(f"CNMV_{self.isin}_*_H*.pdf"))
+        if not pdfs:
+            _log(self.isin, "INFO", "Sin PDFs para extraer posiciones")
+            return False
+
+        try:
+            import pdfplumber
+        except ImportError:
+            _log(self.isin, "WARN", "pdfplumber no disponible")
+            return False
+
+        latest = pdfs[-1]
+        try:
+            with pdfplumber.open(latest) as pdf:
+                full = ""
+                for p in pdf.pages:
+                    full += (p.extract_text() or "") + "\n"
+        except Exception as exc:
+            _log(self.isin, "WARN", f"Error leyendo PDF: {exc}")
+            return False
+
+        # Localizar inicio de sección 10 "Detalle de inversiones financieras"
+        m_start = re.search(r"10\.\s*Detalle de inversiones financieras", full)
+        if not m_start:
+            _log(self.isin, "INFO", "Sección 10 no encontrada en último PDF")
+            return False
+
+        # Final de sección: siguiente sección numerada al inicio de línea (^11. o ^12.)
+        sec10 = full[m_start.end():]
+        m_end = re.search(r"\n1[1-9]\.\s+[A-ZÁ-Ú]", sec10)
+        if m_end:
+            sec10 = sec10[:m_end.start()]
+
+        # Parsear líneas con ISIN. Patrón:
+        # (cid:9)*ISIN - DESCRIPCION DIVISA VALOR_ACT %_ACT VALOR_PREV %_PREV
+        # ISIN: 12 chars [A-Z]{2}[A-Z0-9]{9}\d
+        # DIVISA: 3 chars EUR/USD/CHF/JPY/etc
+        ISIN_RE = r"([A-Z]{2}[A-Z0-9]{9}\d)"
+        # Línea típica:
+        #   (cid:9)..ES0000012I08 - REPO|CECA|1,750|2028-01-31 EUR 0 0,00 31.251 17,94
+        line_re = re.compile(
+            r"^[\s\(cid:9\)]*" + ISIN_RE + r"\s*-\s*"
+            r"(.+?)\s+"  # descripcion (lazy)
+            r"([A-Z]{3})\s+"  # divisa
+            r"([\d\.\,]+)\s+([\d\,]+)\s+"  # val_act %_act
+            r"([\d\.\,]+)\s+([\d\,]+)\s*$",  # val_prev %_prev
+            re.M,
+        )
+
+        def num_es(s):
+            """Parse Spanish number: 31.251 -> 31251, 17,94 -> 17.94"""
+            s = s.replace(".", "").replace(",", ".")
+            try:
+                return float(s)
+            except ValueError:
+                return 0.0
+
+        # Mapear prefijo ISIN a país
+        PAIS = {
+            "ES": "España", "FR": "Francia", "DE": "Alemania", "IT": "Italia",
+            "GB": "Reino Unido", "US": "Estados Unidos", "NL": "Países Bajos",
+            "PT": "Portugal", "BE": "Bélgica", "LU": "Luxemburgo", "IE": "Irlanda",
+            "AT": "Austria", "CH": "Suiza", "SE": "Suecia", "NO": "Noruega",
+            "DK": "Dinamarca", "FI": "Finlandia", "JP": "Japón", "CN": "China",
+            "HK": "Hong Kong", "SG": "Singapur", "AU": "Australia", "CA": "Canadá",
+            "MX": "México", "BR": "Brasil", "FO": "Islas Feroe", "XS": "Internacional",
+        }
+
+        posiciones = []
+        for m in line_re.finditer(sec10):
+            isin = m.group(1)
+            desc = m.group(2).strip()
+            divisa = m.group(3)
+            val_act = num_es(m.group(4))
+            pct_act = num_es(m.group(5))
+            # Solo posiciones del periodo actual (no las de comparación con pct_act > 0)
+            if pct_act <= 0:
+                continue
+
+            # Parse desc: TIPO|NOMBRE|CUPON|VENCIMIENTO  o  TIPO|NOMBRE
+            parts = desc.split("|")
+            tipo = parts[0].strip() if parts else ""
+            nombre = parts[1].strip() if len(parts) > 1 else desc
+            cupon = None
+            vencimiento = None
+            if len(parts) > 2:
+                try:
+                    cupon = float(parts[2].replace(",", "."))
+                except ValueError:
+                    pass
+            if len(parts) > 3:
+                vencimiento = parts[3].strip()
+
+            pais = PAIS.get(isin[:2], "Otros")
+
+            posiciones.append({
+                "nombre": nombre,
+                "ticker": isin,
+                "tipo": tipo.upper(),
+                "pais": pais,
+                "divisa": divisa,
+                "valor_mercado_miles": val_act,
+                "peso_pct": pct_act,
+                "cupon": cupon,
+                "vencimiento": vencimiento,
+                "fuente": f"sec_10_{latest.stem}",
+            })
+
+        if not posiciones:
+            _log(self.isin, "INFO", "Sec 10 sin posiciones parseables")
+            return False
+
+        # Insertar en cnmv_data
+        data.setdefault("posiciones", {})["actuales"] = posiciones
+        self.changes.append(f"posiciones: {len(posiciones)} extraidas de sec 10 PDF {latest.name}")
+        _log(self.isin, "OK", f"{len(posiciones)} posiciones extraidas de sec 10")
+        return True
+
     # ── Fix 3: mix activos > 100% ────────────────────────────────────────
     def _normalize_mix_over_100(self, data: dict) -> bool:
         """Si mix activos suma > 110%, normaliza a 100%."""
@@ -255,10 +384,11 @@ Sin texto adicional."""
 
         _log(self.isin, "START", f"Enrichment con {len(self.feedback)} fallos en feedback")
 
-        # Aplicar fixes (siempre intentar serie_rentabilidad, mix; sectores solo si feedback lo marca)
+        # Aplicar fixes (siempre intentar serie_rentabilidad, mix, posiciones desde PDF)
         any_change = False
         any_change |= self._enrich_serie_rentabilidad(data)
         any_change |= self._normalize_mix_over_100(data)
+        any_change |= self._enrich_posiciones_desde_pdf(data)
 
         if not self.feedback or self._has_fallo("cartera_posiciones_sectores"):
             any_change |= self._enrich_sectores(data)
