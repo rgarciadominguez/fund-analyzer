@@ -3,36 +3,12 @@
   "nombre": "MAGALLANES EUROPEAN EQUITY FI",
   "fallos": [
     {
-      "regla_id": "gestores_min_perfiles",
-      "seccion": "gestores",
-      "fail_type": "scarcity",
-      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
-      "agente_responsable": "manager_deep_agent",
-      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
-    },
-    {
-      "regla_id": "gestores_lead_has_filosofia",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal '' sin filosofía de inversión.",
-      "agente_responsable": "manager_deep_agent",
-      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
-    },
-    {
       "regla_id": "gestores_lead_has_decisiones",
       "seccion": "gestores",
       "fail_type": "estructura",
       "problema": "Gestor principal sin decisiones_clave documentadas.",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
-    },
-    {
-      "regla_id": "gestores_lead_cv_bullets",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
     },
     {
       "regla_id": "cuant_serie_vl_valid",
@@ -46,9 +22,33 @@
       "regla_id": "resumen_returns_match_data",
       "seccion": "resumen",
       "fail_type": "content",
-      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2017: texto dice 191.5%, real 21.1%",
+      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2017: texto dice 150.76%, real 21.1%",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
+    },
+    {
+      "regla_id": "historia_kpis_match_data",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 1158 partícipes, KPI real 12376 (91% drift); texto dice 150085.0 M€ AUM, KPI real 1450.26 (10249% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
+    },
+    {
+      "regla_id": "clase_nueva_alerta",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Detectada clase nueva en último periodo (clase_nueva_introducida): clases nuevas: ['E']. Verificar AUM/partícipes/comisiones de la nueva clase.",
+      "agente_responsable": "manual_review",
+      "accion": "Revisar manualmente: la nueva clase puede afectar agregados (AUM, partícipes totales). Validar que la suma de clases sigue cuadrando."
+    },
+    {
+      "regla_id": "aum_jump_alert",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Salto AUM >50% año a año detectado (saltos_aum_>50%): 2015→2016: 150→232 M€ (+55%); 2016→2017: 232→514 M€ (+121%). Posible bug extracción cnmv_agent o cambio real de mercado.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent."
     },
     {
       "regla_id": "cartera_posiciones_sectores",
@@ -62,17 +62,9 @@
       "regla_id": "resumen_fortalezas_no_contradict_riesgos",
       "seccion": "resumen",
       "fail_type": "content",
-      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del 191,5% y CAGR del 12,87% en el periodo 2017-2025, dem']",
+      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del 150,76% y CAGR del 10,64% en el periodo 2017-2025, ex']",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
-    },
-    {
-      "regla_id": "hitos_historia_percentages_verifiable",
-      "seccion": "historia",
-      "fail_type": "content",
-      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2016: hito dice 55.0%, real 59500.0%",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
     },
     {
       "regla_id": "hitos_estrategia_have_driver",
@@ -99,12 +91,12 @@
       "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "fallos_estructura": 7,
-  "fallos_scarcity": 2,
-  "total_reglas": 54,
-  "reglas_ok": 42,
+  "fallos_estructura": 5,
+  "fallos_scarcity": 3,
+  "total_reglas": 58,
+  "reglas_ok": 47,
   "aceptable": false,
-  "score_display": "42/54 reglas OK (2 pendientes de datos)",
+  "score_display": "47/58 reglas OK (3 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -115,5 +107,5 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-04-27T18:43:21.569023"
+  "evaluado_at": "2026-04-28T00:10:42.337373"
 }
