@@ -125,6 +125,14 @@ def patch_nombre_from_pdf(isin: str) -> bool:
         bak = fund_dir / "output.pre_nombre_fix.json"
         if not bak.exists():
             shutil.copy(out_path, bak)
+        # Marcar paths editados manualmente para que analyst no los sobrescriba
+        try:
+            from tools.output_merger import mark_manual_edit
+            mark_manual_edit(data, "nombre")
+            if data.get("gestora"):
+                mark_manual_edit(data, "gestora")
+        except Exception:
+            pass
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 

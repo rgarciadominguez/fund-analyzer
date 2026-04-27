@@ -62,6 +62,15 @@ def sync(isin):
         changes.append("mix_activos sincronizado")
 
     if changes:
+        # Marcar paths sincronizados para que analyst no los sobrescriba con datos viejos
+        try:
+            sys.path.insert(0, str(ROOT))
+            from tools.output_merger import mark_manual_edit
+            mark_manual_edit(od, "posiciones.actuales")
+            mark_manual_edit(od, "cuantitativo.serie_rentabilidad")
+            mark_manual_edit(od, "cuantitativo.mix_activos_historico")
+        except Exception:
+            pass
         with open(out_p, "w", encoding="utf-8") as f:
             json.dump(od, f, indent=2, ensure_ascii=False)
         print(f"  {isin}: {' | '.join(changes)}")

@@ -76,15 +76,20 @@ def diagnose(isin):
     if not kpis.get("num_participes"):
         issues.append("KPI: partícipes missing")
 
-    # Gestores
-    cual = d.get("cualitativo") or {}
-    gestores = d.get("gestores") or cual.get("gestores") or []
+    # Gestores — usar accessor canónico (resuelve bug histórico de leer del path equivocado)
+    try:
+        from tools.output_accessor import get_perfiles, get_posiciones_actuales
+        gestores = get_perfiles(d)
+        n_pos = len(get_posiciones_actuales(d))
+    except Exception:
+        # Fallback al método antiguo si accessor falla
+        cual = d.get("cualitativo") or {}
+        gestores = (d.get("analyst_synthesis", {}).get("gestores", {}).get("perfiles")
+                    or d.get("gestores", {}).get("perfiles")
+                    or cual.get("gestores") or [])
+        n_pos = len((d.get("posiciones") or {}).get("actuales") or [])
     if not gestores:
         issues.append("GESTORES: vacío")
-
-    # Posiciones
-    pos = d.get("posiciones") or {}
-    n_pos = len(pos.get("actuales") or [])
     if n_pos == 0:
         issues.append("POSICIONES: actuales vacías")
 

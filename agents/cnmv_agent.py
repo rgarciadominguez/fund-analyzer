@@ -95,6 +95,32 @@ class CNMVAgent:
             expand=False,
         ))
 
+        # ── Update incremental: si cnmv_data.json existe y está fresco, skip ──
+        # CNMV publica trimestrales con ~3 meses de retraso (FONDTRIM Q4 2025
+        # disponible en Mar 2026). Si el último periodo en cache es reciente,
+        # no hay nada nuevo que descargar. Skip ahorra ~5 min por fondo.
+        # Forzar re-download con orchestrator --clean.
+        cnmv_path = self.fund_dir / "cnmv_data.json"
+        if cnmv_path.exists():
+            try:
+                from datetime import timedelta
+                cached = json.loads(cnmv_path.read_text(encoding="utf-8"))
+                last_update_str = cached.get("ultima_actualizacion", "")
+                last_update = datetime.fromisoformat(last_update_str) if last_update_str else None
+                # Última fecha de mod en disco (más fiable que el campo guardado)
+                disk_mtime = datetime.fromtimestamp(cnmv_path.stat().st_mtime)
+                age_days = (datetime.now() - disk_mtime).days
+                # Detectar último periodo cubierto en serie_aum
+                serie_aum = (cached.get("cuantitativo") or {}).get("serie_aum") or []
+                last_periodo = max((s.get("periodo", "") for s in serie_aum if isinstance(s, dict)), default="")
+                # Si los datos son < 30 días Y cubren al menos hasta el año pasado → skip
+                # Esto es conservador: para forzar refresh manual, usar --clean
+                if age_days < 30 and last_periodo and int(str(last_periodo)[:4]) >= self.current_year - 1:
+                    console.log(f"[green]✓ Cache fresco ({age_days}d, último periodo {last_periodo}) — skip CNMV download[/green]")
+                    return cached
+            except Exception as exc:
+                console.log(f"[yellow]Cache check falló ({exc}), ejecutando download normal[/yellow]")
+
         result: dict = {
             "isin": self.isin,
             "tipo": "ES",

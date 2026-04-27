@@ -1021,6 +1021,28 @@ class AnalystAgent:
             "sections_completed": 0,
         }
 
+        # ── Anti-regresión: cargar versión anterior si existe ────────────────
+        # Si hay output.json previo, comparar nueva sección vs anterior.
+        # Si nueva es regresión (>30% pérdida en métricas clave) → mantener
+        # anterior y log warning. Protege re-runs del Quality Loop.
+        prior_synthesis = {}
+        try:
+            from pathlib import Path as _P
+            _root = _P(__file__).parent.parent
+            prior_path = _root / "data" / "funds" / self.isin / "output.json"
+            if prior_path.exists():
+                import json as _json
+                prior_full = _json.loads(prior_path.read_text(encoding="utf-8"))
+                prior_synthesis = (prior_full.get("analyst_synthesis") or {})
+        except Exception as _exc:
+            self._log("WARN", f"No se pudo cargar prior synthesis: {_exc}")
+
+        try:
+            from tools.regression_guard import accept_section
+            _guard_available = True
+        except Exception:
+            _guard_available = False
+
         sections = [
             ("resumen", self._section_resumen),
             ("historia", self._section_historia),
@@ -1037,6 +1059,13 @@ class AnalystAgent:
             try:
                 result = method(data)
                 if result:
+                    # Anti-regresión: si tenemos versión previa, decidir cuál guardar
+                    prior_section = prior_synthesis.get(name)
+                    if _guard_available and prior_section and name != "documentos":
+                        result = accept_section(
+                            name, result, prior_section,
+                            log_fn=lambda agent, msg: self._log(agent, msg),
+                        )
                     synthesis[name] = result
                     synthesis["sections_completed"] += 1
                     self._log("OK", f"Sección {name} completada")
@@ -3672,6 +3701,23 @@ class AnalystAgent:
 
     def _save(self, output: dict):
         out_path = self.fund_dir / "output.json"
+
+        # ── Preservar ediciones manuales (Fase C) ────────────────────────────
+        # Si output.json existe y tiene "_manual_edits", esos paths se
+        # mantienen del existente en vez de ser sobrescritos por la nueva
+        # generación del analyst. Esto evita que un patch manual (ej. nombre
+        # corregido desde último PDF) se pierda en el siguiente run.
+        try:
+            from tools.output_merger import merge_preserving_manual_edits, get_manual_edits
+            if out_path.exists():
+                existing = json.loads(out_path.read_text(encoding="utf-8"))
+                manual_paths = get_manual_edits(existing)
+                if manual_paths:
+                    self._log("INFO", f"Preservando {len(manual_paths)} ediciones manuales: {manual_paths}")
+                output = merge_preserving_manual_edits(existing, output)
+        except Exception as exc:
+            self._log("WARN", f"Merge preserving manual edits falló: {exc}. Guardando sin merge.")
+
         # Atomic write: .tmp → rename (evita que el dashboard lea archivo vacío).
         tmp_path = out_path.with_suffix(out_path.suffix + ".tmp")
         tmp_path.write_text(

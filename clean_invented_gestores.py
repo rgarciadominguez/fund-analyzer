@@ -119,6 +119,14 @@ def clean(isin):
     asy["gestores"] = gestores
     d["analyst_synthesis"] = asy
 
+    # Marcar perfiles como manualmente curados — analyst no debe re-inventar
+    try:
+        sys.path.insert(0, str(ROOT))
+        from tools.output_merger import mark_manual_edit
+        mark_manual_edit(d, "analyst_synthesis.gestores.perfiles")
+    except Exception:
+        pass
+
     with open(out_p, "w", encoding="utf-8") as f:
         json.dump(d, f, indent=2, ensure_ascii=False)
 
