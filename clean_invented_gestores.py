@@ -88,14 +88,23 @@ def clean(isin):
     with open(out_p, encoding="utf-8") as f:
         d = json.load(f)
 
+    # Lectura via accessor (path canónico). Escritura mantiene path para
+    # mutar la estructura.
+    sys.path.insert(0, str(ROOT))
+    try:
+        from tools.output_accessor import get_perfiles, get_gestora
+        perfiles = get_perfiles(d)
+        gestora = (get_gestora(d) or "").upper()
+    except Exception:
+        # Fallback si accessor no carga
+        perfiles = ((d.get("analyst_synthesis") or {}).get("gestores") or {}).get("perfiles") or []
+        gestora = (d.get("gestora") or "").upper()
+
     asy = d.get("analyst_synthesis") or {}
     gestores = asy.get("gestores") or {}
-    perfiles = gestores.get("perfiles") or []
     if not perfiles:
         print(f"  {isin}: sin perfiles")
         return
-
-    gestora = (d.get("gestora") or "").upper()
 
     cleaned = []
     removed = []

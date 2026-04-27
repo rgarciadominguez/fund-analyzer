@@ -34,23 +34,35 @@ def sync(isin):
     if not bak.exists():
         shutil.copy(out_p, bak)
 
+    # Lectura via accessor (para output.json) — escritura mantiene paths.
+    # cnmv_data NO usa accessor (no es output.json).
+    sys.path.insert(0, str(ROOT))
+    try:
+        from tools.output_accessor import (
+            get_posiciones_actuales, get_serie_rentabilidad,
+        )
+    except Exception:
+        get_posiciones_actuales = lambda d: (d.get("posiciones") or {}).get("actuales") or []
+        get_serie_rentabilidad = lambda d: (d.get("cuantitativo") or {}).get("serie_rentabilidad") or []
+
     changes = []
 
     # Posiciones
-    cnmv_pos = (cd.get("posiciones") or {}).get("actuales") or []
+    cnmv_pos = (cd.get("posiciones") or {}).get("actuales") or []  # cnmv_data, no accessor
     if cnmv_pos:
         out_pos = od.setdefault("posiciones", {})
-        old_n = len(out_pos.get("actuales") or [])
-        old_sec = sum(1 for p in (out_pos.get("actuales") or []) if (p.get("sector") or "").strip())
+        existing_pos = get_posiciones_actuales(od)  # accessor para output.json
+        old_n = len(existing_pos)
+        old_sec = sum(1 for p in existing_pos if (p.get("sector") or "").strip())
         out_pos["actuales"] = cnmv_pos
         new_sec = sum(1 for p in cnmv_pos if (p.get("sector") or "").strip())
         changes.append(f"posiciones {old_n}/{old_sec}sec → {len(cnmv_pos)}/{new_sec}sec")
 
     # serie_rentabilidad
-    cd_cuant = cd.get("cuantitativo") or {}
+    cd_cuant = cd.get("cuantitativo") or {}  # cnmv_data, no accessor
     od_cuant = od.setdefault("cuantitativo", {})
     if cd_cuant.get("serie_rentabilidad"):
-        n_old = len(od_cuant.get("serie_rentabilidad") or [])
+        n_old = len(get_serie_rentabilidad(od))  # accessor
         n_new = len(cd_cuant["serie_rentabilidad"])
         if n_old != n_new:
             od_cuant["serie_rentabilidad"] = cd_cuant["serie_rentabilidad"]

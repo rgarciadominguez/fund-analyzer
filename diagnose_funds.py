@@ -66,44 +66,38 @@ def diagnose(isin):
         else:
             name_match = "OK"
 
-    # KPIs
-    kpis = d.get("kpis") or {}
-    null_kpis = [k for k, v in kpis.items() if v in (None, "", 0) and k not in ("rotacion_cartera_anterior_pct",)]
-    if not kpis.get("aum_actual_meur"):
+    # Toda la lectura del schema pasa por accessor canónico (Fase C)
+    from tools.output_accessor import (
+        get_kpis, get_kpi_aum, get_kpi_ter, get_kpi_participes,
+        get_perfiles, get_posiciones_actuales,
+        get_serie_aum, get_serie_rentabilidad, get_serie_ter,
+        get_analisis_consistencia,
+    )
+    kpis = get_kpis(d)
+    if not get_kpi_aum(d):
         issues.append("KPI: AUM actual missing")
-    if not kpis.get("ter_pct"):
+    if not get_kpi_ter(d):
         issues.append("KPI: TER missing")
-    if not kpis.get("num_participes"):
+    if not get_kpi_participes(d):
         issues.append("KPI: partícipes missing")
 
-    # Gestores — usar accessor canónico (resuelve bug histórico de leer del path equivocado)
-    try:
-        from tools.output_accessor import get_perfiles, get_posiciones_actuales
-        gestores = get_perfiles(d)
-        n_pos = len(get_posiciones_actuales(d))
-    except Exception:
-        # Fallback al método antiguo si accessor falla
-        cual = d.get("cualitativo") or {}
-        gestores = (d.get("analyst_synthesis", {}).get("gestores", {}).get("perfiles")
-                    or d.get("gestores", {}).get("perfiles")
-                    or cual.get("gestores") or [])
-        n_pos = len((d.get("posiciones") or {}).get("actuales") or [])
+    gestores = get_perfiles(d)
+    n_pos = len(get_posiciones_actuales(d))
     if not gestores:
         issues.append("GESTORES: vacío")
     if n_pos == 0:
         issues.append("POSICIONES: actuales vacías")
 
-    # Series
-    cu = d.get("cuantitativo") or {}
-    if not cu.get("serie_aum"):
+    # Series via accessor
+    if not get_serie_aum(d):
         issues.append("SERIE: AUM vacía")
-    if not cu.get("serie_rentabilidad"):
+    if not get_serie_rentabilidad(d):
         issues.append("SERIE: rentabilidad vacía")
-    if not cu.get("serie_ter"):
+    if not get_serie_ter(d):
         issues.append("SERIE: TER vacía")
 
-    # Análisis consistencia
-    ac = d.get("analisis_consistencia") or {}
+    # Análisis consistencia via accessor
+    ac = get_analisis_consistencia(d)
     if not ac.get("resumen_global"):
         issues.append("ANÁLISIS: resumen_global vacío")
 
@@ -144,9 +138,9 @@ def diagnose(isin):
         "pdf_file": pdf_file,
         "name_match": name_match,
         "gestora": gestora,
-        "aum_meur": kpis.get("aum_actual_meur"),
-        "participes": kpis.get("num_participes"),
-        "ter_pct": kpis.get("ter_pct"),
+        "aum_meur": get_kpi_aum(d),
+        "participes": get_kpi_participes(d),
+        "ter_pct": get_kpi_ter(d),
         "n_gestores": len(gestores),
         "n_posiciones": n_pos,
         "n_letters": n_letters,

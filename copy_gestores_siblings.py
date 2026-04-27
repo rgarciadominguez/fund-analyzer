@@ -29,14 +29,27 @@ def copy_gestores(src_isin, target_isin):
     src_d = json.loads(src_p.read_text(encoding="utf-8"))
     tgt_d = json.loads(tgt_p.read_text(encoding="utf-8"))
 
-    src_perfiles = ((src_d.get("analyst_synthesis") or {}).get("gestores") or {}).get("perfiles") or []
+    # Lectura via accessor canónico
+    sys.path.insert(0, str(ROOT))
+    try:
+        from tools.output_accessor import get_perfiles, get_gestores_texto
+        src_perfiles = get_perfiles(src_d)
+        src_texto = get_gestores_texto(src_d)
+    except Exception:
+        src_perfiles = ((src_d.get("analyst_synthesis") or {}).get("gestores") or {}).get("perfiles") or []
+        src_texto = ((src_d.get("analyst_synthesis") or {}).get("gestores") or {}).get("texto", "")
+
     if not src_perfiles:
         print(f"  {target_isin}: source {src_isin} sin perfiles")
         return
 
     tgt_asy = tgt_d.setdefault("analyst_synthesis", {})
     tgt_g = tgt_asy.setdefault("gestores", {})
-    n_old = len(tgt_g.get("perfiles") or [])
+    try:
+        from tools.output_accessor import get_perfiles as _get_perfiles_again
+        n_old = len(_get_perfiles_again(tgt_d))
+    except Exception:
+        n_old = len(tgt_g.get("perfiles") or [])
 
     # Solo sobreescribir si el target no tiene perfiles
     if n_old > 0:
@@ -48,9 +61,9 @@ def copy_gestores(src_isin, target_isin):
         shutil.copy(tgt_p, bak)
 
     tgt_g["perfiles"] = src_perfiles
-    # Preservar el texto narrativo si existe
-    if not tgt_g.get("texto") and (src_d.get("analyst_synthesis") or {}).get("gestores", {}).get("texto"):
-        tgt_g["texto"] = src_d["analyst_synthesis"]["gestores"]["texto"]
+    # Preservar el texto narrativo si existe (usa src_texto pre-leído via accessor)
+    if not tgt_g.get("texto") and src_texto:
+        tgt_g["texto"] = src_texto
 
     with open(tgt_p, "w", encoding="utf-8") as f:
         json.dump(tgt_d, f, indent=2, ensure_ascii=False)

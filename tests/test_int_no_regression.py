@@ -40,19 +40,21 @@ def _snapshot_fund(isin: str) -> dict:
     if not out_path.exists():
         return {"isin": isin, "error": "output.json missing"}
     d = json.loads(out_path.read_text(encoding="utf-8"))
-    cuant = d.get("cuantitativo", {}) or {}
-    pos = d.get("posiciones", {}) or {}
-    synth = d.get("analyst_synthesis", {}) or {}
+    # Lectura via accessor canónico (Fase C)
+    from tools.output_accessor import (
+        get_nombre, get_tipo, get_serie_aum, get_posiciones_actuales,
+        get_perfiles, get_resumen_texto, get_estrategia_texto, get_kpi_aum,
+    )
     return {
-        "nombre": d.get("nombre"),
-        "tipo": d.get("tipo"),
+        "nombre": get_nombre(d),
+        "tipo": get_tipo(d),
         "struct": {
-            "n_aum_puntos": len(cuant.get("serie_aum", [])),
-            "n_posiciones_actuales": len(pos.get("actuales", [])),
-            "n_perfiles": len((synth.get("gestores", {}) or {}).get("perfiles", [])),
-            "resumen_chars": len(((synth.get("resumen", {}) or {}).get("texto", "") or "")),
-            "estrategia_chars": len(((synth.get("estrategia", {}) or {}).get("texto", "") or "")),
-            "has_aum": bool(d.get("kpis", {}).get("aum_actual_meur")),
+            "n_aum_puntos": len(get_serie_aum(d)),
+            "n_posiciones_actuales": len(get_posiciones_actuales(d)),
+            "n_perfiles": len(get_perfiles(d)),
+            "resumen_chars": len(get_resumen_texto(d)),
+            "estrategia_chars": len(get_estrategia_texto(d)),
+            "has_aum": bool(get_kpi_aum(d)),
         },
     }
 

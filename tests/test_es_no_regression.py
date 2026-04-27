@@ -40,31 +40,35 @@ def _snapshot_fund(isin: str) -> dict:
         r = q.run()
     out_path = ROOT / "data" / "funds" / isin / "output.json"
     d = json.loads(out_path.read_text(encoding="utf-8"))
-    cuant = d.get("cuantitativo", {}) or {}
-    pos = d.get("posiciones", {}) or {}
-    synth = d.get("analyst_synthesis", {}) or {}
+    # Lectura via accessor canónico (Fase C)
+    from tools.output_accessor import (
+        get_nombre, get_serie_vl_base100, get_serie_aum, get_serie_participes,
+        get_serie_ter, get_posiciones_actuales, get_posiciones_historicas,
+        get_perfiles, get_section_historia, get_resumen_texto,
+        get_cartera_texto, get_estrategia_texto, get_section_evolucion,
+    )
     return {
-        "nombre": d.get("nombre"),
+        "nombre": get_nombre(d),
         "score_display": r.get("score_display"),
         "fallos_estructura": r.get("fallos_estructura"),
         "fallos_scarcity": r.get("fallos_scarcity"),
         "aceptable": r.get("aceptable"),
         "total_fallos": len(r.get("fallos", [])),
         "struct": {
-            "n_vl_puntos": len(cuant.get("serie_vl_base100", [])),
-            "n_aum_puntos": len(cuant.get("serie_aum", [])),
-            "n_participes_puntos": len(cuant.get("serie_participes", [])),
-            "n_ter_puntos": len(cuant.get("serie_ter", [])),
-            "n_posiciones_actuales": len(pos.get("actuales", [])),
-            "n_posiciones_historicas": len(pos.get("historicas", [])),
-            "n_perfiles": len((synth.get("gestores", {}) or {}).get("perfiles", [])),
-            "n_hitos_historia": len((synth.get("historia", {}) or {}).get("hitos", [])),
-            "resumen_chars": len((synth.get("resumen", {}) or {}).get("texto", "") or ""),
-            "cartera_chars": len((synth.get("cartera", {}) or {}).get("texto", "") or ""),
-            "estrategia_chars": len((synth.get("estrategia", {}) or {}).get("texto", "") or ""),
-            "has_ter_efectivo": any("ter_efectivo_pct" in t for t in cuant.get("serie_ter", [])),
+            "n_vl_puntos": len(get_serie_vl_base100(d)),
+            "n_aum_puntos": len(get_serie_aum(d)),
+            "n_participes_puntos": len(get_serie_participes(d)),
+            "n_ter_puntos": len(get_serie_ter(d)),
+            "n_posiciones_actuales": len(get_posiciones_actuales(d)),
+            "n_posiciones_historicas": len(get_posiciones_historicas(d)),
+            "n_perfiles": len(get_perfiles(d)),
+            "n_hitos_historia": len(get_section_historia(d).get("hitos", []) or []),
+            "resumen_chars": len(get_resumen_texto(d)),
+            "cartera_chars": len(get_cartera_texto(d)),
+            "estrategia_chars": len(get_estrategia_texto(d)),
+            "has_ter_efectivo": any("ter_efectivo_pct" in t for t in get_serie_ter(d)),
             "has_drawdown": bool(
-                (synth.get("evolucion", {}) or {}).get("datos_graficos", {}).get("drawdown")
+                get_section_evolucion(d).get("datos_graficos", {}).get("drawdown")
             ),
         },
     }

@@ -24,7 +24,24 @@ sys.path.insert(0, str(ROOT))
 try:
     from tools.output_accessor import (
         get_perfiles, get_kpis, get_posiciones_actuales,
-        get_serie_aum, get_nombre, get_gestora,
+        get_serie_aum, get_serie_rentabilidad, get_serie_ter,
+        get_serie_vl_base100, get_serie_participes, get_serie_ter_por_clase,
+        get_serie_comisiones_por_clase, get_serie_rotacion,
+        get_mix_activos, get_clases_info, get_int_clases, get_int_gestores,
+        get_economia_fondo, get_clases,
+        get_nombre, get_gestora, get_isin, get_tipo, get_ultima_actualizacion,
+        get_kpi_aum, get_kpi_participes, get_kpi_ter, get_kpi_ter_efectivo,
+        get_kpi_coste_gestion, get_kpi_volatilidad, get_kpi_clasificacion,
+        get_kpi_perfil_riesgo, get_kpi_depositario, get_kpi_divisa,
+        get_kpi_fecha_registro, get_kpi_max_drawdown, get_kpi_rotacion,
+        get_kpi_rating_morningstar, get_kpi_srri,
+        get_section_resumen, get_section_historia, get_section_estrategia,
+        get_section_cartera, get_section_evolucion, get_section_fuentes_externas,
+        get_resumen_texto, get_historia_texto, get_estrategia_texto,
+        get_cartera_texto, get_gestores_texto, get_evolucion_texto,
+        get_cualitativo, get_hechos_relevantes, get_lecturas_externas,
+        get_analisis_consistencia, get_comision_exito, get_anio_creacion,
+        get_fuentes, get_documentos, get_posiciones_historicas,
     )
     _ACCESSOR_AVAILABLE = True
 except Exception:
@@ -2611,8 +2628,15 @@ def build_header(data):
 # ═══════════════════════════════════════════════════════════════
 
 def build_tab_resumen(data):
-    s = data.get("analyst_synthesis", {}).get("resumen", {})
-    k = data.get("kpis", {})
+    # Lectura via accessor (Fase C)
+    if _ACCESSOR_AVAILABLE:
+        s = get_section_resumen(data)
+        k = get_kpis(data)
+        nombre = get_nombre(data)
+    else:
+        s = data.get("analyst_synthesis", {}).get("resumen", {})
+        k = data.get("kpis", {})
+        nombre = data.get("nombre", "")
     cuant = data.get("cuantitativo", {})
 
     # Nota: la auditoría Opus se imprime en terminal (ver generate()), NO en el dashboard.
@@ -2620,7 +2644,7 @@ def build_tab_resumen(data):
     # ── 1. Narrativa (sin headers, max 4 párrafos fluidos) ───────────────
     texto_resumen = s.get("texto", "")
     # Strip any **headers** from the narrative — should be pure prose
-    narrative_html = render_narrative_inline(texto_resumen, data.get("nombre", ""))
+    narrative_html = render_narrative_inline(texto_resumen, nombre)
 
     # ── 2. Filosofía + Criterios (2 columnas) ────────────────────────────
     filosofia = s.get("filosofia_inversion", "")
@@ -2828,13 +2852,20 @@ def _build_com_chart_or_placeholder(data):
 
 def build_tab_historia(data):
     import re
-    s = data.get("analyst_synthesis", {}).get("historia", {})
+    # Lectura via accessor (Fase C)
+    if _ACCESSOR_AVAILABLE:
+        s = get_section_historia(data)
+        k = get_kpis(data)
+        vl = get_serie_vl_base100(data)
+        serie_part = get_serie_participes(data)
+    else:
+        s = data.get("analyst_synthesis", {}).get("historia", {})
+        k = data.get("kpis", {})
+        cuant = data.get("cuantitativo", {})
+        vl = cuant.get("serie_vl_base100", [])
+        serie_part = cuant.get("serie_participes", []) or []
+    cuant = data.get("cuantitativo", {})  # algunas líneas siguen usándolo
     hitos = s.get("hitos", [])
-    k = data.get("kpis", {})
-    cuant = data.get("cuantitativo", {})
-    vl = cuant.get("serie_vl_base100", [])
-    serie_part = cuant.get("serie_participes", []) or []
-
     texto = s.get("texto", "")
 
     # KPIs: años desde inicio y fecha_inicio
@@ -3293,7 +3324,7 @@ def build_tab_evolucion(data):
 
 def build_tab_estrategia(data):
     import re
-    s = data.get("analyst_synthesis", {}).get("estrategia", {})
+    s = get_section_estrategia(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("estrategia", {})
     texto = s.get("texto", "")
     resumen = s.get("estrategia_actual_resumen", "")
     hitos = s.get("hitos_estrategia", []) or []
@@ -3745,9 +3776,14 @@ def _build_desglose_exposicion_html(data):
 
 
 def build_tab_cartera(data):
-    s = data.get("analyst_synthesis", {}).get("cartera", {})
-    pos_actual = data.get("posiciones", {}).get("actuales", [])
-    pos_hist = data.get("posiciones", {}).get("historicas", [])
+    if _ACCESSOR_AVAILABLE:
+        s = get_section_cartera(data)
+        pos_actual = get_posiciones_actuales(data)
+        pos_hist = get_posiciones_historicas(data)
+    else:
+        s = data.get("analyst_synthesis", {}).get("cartera", {})
+        pos_actual = data.get("posiciones", {}).get("actuales", [])
+        pos_hist = data.get("posiciones", {}).get("historicas", [])
     sorted_pos = sorted(pos_actual, key=lambda x: x.get("peso_pct",0) or 0, reverse=True)
 
     # Inferir tipos de activo que faltan y calcular tipos dominantes
@@ -4006,7 +4042,7 @@ def build_tab_cartera(data):
 # ═══════════════════════════════════════════════════════════════
 
 def build_tab_fuentes(data):
-    s = data.get("analyst_synthesis", {}).get("fuentes_externas", {})
+    s = get_section_fuentes_externas(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("fuentes_externas", {})
     ops = s.get("opiniones_clave", [])
 
     # Logo colors by source name
@@ -4097,7 +4133,7 @@ def build_tab_fuentes(data):
 # ═══════════════════════════════════════════════════════════════
 
 def build_tab_documentos(data):
-    s = data.get("analyst_synthesis", {}).get("documentos", {})
+    s = get_documentos(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("documentos", {})
     pdfs = s.get("informes_pdf", [])
     cartas = sorted(s.get("cartas_urls", []), reverse=True)
     xmls = s.get("xmls_cnmv", [])

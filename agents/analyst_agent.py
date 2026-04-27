@@ -92,8 +92,13 @@ class AnalystAgent:
 
         # PROTECCIÓN: si manager_profile re-ejecutado tiene menos info, reconstruir
         # desde el output anterior. Previene regresiones del manager_deep_agent.
-        prev_perfiles = (existing_output.get("analyst_synthesis", {})
-                         .get("gestores", {}).get("perfiles", []) or [])
+        # Lectura via accessor (Fase C — un único path canónico)
+        try:
+            from tools.output_accessor import get_perfiles
+            prev_perfiles = get_perfiles(existing_output)
+        except Exception:
+            prev_perfiles = (existing_output.get("analyst_synthesis", {})
+                             .get("gestores", {}).get("perfiles", []) or [])
         prev_gestores = existing_output.get("gestores", {}) or {}
 
         new_equipo_detalle = manager.get("equipo_detalle_web", []) or []
@@ -3777,6 +3782,31 @@ class AnalystAgent:
             try: tmp_path.unlink()
             except Exception: pass
         self._log("OK", f"Guardado: {out_path}")
+
+        # ── detect_drift integrado (Fase C) ──────────────────────────────────
+        # Tras guardar, detectar drifts (top-level vs analyst_synthesis) y
+        # persistir en meta_report.json con WARN log si hay drifts.
+        try:
+            from tools.output_accessor import detect_drift
+            drifts = detect_drift(output)
+            if drifts:
+                self._log("WARN", f"detect_drift: {len(drifts)} drift(s) detectado(s)")
+                for d in drifts[:5]:
+                    self._log("WARN", f"  drift: {d}")
+                # Persistir en meta_report.json (no falla si no existe)
+                meta_path = self.fund_dir / "meta_report.json"
+                meta = {}
+                if meta_path.exists():
+                    try:
+                        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                    except Exception:
+                        meta = {}
+                meta["drifts_post_save"] = drifts
+                meta["drifts_at"] = datetime.now().isoformat()
+                meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2),
+                                     encoding="utf-8")
+        except Exception as exc:
+            self._log("WARN", f"detect_drift falló (no crítico): {exc}")
 
     def _print_summary(self, output: dict):
         """Print a Rich summary of what was consolidated."""
