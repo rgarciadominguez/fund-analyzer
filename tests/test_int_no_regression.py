@@ -28,11 +28,16 @@ load_dotenv(ROOT / ".env")
 from agents.dashboard_quality_agent import DashboardQualityAgent
 
 # INT funds con output.json (al menos uno por jurisdicción)
-ISINS = ["IE00B6T42S66", "LU1694789378"]
+# Fase E (2026-04-27): añadido GAM (segundo IE). DE/FR pendientes hasta procesar.
+ISINS = ["IE00B6T42S66", "IE00BF5GGB04", "LU1694789378"]
 BASELINE_PATH = ROOT / "tests" / "baseline_int_v1.json"
 
-# Tolerancia más amplia para INT (extractor v3 con LLM tiene más variabilidad)
-STRUCT_TOLERANCE_PCT = 15
+# Tolerancia structural reducida (Fase E): 15% → 10% para detectar regresiones reales.
+STRUCT_TOLERANCE_PCT = 10
+
+# AUM bounds — descarta valores inverosímiles (Fase E: bug DNCA daba €41B = SICAV completo)
+AUM_MIN_MEUR = 0.1     # < €100K probablemente bug extracción
+AUM_MAX_MEUR = 50000   # > €50B suele ser umbrella SICAV sumado, no sub-fondo
 
 
 def _snapshot_fund(isin: str) -> dict:
@@ -45,16 +50,20 @@ def _snapshot_fund(isin: str) -> dict:
         get_nombre, get_tipo, get_serie_aum, get_posiciones_actuales,
         get_perfiles, get_resumen_texto, get_estrategia_texto, get_kpi_aum,
     )
+    aum = get_kpi_aum(d)
     return {
         "nombre": get_nombre(d),
         "tipo": get_tipo(d),
+        "kpi_aum_meur": aum,
         "struct": {
             "n_aum_puntos": len(get_serie_aum(d)),
             "n_posiciones_actuales": len(get_posiciones_actuales(d)),
             "n_perfiles": len(get_perfiles(d)),
             "resumen_chars": len(get_resumen_texto(d)),
             "estrategia_chars": len(get_estrategia_texto(d)),
-            "has_aum": bool(get_kpi_aum(d)),
+            "has_aum": bool(aum),
+            # Fase E: validación rangos AUM razonables
+            "aum_in_range": (aum is not None and AUM_MIN_MEUR <= aum <= AUM_MAX_MEUR),
         },
     }
 

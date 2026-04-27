@@ -180,8 +180,13 @@ def _merge_fund_size_history(out: dict, v: Any, fx_table: dict | None = None) ->
             continue
         by_date.setdefault(date, 0.0)
         by_date[date] += _fx_to_eur(val, curr, year=date[:4], fx_table=fx_table)
+    # Fase E (2026-04-27): filtrar entries con periodo invalido. Si date no es
+    # YYYY-MM-DD valido, year sera "None"/"" y contamina la serie.
+    import re as _re_aum2
     for date, total_eur in by_date.items():
-        year = date[:4]
+        year = date[:4] if date and len(date) >= 4 else ""
+        if not _re_aum2.match(r"^\d{4}$", year):
+            continue  # skip entries con periodo invalido
         meur = round(total_eur / 1e6, 2) if total_eur >= 1e6 else round(total_eur, 2)
         entry = {"periodo": year, "valor_meur": meur}
         # upsert por periodo
@@ -197,9 +202,13 @@ def _merge_fund_size_history(out: dict, v: Any, fx_table: dict | None = None) ->
             # Simplificación: si suma es > existente, reemplazar
             if meur > out["cuantitativo"]["serie_aum"][existing_idx]["valor_meur"]:
                 out["cuantitativo"]["serie_aum"][existing_idx]["valor_meur"] = meur
-    # AUM actual = máximo año
-    if out["cuantitativo"]["serie_aum"]:
-        latest = max(out["cuantitativo"]["serie_aum"], key=lambda e: str(e.get("periodo", "")))
+    # AUM actual = máximo año (filtrar periodos validos antes del max)
+    valid_aum = [
+        e for e in out["cuantitativo"]["serie_aum"]
+        if isinstance(e.get("periodo"), str) and _re_aum2.match(r"^\d{4}$", e["periodo"])
+    ]
+    if valid_aum:
+        latest = max(valid_aum, key=lambda e: int(e["periodo"]))
         out["kpis"]["aum_actual_meur"] = latest.get("valor_meur")
 
 
@@ -267,8 +276,14 @@ def _merge_share_classes(out: dict, v: Any, fx_table: dict | None = None) -> Non
                     continue
                 by_date.setdefault(date, 0.0)
                 by_date[date] += _fx_to_eur(nav, curr, year=date[:4], fx_table=fx_table)
+        # Fase E (2026-04-27): filtrar entries con periodo invalido ANTES de
+        # añadir a serie_aum. Si date no es YYYY-MM-DD valido, year sera "None"
+        # u otra basura → contamina la serie y rompe el max() de abajo.
+        import re as _re_aum
         for date, total_eur in by_date.items():
-            year = date[:4]
+            year = date[:4] if date and len(date) >= 4 else ""
+            if not _re_aum.match(r"^\d{4}$", year):
+                continue  # skip entries con periodo invalido
             meur = round(total_eur / 1e6, 2)
             existing_idx = None
             for i, e in enumerate(out["cuantitativo"]["serie_aum"]):
@@ -281,8 +296,14 @@ def _merge_share_classes(out: dict, v: Any, fx_table: dict | None = None) -> Non
                 # Si la suma de clases difiere del `fund_size_history` mergeado antes,
                 # preferir la suma de clases (más autoritativo para umbrella SICAVs)
                 out["cuantitativo"]["serie_aum"][existing_idx]["valor_meur"] = meur
-        if out["cuantitativo"]["serie_aum"]:
-            latest = max(out["cuantitativo"]["serie_aum"], key=lambda e: str(e.get("periodo", "")))
+        # Fase E: filtrar periodos validos antes del max (evita "None" > "2025"
+        # en comparacion lexicografica → bug DNCA AUM €41B).
+        valid_aum = [
+            e for e in out["cuantitativo"]["serie_aum"]
+            if isinstance(e.get("periodo"), str) and _re_aum.match(r"^\d{4}$", e["periodo"])
+        ]
+        if valid_aum:
+            latest = max(valid_aum, key=lambda e: int(e["periodo"]))
             out["kpis"]["aum_actual_meur"] = latest.get("valor_meur")
 
 

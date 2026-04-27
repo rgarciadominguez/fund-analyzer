@@ -231,17 +231,35 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
     ) as progress:
         main_task = progress.add_task(f"Pipeline {isin}", total=len(steps))
 
-        # ── Paso 0: CSSF Agent (solo para LU) ────────────────────────────────
-        if is_lu:
-            progress.update(main_task, description="Consultando regulador CSSF Luxembourg")
-            log("ORCHESTRATOR", "START", "Paso 0: CSSF Agent")
+        # ── Paso 0: Regulator router (Fase E — soporta LU/IE/FR/DE) ─────────
+        # Antes solo CSSF para LU. Ahora regulator_router enruta automaticamente
+        # por prefijo ISIN a CSSFAgent (LU), CBIAgent (IE), AMFAgent (FR),
+        # BundesanzeigerAgent (DE). GB/otros prefijos: regulator None,
+        # discovery hace todo el trabajo de identity + docs.
+        if not is_es:
+            progress.update(main_task, description="Consultando regulador (router)")
+            log("ORCHESTRATOR", "START", "Paso 0: Regulator router")
             try:
-                from agents.cssf_agent import CSSFAgent
-                cssf = CSSFAgent(isin, config)
-                results["cssf"] = await cssf.run()
-                log("CSSF", "OK", "cssf_data.json generado")
+                from agents.regulator_router import run_regulator
+                reg_out = await run_regulator(isin, config)
+                reg_name = (reg_out.get("regulator") or "NONE").lower()
+                if reg_name and reg_name != "none":
+                    # Persistir en {regulador}_data.json para el discovery (linea 273+)
+                    reg_file = fund_dir / f"{reg_name}_data.json"
+                    reg_file.write_text(
+                        json.dumps(reg_out, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
+                    results["regulator"] = reg_out
+                    log("REGULATOR", "OK", f"{reg_name}_data.json generado (identity={bool(reg_out.get('identity'))})")
+                else:
+                    log("REGULATOR", "INFO",
+                        f"Sin regulador para prefijo {prefix}, discovery hara identity + docs")
+                    results["regulator"] = reg_out
             except Exception as exc:
-                log("CSSF", "ERROR", f"Paso CSSF falló: {exc}")
+                log("REGULATOR", "ERROR", f"Paso router fallo: {exc}")
+                import traceback
+                log("REGULATOR", "TRACE", traceback.format_exc()[:300])
             progress.advance(main_task)
 
         # ── Paso 1a (INT): Discovery v2 — descargar PDFs de web gestora ─────
