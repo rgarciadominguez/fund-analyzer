@@ -69,10 +69,16 @@ def get_kpis(output: dict) -> dict:
 # ── GESTORES (el caso que más sufre) ────────────────────────────────────────
 def get_perfiles(output: dict) -> list:
     """Perfiles de gestores con detalle (trayectoria, cargo, etc.).
-    PATH CANÓNICO: analyst_synthesis.gestores.perfiles
-    Es donde el analyst escribe los perfiles ricos. El path top-level
-    output.gestores.equipo contiene SOLO los nombres crudos del manager_profiler."""
-    return _get(output, "analyst_synthesis.gestores.perfiles", "gestores.perfiles") or []
+    PATH CANÓNICO ÚNICO: analyst_synthesis.gestores.perfiles
+
+    NO hace fallback al top-level — el top-level output.gestores.perfiles
+    contiene info CRUDA por fuente web (1 entry = 1 URL) del manager_deep_agent,
+    no perfiles de personas. Mezclarlos confunde al lector.
+
+    Si esta lista está vacía, significa: el analyst no encontró/generó perfiles
+    ricos. Mostrar "Sin perfiles disponibles" honestamente."""
+    val = _get(output, "analyst_synthesis.gestores.perfiles")
+    return val if isinstance(val, list) else []
 
 
 def get_gestor_principal(output: dict) -> str:
