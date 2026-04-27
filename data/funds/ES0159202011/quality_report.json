@@ -1,0 +1,111 @@
+{
+  "fund": "ES0159202011",
+  "nombre": "MAGALLANES MICROCAPS EUROPE, FI",
+  "fallos": [
+    {
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "gestores_lead_has_filosofia",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal '' sin filosofía de inversión.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "gestores_lead_cv_bullets",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+    },
+    {
+      "regla_id": "cuant_serie_vl_valid",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "Serie VL corrupta (cagr_irreal): CAGR=79.4% en 9 años. No refleja VLs reales del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar extraccion de VL en cnmv_agent. Puede estar leyendo AUM, numero de participes u otro campo como VL."
+    },
+    {
+      "regla_id": "resumen_returns_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2025: texto dice 153.9%, real 23.3% | 2018: texto dice 644.4%, real 9644.4%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/42 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "cuant_serie_clases_info_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_clases_info vacia: no se identifican las clases del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+    },
+    {
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (4/4). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta todo (perfil_riesgo no existe).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    }
+  ],
+  "fallos_estructura": 5,
+  "fallos_scarcity": 3,
+  "total_reglas": 54,
+  "reglas_ok": 43,
+  "aceptable": false,
+  "score_display": "43/54 reglas OK (3 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-04-27T19:37:24.414168"
+}
