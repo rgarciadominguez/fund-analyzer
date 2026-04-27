@@ -216,6 +216,31 @@ def _merge_share_classes(out: dict, v: Any, fx_table: dict | None = None) -> Non
     else:
         usd = [c for c in classes if (c.get("currency") or "").upper() == "USD"]
         out["clases"] = usd[:10]  # máx 10
+    # Inception del fondo = mínima fecha de creación entre TODAS las clases
+    # (incluido USD/GBP/CHF — la clase más antigua suele ser Institutional en
+    # USD/GBP, mientras la R EUR es retail más reciente). NO se filtra por
+    # divisa para esto.
+    import re as _re_inc
+    all_inceptions = []
+    for c in classes:
+        if not isinstance(c, dict):
+            continue
+        for fld in ("inception_date", "launch_date", "fecha_lanzamiento", "first_nav_date"):
+            v_inc = c.get(fld)
+            if v_inc and isinstance(v_inc, str):
+                m = _re_inc.match(r"^(\d{4})-(\d{2})", v_inc.strip())
+                if m:
+                    all_inceptions.append(f"{m.group(1)}-{m.group(2)}")
+    if all_inceptions:
+        oldest = min(all_inceptions) + "-01"
+        # Solo escribir si no hay valor o el nuevo es anterior
+        prev = out["kpis"].get("fecha_lanzamiento") or ""
+        if not prev or oldest < str(prev):
+            out["kpis"]["fecha_lanzamiento"] = oldest
+            yr_oldest = int(oldest[:4])
+            cur_yr = out["kpis"].get("anio_creacion")
+            if cur_yr is None or yr_oldest < int(cur_yr):
+                out["kpis"]["anio_creacion"] = yr_oldest
     # Computar nav_total si falta (shares × pps)
     for c in out["clases"]:
         for snap in c.get("nav_total_snapshots") or []:
@@ -803,10 +828,20 @@ class IntlExtractor:
             except Exception:
                 return None
 
-        out_path.write_text(
+        # Atomic write: write a .tmp + rename (evita que un lector concurrente
+        # vea el archivo vacío o parcial durante la escritura).
+        tmp_path = out_path.with_suffix(out_path.suffix + ".tmp")
+        tmp_path.write_text(
             json.dumps(out, ensure_ascii=False, indent=2, default=_safe_default),
             encoding="utf-8",
         )
+        try:
+            tmp_path.replace(out_path)  # rename atómico (Windows OK)
+        except Exception:
+            # Fallback no atómico
+            out_path.write_text(tmp_path.read_text(encoding="utf-8"), encoding="utf-8")
+            try: tmp_path.unlink()
+            except Exception: pass
         console.log(f"[bold green]Guardado {out_path.name}")
         return out
 
@@ -853,6 +888,11 @@ if __name__ == "__main__":
     parser.add_argument("--nombre", default="")
     parser.add_argument("--gestora", default="")
     args = parser.parse_args()
+
+    # Lock por fondo: aborta si ya hay otro extractor corriendo para este ISIN.
+    # Evita race conditions cuando el bash background lanza pythons duplicados.
+    from tools.process_lock import acquire_or_die
+    acquire_or_die("extractor", args.isin)
 
     async def main():
         agent = IntlExtractor(

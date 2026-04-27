@@ -129,21 +129,29 @@ TAXONOMY: dict[str, dict] = {
         "priority": "core",
         "applies_to": REPORTS | REGULATORY,
         "description": (
-            "Catálogo de todas las clases de acciones del sub-fondo "
-            "objetivo. Para cada clase queremos tres piezas de datos "
-            "distintas, para cada fecha/año disponible: "
-            "(a) CAPITAL TOTAL de la clase (valor absoluto, cifra grande "
+            "Catálogo de TODAS las clases de acciones del sub-fondo objetivo. "
+            "OBLIGATORIO: extraer TODAS las clases listadas (Institutional, "
+            "Retail, Hedged, Distribution, Accumulation, A/B/C/I/X/Z, etc.), "
+            "no solo la clase del ISIN consultado. Para cada clase queremos "
+            "cuatro piezas de datos distintas: "
+            "(a) INCEPTION/LAUNCH DATE de la clase (fecha de creación de ESA "
+            "clase concreta, YYYY-MM-DD); "
+            "(b) CAPITAL TOTAL de la clase (valor absoluto, cifra grande "
             "con comas, ej. 62,809,554 o 305,7 millions); "
-            "(b) NÚMERO DE ACCIONES en circulación (cifra con decimales a "
+            "(c) NÚMERO DE ACCIONES en circulación (cifra con decimales a "
             "veces, ej. 35,905,117.188); "
-            "(c) PRECIO POR ACCIÓN / NAV per share (valor pequeño 1-2000, "
+            "(d) PRECIO POR ACCIÓN / NAV per share (valor pequeño 1-2000, "
             "ej. 180.37 o 1.2238). "
-            "Es frecuente que el documento reporte solo DOS de las tres: "
-            "típicamente NAV per share + número de acciones (hay que "
+            "Es frecuente que el documento reporte solo DOS de las tres "
+            "últimas: típicamente NAV per share + número de acciones (hay que "
             "multiplicar), o el capital total + NAV per share. Rellenar "
             "lo que el documento efectivamente muestre y dejar null lo "
             "que no aparezca — el pipeline calculará el tercer campo si "
             "tiene dos. "
+            "INCEPTION DATE: buscar específicamente en 'Launch date', "
+            "'Inception date', 'Date of first issue', o notas a estados "
+            "financieros. ES CRÍTICO porque la fecha de inicio del fondo en "
+            "el header es la de la clase MÁS ANTIGUA, no la R EUR retail. "
             "IMPORTANTE: solo clases del sub-fondo objetivo, nunca "
             "mezclar con clases de otros sub-fondos del paraguas."
         ),
@@ -152,6 +160,15 @@ TAXONOMY: dict[str, dict] = {
                 {
                     "code": "identificador de la clase tal como aparece (ej. 'Class I EUR accumulation', 'Class O USD Inc', 'A-EUR')",
                     "currency": "divisa de la clase",
+                    "inception_date": (
+                        "fecha de creación / launch de ESTA clase concreta "
+                        "(YYYY-MM-DD si se reporta). En annual reports SICAV "
+                        "suele aparecer como 'Launch date', 'Inception date', "
+                        "'Date of first issue' o en notas a estados financieros. "
+                        "CRÍTICO porque la fecha de inicio del fondo en el "
+                        "header es la de la clase MÁS ANTIGUA, NO la del ISIN "
+                        "consultado."
+                    ),
                     "nav_total_snapshots": [
                         {
                             "date": "YYYY-MM-DD",

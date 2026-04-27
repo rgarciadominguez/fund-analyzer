@@ -238,7 +238,10 @@ def extract_concept(
         return text
 
     def _run_on_text(text: str) -> Any:
-        """Ejecuta Flash sobre un texto ya filtrado (para uso del cascade)."""
+        """Ejecuta Flash sobre un texto ya filtrado (para uso del cascade).
+        Reintentos con backoff exponencial ante errores transitorios:
+        rate limit (429), 500, 502, 503, timeout, connection reset.
+        """
         if not text:
             return None
         prompt = _build_prompt(
@@ -246,14 +249,41 @@ def extract_concept(
             format_clue, isin, fund_name,
         )
         schema = _build_schema_with_evidence(output_shape)
-        try:
-            return extract_fast(
-                text=text, schema=schema,
-                custom_prompt=prompt, model=MODEL_FLASH,
-            )
-        except Exception as e:
-            console.log(f"[yellow]extractor {concept_name} error: {e}")
-            return None
+
+        import time as _time
+        retry_delays = [5, 15, 45, 120]  # backoff exponencial
+        last_error = None
+        for attempt, delay in enumerate([0] + retry_delays):
+            if delay:
+                _time.sleep(delay)
+            try:
+                return extract_fast(
+                    text=text, schema=schema,
+                    custom_prompt=prompt, model=MODEL_FLASH,
+                )
+            except Exception as e:
+                err_str = str(e).lower()
+                last_error = e
+                # Errores transitorios → retry
+                transient = any(kw in err_str for kw in (
+                    "429", "rate limit", "rate_limit", "quota",
+                    "500", "502", "503", "504",
+                    "timeout", "timed out",
+                    "connection reset", "connection aborted",
+                    "deadline exceeded", "unavailable", "internal error",
+                ))
+                if transient and attempt < len(retry_delays):
+                    console.log(
+                        f"[yellow]extractor {concept_name} transitorio "
+                        f"(intento {attempt+1}/{len(retry_delays)+1}): "
+                        f"{str(e)[:120]} — reintento en {retry_delays[attempt]}s"
+                    )
+                    continue
+                # Error no transitorio o agotaron reintentos → abortar
+                console.log(f"[red]extractor {concept_name} error final: {str(e)[:200]}")
+                return None
+        console.log(f"[red]extractor {concept_name} agotó {len(retry_delays)+1} intentos: {last_error}")
+        return None
 
     def _run(pp: list[int]) -> Any:
         text = _build_text_for_pages(pp)

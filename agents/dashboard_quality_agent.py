@@ -907,6 +907,212 @@ def _check_nombre_match_pdf(rule: dict, data: dict) -> tuple[bool, dict]:
     return True, {"actual": f"OK: {nombre_pdf}"}
 
 
+# ═══════════════════════════════════════════════════════════════
+# Validadores nuevos (v7 — features universales 2026-04-26)
+# ═══════════════════════════════════════════════════════════════
+
+def _check_quotes_substantive(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Cada cita en quotes debe ser frase con sustancia: ≥25 chars y ≥5 palabras
+    con significado. Si la lista está vacía, OK (no es obligatorio tener citas).
+    """
+    quotes = _get_nested(data, rule["field_path"]) or []
+    if not isinstance(quotes, list) or not quotes:
+        return True, {"actual": "0 citas (vacío permitido)"}
+    offenders = 0
+    for q in quotes:
+        if not isinstance(q, dict):
+            offenders += 1
+            continue
+        t = (q.get("texto") or "").strip().strip('"').strip("'").strip("“").strip("”")
+        words = [w for w in t.split() if len(w) > 1]
+        if len(t) < 25 or len(words) < 5:
+            offenders += 1
+    if offenders > 0:
+        return False, {"actual": f"{offenders} citas inválidas",
+                       "offenders": offenders, "total": len(quotes), "expected": "≥25c y ≥5 palabras"}
+    return True, {"actual": f"{len(quotes)} citas válidas"}
+
+
+def _check_hitos_with_driver(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Cada hito de estrategia debe tener resultado con DRIVER (cifra+por qué).
+    Heurística: el campo `resultado` debe contener separador ' — ' o '→' o '—'
+    seguido de texto explicativo, O contener al menos 1 cifra Y al menos 1
+    verbo/conector causal (porque, por, debido, gracias, tras, ante, frente).
+    """
+    hitos = _get_nested(data, rule["field_path"]) or []
+    if not isinstance(hitos, list) or not hitos:
+        return True, {"actual": "0 hitos"}
+    offenders = 0
+    for h in hitos:
+        if not isinstance(h, dict):
+            offenders += 1
+            continue
+        res = (h.get("resultado") or "").strip()
+        if not res:
+            offenders += 1
+            continue
+        has_separator = " — " in res or "—" in res or "→" in res or " - " in res
+        has_driver_word = bool(re.search(
+            r"\b(porque|por\s+(?:el|la|los|las|un|una|el)|debido\s+a|gracias\s+a|tras|ante|frente|impuls|caus|propici|dev?id|por\s+\w+\s+de)\b",
+            res, re.I))
+        if not (has_separator and (has_driver_word or len(res.split()) >= 12)):
+            offenders += 1
+    if offenders > 0:
+        return False, {"actual": f"{offenders}/{len(hitos)} sin driver",
+                       "offenders": offenders, "total": len(hitos)}
+    return True, {"actual": f"{len(hitos)} hitos con driver"}
+
+
+def _check_perfil_riesgo_complete(rule: dict, data: dict) -> tuple[bool, dict]:
+    """perfil_riesgo de la estrategia debe tener tipo_activo_principal + ≥3
+    riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."""
+    pr = _get_nested(data, rule["field_path"]) or {}
+    if not isinstance(pr, dict) or not pr:
+        return False, {"actual": "vacío", "missing": "todo (perfil_riesgo no existe)"}
+    missing = []
+    if not (pr.get("tipo_activo_principal") or "").strip():
+        missing.append("tipo_activo_principal")
+    riesgos = pr.get("riesgos_especificos") or []
+    if not isinstance(riesgos, list) or len([r for r in riesgos if r and isinstance(r, str)]) < 3:
+        missing.append("≥3 riesgos_especificos")
+    if not (pr.get("escenarios_adversos") or "").strip():
+        missing.append("escenarios_adversos")
+    if not (pr.get("protecciones") or "").strip():
+        missing.append("protecciones")
+    if not (pr.get("liquidez_estructura") or "").strip():
+        missing.append("liquidez_estructura")
+    if missing:
+        return False, {"actual": "incompleto", "missing": ", ".join(missing)}
+    return True, {"actual": "completo"}
+
+
+def _check_desglose_exposicion_complete(rule: dict, data: dict) -> tuple[bool, dict]:
+    """desglose_exposicion debe tener ≥2 filas válidas (dimension+detalle+comentario)."""
+    desg = _get_nested(data, rule["field_path"]) or []
+    if not isinstance(desg, list):
+        return False, {"actual": "no es lista"}
+    valid = [
+        d for d in desg
+        if isinstance(d, dict)
+        and (d.get("dimension") or "").strip()
+        and (d.get("detalle") or "").strip()
+        and (d.get("comentario") or "").strip()
+    ]
+    if len(valid) < 2:
+        return False, {"actual": len(valid), "expected": 2}
+    return True, {"actual": f"{len(valid)} filas válidas"}
+
+
+def _check_gestores_anteriores_if_recent_change(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Si algún gestor del equipo tiene anio_incorporacion en los últimos 3 años
+    Y gestores_anteriores está vacío → fallo."""
+    g = _get_nested(data, rule["field_path"]) or {}
+    if not isinstance(g, dict):
+        return True, {"actual": "no aplica"}
+    perfiles = g.get("perfiles") or []
+    equipo = g.get("equipo") or []
+    candidates = list(perfiles) + list(equipo)
+    current_year = datetime.now().year
+    recent_year = None
+    for p in candidates:
+        if not isinstance(p, dict):
+            continue
+        anio = p.get("anio_incorporacion") or p.get("anio") or 0
+        try:
+            anio_int = int(str(anio)[:4])
+            if anio_int and current_year - anio_int <= 3:
+                recent_year = anio_int
+                break
+        except (ValueError, TypeError):
+            pass
+    if not recent_year:
+        return True, {"actual": "sin cambios recientes"}
+    prev = g.get("gestores_anteriores") or []
+    if not prev or not any(isinstance(x, dict) and (x.get("nombre") or x.get("ownership_nuevo")) for x in prev):
+        return False, {"actual": "vacío", "recent_year": recent_year}
+    return True, {"actual": f"{len(prev)} cambios documentados"}
+
+
+def _check_string_has_pattern(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Campo string debe contener al menos un match con `value` (regex)."""
+    s = _get_nested(data, rule["field_path"]) or ""
+    if not isinstance(s, str) or not s.strip():
+        return False, {"actual": "(vacío)"}
+    pat = rule.get("value", "")
+    if pat and not re.search(pat, s):
+        short = s.replace(s[:1], s[:1], 1)  # noqa
+        return False, {"actual": s[:60], "short_name": s.split()[0] if s.split() else ""}
+    return True, {"actual": s[:60]}
+
+
+def _check_string_no_pattern(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Campo string NO debe contener match con `value` (regex). Si está vacío, OK."""
+    s = _get_nested(data, rule["field_path"]) or ""
+    if not isinstance(s, str) or not s.strip():
+        return True, {"actual": "(vacío)"}
+    pat = rule.get("value", "")
+    if pat and re.search(pat, s):
+        return False, {"actual": s[:80]}
+    return True, {"actual": s[:60]}
+
+
+def _check_fecha_inicio_vs_clases(rule: dict, data: dict) -> tuple[bool, dict]:
+    """fecha_lanzamiento del fondo debe ser ≤ fecha mínima de cualquier
+    snapshot/inception de las clases."""
+    k = data.get("kpis", {}) or {}
+    fecha_inicio = str(k.get("fecha_lanzamiento") or k.get("fecha_registro") or "")
+    if not fecha_inicio:
+        return True, {"actual": "no hay fecha"}
+    m = re.match(r"(\d{4})", fecha_inicio)
+    if not m:
+        return True, {"actual": fecha_inicio}
+    yr_inicio = int(m.group(1))
+    clases = data.get("clases") or data.get("_int_clases") or []
+    earliest_class_year = None
+    earliest_snap_date = None
+    for c in clases:
+        if not isinstance(c, dict):
+            continue
+        for fld in ("inception_date", "launch_date", "first_nav_date"):
+            v = c.get(fld)
+            if v and isinstance(v, str):
+                m2 = re.match(r"(\d{4})", v)
+                if m2:
+                    yr = int(m2.group(1))
+                    if earliest_class_year is None or yr < earliest_class_year:
+                        earliest_class_year = yr
+        for snap in c.get("nav_total_snapshots") or []:
+            if isinstance(snap, dict):
+                d = str(snap.get("date", ""))
+                if d and (earliest_snap_date is None or d < earliest_snap_date):
+                    earliest_snap_date = d
+    if earliest_class_year and yr_inicio > earliest_class_year:
+        return False, {"actual": fecha_inicio, "fecha_inicio": fecha_inicio,
+                       "snapshot_date": str(earliest_class_year)}
+    if earliest_snap_date:
+        m_s = re.match(r"(\d{4})", earliest_snap_date)
+        if m_s and yr_inicio > int(m_s.group(1)):
+            return False, {"actual": fecha_inicio, "fecha_inicio": fecha_inicio,
+                           "snapshot_date": earliest_snap_date}
+    return True, {"actual": fecha_inicio}
+
+
+def _check_posiciones_tipo_activo(rule: dict, data: dict) -> tuple[bool, dict]:
+    """≥80% de posiciones deben tener asset_type/tipo declarado."""
+    pos = _get_nested(data, rule["field_path"]) or []
+    if not isinstance(pos, list) or not pos:
+        return True, {"actual": "0 posiciones"}
+    with_type = sum(1 for p in pos if isinstance(p, dict) and (
+        p.get("asset_type") or p.get("tipo")))
+    total = len(pos)
+    pct = round(100 * with_type / total, 1)
+    if pct < 80:
+        missing = total - with_type
+        return False, {"actual": f"{with_type}/{total} ({pct}%)",
+                       "missing": missing, "total": total, "pct": pct}
+    return True, {"actual": f"{with_type}/{total} ({pct}%)"}
+
+
 # Registro de validadores
 CHECK_REGISTRY = {
     "min_chars": _check_min_chars,
@@ -939,6 +1145,16 @@ CHECK_REGISTRY = {
     "historia_kpis_calculables": _check_historia_kpis_calculables,
     "drawdown_con_fecha": _check_drawdown_con_fecha,
     "nombre_match_pdf": _check_nombre_match_pdf,
+    # v7 (2026-04-26) — features universales
+    "quotes_substantive": _check_quotes_substantive,
+    "hitos_with_driver": _check_hitos_with_driver,
+    "perfil_riesgo_complete": _check_perfil_riesgo_complete,
+    "desglose_exposicion_complete": _check_desglose_exposicion_complete,
+    "gestores_anteriores_if_recent_change": _check_gestores_anteriores_if_recent_change,
+    "string_has_pattern": _check_string_has_pattern,
+    "string_no_pattern": _check_string_no_pattern,
+    "fecha_inicio_vs_clases": _check_fecha_inicio_vs_clases,
+    "posiciones_tipo_activo": _check_posiciones_tipo_activo,
 }
 
 
@@ -947,7 +1163,16 @@ CHECK_REGISTRY = {
 # ═══════════════════════════════════════════════════════════════
 
 def _rule_applies(rule: dict, data: dict) -> bool:
-    """Evalúa la condición `applies_when` de una regla. Si no hay condición, aplica."""
+    """Evalúa si una regla aplica al fondo en cuestión. Comprueba `scope`
+    (ES/INT/all) frente al prefijo ISIN, y luego `applies_when`."""
+    # Filtro por scope: ES (CNMV-only) vs INT (extractor v3) vs all
+    scope = (rule.get("scope") or "all").upper()
+    isin = (data.get("isin", "") or "").upper()
+    if scope == "ES" and not isin.startswith("ES"):
+        return False
+    if scope == "INT" and isin.startswith("ES"):
+        return False
+
     cond = rule.get("applies_when")
     if not cond:
         return True
@@ -1134,5 +1359,11 @@ class DashboardQualityAgent:
 
 if __name__ == "__main__":
     isin = sys.argv[1] if len(sys.argv) > 1 else "ES0112231008"
+
+    # Lock por fondo (escribe quality_report.json en data/funds/{ISIN}/)
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from tools.process_lock import acquire_or_die
+    acquire_or_die("quality", isin)
+
     agent = DashboardQualityAgent(isin)
     agent.run()
