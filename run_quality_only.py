@@ -219,17 +219,64 @@ def run_quality_loop(isin: str, max_iter: int = 3) -> dict:
             except Exception as exc:
                 log(isin, "ERROR", f"cnmv_enrichment fallo: {str(exc)[:120]}")
 
-        # Manager profiler retry (ligero)
+        # CASCADA managers: profiler → deep_agent → google_snippets → sibling
         if "manager_deep_agent" in agentes:
+            import asyncio
+
+            def _has_real_managers() -> bool:
+                prof_path = ROOT / "data" / "funds" / isin / "manager_profile.json"
+                if not prof_path.exists():
+                    return False
+                try:
+                    p = json.loads(prof_path.read_text(encoding="utf-8"))
+                except Exception:
+                    return False
+                names = p.get("equipo_gestor") or p.get("equipo") or []
+                real = [n for n in names if isinstance(n, str) and n.strip()
+                        and not n.lower().startswith("equipo")]
+                return len(real) > 0
+
             try:
                 from agents.manager_profiler import ManagerProfiler
-                log(isin, "RETRY", "manager_profiler")
+                log(isin, "RETRY", "Cascada 1/4 manager_profiler")
                 manager = ManagerProfiler(isin, fund_name=fund_name_hint, gestora=gestora_hint, manager_names=gestores_hint or None)
-                import asyncio
                 asyncio.run(manager.run())
-                log(isin, "OK", "manager_profiler completado")
+                log(isin, "OK", f"manager_profiler done (real={_has_real_managers()})")
             except Exception as exc:
-                log(isin, "ERROR", f"manager_profiler fallo: {str(exc)[:120]}")
+                log(isin, "ERROR", f"profiler fallo: {str(exc)[:120]}")
+
+            if not _has_real_managers():
+                try:
+                    from agents.manager_deep_agent import ManagerDeepAgent
+                    log(isin, "RETRY", "Cascada 2/4 manager_deep_agent")
+                    deep = ManagerDeepAgent(isin=isin, fund_name=fund_name_hint, gestora=gestora_hint, manager_names=gestores_hint or None)
+                    asyncio.run(deep.run())
+                    log(isin, "OK", f"deep done (real={_has_real_managers()})")
+                except Exception as exc:
+                    log(isin, "ERROR", f"deep fallo: {str(exc)[:120]}")
+
+            if not _has_real_managers():
+                try:
+                    from agents.manager_google_snippets import find_managers, save_to_manager_profile, sync_to_output
+                    log(isin, "RETRY", "Cascada 3/4 google_snippets")
+                    res = find_managers(isin, fund_name_hint, gestora_hint)
+                    if res.get("managers"):
+                        save_to_manager_profile(isin, res)
+                        sync_to_output(isin, res["managers"], gestora_hint)
+                        log(isin, "OK", f"snippets: {res['managers']}")
+                    else:
+                        log(isin, "INFO", "snippets: vacio")
+                except Exception as exc:
+                    log(isin, "ERROR", f"snippets fallo: {str(exc)[:120]}")
+
+            if not _has_real_managers():
+                try:
+                    from tools.sibling_finder import propagate_gestores
+                    log(isin, "RETRY", "Cascada 4/4 sibling_finder")
+                    r = propagate_gestores(isin, dry_run=False)
+                    log(isin, "OK", f"sibling: {r.get('status')} from {r.get('from','-')}")
+                except Exception as exc:
+                    log(isin, "ERROR", f"sibling fallo: {str(exc)[:120]}")
 
         # Analyst retry SIEMPRE con quality_feedback (rebuilt resumen/historia/etc)
         if "analyst_agent" in agentes or "cnmv_agent" in agentes:

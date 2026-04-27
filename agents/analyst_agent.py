@@ -1248,8 +1248,28 @@ class AnalystAgent:
         if data.get("_anti_filler") and data.get("_int_gestores"):
             return self._section_gestores_int(data)
         gestores = data.get("gestores", {})
+
+        # ── ANTI-INVENCIÓN GUARD ─────────────────────────────────────────────
+        # Si TODAS las fuentes están vacías, NO llamar al LLM (evita inventar
+        # nombres como "Dr. Alejandro Vargas" detectado en 3 fondos el 2026-04-26).
+        # El dashboard mostrará "Sin equipo gestor identificado" honestamente.
+        equipo = gestores.get("equipo") or []
+        equipo_detalle = gestores.get("equipo_detalle_web") or []
+        fuentes_web = gestores.get("fuentes_web") or []
+        info_cartas = gestores.get("info_cartas") or []
+        # También revisar perfiles existentes en analyst_synthesis (si el loop ya generó algo válido)
+        existing_perfiles = ((data.get("analyst_synthesis") or {}).get("gestores") or {}).get("perfiles") or []
+        if not equipo and not equipo_detalle and not fuentes_web and not info_cartas and not existing_perfiles:
+            self._log("WARN", "Section 'gestores': sin datos en input — devolviendo perfiles=[] (anti-invención)")
+            return {
+                "perfiles": [],
+                "texto": "",
+                "principal": "",
+                "_anti_invencion_guard": "no_data_in_sources",
+            }
+
         fuentes_compact = []
-        for f in gestores.get("fuentes_web", []):
+        for f in fuentes_web:
             fuentes_compact.append({
                 "url": f.get("url", ""),
                 "titulo": f.get("titulo", ""),
@@ -1257,10 +1277,10 @@ class AnalystAgent:
             })
 
         input_data = json.dumps({
-            "equipo": gestores.get("equipo", []),
-            "equipo_detalle": gestores.get("equipo_detalle_web", []),
+            "equipo": equipo,
+            "equipo_detalle": equipo_detalle,
             "fuentes_web": fuentes_compact[:10],
-            "info_cartas": gestores.get("info_cartas", []),
+            "info_cartas": info_cartas,
         }, ensure_ascii=False)
 
         # Call 1: TEXTO — overview del equipo (para los párrafos de arriba)
@@ -2556,6 +2576,20 @@ class AnalystAgent:
 
     def _section_gestores_int_pro(self, context: str, data: dict, anti_halluc: str) -> dict:
         gestores_list = data.get("_int_gestores", [])
+
+        # ── ANTI-INVENCIÓN GUARD (INT) ───────────────────────────────────────
+        # Si NO hay gestores en el contexto INT, NO llamar al LLM.
+        # Para INT, gestores_list viene del extractor v3 + manager_deep_agent.
+        # Si está vacío, el LLM tendería a inventar. Devolver perfiles vacíos.
+        if not gestores_list:
+            self._log("WARN", "Section 'gestores_int_pro': sin _int_gestores — devolviendo perfiles=[] (anti-invención)")
+            return {
+                "texto": "",
+                "perfiles": [],
+                "principal": "",
+                "_anti_invencion_guard": "no_int_gestores_in_context",
+            }
+
         schema = {
             "texto": (
                 "str - RESUMEN GRUPAL del equipo (900-1600 chars). FORMATO "
@@ -2573,29 +2607,62 @@ class AnalystAgent:
                 "perfil (macro / fundamental / cuant / mixto), visión común, "
                 "cómo el background conjunto soporta la filosofía del fondo.\\n"
                 "PÁRRAFO 4 — ESTABILIDAD / CAMBIOS (OBLIGATORIO SI HUBO CAMBIOS "
-                "RECIENTES): antigüedad media, rotación histórica. SI uno o más "
-                "gestores actuales entraron hace <3 años (desde hoy), DEBES "
-                "explicar qué pasó con el equipo anterior: quién estaba, cuándo "
-                "salió, por qué (jubilación/nueva gestora/reestructuración) y "
-                "si la filosofía y el proceso se mantienen o han cambiado. Este "
-                "punto es CRÍTICO para el inversor: un cambio de equipo sin "
-                "explicación genera dudas sobre continuidad de estrategia.\\n"
+                "RECIENTES, mínimo 600-1000 caracteres si los hay): antigüedad "
+                "media, rotación histórica. CUANDO HAY CAMBIO DE GESTOR O DE "
+                "GESTIÓN/OWNERSHIP DE LA GESTORA, explicar AL MÁXIMO DETALLE:\\n"
+                "  (a) QUIÉN salió/entró: nombre completo, cargo previo, cargo nuevo.\\n"
+                "  (b) CUÁNDO ocurrió: mes y año exactos.\\n"
+                "  (c) POR QUÉ ocurrió: jubilación / nueva gestora / "
+                "reestructuración accionarial / fusión / spin-off / fallecimiento / "
+                "fin de mandato. Citar la fuente (carta del gestor, comunicado, "
+                "press release).\\n"
+                "  (d) IMPACTO EN EL FONDO: la filosofía/proceso se mantienen o "
+                "cambian. Si cambian, qué cambia exactamente (estilo, riesgo, "
+                "universo, frecuencia decisiones). Si la gestora cambia de "
+                "ownership (private equity, MBO, IPO, venta), explicar quién es "
+                "el nuevo propietario y qué compromisos públicos hay sobre "
+                "continuidad del equipo y proceso.\\n"
+                "  (e) PERÍODO DE TRANSICIÓN: si hubo solapamiento "
+                "(predecesor+sucesor co-gestionando), su duración y rol durante "
+                "el handover.\\n"
+                "Este nivel de detalle es CRÍTICO para el inversor: un cambio de "
+                "equipo o ownership sin explicación genera dudas sobre "
+                "continuidad de estrategia, alineación de incentivos y riesgo "
+                "operacional.\\n"
                 "PROHIBIDO repetir trayectorias individuales (eso va en 'perfiles')."
             ),
             "gestores_anteriores": [
                 {
-                    "nombre": "str - nombre del gestor que salió",
-                    "cargo": "str - cargo que tuvo en el fondo (lead / co / analista...)",
+                    "nombre": "str - nombre del gestor que salió (o '-' si lo que cambió fue la gestora/ownership)",
+                    "cargo": "str - cargo que tuvo en el fondo (lead / co / analista / CIO / equipo)",
                     "periodo_en_fondo": "str - p.ej. '2015-2024'",
+                    "fecha_salida": "str - mes y año exactos, p.ej. 'Marzo 2024'",
                     "motivo_salida": (
                         "str - jubilación / nueva gestora / reestructuración / "
-                        "fallecimiento / fin de mandato. Sé literal con lo que "
-                        "digan cartas, press releases o notas del gestor."
+                        "fallecimiento / fin de mandato / venta gestora / MBO / "
+                        "IPO / fusión / spin-off. DETALLE MÁXIMO: cita literal "
+                        "de la carta o press release si la hay."
                     ),
                     "sustituto": "str - nombre del gestor actual que tomó su rol",
+                    "periodo_solapamiento": (
+                        "str - si hubo handover con co-gestión (p.ej. "
+                        "'6 meses, abril-octubre 2024'). Vacío si no hubo."
+                    ),
                     "impacto_estrategia": (
-                        "str - 1 línea: la filosofía/proceso se mantuvo / cambió "
-                        "parcialmente / cambió sustancialmente. Con justificación breve."
+                        "str - 2-4 líneas DETALLADAS: filosofía/proceso/universo/"
+                        "estilo/frecuencia decisiones — se mantienen, cambian "
+                        "parcialmente o sustancialmente. Citar evidencia "
+                        "(carta del nuevo gestor, cambios visibles en cartera)."
+                    ),
+                    "tipo_cambio": (
+                        "str - 'gestor' (cambio de persona) o 'gestora' (cambio "
+                        "de ownership/control de la sociedad gestora) o 'ambos'."
+                    ),
+                    "ownership_nuevo": (
+                        "str - si tipo_cambio incluye 'gestora': nombre del "
+                        "nuevo propietario/grupo (PE firm, banco, IPO público) "
+                        "y compromisos públicos sobre continuidad del equipo "
+                        "y la filosofía. Vacío si solo cambió el gestor."
                     ),
                 }
             ],
@@ -2603,7 +2670,12 @@ class AnalystAgent:
                 "Rellenar SOLO si hubo cambios en los últimos 5 años y tienes "
                 "información verificable (cartas, prensa, manager_profile). "
                 "Si no hay cambios recientes, devolver lista vacía []. "
-                "NUNCA INVENTES nombres o motivos."
+                "NUNCA INVENTES nombres o motivos.\\n"
+                "INCLUYE TAMBIÉN cambios a nivel de la GESTORA (no solo del "
+                "gestor del fondo): venta de la gestora, MBO, IPO, fusión, "
+                "cambio de CIO, reestructuración accionarial. Estos eventos "
+                "afectan el contexto operacional del fondo aunque el gestor "
+                "individual no haya cambiado."
             ),
             "perfiles": [{
                 "nombre": "str",
@@ -3477,7 +3549,25 @@ class AnalystAgent:
                              max_retries: int = 1) -> dict:
         """Audita cada seccion con Opus y regenera las que fallen.
         Antes de regenerar, filtra issues preguntando a Opus con fuentes.
-        Bucle con max_retries por seccion para evitar loops infinitos."""
+        Bucle con max_retries por seccion para evitar loops infinitos.
+
+        Toggles env:
+        - SKIP_OPUS_AUDIT=1: salta el audit completamente.
+        - OPUS_AUDIT_MAX_SECONDS=N (default 300): timeout duro del loop.
+        Si se supera el timeout, aborta con audit parcial sin regenerar más
+        secciones, garantizando que el analyst termine en tiempo finito.
+        """
+        import os, time
+        if os.getenv("SKIP_OPUS_AUDIT") == "1":
+            self._log("INFO", "SKIP_OPUS_AUDIT=1 → audit Opus saltado")
+            return {"auditado": False, "skipped": True}
+
+        max_seconds = int(os.getenv("OPUS_AUDIT_MAX_SECONDS", "300"))
+        t0 = time.time()
+
+        def _elapsed() -> float:
+            return time.time() - t0
+
         audit = self._opus_audit_per_section(synthesis, data)
         if not audit.get("auditado"):
             return audit
@@ -3490,6 +3580,11 @@ class AnalystAgent:
         fixed_any = False
 
         for section_key, section_audit in sections_audit.items():
+            if _elapsed() > max_seconds:
+                self._log("WARN",
+                          f"Opus audit timeout {max_seconds}s alcanzado — abortando regeneración")
+                audit["timeout_reached"] = True
+                return audit
             status = section_audit.get("status", "OK")
             if status in ("REVISAR", "RECHAZADO") and section_audit.get("feedback"):
                 # Solo regenerar secciones generadas por Gemini (no programaticas)
@@ -3509,12 +3604,14 @@ class AnalystAgent:
                     synthesis[section_key] = new_section
                     fixed_any = True
 
-        # Si se regenero algo, re-auditar (1 vez mas)
-        if fixed_any and max_retries > 0:
+        # Si se regenero algo, re-auditar (1 vez mas) si queda tiempo
+        if fixed_any and max_retries > 0 and _elapsed() < max_seconds:
             audit_v2 = self._opus_audit_per_section(synthesis, data)
             audit_v2["previous_issues"] = audit
+            audit_v2["elapsed_seconds"] = round(_elapsed(), 1)
             return audit_v2
 
+        audit["elapsed_seconds"] = round(_elapsed(), 1)
         return audit
 
     # Aliases para integración con el pipeline existente
@@ -3529,6 +3626,14 @@ class AnalystAgent:
         return self._opus_cache.get("historia") or {"texto": ""}
 
     def _section_gestores_int(self, data: dict) -> dict | None:
+        # ── ANTI-INVENCIÓN GUARD (INT alias) ─────────────────────────────────
+        # Si NO hay gestores en el contexto INT, NO disparar Opus synthesis
+        # (que tendería a inventar). Devolver vacío honesto.
+        gestores_list = data.get("_int_gestores") or []
+        if not gestores_list:
+            self._log("WARN", "Section 'gestores_int': sin _int_gestores — perfiles=[] (anti-invención)")
+            return {"texto": "", "equipo": [], "perfiles": [],
+                    "_anti_invencion_guard": "no_int_gestores_in_context"}
         if not hasattr(self, "_opus_cache"):
             self._opus_cache = self._opus_int_synthesis(data)
         return self._opus_cache.get("gestores") or {"texto": "", "equipo": []}
@@ -3567,9 +3672,17 @@ class AnalystAgent:
 
     def _save(self, output: dict):
         out_path = self.fund_dir / "output.json"
-        out_path.write_text(
+        # Atomic write: .tmp → rename (evita que el dashboard lea archivo vacío).
+        tmp_path = out_path.with_suffix(out_path.suffix + ".tmp")
+        tmp_path.write_text(
             json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8"
         )
+        try:
+            tmp_path.replace(out_path)
+        except Exception:
+            out_path.write_text(tmp_path.read_text(encoding="utf-8"), encoding="utf-8")
+            try: tmp_path.unlink()
+            except Exception: pass
         self._log("OK", f"Guardado: {out_path}")
 
     def _print_summary(self, output: dict):
@@ -3611,5 +3724,10 @@ if __name__ == "__main__":
     load_dotenv(Path(__file__).parent.parent / ".env")
 
     isin = sys.argv[1] if len(sys.argv) > 1 else "ES0112231008"
+
+    # Lock por fondo: aborta si ya hay otro analyst corriendo para este ISIN.
+    from tools.process_lock import acquire_or_die
+    acquire_or_die("analyst", isin)
+
     agent = AnalystAgent(isin, {})
     result = agent.run()

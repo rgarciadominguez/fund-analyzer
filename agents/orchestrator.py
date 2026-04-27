@@ -660,19 +660,76 @@ async def _run_quality_loop(
                 f"{a}={len(fs)}" for a, fs in fallos_por_agente.items()))
 
         # ── Re-ejecutar upstream agents según fallos ─────────────────────────
-        # manager_profiler: filosofía/perfiles del gestor
+        # CASCADA gestores: manager_profiler → manager_deep_agent →
+        # google_snippets → sibling_finder. Cada paso solo se ejecuta si el
+        # anterior no encontró nombres reales.
         if "manager_deep_agent" in fallos_por_agente:
+            def _has_real_managers() -> bool:
+                """Verifica si manager_profile.json tiene nombres reales (no vacío, no genéricos)."""
+                prof_path = ROOT / "data" / "funds" / isin / "manager_profile.json"
+                if not prof_path.exists():
+                    return False
+                try:
+                    p = json.loads(prof_path.read_text(encoding="utf-8"))
+                except Exception:
+                    return False
+                # Acepta cualquier nombre que no empiece por 'Equipo' (team aggregate)
+                names = p.get("equipo_gestor") or p.get("equipo") or []
+                real = [n for n in names if isinstance(n, str) and n.strip()
+                        and not n.lower().startswith("equipo")]
+                return len(real) > 0
+
+            # Paso 1: manager_profiler (rápido, búsqueda simple)
             try:
                 from agents.manager_profiler import ManagerProfiler
-                log("QUALITY", "RETRY", "Re-ejecutando manager_profiler")
+                log("QUALITY", "RETRY", "Cascada gestores 1/4 — manager_profiler")
                 manager = ManagerProfiler(
                     isin, fund_name=fund_name_hint,
                     gestora=gestora_hint, manager_names=gestores_hint or None,
                 )
                 await manager.run()
-                log("QUALITY", "OK", "manager_profiler re-ejecutado")
+                log("QUALITY", "OK", f"manager_profiler done (real={_has_real_managers()})")
             except Exception as exc:
-                log("QUALITY", "ERROR", f"manager_profiler retry falló: {exc}")
+                log("QUALITY", "ERROR", f"manager_profiler falló: {exc}")
+
+            # Paso 2: manager_deep_agent (búsquedas Google, Citywire, web gestora)
+            if not _has_real_managers():
+                try:
+                    from agents.manager_deep_agent import ManagerDeepAgent
+                    log("QUALITY", "RETRY", "Cascada gestores 2/4 — manager_deep_agent")
+                    deep = ManagerDeepAgent(
+                        isin=isin, fund_name=fund_name_hint, gestora=gestora_hint,
+                        manager_names=gestores_hint or None,
+                    )
+                    await deep.run()
+                    log("QUALITY", "OK", f"manager_deep_agent done (real={_has_real_managers()})")
+                except Exception as exc:
+                    log("QUALITY", "ERROR", f"manager_deep_agent falló: {exc}")
+
+            # Paso 3: google_snippets (extrae nombres de snippets Morningstar/FT/Finect)
+            if not _has_real_managers():
+                try:
+                    from agents.manager_google_snippets import find_managers, save_to_manager_profile, sync_to_output
+                    log("QUALITY", "RETRY", "Cascada gestores 3/4 — google_snippets")
+                    result = find_managers(isin, fund_name_hint, gestora_hint)
+                    if result.get("managers"):
+                        save_to_manager_profile(isin, result)
+                        sync_to_output(isin, result["managers"], gestora_hint)
+                        log("QUALITY", "OK", f"google_snippets: {result['managers']}")
+                    else:
+                        log("QUALITY", "INFO", "google_snippets: sin nombres")
+                except Exception as exc:
+                    log("QUALITY", "ERROR", f"google_snippets falló: {exc}")
+
+            # Paso 4: sibling_finder (copia de fondo hermano de la misma gestora con name_root match)
+            if not _has_real_managers():
+                try:
+                    from tools.sibling_finder import propagate_gestores
+                    log("QUALITY", "RETRY", "Cascada gestores 4/4 — sibling_finder")
+                    r = propagate_gestores(isin, dry_run=False)
+                    log("QUALITY", "OK", f"sibling_finder: {r.get('status')} from {r.get('from','-')}")
+                except Exception as exc:
+                    log("QUALITY", "ERROR", f"sibling_finder falló: {exc}")
 
         # readings_agent: fuentes externas
         if "readings_agent" in fallos_por_agente:
@@ -1007,6 +1064,12 @@ def main():
             console.print(f"[yellow][--clean] Borrando {fund_dir}[/yellow]")
             shutil.rmtree(fund_dir)
             console.print(f"[yellow][--clean] OK[/yellow]")
+
+    # Lock por fondo: aborta si ya hay otro orchestrator/extractor/analyst
+    # corriendo para este ISIN. Evita race conditions cuando el bash background
+    # de Claude Code en Windows lanza pythons duplicados que se pisan.
+    from tools.process_lock import acquire_or_die
+    acquire_or_die("orchestrator", args.isin)
 
     asyncio.run(analyze_fund(args.isin, auto=args.auto))
 
