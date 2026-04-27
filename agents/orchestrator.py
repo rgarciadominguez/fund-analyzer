@@ -659,6 +659,23 @@ async def _run_quality_loop(
             f"Fallos por agente: " + ", ".join(
                 f"{a}={len(fs)}" for a, fs in fallos_por_agente.items()))
 
+        # ── Auto-corrección nombre del fondo (sin LLM, cero coste) ───────────
+        # Si quality detecta nombre_match_latest_pdf, llamar al patcher que
+        # lee el último PDF semestral y corrige output + cnmv_data.
+        # Marca _manual_edits para que no se sobrescriba en futuros runs.
+        nombre_fallos = [f for f in report.get("fallos", [])
+                         if f.get("regla_id") == "nombre_match_latest_pdf"]
+        if nombre_fallos:
+            try:
+                import sys as _sys
+                _sys.path.insert(0, str(ROOT))
+                from run_quality_only import patch_nombre_from_pdf
+                log("QUALITY", "AUTOFIX", "Detectado nombre_match_latest_pdf — llamando patch_nombre_from_pdf")
+                changed = patch_nombre_from_pdf(isin)
+                log("QUALITY", "OK", f"patch_nombre_from_pdf done (changed={changed})")
+            except Exception as exc:
+                log("QUALITY", "ERROR", f"patch_nombre_from_pdf falló: {exc}")
+
         # ── Re-ejecutar upstream agents según fallos ─────────────────────────
         # CASCADA gestores: manager_profiler → manager_deep_agent →
         # google_snippets → sibling_finder. Cada paso solo se ejecuta si el
@@ -1064,20 +1081,46 @@ def main():
     parser.add_argument("--auto", action="store_true",
                         help="Usar valores por defecto sin preguntar")
     parser.add_argument("--clean", action="store_true",
-                        help="Borra data/funds/{ISIN}/ ANTES de ejecutar (force fresh re-download). "
-                             "Sin esto, se reutilizan caches (XMLs, PDFs, etc.) lo cual es mucho más rápido.")
+                        help="Borra data/funds/{ISIN}/ COMPLETO antes de ejecutar (force fresh re-download).")
+    parser.add_argument("--clean-cnmv", action="store_true",
+                        help="Borra solo cnmv_data.json + pdf_cache.json (re-extrae datos cuantitativos pero mantiene XMLs/PDFs descargados).")
+    parser.add_argument("--clean-positions", action="store_true",
+                        help="Borra solo posiciones.actuales del output (fuerza re-extracción sec10 vía enrichment).")
+    parser.add_argument("--clean-synthesis", action="store_true",
+                        help="Borra solo analyst_synthesis del output (fuerza re-síntesis del LLM, mantiene datos crudos).")
     args = parser.parse_args()
 
     from dotenv import load_dotenv
     load_dotenv(ROOT / ".env")
 
+    isin_clean = args.isin.strip().upper()
+    fund_dir = ROOT / "data" / "funds" / isin_clean
+
     if args.clean:
         import shutil
-        fund_dir = ROOT / "data" / "funds" / args.isin.strip().upper()
         if fund_dir.exists():
-            console.print(f"[yellow][--clean] Borrando {fund_dir}[/yellow]")
+            console.print(f"[yellow][--clean] Borrando {fund_dir} COMPLETO[/yellow]")
             shutil.rmtree(fund_dir)
             console.print(f"[yellow][--clean] OK[/yellow]")
+    if args.clean_cnmv:
+        for f in [fund_dir / "cnmv_data.json", fund_dir / "pdf_cache.json"]:
+            if f.exists():
+                f.unlink()
+                console.print(f"[yellow][--clean-cnmv] Borrado {f.name}[/yellow]")
+    if args.clean_positions:
+        out_p = fund_dir / "output.json"
+        if out_p.exists():
+            out = json.loads(out_p.read_text(encoding="utf-8"))
+            out.setdefault("posiciones", {})["actuales"] = []
+            out_p.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+            console.print(f"[yellow][--clean-positions] posiciones.actuales vaciadas en output[/yellow]")
+    if args.clean_synthesis:
+        out_p = fund_dir / "output.json"
+        if out_p.exists():
+            out = json.loads(out_p.read_text(encoding="utf-8"))
+            out["analyst_synthesis"] = {}
+            out_p.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+            console.print(f"[yellow][--clean-synthesis] analyst_synthesis vaciado[/yellow]")
 
     # Lock por fondo: aborta si ya hay otro orchestrator/extractor/analyst
     # corriendo para este ISIN. Evita race conditions cuando el bash background

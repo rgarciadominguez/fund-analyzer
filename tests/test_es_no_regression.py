@@ -134,17 +134,20 @@ def main():
             print("  OK — sin regresiones")
 
     print("\n" + "=" * 75)
+    if update:
+        # --update fuerza la actualización aunque haya regresiones
+        # (asume que el usuario las ha revisado y son cambios legítimos)
+        BASELINE_PATH.write_text(
+            json.dumps(new_snapshots, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        print(f"[!] Baseline ACTUALIZADO ({len(total_issues)} regresiones reconocidas como cambios válidos): {BASELINE_PATH}")
+        return
+
     if total_issues:
         print(f"FAIL: {len(total_issues)} regresiones totales")
         sys.exit(1)
 
     print("PASS: pipeline ES v6 intacto")
-
-    if update:
-        BASELINE_PATH.write_text(
-            json.dumps(new_snapshots, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-        print(f"\n[!] Baseline actualizado: {BASELINE_PATH}")
 
 
 if __name__ == "__main__":

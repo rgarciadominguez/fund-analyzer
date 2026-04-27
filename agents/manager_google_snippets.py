@@ -99,8 +99,59 @@ def extract_names_from_text(text: str) -> list[str]:
     return candidates
 
 
+def _validate_names_with_gemini(candidates: list[str], fund_name: str, gestora: str) -> list[str]:
+    """Filtra candidatos para quedarse solo con NOMBRES DE PERSONAS REALES.
+    Elimina ruido tipo 'Ver Morningstar Medalist Rating', 'Citywire Rating', etc.
+    Si Gemini no disponible, devuelve heurística simple."""
+    if not candidates:
+        return []
+    # Heurística rápida primero: descartar candidatos que contienen palabras-marca
+    BRAND_BAD = ["morningstar", "citywire", "rating", "medalist", "rankia",
+                 "asesor", "analyst", "ver", "leer", "next", "previous"]
+    pre = [c for c in candidates
+           if not any(b in c.lower() for b in BRAND_BAD)]
+    if not pre:
+        return []
+
+    # Validar con Gemini Flash (cheap)
+    key = os.environ.get("GOOGLE_API_KEY")
+    if not key:
+        return pre[:5]  # sin LLM, devolver pre-filtrados
+    try:
+        from google import genai
+        client = genai.Client(api_key=key)
+        prompt = (
+            f"Tarea: filtra una lista de candidatos para quedarte SOLO con nombres "
+            f"de personas reales que sean gestores del fondo {fund_name} (gestora {gestora}).\n\n"
+            "REGLAS:\n"
+            "- Conserva nombres de personas con nombre+apellido(s) reales (Ivan Garcia, Maria Lopez, etc).\n"
+            "- DESCARTA frases que no son nombres ('Ver Morningstar Medalist', 'Cita el Trabajo', 'Anos de Experiencia', etc).\n"
+            "- DESCARTA nombres de empresas o entidades (Singular Asset Management, Renta 4 Gestora).\n"
+            "- DESCARTA palabras genéricas (Equipo, Director, Gestor solos sin nombre).\n"
+            "- NO inventes — si no estás seguro, descarta.\n\n"
+            f"Candidatos:\n" + "\n".join(f"- {c}" for c in candidates) +
+            "\n\nResponde SOLO con un JSON array de los nombres validados, sin texto adicional."
+        )
+        resp = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+        text = resp.text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+            text = text.strip()
+        validated = json.loads(text)
+        if isinstance(validated, list):
+            return [str(n).strip() for n in validated if str(n).strip()]
+    except Exception:
+        pass
+    return pre[:5]
+
+
 def find_managers(isin: str, fund_name: str = "", gestora: str = "") -> dict:
-    """Devuelve dict con managers extraídos de snippets Google."""
+    """Devuelve dict con managers extraídos de snippets Google + validación Gemini."""
     queries = [
         f"site:morningstar.com {isin} gestor",
         f"{isin} morningstar gestor manager",
@@ -124,7 +175,6 @@ def find_managers(isin: str, fund_name: str = "", gestora: str = "") -> dict:
                 continue
             if not any(d in link for d in TRUSTED_DOMAINS):
                 continue
-            # Solo aprovechar snippets que mencionen pista de gestor
             if not any(h.lower() in snippet.lower() for h in GESTOR_HINTS):
                 continue
 
@@ -135,12 +185,11 @@ def find_managers(isin: str, fund_name: str = "", gestora: str = "") -> dict:
             for n in names:
                 counter[n] = counter.get(n, 0) + 1
 
-    # Sort by frequency
     ranked = sorted(counter.items(), key=lambda x: -x[1])
-    # Top names that appear 2+ times (filtro ruido); si nada, top 1 si está
-    confirmed = [n for n, c in ranked if c >= 2]
-    if not confirmed and ranked:
-        confirmed = [ranked[0][0]]
+    raw_candidates = [n for n, _ in ranked[:15]]
+
+    # Validar con Gemini para eliminar basura tipo "Ver Morningstar Medalist"
+    confirmed = _validate_names_with_gemini(raw_candidates, fund_name, gestora)
 
     return {
         "isin": isin,
@@ -148,6 +197,7 @@ def find_managers(isin: str, fund_name: str = "", gestora: str = "") -> dict:
         "gestora": gestora,
         "managers": confirmed[:5],
         "all_candidates": [{"nombre": n, "score": c} for n, c in ranked[:20]],
+        "validated_by": "gemini-2.5-flash" if os.environ.get("GOOGLE_API_KEY") else "heuristica",
         "snippets_used": snippets_used,
         "n_sources": len(set(sources_used)),
         "generado": datetime.now().isoformat(),

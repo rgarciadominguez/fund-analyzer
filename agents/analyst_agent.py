@@ -1054,30 +1054,41 @@ class AnalystAgent:
             ("documentos", self._section_documentos),
         ]
 
-        for name, method in sections:
-            self._log("START", f"Capa 3 — Sección: {name}")
-            try:
-                result = method(data)
-                if result:
-                    # Anti-regresión: si tenemos versión previa, decidir cuál guardar
-                    prior_section = prior_synthesis.get(name)
-                    if _guard_available and prior_section and name != "documentos":
-                        result = accept_section(
-                            name, result, prior_section,
-                            log_fn=lambda agent, msg: self._log(agent, msg),
-                        )
-                    synthesis[name] = result
-                    synthesis["sections_completed"] += 1
-                    self._log("OK", f"Sección {name} completada")
-                else:
-                    synthesis[name] = {"error": "Gemini no generó resultado"}
-                    self._log("WARN", f"Sección {name} sin resultado")
-            except Exception as exc:
-                synthesis[name] = {"error": str(exc)}
-                self._log("ERROR", f"Sección {name} falló: {exc}")
+        # ── Heartbeat: log "alive" cada 30s para detectar procesos colgados ──
+        try:
+            from tools.heartbeat import Heartbeat
+            hb_ctx = Heartbeat(f"analyst-capa3", interval_s=30, isin=self.isin)
+        except Exception:
+            from contextlib import nullcontext
+            hb_ctx = nullcontext()
 
-            if name != "documentos":
-                time.sleep(3)
+        with hb_ctx as hb:
+            for name, method in sections:
+                self._log("START", f"Capa 3 — Sección: {name}")
+                if hasattr(hb, "tick"):
+                    hb.tick(f"section: {name}")
+                try:
+                    result = method(data)
+                    if result:
+                        # Anti-regresión: si tenemos versión previa, decidir cuál guardar
+                        prior_section = prior_synthesis.get(name)
+                        if _guard_available and prior_section and name != "documentos":
+                            result = accept_section(
+                                name, result, prior_section,
+                                log_fn=lambda agent, msg: self._log(agent, msg),
+                            )
+                        synthesis[name] = result
+                        synthesis["sections_completed"] += 1
+                        self._log("OK", f"Sección {name} completada")
+                    else:
+                        synthesis[name] = {"error": "Gemini no generó resultado"}
+                        self._log("WARN", f"Sección {name} sin resultado")
+                except Exception as exc:
+                    synthesis[name] = {"error": str(exc)}
+                    self._log("ERROR", f"Sección {name} falló: {exc}")
+
+                if name != "documentos":
+                    time.sleep(3)
 
         return synthesis
 

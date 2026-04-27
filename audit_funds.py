@@ -81,24 +81,38 @@ def extract_pdf_metrics(pdf_path):
         isins = set(re.findall(r'\b[A-Z]{2}[A-Z0-9]{10}\b', sec10))
         n_isins_pdf = len(isins)
 
-    # Partícipes total (suma por clase)
-    parts_pattern = re.compile(
-        r'CLASE\s+\w+\s+([\d.,]+)\s+([\d.,]+)\s+EUR',
-        re.IGNORECASE,
-    )
-    # En tabla "Nº de partícipes": CLASE X  408  408  EUR
+    # Partícipes total (suma por clase) — soporta 3 formatos:
+    # FORMAT A: "CLASE X  408  408  EUR" (Avantage, Magallanes)
+    # FORMAT B: "CLASE X 408 408 1 EUR" (Dunas)
+    # FORMAT C: "X 408 408 EUR" (Gamma/Sigma — sin "CLASE")
+    # Buscar después del header "Nº de partícipes" y antes de "Patrimonio"
     parts_section = re.search(
-        r'N[º°o]\s*de\s*part[ií]cipes(.{0,1500})',
+        r'N[º°o]\s*de\s*part[ií]cipes(.{0,2500}?)(?=Patrimonio\s*\(en\s*miles\)|$)',
         text, re.IGNORECASE | re.DOTALL,
     )
     parts_total = None
     if parts_section:
         block = parts_section.group(1)
         parts = []
-        for m in parts_pattern.finditer(block):
+        # FORMAT A/B: línea CLASE
+        for m in re.finditer(
+            r'CLASE\s+\w+\s+([\d.,]+)\s+([\d.,]+)(?:\s+\d+)?\s+EUR',
+            block, re.IGNORECASE,
+        ):
             v = num_es(m.group(1))
             if v:
                 parts.append(int(v))
+        # FORMAT C: <letra> N N EUR (Gamma/Sigma) — solo si A/B vacío
+        if not parts:
+            for line in block.split("\n"):
+                m = re.match(
+                    r'^\s*([A-Z]{1,4})\s+([\d.,]+)\s+([\d.,]+)\s+EUR',
+                    line.strip(),
+                )
+                if m and not m.group(1).startswith("CLASE"):
+                    v = num_es(m.group(2))
+                    if v and v > 0:
+                        parts.append(int(v))
         if parts:
             parts_total = sum(parts)
 

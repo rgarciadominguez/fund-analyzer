@@ -28,6 +28,18 @@ from typing import Callable
 # Threshold: nueva sección puede perder hasta este % en cualquier métrica
 DEFAULT_DROP_THRESHOLD = 0.30  # 30% de pérdida es el umbral
 
+# Threshold POR SECCIÓN — overrides DEFAULT cuando la sección lo necesita
+# Justificación de cada valor:
+SECTION_THRESHOLDS = {
+    "resumen": 0.20,      # secciones cortas: estricto (resumen pierde info rápido)
+    "historia": 0.30,     # textos medios: tolerancia normal
+    "gestores": 0.10,     # MUY estricto: perder 10% de perfiles ya es serio
+    "evolucion": 0.40,    # más tolerante (puede variar mucho según mercado)
+    "estrategia": 0.25,
+    "cartera": 0.30,
+    "fuentes_externas": 0.50,  # muy variable, tolerante
+}
+
 _CIFRAS_RX = re.compile(
     r'\d+[.,]?\d*\s*(?:%|M€|MEUR|EUR\s*[mM]|partícipes|participes|posiciones|años|anos|bps|p\.b\.)'
 )
@@ -118,9 +130,16 @@ def compute_metrics(section_name: str, section: dict) -> dict:
     return {name: fn(section) for name, fn in metrics_def.items()}
 
 
+def _resolve_threshold(section_name: str, override: float = None) -> float:
+    """Threshold: override > section-specific > default."""
+    if override is not None:
+        return override
+    return SECTION_THRESHOLDS.get(section_name, DEFAULT_DROP_THRESHOLD)
+
+
 def is_regression(
     new: dict, old: dict, section_name: str,
-    threshold: float = DEFAULT_DROP_THRESHOLD,
+    threshold: float = None,
 ) -> tuple[bool, list]:
     """Devuelve (es_regresion, [razones]).
 
@@ -143,6 +162,7 @@ def is_regression(
     if _is_error_section(old):
         return False, []  # old estaba mal, new gana siempre
 
+    threshold_resolved = _resolve_threshold(section_name, threshold)
     new_m = compute_metrics(section_name, new)
     old_m = compute_metrics(section_name, old)
     for k, old_v in old_m.items():
@@ -150,9 +170,9 @@ def is_regression(
         if old_v <= 0:
             continue
         drop = (old_v - new_v) / old_v
-        if drop > threshold:
+        if drop > threshold_resolved:
             reasons.append(
-                f"{k}: {old_v} -> {new_v} ({drop*100:.0f}% pérdida, umbral {threshold*100:.0f}%)"
+                f"{k}: {old_v} -> {new_v} ({drop*100:.0f}% pérdida, umbral {threshold_resolved*100:.0f}%)"
             )
     return bool(reasons), reasons
 

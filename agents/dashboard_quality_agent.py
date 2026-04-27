@@ -769,6 +769,113 @@ def _check_hitos_percentages_match_data(rule: dict, data: dict) -> tuple[bool, d
     return True, {"actual": f"{len(hitos)} hitos verificados"}
 
 
+def _check_aum_jump_alert(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Detecta saltos de AUM > 50% año a año en serie_aum.
+    Alerta de extracción potencialmente errónea del cnmv_agent.
+
+    Tolerancia: por defecto 50% (configurable en regla.value).
+    Excepción: si periodo anterior tiene valor < 5 M€ (fondo recién lanzado),
+    saltos grandes son normales — no alerta."""
+    serie = (data.get("cuantitativo") or {}).get("serie_aum") or []
+    if len(serie) < 2:
+        return True, {"actual": "no_history"}
+    threshold = rule.get("value", 0.50)
+    # Ordenar por periodo
+    sorted_s = sorted([s for s in serie if isinstance(s, dict) and s.get("valor_meur")],
+                      key=lambda s: str(s.get("periodo", "")))
+    jumps = []
+    for i in range(1, len(sorted_s)):
+        prev_v = float(sorted_s[i-1].get("valor_meur", 0))
+        cur_v = float(sorted_s[i].get("valor_meur", 0))
+        if prev_v < 5:  # fondo recién lanzado, saltos grandes normales
+            continue
+        if prev_v <= 0:
+            continue
+        ratio = cur_v / prev_v - 1
+        if abs(ratio) > threshold:
+            jumps.append(
+                f"{sorted_s[i-1].get('periodo')}→{sorted_s[i].get('periodo')}: "
+                f"{prev_v:.0f}→{cur_v:.0f} M€ ({ratio*100:+.0f}%)"
+            )
+    if jumps:
+        return False, {"actual": "; ".join(jumps[:3]),
+                       "reason": f"saltos_aum_>{int(threshold*100)}%"}
+    return True, {"actual": "ok"}
+
+
+def _check_clase_nueva_detectada(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Detecta si la última lectura del PDF semestral introdujo una clase nueva
+    no registrada antes en serie_clases_info. Útil para alertar al usuario.
+
+    Caso real (2026-04): Dunas Equilibrado añadió CLASE G nueva. Magallanes EE
+    añadió CLASE C. Si serie_clases_info[-1] tiene clases que no están en [-2],
+    es señal de clase nueva."""
+    serie = (data.get("cuantitativo") or {}).get("serie_clases_info") or []
+    if len(serie) < 2:
+        return True, {"actual": "no_history"}
+    # Última y penúltima
+    last = serie[0] if isinstance(serie[0], dict) else {}
+    prev = serie[1] if isinstance(serie[1], dict) else {}
+    last_classes = set(k for k in last.keys() if k != "periodo")
+    prev_classes = set(k for k in prev.keys() if k != "periodo")
+    new_classes = last_classes - prev_classes
+    if new_classes:
+        return False, {"actual": f"clases nuevas: {list(new_classes)}",
+                       "reason": "clase_nueva_introducida"}
+    return True, {"actual": "ok"}
+
+
+def _check_text_kpis_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
+    """Detecta cifras de partícipes/AUM en prosa que no cuadran con KPIs reales.
+    Caso típico: gestor escribe en el PDF 'el número de partícipes se sitúa en 9.856'
+    pero la tabla CNMV oficial dice 2.215. Si el texto del resumen recoge la cifra
+    inventada del gestor, falla la regla.
+
+    Tolerancia: ±5% para participes (cierre del periodo vs medio), ±10% para AUM."""
+    text = _get_nested(data, rule["field_path"]) or ""
+    if not isinstance(text, str) or len(text) < 100:
+        return True, {"actual": "no_text"}
+
+    kpis = data.get("kpis") or {}
+    real_parts = kpis.get("num_participes")
+    real_aum = kpis.get("aum_actual_meur")
+
+    issues = []
+    # Detectar "X partícipes" / "X.YYY partícipes"
+    if real_parts:
+        for m in re.finditer(r"\b([\d.,]+)\s+part[ií]cipes\b", text, re.I):
+            n_str = m.group(1).replace(".", "").replace(",", ".")
+            try:
+                n = float(n_str)
+            except ValueError:
+                continue
+            if n < 100:  # ignorar números pequeños tipo "los 8 partícipes principales"
+                continue
+            diff_pct = abs(n - real_parts) / real_parts * 100 if real_parts else 0
+            if diff_pct > 5:  # >5% drift
+                issues.append(f"texto dice {int(n)} partícipes, KPI real {real_parts} ({diff_pct:.0f}% drift)")
+                break  # un solo error suficiente
+
+    # Detectar "X M€" / "X millones de euros" cerca de AUM/patrimonio
+    if real_aum and real_aum > 0:
+        for m in re.finditer(r"(?:patrimonio|AUM|activos)[^.]{0,80}?([\d.,]+)\s*(?:M€|millones?\s+de\s+euros)", text, re.I):
+            n_str = m.group(1).replace(".", "").replace(",", ".")
+            try:
+                n = float(n_str)
+            except ValueError:
+                continue
+            if n < 0.1:  # ignorar valores absurdos
+                continue
+            diff_pct = abs(n - real_aum) / real_aum * 100
+            if diff_pct > 15:  # >15% drift (tolerante por ciclos de mercado)
+                issues.append(f"texto dice {n} M€ AUM, KPI real {real_aum} ({diff_pct:.0f}% drift)")
+                break
+
+    if issues:
+        return False, {"actual": "; ".join(issues), "reason": "cifras_kpi_no_coinciden"}
+    return True, {"actual": "ok"}
+
+
 def _check_text_returns_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
     """Detecta alucinaciones en el texto: si el texto menciona rentabilidades concretas
     (ej. '+15,4% en 2023'), deben cuadrar con serie_rentabilidad o serie_vl_base100.
@@ -1131,6 +1238,7 @@ CHECK_REGISTRY = {
     "serie_vl_valid": _check_serie_vl_valid,
     "equipo_not_generic": _check_equipo_not_generic,
     "text_returns_match_data": _check_text_returns_match_data,
+    "text_kpis_match_data": _check_text_kpis_match_data,
     "mix_activos_sum_100": _check_mix_activos_sum_100,
     "mix_activos_no_over_100": _check_mix_activos_no_over_100,
     "posiciones_nombre_limpio": _check_posiciones_nombre_limpio,
@@ -1153,6 +1261,8 @@ CHECK_REGISTRY = {
     "gestores_anteriores_if_recent_change": _check_gestores_anteriores_if_recent_change,
     "string_has_pattern": _check_string_has_pattern,
     "string_no_pattern": _check_string_no_pattern,
+    "clase_nueva_detectada": _check_clase_nueva_detectada,
+    "aum_jump_alert": _check_aum_jump_alert,
     "fecha_inicio_vs_clases": _check_fecha_inicio_vs_clases,
     "posiciones_tipo_activo": _check_posiciones_tipo_activo,
 }

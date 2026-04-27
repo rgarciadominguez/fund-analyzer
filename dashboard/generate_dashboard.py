@@ -2,6 +2,12 @@
 Dashboard HTML Generator — reads output.json for ANY fund and produces HTML dashboard.
 Applies all formatting rules learned from Avantage Fund pattern.
 Usage: python generate_dashboard.py [ISIN]
+
+NOTA (2026-04-27): para LECTURA de campos de output.json se recomienda usar
+tools/output_accessor.py (get_perfiles, get_kpis, etc.) en vez de paths
+hardcoded como data["analyst_synthesis"]["gestores"]["perfiles"]. El accessor
+centraliza dónde leer cada campo, evita el bug histórico de leer del path
+equivocado (top-level vs analyst_synthesis duplicado).
 """
 import json
 import sys
@@ -12,6 +18,17 @@ ROOT = Path(__file__).parent.parent
 ISIN = sys.argv[1] if len(sys.argv) > 1 else "ES0112231008"
 FUND_DIR = ROOT / "data" / "funds" / ISIN
 OUTPUT = Path(__file__).parent / f"fund-{ISIN}.html"
+
+# Accessor canónico para reads de output.json
+sys.path.insert(0, str(ROOT))
+try:
+    from tools.output_accessor import (
+        get_perfiles, get_kpis, get_posiciones_actuales,
+        get_serie_aum, get_nombre, get_gestora,
+    )
+    _ACCESSOR_AVAILABLE = True
+except Exception:
+    _ACCESSOR_AVAILABLE = False
 
 
 def load_data():
@@ -2983,7 +3000,12 @@ def build_tab_historia(data):
 def build_tab_gestores(data):
     import re
     s = data.get("analyst_synthesis", {}).get("gestores", {})
-    perfiles = s.get("perfiles", [])
+    # Usar accessor canónico para perfiles (evita bug histórico de leer del top-level
+    # output.gestores.perfiles que contiene info CRUDA por fuente web, no perfiles personas)
+    if _ACCESSOR_AVAILABLE:
+        perfiles = get_perfiles(data)
+    else:
+        perfiles = s.get("perfiles", [])
     texto = s.get("texto", "")
 
     # Uses global render_narrative_inline

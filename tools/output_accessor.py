@@ -152,6 +152,45 @@ def get_documentos(output: dict) -> dict:
     return _get(output, "analyst_synthesis.documentos") or {}
 
 
+# ── CUALITATIVO + ANALYST EXTRA ─────────────────────────────────────────────
+def get_cualitativo(output: dict) -> dict:
+    """Datos cualitativos del fondo (filosofía, estrategia, objetivos)."""
+    return _get(output, "cualitativo", "analyst_synthesis.cualitativo") or {}
+
+
+def get_section_evolucion(output: dict) -> dict:
+    return _get(output, "analyst_synthesis.evolucion") or {}
+
+
+def get_section_fuentes_externas(output: dict) -> dict:
+    return _get(output, "analyst_synthesis.fuentes_externas") or {}
+
+
+def get_hechos_relevantes(output: dict) -> list:
+    return _get(output, "hechos_relevantes", "analyst_synthesis.hechos_relevantes") or []
+
+
+def get_lecturas_externas(output: dict) -> dict:
+    return _get(output, "lecturas_externas") or {}
+
+
+def get_analisis_consistencia(output: dict) -> dict:
+    return _get(output, "analisis_consistencia") or {}
+
+
+def get_comision_exito(output: dict) -> dict:
+    return _get(output, "comision_exito") or {}
+
+
+def get_anio_creacion(output: dict):
+    return _get(output, "kpis.anio_creacion", "analyst_synthesis.kpis.anio_creacion")
+
+
+def get_clases_info(output: dict) -> list:
+    """Lista de clases del fondo con su info (divisa, inversion_minima, etc.)."""
+    return _get(output, "cuantitativo.serie_clases_info", "clases_info") or []
+
+
 # ── VALIDACIÓN ─────────────────────────────────────────────────────────────
 def detect_drift(output: dict) -> list:
     """Detecta inconsistencias entre paths duplicados (top-level vs analyst_synthesis).

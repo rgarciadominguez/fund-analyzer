@@ -1,6 +1,6 @@
 {
-  "schema_version": "2.0",
-  "comment": "Reglas declarativas del DashboardQualityAgent. Formato editable. Cada regla genera UN fallo si no se cumple. Sin score, sin pesos: solo lista de fallos. Las reglas estructurales nuevas (orden de subsecciones, contenido por bloque) se irán añadiendo sección por sección con el dictado del usuario. [2026-04-13 v5: removed mix_activos suma rules - funds with derivatives have legitimate >100% exposure] [2026-04-13 v5: +comision_exito_teorica, +comision_exito_coherente, +serie_clases_info, +hitos_percentages_verifiable, -clasificacion_vs_cartera] [v6 2026-04-13: +ter_efectivo, +vl_fuentes_oficiales, +historia_kpis, +drawdown_fecha, cartera_min_chars subido a 3000]",
+  "schema_version": "2.1",
+  "comment": "Reglas declarativas del DashboardQualityAgent. Formato editable. Cada regla genera UN fallo si no se cumple. Sin score, sin pesos: solo lista de fallos. Las reglas estructurales nuevas (orden de subsecciones, contenido por bloque) se irán añadiendo sección por sección con el dictado del usuario. [2026-04-13 v5: removed mix_activos suma rules - funds with derivatives have legitimate >100% exposure] [2026-04-13 v5: +comision_exito_teorica, +comision_exito_coherente, +serie_clases_info, +hitos_percentages_verifiable, -clasificacion_vs_cartera] [v6 2026-04-13: +ter_efectivo, +vl_fuentes_oficiales, +historia_kpis, +drawdown_fecha, cartera_min_chars subido a 3000] [v7 2026-04-26: removed min_chars rules (length not a relevant fail); added scope ES/INT/all per rule (auto-applied based on ISIN); added 9 rules for: quotes substantive, hitos drivers, perfil_riesgo, desglose_exposicion, gestores_anteriores when recent change, header gestora suffix, depositario no regulatory text, fecha_inicio coherent with classes, tipo_activo en posiciones]",
   "sections": [
     "resumen",
     "historia",
@@ -13,17 +13,6 @@
   ],
   "rules": [
     {
-      "id": "resumen_min_chars",
-      "section": "resumen",
-      "check_type": "min_chars",
-      "field_path": "analyst_synthesis.resumen.texto",
-      "value": 1200,
-      "fail_type": "estructura",
-      "agente_responsable": "analyst_agent",
-      "problema_template": "Resumen demasiado corto: {actual} chars (mínimo {expected})",
-      "accion_template": "Re-generar resumen con prompt más detallado. Mínimo {expected} chars con subsecciones."
-    },
-    {
       "id": "resumen_mentions_fund_name",
       "section": "resumen",
       "check_type": "must_contain_fund_name",
@@ -31,7 +20,8 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Resumen no menciona el nombre del fondo '{fund_name}' — posible texto genérico",
-      "accion_template": "Re-generar: el texto debe ser específico de este fondo, no genérico."
+      "accion_template": "Re-generar: el texto debe ser específico de este fondo, no genérico.",
+      "scope": "all"
     },
     {
       "id": "resumen_has_cifras",
@@ -42,7 +32,8 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Resumen con pocas cifras concretas ({actual} encontradas, mínimo {expected}). Parece genérico.",
-      "accion_template": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
+      "accion_template": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad.",
+      "scope": "all"
     },
     {
       "id": "resumen_min_fortalezas",
@@ -53,7 +44,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Solo {actual} fortalezas (mínimo {expected})",
-      "accion_template": "Re-generar con al menos {expected} fortalezas específicas del fondo."
+      "accion_template": "Re-generar con al menos {expected} fortalezas específicas del fondo.",
+      "scope": "all"
     },
     {
       "id": "resumen_min_riesgos",
@@ -64,7 +56,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Solo {actual} riesgos (mínimo {expected})",
-      "accion_template": "Re-generar con al menos {expected} riesgos específicos del fondo."
+      "accion_template": "Re-generar con al menos {expected} riesgos específicos del fondo.",
+      "scope": "all"
     },
     {
       "id": "resumen_has_para_quien",
@@ -74,7 +67,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Resumen sin campo 'para_quien_es' — falta perfil del inversor adecuado",
-      "accion_template": "Re-generar incluyendo el perfil de inversor para el que el fondo es adecuado."
+      "accion_template": "Re-generar incluyendo el perfil de inversor para el que el fondo es adecuado.",
+      "scope": "all"
     },
     {
       "id": "resumen_has_signal",
@@ -84,18 +78,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Resumen sin campo 'signal' (POSITIVO/NEUTRAL/NEGATIVO)",
-      "accion_template": "Re-generar incluyendo signal de evaluación."
-    },
-    {
-      "id": "historia_min_chars",
-      "section": "historia",
-      "check_type": "min_chars",
-      "field_path": "analyst_synthesis.historia.texto",
-      "value": 2500,
-      "fail_type": "estructura",
-      "agente_responsable": "analyst_agent",
-      "problema_template": "Historia demasiado corta: {actual} chars (mínimo {expected})",
-      "accion_template": "Re-generar historia con prompt más detallado. Mínimo {expected} chars con subsecciones."
+      "accion_template": "Re-generar incluyendo signal de evaluación.",
+      "scope": "all"
     },
     {
       "id": "historia_has_cifras",
@@ -106,18 +90,8 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Historia con pocas cifras concretas ({actual}). Parece genérica.",
-      "accion_template": "Re-generar incluyendo cifras concretas: AUM, partícipes, rentabilidad anual, fechas."
-    },
-    {
-      "id": "gestores_min_chars",
-      "section": "gestores",
-      "check_type": "min_chars",
-      "field_path": "analyst_synthesis.gestores.texto",
-      "value": 4000,
-      "fail_type": "estructura",
-      "agente_responsable": "analyst_agent",
-      "problema_template": "Gestores demasiado corto: {actual} chars (mínimo {expected})",
-      "accion_template": "Re-generar gestores con perfil extenso del lead manager."
+      "accion_template": "Re-generar incluyendo cifras concretas: AUM, partícipes, rentabilidad anual, fechas.",
+      "scope": "all"
     },
     {
       "id": "gestores_min_perfiles",
@@ -128,7 +102,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "manager_deep_agent",
       "problema_template": "Solo {actual} perfiles de gestores (mínimo {expected})",
-      "accion_template": "Re-ejecutar manager_deep_agent con más búsquedas."
+      "accion_template": "Re-ejecutar manager_deep_agent con más búsquedas.",
+      "scope": "all"
     },
     {
       "id": "gestores_lead_has_filosofia",
@@ -138,7 +113,8 @@
       "fail_type": "estructura",
       "agente_responsable": "manager_deep_agent",
       "problema_template": "Gestor principal '{lead_name}' sin filosofía de inversión.",
-      "accion_template": "Buscar filosofía en web de gestora, cartas, entrevistas."
+      "accion_template": "Buscar filosofía en web de gestora, cartas, entrevistas.",
+      "scope": "all"
     },
     {
       "id": "gestores_lead_has_decisiones",
@@ -149,18 +125,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Gestor principal sin decisiones_clave documentadas.",
-      "accion_template": "Re-generar gestores extrayendo decisiones clave del lead manager."
-    },
-    {
-      "id": "estrategia_min_chars",
-      "section": "estrategia",
-      "check_type": "min_chars",
-      "field_path": "analyst_synthesis.estrategia.texto",
-      "value": 3500,
-      "fail_type": "estructura",
-      "agente_responsable": "analyst_agent",
-      "problema_template": "Estrategia demasiado corta: {actual} chars (minimo {expected}). Debe ser analisis evaluativo profundo.",
-      "accion_template": "Re-generar estrategia con Sonnet (tier 1) — analisis evaluativo extenso: filosofia, coherencia discurso-accion, decisiones clave con contexto, evolucion mix, conclusion evaluativa. Minimo {expected} chars."
+      "accion_template": "Re-generar gestores extrayendo decisiones clave del lead manager.",
+      "scope": "all"
     },
     {
       "id": "estrategia_min_hitos",
@@ -171,7 +137,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "analyst_agent",
       "problema_template": "Solo {actual} hitos estratégicos (mínimo {expected}).",
-      "accion_template": "Re-generar estrategia con hitos por periodo. Usar datos de timeline + mix_activos."
+      "accion_template": "Re-generar estrategia con hitos por periodo. Usar datos de timeline + mix_activos.",
+      "scope": "all"
     },
     {
       "id": "estrategia_has_cifras",
@@ -182,18 +149,8 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Estrategia con pocas cifras ({actual}). Parece genérica.",
-      "accion_template": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
-    },
-    {
-      "id": "cartera_min_chars",
-      "section": "cartera",
-      "check_type": "min_chars",
-      "field_path": "analyst_synthesis.cartera.texto",
-      "value": 3000,
-      "fail_type": "estructura",
-      "agente_responsable": "analyst_agent",
-      "problema_template": "Cartera demasiado corta: {actual} chars (minimo {expected}). Debe analizar composicion, concentracion, sectores, rotacion historica.",
-      "accion_template": "Re-generar análisis de cartera con subsecciones por tipo de activo."
+      "accion_template": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase.",
+      "scope": "all"
     },
     {
       "id": "cartera_min_positions",
@@ -204,7 +161,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Solo {actual} posiciones actuales (mínimo {expected}).",
-      "accion_template": "Verificar extracción de posiciones de sección 10 del PDF semestral."
+      "accion_template": "Verificar extracción de posiciones de sección 10 del PDF semestral.",
+      "scope": "all"
     },
     {
       "id": "cartera_has_hist_positions",
@@ -215,18 +173,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Sin posiciones históricas para análisis de evolución de cartera.",
-      "accion_template": "Verificar extracción de posiciones históricas de PDFs semestrales antiguos."
-    },
-    {
-      "id": "fuentes_min_chars",
-      "section": "fuentes_externas",
-      "check_type": "min_chars",
-      "field_path": "analyst_synthesis.fuentes_externas.texto",
-      "value": 800,
-      "fail_type": "estructura",
-      "agente_responsable": "analyst_agent",
-      "problema_template": "Fuentes externas demasiado corto: {actual} chars (mínimo {expected})",
-      "accion_template": "Re-generar con resumen de las opiniones clave encontradas."
+      "accion_template": "Verificar extracción de posiciones históricas de PDFs semestrales antiguos.",
+      "scope": "all"
     },
     {
       "id": "fuentes_min_opiniones",
@@ -237,7 +185,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "readings_agent",
       "problema_template": "Solo {actual} opiniones externas (mínimo {expected}).",
-      "accion_template": "Re-ejecutar readings_agent con más queries y fuentes."
+      "accion_template": "Re-ejecutar readings_agent con más queries y fuentes.",
+      "scope": "all"
     },
     {
       "id": "cuant_min_serie_aum",
@@ -248,7 +197,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "serie_aum: {actual} puntos (mínimo {expected})",
-      "accion_template": "Re-ejecutar cnmv_agent con horizonte_historico='1' para descargar todos los informes."
+      "accion_template": "Re-ejecutar cnmv_agent con horizonte_historico='1' para descargar todos los informes.",
+      "scope": "ES"
     },
     {
       "id": "cuant_min_serie_vl",
@@ -259,7 +209,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "serie_vl_base100: {actual} puntos (mínimo {expected})",
-      "accion_template": "Re-ejecutar cnmv_agent para obtener VL histórico."
+      "accion_template": "Re-ejecutar cnmv_agent para obtener VL histórico.",
+      "scope": "ES"
     },
     {
       "id": "cuant_min_serie_participes",
@@ -270,7 +221,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "serie_participes: {actual} puntos (mínimo {expected})",
-      "accion_template": "Re-ejecutar cnmv_agent para obtener serie de partícipes."
+      "accion_template": "Re-ejecutar cnmv_agent para obtener serie de partícipes.",
+      "scope": "ES"
     },
     {
       "id": "cuant_has_comisiones",
@@ -283,7 +235,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Sin datos de comisiones ni TER.",
-      "accion_template": "Verificar extracción de comisiones del PDF semestral (tabla 'Comisiones aplicadas')."
+      "accion_template": "Verificar extracción de comisiones del PDF semestral (tabla 'Comisiones aplicadas').",
+      "scope": "ES"
     },
     {
       "id": "cuant_has_rotacion",
@@ -300,7 +253,8 @@
           "cartera permanente",
           "permanent portfolio"
         ]
-      }
+      },
+      "scope": "ES"
     },
     {
       "id": "resumen_no_headers",
@@ -311,7 +265,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Resumen tiene {actual} subsecciones **bold** — debe ser narrativa fluida sin headers",
-      "accion_template": "Re-generar resumen SIN subsecciones. Max 4 parrafos de narrativa pura."
+      "accion_template": "Re-generar resumen SIN subsecciones. Max 4 parrafos de narrativa pura.",
+      "scope": "all"
     },
     {
       "id": "resumen_has_filosofia",
@@ -321,7 +276,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Resumen sin campo filosofia_inversion",
-      "accion_template": "Re-generar con filosofia_inversion como campo separado (2-3 parrafos)."
+      "accion_template": "Re-generar con filosofia_inversion como campo separado (2-3 parrafos).",
+      "scope": "all"
     },
     {
       "id": "resumen_has_criterios",
@@ -332,7 +288,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Solo {actual} criterios de inversion (minimo 3 numerados)",
-      "accion_template": "Re-generar con 3 criterios de inversion numerados (titulo + descripcion)."
+      "accion_template": "Re-generar con 3 criterios de inversion numerados (titulo + descripcion).",
+      "scope": "all"
     },
     {
       "id": "historia_no_headers",
@@ -343,7 +300,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Historia tiene {actual} subsecciones — debe ser 3-5 parrafos fluidos",
-      "accion_template": "Re-generar historia como narrativa pura sin headers."
+      "accion_template": "Re-generar historia como narrativa pura sin headers.",
+      "scope": "all"
     },
     {
       "id": "historia_min_hitos_7",
@@ -354,7 +312,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Solo {actual} hitos en cronologia (minimo 7)",
-      "accion_template": "Re-generar con minimo 7 hitos con anio, titulo, evento, tipo."
+      "accion_template": "Re-generar con minimo 7 hitos con anio, titulo, evento, tipo.",
+      "scope": "all"
     },
     {
       "id": "historia_hitos_have_titulo",
@@ -366,18 +325,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Solo {actual} hitos con titulo (minimo {expected})",
-      "accion_template": "Cada hito debe tener campo titulo descriptivo."
-    },
-    {
-      "id": "gestores_lead_trayectoria_min",
-      "section": "gestores",
-      "check_type": "min_chars_nested",
-      "field_path": "analyst_synthesis.gestores.perfiles[0].trayectoria",
-      "value": 1000,
-      "fail_type": "estructura",
-      "agente_responsable": "analyst_agent",
-      "problema_template": "Trayectoria del gestor principal solo {actual} chars (minimo {expected})",
-      "accion_template": "Re-generar perfiles con trayectoria EXTENSA (3-4 parrafos)."
+      "accion_template": "Cada hito debe tener campo titulo descriptivo.",
+      "scope": "all"
     },
     {
       "id": "gestores_lead_cv_bullets",
@@ -388,7 +337,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Gestor principal con {actual} CV bullets (minimo {expected})",
-      "accion_template": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+      "accion_template": "Re-generar perfiles con 4-6 CV bullets cortos por gestor.",
+      "scope": "all"
     },
     {
       "id": "estrategia_no_headers",
@@ -399,7 +349,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Estrategia tiene {actual} subsecciones — debe ser parrafos evaluativos sin headers",
-      "accion_template": "Re-generar estrategia como narrativa evaluativa pura."
+      "accion_template": "Re-generar estrategia como narrativa evaluativa pura.",
+      "scope": "all"
     },
     {
       "id": "estrategia_has_quotes",
@@ -410,7 +361,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Estrategia sin quotes del gestor ({actual} encontradas)",
-      "accion_template": "Re-generar con 2-3 citas/frases representativas del gestor."
+      "accion_template": "Re-generar con 2-3 citas/frases representativas del gestor.",
+      "scope": "all"
     },
     {
       "id": "estrategia_matrix_4col",
@@ -422,18 +374,8 @@
       "fail_type": "estructura",
       "agente_responsable": "analyst_agent",
       "problema_template": "Solo {actual} hitos con columnas completas (minimo {expected})",
-      "accion_template": "Re-generar hitos con campos: periodo, contexto_mercado, decisiones, resultado."
-    },
-    {
-      "id": "cartera_no_headers",
-      "section": "cartera",
-      "check_type": "no_bold_headers",
-      "field_path": "analyst_synthesis.cartera.texto",
-      "value": 0,
-      "fail_type": "estructura",
-      "agente_responsable": "analyst_agent",
-      "problema_template": "Cartera tiene {actual} subsecciones — debe ser 2-3 parrafos concisos",
-      "accion_template": "Re-generar cartera como narrativa concisa sin headers (max 1200 chars)."
+      "accion_template": "Re-generar hitos con campos: periodo, contexto_mercado, decisiones, resultado.",
+      "scope": "all"
     },
     {
       "id": "cuant_serie_vl_valid",
@@ -443,7 +385,8 @@
       "fail_type": "estructura",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Serie VL corrupta ({reason}): {actual}. No refleja VLs reales del fondo.",
-      "accion_template": "Revisar extraccion de VL en cnmv_agent. Puede estar leyendo AUM, numero de participes u otro campo como VL."
+      "accion_template": "Revisar extraccion de VL en cnmv_agent. Puede estar leyendo AUM, numero de participes u otro campo como VL.",
+      "scope": "ES"
     },
     {
       "id": "gestores_equipo_not_generic",
@@ -453,7 +396,8 @@
       "fail_type": "estructura",
       "agente_responsable": "manager_deep_agent",
       "problema_template": "Equipo gestor generico ({reason}): {actual}. Debe mostrar nombres reales de gestores.",
-      "accion_template": "Re-ejecutar manager_deep_agent o revisar orchestrator fallback. Los perfiles estan en manager_profile.json, mover nombres reales a gestores.equipo."
+      "accion_template": "Re-ejecutar manager_deep_agent o revisar orchestrator fallback. Los perfiles estan en manager_profile.json, mover nombres reales a gestores.equipo.",
+      "scope": "all"
     },
     {
       "id": "resumen_returns_match_data",
@@ -463,7 +407,53 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Resumen contiene rentabilidades que no coinciden con datos reales ({reason}): {actual}",
-      "accion_template": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
+      "accion_template": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes.",
+      "scope": "all"
+    },
+    {
+      "id": "resumen_kpis_match_data",
+      "section": "resumen",
+      "check_type": "text_kpis_match_data",
+      "field_path": "analyst_synthesis.resumen.texto",
+      "fail_type": "content",
+      "agente_responsable": "analyst_agent",
+      "problema_template": "Resumen tiene cifras de partícipes/AUM que no cuadran con KPIs reales ({reason}): {actual}",
+      "accion_template": "Re-generar resumen usando SOLO data.kpis para num_participes y aum_actual_meur. Nunca tomar cifras del texto del PDF (gestores a veces escriben mal).",
+      "scope": "all"
+    },
+    {
+      "id": "historia_kpis_match_data",
+      "section": "historia",
+      "check_type": "text_kpis_match_data",
+      "field_path": "analyst_synthesis.historia.texto",
+      "fail_type": "content",
+      "agente_responsable": "analyst_agent",
+      "problema_template": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs ({reason}): {actual}",
+      "accion_template": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable.",
+      "scope": "all"
+    },
+    {
+      "id": "clase_nueva_alerta",
+      "section": "datos_cuantitativos",
+      "check_type": "clase_nueva_detectada",
+      "field_path": "cuantitativo.serie_clases_info",
+      "fail_type": "scarcity",
+      "agente_responsable": "manual_review",
+      "problema_template": "Detectada clase nueva en último periodo ({reason}): {actual}. Verificar AUM/partícipes/comisiones de la nueva clase.",
+      "accion_template": "Revisar manualmente: la nueva clase puede afectar agregados (AUM, partícipes totales). Validar que la suma de clases sigue cuadrando.",
+      "scope": "all"
+    },
+    {
+      "id": "aum_jump_alert",
+      "section": "datos_cuantitativos",
+      "check_type": "aum_jump_alert",
+      "field_path": "cuantitativo.serie_aum",
+      "value": 0.50,
+      "fail_type": "scarcity",
+      "agente_responsable": "cnmv_agent",
+      "problema_template": "Salto AUM >50% año a año detectado ({reason}): {actual}. Posible bug extracción cnmv_agent o cambio real de mercado.",
+      "accion_template": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent.",
+      "scope": "all"
     },
     {
       "id": "historia_returns_match_data",
@@ -473,7 +463,8 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Historia contiene rentabilidades que no coinciden con datos reales ({reason}): {actual}",
-      "accion_template": "Re-generar historia indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes anuales."
+      "accion_template": "Re-generar historia indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes anuales.",
+      "scope": "all"
     },
     {
       "id": "estrategia_returns_match_data",
@@ -483,7 +474,8 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Estrategia contiene rentabilidades que no coinciden con datos reales ({reason}): {actual}",
-      "accion_template": "Re-generar estrategia sin inventar porcentajes. Usar solo serie_rentabilidad real."
+      "accion_template": "Re-generar estrategia sin inventar porcentajes. Usar solo serie_rentabilidad real.",
+      "scope": "all"
     },
     {
       "id": "cartera_posiciones_nombre_limpio",
@@ -494,7 +486,8 @@
       "fail_type": "estructura",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Posiciones con nombres corruptos ({reason}): {actual}",
-      "accion_template": "cnmv_agent esta concatenando varios campos (tipo|nombre|cupon|vto) en el campo nombre. Parsear correctamente: nombre limpio, cupon/vto en campos separados."
+      "accion_template": "cnmv_agent esta concatenando varios campos (tipo|nombre|cupon|vto) en el campo nombre. Parsear correctamente: nombre limpio, cupon/vto en campos separados.",
+      "scope": "all"
     },
     {
       "id": "cartera_posiciones_sectores",
@@ -505,7 +498,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Posiciones sin sector ({reason}): {actual}. Minimo 60% deben tener sector.",
-      "accion_template": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+      "accion_template": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup).",
+      "scope": "all"
     },
     {
       "id": "cartera_posiciones_historicas_cobertura",
@@ -515,7 +509,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Posiciones historicas incompletas ({reason}): {actual}",
-      "accion_template": "cnmv_agent solo tiene top10 para algunos años. Extraer top10 de cada FONDCART_YYYYMM.xml (uno por semestre/anio) para completar la serie historica."
+      "accion_template": "cnmv_agent solo tiene top10 para algunos años. Extraer top10 de cada FONDCART_YYYYMM.xml (uno por semestre/anio) para completar la serie historica.",
+      "scope": "ES"
     },
     {
       "id": "resumen_fortalezas_no_contradict_riesgos",
@@ -524,7 +519,8 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Incoherencia interna ({reason}): {actual}",
-      "accion_template": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
+      "accion_template": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables.",
+      "scope": "all"
     },
     {
       "id": "comision_exito_teorica_presente",
@@ -537,7 +533,8 @@
       "accion_template": "discovery_agent debe buscar KIID/DFI del fondo (keywords: KIID, DFI, DIC, Datos Fundamentales, Folleto) en web de la gestora y CNMV. Guardar en raw/letters/ o raw/documents/. El analyst_agent lo lee con _extract_exito_teorico_from_kiid.",
       "applies_when": {
         "fund_has_perf_fee": true
-      }
+      },
+      "scope": "ES"
     },
     {
       "id": "comision_exito_cobros_no_superan_teorico",
@@ -546,7 +543,8 @@
       "fail_type": "content",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Importes de comision exito cobrados superan el teorico ({reason}): {actual}",
-      "accion_template": "Revisar extraccion: el importe cobrado anual (% s/patrimonio) no puede superar el tipo teorico aplicable (% s/beneficios). Validar lectura de acum_sres en cnmv_agent."
+      "accion_template": "Revisar extraccion: el importe cobrado anual (% s/patrimonio) no puede superar el tipo teorico aplicable (% s/beneficios). Validar lectura de acum_sres en cnmv_agent.",
+      "scope": "ES"
     },
     {
       "id": "cuant_serie_clases_info_presente",
@@ -557,7 +555,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "serie_clases_info vacia: no se identifican las clases del fondo.",
-      "accion_template": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+      "accion_template": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO.",
+      "scope": "ES"
     },
     {
       "id": "hitos_historia_percentages_verifiable",
@@ -567,7 +566,8 @@
       "fail_type": "content",
       "agente_responsable": "analyst_agent",
       "problema_template": "Hitos de historia con porcentajes no verificables ({reason}): {actual}",
-      "accion_template": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+      "accion_template": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual.",
+      "scope": "all"
     },
     {
       "id": "cuant_ter_efectivo_coherente",
@@ -576,7 +576,8 @@
       "fail_type": "estructura",
       "agente_responsable": "cnmv_agent",
       "problema_template": "TER efectivo incoherente ({reason}): {actual}. El TER efectivo = TER oficial CNMV + comision exito cobrada s/patrimonio.",
-      "accion_template": "cnmv_agent debe calcular ter_efectivo_pct = ter_pct + exito_s_patrimonio para cada año y guardarlo en serie_ter[i].ter_efectivo_pct. TER oficial CNMV excluye comision exito por regulacion, pero el inversor la paga."
+      "accion_template": "cnmv_agent debe calcular ter_efectivo_pct = ter_pct + exito_s_patrimonio para cada año y guardarlo en serie_ter[i].ter_efectivo_pct. TER oficial CNMV excluye comision exito por regulacion, pero el inversor la paga.",
+      "scope": "ES"
     },
     {
       "id": "cuant_vl_desde_fuentes_oficiales",
@@ -586,7 +587,8 @@
       "fail_type": "estructura",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Serie VL construida desde fuente incorrecta ({reason}): {actual}",
-      "accion_template": "cnmv_agent debe leer VL de: 1) tabla PDF CNMV cierre año por clase (pagina con Valor liquidativo / Participaciones), 2) XMLs FONDREGISTRO mensuales campo VL, 3) Morningstar diario como fallback. VL normal es decimal (ej 10.5234), no entero."
+      "accion_template": "cnmv_agent debe leer VL de: 1) tabla PDF CNMV cierre año por clase (pagina con Valor liquidativo / Participaciones), 2) XMLs FONDREGISTRO mensuales campo VL, 3) Morningstar diario como fallback. VL normal es decimal (ej 10.5234), no entero.",
+      "scope": "ES"
     },
     {
       "id": "historia_kpis_calculables",
@@ -595,7 +597,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "cnmv_agent",
       "problema_template": "KPIs de historia no calculables ({reason}): {actual}. CAGR, mejor/peor año requieren serie_vl_base100 valida.",
-      "accion_template": "cnmv_agent debe proveer serie_vl_base100 con VLs reales. Si esta corrupta, el dashboard mostrara guiones en lugar de 0,0% enganosos."
+      "accion_template": "cnmv_agent debe proveer serie_vl_base100 con VLs reales. Si esta corrupta, el dashboard mostrara guiones en lugar de 0,0% enganosos.",
+      "scope": "ES"
     },
     {
       "id": "evolucion_drawdown_con_fecha",
@@ -604,7 +607,8 @@
       "fail_type": "scarcity",
       "agente_responsable": "analyst_agent",
       "problema_template": "Drawdown incompleto ({reason}): {actual}. Debe incluir valor, fecha del minimo y duracion.",
-      "accion_template": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+      "accion_template": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown.",
+      "scope": "all"
     },
     {
       "id": "nombre_match_latest_pdf",
@@ -614,7 +618,109 @@
       "fail_type": "estructura",
       "agente_responsable": "cnmv_agent",
       "problema_template": "Nombre del fondo en output ('{nombre_output}') no coincide con el ultimo PDF semestral CNMV ('{nombre_pdf}', archivo {pdf_file}). El cnmv_agent guardo nombre antiguo del XML en lugar del actual.",
-      "accion_template": "Actualizar output.json campo 'nombre' con el valor real del PDF mas reciente. cnmv_agent debe leer el nombre de la primera pagina del ultimo informe semestral, no de XMLs antiguos."
+      "accion_template": "Actualizar output.json campo 'nombre' con el valor real del PDF mas reciente. cnmv_agent debe leer el nombre de la primera pagina del ultimo informe semestral, no de XMLs antiguos.",
+      "scope": "ES"
+    },
+    {
+      "id": "quotes_no_word_only",
+      "section": "estrategia",
+      "scope": "all",
+      "check_type": "quotes_substantive",
+      "field_path": "analyst_synthesis.estrategia.quotes",
+      "fail_type": "formato",
+      "agente_responsable": "analyst_agent",
+      "problema_template": "Citas con palabras sueltas detectadas ({offenders} de {total}). Una cita debe ser frase completa (≥25 chars, ≥5 palabras).",
+      "accion_template": "Re-generar quotes en estrategia: si solo hay expresiones sueltas en cartas ('tremendos', 'absolutamente'), reconstruir la frase completa donde aparecen. Nunca devolver palabras aisladas."
+    },
+    {
+      "id": "hitos_estrategia_have_driver",
+      "section": "estrategia",
+      "scope": "all",
+      "check_type": "hitos_with_driver",
+      "field_path": "analyst_synthesis.estrategia.hitos_estrategia",
+      "fail_type": "completitud",
+      "agente_responsable": "analyst_agent",
+      "problema_template": "Hitos sin driver explicativo ({offenders}/{total}). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "accion_template": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
+    },
+    {
+      "id": "perfil_riesgo_present",
+      "section": "estrategia",
+      "scope": "all",
+      "check_type": "perfil_riesgo_complete",
+      "field_path": "analyst_synthesis.estrategia.perfil_riesgo",
+      "fail_type": "completitud",
+      "agente_responsable": "analyst_agent",
+      "problema_template": "Perfil de riesgo de la estrategia incompleto: falta {missing}.",
+      "accion_template": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "id": "desglose_exposicion_present",
+      "section": "cartera",
+      "scope": "all",
+      "check_type": "desglose_exposicion_complete",
+      "field_path": "analyst_synthesis.estrategia.perfil_riesgo.desglose_exposicion",
+      "fail_type": "completitud",
+      "agente_responsable": "analyst_agent",
+      "problema_template": "Desglose de exposición incompleto: {actual} filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "accion_template": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    },
+    {
+      "id": "gestores_anteriores_when_recent_change",
+      "section": "gestores",
+      "scope": "all",
+      "check_type": "gestores_anteriores_if_recent_change",
+      "field_path": "analyst_synthesis.gestores",
+      "fail_type": "completitud",
+      "agente_responsable": "analyst_agent",
+      "problema_template": "Hay gestor con incorporación reciente ({recent_year}) pero gestores_anteriores está vacío. Cuando hay cambio <3 años, explicar quién salió, motivo, sustituto e impacto.",
+      "accion_template": "Re-generar gestores: rellenar gestores_anteriores con el equipo previo (nombre, cargo, periodo_en_fondo, fecha_salida, motivo_salida, sustituto, periodo_solapamiento, impacto_estrategia, tipo_cambio, ownership_nuevo)."
+    },
+    {
+      "id": "header_gestora_with_suffix",
+      "section": "header",
+      "scope": "INT",
+      "check_type": "string_has_pattern",
+      "field_path": "gestora",
+      "value": "(?i)\\b(?:Ltd\\.?|Limited|Plc|PLC|S\\.?A\\.?|S\\.?L\\.?|GmbH|AG|BV|N\\.?V\\.?|LLC|Inc\\.?|Management|Investments?|Capital|Partners|Asset\\s+Management|Fund\\s+Managers?|Holdings?|Advisors?)\\b",
+      "fail_type": "incompletitud",
+      "agente_responsable": "intl_extractor_v2",
+      "problema_template": "Gestora '{actual}' aparece sin sufijo institucional (Ltd/Plc/SA/GmbH/Management). Debe usarse el nombre oficial completo.",
+      "accion_template": "Enriquecer gestora desde PDFs (annual_report/KID/prospectus). Función _hdr_enrich_gestora_from_ar busca '{short_name} Fund Management Limited/Ltd/Plc'."
+    },
+    {
+      "id": "header_depositario_no_regulatory_text",
+      "section": "header",
+      "scope": "all",
+      "check_type": "string_no_pattern",
+      "field_path": "kpis.depositario",
+      "value": "(?i)Register\\s*No|RegisterNo|FinancialServicesRegister|Authority[,.]|Prudential\\s*Regulation|Conduct\\s*Authority|FinancialConduct|regulated\\s+by|authori[sz]ed\\s+by|No\\.?\\s*\\d{4,}",
+      "fail_type": "formato",
+      "agente_responsable": "dashboard_header",
+      "problema_template": "Depositario '{actual}' contiene texto regulatorio del KID/prospectus, no es un nombre institucional válido.",
+      "accion_template": "Aplicar blacklist en _hdr_extract_depositario_from_ar: rechazar si contiene 'Register No', 'Authority,', 'FinancialServices', 'Prudential Regulation', etc. Si no hay candidato válido, dejar vacío."
+    },
+    {
+      "id": "header_fecha_inicio_consistent_with_classes",
+      "section": "header",
+      "scope": "INT",
+      "check_type": "fecha_inicio_vs_clases",
+      "field_path": "kpis",
+      "fail_type": "datos_incorrectos",
+      "agente_responsable": "intl_extractor_v2",
+      "problema_template": "Fecha inicio fondo ({fecha_inicio}) posterior a snapshot de NAV de una clase ({snapshot_date}). La fecha de inicio debe ser de la clase MÁS ANTIGUA.",
+      "accion_template": "intl_extractor_v2 debe extraer inception_date de TODAS las clases (no solo R EUR). El header usa min(inception_date) de todas las clases."
+    },
+    {
+      "id": "tipo_activo_completo_en_cartera",
+      "section": "cartera",
+      "scope": "all",
+      "check_type": "posiciones_tipo_activo",
+      "field_path": "posiciones.actuales",
+      "fail_type": "incompletitud",
+      "agente_responsable": "intl_extractor_v2",
+      "problema_template": "Posiciones sin tipo de activo: {missing}/{total} ({pct}%) sin clasificación. Mínimo 80% deben tener tipo (RF/RV/Oro/Cash/ETF/Deriv).",
+      "accion_template": "Post-process del extractor: inferir asset_type por nombre (treasury/bund/btp → RF; gold/oro → GOLD; future/swap → DER; sector financiero → RV; cash/deposit → CASH)."
     }
   ]
 }

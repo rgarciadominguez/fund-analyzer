@@ -136,8 +136,18 @@ class CNMVAgent:
             },
         }
 
+        # ── Heartbeat: para detectar cuelgues durante descarga XMLs/PDFs ──
+        try:
+            from tools.heartbeat import Heartbeat
+            self._hb = Heartbeat(f"cnmv-agent", interval_s=30, isin=self.isin)
+            self._hb.__enter__()
+        except Exception:
+            self._hb = None
+
         # ── Paso A: ISIN → NIF ───────────────────────────────────────────────
         console.log("[bold]Paso A:[/bold] ISIN -> NIF")
+        if self._hb:
+            self._hb.tick("paso_a_nif")
         try:
             nif, gestora, anio_creacion = await self._get_nif()
             result["nif"] = nif
@@ -149,6 +159,9 @@ class CNMVAgent:
         except Exception as exc:
             console.log(f"[red]Error Paso A: {exc}")
             self._save(result)
+            if getattr(self, "_hb", None):
+                try: self._hb.__exit__(None, None, None)
+                except Exception: pass
             return result
 
         start_year = anio_creacion or (self.current_year - 5)
@@ -257,6 +270,10 @@ class CNMVAgent:
 
         self._save(result)
         self._print_summary_table(result)
+        # Cerrar heartbeat
+        if getattr(self, "_hb", None):
+            try: self._hb.__exit__(None, None, None)
+            except Exception: pass
         return result
 
     def _print_summary_table(self, result: dict) -> None:

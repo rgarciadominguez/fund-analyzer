@@ -227,6 +227,16 @@ def run_quality_loop(isin: str, max_iter: int = 3) -> dict:
             except Exception as exc:
                 log(isin, "ERROR", f"cnmv_enrichment fallo: {str(exc)[:120]}")
 
+        # ── Auto-corrección nombre (sin LLM) ─────────────────────────────────
+        nombre_fallos = [f for f in fallos
+                         if f.get("regla_id") == "nombre_match_latest_pdf"]
+        if nombre_fallos:
+            try:
+                log(isin, "AUTOFIX", "nombre_match_latest_pdf detectado — patch_nombre_from_pdf")
+                patch_nombre_from_pdf(isin)
+            except Exception as exc:
+                log(isin, "ERROR", f"patch_nombre falló: {exc}")
+
         # CASCADA managers: profiler → deep_agent → google_snippets → sibling
         if "manager_deep_agent" in agentes:
             import asyncio
