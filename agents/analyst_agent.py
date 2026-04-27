@@ -358,6 +358,18 @@ class AnalystAgent:
 
         self._save(consolidated)
         self._print_summary(consolidated)
+
+        # Cost tracker: volcar resumen del coste a meta_report.json
+        try:
+            from tools.cost_tracker import save_to_meta, get_summary
+            summary = get_summary(self.isin)
+            if summary and summary.get("total_cost_usd", 0) > 0:
+                save_to_meta(self.isin, self.fund_dir)
+                self._log("OK", f"Coste analyst: ${summary['total_cost_usd']:.4f} "
+                          f"({summary['total_input']:,} input + {summary['total_output']:,} output tokens)")
+        except Exception as exc:
+            self._log("WARN", f"cost_tracker save_to_meta falló (no crítico): {exc}")
+
         return consolidated
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -755,6 +767,24 @@ class AnalystAgent:
             )
         return self._anthropic_client
 
+    def _track_llm(self, model: str, resp, agent_label: str = "analyst"):
+        """Registra coste de una llamada LLM. Soporta Anthropic y Gemini.
+        Failsafe: NUNCA propaga excepción (no rompe llamada principal)."""
+        try:
+            from tools.cost_tracker import track
+            inp, out = 0, 0
+            if hasattr(resp, "usage") and resp.usage:
+                inp = getattr(resp.usage, "input_tokens", 0) or 0
+                out = getattr(resp.usage, "output_tokens", 0) or 0
+            elif hasattr(resp, "usage_metadata") and resp.usage_metadata:
+                um = resp.usage_metadata
+                inp = getattr(um, "prompt_token_count", 0) or 0
+                out = getattr(um, "candidates_token_count", 0) or 0
+            if inp or out:
+                track(self.isin, model, inp, out, agent_label)
+        except Exception:
+            pass  # tracker NUNCA debe romper
+
     def _sonnet_text(self, system: str, prompt: str, max_tokens: int = 8000, retries: int = 2) -> str:
         """Call Claude Sonnet for high-quality text generation (Tier 1).
         Falls back to Gemini Flash if USE_SONNET is not set or Sonnet fails."""
@@ -776,6 +806,7 @@ class AnalystAgent:
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.2,
                 )
+                self._track_llm(self.SONNET_MODEL, resp, "analyst_sonnet_text")
                 text = resp.content[0].text.strip() if resp.content else ""
                 if not text:
                     raise ValueError("Empty Sonnet response")
@@ -819,6 +850,7 @@ class AnalystAgent:
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.1,
                 )
+                self._track_llm(self.SONNET_MODEL, resp, "analyst_sonnet_json")
                 raw = resp.content[0].text.strip() if resp.content else ""
                 if not raw:
                     raise ValueError("Empty Sonnet response")
@@ -875,6 +907,7 @@ class AnalystAgent:
                         max_output_tokens=max_tokens,
                     ),
                 )
+                self._track_llm(model, resp, "analyst_gemini_json")
                 raw = resp.text.strip() if resp.text else ""
                 if not raw:
                     raise ValueError("Empty Gemini response")
@@ -920,6 +953,7 @@ class AnalystAgent:
                         max_output_tokens=max_tokens,
                     ),
                 )
+                self._track_llm(model, resp, "analyst_gemini_text")
                 text = resp.text.strip() if resp.text else ""
                 if not text:
                     raise ValueError("Empty Gemini response")
@@ -3448,6 +3482,7 @@ class AnalystAgent:
                     f'{{"reafirma": true|false, "explicacion": "texto breve"}}'
                 )}],
             )
+            self._track_llm("claude-opus-4-20250514", r, "analyst_opus_confirm")
             cost = (r.usage.input_tokens * 15 + r.usage.output_tokens * 75) / 1_000_000
             self._log("INFO", f"Opus confirm issue ({r.usage.input_tokens}+"
                       f"{r.usage.output_tokens} tok, ${cost:.3f})")
@@ -3540,6 +3575,7 @@ class AnalystAgent:
                     f'"recomendacion":"APROBADO|REVISAR|RECHAZADO"}}}}'
                 )}],
             )
+            self._track_llm("claude-opus-4-20250514", r, "analyst_opus_audit")
             cost = (r.usage.input_tokens * 15 + r.usage.output_tokens * 75) / 1_000_000
             self._log("INFO", f"Opus audit per section ({r.usage.input_tokens}+"
                       f"{r.usage.output_tokens} tok, ${cost:.3f})")
