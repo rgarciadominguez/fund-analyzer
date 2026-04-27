@@ -2945,12 +2945,11 @@ def build_tab_historia(data):
             f'<div class="ch-b"><div class="ch-l">Partícipes</div>'
             f'<div class="ch-h"><canvas id="c-part"></canvas></div></div>'
         )
-    # VL Base 100: siempre visible (se rellena desde JS con datos Morningstar daily)
-    charts_html_parts.append(
-        f'<div class="ch-b"><div class="ch-l">VL Base 100 <span style="font-weight:400;font-size:9px;color:var(--ink-4);letter-spacing:0;">(Morningstar daily)</span></div>'
-        f'<div class="ch-h"><canvas id="c-vl"></canvas></div></div>'
-    )
-    col_cls = "col3" if has_participes else "col2"
+    # NOTA: gráfico VL Base 100 eliminado de aquí (2026-04-27).
+    # Para fondos multi-clase el "VL" del fondo no existe (cada clase tiene NAV
+    # propio). El gráfico de valoración Base 100 vive en pestaña Evolución
+    # (canvas mst-growth) que es semánticamente más correcto.
+    col_cls = "col2"  # AUM + Partícipes (si existe), sino solo AUM ocupa toda anchura
     charts_block = f'<div class="{col_cls} mb20">{"".join(charts_html_parts)}</div>'
 
     return f"""

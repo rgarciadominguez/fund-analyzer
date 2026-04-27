@@ -1298,8 +1298,26 @@ class CNMVAgent:
                 r'CLASE\s+\w+\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
                 pat_block, re.IGNORECASE,
             ) if not class_rows_b else []
+            # FORMAT C (Gamma/Sigma 2025+): "<letra> EUR <num> <num> ..."  sin la palabra CLASE
+            # Solo aplica si A y B no encontraron nada (evita doble conteo).
+            class_rows_c = []
+            if not class_rows_b and not class_rows_a:
+                # Skip primera línea del header. Buscar líneas tipo "A EUR 244.929 56.480 ..."
+                for line in pat_block.split("\n"):
+                    line_stripped = line.strip()
+                    # Header line tiene "CLASE Divisa" → skip
+                    if re.match(r'^CLASE\s+Divisa', line_stripped, re.I):
+                        continue
+                    # Match: <1-3 chars letra/número> <EUR/USD/...> <numbers>
+                    m = re.match(
+                        r'^([A-Z]{1,4})\s+(?:EUR|USD|GBP|CHF)\s+([\d.]+)(?:\s+([\d.]+))?(?:\s+([\d.]+))?(?:\s+([\d.]+))?',
+                        line_stripped,
+                    )
+                    if m:
+                        class_rows_c.append((m.group(2), m.group(3) or "0",
+                                             m.group(4) or "0", m.group(5) or "0"))
 
-            class_rows = class_rows_b or class_rows_a
+            class_rows = class_rows_b or class_rows_a or class_rows_c
 
             if class_rows:
                 def _col_sum(rows, col):
