@@ -992,10 +992,21 @@ def main():
     parser.add_argument("--isin", required=True, help="ISIN del fondo (ej. ES0112231008)")
     parser.add_argument("--auto", action="store_true",
                         help="Usar valores por defecto sin preguntar")
+    parser.add_argument("--clean", action="store_true",
+                        help="Borra data/funds/{ISIN}/ ANTES de ejecutar (force fresh re-download). "
+                             "Sin esto, se reutilizan caches (XMLs, PDFs, etc.) lo cual es mucho más rápido.")
     args = parser.parse_args()
 
     from dotenv import load_dotenv
     load_dotenv(ROOT / ".env")
+
+    if args.clean:
+        import shutil
+        fund_dir = ROOT / "data" / "funds" / args.isin.strip().upper()
+        if fund_dir.exists():
+            console.print(f"[yellow][--clean] Borrando {fund_dir}[/yellow]")
+            shutil.rmtree(fund_dir)
+            console.print(f"[yellow][--clean] OK[/yellow]")
 
     asyncio.run(analyze_fund(args.isin, auto=args.auto))
 

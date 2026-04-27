@@ -1673,8 +1673,10 @@ class CNMVAgent:
 
         # Locate "10. Detalle de inversiones financieras" — use LAST match
         # (first match may be section 3.1 summary; the detailed table is always near the end)
+        # Fix typo histórico: "inves?iones" nunca matcheaba "inversiones".
+        # Aceptamos "inversiones" (correcto) y permitimos "invesiones" (OCR ocasional).
         all_detalle = list(re.finditer(
-            r'10\.?\s*Detalle\s+de\s+inves?iones\s+financieras',
+            r'10\.?\s*Detalle\s+de\s+inv(?:er)?siones\s+financieras',
             text, re.IGNORECASE,
         ))
         m_sec = all_detalle[-1] if all_detalle else None
@@ -1726,8 +1728,9 @@ class CNMVAgent:
             return "ACCIONES"
 
         # Pattern A (2019+): ISIN - TYPE|name CURRENCY val pct
+        # Tipo puede venir en MAYUS (DUNAS) o Title Case (Gamma/Sigma): aceptar ambos.
         pat_a = re.compile(
-            r'\b([A-Z]{2}[A-Z0-9]{10})\s*-\s*([A-Z][A-Z ]*?)\|(.+?)\s+'
+            r'\b([A-Z]{2}[A-Z0-9]{10})\s*-\s*([A-Za-z][A-Za-z ]*?)\|(.+?)\s+'
             r'(EUR|USD|GBP|CHF|SEK|CAD|AUD|NOK|DKK|JPY)\s+'
             r'([\d.]+)\s+([\d,]+)',
             re.MULTILINE,
@@ -1775,7 +1778,7 @@ class CNMVAgent:
                 entry: dict = {
                     "nombre": nombre,
                     "ticker": isin_pos,
-                    "tipo": tipo_raw,
+                    "tipo": tipo_raw.upper(),  # Normalizar tipo a MAYUS (Bonos→BONOS)
                     "pais": "España" if isin_pos.startswith("ES") else "Internacional",
                     "divisa": divisa,
                     "valor_mercado_miles": valor_miles,
