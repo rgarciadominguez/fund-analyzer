@@ -25,12 +25,19 @@ import httpx
 
 ROOT = Path(__file__).parent.parent
 
-TRUSTED_DOMAINS = [
+# Cargada desde data/trusted_sources.json (loader en tools/trusted_sources.py).
+# Para añadir/quitar dominios, editar el JSON.
+sys.path.insert(0, str(ROOT))
+from tools.trusted_sources import get_trusted_domains  # noqa: E402
+
+TRUSTED_DOMAINS = get_trusted_domains() or [
+    # Fallback hardcoded — solo se usa si el JSON falta o falla.
     "morningstar.com", "morningstar.es",
     "ft.com",
     "finect.com", "preahorro.com",
     "rankia.com",
-    "r4.com", "renta4.com",  # web gestora R4
+    "moclano.substack.com", "saludfinanciera.substack.com",
+    "r4.com", "renta4.com",
     "dunascapital.com", "cartesio.com", "cartesioinversiones.com",
     "singularam.com", "sigmainversiones.com",
     "myinvestor.es", "avantagecapital.com",

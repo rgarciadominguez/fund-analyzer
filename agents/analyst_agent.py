@@ -29,6 +29,181 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 console = Console()
 
 
+# ── Anti-invención helper (Bug 2, 2026-04-27) ────────────────────────────────
+
+_RE_YEAR = re.compile(r"\b(19|20)\d{2}\b")
+# Mayúsculas iniciales de palabras consecutivas (probable empresa/institución)
+_RE_PROPER_NOUN = re.compile(
+    r"\b([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,3})\b"
+)
+# Stop list: palabras comunes con mayúscula que no son entidades
+_PROPER_STOP = {
+    "el", "la", "los", "las", "de", "del", "para", "con", "por",
+    "europa", "españa", "spain", "europe", "global", "world",
+    "renta", "fija", "variable", "valor", "value", "growth",
+    "fondo", "fund", "fonds", "capital", "investment",
+}
+
+
+def _validate_perfiles_against_sources(perfiles: list, source_text: str) -> list[str]:
+    """Detecta posibles inventos en perfiles del LLM.
+
+    Para cada perfil, extrae años (YYYY) y nombres propios (probables empresas)
+    de los campos `trayectoria`, `cv_bullets`, `decisiones_clave`, `filosofia`.
+    Verifica que cada token aparece (substring case-insensitive) en source_text.
+
+    Bug 3 Fase G (2026-04-28): además valida que cada `frases_propias[]` aparece
+    LITERAL en el source_text (no parafraseada) y que cada `decisiones_clave[]`
+    cita una fuente identificable (`Carta`, `Entrevista`, `Artículo` + año).
+
+    Devuelve lista de strings con warnings (no auto-corrige).
+    """
+    if not source_text:
+        return []
+    src_lower = source_text.lower()
+    warnings = []
+
+    for p in perfiles:
+        if not isinstance(p, dict):
+            continue
+        nombre = (p.get("nombre") or "").strip()
+        # Concatenar todos los campos textuales del perfil (excepto frases_propias
+        # que se validan aparte porque requieren match LITERAL)
+        text_parts = [
+            p.get("trayectoria") or "",
+            p.get("filosofia") or "",
+            p.get("rasgos_diferenciales") or "",
+            " ".join(p.get("cv_bullets") or []),
+            " ".join(p.get("decisiones_clave") or []),
+        ]
+        text = " ".join(text_parts)
+        if not text.strip():
+            continue
+
+        # Validar años
+        full_years = set(re.findall(r"\b(19\d{2}|20\d{2})\b", text))
+        missing_years = [y for y in full_years if y not in src_lower]
+        if missing_years:
+            warnings.append(
+                f"perfil '{nombre}' menciona año(s) {sorted(missing_years)} no presentes en fuentes"
+            )
+
+        # Validar nombres propios (probables empresas/instituciones)
+        proper_nouns = set(_RE_PROPER_NOUN.findall(text))
+        nombre_tokens = set(t.lower() for t in nombre.split())
+        suspicious = []
+        for pn in proper_nouns:
+            pn_lower = pn.lower()
+            if any(t in pn_lower for t in nombre_tokens):
+                continue
+            tokens = pn_lower.split()
+            if all(t in _PROPER_STOP for t in tokens):
+                continue
+            if len(pn_lower) < 5:
+                continue
+            if pn_lower not in src_lower:
+                suspicious.append(pn)
+        if suspicious:
+            warnings.append(
+                f"perfil '{nombre}' menciona entidades NO en fuentes (posible invento): {suspicious[:5]}"
+            )
+
+        # Bug 3 Fase G: frases_propias deben ser LITERALES de las fuentes
+        frases_propias = p.get("frases_propias") or []
+        for frase in frases_propias:
+            if not isinstance(frase, str) or len(frase) < 20:
+                continue
+            # Quitar comillas tipográficas para el match
+            frase_clean = re.sub(r'[«»""\'\']', "", frase).strip().lower()
+            if not frase_clean:
+                continue
+            # Match: al menos los primeros 30 chars deben aparecer literal en fuentes
+            anchor = frase_clean[:30]
+            if anchor not in src_lower:
+                warnings.append(
+                    f"perfil '{nombre}' frase propia NO encontrada literal en fuentes (posible parafraseo): «{frase[:60]}...»"
+                )
+
+        # Bug 3 Fase G: decisiones_clave deben citar fuente identificable
+        decisiones = p.get("decisiones_clave") or []
+        cita_pattern = re.compile(
+            r"(Carta\s+(?:Q\d|trimestral|anual|semestral)|Entrevista|Artículo|Articulo|Conferencia|Podcast)\s+[\w\s]{0,30}?\b(20\d{2})",
+            re.IGNORECASE,
+        )
+        for dec in decisiones:
+            if not isinstance(dec, str) or len(dec) < 30:
+                continue
+            if not cita_pattern.search(dec):
+                warnings.append(
+                    f"perfil '{nombre}' decisión clave sin fuente citada (Carta/Entrevista/Artículo + año): {dec[:80]}..."
+                )
+
+    return warnings
+
+
+def _tag_source_recency(tipo: str, fecha_str: str, today: datetime | None = None) -> dict:
+    """Bug 4 Fase G (2026-04-28): metadata de recency por source.
+
+    tipo: 'carta_trimestral'|'entrevista'|'articulo_pro'|'cnmv_semestral'|'annual_report'|'cnmv_xml'
+    fecha_str: 'YYYY' o 'YYYY-MM' o 'YYYY-MM-DD' o '2025-Q1' o '2025-S2'
+    Returns: {tipo, fecha, antiguedad_meses, recency_priority, fuente_label}
+    """
+    today = today or datetime.now()
+    fecha_iso = ""
+    antiguedad = 999
+
+    if fecha_str:
+        # Normalizar formatos comunes a YYYY-MM
+        s = str(fecha_str).strip()
+        m_q = re.match(r"^(\d{4})[_-]?Q([1-4])$", s, re.IGNORECASE)
+        m_s = re.match(r"^(\d{4})[_-]?[SH]([12])$", s, re.IGNORECASE)
+        m_ym = re.match(r"^(\d{4})[_-](\d{1,2})", s)
+        m_y = re.match(r"^(\d{4})$", s)
+        if m_q:
+            year, q = int(m_q.group(1)), int(m_q.group(2))
+            fecha_iso = f"{year:04d}-{q*3:02d}"
+        elif m_s:
+            year, half = int(m_s.group(1)), int(m_s.group(2))
+            fecha_iso = f"{year:04d}-{6 if half==1 else 12:02d}"
+        elif m_ym:
+            year, mo = int(m_ym.group(1)), max(1, min(12, int(m_ym.group(2))))
+            fecha_iso = f"{year:04d}-{mo:02d}"
+        elif m_y:
+            fecha_iso = f"{int(m_y.group(1)):04d}-12"
+        if fecha_iso:
+            try:
+                year = int(fecha_iso[:4])
+                month = int(fecha_iso[5:7])
+                antiguedad = (today.year - year) * 12 + (today.month - month)
+            except Exception:
+                pass
+
+    if antiguedad <= 6:
+        priority = "high"
+    elif antiguedad <= 12:
+        priority = "medium"
+    else:
+        priority = "low"
+
+    label_map = {
+        "carta_trimestral": "Carta",
+        "entrevista": "Entrevista",
+        "articulo_pro": "Artículo",
+        "cnmv_semestral": "CNMV semestral",
+        "annual_report": "Annual Report",
+        "cnmv_xml": "CNMV XML",
+    }
+    label = f"{label_map.get(tipo, tipo)} {fecha_iso}".strip()
+
+    return {
+        "tipo": tipo,
+        "fecha": fecha_iso,
+        "antiguedad_meses": antiguedad,
+        "recency_priority": priority,
+        "fuente_label": label,
+    }
+
+
 class AnalystAgent:
 
     def __init__(self, isin: str, config: dict = None, quality_feedback: list = None):
@@ -1355,11 +1530,49 @@ class AnalystAgent:
                 "texto": self._truncate(f.get("texto", ""), 600),
             })
 
+        # Bug 3 Fase G (2026-04-28): cargar articulos_completos del manager_profile
+        # (full-text articles del nuevo _deep_search_per_gestor) Y cartas firmadas
+        articulos_completos = gestores.get("articulos_completos") or {}
+        articulos_compact = []
+        for nombre, arts in articulos_completos.items():
+            for art in arts[:3]:  # max 3 artículos full-text por gestor
+                articulos_compact.append({
+                    "gestor": nombre,
+                    "fuente": art.get("fuente_url", ""),
+                    "titulo": art.get("titulo", ""),
+                    "fecha": art.get("fecha", ""),
+                    "_pro": art.get("_is_pro_source", False),
+                    "texto": self._truncate(art.get("texto_completo", ""), 2500),
+                })
+
+        # Detectar cartas firmadas por cada gestor (autor en texto)
+        try:
+            letters_path = Path(self.fund_dir) / "letters_data.json"
+            letters_data = json.loads(letters_path.read_text(encoding="utf-8")) if letters_path.exists() else {}
+        except Exception:
+            letters_data = {}
+        cartas_firmadas = {}
+        for c in (letters_data.get("cartas") or []):
+            texto_c = c.get("texto_completo", "") or c.get("texto", "")
+            autor_c = c.get("autor", "")
+            for name in (equipo or []):
+                name_l = (name or "").lower()
+                if name_l and (name_l in autor_c.lower() or name_l in texto_c[:600].lower()):
+                    cartas_firmadas.setdefault(name, []).append({
+                        "periodo": c.get("periodo", ""),
+                        "fecha": c.get("fecha", c.get("periodo", "")),
+                        "texto": self._truncate(texto_c, 2000),
+                    })
+
         input_data = json.dumps({
             "equipo": equipo,
             "equipo_detalle": equipo_detalle,
             "fuentes_web": fuentes_compact[:10],
             "info_cartas": info_cartas,
+            "articulos_completos_por_gestor": articulos_compact,
+            "cartas_firmadas_por_gestor": {
+                k: v[:4] for k, v in cartas_firmadas.items()  # últimas 4 cartas/gestor
+            },
         }, ensure_ascii=False)
 
         # Call 1: TEXTO — overview del equipo (para los párrafos de arriba)
@@ -1403,6 +1616,16 @@ class AnalystAgent:
         min_perfiles = max(2, min(n_perfiles_disponibles, 3)) if n_perfiles_disponibles > 1 or n_equipo_hint > 1 else 1
         datos = self._gemini_call(
             f"Extrae perfiles del equipo gestor para FICHAS de un dashboard profesional.\n"
+            f"\n"
+            f"REGLA CRÍTICA ANTI-INVENCIÓN (Bug 2, 2026-04-27):\n"
+            f"- TODA afirmación factual (año, empresa, fondo, premio, libro, cargo previo, formación)\n"
+            f"  debe basarse EXCLUSIVAMENTE en los DATOS proporcionados abajo.\n"
+            f"- Si NO encuentras un dato en los DATOS, NO lo inventes. Mejor un perfil corto y verídico\n"
+            f"  que uno largo con datos fabricados.\n"
+            f"- NO uses tu conocimiento general sobre value investing o gestoras españolas para rellenar.\n"
+            f"- Si el gestor solo tiene poca información en DATOS, escribe un perfil más corto pero exacto.\n"
+            f"- Tu objetivo es SINTETIZAR las fuentes, no escribir biografías genéricas.\n"
+            f"\n"
             f"OBLIGATORIO: genera perfiles para TODOS los gestores mencionados en los datos.\n"
             f"Mínimo esperado: {min_perfiles} perfiles (si hay cofundadores, cogestores o co-CIOs, incluir a TODOS).\n"
             f"NO te limites al lead manager — cofundadores y equipo senior deben aparecer.\n"
@@ -1421,8 +1644,17 @@ class AnalystAgent:
             f"  Párrafo 3: **Decisiones documentadas** que ilustren su capacidad. "
             f"Contexto de mercado + qué hizo + **resultado concreto con cifras**.\n"
             f"  Párrafo 4 (opcional): **Rasgos diferenciales** — transparencia, coinversión, comunicación.\n"
-            f"- filosofia: 3-5 frases con su filosofía CONCRETA de inversión (para bloque italic)\n"
-            f"- decisiones_clave: lista de 2-4 strings (contexto + acción + resultado)\n"
+            f"- filosofia: 3-5 frases con su filosofía CONCRETA de inversión (para bloque italic).\n"
+            f"  REGLA Bug 3 Fase G: cuando haya cartas firmadas o entrevistas en DATOS, debe contener\n"
+            f"  AL MENOS 1 cita literal entrecomillada con « » del propio gestor.\n"
+            f"- decisiones_clave: lista de 3-5 strings, cada uno con (contexto + acción + resultado +\n"
+            f"  FUENTE). FUENTE debe ser identificable: 'Carta Q3 2025' o 'Entrevista Cinco Días 2024-05'\n"
+            f"  o 'Artículo Moclano 2024-11'.\n"
+            f"- referentes_intelectuales: lista de 2-5 inversores/libros que el gestor cita en sus textos\n"
+            f"  (Graham, Buffett, Munger, Browne, Klarman, etc.). Solo los que aparezcan literalmente.\n"
+            f"- frases_propias: lista de 3-5 citas textuales del gestor entrecomilladas con « »,\n"
+            f"  EXTRAÍDAS LITERAL de cartas_firmadas_por_gestor o articulos_completos_por_gestor.\n"
+            f"  NUNCA inventadas. Si no hay cartas firmadas, devuelve [].\n"
             f"- rasgos_diferenciales: 1-2 frases\n"
             f"IMPORTANTE: la 'trayectoria' es lo que se muestra visible en la ficha — debe ser EXTENSO y rico.\n"
             f"Responde SOLO JSON:\n"
@@ -1457,6 +1689,20 @@ class AnalystAgent:
                     new_perfiles.append(old_p)
                     self._log("INFO", f"Preservando perfil '{old_p.get('nombre')}' del backup")
             result["perfiles"] = new_perfiles
+
+        # Anti-invención post-LLM (Bug 2, 2026-04-27): valida que años/empresas
+        # mencionadas en los perfiles aparezcan en las fuentes. Logs warnings, no auto-drop.
+        try:
+            warnings = _validate_perfiles_against_sources(
+                result.get("perfiles", []) or [],
+                input_data,
+            )
+            if warnings:
+                for w in warnings[:10]:
+                    self._log("ANTI_INV", w)
+                result["_anti_invencion_warnings"] = warnings
+        except Exception as exc:
+            self._log("ANTI_INV", f"Validador falló: {exc}")
 
         # Call 4: SIEMPRE extraer filosofía del gestor principal si hay fuentes web
         # (resuelve el caso 'gestor sin filosofía' del quality_agent)
@@ -1725,6 +1971,16 @@ class AnalystAgent:
         texto = self._sonnet_text(
             self._system_role(data),
             f"{self._quality_hint('estrategia')}"
+            f"REGLA CRÍTICA RECENCY (Bug 4 Fase G 2026-04-28):\n"
+            f"- Para 'visión actual' / 'decisiones recientes' / 'posicionamiento actual': USA PRIMERO\n"
+            f"  cartas trimestrales y entrevistas más RECIENTES disponibles en DATOS (timeline.c o\n"
+            f"  articulos_completos_por_gestor del bloque gestores).\n"
+            f"- El CNMV semestral y annual report quedan SOLO como contexto histórico/comparativo.\n"
+            f"- Cita SIEMPRE la fuente con año entre paréntesis: 'reorientó la cartera en Q3 2025\n"
+            f"  (Carta trimestral 2025-09)' o 'según informe semestral CNMV 2025_H2'.\n"
+            f"- Si la fuente más reciente disponible es de hace >12 meses, di explícitamente:\n"
+            f"  'Última información disponible: {{fuente}} ({{año}}); próxima publicación esperada en\n"
+            f"  {{fecha}}.'\n\n"
             f"Escribe un ANÁLISIS EVALUATIVO PROFUNDO Y EXTENSO de la estrategia del fondo en 6-9 PÁRRAFOS DENSOS.\n"
             f"Este es el apartado MÁS IMPORTANTE del informe — debe ser pensamiento analítico elaborado, "
             f"NO una descripción superficial.\n"

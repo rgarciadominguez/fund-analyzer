@@ -31,6 +31,20 @@ from tools.google_search import SearchEngine, fetch_page_text
 
 console = Console(highlight=False, force_terminal=False)
 
+# Gestores públicos abundantemente documentados (Bug 3 Fase G 2026-04-28).
+# Si el gestor está en esta lista y NO conseguimos ≥3 fuentes pro, log ERROR
+# (las fuentes existen, indica que el discovery falló y hay que reintentar).
+KNOWN_PUBLIC_MANAGERS = {
+    "iván martín", "francisco garcía paramés", "álvaro guzmán", "fernando bernad",
+    "juan huerta de soto", "alejandro estebaranz", "javier ruiz",
+    "miguel jiménez", "santiago domingo", "iván vaccaro", "diego fernández",
+    "víctor morales", "narciso quintana", "luis garcía",
+    "beltrán de la lastra", "josep prats", "marc garrigasait",
+    "blanca hernández",
+    # Internacionales
+    "terry smith", "nick train", "martin barnes",
+}
+
 
 class ManagerDeepAgent:
 
@@ -168,6 +182,26 @@ class ManagerDeepAgent:
                 extracted_info.append(info)
         self._log("INFO", f"Info extraída con Gemini: {len(extracted_info)} páginas")
 
+        # ── Paso 6.5: Deep search por cada gestor (Bug 3 Fase G) ─────────────
+        # Para cada gestor: queries combinadas "{nombre}" "{fondo}" + full-text fetch
+        # de top-5 resultados. Captura entrevistas en periódicos, YouTube, web gestora.
+        articulos_completos = {}
+        known_public_undersourced = []
+        for name in self.manager_names:
+            if name.startswith("Equipo"):
+                continue
+            try:
+                articles = await self._deep_search_per_gestor(name, self.fund_short or self.fund_name)
+                if articles:
+                    articulos_completos[name] = articles
+                    self._log("OK", f"Deep search '{name}': {len(articles)} artículos full-text")
+                # Validación KNOWN_PUBLIC: si está en lista pero <3 articles → flag
+                if name.lower() in KNOWN_PUBLIC_MANAGERS and len(articles) < 3:
+                    known_public_undersourced.append(name)
+                    self._log("ERROR", f"Gestor público conocido '{name}' subdocumentado: solo {len(articles)} fuentes pro encontradas")
+            except Exception as exc:
+                self._log("WARN", f"Deep search '{name}' falló: {exc}")
+
         # ── Paso 7: Output — TODO lo recopilado ─────────────────────────────
         profile = {
             "equipo_gestor": self.manager_names,
@@ -179,6 +213,8 @@ class ManagerDeepAgent:
             ],
             "informacion_cartas": letters_info,
             "informacion_cnmv": cnmv_info,
+            "articulos_completos": articulos_completos,
+            "_known_public_undersourced": known_public_undersourced,
         }
         profile["isin"] = self.isin
         profile["fondo"] = self.fund_name
@@ -809,6 +845,197 @@ class ManagerDeepAgent:
             "informacion_cnmv": {k: v[:2000] if isinstance(v, str) else v
                                   for k, v in cnmv.items()},
         }
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # DEEP SEARCH PER GESTOR (Bug 3 Fase G 2026-04-28)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _evaluate_profile_completeness(self, articles: list[dict]) -> str:
+        """Bug Fix 3 Fase H (2026-04-28): evalúa SEMÁNTICAMENTE si las fuentes
+        recolectadas permiten escribir un perfil completo del gestor.
+
+        Returns: 'empty' | 'thin' | 'partial' | 'complete'.
+
+        Criterios de calidad (no umbrales numéricos arbitrarios):
+        - Cubre formación/educación (universidad, MBA, CFA, máster, etc.)
+        - Cubre carrera/trayectoria (≥3 años distintos mencionados — indica que
+          hay biografía cronológica, no un solo evento aislado)
+        - Cubre filosofía (cita literal entrecomillada O keyword 'filosof'
+          contextualizada)
+        - Cubre decisiones documentadas (verbos acción + nombres empresas)
+        """
+        if not articles:
+            return "empty"
+        full_text = " ".join(a.get("texto_completo", "")[:5000] for a in articles).lower()
+
+        has_education = bool(re.search(
+            r"\b(formaci[óo]n|universidad|mba|cfa|m[áa]ster|licenciado|ingeniero|graduad|doctorad)\b",
+            full_text,
+        ))
+        # ≥3 años distintos = trayectoria documentada
+        years_distinct = len(set(re.findall(r"\b(19\d{2}|20\d{2})\b", full_text)))
+        has_career = years_distinct >= 3
+        # Cita literal o discusión de filosofía
+        has_philosophy = (
+            bool(re.search(r"[«\"][^«\"]{40,}[»\"]", full_text))
+            or "filosof" in full_text
+            or "estilo de inversi" in full_text
+        )
+        # Decisiones documentadas
+        has_decisions = bool(re.search(
+            r"\b(comp[rt][óo]?|vendi[óo]|redu[jc][óo]?|aument[óo]|invirti[óo]|sali[óo]|posici[óo]n[a-z]*\s+en)\b",
+            full_text,
+        ))
+
+        score = sum([has_education, has_career, has_philosophy, has_decisions])
+        if score == 4:
+            return "complete"
+        if score >= 2:
+            return "partial"
+        if score >= 1:
+            return "thin"
+        return "thin"
+
+    async def _fetch_relevant_articles(
+        self, name: str, results: list[dict], existing_urls: set,
+    ) -> list[dict]:
+        """Filtra resultados por relevancia (URL/title contiene gestor) y
+        descarga full-text. Devuelve solo entries nuevos (no en existing_urls).
+        """
+        from tools.trusted_sources import get_pro_source_domains
+        pro_domains = set(get_pro_source_domains())
+        first_token = name.lower().split()[0] if name else ""
+        last_token = name.lower().split()[-1] if name and len(name.split()) > 1 else ""
+
+        new_articles = []
+        seen = set(existing_urls)
+        for r in results:
+            url = r.get("url", "")
+            if not url or url in seen:
+                continue
+            url_title = (url + " " + r.get("title", "")).lower()
+            # Filtro relevancia: nombre del gestor en URL o título
+            if first_token and last_token:
+                if first_token not in url_title and last_token not in url_title:
+                    continue
+            seen.add(url)
+            try:
+                text = await fetch_page_text(url, max_chars=0)
+                if text and len(text) >= 800:
+                    new_articles.append({
+                        "gestor": name,
+                        "fuente_url": url,
+                        "titulo": r.get("title", ""),
+                        "texto_completo": text,
+                        "fecha": self._extract_date_from_url(url),
+                        "_is_pro_source": any(d in url.lower() for d in pro_domains),
+                    })
+            except Exception:
+                continue
+        return new_articles
+
+    async def _deep_search_per_gestor(self, name: str, fund_name: str) -> list[dict]:
+        """Bug Fix 3 Fase H (2026-04-28): bucle ITERATIVO hasta completitud
+        semántica (no umbrales numéricos). Tiers ascendentes: básico → ampliado
+        → agresivo → archive. Para cada tier, evalúa si ya hay suficiente para
+        escribir un perfil completo. Si sí, sale. Si no, sigue al siguiente tier.
+
+        Hard cap: 25 artículos totales (presupuesto coste).
+        """
+        if not name or name.startswith("Equipo"):
+            return []
+
+        articles: list[dict] = []
+        seen_urls: set = set()
+
+        # Tiers de búsqueda en orden ascendente de coste/agresividad
+        tiers = [
+            # Tier 1: básico — la query más probable de devolver el contenido relevante
+            ("basic", [
+                f'"{name}" "{fund_name}"',
+                f'"{name}" "{fund_name}" entrevista',
+                f'"{name}" carta inversores',
+            ]),
+            # Tier 2: ampliado — diversifica intención
+            ("ampliado", [
+                f'"{name}" filosofía inversión',
+                f'"{name}" YouTube entrevista',
+                (f'"{name}" "{self.gestora}"' if self.gestora else ""),
+            ]),
+            # Tier 3: agresivo — sites pro + medios + vida profesional
+            ("agresivo", [
+                f'"{name}" trayectoria carrera',
+                f'"{name}" formación universidad',
+                f'"{name}" decisiones cartera',
+                f'"{name}" cinco días expansión confidencial',
+                f'site:moiglobal.com "{name}"',
+                f'site:moclano.substack.com "{name}"',
+                f'site:saludfinanciera.substack.com "{name}"',
+            ]),
+            # Tier 4: archive (Wayback / históricos)
+            ("archive", [
+                f'"{name}" archive 2015..2020',
+                f'"{name}" entrevista 2010..2018',
+            ]),
+        ]
+
+        max_articles_hard_cap = 25
+        last_completeness = "empty"
+
+        for tier_name, queries in tiers:
+            queries = [q for q in queries if q]
+            if not queries:
+                continue
+            try:
+                results = await self.search.search_multiple(
+                    queries, num_per_query=5, agent=f"manager_deep_{tier_name}",
+                )
+            except Exception as exc:
+                self._log("WARN", f"search_multiple tier {tier_name} para {name} falló: {exc}")
+                continue
+
+            new = await self._fetch_relevant_articles(name, results, seen_urls)
+            for a in new:
+                seen_urls.add(a["fuente_url"])
+            articles.extend(new)
+
+            last_completeness = self._evaluate_profile_completeness(articles)
+            self._log(
+                "INFO",
+                f"Tier {tier_name} '{name}': +{len(new)} arts → total {len(articles)} → "
+                f"completitud={last_completeness}",
+            )
+
+            # Salir antes si ya está completo
+            if last_completeness == "complete":
+                break
+            # Hard cap por coste
+            if len(articles) >= max_articles_hard_cap:
+                self._log("INFO", f"Hard cap alcanzado ({max_articles_hard_cap}) para {name}")
+                break
+
+        # Log warning si gestor público quedó subdocumentado
+        if name.lower() in KNOWN_PUBLIC_MANAGERS and last_completeness in ("thin", "empty"):
+            self._log(
+                "WARN",
+                f"Gestor público '{name}' quedó {last_completeness} pese a iteración completa — "
+                f"discovery probablemente falló (deberían existir fuentes públicas)",
+            )
+
+        # Annotar metadata de tier en la primera entry
+        if articles:
+            articles[0]["_completeness_eval"] = last_completeness
+            articles[0]["_tiers_used"] = tier_name
+
+        return articles
+
+    def _extract_date_from_url(self, url: str) -> str:
+        """Extrae fecha YYYY-MM del URL si tiene patrón /YYYY/MM/."""
+        m = re.search(r"/(20\d{2})/(\d{2})/", url)
+        if m:
+            return f"{m.group(1)}-{m.group(2)}"
+        m = re.search(r"(20\d{2})", url)
+        return m.group(1) if m else ""
 
     # ═══════════════════════════════════════════════════════════════════════════
     # SAVE

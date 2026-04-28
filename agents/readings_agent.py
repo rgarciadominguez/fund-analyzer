@@ -30,34 +30,23 @@ from rich.console import Console
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.google_search import SearchEngine, fetch_page_text
+from tools.trusted_sources import get_priority_sources
 
 console = Console(highlight=False, force_terminal=False)
 
-# Priority sources for fund analysis in Spain
-PRIORITY_SOURCES = [
-    # ── Medios financieros españoles ──
+# Priority sources for fund analysis. Cargada desde data/trusted_sources.json
+# (loader en tools/trusted_sources.py). Para añadir/quitar fuentes, editar el JSON.
+PRIORITY_SOURCES = get_priority_sources() or [
+    # Fallback hardcoded — solo se usa si el JSON falta o falla.
     ("saludfinanciera.substack.com", "Substack Salud Financiera"),
+    ("moclano.substack.com", "Moclano"),
     ("astralisfundsacademy.com", "Astralis Funds Academy"),
-    ("astralis.es", "Astralis"),
     ("rankia.com", "Rankia"),
     ("finect.com", "Finect"),
-    ("masdividendos.com", "Mas Dividendos"),
-    ("valueschool.es", "Value School"),
-    ("quenoteloinviertan.com", "Que No Te Lo Inviertan"),
-    ("inversor-tranquilo.com", "Inversor Tranquilo"),
-    # ── Medios financieros internacionales ──
     ("morningstar.es", "Morningstar ES"),
-    ("morningstar.co.uk", "Morningstar UK"),
     ("morningstar.com", "Morningstar US"),
     ("citywire.com", "Citywire Global"),
-    ("citywire.co.uk", "Citywire UK"),
-    ("trustnet.com", "Trustnet"),
-    ("fundspeople.com", "FundsPeople"),
-    ("allfunds.com", "AllFunds"),
     ("ft.com", "Financial Times"),
-    ("institutionalinvestor.com", "Institutional Investor"),
-    ("seekingalpha.com", "Seeking Alpha"),
-    ("youtube.com", "YouTube"),
 ]
 
 # Content types to find (multi-idioma)
@@ -114,11 +103,16 @@ class ReadingsAgent:
             "analisis": [],
             "lecturas": [],
             "fuentes_consultadas": [],
+            "_queries_log": [],
+            "_discarded_cross_fund": [],
+            "_pro_sources_attempted": [],
         }
 
         # ── Paso 1: Definir búsquedas ────────────────────────────────────────
         queries = self._build_queries()
-        self._log("INFO", f"Paso 1: {len(queries)} búsquedas definidas")
+        result["_queries_log"] = list(queries)
+        result["_pro_sources_attempted"] = getattr(self, "_queries_log_pro_sources", [])
+        self._log("INFO", f"Paso 1: {len(queries)} búsquedas definidas (incluye {len(result['_pro_sources_attempted'])} site:pro)")
 
         # ── Paso 2: Pedir URLs al SearchEngine ───────────────────────────────
         search_results = await self.search.search_multiple(
@@ -133,8 +127,14 @@ class ReadingsAgent:
         validated = self._validate_urls(all_results)
         self._log("INFO", f"Paso 3: {len(validated)} URLs validadas (de {len(all_results)})")
 
-        # ── Paso 4: Descargar y clasificar ───────────────────────────────────
-        for entry in validated[:25]:  # Max 25 artículos
+        # ── Paso 4: Cargar fondos conocidos (cross-fund check) ───────────────
+        known_funds = self._load_known_fund_names()
+
+        # ── Paso 5: Descargar, validar full-text, clasificar ─────────────────
+        from tools.trusted_sources import get_pro_source_domains
+        pro_domains = set(get_pro_source_domains())
+
+        for entry in validated[:30]:  # Max 30 artículos (Bug 2: ampliado para más cobertura)
             url = entry.get("url", "")
             title = entry.get("title", entry.get("titulo", ""))
             snippet = entry.get("snippet", "")
@@ -143,17 +143,57 @@ class ReadingsAgent:
             if not text or len(text) < 300:
                 continue
 
+            url_l = url.lower()
+            is_pro = any(d in url_l for d in pro_domains)
+            text_l = text.lower()
+            isin_in_text = self.isin.lower() in text_l
+            name_count = text_l.count((self.fund_short or "").lower()) if self.fund_short else 0
+
+            # Validation log
+            validation_log = []
+            if is_pro:
+                validation_log.append("pro_source")
+            if isin_in_text:
+                validation_log.append("isin_match")
+            if name_count >= 2:
+                validation_log.append(f"name_match_{name_count}x")
+
+            # Filtro Bug 2 B.4: pro source requiere ISIN o nombre ≥2x; generalista ≥3x
+            min_name = 2 if is_pro else 3
+            if not isin_in_text and name_count < min_name:
+                self._log("SKIP", f"insufficient match: {url[:60]}")
+                continue
+
+            # Filtro Bug 2 B.3: cross-fund contamination
+            this_count, other_count, other_name = self._check_cross_fund_contamination(text, known_funds)
+            if other_count > this_count and other_count >= 2:
+                self._log("DROP_CROSS", f"reading habla más de '{other_name}' ({other_count}x) que de '{self.fund_short}' ({this_count}x): {url[:60]}")
+                result["_discarded_cross_fund"].append({
+                    "url": url,
+                    "this_fund_mentions": this_count,
+                    "other_fund": other_name,
+                    "other_mentions": other_count,
+                })
+                continue
+
             content_type = self._classify_content(url, title, snippet, text[:500])
+            quality = self._classify_quality(url, title, text, self._identify_source(url))
             source = self._identify_source(url)
 
             item = {
                 "fuente": source,
                 "tipo": content_type,
+                "quality_classification": quality,
                 "titulo": title,
                 "url": url,
                 "snippet": snippet,
                 "texto_completo": text,
                 "fecha": self._extract_date(url, title, text[:300]),
+                "fecha_publicacion": self._extract_date(url, title, text[:300]),
+                "_validation_log": validation_log,
+                "_is_pro_source": is_pro,
+                "_fund_name_mentions": name_count,
+                "_isin_in_text": isin_in_text,
             }
 
             if content_type in ("analisis", "articulo", "comunidad"):
@@ -161,13 +201,14 @@ class ReadingsAgent:
             else:
                 result["lecturas"].append(item)
 
-            self._log("INFO", f"[{content_type:10s}] {source:20s} {title[:40]}")
+            self._log("INFO", f"[{quality:10s}] {source:20s} {title[:40]}")
 
         result["fuentes_consultadas"] = list({r.get("url", "") for r in validated})[:50]
 
         n_analisis = len(result["analisis"])
         n_lecturas = len(result["lecturas"])
-        self._log("OK", f"Análisis: {n_analisis} | Lecturas: {n_lecturas}")
+        n_discarded = len(result["_discarded_cross_fund"])
+        self._log("OK", f"Análisis: {n_analisis} | Lecturas: {n_lecturas} | Cross-fund descartados: {n_discarded}")
 
         self._save(result)
         return result
@@ -177,39 +218,124 @@ class ReadingsAgent:
     # ═══════════════════════════════════════════════════════════════════════════
 
     def _build_queries(self) -> list[str]:
-        """Build targeted search queries for fund analysis content."""
+        """Build targeted search queries for fund analysis content.
+
+        Fase G Bug 2 (2026-04-28): cada pro source aplicable a la región del fondo
+        recibe una query explícita `site:{domain} "{fund}"` para asegurar cobertura
+        (Google enterraba blogs largos cuando no se filtra por sitio).
+        """
+        from tools.trusted_sources import get_pro_source_domains
+
         queries = []
         fund_q = self.fund_short or self.isin
+        is_es = self.isin.startswith("ES")
+        region = "ES" if is_es else "INT"
 
-        # Priority sources — direct queries
-        queries.extend([
-            f'"{fund_q}" salud financiera',
-            f'"{fund_q}" astralis',
-            f'"{fund_q}" rankia análisis',
-            f'"{fund_q}" rankia opinión',
-            f'"{fund_q}" morningstar',
-            f'"{fund_q}" finect',
-            f'"{fund_q}" masdividendos',
-        ])
+        # Fase 1: Site-specific queries por cada pro source de la región
+        pro_domains = get_pro_source_domains(region=region)
+        self._queries_log_pro_sources = list(pro_domains)  # auditoría
+        for domain in pro_domains:
+            queries.append(f'site:{domain} "{fund_q}"')
+            # Para INT: también buscar por gestora dentro de cada pro source
+            if not is_es and self.gestora:
+                queries.append(f'site:{domain} "{self.gestora}"')
 
-        # Content type queries
-        queries.extend([
-            f'"{fund_q}" análisis fondo inversión',
-            f'"{fund_q}" opinión cartera',
-            f'"{fund_q}" entrevista fondo',
-            f'"{fund_q}" podcast fondo',
-            f'"{fund_q}" youtube',
-            f'"{fund_q}" conferencia inversores',
-        ])
+        # Fase 2: Queries genéricas (cobertura amplia para sources NO pro)
+        if is_es:
+            queries.extend([
+                f'"{fund_q}" análisis fondo',
+                f'"{fund_q}" opinión cartera',
+                f'"{fund_q}" entrevista gestor',
+                f'"{fund_q}" carta inversores',
+                f'"{fund_q}" YouTube',
+            ])
+        else:
+            queries.extend([
+                f'"{fund_q}" review fund analysis',
+                f'"{fund_q}" interview manager',
+                f'"{fund_q}" investor letter',
+                f'"{fund_q}" YouTube',
+            ])
 
         # Gestora-specific
         if self.gestora:
             queries.append(f'"{self.gestora}" análisis fondos')
 
         # ISIN fallback
-        queries.append(f'{self.isin} análisis')
+        queries.append(f'{self.isin}')
 
         return queries
+
+    def _load_known_fund_names(self) -> dict[str, str]:
+        """Carga nombres de TODOS los fondos del sistema → {nombre_lower: isin}.
+        Usado por _check_cross_fund_contamination para detectar readings que
+        hablan de OTRO fondo más que del actual.
+        """
+        funds_dir = Path(__file__).parent.parent / "data" / "funds"
+        out = {}
+        if not funds_dir.exists():
+            return out
+        for fd in funds_dir.iterdir():
+            if not fd.is_dir():
+                continue
+            out_path = fd / "output.json"
+            if not out_path.exists():
+                continue
+            try:
+                d = json.loads(out_path.read_text(encoding="utf-8"))
+                nombre = d.get("nombre", "").strip()
+                if nombre and len(nombre) > 5:
+                    # Tomar nombre corto (primer término antes de coma)
+                    nombre_short = nombre.split(",")[0].strip().lower()
+                    out[nombre_short] = fd.name
+            except Exception:
+                continue
+        return out
+
+    def _check_cross_fund_contamination(self, text: str, known_funds: dict) -> tuple[int, int, str]:
+        """Cuenta menciones del fondo actual vs otros fondos conocidos.
+        Returns: (this_count, other_max_count, other_name).
+        """
+        text_lower = text.lower()
+        this_short = (self.fund_short or "").lower()
+        if not this_short:
+            return (0, 0, "")
+        this_count = text_lower.count(this_short)
+        # Contar otros fondos
+        other_max = 0
+        other_name = ""
+        for other_short, other_isin in known_funds.items():
+            if other_isin == self.isin or other_short == this_short:
+                continue
+            cnt = text_lower.count(other_short)
+            if cnt > other_max:
+                other_max = cnt
+                other_name = other_short
+        return (this_count, other_max, other_name)
+
+    def _classify_quality(self, url: str, title: str, text: str, source: str) -> str:
+        """Clasifica calidad de un reading:
+        - analysis: ≥1500 chars + dominio pro O kw "análisis|review|opinion|tesis|carta"
+        - news: ≥500 chars + kw "noticia|news|publica|anuncia"
+        - marketing: dominio gestora directo + kw "rentabilidad histórica|premio"
+        - data: factsheet/KIID/prospectus
+        """
+        from tools.trusted_sources import get_pro_source_domains
+        url_l = url.lower()
+        text_l = (title + " " + text[:500]).lower()
+        is_pro = any(d in url_l for d in get_pro_source_domains())
+
+        if any(kw in text_l for kw in ["factsheet", "kiid", "prospectus", "folleto"]):
+            return "data"
+        if is_pro and len(text) >= 1500:
+            return "analysis"
+        if any(kw in text_l for kw in ["análisis", "review", "opinion", "opinión", "tesis", "carta a inversores"]) and len(text) >= 1500:
+            return "analysis"
+        if any(kw in text_l for kw in ["noticia", "news", "publica", "anuncia", "lanza"]) and len(text) >= 500:
+            return "news"
+        if any(kw in text_l for kw in ["rentabilidad histórica", "premio", "galardón"]):
+            return "marketing"
+        return "news" if len(text) >= 500 else "marketing"
 
     # ═══════════════════════════════════════════════════════════════════════════
     # PASO 3: VALIDAR URLs

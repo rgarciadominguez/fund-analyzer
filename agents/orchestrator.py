@@ -529,6 +529,86 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
             import traceback
             log("QUALITY", "TRACE", traceback.format_exc()[:500])
 
+    # ── Paso 7: publication_calendar (Bug 7, 2026-04-27) ──────────────────────
+    # Detecta cadencia de informes/cartas → next_expected_date para futuros crons.
+    try:
+        from tools.publication_calendar import update_output_with_calendar
+        cal_ok = update_output_with_calendar(isin)
+        if cal_ok:
+            log("CALENDAR", "OK", "publication_calendar actualizado en output.json")
+            # Refrescar output con el nuevo calendar
+            out_path = fund_dir / "output.json"
+            if out_path.exists():
+                results["output"] = json.loads(out_path.read_text(encoding="utf-8"))
+        else:
+            log("CALENDAR", "INFO", "publication_calendar no generado (sin docs históricos)")
+    except Exception as exc:
+        log("CALENDAR", "ERROR", f"publication_calendar falló: {exc}")
+
+    # ── Paso 8: _meta block (Bug E Fase G 2026-04-28) ─────────────────────────
+    # Persiste metadata del pipeline para auditoría: versión, modelos, sources_attempted
+    try:
+        elapsed_meta = round(time.time() - start_time, 1)
+        out_path_meta = fund_dir / "output.json"
+        if out_path_meta.exists():
+            output_meta = json.loads(out_path_meta.read_text(encoding="utf-8"))
+            # sources_attempted: chequear qué ficheros se generaron
+            sources_attempted = {}
+            file_checks = {
+                "cnmv_xml": (fund_dir / "raw" / "xml", "ok ({} XMLs)" if (fund_dir / "raw" / "xml").exists() else "no_results"),
+                "cnmv_pdf": (fund_dir / "raw" / "reports", "ok ({} PDFs)"),
+                "letters_data": (fund_dir / "letters_data.json", "ok ({} cartas)"),
+                "readings_data": (fund_dir / "readings_data.json", "ok"),
+                "manager_profile": (fund_dir / "manager_profile.json", "ok"),
+                "intl_data": (fund_dir / "intl_data.json", "ok"),
+            }
+            for key, (path, fmt) in file_checks.items():
+                if path.exists():
+                    if path.is_dir():
+                        n = len(list(path.glob("*.*")))
+                        sources_attempted[key] = fmt.format(n) if "{}" in fmt else fmt
+                    else:
+                        try:
+                            jd = json.loads(path.read_text(encoding="utf-8"))
+                            n = len(jd.get("cartas", []) or jd.get("analisis", []) or [])
+                            sources_attempted[key] = fmt.format(n) if "{}" in fmt else fmt
+                        except Exception:
+                            sources_attempted[key] = fmt if "{}" not in fmt else fmt.format(0)
+                else:
+                    sources_attempted[key] = "no_results"
+
+            # Pro sources attempted (Bug B)
+            try:
+                readings_path = fund_dir / "readings_data.json"
+                if readings_path.exists():
+                    rd = json.loads(readings_path.read_text(encoding="utf-8"))
+                    pro_attempted = rd.get("_pro_sources_attempted", []) or []
+                    discarded_cf = rd.get("_discarded_cross_fund", []) or []
+                    sources_attempted["pro_sources_queried"] = len(pro_attempted)
+                    sources_attempted["readings_discarded_cross_fund"] = len(discarded_cf)
+            except Exception:
+                pass
+
+            # Anti-invención warnings count
+            ai_warnings = ((output_meta.get("analyst_synthesis") or {})
+                           .get("gestores", {}).get("_anti_invencion_warnings") or [])
+            ai_count = len(ai_warnings) if isinstance(ai_warnings, list) else 0
+
+            output_meta["_meta"] = {
+                "pipeline_version": "fase_g_2026-04-28",
+                "fecha_ejecucion": datetime.now().isoformat(),
+                "duracion_total_seg": elapsed_meta,
+                "sources_attempted": sources_attempted,
+                "anti_invencion_warnings_count": ai_count,
+                "isin": isin,
+                "tipo": output_meta.get("tipo", ""),
+            }
+            out_path_meta.write_text(json.dumps(output_meta, ensure_ascii=False, indent=2), encoding="utf-8")
+            log("META_BLOCK", "OK", f"_meta persistido: {len(sources_attempted)} sources, {ai_count} anti-invención warnings")
+            results["output"] = output_meta
+    except Exception as exc:
+        log("META_BLOCK", "ERROR", f"_meta block falló: {exc}")
+
     # ═══════════════════════════════════════════════════════════════════════
     # POST-PIPELINE: Verificación → Publicación → Feedback → Auto-mejora
     # ═══════════════════════════════════════════════════════════════════════

@@ -1041,7 +1041,8 @@ class CNMVAgent:
         """
         # Parser version: incrementar al añadir nuevos extractores.
         # v6: añadido vl_historico_pdf (tabla "Fecha Patrimonio Valor liquidativo") y comision_exito_pct teórico
-        PARSER_VERSION = "v6"
+        # v7 (Fase G 2026-04-28): TER por clase usa nombre comercial real (Individual CLASE X) en vez de A/B/C/D posicional
+        PARSER_VERSION = "v7"
         cache = self._load_pdf_cache()
         key = pdf_path.name
         fsize = pdf_path.stat().st_size
@@ -1554,12 +1555,19 @@ class CNMVAgent:
         return result
 
     def _parse_seccion_comportamiento(self, text: str, year: int = 0) -> dict:
-        """Parse section 2.2: TER (multi-year per class), volatility, índice rotación cartera."""
+        """Parse section 2.2: TER (multi-year per class), volatility, índice rotación cartera.
+
+        Bug Fase G (2026-04-28): el extractor asignaba A/B/C/D por POSICIÓN del
+        match en vez de leer el nombre comercial real (E/M/P/C en Magallanes).
+        Fix: para cada tabla "Ratio total de gastos", buscar "Individual CLASE X"
+        en los 3000 chars previos y usar ESE nombre. Fallback a A/B/C/D si no hay
+        match (PDF sin sección "Individual" — fondos de 1 clase).
+        """
         result: dict = {}
 
         # ── TER (Ratio total de gastos) — per class extraction ───────────────
         # PDFs with 1 class: 1 table "Ratio total de gastos"
-        # PDFs with 2+ classes: 1 table under "A) Individual Clase A", another under "Clase B"
+        # PDFs with 2+ classes: 1 table under "A) Individual CLASE X", another under "B) Individual CLASE Y"
         # Format: acum_actual trim1 trim2 trim3 trim4 año-1 año-2 año-3 [año-5]
         # nums[0] = TER of THIS year. nums[5+] = historical annual TER.
         ter_matches = list(re.finditer(r'Ratio\s+total\s+de\s+gastos', text, re.IGNORECASE))
@@ -1580,18 +1588,37 @@ class CNMVAgent:
                     pass
             return nums
 
+        def _find_class_name_for_ter_table(match_pos: int, table_idx: int) -> str:
+            """Busca 'Individual CLASE X' en los 3000 chars previos.
+            Fallback: si no hay match, usar A/B/C/D por índice (compat fondos 1 clase)."""
+            preceding = text[max(0, match_pos - 3000): match_pos]
+            # Patrón: "A) Individual CLASE E", "B) Individual Clase M", etc.
+            cls_matches = list(re.finditer(
+                r'(?:Individual|[A-Z]\))\s*CLASE\s+([A-Z0-9]{1,4})\b',
+                preceding, re.IGNORECASE,
+            ))
+            if cls_matches:
+                # El más cercano es el último (más próximo a la tabla TER)
+                return cls_matches[-1].group(1).upper()
+            # Fallback histórico: A/B/C/D por orden de match
+            return "A" if table_idx == 0 else chr(ord("A") + table_idx)
+
+        # Detectar la clase con MAYOR antigüedad (mayor número de puntos históricos)
+        # para que la serie_ter principal use ESA, no la primera por orden.
+        # Por ahora: primera con histórico ≥3 valores anuales gana.
+        primary_class_idx = 0  # default: primera
+
         for idx, ter_m in enumerate(ter_matches):
             ter_nums = _extract_ter_nums(ter_m.start())
             if not ter_nums:
                 continue
 
-            # Determine class: first table = clase A (or única), second = clase B
-            clase = "A" if idx == 0 else chr(ord("A") + idx)
+            clase = _find_class_name_for_ter_table(ter_m.start(), idx)
             ter_actual = ter_nums[0]
             ter_por_clase[clase] = ter_actual
 
-            # Build historical serie from first table only (clase A / única)
-            if idx == 0:
+            # Build historical serie from PRIMARY class (idx==0 por defecto)
+            if idx == primary_class_idx:
                 result["ter_pct"] = ter_actual
                 serie_ter.append({"periodo": str(year), "ter_pct": ter_actual})
                 # Historical: positions 5+ (after 4 quarterly values)
