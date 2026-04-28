@@ -32,6 +32,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.google_search import SearchEngine, fetch_page_text
 from tools.trusted_sources import get_priority_sources
 
+# DEPRECADO desde Fase I (2026-04-28): features (queries site:{domain},
+# cross-fund check, classification, validation_log) portadas a
+# agents/readings_collector.py que es el agente de producción.
+# Mantenido como referencia/fallback hasta validar estabilidad de
+# readings_collector mejorado en 3 fondos. NO usar en pipeline nuevo.
+
 console = Console(highlight=False, force_terminal=False)
 
 # Priority sources for fund analysis. Cargada desde data/trusted_sources.json

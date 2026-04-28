@@ -361,6 +361,48 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
             f"Metadata: nombre={fund_name_hint[:40]}, gestora={gestora_hint[:30]}, "
             f"gestores={gestores_hint[:3]}")
 
+        # ── Guard Fix 1 Fase J+ (2026-04-28): abortar si CNMV/regulator vacío ─
+        # Síntoma: ISIN inválido o no registrado en regulador → sin nombre/AUM/PDFs.
+        # Continuar consume LLM para nada y produce output basura (cross-fund leak,
+        # readings random). Mejor abortar con mensaje claro.
+        cnmv_data_path = fund_dir / "cnmv_data.json"
+        intl_data_path = fund_dir / "intl_data.json"
+        primary_data_path = cnmv_data_path if is_es else intl_data_path
+
+        is_empty = False
+        if primary_data_path.exists():
+            try:
+                primary = json.loads(primary_data_path.read_text(encoding="utf-8"))
+                aum_val = (primary.get("kpis") or {}).get("aum_actual_meur")
+                pos_count = len((primary.get("posiciones") or {}).get("actuales", []))
+                xml_count_check = len(list((fund_dir / "raw" / "xml").glob("*.*"))) if (fund_dir / "raw" / "xml").exists() else 0
+                pdf_count_check = len(list((fund_dir / "raw").rglob("*.pdf")))
+                # Vacío total: sin nombre, sin AUM, sin posiciones, sin docs
+                if (not fund_name_hint and aum_val is None and pos_count == 0
+                        and xml_count_check == 0 and pdf_count_check == 0):
+                    is_empty = True
+            except Exception:
+                pass
+        else:
+            # Ni siquiera el JSON principal — claramente ISIN inválido
+            is_empty = True
+
+        if is_empty:
+            log("ORCHESTRATOR", "ERROR",
+                f"ABORT: CNMV/regulator devolvió datos VACÍOS para {isin}. "
+                f"Probable ISIN inválido o no registrado. No continuamos pipeline para "
+                f"evitar coste LLM y output basura. Verifica el ISIN.")
+            console.print(Panel(
+                f"[bold red]PIPELINE ABORTADO — ISIN {isin}[/bold red]\n"
+                f"El extractor primario ({'CNMV' if is_es else 'regulator router'}) NO\n"
+                f"devolvió datos del fondo (sin nombre, AUM, posiciones, ni documentos).\n"
+                f"Probable causa: ISIN inválido o no registrado en el regulador.\n"
+                f"Verifica el ISIN y vuelve a ejecutar.",
+                title="Aborto preventivo",
+                border_style="red",
+            ))
+            return {"isin": isin, "error": "datos_primarios_vacios", "aborted": True}
+
         # ── Paso 2: Sources Agent (descubrimiento de fuentes) ─────────────────
         progress.update(main_task, description="Sources Agent")
         log("ORCHESTRATOR", "START", "Paso 2: Sources Agent")

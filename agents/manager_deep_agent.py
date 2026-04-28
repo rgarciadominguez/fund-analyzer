@@ -83,6 +83,26 @@ class ManagerDeepAgent:
     async def run(self) -> dict:
         self._log("START", f"Manager Deep Agent — {self.isin} ({self.fund_short})")
 
+        # ── Paso 0 (Bloque 2.9 Fase I, 2026-04-28): reusar nombres curados ─
+        # Si manager_profile.json YA existe (manager_profiler corrió antes y
+        # aplicó dedup + cross-fund + lead/co), usar SUS nombres en vez de
+        # detectar los nuestros. Reduce coste y evita 8 nombres + variantes.
+        if not self.manager_names:
+            mp_path = self.fund_dir / "manager_profile.json"
+            if mp_path.exists():
+                try:
+                    mp = json.loads(mp_path.read_text(encoding="utf-8"))
+                    # manager_profiler usa "equipo" (con dicts), extraer solo nombres
+                    equipo_curado = mp.get("equipo") or []
+                    if equipo_curado and isinstance(equipo_curado[0], dict):
+                        self.manager_names = [g.get("nombre", "") for g in equipo_curado if g.get("nombre")]
+                    elif equipo_curado:
+                        self.manager_names = list(equipo_curado)
+                    if self.manager_names:
+                        self._log("INFO", f"Reusando nombres curados de manager_profile.json: {self.manager_names}")
+                except Exception as exc:
+                    self._log("WARN", f"No pude leer nombres curados: {exc}")
+
         # ── Paso 0 (INT): buscar gestores en Citywire fund page por ISIN ──
         if not self.manager_names and not self.isin.startswith("ES"):
             self._log("INFO", "INT: buscando gestores en Citywire fund page")

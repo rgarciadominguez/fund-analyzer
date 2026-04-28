@@ -683,12 +683,31 @@ class AnalystAgent:
 
     def _filter_gestores(self, manager: dict) -> dict:
         """Extract complete manager profiles — everything that helps understand
-        who is managing the money: trajectory, philosophy, decisions, commitments."""
+        who is managing the money: trajectory, philosophy, decisions, commitments.
+
+        Bug Fix Bloque 3 Fase I (2026-04-28): copia explícitamente
+        `articulos_completos` y `equipo_roles` del manager dict al result.
+
+        Fix A Fase J (2026-04-28): schema unificado. Acepta tanto:
+        - `equipo_gestor`: lista plana ['Iván Martín', ...] (manager_deep_agent o profiler nuevo)
+        - `equipo`: lista de dicts [{'nombre': 'Iván Martín', ...}] (manager_profiler legacy)
+        Fallback automático para evitar perder nombres por discrepancia de keys.
+        """
+        # Schema unificado — lee equipo_gestor (plano) o convierte equipo (dicts) a plano
+        equipo_plano = manager.get("equipo_gestor", []) or []
+        if not equipo_plano:
+            equipo_dicts = manager.get("equipo", []) or []
+            equipo_plano = [g.get("nombre", "") for g in equipo_dicts
+                            if isinstance(g, dict) and g.get("nombre")]
+
         result = {
-            "equipo": manager.get("equipo_gestor", []),
+            "equipo": equipo_plano,  # downstream espera lista plana de nombres
             "equipo_detalle_web": manager.get("equipo_detalle_web", []),
+            "equipo_dicts": manager.get("equipo", []),  # detalles bio/educación si existen
+            "equipo_roles": manager.get("equipo_roles", {}),
             "perfiles": [],
             "fuentes_web": [],
+            "articulos_completos": manager.get("articulos_completos", {}),
         }
 
         # Collect all web content about managers
@@ -1609,11 +1628,20 @@ class AnalystAgent:
         time.sleep(2)
 
         # Call 3: DATOS — TIER 2 (Flash) — perfiles estructurados con trayectoria extensa
-        # Detect gestores mencionados en manager_profile para forzar extracción de TODOS
+        # Bloque 4 Fase I (2026-04-28): equipo ahora viene curado a 1-2 nombres
+        # (lead + co opcional) desde manager_profiler. min/max = len(equipo).
         n_equipo_hint = len(gestores.get("equipo", []) or [])
-        n_perfiles_disponibles = len(gestores.get("perfiles", []) or [])
-        # Si hay >1 nombre en equipo o >1 perfil extraído, pedir explícitamente múltiples
-        min_perfiles = max(2, min(n_perfiles_disponibles, 3)) if n_perfiles_disponibles > 1 or n_equipo_hint > 1 else 1
+        equipo_roles = gestores.get("equipo_roles", {}) or {}
+        # Identificar lead y co
+        lead_name = next((n for n, info in equipo_roles.items() if info.get("is_lead")), None)
+        co_name = next((n for n, info in equipo_roles.items() if info.get("is_co")), None)
+        if not lead_name and equipo:
+            lead_name = equipo[0]
+        if not co_name and len(equipo) > 1:
+            co_name = equipo[1]
+        # Cap a 2 perfiles máximo (filosofía usuario: 1-2 líderes)
+        min_perfiles = 1 if not co_name else 2
+        max_perfiles = 2  # nunca más, aunque equipo tenga más nombres
         datos = self._gemini_call(
             f"Extrae perfiles del equipo gestor para FICHAS de un dashboard profesional.\n"
             f"\n"
@@ -1626,9 +1654,12 @@ class AnalystAgent:
             f"- Si el gestor solo tiene poca información en DATOS, escribe un perfil más corto pero exacto.\n"
             f"- Tu objetivo es SINTETIZAR las fuentes, no escribir biografías genéricas.\n"
             f"\n"
-            f"OBLIGATORIO: genera perfiles para TODOS los gestores mencionados en los datos.\n"
-            f"Mínimo esperado: {min_perfiles} perfiles (si hay cofundadores, cogestores o co-CIOs, incluir a TODOS).\n"
-            f"NO te limites al lead manager — cofundadores y equipo senior deben aparecer.\n"
+            f"FILOSOFÍA Bloque 4 Fase I (2026-04-28): foco en LÍDER del equipo (1-2 perfiles MÁX).\n"
+            f"Genera EXACTAMENTE {min_perfiles} perfiles ({max_perfiles} máximo).\n"
+            f"GESTOR LEAD: '{lead_name or '(primer nombre del equipo)'}' — perfil EXTENSO con todas las dimensiones.\n"
+            + (f"GESTOR CO (opcional, perfil más BREVE): '{co_name}' — 2 párrafos máx, énfasis en complementariedad con lead.\n" if co_name else "")
+            + f"NO añadas perfiles para nombres no listados arriba (aunque aparezcan en DATOS).\n"
+            f"Si solo hay info para el lead → devuelve solo 1 perfil.\n"
             f"Para CADA gestor incluye:\n"
             f"- nombre: nombre completo\n"
             f"- cargo: cargo actual\n"

@@ -180,6 +180,58 @@ DIRECTED_SOURCES = [
         "quality": "high",
     },
     {
+        # Bloque 1 Fase I (2026-04-28): añadido por feedback usuario.
+        # Moclano publica analisis profundos de fondos value/quality (ES + INT).
+        "domain": "moclano.substack.com",
+        "name": "Moclano",
+        "query_template": 'site:moclano.substack.com "{fund}"',
+        "type": "analisis_completo",
+        "quality": "high",
+    },
+    {
+        "domain": "astralis.es",
+        "name": "Astralis",
+        "query_template": 'site:astralis.es "{fund}"',
+        "type": "analisis_completo",
+        "quality": "high",
+    },
+    # ── INT: blogs/webs analistas reconocidos ──
+    {
+        "domain": "moiglobal.com",
+        "name": "MOI Global",
+        "query_template": 'site:moiglobal.com "{fund}" OR "{gestora}"',
+        "type": "analisis_completo",
+        "quality": "high",
+    },
+    {
+        "domain": "valuewalk.com",
+        "name": "ValueWalk",
+        "query_template": 'site:valuewalk.com "{fund}" OR "{gestora}"',
+        "type": "analisis",
+        "quality": "high",
+    },
+    {
+        "domain": "gurufocus.com",
+        "name": "GuruFocus",
+        "query_template": 'site:gurufocus.com "{fund}" OR "{gestora}"',
+        "type": "analisis",
+        "quality": "medium",
+    },
+    {
+        "domain": "fool.com",
+        "name": "Motley Fool",
+        "query_template": 'site:fool.com "{fund}" OR "{gestora}"',
+        "type": "articulo",
+        "quality": "medium",
+    },
+    {
+        "domain": "advisorperspectives.com",
+        "name": "Advisor Perspectives",
+        "query_template": 'site:advisorperspectives.com "{fund}" OR "{gestora}"',
+        "type": "analisis",
+        "quality": "high",
+    },
+    {
         "domain": "masdividendos.com",
         "name": "Mas Dividendos",
         "query_template": 'site:masdividendos.com "{fund}"',
@@ -506,6 +558,153 @@ class ReadingsCollector:
         return any(t in text_lower for t in fund_terms)
 
     # ══════════════════════════════════════════════════════════════════════
+    # Bloque 1 Fase I (2026-04-28): features portadas de readings_agent
+    # ══════════════════════════════════════════════════════════════════════
+
+    def _load_known_fund_names(self) -> dict[str, str]:
+        """Carga nombres de TODOS los fondos del sistema → {nombre_lower: isin}.
+        Usado por _check_cross_fund_contamination para detectar readings que
+        hablan de OTRO fondo más que del actual.
+        """
+        funds_dir = Path(__file__).parent.parent / "data" / "funds"
+        out = {}
+        if not funds_dir.exists():
+            return out
+        for fd in funds_dir.iterdir():
+            if not fd.is_dir():
+                continue
+            out_path = fd / "output.json"
+            if not out_path.exists():
+                continue
+            try:
+                d = json.loads(out_path.read_text(encoding="utf-8"))
+                nombre = d.get("nombre", "").strip()
+                if nombre and len(nombre) > 5:
+                    nombre_short = nombre.split(",")[0].strip().lower()
+                    out[nombre_short] = fd.name
+            except Exception:
+                continue
+        return out
+
+    def _check_cross_fund_contamination(
+        self, text: str, known_funds: dict
+    ) -> tuple[int, int, str]:
+        """Cuenta menciones del fondo actual vs otros fondos conocidos.
+        Returns: (this_count, other_max_count, other_name).
+
+        Fix B Fase J: contamos por anchor multi-palabra (primary + segundo token)
+        para evitar falsos positivos con palabras genéricas del dominio
+        ("value", "equity", "fund"...). Ej. "True Value, FI" → anchor "true value",
+        no solo "value". "Magallanes European Equity" → "magallanes european".
+
+        Si el nombre tiene 1 sola palabra significativa, anchor = esa palabra
+        (asumimos que es distintiva, ej. "Trojan", "Magallanes" — no genérica).
+        """
+        def _anchor(name: str) -> str:
+            # Limpiar puntuación y tokenizar
+            cleaned = re.sub(r"[,;:.()\"']", " ", (name or "")).lower()
+            tokens = [w for w in cleaned.split() if len(w) > 3]
+            if not tokens:
+                return ""
+            # Si nombre tiene ≥2 tokens significativos: bigrama de los 2 primeros
+            # (más distintivo, evita match con palabras genéricas)
+            if len(tokens) >= 2:
+                return f"{tokens[0]} {tokens[1]}"
+            return tokens[0]
+
+        text_lower = text.lower()
+        this_anchor = _anchor(self.fund_short)
+        if not this_anchor:
+            return (0, 0, "")
+        this_count = text_lower.count(this_anchor)
+        other_max = 0
+        other_name = ""
+        for other_short, other_isin in known_funds.items():
+            if other_isin == self.isin:
+                continue
+            other_anchor = _anchor(other_short)
+            if not other_anchor or other_anchor == this_anchor:
+                continue
+            cnt = text_lower.count(other_anchor)
+            if cnt > other_max:
+                other_max = cnt
+                other_name = other_short
+        return (this_count, other_max, other_name)
+
+    def _classify_quality_post_fetch(
+        self, url: str, title: str, text: str
+    ) -> str:
+        """Clasifica calidad de un reading tras descarga full-text:
+        - analysis: ≥1500 chars + dominio pro O kw análisis|review|tesis|carta
+        - news: ≥500 chars + kw noticia|publica|anuncia
+        - marketing: dominio gestora directo + kw rentabilidad histórica|premio
+        - data: factsheet/KIID/prospectus
+        """
+        url_l = url.lower()
+        text_l = (title + " " + text[:500]).lower()
+        is_pro = any(s["domain"] in url_l for s in DIRECTED_SOURCES if s["quality"] == "high")
+
+        if any(kw in text_l for kw in ["factsheet", "kiid", "prospectus", "folleto"]):
+            return "data"
+        if is_pro and len(text) >= 1500:
+            return "analysis"
+        if any(kw in text_l for kw in ["análisis", "analysis", "review", "opinion", "opinión", "tesis", "carta a inversores"]) and len(text) >= 1500:
+            return "analysis"
+        if any(kw in text_l for kw in ["noticia", "news", "publica", "anuncia", "lanza"]) and len(text) >= 500:
+            return "news"
+        if any(kw in text_l for kw in ["rentabilidad histórica", "premio", "galardón"]):
+            return "marketing"
+        return "news" if len(text) >= 500 else "marketing"
+
+    def _validate_full_text_match(
+        self, text: str, is_pro: bool, url: str = ""
+    ) -> tuple[bool, list[str]]:
+        """Validation post-fetch (Bloque 1.4 Fase I + Fix C Fase J 2026-04-28):
+        - Pro source con ISIN en URL: aceptar con ≥1 mención (artículos cortos
+          de blogs profesionales pueden mencionar el fondo solo 1 vez).
+        - Pro source sin ISIN en URL: ≥2 menciones.
+        - Generalista: ≥3 menciones.
+
+        "Mención" = aparición del PRIMER token significativo del fund_short
+        (>3 chars), no del nombre completo. Ej. para "Magallanes European Equity"
+        cuenta apariciones de "magallanes" — patrón generalizado, no overfit.
+        Returns: (valido, validation_log).
+        """
+        text_l = text.lower()
+        url_l = (url or "").lower()
+        log = []
+        if is_pro:
+            log.append("pro_source")
+        isin_in_text = self.isin.lower() in text_l
+        isin_in_url = self.isin.lower() in url_l
+        if isin_in_text:
+            log.append("isin_match")
+        if isin_in_url:
+            log.append("isin_in_url")
+
+        # Token-based name counting (alineado con _validate_relevance):
+        # Cuenta apariciones del token MÁS LARGO/significativo del fund_short.
+        # Esto generaliza para fondos cuyo nombre coloquial es solo la primera palabra.
+        name_tokens = [w.lower() for w in (self.fund_short or "").split() if len(w) > 3]
+        name_count = 0
+        if name_tokens:
+            # Ordenar tokens por longitud desc — los más específicos primero
+            name_tokens.sort(key=len, reverse=True)
+            name_count = max(text_l.count(t) for t in name_tokens)
+        if name_count >= 1:
+            log.append(f"name_match_{name_count}x")
+
+        # Threshold dinámico
+        if is_pro and isin_in_url:
+            min_name = 1  # pro source + ISIN identificador en URL = altísima confianza
+        elif is_pro:
+            min_name = 2
+        else:
+            min_name = 3
+        valido = isin_in_text or name_count >= min_name
+        return (valido, log)
+
+    # ══════════════════════════════════════════════════════════════════════
     # PASO 3: Extraer contenido estructurado con Gemini
     # ══════════════════════════════════════════════════════════════════════
 
@@ -555,11 +754,18 @@ class ReadingsCollector:
         search_results = await self._directed_searches()
         self._log("INFO", f"Encontradas {len(search_results)} URLs potenciales")
 
-        # Paso 2: Fetch y validar (max 15 URLs, priorizando high quality)
+        # Bloque 1 Fase I (2026-04-28): cargar fondos conocidos para cross-fund check
+        known_funds = self._load_known_fund_names()
+
+        # Pro sources attempted (auditoría)
+        pro_sources_attempted = [s["domain"] for s in DIRECTED_SOURCES if s["quality"] == "high"]
+
+        # Paso 2: Fetch y validar (Bloque 1.5: cap 15 → 30, priorizando high quality)
         readings: list[dict] = []
         fuentes_consultadas: list[str] = []
+        discarded_cross_fund: list[dict] = []
 
-        for entry in search_results[:15]:
+        for entry in search_results[:30]:
             url = entry.get("url", "")
             source_name = entry.get("source_name", "")
             source_type = entry.get("source_type", "articulo")
@@ -568,10 +774,44 @@ class ReadingsCollector:
             if not self._validate_relevance(text):
                 continue
 
+            # Bloque 1.4 Fase I + Fix C Fase J: filtro post-fetch ISIN/nombre fondo
+            url_l = url.lower()
+            is_pro = any(s["domain"] in url_l for s in DIRECTED_SOURCES if s["quality"] == "high")
+            valido, validation_log = self._validate_full_text_match(text, is_pro, url=url)
+            if not valido:
+                self._log("SKIP", f"  insufficient match: {url[:60]}")
+                continue
+
+            # Bloque 1.2 Fase I + Fix B Fase J: cross-fund check, pero ACEPTAR
+            # comparativas legítimas si el ISIN del fondo target aparece en URL o
+            # título (señal de que el reading es PRINCIPALMENTE sobre este fondo).
+            this_count, other_count, other_name = self._check_cross_fund_contamination(text, known_funds)
+            isin_in_url_or_title = (
+                self.isin.lower() in url.lower()
+                or self.isin.lower() in (entry.get("title", "") or "").lower()
+            )
+            if (
+                other_count > this_count + 2
+                and other_count >= 3
+                and not isin_in_url_or_title
+            ):
+                self._log("DROP_CROSS", f"  reading habla más de '{other_name}' "
+                          f"({other_count}x) que de '{self.fund_short}' ({this_count}x): {url[:60]}")
+                discarded_cross_fund.append({
+                    "url": url,
+                    "this_fund_mentions": this_count,
+                    "other_fund": other_name,
+                    "other_mentions": other_count,
+                })
+                continue
+
             self._log("INFO", f"  [{source_name}] {len(text)} chars - relevante")
             fuentes_consultadas.append(url)
 
-            # Paso 3: Extraer estructurado
+            # Bloque 1.3 Fase I: quality classification post-fetch
+            quality_class = self._classify_quality_post_fetch(url, "", text)
+
+            # Paso 3: Extraer estructurado (mantenido — gemini_wrapper)
             extracted = self._extract_structured(text, url, source_name)
             if not extracted:
                 continue
@@ -581,10 +821,15 @@ class ReadingsCollector:
                 "source": source_name,
                 "source_type": source_type,
                 "quality": entry.get("source_quality", "medium"),
+                "quality_classification": quality_class,
+                "_validation_log": validation_log,
+                "_is_pro_source": is_pro,
+                "_fund_name_mentions": this_count,
+                "_isin_in_text": self.isin.lower() in text.lower(),
                 **extracted,
             }
             readings.append(reading)
-            self._log("OK", f"  Extraido: {(extracted.get('titulo') or '')[:50]}")
+            self._log("OK", f"  [{quality_class:9s}] Extraido: {(extracted.get('titulo') or '')[:50]}")
 
         # ── Merge con readings existentes (NUNCA perder datos entre runs) ──
         readings = self._merge_with_existing(readings)
@@ -603,10 +848,13 @@ class ReadingsCollector:
             "analisis_completos": analisis_completos,
             "otros_readings": otros,
             "fuentes_consultadas": fuentes_consultadas,
+            "_pro_sources_attempted": pro_sources_attempted,
+            "_discarded_cross_fund": discarded_cross_fund,
         }
 
         self._log("OK", f"Total: {len(analisis_completos)} analisis completos + "
-                  f"{len(otros)} otros readings")
+                  f"{len(otros)} otros readings | "
+                  f"discarded cross-fund: {len(discarded_cross_fund)}")
         return self._save(output)
 
     def _merge_with_existing(self, new_readings: list[dict]) -> list[dict]:

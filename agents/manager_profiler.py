@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 
@@ -23,6 +24,97 @@ import httpx
 from rich.console import Console
 
 console = Console()
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Bloque 2 Fase I (2026-04-28): helpers para deduplicación + cross-fund + lead/co
+# ════════════════════════════════════════════════════════════════════════════
+
+def _normalize_name_key(nombre: str) -> str:
+    """Normaliza un nombre para deduplicación: quita acentos + lowercase + collapse spaces.
+    Ejemplo: 'Iván Martín Aránguez' → 'ivan martin aranguez'.
+    """
+    if not nombre:
+        return ""
+    # Normalize NFKD descompone acentos como combinaciones (a + ´), encode ascii ignora.
+    s = unicodedata.normalize("NFKD", nombre)
+    s = s.encode("ascii", "ignore").decode("ascii")
+    s = re.sub(r"\s+", " ", s).strip().lower()
+    return s
+
+
+def _dedup_names(names: list[str]) -> list[str]:
+    """Deduplicar lista de nombres normalizando acentos y casing.
+    De cada grupo equivalente, mantener el formato MÁS LARGO (con acentos correctos).
+    """
+    by_key: dict[str, str] = {}
+    for n in names:
+        if not n or not n.strip():
+            continue
+        k = _normalize_name_key(n)
+        if not k:
+            continue
+        # Si ya hay uno con esta key, quedarse con el más largo (más completo)
+        if k in by_key:
+            if len(n) > len(by_key[k]):
+                by_key[k] = n.strip()
+        else:
+            by_key[k] = n.strip()
+    return list(by_key.values())
+
+
+def _validate_name_in_fund_sources(name: str, fund_dir: Path) -> bool:
+    """Verifica que un nombre aparece en al menos UNA fuente local del fondo.
+    Filtro contra cross-fund contamination (gestores de otros fondos coladas).
+
+    Bonus Fix Fase J (2026-04-28): relajado para nombres específicos.
+    - Nombre ≥3 tokens (ej. "Iván Martín Aránguez") = persona específica con
+      muy bajo riesgo de cross-fund. Aceptar SIN exigir presencia local.
+      (Evita falso negativo cuando el nombre completo no aparece literal en
+      cnmv_data pero sí es el gestor real, ej. solo se cita por apellido.)
+    - Nombre con 2 tokens o menos (apellido genérico): exigir presencia local.
+
+    Busca en:
+    - cnmv_data.json cualitativo (sec 9, 10)
+    - letters_data.json (cartas)
+    - intl_data.json / annual_report (INT)
+    - cssf_data.json / amf_data.json / etc. (regulator output)
+    """
+    if not name:
+        return False
+    name_norm = _normalize_name_key(name)
+    if not name_norm:
+        return False
+
+    # Bonus: nombres ≥3 tokens son específicos (nombre + 2 apellidos típico ES)
+    # Probabilidad de cross-fund con esos = muy baja. Pasarlos directos.
+    tokens = name_norm.split()
+    if len(tokens) >= 3:
+        return True
+
+    # Para nombres más cortos (1-2 tokens): exigir aparición en fuentes locales
+    if not fund_dir.exists():
+        return False
+    apellido = tokens[-1] if tokens else ""
+    if len(apellido) < 4:
+        return False
+
+    candidate_files = [
+        "cnmv_data.json", "letters_data.json", "intl_data.json",
+        "cssf_data.json", "amf_data.json", "cbi_data.json", "bundesanzeiger_data.json",
+        "pdf_cache.json",
+    ]
+    for fname in candidate_files:
+        fpath = fund_dir / fname
+        if not fpath.exists():
+            continue
+        try:
+            text_normalized = _normalize_name_key(fpath.read_text(encoding="utf-8"))
+            if apellido in text_normalized:
+                return True
+        except Exception:
+            continue
+    return False
 
 
 class ManagerProfiler:
@@ -195,7 +287,29 @@ class ManagerProfiler:
         return profiles
 
     def _gestora_domain(self) -> str:
-        """Inferir dominio gestora del discovery."""
+        """Inferir dominio gestora — GENÉRICO (Fix 2 Fase J+ 2026-04-28).
+
+        Cascada:
+        1. intl_discovery_data.json (INT)
+        2. cnmv_data.json fuentes/urls (ES)
+        3. letters_data.json URLs (cualquier fondo)
+        4. LLM lookup desde nombre gestora (Gemini Flash, $0.001)
+        """
+        from urllib.parse import urlparse
+
+        # Skip-list de dominios infraestructura (no son la gestora real)
+        SKIP_DOMAINS = (
+            "kneip", "universal-investment", "morningstar", "citywire", "trustnet",
+            "bloomberg", "reuters", "ft.com", "google", "youtube", "linkedin",
+            "facebook", "twitter", "wikipedia", "investing.com", "finect.com",
+            "rankia.com", "cnmv.es", "cssf.lu", "amf-france", "fundsquare",
+            "kii.allfunds", "allfunds.com", "es.investing", "tradingeconomics",
+        )
+
+        def _is_gestora_host(host: str) -> bool:
+            return host and not any(s in host for s in SKIP_DOMAINS)
+
+        # 1) INT discovery
         disc_path = self.fund_dir / "intl_discovery_data.json"
         if disc_path.exists():
             try:
@@ -203,13 +317,147 @@ class ManagerProfiler:
                 for doc in disc.get("documents", []):
                     url = doc.get("url", "")
                     if url and "manual://" not in url:
-                        from urllib.parse import urlparse
-                        host = urlparse(url).netloc.lower()
-                        if host and "kneip" not in host and "universal-investment" not in host:
+                        host = urlparse(url).netloc.lower().replace("www.", "")
+                        if _is_gestora_host(host):
                             return host
             except Exception:
                 pass
+
+        # 2) cnmv_data fuentes (ES)
+        cnmv_path = self.fund_dir / "cnmv_data.json"
+        if cnmv_path.exists():
+            try:
+                cd = json.loads(cnmv_path.read_text(encoding="utf-8"))
+                # Buscar URLs en fuentes / cualitativo / cartas
+                candidates = []
+                fuentes = cd.get("fuentes", {}) or {}
+                for k in ("urls_consultadas", "cartas_gestores", "informes_descargados"):
+                    candidates.extend(fuentes.get(k, []) or [])
+                for url in candidates:
+                    if isinstance(url, str) and url.startswith("http"):
+                        host = urlparse(url).netloc.lower().replace("www.", "")
+                        if _is_gestora_host(host):
+                            return host
+            except Exception:
+                pass
+
+        # 3) letters_data URLs
+        letters_path = self.fund_dir / "letters_data.json"
+        if letters_path.exists():
+            try:
+                ld = json.loads(letters_path.read_text(encoding="utf-8"))
+                for c in ld.get("cartas", []):
+                    url = c.get("url_fuente", "") or c.get("url", "")
+                    if url:
+                        host = urlparse(url).netloc.lower().replace("www.", "")
+                        if _is_gestora_host(host):
+                            return host
+            except Exception:
+                pass
+
+        # 4) LLM lookup como última opción (Gemini Flash, ~$0.001)
+        if self.gestora:
+            try:
+                from tools.gemini_wrapper import extract_fast
+                r = extract_fast(
+                    text=self.gestora,
+                    schema={"website": "str - dominio web oficial de la gestora (ej. magallanesvalue.com), null si no conoces"},
+                    context=(
+                        f"¿Cuál es el dominio web OFICIAL de la gestora '{self.gestora}'? "
+                        f"Devuelve solo el dominio (sin https://, sin www., sin path). "
+                        f"Si no lo conoces con certeza, devuelve null. NO inventes."
+                    ),
+                )
+                if isinstance(r, dict):
+                    web = r.get("website", "") or ""
+                    web = web.lower().replace("https://", "").replace("http://", "").replace("www.", "").strip("/")
+                    if web and "." in web and _is_gestora_host(web):
+                        self._log("INFO", f"Gestora domain via LLM: {web}")
+                        return web
+            except Exception:
+                pass
+
         return ""
+
+    async def _explore_gestora_team_pages(self) -> list[dict]:
+        """Fix 3 Fase J+ (2026-04-28): explora SISTEMÁTICAMENTE la web de la
+        gestora intentando URLs típicas de páginas de equipo/about/filosofía.
+
+        Genérico — funciona para CUALQUIER gestora que tenga web propia.
+        Devuelve lista de "fuentes" compatible con _compile_profiles.
+
+        Patrones probados (ES + EN):
+        - /equipo, /equipo-gestor, /quienes-somos, /sobre-nosotros, /nosotros
+        - /team, /our-team, /about, /about-us, /who-we-are
+        - /investment-philosophy, /filosofia, /filosofia-inversion, /vision
+        - /founders, /partners, /people, /management
+        """
+        domain = self._gestora_domain()
+        if not domain:
+            self._log("INFO", "Sin dominio gestora — skip explore")
+            return []
+
+        TYPICAL_PATHS = [
+            # Equipo (ES)
+            "equipo", "equipo-gestor", "nuestro-equipo", "quienes-somos",
+            "sobre-nosotros", "nosotros", "fundadores", "socios",
+            # Equipo (EN)
+            "team", "our-team", "about", "about-us", "who-we-are",
+            "founders", "partners", "people", "management", "leadership",
+            # Filosofía
+            "investment-philosophy", "filosofia", "filosofia-inversion",
+            "investment-approach", "approach", "metodologia",
+            # Versions con /es/ /en/ prefix
+            "es/equipo", "en/team", "es/quienes-somos", "en/about",
+        ]
+
+        sources: list[dict] = []
+        seen_urls: set[str] = set()
+        async with httpx.AsyncClient(
+            follow_redirects=True, timeout=10,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+        ) as client:
+            for path in TYPICAL_PATHS:
+                for scheme in ("https", "http"):
+                    url = f"{scheme}://{domain}/{path}"
+                    if url in seen_urls:
+                        continue
+                    seen_urls.add(url)
+                    try:
+                        r = await client.get(url)
+                        if r.status_code != 200:
+                            continue
+                        ct = (r.headers.get("content-type") or "").lower()
+                        if "html" not in ct:
+                            continue
+                        from bs4 import BeautifulSoup
+                        soup = BeautifulSoup(r.text, "html.parser")
+                        # Eliminar boilerplate
+                        for tag in soup(["script", "style", "nav", "footer", "header",
+                                         "aside", "form", "iframe"]):
+                            tag.decompose()
+                        text = soup.get_text(" ", strip=True)
+                        if len(text) < 300:
+                            continue
+                        # Solo conservar páginas con contenido relevante
+                        text_lower = text.lower()
+                        relevant_kws = ("equipo", "team", "gestor", "manager", "fundad",
+                                       "founder", "filosof", "philosophy", "inversi", "invest",
+                                       "ceo", "cio", "director", "partner")
+                        if not any(kw in text_lower for kw in relevant_kws):
+                            continue
+                        sources.append({
+                            "url": url,
+                            "texto": text[:8000],
+                            "_source_type": "gestora_web_explore",
+                        })
+                        self._log("INFO", f"  Gestora explore [{path}]: {len(text)} chars OK")
+                        break  # solo necesitamos 1 scheme por path
+                    except Exception:
+                        continue
+        if sources:
+            self._log("OK", f"Gestora explore: {len(sources)} páginas relevantes en {domain}")
+        return sources
 
     async def _fetch_and_extract(self, url: str, name: str) -> str:
         """Fetch URL y extraer info relevante del gestor."""
@@ -309,13 +557,13 @@ class ManagerProfiler:
                 ),
             )
             if isinstance(result, dict):
-                # Enriquecer con Opus si los perfiles son pobres
+                # Fase J Fix (2026-04-28): SIEMPRE invocar Opus para
+                # (a) enriquecer perfiles pobres (lo que ya hacía)
+                # (b) identificar lead/co/confidence con conocimiento del mundo.
+                # Coste extra ~$0.02 por fondo, eliminando la heurística frágil
+                # _rank_lead_first.
                 equipo = result.get("equipo", [])
-                needs_enrichment = any(
-                    not g.get("biografia") or len(g.get("biografia", "") or "") < 50
-                    for g in equipo if isinstance(g, dict)
-                )
-                if equipo and needs_enrichment:
+                if equipo:
                     result = self._enrich_with_opus(result)
                 return result
         except Exception as e:
@@ -324,9 +572,16 @@ class ManagerProfiler:
         return {"equipo": [], "fuentes_web": []}
 
     def _enrich_with_opus(self, compiled: dict) -> dict:
-        """Enriquece perfiles pobres con Claude Opus (conocimiento financiero).
-        Solo se llama si Gemini produjo perfiles con biografías <50 chars.
-        Coste: ~$0.03 por call. 1 call por fondo, no por gestor."""
+        """Enriquece perfiles + identifica lead/co con Claude Opus.
+
+        Fase J (2026-04-28): además del enriquecimiento histórico, pide:
+        - lead: nombre canónico del LEAD/principal manager
+        - co: nombre canónico del co-manager (o null)
+        - confidence: high|medium|low|desconocido
+
+        Esto reemplaza la heurística frágil _rank_lead_first (Fase I).
+        Coste: ~$0.02 por call. 1 call por fondo.
+        """
         try:
             import anthropic
             import os
@@ -339,37 +594,57 @@ class ManagerProfiler:
 
             prompt = (
                 f"Fondo: {self.fund_name} ({self.isin}), Gestora: {self.gestora}\n"
-                f"Gestores: {', '.join(nombres)}\n\n"
-                f"Para cada gestor, proporciona en español:\n"
+                f"Candidatos detectados por nuestro pipeline: {', '.join(nombres)}\n\n"
+                f"TAREA 1 — Para cada gestor de la lista de candidatos, proporciona en español:\n"
                 f"- Cargo exacto en el fondo\n"
                 f"- Biografía profesional (educación, carrera, empresas anteriores)\n"
                 f"- Año de incorporación a la gestora\n"
                 f"- Otros fondos que gestiona\n"
                 f"- Filosofía de inversión (si es conocida)\n"
                 f"- Reconocimientos (FE Alpha Manager, Citywire, etc)\n\n"
-                f"Solo datos que conozcas con certeza. Si no sabes algo, di null."
+                f"TAREA 2 — Identifica el LEAD y el CO actual del fondo {self.fund_name}:\n"
+                f"- 'lead': nombre completo CANÓNICO (acentos correctos) del LEAD/principal manager\n"
+                f"  actual del fondo. Si NO ESTÁS SEGURO de quién es el lead → null.\n"
+                f"- 'co': nombre canónico del co-manager o cofundador relevante (1 nombre o null).\n"
+                f"- 'confidence': 'high' | 'medium' | 'low' | 'desconocido'\n"
+                f"  - high: conoces el lead con certeza (gestor público documentado)\n"
+                f"  - medium: tienes evidencia razonable pero no 100% certeza\n"
+                f"  - low: inferencia con poca evidencia\n"
+                f"  - desconocido: no tienes información fiable de este fondo\n"
+                f"- Si los candidatos detectados NO incluyen el lead real (cross-fund\n"
+                f"  contamination), puedes proponer el lead correcto aunque no esté en la lista.\n\n"
+                f"REGLAS CRÍTICAS:\n"
+                f"- Solo datos que conozcas con certeza. Si no sabes algo, di null.\n"
+                f"- 'desconocido' es respuesta válida y preferida frente a inventar.\n"
+                f"- Devuelve nombres en formato oficial con acentos."
             )
 
             r = client.messages.create(
                 model="claude-opus-4-20250514",
-                max_tokens=1000,
+                max_tokens=1500,  # +500 para tarea 2 + jerarquía
                 messages=[{"role": "user", "content": prompt}],
             )
             opus_text = r.content[0].text
-            self._log("INFO", f"Opus enriquecimiento ({r.usage.input_tokens}+"
+            self._log("INFO", f"Opus enriquecimiento+lead ({r.usage.input_tokens}+"
                       f"{r.usage.output_tokens} tok)")
 
-            # Merge: para cada gestor, si Opus da más info, actualizar
+            # Merge: para cada gestor, si Opus da más info, actualizar.
+            # Schema extendido — ahora también pide lead/co/confidence.
             from tools.gemini_wrapper import extract_fast
             enriched = extract_fast(
                 text=opus_text,
-                schema={"equipo": [{
-                    "nombre": "str", "cargo": "str",
-                    "biografia": "str", "educacion": "str",
-                    "anio_incorporacion": "int", "otros_fondos": "str",
-                    "filosofia": "str", "reconocimientos": "str",
-                }]},
-                context="Estructura este texto sobre gestores de fondos en JSON.",
+                schema={
+                    "equipo": [{
+                        "nombre": "str", "cargo": "str",
+                        "biografia": "str", "educacion": "str",
+                        "anio_incorporacion": "int", "otros_fondos": "str",
+                        "filosofia": "str", "reconocimientos": "str",
+                    }],
+                    "lead": "str - nombre canónico del lead manager o null si desconocido",
+                    "co": "str - nombre canónico del co-manager o null",
+                    "confidence": "str - high|medium|low|desconocido",
+                },
+                context="Estructura este texto sobre gestores de fondos en JSON. Incluye lead/co/confidence si están en el texto.",
             )
             if isinstance(enriched, dict):
                 opus_list = [g for g in enriched.get("equipo", [])
@@ -398,6 +673,19 @@ class ManagerProfiler:
                         g["anio_incorporacion"] = opus_g["anio_incorporacion"]
                     if not g.get("cargo") and opus_g.get("cargo"):
                         g["cargo"] = opus_g["cargo"]
+
+                # Fase J (2026-04-28): propagar lead/co/confidence de Opus al
+                # compiled dict, para que run() los use en lugar de la heurística.
+                lead_opus = enriched.get("lead")
+                co_opus = enriched.get("co")
+                confidence_opus = (enriched.get("confidence") or "").lower().strip()
+                if lead_opus and lead_opus.lower() not in ("null", "desconocido", ""):
+                    compiled["_lead_opus"] = lead_opus
+                if co_opus and co_opus.lower() not in ("null", "desconocido", ""):
+                    compiled["_co_opus"] = co_opus
+                if confidence_opus:
+                    compiled["_confidence_opus"] = confidence_opus
+                self._log("INFO", f"Opus lead/co: lead={lead_opus!r} co={co_opus!r} conf={confidence_opus!r}")
 
         except Exception as e:
             self._log("INFO", f"Opus enrichment skipped: {type(e).__name__}")
@@ -441,24 +729,125 @@ class ManagerProfiler:
             self._log("ERROR", "No se encontraron gestores en ninguna fuente")
             return self._save({"error": "gestores no encontrados", "isin": self.isin})
 
-        self._log("OK", f"Gestores: {self.manager_names}")
+        # ═════════════════════════════════════════════════════════════════
+        # Bloque 2 Fase I + Fase J (2026-04-28): dedup → cross-fund → search
+        # → Opus identifica lead/co con conocimiento del mundo (no heurística).
+        # ═════════════════════════════════════════════════════════════════
 
-        # 2. Buscar perfiles web
+        # 1.5a. Deduplicar acentos ("Aránguez" vs "Aranguez")
+        names_dedup = _dedup_names(self.manager_names)
+        if len(names_dedup) < len(self.manager_names):
+            self._log("INFO", f"Dedup acentos: {len(self.manager_names)} → {len(names_dedup)}")
+
+        # 1.5b. Cross-fund filter PRELIMINAR: solo nombres ≥3 tokens pasan
+        # automáticamente (Bonus Fix Fase J), nombres más cortos exigen
+        # presencia local. Esta es validación SUAVE — Opus en _enrich_with_opus
+        # validará después con conocimiento real del mundo.
+        names_validated = [n for n in names_dedup if _validate_name_in_fund_sources(n, self.fund_dir)]
+        rejected_cross_fund = [n for n in names_dedup if n not in names_validated]
+        if rejected_cross_fund:
+            self._log("INFO", f"Pre-filter (sin Opus aún): {rejected_cross_fund}")
+        if not names_validated and names_dedup:
+            self._log("INFO", "Sin validación local posible, mantengo dedup")
+            names_validated = names_dedup
+
+        self.manager_names = names_validated
+        self._log("INFO", f"Candidatos pre-Opus: {self.manager_names}")
+
+        # 2. Buscar perfiles web (sobre todos los candidatos)
         raw_profiles = await self._search_profiles(self.manager_names)
+
+        # 2b. Fix 3 Fase J+ (2026-04-28): explorar SISTEMÁTICAMENTE web gestora
+        # — fetch directo a /equipo, /team, /about, /filosofía (genérico).
+        # Las páginas relevantes se incorporan como una "persona" virtual con
+        # texto de la web gestora — el _compile_profiles las procesará para
+        # extraer gestores, filosofía, etc.
+        gestora_pages = await self._explore_gestora_team_pages()
+        if gestora_pages:
+            raw_profiles.append({
+                "nombre": f"_GESTORA_WEB_{self.gestora}",
+                "fuentes": gestora_pages,
+                "_source_type": "gestora_web_systematic",
+            })
 
         # 3. Citywire fund page
         citywire = await self._search_citywire_fund()
 
-        # 4. Compilar con LLM
+        # 4. Compilar + IDENTIFICAR LEAD/CO con Opus (Fase J)
         compiled = self._compile_profiles(raw_profiles, citywire)
 
-        # 5. Guardar
+        # 5. Resolver lead/co usando Opus output (Fase J reemplaza heurística)
+        lead_opus = compiled.get("_lead_opus")
+        co_opus = compiled.get("_co_opus")
+        confidence_opus = compiled.get("_confidence_opus", "")
+
+        if lead_opus and confidence_opus in ("high", "medium"):
+            # Opus dio respuesta fiable → usar directamente
+            final_names = [lead_opus]
+            if co_opus:
+                final_names.append(co_opus)
+            equipo_roles = {lead_opus: {"is_lead": True, "_source": f"opus_{confidence_opus}"}}
+            if co_opus:
+                equipo_roles[co_opus] = {"is_co": True, "_source": f"opus_{confidence_opus}"}
+            self._log("OK", f"Lead/co via Opus (conf={confidence_opus}): lead={lead_opus!r} co={co_opus!r}")
+        else:
+            # Fallback: orden de _dedup_names (Opus desconoce o low confidence)
+            final_names = self.manager_names[:2]
+            equipo_roles = {}
+            if final_names:
+                equipo_roles[final_names[0]] = {"is_lead": True, "_source": "fallback_orden_detección"}
+            if len(final_names) > 1:
+                equipo_roles[final_names[1]] = {"is_co": True, "_source": "fallback_orden_detección"}
+            self._log("WARN", f"Opus desconoce lead (conf={confidence_opus!r}). Fallback al orden detección: {final_names}")
+
+        self.manager_names = final_names
+        self._log("OK", f"Gestores finales (max 2): {self.manager_names}")
+
+        # 6. Filtrar compiled.equipo a SOLO los finales (lead/co)
+        # Si Opus identificó nombres canónicos (con acentos correctos) que NO
+        # coincidan literalmente con los del compiled, hacemos match por apellido.
+        equipo_dicts_full = compiled.get("equipo", []) or []
+        final_dicts = []
+        for fname in self.manager_names:
+            fname_norm = _normalize_name_key(fname)
+            fname_apellido = fname_norm.split()[-1] if " " in fname_norm else fname_norm
+            matched = None
+            for g in equipo_dicts_full:
+                if not isinstance(g, dict):
+                    continue
+                g_norm = _normalize_name_key(g.get("nombre", ""))
+                g_apellido = g_norm.split()[-1] if " " in g_norm else g_norm
+                if g_norm == fname_norm or (fname_apellido and fname_apellido == g_apellido):
+                    matched = dict(g)  # copy
+                    matched["nombre"] = fname  # usar nombre canónico (con acentos)
+                    break
+            if not matched:
+                # Lead canónico de Opus que no estaba en candidatos detectados:
+                # crear entry mínimo (Opus enrichment debería tener bio aunque
+                # no esté en compiled; en peor caso, solo nombre)
+                matched = {"nombre": fname, "_source": "opus_canonical_only"}
+            final_dicts.append(matched)
+
+        # 7. Guardar (Fix A Fase J 2026-04-28: schema unificado)
+        # `equipo_gestor` = lista plana de strings (canónico para analyst y manager_deep_agent)
+        # `equipo` = lista de dicts con biografia/educacion/etc. (detalle para perfiles)
+        # Ambos coexisten — distintos consumidores leen el que necesitan.
+
+        # Limpiar metadata interna de compiled (no debe ir al JSON final)
+        compiled_clean = {k: v for k, v in compiled.items()
+                         if k not in ("_lead_opus", "_co_opus", "_confidence_opus", "equipo")}
+
         output = {
             "isin": self.isin,
             "fund_name": self.fund_name,
             "gestora": self.gestora,
             "generated": datetime.now().isoformat(),
-            **compiled,
+            **compiled_clean,
+            "equipo": final_dicts,  # lista de dicts con bio/cargo/etc. (max 2)
+            "equipo_gestor": list(self.manager_names),  # canónico plano (max 2)
+            "equipo_roles": equipo_roles,
+            "_opus_lead_confidence": confidence_opus,
+            "_rejected_cross_fund": rejected_cross_fund,
             "fuentes_web": [
                 f["url"] for p in raw_profiles
                 for f in p.get("fuentes", [])
