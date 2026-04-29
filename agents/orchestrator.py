@@ -475,6 +475,34 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
         log("ORCHESTRATOR", "OK",
             f"Letters: {n_cartas} | Readings: {n_lecturas} lect + {n_externos} ext | Manager: {'OK' if manager_result.get('nombre') else 'parcial'}")
 
+        # ── Paso 3a Fix Loop (2026-04-29): manager_deep_agent enrich auto ───
+        # Tras manager_profiler (que identifica lead/co vía Opus en Fase J), invocar
+        # manager_deep_agent para enriquecer esos lead/co con full-text articles
+        # (articulos_completos) — el bucle iterativo Fix 3 Fase H que solo se
+        # ejecutaba en quality_loop retry. Sin esto, analyst recibe equipo_gestor
+        # pero articulos_completos vacío → perfiles esqueleto.
+        try:
+            curated_names = manager_result.get("equipo_gestor") or []
+            curated_names = [n for n in curated_names if isinstance(n, str) and n.strip()
+                             and not n.lower().startswith("equipo")]
+            if curated_names:
+                from agents.manager_deep_agent import ManagerDeepAgent
+                log("ORCHESTRATOR", "START", f"Paso 3a: manager_deep enrich (lead/co={curated_names})")
+                deep = ManagerDeepAgent(
+                    isin=isin, fund_name=fund_name_hint, gestora=gestora_hint,
+                    manager_names=curated_names,  # curados por profiler+Opus
+                )
+                deep_result = await deep.run()
+                results["manager_deep"] = deep_result
+                arts = deep_result.get("articulos_completos", {}) or {}
+                total_arts = sum(len(a) for a in arts.values())
+                log("MANAGER_DEEP", "OK",
+                    f"Enriquecido: {len(arts)} gestores × ~{total_arts // max(len(arts),1)} arts cada = {total_arts} full-text")
+            else:
+                log("ORCHESTRATOR", "INFO", "Paso 3a skip: sin nombres curados de profiler")
+        except Exception as exc:
+            log("MANAGER_DEEP", "ERROR", f"Paso 3a (enrich) falló: {exc}")
+
         progress.advance(main_task)
 
         # ── Paso 3b: Letters Deep (segundo pase — necesita letters terminado) ─
@@ -783,9 +811,22 @@ async def _run_quality_loop(
         f"{report.get('fallos_scarcity', 0)} scarcity) — {report.get('score_display', '')}")
 
     iteration = 0
+    # K3 Fase K (2026-04-29): backup pre-loop para anti-regresión
+    output_path_for_backup = ROOT / "data" / "funds" / isin / "output.json"
+    iter_backups: list[Path] = []
     while not aceptable and n_fallos_estructura > 0 and iteration < max_iter:
         iteration += 1
         prev_fallos_estructura = n_fallos_estructura
+
+        # K3 backup pre-iter: snapshot del output antes de reagentar/regenerar
+        if output_path_for_backup.exists():
+            iter_backup = output_path_for_backup.parent / f"output.iter_{iteration-1}.json"
+            try:
+                iter_backup.write_text(output_path_for_backup.read_text(encoding="utf-8"), encoding="utf-8")
+                iter_backups.append(iter_backup)
+            except Exception:
+                pass
+
         log("QUALITY", "INFO", f"Iteración {iteration}/{max_iter} — reagenting upstream agents (solo estructura/content)")
 
         # Agrupar fallos corregibles (estructura + content) por agente responsable
@@ -943,10 +984,28 @@ async def _run_quality_loop(
             f"{report.get('fallos_scarcity', 0)} scarcity) — antes: {prev_fallos_estructura} estructura")
 
         # Abortar si no estamos reduciendo fallos de estructura/content
+        # K3 Fase K (2026-04-29): si la iter NO mejoró O empeoró → restaurar
+        # backup de iter anterior para no quedarnos con output peor.
         if n_fallos_estructura >= prev_fallos_estructura:
             log("QUALITY", "WARN",
                 f"Iteración {iteration} no redujo fallos estructura ({n_fallos_estructura} >= {prev_fallos_estructura}) — abortando loop")
+            # Restaurar backup pre-iter (si existe)
+            if iter_backups:
+                last_backup = iter_backups[-1]
+                if last_backup.exists():
+                    try:
+                        output_path_for_backup.write_text(last_backup.read_text(encoding="utf-8"), encoding="utf-8")
+                        log("QUALITY", "ROLLBACK", f"Restaurado output desde {last_backup.name} (iter {iteration} no mejoró)")
+                    except Exception as exc:
+                        log("QUALITY", "WARN", f"Rollback falló: {exc}")
             break
+
+    # K3 cleanup: borrar backups iter al finalizar (ya no son útiles)
+    for b in iter_backups:
+        try:
+            b.unlink()
+        except Exception:
+            pass
 
     # ── Re-generar dashboard HTML con el output final del loop ──────────────
     try:

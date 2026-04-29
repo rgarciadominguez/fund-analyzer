@@ -322,20 +322,42 @@ class ReadingsCollector:
 
         queries = []
 
+        # K17 Fase K (2026-04-29): elegir variante según tipo de source.
+        # FULL para medios grandes (Morningstar/FT/Bloomberg indexan nombre legal).
+        # SHORT para blogs de nicho (escriben coloquial: "Magallanes European").
+        # variants[0] es FULL, variants[-1] suele ser SHORT.
+        full_name = fund_variants[0]
+        short_name = fund_variants[-1] if len(fund_variants) > 1 else full_name
+        # MEDIUM (sin sufijos legales) — usado para blogs si SHORT es muy genérico
+        medium_name = fund_variants[1] if len(fund_variants) > 2 else short_name
+
+        self._log("INFO", f"Variantes nombre: FULL={full_name!r} MEDIUM={medium_name!r} SHORT={short_name!r}")
+
         # ── Tier 0: Claude identifica fuentes especializadas para este fondo ──
         smart_sources = self._identify_best_sources()
         if smart_sources:
             self._log("INFO", f"Claude sugiere: {smart_sources[:5]}")
             for domain in smart_sources[:5]:
-                queries.append(f'site:{domain} "{primary}"')
+                # Smart sources: usar SHORT (Claude propone blogs específicos)
+                name = short_name if self._is_niche_blog(domain) else full_name
+                queries.append(f'site:{domain} "{name}"')
 
         # ── Tier 1: sources high quality — 1 query cada una ──
+        # K17: blogs de nicho usan SHORT, medios grandes usan FULL del template.
         high_sources = [s for s in DIRECTED_SOURCES if s["quality"] == "high"]
         for src in high_sources:
-            q = src["query_template"].format(
-                fund=primary, isin=self.isin, gestora=gestora_q
-            )
-            queries.append(q)
+            if self._is_niche_blog(src["domain"]):
+                # Blogs de nicho: usar SHORT name (más probable que coincida)
+                queries.append(f'site:{src["domain"]} "{short_name}"')
+                # Si SHORT es muy corto (1 palabra), añadir MEDIUM como backup
+                if len(short_name.split()) <= 1 and medium_name != short_name:
+                    queries.append(f'site:{src["domain"]} "{medium_name}"')
+            else:
+                # Medios grandes: usar template original (FULL name)
+                q = src["query_template"].format(
+                    fund=full_name, isin=self.isin, gestora=gestora_q
+                )
+                queries.append(q)
 
         # ── Tier 2: sources medium — agrupar por region ──
         medium_sources = [s for s in DIRECTED_SOURCES if s["quality"] == "medium"]
@@ -402,33 +424,70 @@ class ReadingsCollector:
 
     def _fund_name_variants(self, fund_q: str) -> list[str]:
         """Generar variantes del nombre para mejor matching en Google.
-        Regla: la variante principal debe ser lo suficientemente especifica
-        para no devolver resultados genericos."""
+
+        K17 Fase K (2026-04-29): genera 3 niveles de especificidad:
+        - FULL: nombre legal completo ("MAGALLANES EUROPEAN EQUITY FI")
+        - MEDIUM: sin sufijos legales/regulatorios ("Magallanes European Equity")
+        - SHORT: gestora + 1-2 tokens distintivos ("Magallanes European" o "Magallanes Value")
+
+        Para queries en BLOGS DE NICHO usar SHORT (más probable que coincida
+        con cómo el blog escribe el nombre). Para MEDIOS GRANDES usar FULL.
+        Lista ordenada: [FULL, MEDIUM, SHORT, ...alternativas].
+        """
         variants = []
 
-        # Nombre completo sin parentesis
+        # FULL: Nombre completo sin parentesis
         no_parens = re.sub(r'\s*\([^)]*\)', '', fund_q).strip()
         if no_parens:
             variants.append(no_parens)
-
-        # Nombre original si es diferente
-        if fund_q != no_parens:
+        if fund_q != no_parens and fund_q not in variants:
             variants.append(fund_q)
 
-        # Con gestora prefijada: "DNCA Invest Alpha Bonds" o "Troy Trojan Fund"
+        # FULL alt: con gestora prefijada (ej. INT)
         if self.gestora and self.fund_name:
-            # Reconstruir nombre completo sin " - "
             full = self.fund_name.replace(" - ", " ")
             full = re.sub(r'\s*\([^)]*\)', '', full).strip()
             if full and full not in variants:
                 variants.insert(0, full)
 
-        # Sin "Fund" solo si el resultado tiene >6 chars (evitar "Trojan" solo)
-        no_fund = re.sub(r'\s+Fund\b', '', no_parens, flags=re.IGNORECASE).strip()
-        if no_fund and len(no_fund) > 6 and no_fund not in variants:
-            variants.append(no_fund)
+        # MEDIUM: sin sufijos legales/regulatorios + puntuación
+        SUFFIX_PATTERNS = [
+            r',\s*FI\b', r',\s*FCR\b', r',\s*FIL\b', r',\s*SICAV\b',
+            r'\s+FI\b', r'\s+FCR\b', r'\s+FIL\b', r'\s+SICAV\b',
+            r'\s+S\.?A\.?\b', r'\s+S\.?L\.?\b',
+            r'\s+Fund\b', r'\s+FONDO\b',
+            r'\s+(Acc|ACC|Cap|CAP|Inc|INC)\b',
+            r'\s+Class\s+\w+', r'\s+Clase\s+\w+',
+            r'\s+EUR\b$', r'\s+USD\b$', r'\s+GBP\b$', r'\s+CHF\b$',
+        ]
+        medium = no_parens
+        for pat in SUFFIX_PATTERNS:
+            medium = re.sub(pat, '', medium, flags=re.IGNORECASE)
+        # Limpiar puntuación final + collapse espacios
+        medium = re.sub(r'[,;:.\s]+$', '', medium).strip()
+        medium = re.sub(r'\s+', ' ', medium)
+        if medium and medium not in variants and len(medium) > 5:
+            variants.append(medium)
 
-        # Fallback: con gestora (solo si no empieza ya con ella)
+        # SHORT: si MEDIUM tiene ≥2 palabras significativas, usar las 2 primeras.
+        # Si MEDIUM es 1 sola palabra (ej. "AVANTAGE"), usar gestora_token + esa.
+        if medium:
+            tokens = [t for t in medium.split() if len(t) > 2]  # tokens significativos
+            if len(tokens) >= 2:
+                short = " ".join(tokens[:2])
+                if short and short not in variants:
+                    variants.append(short)
+            elif len(tokens) == 1 and self.gestora:
+                # SHORT = gestora_token + fund_token si fondo es 1 palabra
+                gestora_token = self.gestora.split()[0]
+                if gestora_token.lower() != tokens[0].lower():
+                    short = f"{gestora_token} {tokens[0]}"
+                else:
+                    short = tokens[0]  # gestora == fund (ej. "Avantage")
+                if short and short not in variants:
+                    variants.append(short)
+
+        # Fallback con gestora (solo si no empieza ya con ella)
         if self.gestora and variants:
             gestora_short = self.gestora.split()[0]
             if not variants[0].lower().startswith(gestora_short.lower()):
@@ -437,6 +496,21 @@ class ReadingsCollector:
                     variants.append(with_gestora)
 
         return variants or [fund_q]
+
+    # K17 Fase K (2026-04-29): clasificación blog nicho vs medio grande
+    NICHE_BLOG_DOMAINS = (
+        "moclano.substack.com", "saludfinanciera.substack.com",
+        "astralisfundsacademy.com", "astralis.es",
+        "rankia.com", "finect.com", "masdividendos.com",
+        "valueschool.es", "quenoteloinviertan.com", "inversor-tranquilo.com",
+        "moiglobal.com", "valuewalk.com", "gurufocus.com",
+        "fool.com", "advisorperspectives.com", "valueinvestorsclub.com",
+        "seekingalpha.com",
+    )
+
+    def _is_niche_blog(self, domain: str) -> bool:
+        """True si el dominio es un blog de nicho (mejor query con SHORT name)."""
+        return any(nb in domain.lower() for nb in self.NICHE_BLOG_DOMAINS)
 
     def _identify_best_sources(self) -> list[str]:
         """Identifica webs especializadas para este fondo usando LLM.
@@ -464,6 +538,7 @@ class ReadingsCollector:
             r = client.messages.create(
                 model="claude-opus-4-20250514",
                 max_tokens=200,  # solo necesitamos dominios
+                temperature=0,  # K5 Fase K: determinismo
                 messages=[{"role": "user", "content": prompt}],
             )
             text = r.content[0].text
@@ -659,17 +734,24 @@ class ReadingsCollector:
     def _validate_full_text_match(
         self, text: str, is_pro: bool, url: str = ""
     ) -> tuple[bool, list[str]]:
-        """Validation post-fetch (Bloque 1.4 Fase I + Fix C Fase J 2026-04-28):
-        - Pro source con ISIN en URL: aceptar con ≥1 mención (artículos cortos
-          de blogs profesionales pueden mencionar el fondo solo 1 vez).
+        """Validation post-fetch (Bloque 1.4 Fase I + Fix C Fase J + K6 Fase K).
+
+        Threshold dinámico:
+        - Pro source con ISIN en URL: ≥1 mención del fund/gestora.
         - Pro source sin ISIN en URL: ≥2 menciones.
         - Generalista: ≥3 menciones.
 
-        "Mención" = aparición del PRIMER token significativo del fund_short
-        (>3 chars), no del nombre completo. Ej. para "Magallanes European Equity"
-        cuenta apariciones de "magallanes" — patrón generalizado, no overfit.
-        Returns: (valido, validation_log).
+        K6 (2026-04-29): si fund_short tokens son genéricos (managers/value/equity/
+        etc.), añadir gestora primer token como anchor adicional. Cuenta el MAX
+        entre fund_short tokens y gestora token.
         """
+        GENERIC_TOKENS = {
+            "managers", "manager", "value", "equity", "equities", "fund", "fondos",
+            "fondo", "bond", "bonds", "growth", "income", "balanced", "global",
+            "international", "europe", "european", "world", "select", "selection",
+            "strategy", "core", "active", "passive", "index",
+        }
+
         text_l = text.lower()
         url_l = (url or "").lower()
         log = []
@@ -682,27 +764,63 @@ class ReadingsCollector:
         if isin_in_url:
             log.append("isin_in_url")
 
-        # Token-based name counting (alineado con _validate_relevance):
+        # Token-based name counting:
         # Cuenta apariciones del token MÁS LARGO/significativo del fund_short.
-        # Esto generaliza para fondos cuyo nombre coloquial es solo la primera palabra.
+        # K6: si todos los tokens son genéricos, fallback a gestora token.
         name_tokens = [w.lower() for w in (self.fund_short or "").split() if len(w) > 3]
+        name_tokens.sort(key=len, reverse=True)
+
+        # K6 Fase K: detectar si TODOS los tokens son genéricos del dominio
+        all_generic = name_tokens and all(t in GENERIC_TOKENS for t in name_tokens)
+        if all_generic and self.gestora:
+            gest_tokens = [w.lower() for w in self.gestora.split() if len(w) > 3]
+            if gest_tokens:
+                gest_tokens.sort(key=len, reverse=True)
+                name_tokens = gest_tokens + name_tokens  # gestora prioritaria
+                log.append("anchor_gestora")
+
         name_count = 0
         if name_tokens:
-            # Ordenar tokens por longitud desc — los más específicos primero
-            name_tokens.sort(key=len, reverse=True)
             name_count = max(text_l.count(t) for t in name_tokens)
         if name_count >= 1:
             log.append(f"name_match_{name_count}x")
 
         # Threshold dinámico
         if is_pro and isin_in_url:
-            min_name = 1  # pro source + ISIN identificador en URL = altísima confianza
+            min_name = 1
         elif is_pro:
             min_name = 2
         else:
             min_name = 3
-        valido = isin_in_text or name_count >= min_name
-        return (valido, log)
+        valido_basic = isin_in_text or name_count >= min_name
+
+        # K17 Fase K (2026-04-29): refuerzo anti-mención-tangencial.
+        # Si el reading menciona el fund_short solo 1-2 veces pero el texto es
+        # MUY largo (>5000c), puede ser mención tangencial (lista de fondos,
+        # comparativa breve). Exigir contexto cercano: keywords del dominio
+        # (rentabilidad, gestor, AUM, value, cartera, posición, comisión, fondo)
+        # cerca del nombre del fondo.
+        if valido_basic and not isin_in_text and len(text) > 5000 and name_count <= 2:
+            # Buscar contexto fund + keyword en ventana de 200 chars
+            CONTEXT_KW = ("rentabilidad", "gestor", "patrimonio", "aum", "value",
+                          "cartera", "posición", "posicion", "comisión", "comision",
+                          "fondo", "alpha", "beta", "tracking", "benchmark",
+                          "manager", "performance", "ratio", "drawdown")
+            primary_token = name_tokens[0] if name_tokens else ""
+            has_context = False
+            if primary_token:
+                for m in __import__("re").finditer(re.escape(primary_token), text_l):
+                    s, e = max(0, m.start()-200), min(len(text_l), m.end()+200)
+                    window = text_l[s:e]
+                    if any(kw in window for kw in CONTEXT_KW):
+                        has_context = True
+                        break
+            if not has_context:
+                log.append("rejected_tangential_mention")
+                return (False, log)
+            log.append("context_validated")
+
+        return (valido_basic, log)
 
     # ══════════════════════════════════════════════════════════════════════
     # PASO 3: Extraer contenido estructurado con Gemini

@@ -552,6 +552,7 @@ class LettersCollector:
             r = client.messages.create(
                 model="claude-opus-4-20250514",
                 max_tokens=300,
+                temperature=0,  # K5 Fase K: determinismo
                 messages=[{"role": "user", "content": (
                     f"Fondo: {self.fund_name} ({self.isin})\n"
                     f"Gestora: {self.gestora}\n"

@@ -622,6 +622,7 @@ class ManagerProfiler:
             r = client.messages.create(
                 model="claude-opus-4-20250514",
                 max_tokens=1500,  # +500 para tarea 2 + jerarquía
+                temperature=0,  # K5 Fase K: determinismo entre runs
                 messages=[{"role": "user", "content": prompt}],
             )
             opus_text = r.content[0].text
@@ -739,20 +740,16 @@ class ManagerProfiler:
         if len(names_dedup) < len(self.manager_names):
             self._log("INFO", f"Dedup acentos: {len(self.manager_names)} → {len(names_dedup)}")
 
-        # 1.5b. Cross-fund filter PRELIMINAR: solo nombres ≥3 tokens pasan
-        # automáticamente (Bonus Fix Fase J), nombres más cortos exigen
-        # presencia local. Esta es validación SUAVE — Opus en _enrich_with_opus
-        # validará después con conocimiento real del mundo.
-        names_validated = [n for n in names_dedup if _validate_name_in_fund_sources(n, self.fund_dir)]
-        rejected_cross_fund = [n for n in names_dedup if n not in names_validated]
-        if rejected_cross_fund:
-            self._log("INFO", f"Pre-filter (sin Opus aún): {rejected_cross_fund}")
-        if not names_validated and names_dedup:
-            self._log("INFO", "Sin validación local posible, mantengo dedup")
-            names_validated = names_dedup
-
+        # 1.5b. K9 Fase K (2026-04-29): pre-filter cross-fund ELIMINADO.
+        # Opus en _enrich_with_opus tiene conocimiento del mundo y filtra
+        # cross-fund correctamente. El pre-filter local generaba false negatives
+        # con nombres legítimos (ej. "Álvaro Guzmán" 2 tokens no presente literal
+        # en cnmv_data se rechazaba aunque sea el lead real).
+        # Mantenemos `_dedup_names` para limpieza acentual.
+        names_validated = names_dedup
+        rejected_cross_fund: list[str] = []  # mantenido por backward-compat output
         self.manager_names = names_validated
-        self._log("INFO", f"Candidatos pre-Opus: {self.manager_names}")
+        self._log("INFO", f"Candidatos pre-Opus (post-dedup, sin pre-filter): {self.manager_names}")
 
         # 2. Buscar perfiles web (sobre todos los candidatos)
         raw_profiles = await self._search_profiles(self.manager_names)
@@ -776,29 +773,32 @@ class ManagerProfiler:
         # 4. Compilar + IDENTIFICAR LEAD/CO con Opus (Fase J)
         compiled = self._compile_profiles(raw_profiles, citywire)
 
-        # 5. Resolver lead/co usando Opus output (Fase J reemplaza heurística)
+        # 5. Resolver lead/co usando Opus output
+        # K4 Fase K (2026-04-29): si Opus desconoce, NO inventar fallback "orden
+        # detección" arbitrario. Usar nombres dedup tal cual sin asignar lead/co.
+        # Analyst tratará todos como peers (perfiles iguales en peso).
         lead_opus = compiled.get("_lead_opus")
         co_opus = compiled.get("_co_opus")
         confidence_opus = compiled.get("_confidence_opus", "")
 
+        equipo_roles: dict = {}
         if lead_opus and confidence_opus in ("high", "medium"):
             # Opus dio respuesta fiable → usar directamente
             final_names = [lead_opus]
             if co_opus:
                 final_names.append(co_opus)
-            equipo_roles = {lead_opus: {"is_lead": True, "_source": f"opus_{confidence_opus}"}}
+            equipo_roles[lead_opus] = {"is_lead": True, "_source": f"opus_{confidence_opus}"}
             if co_opus:
                 equipo_roles[co_opus] = {"is_co": True, "_source": f"opus_{confidence_opus}"}
             self._log("OK", f"Lead/co via Opus (conf={confidence_opus}): lead={lead_opus!r} co={co_opus!r}")
         else:
-            # Fallback: orden de _dedup_names (Opus desconoce o low confidence)
-            final_names = self.manager_names[:2]
-            equipo_roles = {}
-            if final_names:
-                equipo_roles[final_names[0]] = {"is_lead": True, "_source": "fallback_orden_detección"}
-            if len(final_names) > 1:
-                equipo_roles[final_names[1]] = {"is_co": True, "_source": "fallback_orden_detección"}
-            self._log("WARN", f"Opus desconoce lead (conf={confidence_opus!r}). Fallback al orden detección: {final_names}")
+            # Sin asignación lead/co — todos los nombres dedup son peers.
+            # Limitar a 2 igual (filosofía usuario: 1-2 perfiles, no 8).
+            final_names = list(self.manager_names[:2])
+            for n in final_names:
+                equipo_roles[n] = {"_source": "no_opus_validation", "is_peer": True}
+            self._log("INFO",
+                f"Opus desconoce lead (conf={confidence_opus!r}) → tratando {final_names} como peers (sin lead/co)")
 
         self.manager_names = final_names
         self._log("OK", f"Gestores finales (max 2): {self.manager_names}")
@@ -846,13 +846,16 @@ class ManagerProfiler:
             "equipo": final_dicts,  # lista de dicts con bio/cargo/etc. (max 2)
             "equipo_gestor": list(self.manager_names),  # canónico plano (max 2)
             "equipo_roles": equipo_roles,
-            "_opus_lead_confidence": confidence_opus,
-            "_rejected_cross_fund": rejected_cross_fund,
             "fuentes_web": [
                 f["url"] for p in raw_profiles
                 for f in p.get("fuentes", [])
             ] + ([citywire["url"]] if citywire else []),
         }
+        # K10 Fase K: persistir metadata interna SOLO si tiene valor
+        if confidence_opus:
+            output["_opus_lead_confidence"] = confidence_opus
+        if rejected_cross_fund:
+            output["_rejected_cross_fund"] = rejected_cross_fund
 
         n_equipo = len(output.get("equipo", []))
         n_fuentes = len(output.get("fuentes_web", []))

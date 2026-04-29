@@ -1522,24 +1522,33 @@ class AnalystAgent:
             return self._section_gestores_int(data)
         gestores = data.get("gestores", {})
 
-        # ── ANTI-INVENCIÓN GUARD ─────────────────────────────────────────────
-        # Si TODAS las fuentes están vacías, NO llamar al LLM (evita inventar
-        # nombres como "Dr. Alejandro Vargas" detectado en 3 fondos el 2026-04-26).
-        # El dashboard mostrará "Sin equipo gestor identificado" honestamente.
+        # ── ANTI-INVENCIÓN GUARD (relajado K2 Fase K, 2026-04-29) ──────────
+        # Antes: bloqueaba si TODAS las fuentes vacías.
+        # Ahora: solo bloquea si NO hay nombres en `equipo` (sin nombres
+        # tampoco se puede inventar). Si hay nombres pero pocas fuentes,
+        # procesar igual y generar perfil mínimo. El validador
+        # _validate_perfiles_against_sources (Fase F) filtrará inventos
+        # post-LLM si los hay.
         equipo = gestores.get("equipo") or []
         equipo_detalle = gestores.get("equipo_detalle_web") or []
         fuentes_web = gestores.get("fuentes_web") or []
         info_cartas = gestores.get("info_cartas") or []
-        # También revisar perfiles existentes en analyst_synthesis (si el loop ya generó algo válido)
+        articulos_completos_check = gestores.get("articulos_completos") or {}
         existing_perfiles = ((data.get("analyst_synthesis") or {}).get("gestores") or {}).get("perfiles") or []
-        if not equipo and not equipo_detalle and not fuentes_web and not info_cartas and not existing_perfiles:
-            self._log("WARN", "Section 'gestores': sin datos en input — devolviendo perfiles=[] (anti-invención)")
+
+        if not equipo and not existing_perfiles:
+            self._log("WARN", "Section 'gestores': SIN nombres en equipo — devolviendo perfiles=[] (anti-invención)")
             return {
                 "perfiles": [],
                 "texto": "",
                 "principal": "",
-                "_anti_invencion_guard": "no_data_in_sources",
+                "_anti_invencion_guard": "no_names_in_equipo",
             }
+        # Hay nombres → procesar aunque fuentes/cartas estén pobres.
+        if equipo and not (fuentes_web or info_cartas or articulos_completos_check):
+            self._log("WARN",
+                f"Section 'gestores': procesando {len(equipo)} nombres con fuentes web limitadas. "
+                f"Perfiles serán mínimos (Opus enrichment + lo que haya).")
 
         fuentes_compact = []
         for f in fuentes_web:
@@ -1572,15 +1581,56 @@ class AnalystAgent:
             letters_data = {}
         cartas_firmadas = {}
         for c in (letters_data.get("cartas") or []):
-            texto_c = c.get("texto_completo", "") or c.get("texto", "")
+            # K15 Fase K (2026-04-29): cartas vienen extraídas en CAMPOS
+            # ESTRUCTURADOS por letters_collector / letters_deep_agent
+            # (contexto_mercado, tesis_gestora, decisiones_tomadas, outlook,
+            # citas_textuales, posiciones_mencionadas), NO en `texto_completo`.
+            # Concatenar esos campos para formar el "texto utilizable" de la carta.
+            texto_raw = c.get("texto_completo", "") or c.get("texto", "") or c.get("contenido", "")
+            structured_parts = []
+            for fld in ("contexto_mercado", "tesis_gestora", "decisiones_tomadas",
+                        "resultado_real", "outlook"):
+                v = c.get(fld) or ""
+                if v and isinstance(v, str) and len(v) > 30:
+                    structured_parts.append(f"[{fld}] {v}")
+            citas = c.get("citas_textuales") or []
+            if citas:
+                citas_str = " | ".join(f'«{q}»' for q in citas[:5] if isinstance(q, str))
+                if citas_str:
+                    structured_parts.append(f"[citas_textuales] {citas_str}")
+            posiciones_mencionadas = c.get("posiciones_mencionadas") or []
+            if posiciones_mencionadas:
+                pm_str = ", ".join(p if isinstance(p, str) else str(p)
+                                   for p in posiciones_mencionadas[:10])
+                structured_parts.append(f"[posiciones_mencionadas] {pm_str}")
+
+            texto_c = texto_raw if len(texto_raw) > 200 else "\n".join(structured_parts)
+
+            # Autor: si está identificado, attached. Si no, asume firmada por equipo
             autor_c = c.get("autor", "")
             for name in (equipo or []):
                 name_l = (name or "").lower()
-                if name_l and (name_l in autor_c.lower() or name_l in texto_c[:600].lower()):
+                # Match por autor explícito O nombre en texto raw O nombre en partes estructuradas
+                hay_match = (
+                    name_l and (
+                        name_l in autor_c.lower()
+                        or name_l in texto_c[:600].lower()
+                        or any(name_l in p.lower() for p in structured_parts)
+                    )
+                )
+                # Si NO hay autor explícito y el equipo es 1-2 personas (lead/co),
+                # asumir que la carta está firmada por el lead (caso Magallanes)
+                if not autor_c and len(equipo or []) <= 2 and not hay_match:
+                    hay_match = True
+                if hay_match:
                     cartas_firmadas.setdefault(name, []).append({
                         "periodo": c.get("periodo", ""),
                         "fecha": c.get("fecha", c.get("periodo", "")),
                         "texto": self._truncate(texto_c, 2000),
+                        # K15: pasar también campos estructurados al analyst
+                        "tesis_gestora": c.get("tesis_gestora", "") or "",
+                        "decisiones_tomadas": c.get("decisiones_tomadas", "") or "",
+                        "citas_textuales": c.get("citas_textuales", []) or [],
                     })
 
         input_data = json.dumps({
@@ -3762,6 +3812,7 @@ class AnalystAgent:
             r = client.messages.create(
                 model="claude-opus-4-20250514",
                 max_tokens=500,
+                temperature=0,  # K5 Fase K: auditoría debe ser determinista
                 messages=[{"role": "user", "content": (
                     f"En una auditoria previa identificaste este problema:\n"
                     f'"{issue_text}"\n\n'
@@ -3842,6 +3893,7 @@ class AnalystAgent:
             r = client.messages.create(
                 model="claude-opus-4-20250514",
                 max_tokens=3000,
+                temperature=0,  # K5 Fase K: auditoría determinista
                 messages=[{"role": "user", "content": (
                     f"Eres auditor senior. Los DATOS REALES abajo son AUTORIDAD: "
                     f"son los unicos datos verificados del fondo. NO uses tu conocimiento "

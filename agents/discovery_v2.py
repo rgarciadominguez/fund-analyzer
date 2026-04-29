@@ -788,6 +788,7 @@ class DiscoveryV2:
             r = client.messages.create(
                 model="claude-opus-4-20250514",
                 max_tokens=400,
+                temperature=0,  # K5 Fase K: determinismo
                 messages=[{"role": "user", "content": (
                     f"Fondo: {nombre} ({self.isin})\n"
                     f"Gestora: {gestora}\n"

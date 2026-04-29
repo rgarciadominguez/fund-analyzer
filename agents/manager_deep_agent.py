@@ -234,8 +234,10 @@ class ManagerDeepAgent:
             "informacion_cartas": letters_info,
             "informacion_cnmv": cnmv_info,
             "articulos_completos": articulos_completos,
-            "_known_public_undersourced": known_public_undersourced,
         }
+        # K10 Fase K (2026-04-29): solo persistir _known_public_undersourced si NO vacío
+        if known_public_undersourced:
+            profile["_known_public_undersourced"] = known_public_undersourced
         profile["isin"] = self.isin
         profile["fondo"] = self.fund_name
         profile["generado"] = datetime.now().isoformat()
@@ -1062,10 +1064,54 @@ class ManagerDeepAgent:
     # ═══════════════════════════════════════════════════════════════════════════
 
     def _save(self, profile: dict) -> dict:
+        """K1 Fase K (2026-04-29): MERGE con manager_profile.json existente
+        en vez de sobrescribir. Si manager_profiler corrió antes (Paso 3 paralelo)
+        y escribió campos como `equipo_gestor`, `equipo_roles`,
+        `_opus_lead_confidence`, este merge los preserva añadiendo solo
+        campos nuevos del manager_deep (`articulos_completos`,
+        `_known_public_undersourced`).
+
+        Política de merge:
+        - Profiler campos GANAN (escritos antes, ya curados)
+        - Deep campos solo se añaden si NO existen ya
+        - Excepción: `articulos_completos` siempre se sobrescribe (es el
+          aporte único de manager_deep)
+        """
         out = self.fund_dir / "manager_profile.json"
-        out.write_text(json.dumps(profile, ensure_ascii=False, indent=2), encoding="utf-8")
-        self._log("OK", f"Guardado: {out}")
-        return profile
+
+        existing = {}
+        if out.exists():
+            try:
+                existing = json.loads(out.read_text(encoding="utf-8"))
+            except Exception:
+                self._log("WARN", "No se pudo leer manager_profile.json existente — sobrescribo")
+                existing = {}
+
+        # Merge: existing campos ganan, profile añade solo campos nuevos
+        merged = dict(existing)
+        for k, v in profile.items():
+            if k == "articulos_completos":
+                # Aporte único de manager_deep — siempre escribir
+                merged[k] = v
+            elif k == "_known_public_undersourced":
+                # Aporte único de manager_deep
+                merged[k] = v
+            elif k not in merged or not merged[k]:
+                # Solo añadir si no existe o está vacío en existing
+                merged[k] = v
+            # else: existing gana (profiler ya curó)
+
+        # Backup pre-write para rollback (B1)
+        if existing:
+            backup = self.fund_dir / "manager_profile.backup_pre_deep.json"
+            try:
+                backup.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
+            except Exception:
+                pass
+
+        out.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
+        self._log("OK", f"Guardado (merge): {out} — preservados {len(existing)} campos del profiler")
+        return merged
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
