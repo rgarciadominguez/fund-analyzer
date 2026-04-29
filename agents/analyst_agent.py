@@ -2241,7 +2241,23 @@ class AnalystAgent:
                 })
                 seen_urls.add(url)
 
+        # K18 Fase K (2026-04-29): GUARD ANTI-INVENCIÓN CRÍTICO.
+        # Si NO hay items en items_compact, NO llamar al LLM (inventaba 10
+        # opiniones completas con URLs falsas sobre OTROS fondos). Síntoma:
+        # AZ Valor con readings vacío → analyst inventó 10 opiniones sobre
+        # "True Value" con URLs inventadas de Rankia/Finect/El Confidencial.
+        if not items_compact:
+            self._log("WARN",
+                "Section 'fuentes_externas': sin items en lecturas/fuentes_web — "
+                "devolviendo opiniones=[] (anti-invención)")
+            return {
+                "texto": "",
+                "opiniones_clave": [],
+                "_anti_invencion_guard": "no_external_sources",
+            }
+
         input_data = json.dumps({"fuentes": items_compact[:25]}, ensure_ascii=False)
+        n_items_disponibles = len(items_compact)
 
         # Call 1: TEXTO síntesis
         texto = self._gemini_text(
@@ -2250,33 +2266,58 @@ class AnalystAgent:
             f"Estructura con subsecciones usando **Nombre de la fuente** en negrita:\n"
             f"Para cada fuente relevante: qué dice, qué destaca, qué critica, citas textuales si las hay.\n"
             f"Excluye páginas genéricas (listados de podcasts, fichas sin contenido específico).\n"
-            f"Cada fuente: 1-2 párrafos con lo más relevante, no resúmenes genéricos.\n\n"
+            f"Cada fuente: 1-2 párrafos con lo más relevante, no resúmenes genéricos.\n"
+            f"NO inventes fuentes. Solo usa lo que aparece en DATOS.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # Call 2: DATOS opiniones — TIER 3 (Flash-lite) — JSON extraction
+        # Call 2: DATOS opiniones — K18 Fase K: SIN umbral mínimo arbitrario.
+        # Solo extraer las que existen en items_compact (sin inventar).
         datos = self._gemini_call(
-            f"Extrae MÍNIMO 10 opiniones/fuentes relevantes sobre el fondo o sus gestores.\n"
-            f"PRIORIDAD (de mayor a menor):\n"
+            f"Extrae las opiniones/fuentes relevantes sobre el fondo de los DATOS proporcionados.\n"
+            f"REGLA CRÍTICA: NO INVENTES. Solo incluye fuentes que aparezcan LITERALMENTE en DATOS.\n"
+            f"Tienes {n_items_disponibles} fuentes disponibles — extrae las que sean relevantes\n"
+            f"(análisis sobre el fondo, entrevistas al gestor, etc.). Si menos de 10 son útiles,\n"
+            f"devuelve solo las útiles. NO añadas elementos que no estén en DATOS.\n"
+            f"\n"
+            f"PRIORIDAD (de mayor a menor) entre las disponibles:\n"
             f"1. Análisis profesionales de fuentes fiables (Rankia, Finect, Substack, blogs financieros)\n"
             f"2. Entrevistas/artículos en prensa (El Confidencial, Expansión, Citywire)\n"
             f"3. Vídeos/podcasts sobre el fondo o el gestor\n"
             f"4. Noticias relevantes sobre el fondo\n"
             f"Excluir: páginas genéricas, fichas sin contenido, listados de fondos.\n"
             f"Cada titulo debe ser DESCRIPTIVO — indicar de qué trata específicamente.\n"
+            f"\n"
             f"Responde SOLO JSON:\n"
-            f"{{\"opiniones_clave\":[{{\"fuente\":\"nombre de la fuente\","
-            f"\"titulo\":\"titulo descriptivo del contenido\","
-            f"\"url\":\"url completa\","
+            f"{{\"opiniones_clave\":[{{\"fuente\":\"nombre exacto de la fuente en DATOS\","
+            f"\"titulo\":\"titulo descriptivo del contenido (puedes resumir lo que ves en DATOS)\","
+            f"\"url\":\"url EXACTA tomada de DATOS (no inventes)\","
             f"\"tipo\":\"analisis|entrevista|video|podcast|noticia\","
-            f"\"opinion\":\"resumen de 2-3 frases de lo que dice\","
-            f"\"fecha\":\"YYYY o YYYY-MM si se conoce\"}}]}}\n"
-            f"OBLIGATORIO: mínimo 10 items. Si hay menos de 10 fuentes disponibles, "
-            f"incluir todas las que hay.\n"
+            f"\"opinion\":\"resumen de 2-3 frases de lo que dice (basado SOLO en texto de DATOS)\","
+            f"\"fecha\":\"YYYY o YYYY-MM tomado de DATOS si se conoce\"}}]}}\n"
+            f"\n"
             f"DATOS:\n{input_data}",
             tier="lite"
         )
+
+        # K18 Fase K: validación POST-LLM — descartar opiniones cuyo URL NO esté
+        # en items_compact original (anti-invención de URLs).
+        if datos and isinstance(datos, dict):
+            urls_validas = {it.get("url", "") for it in items_compact if it.get("url")}
+            ops_originales = datos.get("opiniones_clave", []) or []
+            ops_validas = []
+            ops_descartadas = []
+            for op in ops_originales:
+                op_url = op.get("url", "") or ""
+                if op_url in urls_validas or any(op_url.startswith(u) or u.startswith(op_url) for u in urls_validas if u):
+                    ops_validas.append(op)
+                else:
+                    ops_descartadas.append(op_url)
+            if ops_descartadas:
+                self._log("WARN",
+                    f"fuentes_externas: descartadas {len(ops_descartadas)} opiniones con URLs no presentes en DATOS (posible invención)")
+            datos["opiniones_clave"] = ops_validas
 
         result = datos if datos else {}
         result["texto"] = texto

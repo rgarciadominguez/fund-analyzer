@@ -463,12 +463,37 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
                 log("MANAGER", "ERROR", f"Manager Deep falló: {exc}")
                 return {}
 
-        letters_result, readings_result, manager_result = await asyncio.gather(
-            _run_letters(), _run_readings(), _run_manager_deep()
+        # K20 Fase K (2026-04-29): readings ahora corre DESPUÉS del manager_profiler
+        # para usar nombres de gestores curados (Opus lead/co) en sus queries.
+        # Antes corría paralelo y readings recibía gestores_hint (a menudo vacío
+        # para ES). Ahora paralelo letters + manager, luego readings con curated.
+        letters_result, manager_result = await asyncio.gather(
+            _run_letters(), _run_manager_deep()
         )
         results["letters"] = letters_result
-        results["readings"] = readings_result
         results["manager"] = manager_result
+
+        # Extraer gestores curados de manager_profiler para readings
+        curated_gestores = manager_result.get("equipo_gestor") or []
+        if not curated_gestores:
+            # Fallback a gestores_hint original si manager_profiler vacío
+            curated_gestores = list(gestores_hint or [])
+        log("ORCHESTRATOR", "INFO",
+            f"Gestores curados para readings: {curated_gestores}")
+
+        # readings con gestores curados (puede usar entrevistas, análisis por gestor)
+        try:
+            from agents.readings_collector import ReadingsCollector
+            readings = ReadingsCollector(
+                isin, fund_name=fund_name_hint,
+                gestora=gestora_hint, gestores=curated_gestores,
+            )
+            readings_result = await readings.run()
+        except Exception as exc:
+            log("READINGS", "ERROR", f"Readings falló: {exc}")
+            readings_result = {}
+        results["readings"] = readings_result
+
         n_cartas = len(letters_result.get("cartas", []))
         n_lecturas = len(readings_result.get("lecturas", []))
         n_externos = len(readings_result.get("analisis_externos", []))

@@ -282,6 +282,81 @@ READING_SCHEMA = {
 }
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# K22 Fase K (2026-04-29): Adaptación INT — press + niche blogs por región/idioma
+# ══════════════════════════════════════════════════════════════════════════════
+# Funcionamiento: para fondos NO-ES con cobertura mediática (Comgest, Carmignac,
+# DNCA, R-Co, GAM, Fundsmith, Lindsell Train, etc.), añadir queries dirigidas a
+# prensa financiera + blogs de nicho del país de la gestora con keywords en
+# idioma local. Aditivo — no toca el camino ES.
+
+INT_PRESS_BY_REGION = {
+    "FR": ["lesechos.fr", "lemonde.fr", "lefigaro.fr", "boursorama.com",
+           "investir.lesechos.fr", "agefi.fr", "capital.fr"],
+    "DE": ["handelsblatt.com", "faz.net", "manager-magazin.de",
+           "boerse-online.de", "wirtschaftswoche.de", "n-tv.de"],
+    "GB": ["ft.com", "telegraph.co.uk", "thetimes.co.uk", "cityam.com",
+           "investorschronicle.co.uk", "thisismoney.co.uk", "sharesmagazine.co.uk"],
+    "IT": ["milanofinanza.it", "ilsole24ore.com", "soldionline.it",
+           "borsaitaliana.it", "wallstreetitalia.com"],
+    "CH": ["nzz.ch", "finews.ch", "fuw.ch", "cash.ch", "handelszeitung.ch"],
+    "BE": ["lecho.be", "tijd.be", "trends.knack.be"],
+    "NL": ["fd.nl", "iex.nl", "vastgoedmarkt.nl"],
+    "EN_GLOBAL": ["ft.com", "wsj.com", "reuters.com", "bloomberg.com",
+                  "barrons.com", "marketwatch.com"],
+}
+
+INT_NICHE_BLOGS_BY_REGION = {
+    "FR": ["h24finance.com", "club-patrimoine.com", "morningstar.fr",
+           "quantalys.com", "boursier.com", "cafedelabourse.com"],
+    "DE": ["dasinvestment.com", "fondsprofessionell.de", "fondsweb.com",
+           "morningstar.de", "extra-funds.de", "fonds-fuer-alle.de"],
+    "GB": ["monevator.com", "diyinvestor.net", "trustnet.com", "citywire.com",
+           "morningstar.co.uk", "hl.co.uk", "ii.co.uk", "bestinvest.co.uk"],
+    "IT": ["morningstar.it", "fondidoc.it", "advisoronline.it"],
+    "CH": ["finews.ch", "fundplat.com"],
+    "BE": ["mafr.be"],
+    "NL": ["iex.nl"],
+    "EN_GLOBAL": ["seekingalpha.com", "valuewalk.com", "moiglobal.com",
+                  "sumzero.com", "advisorperspectives.com", "gurufocus.com"],
+}
+
+# Keywords por idioma para queries de entrevistas/análisis
+LANG_KEYWORDS = {
+    "FR": {"interview": "entretien OR interview", "analysis": "analyse OR commentaire OR avis"},
+    "DE": {"interview": "Interview OR Gespräch", "analysis": "Analyse OR Bewertung OR Kommentar"},
+    "GB": {"interview": "interview", "analysis": "analysis OR review OR commentary"},
+    "EN_GLOBAL": {"interview": "interview", "analysis": "analysis OR review OR commentary"},
+    "IT": {"interview": "intervista", "analysis": "analisi OR recensione OR commento"},
+    "CH": {"interview": "Interview OR entretien", "analysis": "Analyse OR analyse"},
+    "BE": {"interview": "interview OR entretien", "analysis": "analyse OR analyse"},
+    "NL": {"interview": "interview", "analysis": "analyse OR beoordeling"},
+}
+
+# Mapping ISIN prefix → región explícita (LU/IE son ambiguos, se resuelven por gestora)
+ISIN_PREFIX_TO_REGION = {
+    "FR": "FR", "DE": "DE", "AT": "DE", "GB": "GB",
+    "IT": "IT", "CH": "CH", "LI": "CH",
+    "BE": "BE", "NL": "NL",
+}
+
+# Detección región por gestora (caso LU/IE — UCITS multidomicilio)
+GESTORA_REGION_HINTS = {
+    "FR": ["dnca", "carmignac", "rothschild", "comgest", "ostrum",
+           "groupama", "amundi", "bnp paribas", "natixis", "edmond de rothschild",
+           "tikehau", "axiom", "lazard frères"],
+    "DE": ["dws", "allianz global investors", "union investment", "dje kapital",
+           "deka", "metzler", "lupus alpha", "flossbach von storch"],
+    "GB": ["fundsmith", "lindsell train", "troy asset", "guinness asset",
+           "evenlode", "polar capital", "baillie gifford", "schroders", "jupiter",
+           "marlborough", "liontrust", "fidelity international", "m&g", "ruffer"],
+    "IT": ["azimut", "anima", "eurizon", "mediolanum", "generali"],
+    "CH": ["pictet", "lombard odier", "vontobel", "gam ", "ubs ",
+           "credit suisse", "julius baer", "swisscanto", "banque syz"],
+    "EN_GLOBAL": [],  # fallback
+}
+
+
 class ReadingsCollector:
     """Curador de analisis externos — busquedas dirigidas + extraccion profunda."""
 
@@ -319,6 +394,8 @@ class ReadingsCollector:
         gestora_q = self.gestora or ""
         fund_variants = self._fund_name_variants(fund_q)
         primary = fund_variants[0]  # variante mas limpia
+        is_es = self.isin.upper().startswith("ES")  # K19: para queries press españolas
+        int_region = self._detect_region() if not is_es else "ES"  # K22: región INT para press/blogs locales
 
         queries = []
 
@@ -332,6 +409,8 @@ class ReadingsCollector:
         medium_name = fund_variants[1] if len(fund_variants) > 2 else short_name
 
         self._log("INFO", f"Variantes nombre: FULL={full_name!r} MEDIUM={medium_name!r} SHORT={short_name!r}")
+        if not is_es:
+            self._log("INFO", f"K22: detectada región INT = {int_region} (gestora={self.gestora!r})")
 
         # ── Tier 0: Claude identifica fuentes especializadas para este fondo ──
         smart_sources = self._identify_best_sources()
@@ -382,11 +461,72 @@ class ReadingsCollector:
         queries.append(f'"{self.isin}" fund analysis OR review')
 
         # ── Gestores: entrevistas/filosofia ──
-        for gestor in self.gestores[:2]:
-            queries.append(f'"{gestor}" "{primary}" interview OR entrevista')
+        # K19 Fase K (2026-04-29): queries amplias por gestor con SHORT name
+        # de fondo + token gestora. Los gestores conocidos (Guzmán, Bernad,
+        # Iván Martín, Paramés, etc.) tienen MUCHA cobertura web pero con
+        # nombre legal completo del fondo no aparecen — usar SHORT/gestora.
+        gestora_token = self.gestora.split()[0] if self.gestora else ""
+        # Medios nacionales españoles donde suelen aparecer entrevistas a gestores
+        SPANISH_PRESS = [
+            "elconfidencial.com", "expansion.com", "cincodias.elpais.com",
+            "elmundo.es", "abc.es", "elpais.com", "eleconomista.es",
+            "publico.es", "lainformacion.com", "vozpopuli.com",
+        ]
+        for gestor in self.gestores[:3]:  # ampliado de 2 a 3
+            if not gestor or len(gestor) < 5:
+                continue
+            # Combinada gestor + SHORT del fondo
+            queries.append(f'"{gestor}" "{short_name}"')
+            # Combinada gestor + token gestora
+            if gestora_token:
+                queries.append(f'"{gestor}" "{gestora_token}"')
+            # Entrevistas/análisis del gestor
+            queries.append(f'"{gestor}" entrevista OR análisis OR opinión')
+            queries.append(f'"{gestor}" interview OR analysis')
+            # Queries por medios nacionales prensa (gestores ES suelen aparecer)
+            if is_es:
+                for press in SPANISH_PRESS[:5]:  # top 5 para no saturar
+                    queries.append(f'site:{press} "{gestor}"')
+                # Blogs nicho con gestor (no fund — más probable que coincida)
+                for blog in ["moclano.substack.com", "saludfinanciera.substack.com",
+                             "rankia.com", "finect.com", "masdividendos.com"]:
+                    queries.append(f'site:{blog} "{gestor}"')
+            else:
+                # K22 Fase K (2026-04-29): rama INT — press + nicho regionales con
+                # keywords en idioma local. Aplica a fondos NO-ES con gestores
+                # nombrados (Comgest, Fundsmith, DNCA, GAM, etc.).
+                int_press = INT_PRESS_BY_REGION.get(int_region,
+                                                    INT_PRESS_BY_REGION["EN_GLOBAL"])
+                int_blogs = INT_NICHE_BLOGS_BY_REGION.get(int_region,
+                                                          INT_NICHE_BLOGS_BY_REGION["EN_GLOBAL"])
+                lang_kw = LANG_KEYWORDS.get(int_region, LANG_KEYWORDS["EN_GLOBAL"])
+                # Press regional (5 medios top)
+                for press in int_press[:5]:
+                    queries.append(f'site:{press} "{gestor}"')
+                # Blogs nicho regionales (5 top)
+                for blog in int_blogs[:5]:
+                    queries.append(f'site:{blog} "{gestor}"')
+                # Entrevista/análisis en idioma local
+                queries.append(f'"{gestor}" {lang_kw["interview"]}')
+                queries.append(f'"{gestor}" {lang_kw["analysis"]}')
 
-        # YouTube/podcast aparte
-        queries.append(f'"{primary}" OR "{gestora_q}" interview OR podcast OR webinar')
+        # K22 Fase K (2026-04-29): para INT sin gestores nombrados, queries
+        # fund-level por press regional con SHORT name. Captura cobertura
+        # mediática de fondos institucionales sin gestor público (Comgest
+        # Europe Opportunities, Carmignac Patrimoine, etc.).
+        if not is_es:
+            int_press = INT_PRESS_BY_REGION.get(int_region,
+                                                INT_PRESS_BY_REGION["EN_GLOBAL"])
+            for press in int_press[:3]:
+                queries.append(f'site:{press} "{short_name}"')
+            self._log("INFO", f"INT region={int_region} | press={len(int_press)} blogs={len(INT_NICHE_BLOGS_BY_REGION.get(int_region, []))}")
+
+        # YouTube/podcast aparte (con SHORT + gestora)
+        queries.append(f'"{short_name}" OR "{gestora_q}" interview OR podcast OR webinar')
+        # Si tenemos gestores, también YouTube por gestor
+        for gestor in self.gestores[:2]:
+            if gestor and len(gestor) >= 5:
+                queries.append(f'"{gestor}" YouTube interview OR podcast')
 
         results = await search.search_multiple(queries, num_per_query=3, agent="readings_collector")
         self._log("INFO", f"Busquedas dirigidas: {len(results)} resultados de {len(queries)} queries")
@@ -509,8 +649,42 @@ class ReadingsCollector:
     )
 
     def _is_niche_blog(self, domain: str) -> bool:
-        """True si el dominio es un blog de nicho (mejor query con SHORT name)."""
-        return any(nb in domain.lower() for nb in self.NICHE_BLOG_DOMAINS)
+        """True si el dominio es un blog de nicho (mejor query con SHORT name).
+
+        K22 Fase K (2026-04-29): incluye también los blogs INT regionales
+        (h24finance, dasinvestment, monevator, etc.) para que las queries usen
+        SHORT name en vez de FULL.
+        """
+        d = domain.lower()
+        if any(nb in d for nb in self.NICHE_BLOG_DOMAINS):
+            return True
+        # K22: blogs nicho regionales INT
+        for region_blogs in INT_NICHE_BLOGS_BY_REGION.values():
+            if any(nb in d for nb in region_blogs):
+                return True
+        return False
+
+    def _detect_region(self) -> str:
+        """K22 Fase K (2026-04-29): detecta región para queries INT.
+
+        Devuelve código de región (FR/DE/GB/IT/CH/BE/NL/EN_GLOBAL):
+        1. Por prefijo ISIN si es explícito (FR/DE/GB/IT/...)
+        2. Por gestora si LU/IE (multidomicilio UCITS)
+        3. Fallback EN_GLOBAL
+        """
+        prefix = self.isin[:2].upper()
+        explicit = ISIN_PREFIX_TO_REGION.get(prefix)
+        if explicit:
+            return explicit
+        # LU/IE/otros: detectar por gestora
+        g = (self.gestora or "").lower().strip()
+        if g:
+            for region, hints in GESTORA_REGION_HINTS.items():
+                if region == "EN_GLOBAL":
+                    continue
+                if any(h in g for h in hints):
+                    return region
+        return "EN_GLOBAL"
 
     def _identify_best_sources(self) -> list[str]:
         """Identifica webs especializadas para este fondo usando LLM.
