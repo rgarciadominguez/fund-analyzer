@@ -566,14 +566,22 @@ class AnalystAgent:
         }
 
         # Hechos relevantes — structured timeline
+        # L4 Fase L (2026-04-29): clasificación heurística de evento cuando
+        # CNMV no aporta epígrafe estructurado. Antes el campo `evento` quedaba
+        # vacío en hechos donde solo había texto libre del Anexo (sin SI/NO en
+        # sección 4 del PDF). Síntoma: AZ Valor 5/6 hechos con evento="".
         cual = cnmv.get("cualitativo", {})
         for hr in cual.get("hechos_relevantes", []):
             if not isinstance(hr, dict):
                 continue
+            evento = hr.get("epigrafe", "") or ""
+            detalle = hr.get("detalle", "") or ""
+            if not evento.strip() and detalle:
+                evento = self._classify_hecho_evento(detalle)
             result["hechos_relevantes"].append({
                 "anio": hr.get("periodo", ""),
-                "evento": hr.get("epigrafe", ""),
-                "detalle": hr.get("detalle", ""),
+                "evento": evento,
+                "detalle": detalle,
             })
 
         # Cualitativo per year — extract unique content, flag what changes
@@ -613,6 +621,49 @@ class AnalystAgent:
     # CAPA 1B: FILTRADOR CARTAS
     # ═══════════════════════════════════════════════════════════════════════════
 
+    def _classify_hecho_evento(self, detalle: str) -> str:
+        """L4 Fase L (2026-04-29, refinado): clasifica un hecho relevante por
+        keywords cuando CNMV no aporta epígrafe estructurado.
+
+        IMPORTANTE: las reglas deben buscar la ACCIÓN o CAMBIO concreto, no
+        menciones genéricas. Ej: "depositario" aparece en muchos textos como
+        descripción ("entidad Depositaria: BNP"), pero solo es CAMBIO si dice
+        "nuevo depositario" / "cambio de depositario" / "pasa a ser".
+
+        Orden: eventos más drásticos primero, luego cambios estructurales,
+        luego administrativos. Devuelve "Otro hecho relevante" como fallback.
+        """
+        import re
+        d = (detalle or "").lower()
+        rules = [
+            # 1. Eventos críticos
+            ("Liquidación de fondo",            r"\bliquidaci"),
+            ("Fusión de fondo",                  r"\bfusi[oó]n\b"),
+            ("Suspensión de operaciones",        r"suspensi[oó]n\s+(?:de|temporal)|suspende\s+(?:las?\s+)?(?:suscripci|reembolsos?)"),
+            # 2. Cambios estructurales (acción explícita)
+            ("Cambio de control de gestora",     r"cambio de control"),
+            ("Cambio de gestora/asesor",         r"cambio de (?:la sociedad )?gestora|cambio de asesor|sustituci[oó]n.{0,30}gestora"),
+            ("Cambio de depositario",            r"(?:cambio|se cambia|sustituci[oó]n)\s+(?:el |del?|de la)?\s*deposita|nuevo deposita|deposita\w+\s+pasa a ser"),
+            ("Cambio de auditor",                r"(?:cambio|se cambia)\s+(?:el |del?|de)?\s*auditor|nuevo auditor|nombramiento.{0,30}(?:nuevo )?auditor"),
+            ("Cambio de denominación",           r"cambio de denominaci|cambio de nombre|pasa a denominarse"),
+            # 3. Modificaciones (acción + objeto)
+            ("Delegación de gestión",            r"delegaci[oó]n.{0,30}gesti[oó]n|delega(?:r|ndo).{0,30}(?:la\s+)?gesti[oó]n"),
+            ("Modificación de comisiones",       r"modificaci.{0,40}comisi|comisi.{0,40}modificaci|aumento.{0,30}comisi|reducci[oó]n.{0,30}comisi|nueva.{0,30}comisi"),
+            ("Modificación de folleto",          r"actualizaci[oó]n.{0,30}folleto|modificaci[oó]n.{0,30}folleto|actualizar.{0,30}folleto|modificar.{0,30}folleto"),
+            # 4. Eventos administrativos
+            ("Recuperación de retenciones",      r"recuperaci[oó]n.{0,30}retenci|retenciones?\s+practicadas"),
+            ("Reparto de dividendos",            r"\b(?:reparto|distribuci[oó]n)\s+de\s+dividend"),
+            ("Traspaso de fondo",                r"\btraspaso\b"),
+            # 5. Registro (genéricos — al final)
+            ("Incorporación al Registro CNMV",   r"incorporar al registro|incorporaci[oó]n al registro"),
+            ("Registro de fondo en CNMV",        r"verificar y registrar|registro de fondo"),
+            ("Nombramiento",                     r"nombramient"),
+        ]
+        for label, pattern in rules:
+            if re.search(pattern, d):
+                return label
+        return "Otro hecho relevante"
+
     def _filter_letters(self, letters: dict) -> dict:
         """Extract key content from manager letters, avoiding repetition.
         Per year: vision, decisions, reflection on what happened vs expectations,
@@ -650,10 +701,38 @@ class AnalystAgent:
             }
 
             # Collect all text content from this year's letters
+            # L2 Fase L (2026-04-29): SCHEMA MISMATCH FIX.
+            # Antes solo aceptaba `texto_completo > 200c`. Pero las cartas K15
+            # estructuradas (post-Fase F) tienen texto_completo="" y todo el
+            # contenido en tesis_gestora/decisiones_tomadas/contexto_mercado/
+            # citas_textuales. Resultado: cartas con info rica se SALTABAN.
+            # Síntoma: AZ Valor con 8 cartas estructuradas → analyst evolución
+            # sin contenido de cartas, solo CNMV.
+            # Fix: sintetizar texto_completo desde estructurados si vacío.
             all_texts = []
             for carta in year_cartas:
                 texto = carta.get("texto_completo", "")
-                if texto and len(texto) > 200:
+                if not texto or len(texto) <= 200:
+                    # Sintetizar desde campos estructurados K15
+                    parts = []
+                    if carta.get("contexto_mercado"):
+                        parts.append(f"CONTEXTO MERCADO: {carta['contexto_mercado']}")
+                    if carta.get("tesis_gestora"):
+                        parts.append(f"TESIS GESTORA: {carta['tesis_gestora']}")
+                    if carta.get("decisiones_tomadas"):
+                        parts.append(f"DECISIONES: {carta['decisiones_tomadas']}")
+                    if carta.get("resultado_real"):
+                        parts.append(f"RESULTADO: {carta['resultado_real']}")
+                    if carta.get("outlook"):
+                        parts.append(f"OUTLOOK: {carta['outlook']}")
+                    if carta.get("citas_textuales") and isinstance(carta["citas_textuales"], list):
+                        parts.append("CITAS:\n- " + "\n- ".join(carta["citas_textuales"][:10]))
+                    if carta.get("posiciones_mencionadas") and isinstance(carta["posiciones_mencionadas"], list):
+                        parts.append("POSICIONES MENCIONADAS: " + ", ".join(carta["posiciones_mencionadas"][:20]))
+                    sintetizado = "\n\n".join(parts)
+                    if sintetizado and len(sintetizado) > 100:
+                        texto = sintetizado
+                if texto and len(texto) > 100:
                     all_texts.append(texto)
                 year_entry["fuentes"].append({
                     "url": carta.get("url_fuente", ""),
@@ -740,27 +819,65 @@ class AnalystAgent:
 
     def _filter_lecturas(self, readings: dict) -> dict:
         """For each external source: URL + summary of key topics discussed.
-        Split into: análisis (written), multimedia (video/podcast/entrevista)."""
+        Split into: análisis (written), multimedia (video/podcast/entrevista).
+
+        L1 Fase L (2026-04-29): SCHEMA MISMATCH FIX.
+        Antes leía `readings.get("analisis", [])` pero readings_collector produce
+        `analisis_completos` / `otros_readings` (READING_SCHEMA estructurado).
+        Resultado: readings con contenido rico (resumen, opinion, citas) NO
+        llegaban al analyst. Síntoma: AZ Valor con 5 readings válidos
+        (Salud Financiera, Seeking Alpha) → fuentes_externas vacío.
+
+        Fix: leer claves correctas + sintetizar texto_completo desde campos
+        estructurados (resumen + opinión + puntos_clave + citas).
+        Mantiene compat retroactiva con claves legacy.
+        """
         result = {
             "analisis_escritos": [],
             "multimedia": [],
         }
 
-        for item in readings.get("analisis", []) + readings.get("lecturas", []):
+        # K22 schema actual + legacy fallback
+        items = (readings.get("analisis_completos", [])
+                 + readings.get("otros_readings", [])
+                 + readings.get("analisis", [])
+                 + readings.get("lecturas", []))
+
+        for item in items:
             if not isinstance(item, dict):
                 continue
 
+            # Sintetizar texto_completo desde READING_SCHEMA si está vacío
+            texto_completo = item.get("texto_completo", "")
+            if not texto_completo:
+                parts = []
+                if item.get("resumen"):
+                    parts.append(f"RESUMEN: {item['resumen']}")
+                if item.get("opinion_sobre_fondo"):
+                    parts.append(f"OPINIÓN: {item['opinion_sobre_fondo']}")
+                if item.get("puntos_clave") and isinstance(item["puntos_clave"], list):
+                    parts.append("PUNTOS CLAVE:\n- " + "\n- ".join(item["puntos_clave"]))
+                if item.get("citas_relevantes") and isinstance(item["citas_relevantes"], list):
+                    parts.append("CITAS:\n- " + "\n- ".join(item["citas_relevantes"]))
+                if item.get("datos_mencionados"):
+                    dm = item["datos_mencionados"]
+                    if isinstance(dm, dict):
+                        dm_parts = [f"{k}: {v}" for k, v in dm.items() if v]
+                        if dm_parts:
+                            parts.append("DATOS: " + " | ".join(dm_parts))
+                texto_completo = "\n\n".join(parts)
+
             entry = {
-                "fuente": item.get("fuente", ""),
-                "tipo": item.get("tipo", ""),
+                "fuente": item.get("fuente") or item.get("source", ""),
+                "tipo": item.get("tipo") or item.get("source_type", ""),
                 "titulo": item.get("titulo", ""),
                 "url": item.get("url", ""),
                 "fecha": item.get("fecha", ""),
-                "texto_completo": item.get("texto_completo", ""),
+                "texto_completo": texto_completo,
             }
 
-            tipo = item.get("tipo", "")
-            if tipo in ("video", "podcast", "entrevista"):
+            tipo_l = (entry["tipo"] or "").lower()
+            if any(k in tipo_l for k in ("video", "podcast", "entrevista")):
                 result["multimedia"].append(entry)
             else:
                 result["analisis_escritos"].append(entry)

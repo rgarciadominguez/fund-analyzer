@@ -11,18 +11,10 @@
       "accion": "Re-ejecutar readings_agent con más queries y fuentes."
     },
     {
-      "regla_id": "resumen_has_criterios",
-      "seccion": "resumen",
-      "fail_type": "estructura",
-      "problema": "Solo 0 criterios de inversion (minimo 3 numerados)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar con 3 criterios de inversion numerados (titulo + descripcion)."
-    },
-    {
       "regla_id": "historia_kpis_match_data",
       "seccion": "historia",
       "fail_type": "content",
-      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 1588 partícipes, KPI real 2081 (24% drift); texto dice 725.0 M€ AUM, KPI real 180.457 (302% drift)",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 336 partícipes, KPI real 2081 (84% drift); texto dice 725.0 M€ AUM, KPI real 180.457 (302% drift)",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
     },
@@ -41,6 +33,14 @@
       "problema": "Posiciones sin sector (sectores_ausentes): 0/167 (0%) con sector. Minimo 60% deben tener sector.",
       "agente_responsable": "cnmv_agent",
       "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "resumen_fortalezas_no_contradict_riesgos",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del +107,9% desde su inicio, con una rentabilidad anualiz']",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
     },
     {
       "regla_id": "cuant_serie_clases_info_presente",
@@ -91,5 +91,5 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-04-29T18:20:34.282949"
+  "evaluado_at": "2026-04-29T22:11:16.971046"
 }
