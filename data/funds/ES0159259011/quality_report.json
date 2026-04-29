@@ -3,36 +3,12 @@
   "nombre": "MAGALLANES EUROPEAN EQUITY FI",
   "fallos": [
     {
-      "regla_id": "gestores_min_perfiles",
-      "seccion": "gestores",
-      "fail_type": "scarcity",
-      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
-      "agente_responsable": "manager_deep_agent",
-      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
-    },
-    {
-      "regla_id": "gestores_lead_has_filosofia",
-      "seccion": "gestores",
+      "regla_id": "estrategia_no_headers",
+      "seccion": "estrategia",
       "fail_type": "estructura",
-      "problema": "Gestor principal '' sin filosofía de inversión.",
-      "agente_responsable": "manager_deep_agent",
-      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
-    },
-    {
-      "regla_id": "gestores_lead_has_decisiones",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "problema": "Estrategia tiene 1 subsecciones — debe ser parrafos evaluativos sin headers",
       "agente_responsable": "analyst_agent",
-      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
-    },
-    {
-      "regla_id": "gestores_lead_cv_bullets",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+      "accion": "Re-generar estrategia como narrativa evaluativa pura."
     },
     {
       "regla_id": "cuant_serie_vl_valid",
@@ -46,7 +22,7 @@
       "regla_id": "resumen_returns_match_data",
       "seccion": "resumen",
       "fail_type": "content",
-      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2016: texto dice 500.0%, real 59500.0%",
+      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2025: texto dice 102.5%, real 30.0%",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
     },
@@ -54,7 +30,7 @@
       "regla_id": "historia_kpis_match_data",
       "seccion": "historia",
       "fail_type": "content",
-      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 1158 partícipes, KPI real 12376 (91% drift); texto dice 150085.0 M€ AUM, KPI real 1450.26 (10249% drift)",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 1158 partícipes, KPI real 12376 (91% drift); texto dice 232449.0 M€ AUM, KPI real 1450.26 (15928% drift)",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
     },
@@ -86,7 +62,7 @@
       "regla_id": "resumen_fortalezas_no_contradict_riesgos",
       "seccion": "resumen",
       "fail_type": "content",
-      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad anual excepcional del 59500.0% en 2016, aunque influenciada por una']",
+      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del 102,5% desde 2017 hasta finales de 2025, con una CAGR']",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
     },
@@ -115,12 +91,12 @@
       "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "fallos_estructura": 7,
-  "fallos_scarcity": 4,
-  "total_reglas": 98,
-  "reglas_ok": 84,
+  "fallos_estructura": 5,
+  "fallos_scarcity": 3,
+  "total_reglas": 103,
+  "reglas_ok": 92,
   "aceptable": false,
-  "score_display": "84/98 reglas OK (4 pendientes de datos)",
+  "score_display": "92/103 reglas OK (3 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -131,5 +107,5 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-04-28T13:32:28.241710"
+  "evaluado_at": "2026-04-29T23:22:08.148267"
 }
