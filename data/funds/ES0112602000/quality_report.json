@@ -11,6 +11,14 @@
       "accion": "Re-ejecutar readings_agent con más queries y fuentes."
     },
     {
+      "regla_id": "resumen_kpis_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen tiene cifras de partícipes/AUM que no cuadran con KPIs reales (cifras_kpi_no_coinciden): texto dice 1756 partícipes, KPI real 2081 (16% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen usando SOLO data.kpis para num_participes y aum_actual_meur. Nunca tomar cifras del texto del PDF (gestores a veces escriben mal)."
+    },
+    {
       "regla_id": "historia_kpis_match_data",
       "seccion": "historia",
       "fail_type": "content",
@@ -38,7 +46,7 @@
       "regla_id": "resumen_fortalezas_no_contradict_riesgos",
       "seccion": "resumen",
       "fail_type": "content",
-      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del +107,9% desde su inicio, con una rentabilidad anualiz']",
+      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del +107,9% desde su lanzamiento, lo que se traduce en un']",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
     },
@@ -75,12 +83,12 @@
       "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "fallos_estructura": 2,
+  "fallos_estructura": 3,
   "fallos_scarcity": 4,
   "total_reglas": 103,
-  "reglas_ok": 94,
+  "reglas_ok": 93,
   "aceptable": false,
-  "score_display": "94/103 reglas OK (4 pendientes de datos)",
+  "score_display": "93/103 reglas OK (4 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -91,5 +99,5 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-04-29T22:11:16.971046"
+  "evaluado_at": "2026-04-30T16:57:28.441238"
 }

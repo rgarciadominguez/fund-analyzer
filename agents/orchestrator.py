@@ -463,15 +463,54 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
                 log("MANAGER", "ERROR", f"Manager Deep falló: {exc}")
                 return {}
 
+        async def _run_gestora_resources():
+            """M3 v2 Fase M (2026-04-30): extrae cartas/KIID/folleto/videos
+            de la web gestora vía Serper. Output: gestora_resources.json.
+
+            Deriva el dominio de gestora_hint usando KNOWN_GESTORA_DOMAINS de
+            sources_agent. Si no hay match, skip silencioso (no rompe pipeline).
+            """
+            try:
+                from agents.sources_agent import KNOWN_GESTORA_DOMAINS
+                from agents.gestora_resources_extractor import GestoraResourcesExtractor
+
+                # Deriva domain por keyword match (primer token gestora normalizado)
+                gestora_lower = (gestora_hint or "").lower()
+                domain = None
+                for key, dom in KNOWN_GESTORA_DOMAINS.items():
+                    if key in gestora_lower:
+                        domain = dom
+                        break
+                if not domain:
+                    log("GESTORA_RES", "WARN",
+                        f"Sin domain conocido para gestora={gestora_hint!r} — skip M3")
+                    return {}
+
+                extractor = GestoraResourcesExtractor(
+                    isin=isin,
+                    gestora_domain=domain,
+                    fund_name=fund_name_hint,
+                    gestora=gestora_hint,
+                )
+                return await extractor.run()
+            except Exception as exc:
+                log("GESTORA_RES", "ERROR", f"M3 falló: {exc}")
+                return {}
+
         # K20 Fase K (2026-04-29): readings ahora corre DESPUÉS del manager_profiler
         # para usar nombres de gestores curados (Opus lead/co) en sus queries.
         # Antes corría paralelo y readings recibía gestores_hint (a menudo vacío
         # para ES). Ahora paralelo letters + manager, luego readings con curated.
-        letters_result, manager_result = await asyncio.gather(
-            _run_letters(), _run_manager_deep()
+        letters_result, manager_result, gestora_res_result = await asyncio.gather(
+            _run_letters(), _run_manager_deep(), _run_gestora_resources()
         )
         results["letters"] = letters_result
         results["manager"] = manager_result
+        results["gestora_resources"] = gestora_res_result
+        if gestora_res_result and gestora_res_result.get("total", 0) > 0:
+            log("GESTORA_RES", "OK",
+                f"{gestora_res_result['total']} recursos gestora "
+                f"(tipos={gestora_res_result.get('por_tipo', {})})")
 
         # Extraer gestores curados de manager_profiler para readings
         curated_gestores = manager_result.get("equipo_gestor") or []

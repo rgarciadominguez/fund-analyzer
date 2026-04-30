@@ -566,22 +566,41 @@ class AnalystAgent:
         }
 
         # Hechos relevantes — structured timeline
-        # L4 Fase L (2026-04-29): clasificación heurística de evento cuando
-        # CNMV no aporta epígrafe estructurado. Antes el campo `evento` quedaba
-        # vacío en hechos donde solo había texto libre del Anexo (sin SI/NO en
-        # sección 4 del PDF). Síntoma: AZ Valor 5/6 hechos con evento="".
+        # L4 Fase L (2026-04-29): clasificación heurística por regex (Tier 1).
+        # M4 Fase M (2026-04-30): enrichment LLM con taxonomía CNMV oficial.
+        # Devuelve evento_canonico + que_cambio + motivo + impacto_inversor para
+        # cada hecho con detalle suficiente. Sin LLM: regex + detalle raw únicamente.
         cual = cnmv.get("cualitativo", {})
         for hr in cual.get("hechos_relevantes", []):
             if not isinstance(hr, dict):
                 continue
             evento = hr.get("epigrafe", "") or ""
             detalle = hr.get("detalle", "") or ""
+            anio = hr.get("periodo", "")
+
+            # Tier 1: regex L4 si epigrafe vacío
             if not evento.strip() and detalle:
                 evento = self._classify_hecho_evento(detalle)
+
+            # Tier 2 M4: LLM enrichment (qué cambió, motivo, impacto)
+            enrichment = {}
+            if detalle and len(detalle) > 100:
+                try:
+                    enrichment = self._enrich_hecho_relevante(
+                        detalle=detalle,
+                        anio=anio,
+                        evento_actual=evento,
+                    )
+                except Exception as exc:
+                    self._log("WARN", f"Enrichment hecho {anio} falló: {exc}")
+
             result["hechos_relevantes"].append({
-                "anio": hr.get("periodo", ""),
-                "evento": evento,
+                "anio": anio,
+                "evento": enrichment.get("evento_canonico") or evento,
                 "detalle": detalle,
+                "que_cambio": enrichment.get("que_cambio", ""),
+                "motivo": enrichment.get("motivo", ""),
+                "impacto_inversor": enrichment.get("impacto_inversor", ""),
             })
 
         # Cualitativo per year — extract unique content, flag what changes
@@ -663,6 +682,88 @@ class AnalystAgent:
             if re.search(pattern, d):
                 return label
         return "Otro hecho relevante"
+
+    # M4 Fase M (2026-04-30): enrichment LLM hechos relevantes con taxonomía CNMV oficial
+    CNMV_HECHOS_TAXONOMIA = (
+        "a. Suspensión temporal de suscripciones/reembolsos",
+        "b. Reanudación de suscripciones/reembolsos",
+        "c. Reembolso de patrimonio significativo (>20%)",
+        "d. Endeudamiento superior al 5% del patrimonio",
+        "e. Sustitución de la sociedad gestora",
+        "f. Sustitución de la sociedad depositaria",
+        "g. Cambios sustanciales en el folleto / política de inversión",
+        "h. Cambio de control de la sociedad gestora",
+        "i. Cambio en elementos esenciales del folleto",
+        "j. Autorización del proceso de fusión",
+        "k. Otros hechos relevantes",
+    )
+
+    def _enrich_hecho_relevante(self, detalle: str, anio: str,
+                                 evento_actual: str = "") -> dict:
+        """M4 Fase M (2026-04-30): enriquece un hecho relevante con LLM.
+
+        Devuelve dict con:
+        - evento_canonico: clasificación según taxonomía CNMV (a-k) en formato corto
+          ("Sustitución de gestora", "Modificación de folleto", etc.)
+        - que_cambio: 1-2 frases describiendo EXACTAMENTE el cambio aplicado
+        - motivo: 1 frase con el motivo si está extraíble del detalle (vacío si no)
+        - impacto_inversor: 1 frase sobre el impacto previsible para el partícipe
+
+        Coste: ~$0.005/hecho con Gemini Flash. Solo se llama si detalle >100c.
+        Si LLM falla o devuelve formato malo, retorna {} (caller usa regex fallback).
+        """
+        import json as _json
+        import re as _re
+
+        taxonomy_str = "\n".join(self.CNMV_HECHOS_TAXONOMIA)
+        prompt = (
+            "Eres un analista que clasifica y resume hechos relevantes de un fondo de inversión "
+            "español según taxonomía oficial CNMV.\n\n"
+            f"TAXONOMÍA CNMV (epígrafes oficiales sección 4 informe semestral):\n{taxonomy_str}\n\n"
+            f"HECHO RELEVANTE (año {anio}):\n{detalle[:1500]}\n\n"
+            f"PRE-CLASIFICACIÓN POR REGEX (puede ser imprecisa): {evento_actual or 'no clasificado'}\n\n"
+            "TAREA: devuelve JSON con esta estructura EXACTA (sin texto adicional, solo JSON):\n"
+            "{\n"
+            '  "evento_canonico": "<etiqueta corta de la taxonomía, ej: \'Modificación de folleto\' '
+            'o \'Sustitución de gestora\'>",\n'
+            '  "que_cambio": "<1-2 frases describiendo EXACTAMENTE qué cambió, con nombres concretos '
+            'si los hay (ej: nueva gestora, nueva clase añadida, nueva comisión). Si el detalle no '
+            'lo aclara, di \'no especificado en el hecho\'>",\n'
+            '  "motivo": "<1 frase con motivo si está en el detalle (ej: \'adaptación a normativa MiFID II\'). '
+            'Si no se menciona, devuelve cadena vacía>",\n'
+            '  "impacto_inversor": "<1 frase neutral sobre impacto para el partícipe '
+            '(ej: \'Nuevo subasesor incorporado, sin cambio en comisiones\'). Solo afirmaciones derivables '
+            'del detalle, no especulaciones>"\n'
+            "}\n\n"
+            "REGLAS:\n"
+            "- NO inventes datos no presentes en el detalle\n"
+            "- evento_canonico debe ser una etiqueta corta (≤6 palabras), no una letra suelta\n"
+            "- Si el detalle es muy genérico (ej: solo 'Verificar y registrar'), usa motivo='' "
+            "e impacto_inversor='Cambio administrativo sin impacto operativo aparente'\n"
+        )
+        try:
+            resp = self._gemini_text(prompt, max_tokens=400, retries=1, tier="lite")
+            if not resp:
+                return {}
+            # Limpiar markdown si Gemini envuelve en ```json
+            resp_clean = _re.sub(r"^```(?:json)?\s*", "", resp.strip())
+            resp_clean = _re.sub(r"\s*```$", "", resp_clean)
+            data = _json.loads(resp_clean)
+            if not isinstance(data, dict):
+                return {}
+            # Validación: campos esperados, todos string
+            return {
+                "evento_canonico": str(data.get("evento_canonico", "") or "").strip()[:80],
+                "que_cambio": str(data.get("que_cambio", "") or "").strip()[:600],
+                "motivo": str(data.get("motivo", "") or "").strip()[:300],
+                "impacto_inversor": str(data.get("impacto_inversor", "") or "").strip()[:300],
+            }
+        except (_json.JSONDecodeError, ValueError) as exc:
+            self._log("WARN", f"Enrichment hecho {anio}: JSON inválido — {exc}")
+            return {}
+        except Exception as exc:
+            self._log("WARN", f"Enrichment hecho {anio}: {exc}")
+            return {}
 
     def _filter_letters(self, letters: dict) -> dict:
         """Extract key content from manager letters, avoiding repetition.
@@ -1343,6 +1444,83 @@ class AnalystAgent:
             return truncated[:last_period + 1]
         return truncated + "..."
 
+    def _section_responsibility(self, section: str) -> str:
+        """M1 Fase M (2026-04-30): define qué cubre ÚNICAMENTE cada sección
+        y qué evitar (por estar en otra). Inyectado al inicio del prompt de
+        cada _section_*. Refuerza la regla 11 del system_role.
+
+        Principio: el lector recorre las pestañas. Cada una debe aportar
+        información NUEVA, no recitar la anterior.
+        """
+        responsibilities = {
+            "resumen": (
+                "RESPONSABILIDAD ÚNICA — RESUMEN:\n"
+                "Tu sección debe responder en ≤6 frases: ¿qué tipo de fondo es, para qué inversor, "
+                "y cuál es la señal de inversión (favorable/neutral/cauto) con su razonamiento de 1 línea?\n"
+                "NO entres en detalle de evolución cuantitativa (eso está en EVOLUCIÓN), "
+                "NO listes posiciones top (eso está en CARTERA), "
+                "NO biografíes gestores (eso está en GESTORES). "
+                "Sé brutal: máximo 250 palabras. Si no tienes señal clara, di 'señal=neutral por información insuficiente' y stop.\n\n"
+            ),
+            "historia": (
+                "RESPONSABILIDAD ÚNICA — HISTORIA:\n"
+                "Tu sección debe contar el RECORRIDO del fondo: hitos cronológicos clave (lanzamiento, "
+                "cambios estructurales, periodos de stress/recuperación, hitos de AUM superados). "
+                "Ofrece CONTEXTO: ¿qué pasaba en el mercado cuando ocurrió cada hito?\n"
+                "NO repitas datos cuantitativos serializados (esos están en EVOLUCIÓN). "
+                "NO describas la estrategia actual (eso está en ESTRATEGIA). "
+                "Foco: narrativa temporal con drivers. Si solo tienes inception y AUM actual, di 2 frases y stop.\n\n"
+            ),
+            "gestores": (
+                "RESPONSABILIDAD ÚNICA — GESTORES:\n"
+                "Tu sección debe perfilar a las personas: trayectoria, formación, filosofía individual, "
+                "decisiones que les han caracterizado, citas propias, referentes intelectuales.\n"
+                "NO repitas la estrategia del fondo (eso está en ESTRATEGIA). "
+                "NO describas posiciones de la cartera (eso está en CARTERA). "
+                "Foco: las personas como activo. Si no tienes biografía, di 'datos biográficos limitados' y stop.\n\n"
+            ),
+            "evolucion": (
+                "RESPONSABILIDAD ÚNICA — EVOLUCIÓN:\n"
+                "Tu sección debe contar la EVOLUCIÓN CUANTITATIVA: AUM, partícipes, rentabilidad, "
+                "TER, mix activos, rotación. Cifras concretas por año + interpretación de tendencias.\n"
+                "NO repitas hitos narrativos (esos están en HISTORIA). "
+                "NO biografíes gestores (eso está en GESTORES). "
+                "NO listes posiciones top (eso está en CARTERA). "
+                "Foco: números y tendencias. Si una serie está vacía, di 'no disponible' explícitamente.\n\n"
+            ),
+            "estrategia": (
+                "RESPONSABILIDAD ÚNICA — ESTRATEGIA:\n"
+                "Tu sección debe explicar el PROCESO de inversión: filosofía, criterios de selección, "
+                "construcción de cartera, gestión del riesgo, decisiones recientes y su tesis. "
+                "USA cartas trimestrales y entrevistas RECIENTES como fuente principal.\n"
+                "NO repitas posiciones individuales (esas están en CARTERA con detalle). "
+                "NO biografíes gestores (eso está en GESTORES). "
+                "Foco: el método de la gestora.\n\n"
+            ),
+            "cartera": (
+                "RESPONSABILIDAD ÚNICA — CARTERA:\n"
+                "Tu sección debe analizar la CARTERA actual: top posiciones con racional, "
+                "concentración, mix tipo de activo / sector / geografía, comparación con histórico.\n"
+                "NO expliques la filosofía general (eso está en ESTRATEGIA). "
+                "NO repitas evolución de mix activos por año (eso está en EVOLUCIÓN). "
+                "Foco: la foto actual de la cartera y por qué está así.\n\n"
+            ),
+            "fuentes_externas": (
+                "RESPONSABILIDAD ÚNICA — FUENTES EXTERNAS:\n"
+                "Tu sección debe sintetizar OPINIONES de terceros sobre el fondo (analistas, prensa, blogs). "
+                "Cada opinión debe tener fuente verificable y fecha.\n"
+                "NO repitas información de hechos del fondo (eso está en otras pestañas). "
+                "Foco: qué dicen FUERA de la gestora sobre este fondo. Si no hay opiniones reales, "
+                "devuelve opiniones=[] (NUNCA inventes — guard K18).\n\n"
+            ),
+            "documentos": (
+                "RESPONSABILIDAD ÚNICA — DOCUMENTOS:\n"
+                "Tu sección debe listar URLs reales y verificables de documentos consultados. "
+                "Sin texto narrativo extenso. Tabla/lista de fuentes.\n\n"
+            ),
+        }
+        return responsibilities.get(section, "")
+
     def _system_role(self, data: dict) -> str:
         nombre = data.get("nombre", "")
         isin = data.get("isin", self.isin)
@@ -1359,7 +1537,19 @@ class AnalystAgent:
             "7. NO hagas copy-paste de datos en bruto. PROCESA, SINTETIZA y CONCLUYE.\n"
             "8. El texto debe tener PENSAMIENTO detrás — no ser una descripción mecánica.\n"
             "9. Si no hay datos suficientes, indica qué falta. NUNCA inventes.\n"
-            "10. Mínimo 3-4 párrafos extensos por sección.\n"
+            "10. PROHIBIDO mencionar 'valor liquidativo (VL)', 'base 100', 'NAV' o derivar "
+            "rentabilidades de esas series. La fuente canónica de rentabilidad es la lista "
+            "'rentabilidades' que se te pasa explícitamente (validada con sanity checks). "
+            "Si no aparece en los DATOS, omite la afirmación. (Fix M2: VL corrupto en ~33% fondos).\n"
+            "11. **DENSIDAD > LONGITUD (REGLA CRÍTICA M1)**: el lector recorre las pestañas en orden. "
+            "Cada sección debe APORTAR información nueva — NO repetir lo que dice otra sección. "
+            "Si tu única información ya está en otra pestaña, escribe 2-3 frases brutalmente concisas "
+            "en vez de 4 párrafos rellenando. Mejor 1 página densa de info accionable que 3 páginas "
+            "que aburren al lector. NO repitas: AUM, partícipes, TER, gestores, posiciones top — "
+            "esos datos están en sus propias pestañas y el lector ya los ha visto. Tu sección debe "
+            "ofrecer ANÁLISIS, JUICIO, CONTEXTO o INTERPRETACIÓN sobre esos datos, no recitarlos.\n"
+            "12. Si una afirmación cualitativa no está respaldada por datos concretos en los DATOS "
+            "que se te pasan, NO la hagas. Prefiere silencio honesto a relleno genérico.\n"
             f"Fondo: {nombre} ({isin}) — Gestora: {gestora}"
         )
 
@@ -1484,6 +1674,7 @@ class AnalystAgent:
         # Call 2: FILOSOFÍA DE INVERSIÓN (2-3 párrafos para columna izquierda)
         filosofia = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._section_responsibility('resumen')}"
             f"Escribe la FILOSOFÍA DE INVERSIÓN del fondo en 2-3 párrafos.\n"
             f"NO uses **títulos** ni headers — es texto fluido puro.\n"
             f"Describe: enfoque de inversión (bottom-up/top-down/macro), universo de inversión, "
@@ -1574,6 +1765,7 @@ class AnalystAgent:
 
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._section_responsibility('historia')}"
             f"{self._quality_hint('historia')}"
             f"Escribe la HISTORIA del fondo en 4-6 PÁRRAFOS FLUIDOS.\n"
             f"NO uses subsecciones ni **títulos en negrita como headers**.\n"
@@ -1764,6 +1956,7 @@ class AnalystAgent:
         # Call 1: TEXTO — overview del equipo (para los párrafos de arriba)
         texto_equipo = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._section_responsibility('gestores')}"
             f"{self._quality_hint('gestores')}"
             f"Escribe 2-3 PÁRRAFOS sobre el equipo gestor SIN headers ni subsecciones.\n"
             f"Narrativa fluida pura que cubra:\n"
@@ -1936,16 +2129,55 @@ class AnalystAgent:
     # ── Sección 4: Evolución ──────────────────────────────────────────────
 
     def _compute_annual_returns(self, data: dict) -> list[dict]:
-        vl = data.get("cuantitativo", {}).get("serie_vl_base100", [])
+        """Rentabilidades anuales del fondo.
+
+        M2 Fase M (2026-04-30): prioriza fuentes confiables con orden de prelación:
+          1. `serie_rentabilidad` (Morningstar/CNMV oficial) — fuente canónica
+          2. `serie_vl_base100` derivada — solo con SANITY CHECKS estrictos:
+             - Rechaza VL inicial absurdo (<1 o >5000)
+             - Rechaza saltos anuales >200% o <-80% (probable corrupción XML)
+             - Si cualquier punto falla, descarta serie completa (no parcial)
+
+        El bug del VL corrupto (Magallanes VL2015=0.2, ES0116567035 VL=1249, etc.
+        afectaba 5/15 fondos = 33%) producía rentabilidades >50000%/año en el
+        analyst. Mejor devolver [] que inventar.
+        """
+        # Tier 1: serie_rentabilidad oficial
+        rent = data.get("cuantitativo", {}).get("serie_rentabilidad", []) or []
+        if rent:
+            returns = []
+            for r in rent:
+                periodo = r.get("periodo", "")
+                pct = r.get("rentabilidad_pct")
+                if periodo and pct is not None:
+                    returns.append({"periodo": periodo, "rentabilidad_pct": round(pct, 1)})
+            if returns:
+                return returns
+
+        # Tier 2: derivar de serie_vl_base100 con sanity checks
+        vl = data.get("cuantitativo", {}).get("serie_vl_base100", []) or []
+        if not vl:
+            return []
+
+        # Sanity: VL inicial debe ser razonable (típico fondo: 5-2500 €/participación)
+        first_vl = vl[0].get("vl") if vl else None
+        if first_vl is None or first_vl < 1 or first_vl > 5000:
+            return []  # serie corrupta — no inventar
+
         returns = []
         for i in range(1, len(vl)):
             prev = vl[i-1].get("base100", 0)
             curr = vl[i].get("base100", 0)
-            if prev > 0:
-                returns.append({
-                    "periodo": vl[i].get("periodo", ""),
-                    "rentabilidad_pct": round((curr / prev - 1) * 100, 1)
-                })
+            if prev <= 0 or curr <= 0:
+                return []  # cualquier 0 invalida la serie
+            ratio = curr / prev
+            # Sanity: variaciones anuales realistas: -80% a +200%
+            if ratio < 0.2 or ratio > 3.0:
+                return []  # salto absurdo → serie corrupta
+            returns.append({
+                "periodo": vl[i].get("periodo", ""),
+                "rentabilidad_pct": round((ratio - 1) * 100, 1)
+            })
         return returns
 
     def _compute_geographic_mix(self, data: dict) -> list[dict]:
@@ -2017,9 +2249,19 @@ class AnalystAgent:
     def _compute_drawdown(self, data: dict) -> dict:
         """Calcula drawdown máximo desde serie_vl_base100.
         Devuelve: valor_pct, fecha_min (periodo del mínimo), fecha_peak (pico previo),
-                  duracion_meses (de peak a fecha_min), duracion_recuperacion_meses (si recuperó)."""
+                  duracion_meses (de peak a fecha_min), duracion_recuperacion_meses (si recuperó).
+
+        M2 Fase M (2026-04-30): sanity check para VL corrupto. Si la serie tiene
+        saltos absurdos (>200% año-on-año) → devuelve {} en vez de drawdown -99%
+        falso. Aplica el mismo criterio que _compute_annual_returns.
+        """
         vl_series = data.get("cuantitativo", {}).get("serie_vl_base100", []) or []
         if len(vl_series) < 3:
+            return {}
+
+        # Sanity: VL inicial razonable (típico fondo: 5-2500 €/participación)
+        first_vl = vl_series[0].get("vl") if vl_series else None
+        if first_vl is None or first_vl < 1 or first_vl > 5000:
             return {}
 
         # Extraer serie ordenada (periodo, base100)
@@ -2029,6 +2271,13 @@ class AnalystAgent:
         series.sort()
         if len(series) < 3:
             return {}
+
+        # Sanity: rechazar si hay saltos absurdos entre puntos consecutivos
+        for i in range(1, len(series)):
+            prev_b = series[i-1][1]
+            curr_b = series[i][1]
+            if prev_b > 0 and (curr_b / prev_b > 3.0 or curr_b / prev_b < 0.2):
+                return {}  # serie corrupta — no inventar drawdown
 
         # Running max + drawdown por punto
         max_so_far = series[0][1]
@@ -2105,24 +2354,37 @@ class AnalystAgent:
         if data.get("_anti_filler"):
             return self._section_evolucion_int(data)
         cuant = data.get("cuantitativo", {})
+        # M2 Fase M (2026-04-30): NO pasar serie_vl_base100 al LLM. Ese campo
+        # está corrupto en ~33% de fondos (VL inicial=0.2, 1249, 2014…) y
+        # produce textos absurdos ("base 100→59600", "carga 110%"). Solo se
+        # usan rentabilidades CALCULADAS con sanity checks en _compute_annual_returns.
+        rentabilidades_clean = self._compute_annual_returns(data)
         input_data = json.dumps({
             "aum": [{"p": s.get("periodo"), "v": s.get("valor_meur")} for s in cuant.get("serie_aum", [])],
             "participes": [{"p": s.get("periodo"), "v": s.get("valor")} for s in cuant.get("serie_participes", [])],
             "ter": [{"p": s.get("periodo"), "v": s.get("ter_pct")} for s in cuant.get("serie_ter", [])],
             "rotacion": [{"p": s.get("periodo"), "v": s.get("rotacion_pct")} for s in cuant.get("serie_rotacion", [])],
-            "vl100": [{"p": s.get("periodo"), "v": s.get("base100")} for s in cuant.get("serie_vl_base100", [])],
             "mix": [{"p": s.get("periodo"), "rv": s.get("rv_pct"), "rf": s.get("renta_fija_pct"), "liq": s.get("liquidez_pct")} for s in cuant.get("mix_activos_historico", [])],
-            "rentabilidades": self._compute_annual_returns(data),
+            "rentabilidades": rentabilidades_clean,
         }, ensure_ascii=False)
 
         # Call 1: TEXTO narrativo
+        # M2: prohibe explícitamente mencionar VL/valor liquidativo/base 100
+        # (datos corruptos en upstream). Si rentabilidades=[] → omitir sección
+        # rentabilidad explícitamente en lugar de inventar.
+        rent_instruction = (
+            "- **Rentabilidad** — usa SOLO la lista 'rentabilidades' provista (rentabilidad_pct por año). "
+            "Si está vacía, escribe: 'Datos de rentabilidad no disponibles desde fuentes oficiales para este periodo'. "
+            "PROHIBIDO mencionar 'valor liquidativo', 'VL', 'base 100', 'NAV' o derivar rentabilidades de otra serie.\n"
+        )
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._section_responsibility('evolucion')}"
             f"Escribe un ANÁLISIS CUANTITATIVO de la evolución del fondo.\n"
             f"Estructura con subsecciones usando **Título** en negrita:\n"
             f"- **Patrimonio (AUM)** — evolución con cifras por año, fases de crecimiento\n"
             f"- **Partícipes** — evolución, episodios de entrada/salida masiva\n"
-            f"- **Rentabilidad** — rentabilidades anuales concretas, comparación con índices si hay datos\n"
+            f"{rent_instruction}"
             f"- **Comisiones (TER)** — evolución, comparación entre clases\n"
             f"- **Mix de activos** — cómo cambió de puro RV a mixto, por qué\n"
             f"- **Rotación** — evolución y qué indica\n"
@@ -2168,6 +2430,7 @@ class AnalystAgent:
         # Call 1: TEXTO — TIER 1 (Sonnet con fallback a Flash) — análisis evaluativo EXTENSO
         texto = self._sonnet_text(
             self._system_role(data),
+            f"{self._section_responsibility('estrategia')}"
             f"{self._quality_hint('estrategia')}"
             f"REGLA CRÍTICA RECENCY (Bug 4 Fase G 2026-04-28):\n"
             f"- Para 'visión actual' / 'decisiones recientes' / 'posicionamiento actual': USA PRIMERO\n"
@@ -2277,6 +2540,7 @@ class AnalystAgent:
         # Call 1: TEXTO análisis EXTENSO de cartera (mínimo 3000 chars)
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._section_responsibility('cartera')}"
             f"{self._quality_hint('cartera')}"
             f"Escribe un ANÁLISIS EXTENSO Y PROFUNDO de la cartera en 5-7 PÁRRAFOS DENSOS.\n"
             f"NO uses subsecciones ni **headers** — narrativa fluida pura, cada párrafo conecta con el siguiente.\n"
@@ -2358,18 +2622,52 @@ class AnalystAgent:
                 })
                 seen_urls.add(url)
 
-        # K18 Fase K (2026-04-29): GUARD ANTI-INVENCIÓN CRÍTICO.
-        # Si NO hay items en items_compact, NO llamar al LLM (inventaba 10
-        # opiniones completas con URLs falsas sobre OTROS fondos). Síntoma:
-        # AZ Valor con readings vacío → analyst inventó 10 opiniones sobre
-        # "True Value" con URLs inventadas de Rankia/Finect/El Confidencial.
+        # M3 v2 Fase M (2026-04-30): cargar recursos oficiales gestora desde
+        # gestora_resources.json (cartas, KIID, folleto, presentaciones, videos
+        # YouTube descubiertos vía Serper). Son fuente OFICIAL — no son opiniones,
+        # se devuelven como `recursos_oficiales` separado de `opiniones_clave`.
+        recursos_oficiales = []
+        try:
+            grpath = self.fund_dir / "gestora_resources.json"
+            if grpath.exists():
+                gr = json.loads(grpath.read_text(encoding="utf-8"))
+                for r in gr.get("recursos", []):
+                    recursos_oficiales.append({
+                        "tipo": r.get("tipo", "documento"),
+                        "titulo": r.get("titulo", ""),
+                        "url": r.get("url", ""),
+                        "fecha": r.get("fecha", ""),
+                        "fuente": r.get("fuente") or gr.get("gestora_domain", ""),
+                    })
+                if recursos_oficiales:
+                    self._log("INFO",
+                        f"Recursos oficiales gestora cargados: {len(recursos_oficiales)} "
+                        f"(tipos={gr.get('por_tipo', {})})")
+        except Exception as exc:
+            self._log("WARN", f"No se pudieron cargar gestora_resources.json: {exc}")
+
+        # K18 Fase K (2026-04-29) + M3 v2 Fase M (2026-04-30): GUARD ANTI-INVENCIÓN.
+        # Si NO hay items_compact NI recursos_oficiales, NO llamar al LLM (inventaba
+        # opiniones completas con URLs falsas). Si hay recursos_oficiales pero NO
+        # opiniones, devolver opiniones=[] pero mantener recursos_oficiales.
         if not items_compact:
+            if recursos_oficiales:
+                self._log("INFO",
+                    f"Sin opiniones de terceros, pero {len(recursos_oficiales)} "
+                    f"recursos oficiales gestora. Devolviendo solo recursos_oficiales.")
+                return {
+                    "texto": "",
+                    "opiniones_clave": [],
+                    "recursos_oficiales": recursos_oficiales,
+                    "_anti_invencion_guard": "no_external_opinions_only_official",
+                }
             self._log("WARN",
-                "Section 'fuentes_externas': sin items en lecturas/fuentes_web — "
+                "Section 'fuentes_externas': sin items en lecturas/fuentes_web/recursos — "
                 "devolviendo opiniones=[] (anti-invención)")
             return {
                 "texto": "",
                 "opiniones_clave": [],
+                "recursos_oficiales": [],
                 "_anti_invencion_guard": "no_external_sources",
             }
 
@@ -2379,6 +2677,7 @@ class AnalystAgent:
         # Call 1: TEXTO síntesis
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
+            f"{self._section_responsibility('fuentes_externas')}"
             f"Sintetiza las OPINIONES DE TERCEROS sobre el fondo.\n"
             f"Estructura con subsecciones usando **Nombre de la fuente** en negrita:\n"
             f"Para cada fuente relevante: qué dice, qué destaca, qué critica, citas textuales si las hay.\n"
@@ -2438,6 +2737,9 @@ class AnalystAgent:
 
         result = datos if datos else {}
         result["texto"] = texto
+        # M3 v2 Fase M: incluir recursos oficiales gestora (cartas, KIID, videos)
+        # como sección APARTE de opiniones. Son fuente OFICIAL del producto.
+        result["recursos_oficiales"] = recursos_oficiales
         return result if texto else None
 
     # ── Sección 8: Documentos (puro Python) ───────────────────────────────

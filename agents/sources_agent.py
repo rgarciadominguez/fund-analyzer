@@ -48,20 +48,22 @@ DDG_DELAY_S = 1.0
 
 # Known gestora domains for site:-scoped searches (ES)
 KNOWN_GESTORA_DOMAINS = {
-    "avantage": "avantage-capital.es",
-    "cobas": "cobasam.com",
+    # Verificados 2026-04-30 con HTTP HEAD response 200
     "azvalor": "azvalor.com",
     "bestinver": "bestinver.es",
-    "magallanes": "magallanesinversion.com",
+    "cobas": "cobasam.com",
+    "magallanes": "magallanesvalue.com",
     "horos": "horosam.com",
     "valentum": "valentum.es",
     "dnca": "dnca-investments.com",
-    "renta 4": "renta4.es",
+    "renta 4": "renta4gestora.com",
     "buy & hold": "buyandhold.es",
     "numantia": "numantiapatrimonioglobal.com",
     "metagestion": "metagestion.com",
     "abante": "abanteasesores.com",
     "cartesio": "cartesio.com",
+    # Pendientes de verificación / dominios que pueden no resolver:
+    "avantage": "avantage-capital.es",
     "narval": "narvalinvest.com",
 }
 
