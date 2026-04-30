@@ -3,28 +3,12 @@
   "nombre": "MAGALLANES EUROPEAN EQUITY FI",
   "fallos": [
     {
-      "regla_id": "estrategia_no_headers",
-      "seccion": "estrategia",
-      "fail_type": "estructura",
-      "problema": "Estrategia tiene 1 subsecciones — debe ser parrafos evaluativos sin headers",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar estrategia como narrativa evaluativa pura."
-    },
-    {
       "regla_id": "cuant_serie_vl_valid",
       "seccion": "datos_cuantitativos",
       "fail_type": "estructura",
       "problema": "Serie VL corrupta (cagr_irreal): CAGR=94.4% en 11 años. No refleja VLs reales del fondo.",
       "agente_responsable": "cnmv_agent",
       "accion": "Revisar extraccion de VL en cnmv_agent. Puede estar leyendo AUM, numero de participes u otro campo como VL."
-    },
-    {
-      "regla_id": "resumen_returns_match_data",
-      "seccion": "resumen",
-      "fail_type": "content",
-      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2025: texto dice 102.5%, real 30.0%",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
     },
     {
       "regla_id": "historia_kpis_match_data",
@@ -59,14 +43,6 @@
       "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
     },
     {
-      "regla_id": "resumen_fortalezas_no_contradict_riesgos",
-      "seccion": "resumen",
-      "fail_type": "content",
-      "problema": "Incoherencia interna (fortalezas_contradicen_riesgos): Riesgos admiten falta de datos pero fortalezas citan rentabilidad: ['Rentabilidad acumulada del 102,5% desde 2017 hasta finales de 2025, con una CAGR']",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar resumen: si los riesgos admiten falta de datos, las fortalezas NO pueden citar cifras de esos mismos datos. Reconciliar o reemplazar con fortalezas verificables."
-    },
-    {
       "regla_id": "hitos_estrategia_have_driver",
       "seccion": "estrategia",
       "fail_type": "completitud",
@@ -91,12 +67,12 @@
       "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "fallos_estructura": 5,
+  "fallos_estructura": 2,
   "fallos_scarcity": 3,
   "total_reglas": 103,
-  "reglas_ok": 92,
+  "reglas_ok": 95,
   "aceptable": false,
-  "score_display": "92/103 reglas OK (3 pendientes de datos)",
+  "score_display": "95/103 reglas OK (3 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -107,5 +83,5 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-04-29T23:22:08.148267"
+  "evaluado_at": "2026-04-30T17:43:44.766695"
 }
