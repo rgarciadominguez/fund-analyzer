@@ -1445,78 +1445,101 @@ class AnalystAgent:
         return truncated + "..."
 
     def _section_responsibility(self, section: str) -> str:
-        """M1 Fase M (2026-04-30): define qué cubre ÚNICAMENTE cada sección
-        y qué evitar (por estar en otra). Inyectado al inicio del prompt de
-        cada _section_*. Refuerza la regla 11 del system_role.
+        """M1 Fase M (2026-04-30, refinado 2026-04-30 v2): define el FOCO de
+        cada sección. Inyectado al inicio del prompt de cada _section_*.
 
-        Principio: el lector recorre las pestañas. Cada una debe aportar
-        información NUEVA, no recitar la anterior.
+        Bug fixed: el formato anterior usaba 'RESPONSABILIDAD ÚNICA — XXX:' en
+        mayúsculas como header, y el LLM lo interpretaba como template literal
+        a copiar en su respuesta (Magallanes/AZ Valor v1 mostraban
+        '**RESPONSABILIDAD ÚNICA — RESUMEN**' al inicio del texto).
+        Fix: prefijo '[INSTRUCCIONES INTERNAS — NO copiar en la respuesta]'
+        que disuade al LLM de incluir el bloque literal.
+
+        Principio actualizado: cada sección tiene un FOCO PROPIO. Algunas
+        sintetizan transversalmente (resumen, historia), otras profundizan
+        en un eje único (cartera, gestores). El refuerzo M1 del system_role
+        regla 11 sigue activo (densidad > longitud).
         """
         responsibilities = {
             "resumen": (
-                "RESPONSABILIDAD ÚNICA — RESUMEN:\n"
-                "Tu sección debe responder en ≤6 frases: ¿qué tipo de fondo es, para qué inversor, "
-                "y cuál es la señal de inversión (favorable/neutral/cauto) con su razonamiento de 1 línea?\n"
-                "NO entres en detalle de evolución cuantitativa (eso está en EVOLUCIÓN), "
-                "NO listes posiciones top (eso está en CARTERA), "
-                "NO biografíes gestores (eso está en GESTORES). "
-                "Sé brutal: máximo 250 palabras. Si no tienes señal clara, di 'señal=neutral por información insuficiente' y stop.\n\n"
+                "[INSTRUCCIONES INTERNAS — NO copiar este texto en la respuesta]\n"
+                "RESUMEN EJECUTIVO del fondo en 4 PÁRRAFOS DENSOS, narrativa fluida (sin headers ni bullets).\n"
+                "Total objetivo: 350-550 palabras. Cada párrafo 80-150 palabras con cifras concretas en **negritas**.\n"
+                "Estructura obligatoria de los 4 párrafos:\n"
+                "  Párrafo 1 — HISTORIA + SITUACIÓN ACTUAL: cuándo se lanzó, gestora, evolución hasta hoy "
+                "(crecimiento orgánico/inflexiones), AUM y partícipes actuales, posición en su categoría.\n"
+                "  Párrafo 2 — ESTRATEGIA + DIFERENCIACIÓN: qué tipo de fondo y filosofía de inversión, "
+                "qué hace DISTINTO vs peers de la misma categoría (asset class, enfoque, sesgo regional o sectorial).\n"
+                "  Párrafo 3 — DECISIONES CLAVE: 2-3 momentos decisivos en su historia (cambio de gestora/depositario/auditor, "
+                "modificación de folleto, fusión, virajes estratégicos, fases de stress relevantes, hitos de AUM/partícipes).\n"
+                "  Párrafo 4 — VISIÓN ACTUAL: posicionamiento más reciente del gestor según cartas/informes 2024-2025, "
+                "tesis activa, riesgos identificados, perspectivas próximos meses.\n"
+                "Cada párrafo cubre su tema sin solapar con otros. NO uses headers tipo '**Historia**'. "
+                "Conecta los párrafos con transiciones naturales.\n"
             ),
             "historia": (
-                "RESPONSABILIDAD ÚNICA — HISTORIA:\n"
-                "Tu sección debe contar el RECORRIDO del fondo: hitos cronológicos clave (lanzamiento, "
-                "cambios estructurales, periodos de stress/recuperación, hitos de AUM superados). "
-                "Ofrece CONTEXTO: ¿qué pasaba en el mercado cuando ocurrió cada hito?\n"
-                "NO repitas datos cuantitativos serializados (esos están en EVOLUCIÓN). "
-                "NO describas la estrategia actual (eso está en ESTRATEGIA). "
-                "Foco: narrativa temporal con drivers. Si solo tienes inception y AUM actual, di 2 frases y stop.\n\n"
+                "[INSTRUCCIONES INTERNAS — NO copiar este texto en la respuesta]\n"
+                "Foco: RECORRIDO TEMPORAL año a año del fondo — fases cronológicas concretas con datos de "
+                "ese año (AUM, partícipes, eventos, contexto de mercado). Estructura: agrupa años en fases "
+                "temáticas (ej: 'Lanzamiento y arranque 2015-2017', 'Madurez y crisis COVID 2018-2020', "
+                "'Aceleración 2021-presente') y describe qué pasó EN CADA AÑO con cifras concretas y "
+                "contexto de mercado del momento.\n"
+                "NO expliques la filosofía ni el proceso de inversión (eso está en ESTRATEGIA). "
+                "NO biografíes gestores (eso está en GESTORES). "
+                "Foco TEMPORAL puro: año a año qué pasó al fondo y qué pasaba en el mercado.\n"
             ),
             "gestores": (
-                "RESPONSABILIDAD ÚNICA — GESTORES:\n"
-                "Tu sección debe perfilar a las personas: trayectoria, formación, filosofía individual, "
-                "decisiones que les han caracterizado, citas propias, referentes intelectuales.\n"
-                "NO repitas la estrategia del fondo (eso está en ESTRATEGIA). "
-                "NO describas posiciones de la cartera (eso está en CARTERA). "
-                "Foco: las personas como activo. Si no tienes biografía, di 'datos biográficos limitados' y stop.\n\n"
+                "[INSTRUCCIONES INTERNAS — NO copiar este texto en la respuesta]\n"
+                "Foco: las PERSONAS — trayectoria, formación, filosofía individual, decisiones que les han "
+                "caracterizado, citas propias, referentes intelectuales. Las personas como activo del fondo. "
+                "No expliques posiciones de la cartera (pestaña CARTERA) ni la estrategia (pestaña ESTRATEGIA). "
+                "Si no hay biografía pública sustantiva, dilo y stop.\n"
             ),
             "evolucion": (
-                "RESPONSABILIDAD ÚNICA — EVOLUCIÓN:\n"
-                "Tu sección debe contar la EVOLUCIÓN CUANTITATIVA: AUM, partícipes, rentabilidad, "
-                "TER, mix activos, rotación. Cifras concretas por año + interpretación de tendencias.\n"
-                "NO repitas hitos narrativos (esos están en HISTORIA). "
-                "NO biografíes gestores (eso está en GESTORES). "
-                "NO listes posiciones top (eso está en CARTERA). "
-                "Foco: números y tendencias. Si una serie está vacía, di 'no disponible' explícitamente.\n\n"
+                "[INSTRUCCIONES INTERNAS — NO copiar este texto en la respuesta]\n"
+                "Foco: EVOLUCIÓN CUANTITATIVA — AUM, partícipes, rentabilidad anual, TER, mix de activos, "
+                "rotación de cartera. Cifras concretas por año + interpretación de tendencias. "
+                "Si una serie está vacía, indícalo explícitamente — no inventes. "
+                "Resumen e Historia ya tocan estos datos a alto nivel — tu sección los analiza con detalle.\n"
             ),
             "estrategia": (
-                "RESPONSABILIDAD ÚNICA — ESTRATEGIA:\n"
-                "Tu sección debe explicar el PROCESO de inversión: filosofía, criterios de selección, "
-                "construcción de cartera, gestión del riesgo, decisiones recientes y su tesis. "
-                "USA cartas trimestrales y entrevistas RECIENTES como fuente principal.\n"
-                "NO repitas posiciones individuales (esas están en CARTERA con detalle). "
-                "NO biografíes gestores (eso está en GESTORES). "
-                "Foco: el método de la gestora.\n\n"
+                "[INSTRUCCIONES INTERNAS — NO copiar este texto en la respuesta]\n"
+                "Foco: 4 dimensiones SIN solapar con HISTORIA (cronología año a año):\n"
+                "  1. FILOSOFÍA DE INVERSIÓN — value/growth/quality/macro/etc., enfoque bottom-up vs "
+                "top-down, criterios de selección, gestión del riesgo, horizonte temporal.\n"
+                "  2. DIFERENCIACIÓN — qué hace este fondo DISTINTO vs peers de su categoría (sesgo regional, "
+                "sectorial, asset class, concentración, rotación esperada).\n"
+                "  3. ESTRATEGIA POR PERIODOS — cómo se ha aplicado la filosofía en distintas fases del fondo "
+                "(ej: 'durante 2018-2020 énfasis en defensivo; 2021 viraje a cíclicas; 2023 incorporación "
+                "subasesores asiáticos'). USA cartas + cambios de cartera año a año (entradas/salidas) para "
+                "explicar el POR QUÉ de cada viraje.\n"
+                "  4. ESTRATEGIA ACTUAL + VISIÓN MERCADO — cómo está posicionada hoy + qué entorno ven "
+                "(macro, valoraciones, drivers) según las cartas/informes 2024-2025 más RECIENTES.\n"
+                "No repitas hitos cronológicos (HISTORIA), no biografíes gestores (GESTORES), "
+                "no listes posiciones individuales con racional (CARTERA).\n"
             ),
             "cartera": (
-                "RESPONSABILIDAD ÚNICA — CARTERA:\n"
-                "Tu sección debe analizar la CARTERA actual: top posiciones con racional, "
-                "concentración, mix tipo de activo / sector / geografía, comparación con histórico.\n"
-                "NO expliques la filosofía general (eso está en ESTRATEGIA). "
-                "NO repitas evolución de mix activos por año (eso está en EVOLUCIÓN). "
-                "Foco: la foto actual de la cartera y por qué está así.\n\n"
+                "[INSTRUCCIONES INTERNAS — NO copiar este texto en la respuesta]\n"
+                "Estructura OBLIGATORIA en 2 bloques:\n"
+                "  BLOQUE 1 — HISTÓRICO DE LA CARTERA (1-2 párrafos): qué grandes bloques/decisiones ha tenido "
+                "la cartera a lo largo del tiempo y cómo ha ido VIRANDO hasta la situación actual. "
+                "USA el campo 'cambios_cartera_anuales' (entradas/salidas año a año detectadas automáticamente "
+                "comparando posiciones_historicas[year-1] vs posiciones_historicas[year]) y las cartas. "
+                "Explica el POR QUÉ de los virajes (contexto de mercado, tesis del gestor según cartas).\n"
+                "  BLOQUE 2 — SITUACIÓN ACTUAL (3-5 párrafos): top posiciones con racional, concentración, "
+                "mix por tipo activo/sector/geografía, principales bets y por qué.\n"
+                "No expliques la filosofía general (pestaña ESTRATEGIA) ni repitas evolución de mix por año "
+                "(pestaña EVOLUCIÓN).\n"
             ),
             "fuentes_externas": (
-                "RESPONSABILIDAD ÚNICA — FUENTES EXTERNAS:\n"
-                "Tu sección debe sintetizar OPINIONES de terceros sobre el fondo (analistas, prensa, blogs). "
-                "Cada opinión debe tener fuente verificable y fecha.\n"
-                "NO repitas información de hechos del fondo (eso está en otras pestañas). "
-                "Foco: qué dicen FUERA de la gestora sobre este fondo. Si no hay opiniones reales, "
-                "devuelve opiniones=[] (NUNCA inventes — guard K18).\n\n"
+                "[INSTRUCCIONES INTERNAS — NO copiar este texto en la respuesta]\n"
+                "Foco: OPINIONES de terceros sobre el fondo (analistas, prensa, blogs). Cada opinión con "
+                "fuente verificable y fecha. Qué dicen FUERA de la gestora. Si no hay opiniones reales en DATOS, "
+                "devuelve opiniones_clave=[] (NUNCA inventes — guard K18).\n"
             ),
             "documentos": (
-                "RESPONSABILIDAD ÚNICA — DOCUMENTOS:\n"
-                "Tu sección debe listar URLs reales y verificables de documentos consultados. "
-                "Sin texto narrativo extenso. Tabla/lista de fuentes.\n\n"
+                "[INSTRUCCIONES INTERNAS — NO copiar este texto en la respuesta]\n"
+                "Foco: tabla/lista de URLs reales de documentos consultados. Sin texto narrativo extenso.\n"
             ),
         }
         return responsibilities.get(section, "")
@@ -1650,31 +1673,49 @@ class AnalystAgent:
             "gestores_info": data.get("gestores", {}).get("info_cartas", [])[:2],
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO — TIER 1 (Sonnet) — narrativa corta SIN subsecciones
+        # Call 1: TEXTO — TIER 1 (Sonnet) — RESUMEN EJECUTIVO 4 párrafos densos.
+        # Refinado 2026-04-30 v2: pasa de descripción plana (qué es / rentabilidad /
+        # cartera / patrimonio) a narrativa analítica (historia + estrategia +
+        # decisiones clave + visión actual). Usa hechos enriquecidos M4.
         texto = self._sonnet_text(
             self._system_role(data),
+            f"{self._section_responsibility('resumen')}"
             f"{self._quality_hint('resumen')}"
-            f"Escribe un RESUMEN EJECUTIVO CONCISO del fondo en MÁXIMO 4 PÁRRAFOS.\n"
-            f"NO uses subsecciones, NO uses **títulos en negrita**, NO uses headers.\n"
-            f"Es narrativa fluida pura — cada párrafo conecta con el siguiente.\n\n"
-            f"Párrafo 1: Qué es el fondo, quién lo gestiona/asesora, fecha de creación, "
-            f"clasificación Morningstar, AUM actual, nº de partícipes.\n"
-            f"Párrafo 2: Rentabilidad acumulada desde inicio (VL base 100), CAGR, "
-            f"volatilidad registrada, posición en categoría, rating Morningstar si lo tiene.\n"
-            f"Párrafo 3: Composición actual de la cartera (% RV, % RF, % liquidez), "
-            f"nº de posiciones, temáticas principales, exposición geográfica.\n"
-            f"Párrafo 4: Crecimiento del patrimonio (de X a Y M€), evolución de partícipes, "
-            f"confianza de los inversores.\n\n"
-            f"IMPORTANTE: Usar cifras CONCRETAS con negritas (**151,6 M€**, **5.176 partícipes**).\n"
-            f"MÁXIMO 1.500 caracteres. Denso, cada frase aporta info nueva.\n\n"
+            f"Escribe un RESUMEN EJECUTIVO en EXACTAMENTE 4 PÁRRAFOS densos, narrativa fluida.\n"
+            f"NO uses subsecciones, NO uses headers tipo **Historia**, NO uses bullets.\n"
+            f"Conecta los párrafos con transiciones naturales. Total objetivo: 350-550 palabras.\n\n"
+            f"PÁRRAFO 1 — HISTORIA + SITUACIÓN ACTUAL (80-130 palabras):\n"
+            f"  Cuándo se lanzó (año), gestora, evolución hasta hoy en grandes fases "
+            f"(crecimiento orgánico/inflexiones), AUM actual, nº partícipes actual, "
+            f"posición en su categoría.\n\n"
+            f"PÁRRAFO 2 — ESTRATEGIA + DIFERENCIACIÓN (80-150 palabras):\n"
+            f"  Qué tipo de fondo es y filosofía de inversión, qué hace DISTINTO vs peers "
+            f"de la misma categoría (sesgo regional, sectorial, asset class, estilo value/growth/etc.), "
+            f"composición tipo de la cartera (% activo principal, nº posiciones).\n\n"
+            f"PÁRRAFO 3 — DECISIONES CLAVE (80-150 palabras):\n"
+            f"  2-3 momentos decisivos en su historia: cambios de gestora/depositario/auditor, "
+            f"modificación de folleto, fusiones, virajes estratégicos, fases de stress relevantes, "
+            f"hitos de AUM/partícipes superados. USA los datos de 'hechos' (campo enriquecido por LLM "
+            f"con que_cambio/motivo/impacto_inversor) y la cronología disponible.\n\n"
+            f"PÁRRAFO 4 — VISIÓN ACTUAL (80-150 palabras):\n"
+            f"  Posicionamiento más reciente del gestor según cartas/informes 2024-2025 (campos "
+            f"'seccion_9' y 'seccion_10' o 'gestores_info'), tesis activa, riesgos identificados, "
+            f"perspectivas próximos meses.\n\n"
+            f"Reglas de redacción:\n"
+            f"- Cifras concretas en **negritas** (**1.450 M€**, **+10,8% anualizado**).\n"
+            f"- NO repetir la misma cifra en 2 párrafos distintos.\n"
+            f"- Si un dato no está disponible, OMITE la afirmación; no escribas 'no disponible'.\n"
+            f"- Para rentabilidad: usa SOLO la lista 'rentabilidades_anuales'. Si está vacía, omite.\n"
+            f"- PROHIBIDO mencionar 'valor liquidativo (VL)', 'base 100', 'NAV'.\n\n"
             f"DATOS:\n{input_data}"
         )
         time.sleep(2)
 
-        # Call 2: FILOSOFÍA DE INVERSIÓN (2-3 párrafos para columna izquierda)
+        # Call 2: FILOSOFÍA DE INVERSIÓN (2-3 párrafos para columna izquierda).
+        # Sin _section_responsibility (eso aplica al texto principal). Sub-call
+        # con foco específico en filosofía/proceso de selección.
         filosofia = self._gemini_text(
             f"{self._system_role(data)}\n\n"
-            f"{self._section_responsibility('resumen')}"
             f"Escribe la FILOSOFÍA DE INVERSIÓN del fondo en 2-3 párrafos.\n"
             f"NO uses **títulos** ni headers — es texto fluido puro.\n"
             f"Describe: enfoque de inversión (bottom-up/top-down/macro), universo de inversión, "
@@ -1767,21 +1808,29 @@ class AnalystAgent:
             f"{self._system_role(data)}\n\n"
             f"{self._section_responsibility('historia')}"
             f"{self._quality_hint('historia')}"
-            f"Escribe la HISTORIA del fondo en 4-6 PÁRRAFOS FLUIDOS.\n"
+            f"⛔ PROHIBIDO ABSOLUTO en HISTORIA: mencionar 'Valor Liquidativo', 'VL', "
+            f"'base 100', 'NAV', 'pasando de X.X a Y.Y'. Es información ENGAÑOSA — "
+            f"esos números NO reflejan rentabilidad real (la serie viene corrupta en "
+            f"33% de fondos). Para hablar de rentabilidad usa SOLO la lista 'rentabilidades' "
+            f"si está en DATOS; si no, di que no hay datos disponibles. (Fix M2).\n\n"
+            f"Escribe la HISTORIA del fondo en 4-6 PÁRRAFOS FLUIDOS, narrativa AÑO-A-AÑO "
+            f"agrupando años en fases temáticas (ej: 'Lanzamiento y arranque 2015-2017', "
+            f"'Madurez y crisis COVID 2018-2020', 'Aceleración 2021-presente').\n"
             f"NO uses subsecciones ni **títulos en negrita como headers**.\n"
-            f"SÍ usa **negritas** para resaltar datos clave dentro del texto "
-            f"(cifras, nombres, fechas, hitos importantes).\n"
-            f"Es narrativa fluida — un resumen extenso de la historia completa.\n"
-            f"Agrupa los años en FASES temáticas con transiciones naturales.\n\n"
-            f"CONTENIDO OBLIGATORIO:\n"
-            f"- Fundación: quién, cuándo, con qué patrimonio y partícipes iniciales\n"
-            f"- Primeros años: crecimiento orgánico, primeras decisiones, filosofía inicial\n"
-            f"- Puntos de inflexión: crisis de mercado, cambios de gestora, fusiones, "
-            f"entradas/salidas masivas de partícipes, cambios regulatorios\n"
-            f"- Evolución de la estrategia: cómo ha cambiado el enfoque con el tiempo\n"
-            f"- Estado actual: AUM, partícipes, posición en categoría, rating\n\n"
-            f"Cifras concretas con negritas: **X M€**, **X partícipes**, **+X%**, **VL X**.\n"
-            f"NO entres en detalles concretos por año (eso va en la cronología).\n"
+            f"SÍ usa **negritas** para resaltar datos clave dentro del texto.\n\n"
+            f"CONTENIDO POR FASE:\n"
+            f"- Para CADA fase, indica los años cubiertos + cifras concretas de AUM y partícipes "
+            f"al inicio/fin de la fase + eventos clave + contexto de mercado (qué pasaba en mercado).\n"
+            f"- Lanzamiento: año, gestora, patrimonio inicial, partícipes iniciales.\n"
+            f"- Crecimiento orgánico vs por captación, hitos AUM superados.\n"
+            f"- Crisis/inflexiones: cambios estructurales, fusiones, entradas/salidas masivas, "
+            f"contexto de mercado del momento.\n"
+            f"- Estado actual: AUM, partícipes, posición en categoría.\n\n"
+            f"DENSIDAD NUMÉRICA OBLIGATORIA: MÍNIMO 15 cifras concretas en negritas a lo largo del texto "
+            f"(**X M€**, **X partícipes**, **+X%**, fechas concretas, etc.). "
+            f"Si una fase tiene pocas cifras disponibles, integra cifras de mercado de ese año.\n"
+            f"PROHIBIDO mencionar 'Valor Liquidativo', 'VL', 'base 100', 'NAV' o derivar rentabilidades "
+            f"de esas series. Para rentabilidad usa SOLO la lista 'rentabilidades' si está en DATOS.\n"
             f"MÍNIMO 2.500 caracteres — extenso pero con hilo conductor.\n\n"
             f"DATOS:\n{input_data}"
         )
@@ -2246,6 +2295,94 @@ class AnalystAgent:
             })
         return result
 
+    def _compute_portfolio_changes(self, data: dict) -> list[dict]:
+        """Refinamiento M1 v3 (2026-05-01): detecta CAMBIOS año a año en cartera
+        comparando posiciones_historicas[year-1] vs posiciones_historicas[year]
+        + actuales vs último histórico.
+
+        Devuelve lista por par de años con:
+        - periodo (ej: "2023→2024")
+        - entradas: posiciones nuevas con peso ≥0.5%
+        - salidas: posiciones eliminadas con peso anterior ≥0.5%
+        - cambios_peso: posiciones con cambio de peso > 50% relativo (significativo)
+
+        Para alimentar la sección estrategia (POR QUÉ del viraje) y la sección
+        cartera (BLOQUE 1 — histórico).
+        """
+        result = []
+
+        def _key(p):
+            return (p.get("nombre", "") or "").strip().lower()[:60]
+
+        # Snapshots ordenados por año
+        snapshots = []
+        for y in data.get("posiciones", {}).get("historicas", []):
+            todas = y.get("todas", []) or []
+            if todas:
+                snapshots.append((y.get("periodo", ""), todas))
+        # Añadir actuales como último snapshot
+        actuales = data.get("posiciones", {}).get("actuales", [])
+        if actuales:
+            snapshots.append(("actual", actuales))
+        snapshots.sort(key=lambda x: x[0] or "0")
+
+        if len(snapshots) < 2:
+            return []
+
+        for i in range(1, len(snapshots)):
+            prev_periodo, prev_pos = snapshots[i-1]
+            curr_periodo, curr_pos = snapshots[i]
+            prev_map = {_key(p): p for p in prev_pos if _key(p)}
+            curr_map = {_key(p): p for p in curr_pos if _key(p)}
+
+            entradas = []
+            salidas = []
+            cambios_peso = []
+
+            # Entradas: en curr no en prev, peso ≥0.5%
+            for k, p in curr_map.items():
+                if k not in prev_map and (p.get("peso_pct") or 0) >= 0.5:
+                    entradas.append({
+                        "nombre": p.get("nombre", ""),
+                        "peso_pct": round(p.get("peso_pct", 0) or 0, 2),
+                        "tipo": p.get("tipo", "") or p.get("asset_type", ""),
+                    })
+
+            # Salidas: en prev no en curr, peso anterior ≥0.5%
+            for k, p in prev_map.items():
+                if k not in curr_map and (p.get("peso_pct") or 0) >= 0.5:
+                    salidas.append({
+                        "nombre": p.get("nombre", ""),
+                        "peso_pct_anterior": round(p.get("peso_pct", 0) or 0, 2),
+                        "tipo": p.get("tipo", "") or p.get("asset_type", ""),
+                    })
+
+            # Cambios de peso significativos (>50% relativo, peso ≥1%)
+            for k in set(prev_map) & set(curr_map):
+                pp = prev_map[k].get("peso_pct", 0) or 0
+                cp = curr_map[k].get("peso_pct", 0) or 0
+                if pp >= 1.0 and cp >= 1.0 and abs(cp - pp) / pp > 0.5:
+                    cambios_peso.append({
+                        "nombre": prev_map[k].get("nombre", ""),
+                        "peso_anterior": round(pp, 2),
+                        "peso_actual": round(cp, 2),
+                        "delta_pct": round((cp - pp) / pp * 100, 0),
+                    })
+
+            # Ordenar por peso descendente y truncar (máx 8 cada categoría para no saturar prompt)
+            entradas.sort(key=lambda x: x["peso_pct"], reverse=True)
+            salidas.sort(key=lambda x: x["peso_pct_anterior"], reverse=True)
+            cambios_peso.sort(key=lambda x: abs(x["delta_pct"]), reverse=True)
+
+            result.append({
+                "periodo": f"{prev_periodo}→{curr_periodo}",
+                "entradas": entradas[:8],
+                "salidas": salidas[:8],
+                "cambios_peso_significativos": cambios_peso[:5],
+            })
+
+        return result
+
     def _compute_drawdown(self, data: dict) -> dict:
         """Calcula drawdown máximo desde serie_vl_base100.
         Devuelve: valor_pct, fecha_min (periodo del mínimo), fecha_peak (pico previo),
@@ -2421,54 +2558,52 @@ class AnalystAgent:
             })
 
         cuant = data.get("cuantitativo", {})
+        # M1 v3 Fase M (2026-05-01): incluir cambios año a año en cartera para
+        # poder explicar "POR QUÉ" del viraje de estrategia entre periodos.
+        cambios_cartera = self._compute_portfolio_changes(data)
         input_data = json.dumps({
             "timeline": timeline_compact,
             "mix": [{"p": s.get("periodo"), "rv": s.get("rv_pct"), "rf": s.get("renta_fija_pct")} for s in cuant.get("mix_activos_historico", [])],
             "rotacion": [{"p": s.get("periodo"), "v": s.get("rotacion_pct")} for s in cuant.get("serie_rotacion", [])],
+            "cambios_cartera_anuales": cambios_cartera,
         }, ensure_ascii=False)
 
         # Call 1: TEXTO — TIER 1 (Sonnet con fallback a Flash) — análisis evaluativo EXTENSO
+        # Refinado M1 v3 (2026-05-01): centrado en 4 dimensiones SIN solapar con HISTORIA.
+        # Filosofía + Diferenciación + Estrategia por periodos + Estrategia actual+visión.
         texto = self._sonnet_text(
             self._system_role(data),
             f"{self._section_responsibility('estrategia')}"
             f"{self._quality_hint('estrategia')}"
             f"REGLA CRÍTICA RECENCY (Bug 4 Fase G 2026-04-28):\n"
-            f"- Para 'visión actual' / 'decisiones recientes' / 'posicionamiento actual': USA PRIMERO\n"
-            f"  cartas trimestrales y entrevistas más RECIENTES disponibles en DATOS (timeline.c o\n"
-            f"  articulos_completos_por_gestor del bloque gestores).\n"
-            f"- El CNMV semestral y annual report quedan SOLO como contexto histórico/comparativo.\n"
-            f"- Cita SIEMPRE la fuente con año entre paréntesis: 'reorientó la cartera en Q3 2025\n"
-            f"  (Carta trimestral 2025-09)' o 'según informe semestral CNMV 2025_H2'.\n"
-            f"- Si la fuente más reciente disponible es de hace >12 meses, di explícitamente:\n"
-            f"  'Última información disponible: {{fuente}} ({{año}}); próxima publicación esperada en\n"
-            f"  {{fecha}}.'\n\n"
-            f"Escribe un ANÁLISIS EVALUATIVO PROFUNDO Y EXTENSO de la estrategia del fondo en 6-9 PÁRRAFOS DENSOS.\n"
-            f"Este es el apartado MÁS IMPORTANTE del informe — debe ser pensamiento analítico elaborado, "
-            f"NO una descripción superficial.\n"
-            f"NO uses subsecciones ni líneas que sean solo **título** como headers.\n"
-            f"SÍ usa **negritas** dentro del texto para resaltar conceptos clave, "
-            f"nombres de posiciones, cifras, decisiones importantes.\n\n"
-            f"CONTENIDO OBLIGATORIO (cada párrafo debe tener 400-600 chars con cifras concretas):\n"
-            f"- Párrafo 1: **Filosofía de inversión declarada** — universo elegible, criterios de selección, "
-            f"estilo (value/growth/quality/momentum), tolerancia al riesgo, benchmark o referencia, "
-            f"horizonte temporal. Cita textual si la hay.\n"
-            f"- Párrafo 2: **Qué les diferencia** — lo que NO hacen los competidores, edge informacional o analítico, "
-            f"sesgo sectorial/geográfico característico, uso de derivados para cobertura/apalancamiento.\n"
-            f"- Párrafo 3: **Evolución del enfoque** — cómo ha cambiado la filosofía desde inicio hasta hoy, "
-            f"qué aprendieron de crisis (2008, 2011, COVID, 2022), ajustes explícitos en política.\n"
-            f"- Párrafo 4: **Coherencia discurso vs acción** — ¿lo que dicen en cartas cuadra con posiciones reales? "
-            f"Ejemplos CONCRETOS: si dicen ser value pero tienen momentum, si prometen low-vol pero han tenido volatilidad. "
-            f"% de exposición antes vs ahora.\n"
-            f"- Párrafo 5: **3 momentos clave de decisión** documentados — contexto de mercado + tesis del gestor + "
-            f"qué hicieron + resultado con cifras. Usar hechos relevantes, cartas semestrales.\n"
-            f"- Párrafo 6: **Evolución del mix de activos** — cómo ha rotado %RV/%RF/%liquidez/%derivados, "
-            f"por qué (cambios ciclo, tesis macro), coherencia con filosofía declarada.\n"
-            f"- Párrafo 7: **Patrón de aciertos y errores** — ¿ciclos donde acertaron sistemáticamente? "
-            f"¿sesgos recurrentes? ¿es un equipo que aprende o repite errores?\n"
-            f"- Párrafo 8: **Conclusión evaluativa** — para qué tipo de inversor es apropiado, "
-            f"qué esperar en ciclos alcistas vs bajistas, principales red flags.\n\n"
-            f"MÍNIMO 3.500 caracteres — extenso, evaluativo, con cifras concretas y análisis propio.\n"
-            f"ESCRIBE COMO ANALISTA SENIOR, no como descripción neutra.\n\n"
+            f"- Para 'estrategia actual' / 'visión mercado': USA PRIMERO cartas trimestrales y "
+            f"entrevistas más RECIENTES (timeline.c o articulos_completos_por_gestor del bloque "
+            f"gestores). El CNMV semestral queda SOLO como contexto histórico.\n"
+            f"- Cita SIEMPRE la fuente con año entre paréntesis: 'reorientó la cartera en Q3 2025 "
+            f"(Carta trimestral 2025-09)'.\n\n"
+            f"Escribe un ANÁLISIS EVALUATIVO de la estrategia del fondo en 4 BLOQUES TEMÁTICOS, "
+            f"6-9 PÁRRAFOS DENSOS totales. NO repitas cronología año-a-año (eso está en HISTORIA). "
+            f"NO uses headers tipo '**Filosofía**' — solo **negritas** inline dentro del texto fluido.\n\n"
+            f"BLOQUE 1 — FILOSOFÍA DE INVERSIÓN (1-2 párrafos):\n"
+            f"  Universo elegible, criterios de selección, estilo (value/growth/quality/etc.), "
+            f"tolerancia al riesgo, horizonte temporal, benchmark. Cita textual del gestor si la hay.\n\n"
+            f"BLOQUE 2 — DIFERENCIACIÓN (1 párrafo):\n"
+            f"  Qué hace este fondo DISTINTO vs peers de su categoría — sesgo regional/sectorial/asset class, "
+            f"concentración esperada, uso de derivados, lo que NO hacen los competidores.\n\n"
+            f"BLOQUE 3 — ESTRATEGIA POR PERIODOS (2-3 párrafos):\n"
+            f"  Cómo se aplicó la filosofía en distintas fases. USA `cambios_cartera_anuales` (entradas/salidas "
+            f"por par de años) PARA EXPLICAR EL POR QUÉ de cada viraje:\n"
+            f"  - 'En 2023→2024 entró ANGLO AMERICAN (3.82%) y salió NOKIA (-1.77%), reflejando un viraje "
+            f"hacia metales básicos por la tesis de transición energética (Carta 2024-Q1).'\n"
+            f"  - Identifica 2-3 virajes notables y conéctalos a contexto de mercado/tesis del gestor.\n\n"
+            f"BLOQUE 4 — ESTRATEGIA ACTUAL + VISIÓN MERCADO (2-3 párrafos):\n"
+            f"  Cómo está posicionado HOY (mix actual, sectores con mayor peso) + qué entorno ven (macro, "
+            f"valoraciones, drivers) según las cartas/informes 2024-2025 más RECIENTES. Tesis activa "
+            f"sobre próximos 6-12 meses, riesgos identificados, posicionamiento defensivo o agresivo.\n\n"
+            f"Reglas de redacción:\n"
+            f"- Cifras concretas en **negritas** integradas en el texto.\n"
+            f"- Cita fuente y fecha siempre que se hable de viraje/decisión.\n"
+            f"- MÍNIMO 3.000 caracteres. Tono: analista senior, no descripción neutra.\n\n"
             f"DATOS:\n{input_data}",
             max_tokens=12000
         )
@@ -2530,40 +2665,57 @@ class AnalystAgent:
             last_period = s.get("periodo", "")
             break
 
+        # M1 v3 Fase M (2026-05-01): inyectar cambios cartera año-a-año + cartas
+        # para BLOQUE 1 (histórico de cartera + virajes con POR QUÉ).
+        cambios_cartera = self._compute_portfolio_changes(data)
+        # Cartas resumidas (texto_primario por año, recortado) para POR QUÉ
+        cartas_resumen = []
+        for t in (data.get("timeline", []) or [])[-6:]:
+            ct = t.get("carta_texto", "") or ""
+            if ct and len(ct) > 200:
+                cartas_resumen.append({"a": t.get("anio", ""), "c": self._truncate(ct, 600)})
+
         input_data = json.dumps({
             "posiciones_top20": top_positions,
             "total_posiciones": len(actuales),
-            "concentracion": concentration,
+            "concentracion_historica": concentration,
+            "cambios_cartera_anuales": cambios_cartera,
+            "cartas_por_anio": cartas_resumen,
             "fecha_datos": last_period,
         }, ensure_ascii=False)
 
-        # Call 1: TEXTO análisis EXTENSO de cartera (mínimo 3000 chars)
+        # Call 1: TEXTO análisis EXTENSO de cartera (mínimo 3000 chars).
+        # Refinado M1 v3 (2026-05-01): estructura en 2 BLOQUES — histórico + actual.
         texto = self._gemini_text(
             f"{self._system_role(data)}\n\n"
             f"{self._section_responsibility('cartera')}"
             f"{self._quality_hint('cartera')}"
-            f"Escribe un ANÁLISIS EXTENSO Y PROFUNDO de la cartera en 5-7 PÁRRAFOS DENSOS.\n"
-            f"NO uses subsecciones ni **headers** — narrativa fluida pura, cada párrafo conecta con el siguiente.\n"
-            f"Datos a fecha {last_period}. NO inventes otra fecha.\n\n"
-            f"CONTENIDO OBLIGATORIO (cada párrafo 400-500 chars con cifras concretas):\n\n"
-            f"- Párrafo 1: **Composición general** — nº posiciones total, distribución RV/RF/liquidez/otros, "
-            f"cambios vs hace 1 año, hace 3 años, hace 5 años. Ritmo de rotación de cartera (rotación %).\n"
-            f"- Párrafo 2: **Exposición geográfica** — países/regiones principales, % en cada uno, "
-            f"evolución de la exposición geográfica histórica, apuestas regionales diferenciales vs categoría.\n"
-            f"- Párrafo 3: **Exposición sectorial** — sectores principales con % concretos, "
-            f"sobre/infra-ponderaciones vs benchmark, cambios sectoriales recientes.\n"
-            f"- Párrafo 4: **Top 10-15 posiciones actuales** — nombres concretos con % y racional de por qué están. "
-            f"Tesis del gestor para las posiciones de mayor convicción. Distinguir bonos corporativos vs equity.\n"
-            f"- Párrafo 5: **Concentración** — top5%, top10%, top15%, comparado con media histórica y categoría. "
-            f"Número de posiciones en ventana histórica (tendencia a concentrar o diversificar).\n"
-            f"- Párrafo 6: **Riesgos de cartera** — divisa, duración (si hay RF), calidad crediticia, "
-            f"concentración sectorial/regional, liquidez de posiciones.\n"
-            f"- Párrafo 7: **Cambios recientes significativos** — entradas/salidas notables en últimos periodos "
-            f"(según XMLs trimestrales o cartas del gestor), rebalanceos relevantes.\n\n"
-            f"Incluye nombres de posiciones en **negrita** y cifras concretas (**X%**, **Y M€**).\n"
-            f"MÍNIMO 3.000 caracteres — denso, cada frase con dato concreto, sin relleno.\n\n"
+            f"Escribe un ANÁLISIS DE CARTERA en 2 BLOQUES, narrativa fluida (sin headers tipo "
+            f"'**Bloque 1**'). Conecta los párrafos con transiciones naturales.\n\n"
+            f"BLOQUE 1 — HISTÓRICO DE LA CARTERA (1-2 párrafos, 600-900 chars):\n"
+            f"  Cuenta cómo ha sido la cartera HASTA AHORA: qué grandes bloques/decisiones ha tenido, "
+            f"cómo ha ido VIRANDO hacia la situación actual. USA 'cambios_cartera_anuales' (entradas/salidas/"
+            f"cambios de peso por par de años) PARA EJEMPLOS CONCRETOS:\n"
+            f"  - 'En 2023→2024 incorporó **ANGLO AMERICAN (3.82%)**, **SYENSQO (3.53%)** y **BRENNTAG (2.97%)**, "
+            f"reflejando un giro hacia metales básicos y químicos europeos…'\n"
+            f"  - 'En 2024→2025 salieron **COVESTRO (-4.3%)** y **OCI (-2.36%)**, mientras entraron "
+            f"**SANDVIK (3.2%)** y **PERSIMMON (2.59%)**, indicando un viraje a industriales y constructoras…'\n"
+            f"  Explica el POR QUÉ usando 'cartas_por_anio' (tesis declarada por el gestor para esos virajes).\n\n"
+            f"BLOQUE 2 — SITUACIÓN ACTUAL ({last_period}, 3-5 párrafos):\n"
+            f"  - Composición general: nº posiciones, distribución RV/RF/liquidez/otros.\n"
+            f"  - Exposición geográfica: países/regiones principales con %.\n"
+            f"  - Exposición sectorial: sectores top con % y sobre/infraponderación vs categoría.\n"
+            f"  - Top 10-15 posiciones actuales con nombres CONCRETOS, % y racional (tesis para las de mayor convicción).\n"
+            f"  - Concentración (top5/top10/top15%) y riesgos (divisa, duración, sectorial, liquidez).\n\n"
+            f"Reglas:\n"
+            f"- Nombres de posiciones en **negrita** + cifras concretas.\n"
+            f"- Datos a fecha {last_period}. NO inventes otra fecha.\n"
+            f"- MÍNIMO 3.500 caracteres total.\n"
+            f"- DENSIDAD NUMÉRICA OBLIGATORIA: MÍNIMO 25 cifras concretas en negritas a lo largo "
+            f"del texto (porcentajes de posiciones, top5/10/15%, % geográfico, % sectorial, etc.).\n"
+            f"- NO uses subsecciones tipo '## Bloque 1' — solo narrativa fluida.\n\n"
             f"DATOS:\n{input_data}",
-            max_tokens=8000
+            max_tokens=10000
         )
         time.sleep(2)
 
@@ -4011,6 +4163,12 @@ class AnalystAgent:
             by_type[t]["num_posiciones"] += 1
         distribucion = [{"tipo": k, **v} for k, v in by_type.items()]
 
+        # M_INT A2 Fase M (2026-05-01): cambios cartera año a año (entradas/
+        # salidas/cambios peso) calculados programáticamente para que el LLM
+        # no infiera "decisiones recientes" — las TIENE como dato concreto.
+        # Defensivo: si <2 snapshots históricos, devuelve [] (el prompt lo maneja).
+        cambios_cartera = self._compute_portfolio_changes(data)
+
         schema = {
             "texto": (
                 "str - ANÁLISIS DE CARTERA. OBJETIVO 3000-6000 caracteres con "
@@ -4047,12 +4205,25 @@ class AnalystAgent:
                 "la media del tipo de fondo."
             ),
         }
+        # M_INT A2: serializar cambios cartera año-a-año (entradas/salidas/cambios)
+        # como bloque legible para el LLM. Si vacío, omitir completamente.
+        cambios_block = ""
+        if cambios_cartera:
+            import json as _json
+            cambios_block = (
+                "\n\nCAMBIOS DE CARTERA AÑO-A-AÑO (calculados programáticamente — usa "
+                "estos datos LITERALES en BLOQUE 2 'DECISIONES/CAMBIOS RECIENTES', no "
+                "infieras decisiones):\n"
+                + _json.dumps(cambios_cartera[-3:], ensure_ascii=False, indent=2)
+            )
+
         datos_extra = (
             f"Total posiciones: {len(posiciones)}. "
             f"Top5: {top5:.1f}%. Top10: {top10:.1f}%. Top15: {top15:.1f}%.\n"
             f"Distribucion: {distribucion}\n"
             f"Top posiciones: "
             + ", ".join(f"{p.get('nombre','')} ({p.get('peso_pct',0):.1f}%)" for p in sorted_pos[:10])
+            + cambios_block
         )
         result = self._gemini_section_json(
             anti_halluc + f"Datos del fondo:\n{context}\n\nCartera:\n{datos_extra}\n\n"
@@ -4064,9 +4235,14 @@ class AnalystAgent:
             f"ej. 'RF ~78%, Cash ~9%, Oro ~6%'), por qué esa asignación "
             f"(racional/tesis del gestor), y cita SÓLO 2-3 posiciones "
             f"EMBLEMÁTICAS/estructurales (no las 10 mayores), sin listar pesos.\n"
-            f"- **DECISIONES / CAMBIOS RECIENTES** (segundo bloque): entradas, "
-            f"salidas, rotaciones ÚLTIMOS 6-12 MESES con contexto y cómo "
-            f"encajan en la VISIÓN A FUTURO del gestor (orientación de cartera).\n"
+            f"- **DECISIONES / CAMBIOS RECIENTES** (segundo bloque): USA los datos "
+            f"de 'CAMBIOS DE CARTERA AÑO-A-AÑO' arriba (entradas/salidas/cambios "
+            f"peso por par de años) para citar nombres CONCRETOS y pesos REALES. "
+            f"Ejemplo: 'En 2024→2025 entraron **SANDVIK (3.2%)** y **PERSIMMON (2.6%)**, "
+            f"mientras salieron **COVESTRO (-4.3%)** y **OCI (-2.4%)**, reflejando un "
+            f"viraje hacia industriales europeos…'. Conecta el viraje con el contexto "
+            f"de mercado y cómo encaja en la VISIÓN A FUTURO. Si NO hay cambios "
+            f"calculados (snapshot único), OMITIR este bloque — no inventar.\n"
             f"- **CONCENTRACIÓN** (tercer bloque, solo si es fondo RV/RF puro): "
             f"comentario top5/top10/top15 y comparativa con media del tipo de fondo.\n"
             f"- USA TODAS las referencias a cartera en cartas/readings para "
@@ -4120,14 +4296,36 @@ class AnalystAgent:
         return texto_fixed
 
     def _section_fuentes_int_programmatic(self, data: dict) -> dict:
-        """Fuentes externas desde readings_data.json. Sin LLM.
-        Mapeo completo: fuente, titulo, opinion, url, fecha (como espera el dashboard)."""
+        """Fuentes externas desde readings_data.json + gestora_resources.json. Sin LLM.
+        Mapeo completo: fuente, titulo, opinion, url, fecha (como espera el dashboard).
+
+        M_INT A3 Fase M (2026-05-01): añade `recursos_oficiales` desde
+        gestora_resources.json (cartas, KIID, folleto, presentaciones, videos
+        descubiertos por M3 v2 vía Serper en web gestora). Mismo schema que ES.
+        """
         readings = self._load_json("readings_data.json")
         all_r = readings.get("analisis_completos", []) + readings.get("otros_readings", [])
-        if not all_r:
-            return {"texto": "", "opiniones_clave": []}
 
-        parts = [f"**{len(all_r)} analisis externos encontrados:**\n"]
+        # M_INT A3: cargar recursos oficiales gestora (M3 v2)
+        recursos_oficiales = []
+        gr = self._load_json("gestora_resources.json")
+        for r in gr.get("recursos", []):
+            recursos_oficiales.append({
+                "tipo": r.get("tipo", "documento"),
+                "titulo": r.get("titulo", ""),
+                "url": r.get("url", ""),
+                "fecha": r.get("fecha", ""),
+                "fuente": r.get("fuente") or gr.get("gestora_domain", ""),
+            })
+        if recursos_oficiales:
+            self._log("INFO",
+                f"INT recursos oficiales gestora: {len(recursos_oficiales)} "
+                f"(tipos={gr.get('por_tipo', {})})")
+
+        if not all_r and not recursos_oficiales:
+            return {"texto": "", "opiniones_clave": [], "recursos_oficiales": []}
+
+        parts = [f"**{len(all_r)} analisis externos encontrados:**\n"] if all_r else []
         opiniones = []
         for r in all_r:
             source = r.get("source", "") or ""
@@ -4155,7 +4353,11 @@ class AnalystAgent:
                 "fecha": fecha,
             })
 
-        return {"texto": "\n".join(parts), "opiniones_clave": opiniones}
+        return {
+            "texto": "\n".join(parts),
+            "opiniones_clave": opiniones,
+            "recursos_oficiales": recursos_oficiales,
+        }
 
     def _extract_web_evidence(self, data: dict) -> str:
         """Extrae citas literales de readings_data.json que mencionan

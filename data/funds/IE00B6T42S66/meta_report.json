@@ -1,28 +1,39 @@
 {
   "isin": "IE00B6T42S66",
-  "nombre": "Trojan Fund (Ireland)",
-  "timestamp": "2026-04-20T09:33:41.409079",
-  "completeness_pct": 72.2,
+  "nombre": "Trojan Fund (Ireland) O EUR ACC",
+  "timestamp": "2026-05-01T11:34:22.299233",
+  "completeness_pct": 83.3,
   "dashboard_ready": true,
   "dashboard_blockers": [],
   "issues": [
-    "gestora vacía",
-    "gestores vacíos — buscar en Citywire / Finect",
-    "serie AUM muy corta (1 puntos) — añadir XMLs históricos",
-    "mix_activos 2025 suma 49.7% (esperado ~100%)",
+    "mix_activos 2024 suma 61.5% (esperado ~100%)",
+    "mix_activos 2025 suma 56.8% (esperado ~100%)",
+    "mix_activos None suma 52.5% (esperado ~100%)",
     "sin análisis externos — ejecutar readings_agent",
-    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)",
-    "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)"
   ],
   "suggestions": [
-    "Años sin datos AUM: 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 -> descargar XMLs CNMV de esos años",
+    "Años sin datos AUM: 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2026 -> descargar XMLs CNMV de esos años",
+    "Gestores sin background: Sebastian Lyon -> buscar en Citywire / Trustnet",
     "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin IE00B6T42S66 --auto"
   ],
   "feedback_previo": [],
   "stats": {
-    "periodos_consistencia": 4,
-    "posiciones_actuales": 10,
-    "puntos_aum": 1,
-    "gestores": 0
+    "periodos_consistencia": 26,
+    "posiciones_actuales": 78,
+    "puntos_aum": 4,
+    "gestores": 2
+  },
+  "cost": {
+    "total_usd": 0.004015,
+    "total_calls": 2,
+    "input_tokens": 8217,
+    "output_tokens": 620,
+    "by_agent": {
+      "analyst_gemini_json": 0.004
+    },
+    "by_model": {
+      "gemini-2.5-flash": 0.004
+    }
   }
 }

@@ -118,7 +118,9 @@ class GestoraResourcesExtractor:
         """Genera queries Serper específicas para descubrir PDFs y videos.
 
         Estrategia: 5 queries cubren las categorías principales (anual, carta,
-        KIID/folleto, semestral, factsheet) + 1 query para videos YouTube.
+        KIID/folleto, semestral, factsheet) + 1 video YouTube + 2 INT-extra
+        (M_INT C 2026-05-01: monthly factsheet + SFDR/sustainability) si el
+        fondo es no-ES.
         """
         domain = self.gestora_domain
         # Nombre del fondo limpio (sin sufijo legal redundante en quotas)
@@ -146,6 +148,16 @@ class GestoraResourcesExtractor:
             queries.append(
                 f'site:youtube.com "{gestora_token}" "{fund_short}"'
             )
+        # 7-8. M_INT C (2026-05-01): queries adicionales para fondos NO-ES.
+        # Para INT, "monthly factsheet" y "SFDR/sustainability" son docs típicos
+        # publicados por la gestora que NO siempre incluyen "factsheet" o "ficha"
+        # en el nombre del PDF. Captura recursos extra sin duplicar las anteriores.
+        is_es = self.isin.startswith("ES")
+        if not is_es:
+            queries.extend([
+                f'site:{domain} "{fund_short}" "monthly factsheet" filetype:pdf',
+                f'site:{domain} "{fund_short}" (SFDR OR sustainability OR ESG) filetype:pdf',
+            ])
         return queries
 
     def _categorize_search_results(self, results: list[dict]) -> list[dict]:

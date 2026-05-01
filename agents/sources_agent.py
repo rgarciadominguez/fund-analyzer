@@ -48,23 +48,64 @@ DDG_DELAY_S = 1.0
 
 # Known gestora domains for site:-scoped searches (ES)
 KNOWN_GESTORA_DOMAINS = {
-    # Verificados 2026-04-30 con HTTP HEAD response 200
+    # ── ES (verificadas 2026-04-30 HTTP HEAD 200) ──
     "azvalor": "azvalor.com",
     "bestinver": "bestinver.es",
     "cobas": "cobasam.com",
     "magallanes": "magallanesvalue.com",
     "horos": "horosam.com",
     "valentum": "valentum.es",
-    "dnca": "dnca-investments.com",
     "renta 4": "renta4gestora.com",
     "buy & hold": "buyandhold.es",
     "numantia": "numantiapatrimonioglobal.com",
     "metagestion": "metagestion.com",
     "abante": "abanteasesores.com",
     "cartesio": "cartesio.com",
-    # Pendientes de verificación / dominios que pueden no resolver:
+    # ES pendientes de verificación
     "avantage": "avantage-capital.es",
     "narval": "narvalinvest.com",
+
+    # ── M_INT B Fase M (2026-05-01) — gestoras INT principales ──
+    # Si HEAD falla en mi red local pero el dominio existe (Google lo indexa),
+    # M3 v2 lo usará en queries `site:dominio` correctamente. Si Serper devuelve
+    # 0 → M3 v2 skip silencioso (no rompe pipeline).
+    # FR
+    "carmignac": "carmignac.com",
+    "dnca": "dnca-investments.com",
+    "comgest": "comgest.com",
+    "amundi": "amundi.com",
+    "bnp paribas": "bnpparibas-am.com",
+    "lazard frères": "lazardassetmanagement.com",
+    "lazard": "lazardassetmanagement.com",
+    "edmond de rothschild": "edmond-de-rothschild.com",
+    "tikehau": "tikehaucapital.com",
+    # DE/AT
+    "allianz global investors": "allianzgi.com",
+    "allianz gi": "allianzgi.com",
+    "dws": "dws.com",
+    "flossbach": "flossbachvonstorch.com",
+    "union investment": "union-investment.de",
+    # CH
+    "pictet": "am.pictet",
+    "gam": "gam.com",
+    "vontobel": "vontobel.com",
+    "lombard odier": "lombardodier.com",
+    # GB/IE
+    "fundsmith": "fundsmith.co.uk",
+    "lindsell train": "lindselltrain.com",
+    "troy asset": "taml.co.uk",
+    "troy": "taml.co.uk",
+    "jupiter": "jupiteram.com",
+    "m&g": "mandg.com",
+    "baillie gifford": "bailliegifford.com",
+    "schroders": "schroders.com",
+    # NL/Multi-domicile
+    "robeco": "robeco.com",
+    "nordea": "nordeaassetmanagement.com",
+    "jpm": "am.jpmorgan.com",
+    "jp morgan": "am.jpmorgan.com",
+    "blackrock": "blackrock.com",
+    "vanguard": "vanguard.com",
 }
 
 # Dominios internacionales para buscar analisis, entrevistas y perfiles
