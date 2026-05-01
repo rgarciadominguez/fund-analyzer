@@ -1,0 +1,167 @@
+{
+  "fund": "LU1694789378",
+  "nombre": "DNCA INVEST - ALPHA BONDS",
+  "fallos": [
+    {
+      "regla_id": "resumen_has_cifras",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen con pocas cifras concretas (4 encontradas, mínimo 5). Parece genérico.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
+    },
+    {
+      "regla_id": "resumen_min_fortalezas",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 3 fortalezas (mínimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con al menos 4 fortalezas específicas del fondo."
+    },
+    {
+      "regla_id": "historia_has_cifras",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia con pocas cifras concretas (3). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo cifras concretas: AUM, partícipes, rentabilidad anual, fechas."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "estrategia_min_hitos",
+      "seccion": "estrategia",
+      "fail_type": "scarcity",
+      "problema": "Solo 2 hitos estratégicos (mínimo 3).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia con hitos por periodo. Usar datos de timeline + mix_activos."
+    },
+    {
+      "regla_id": "estrategia_has_cifras",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia con pocas cifras (1). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
+    },
+    {
+      "regla_id": "cartera_min_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Solo 10 posiciones actuales (mínimo 15).",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones de sección 10 del PDF semestral."
+    },
+    {
+      "regla_id": "cartera_has_hist_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Sin posiciones históricas para análisis de evolución de cartera.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones históricas de PDFs semestrales antiguos."
+    },
+    {
+      "regla_id": "gestores_lead_cv_bullets",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal con 3 CV bullets (minimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+    },
+    {
+      "regla_id": "estrategia_has_quotes",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia sin quotes del gestor (0 encontradas)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con 2-3 citas/frases representativas del gestor."
+    },
+    {
+      "regla_id": "estrategia_matrix_4col",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Solo 2 hitos con columnas completas (minimo 3)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar hitos con campos: periodo, contexto_mercado, decisiones, resultado."
+    },
+    {
+      "regla_id": "aum_jump_alert",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Salto AUM >50% año a año detectado (saltos_aum_>50%): 2023→2024: 8860→14647 M€ (+65%); 2025→None: 18463→41933 M€ (+127%). Posible bug extracción cnmv_agent o cambio real de mercado.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent."
+    },
+    {
+      "regla_id": "hitos_historia_percentages_verifiable",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2024: hito dice 9.7%, real 4.2%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    },
+    {
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+    },
+    {
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (2/2). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta todo (perfil_riesgo no existe).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    },
+    {
+      "regla_id": "tipo_activo_completo_en_cartera",
+      "seccion": "cartera",
+      "fail_type": "incompletitud",
+      "problema": "Posiciones sin tipo de activo: 10/10 (0.0%) sin clasificación. Mínimo 80% deben tener tipo (RF/RV/Oro/Cash/ETF/Deriv).",
+      "agente_responsable": "intl_extractor_v2",
+      "accion": "Post-process del extractor: inferir asset_type por nombre (treasury/bund/btp → RF; gold/oro → GOLD; future/swap → DER; sector financiero → RV; cash/deposit → CASH)."
+    }
+  ],
+  "fallos_estructura": 9,
+  "fallos_scarcity": 5,
+  "total_reglas": 87,
+  "reglas_ok": 69,
+  "aceptable": false,
+  "score_display": "69/87 reglas OK (5 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-05-01T12:47:19.661473"
+}
