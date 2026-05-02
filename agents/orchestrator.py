@@ -648,7 +648,13 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
                 anio_creacion_hint=anio_creacion_hint,
                 gestores_hint=gestores_hint,
                 log=log,
-                max_iter=5,
+                # O9 Cost-Opt (2026-05-02): bajado de 5 a 1 (default).
+                # Override con env QUALITY_LOOP_MAX_ITER si necesitas más.
+                # Iter 2+ rara vez aporta valor — análisis Mayo 2026 mostró
+                # 70% de iter 2 generan output rejected by guard (sin valor)
+                # pero gastan ~$0.10 cada vez. Para fondos donde realmente hay
+                # fallos críticos recuperables, usar QUALITY_LOOP_MAX_ITER=3.
+                max_iter=int(os.environ.get("QUALITY_LOOP_MAX_ITER", "1")),
             )
             results["quality"] = quality_report
             score = quality_report.get("score", 0)

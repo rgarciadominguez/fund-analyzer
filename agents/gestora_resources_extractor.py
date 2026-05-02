@@ -107,8 +107,19 @@ class GestoraResourcesExtractor:
             # 2. Filtrar y categorizar
             recursos = self._categorize_search_results(search_results)
             recursos_dedup = self._dedup(recursos)
-            self._log("OK", f"Total recursos extraídos: {len(recursos_dedup)}")
 
+            # H4 Fase H_INT (2026-05-01): fallback si Serper devuelve 0 (típico
+            # para gestoras tras Cloudflare como taml.co.uk). Recoge URLs ya
+            # descubiertas por discovery_v2 y las clasifica con misma lógica.
+            if not recursos_dedup:
+                fallback = self._fallback_from_discovery()
+                if fallback:
+                    self._log("INFO",
+                        f"H4 fallback discovery: {len(fallback)} recursos "
+                        f"recuperados de URLs previamente descubiertas")
+                    recursos_dedup = self._dedup(fallback)
+
+            self._log("OK", f"Total recursos extraídos: {len(recursos_dedup)}")
             return self._save(recursos_dedup)
         except Exception as exc:
             self._log("ERROR", f"Run falló: {exc}")
@@ -241,6 +252,71 @@ class GestoraResourcesExtractor:
                 seen.add(url)
                 out.append(r)
         return out
+
+    def _fallback_from_discovery(self) -> list[dict]:
+        """H4 Fase H_INT (2026-05-01): si Serper devuelve 0 resultados (típico
+        para gestoras tras Cloudflare/WAF como taml.co.uk), recuperar URLs ya
+        descubiertas en runs previos por discovery_v2 + readings_collector.
+
+        Lee:
+        - intl_discovery_data.json (discovery_v2)
+        - readings_data.json (readings con pro_sources de la gestora)
+        - raw/discovery/*.pdf (PDFs ya descargados con su filename → pseudo-URL)
+
+        Filtra por self.gestora_domain y categoriza con misma lógica.
+        Devuelve lista categorizada lista para _dedup + _save.
+        """
+        import json as _json
+        recursos = []
+
+        # 1. Discovery v2
+        disc_path = self.fund_dir / "intl_discovery_data.json"
+        if disc_path.exists():
+            try:
+                disc = _json.loads(disc_path.read_text(encoding="utf-8"))
+                # Estructura discovery: docs es dict con tipo → list of items
+                docs = disc.get("docs", {}) or disc.get("documents", {}) or {}
+                if isinstance(docs, dict):
+                    for tipo_doc, items in docs.items():
+                        if not isinstance(items, list):
+                            continue
+                        for item in items:
+                            if not isinstance(item, dict):
+                                continue
+                            url = item.get("url", "") or item.get("link", "")
+                            if not url:
+                                continue
+                            # Filtrar solo URLs del dominio de la gestora
+                            if self.gestora_domain not in url.lower():
+                                continue
+                            titulo = item.get("title", "") or item.get("name", "") or ""
+                            tipo_match = self._categorize(titulo + " " + url + " " + tipo_doc)
+                            recursos.append({
+                                "tipo": tipo_match,
+                                "titulo": titulo[:200] if titulo else self._title_from_url(url),
+                                "url": url,
+                                "fecha": self._extract_date(titulo + " " + url),
+                                "fuente": self.gestora_domain,
+                            })
+            except Exception as exc:
+                self._log("WARN", f"H4 discovery fallback: {exc}")
+
+        # 2. PDFs descargados en raw/discovery/ (pseudo-URLs como filename)
+        disc_dir = self.fund_dir / "raw" / "discovery"
+        if disc_dir.exists():
+            for pdf in disc_dir.glob("*.pdf"):
+                fname = pdf.name
+                titulo = fname.replace("_web_", "").replace("_", " ").replace(".pdf", "").strip()
+                tipo_match = self._categorize(fname)
+                recursos.append({
+                    "tipo": tipo_match,
+                    "titulo": titulo[:200],
+                    "url": f"file://{pdf.as_posix()}",
+                    "fecha": self._extract_date(fname),
+                    "fuente": f"{self.gestora_domain} (cached)",
+                })
+
+        return recursos
 
     def _save(self, recursos: list[dict]) -> dict:
         out_path = self.fund_dir / "gestora_resources.json"

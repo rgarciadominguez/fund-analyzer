@@ -1172,23 +1172,48 @@ class AnalystAgent:
     # Set USE_SONNET=true in .env to enable Claude Sonnet for T1 (requires Anthropic credits)
     GEMINI_FLASH = "gemini-2.5-flash"
     GEMINI_LITE = "gemini-2.5-flash-lite"
+    # Cost-Opt Fase 2 (2026-05-02): Sonnet 4.5 (validado en AZ Valor/Magallanes).
+    # Sonnet 4.6 alias intentado primero (más nuevo, mejor caching) pero si SDK
+    # no lo reconoce → cuelgue infinito. 4-5-20241022 es estable y conocido.
+    # NOTA: cambiar a "claude-sonnet-4-6" cuando se verifique compat SDK.
     SONNET_MODEL = "claude-sonnet-4-5-20241022"
-    USE_SONNET = os.getenv("USE_SONNET", "").lower() in ("true", "1", "yes")
+    # Haiku 4.5 — fallback rápido para tareas simples (JSON extraction, classify)
+    HAIKU_MODEL = "claude-haiku-4-5-20251001"
+    # Opus 4.7 — solo para tareas críticas: lead/co identification, audit final
+    OPUS_MODEL = "claude-opus-4-7"
+    # USE_SONNET: si "true" o no definida → Sonnet activo en T1 (default ON
+    # ahora porque las secciones críticas lo NECESITAN para calidad validada).
+    # Para forzar fallback a Flash (deshabilitar Sonnet), USE_SONNET=false.
+    USE_SONNET = os.getenv("USE_SONNET", "true").lower() in ("true", "1", "yes")
+    # GEMINI_FALLBACK_ANTHROPIC: cuando Gemini falla → caer en Anthropic
+    # (Haiku para simple, Sonnet para complejo). Default ON.
+    GEMINI_FALLBACK_ANTHROPIC = os.getenv("GEMINI_FALLBACK_ANTHROPIC", "1") == "1"
 
     def _get_anthropic_client(self):
-        """Get or create Anthropic client for Sonnet calls."""
+        """Get or create Anthropic client for Sonnet/Haiku calls.
+
+        Cost-Opt Fase 2 (2026-05-02): timeout=180s explícito para evitar
+        cuelgues infinitos (caso DNCA con alias model no reconocido por SDK).
+        """
         if not hasattr(self, '_anthropic_client'):
             import anthropic
             self._anthropic_client = anthropic.Anthropic(
-                api_key=os.getenv("ANTHROPIC_API_KEY", "")
+                api_key=os.getenv("ANTHROPIC_API_KEY", ""),
+                timeout=180.0,  # 3 min max por request
             )
         return self._anthropic_client
 
     def _track_llm(self, model: str, resp, agent_label: str = "analyst"):
         """Registra coste de una llamada LLM. Soporta Anthropic y Gemini.
-        Failsafe: NUNCA propaga excepción (no rompe llamada principal)."""
+        Failsafe: NUNCA propaga excepción (no rompe llamada principal).
+
+        O11 Cost-Opt (2026-05-02): además de cost_tracker (cost_report.json
+        por fondo), añadido log_call al cost_monitor (data/cost_log.jsonl
+        global append-only para telemetría persistente).
+        """
         try:
-            from tools.cost_tracker import track
+            from tools.cost_tracker import track, calc_cost
+            from tools.cost_monitor import log_call
             inp, out = 0, 0
             if hasattr(resp, "usage") and resp.usage:
                 inp = getattr(resp.usage, "input_tokens", 0) or 0
@@ -1199,27 +1224,58 @@ class AnalystAgent:
                 out = getattr(um, "candidates_token_count", 0) or 0
             if inp or out:
                 track(self.isin, model, inp, out, agent_label)
+                cost_usd = calc_cost(model, inp, out)
+                # O11: log persistente global append-only
+                log_call(
+                    agent=agent_label, model=model, isin=self.isin,
+                    input_tokens=inp, output_tokens=out, cost_usd=cost_usd,
+                )
         except Exception:
             pass  # tracker NUNCA debe romper
 
     def _sonnet_text(self, system: str, prompt: str, max_tokens: int = 8000, retries: int = 2) -> str:
         """Call Claude Sonnet for high-quality text generation (Tier 1).
-        Falls back to Gemini Flash if USE_SONNET is not set or Sonnet fails."""
+        Falls back to Gemini Flash if USE_SONNET is not set or Sonnet fails.
+
+        O1 Cost-Opt (2026-05-02): cache local hash(model+system+prompt). Si hit
+        → return instantáneo (FREE). TTL 24h.
+        """
         if not self.USE_SONNET:
             self._log("INFO", "T1 using Flash (USE_SONNET not set)")
             return self._gemini_text(f"{system}\n\n{prompt}", max_tokens, retries)
+
+        # O1: cache hit check
+        try:
+            from tools.llm_cache import get_cached, set_cached
+            cached = get_cached(self.SONNET_MODEL, prompt, context=system, ttl_hours=24)
+            if cached is not None:
+                self._log("CACHE_HIT", f"sonnet_text {self.SONNET_MODEL} (saved tokens)")
+                return cached
+        except Exception:
+            pass
+
         try:
             client = self._get_anthropic_client()
         except Exception as exc:
             self._log("WARN", f"Sonnet init failed, falling back to Flash: {exc}")
             return self._gemini_text(f"{system}\n\n{prompt}", max_tokens, retries)
 
+        # O3 Cost-Opt (2026-05-02): Anthropic prompt caching `cache_control:
+        # ephemeral`. Si el system prompt es >1024 tokens (típico ~3000 con
+        # _system_role + responsibility) y se llama múltiples veces (8 secciones
+        # del analyst comparten contexto), Anthropic factura cache hits con
+        # 90% descuento. Cache TTL ~5min. El cache_control va en el último
+        # bloque del system para que TODO lo anterior se cachee.
+        system_blocks = [
+            {"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}
+        ] if len(system) > 2000 else system
+
         for attempt in range(retries + 1):
             try:
                 resp = client.messages.create(
                     model=self.SONNET_MODEL,
                     max_tokens=max_tokens,
-                    system=system,
+                    system=system_blocks,
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.2,
                 )
@@ -1227,7 +1283,18 @@ class AnalystAgent:
                 text = resp.content[0].text.strip() if resp.content else ""
                 if not text:
                     raise ValueError("Empty Sonnet response")
+                # O3: log cache info si Anthropic devolvió usage con cache fields
+                if hasattr(resp, "usage"):
+                    cr = getattr(resp.usage, "cache_read_input_tokens", 0) or 0
+                    cw = getattr(resp.usage, "cache_creation_input_tokens", 0) or 0
+                    if cr or cw:
+                        self._log("CACHE_API", f"Anthropic cache: read={cr} write={cw}")
                 self._log("INFO", f"Sonnet T1: {len(text)} chars")
+                # O1: cache local save
+                try:
+                    set_cached(self.SONNET_MODEL, prompt, system, text)
+                except Exception:
+                    pass
                 return text
             except Exception as exc:
                 exc_str = str(exc)
@@ -1247,6 +1314,124 @@ class AnalystAgent:
                     return self._gemini_text(f"{system}\n\n{prompt}", max_tokens, retries=1)
         # Fallback to Flash
         return self._gemini_text(f"{system}\n\n{prompt}", max_tokens, retries=1)
+
+    def _haiku_text(self, prompt: str, max_tokens: int = 8000, system: str = "",
+                    retries: int = 1) -> str:
+        """Cost-Opt Fase 1 (2026-05-02): wrapper Anthropic Haiku 4.5 para FREE TEXT.
+        Usado como fallback automático cuando Gemini falla. Más barato que Sonnet
+        (~3x), similar coste a Gemini Flash, mejor calidad estructural.
+        """
+        # Cache check
+        try:
+            from tools.llm_cache import get_cached, set_cached
+            cached = get_cached(self.HAIKU_MODEL, prompt, context=system, ttl_hours=24)
+            if cached is not None:
+                self._log("CACHE_HIT", f"haiku_text {self.HAIKU_MODEL}")
+                return cached
+        except Exception:
+            pass
+
+        try:
+            client = self._get_anthropic_client()
+        except Exception as exc:
+            self._log("ERROR", f"Haiku init failed: {exc}")
+            return ""
+
+        sys_blocks = ([{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
+                      if system and len(system) > 2000 else (system or "You are a helpful assistant."))
+
+        for attempt in range(retries + 1):
+            try:
+                resp = client.messages.create(
+                    model=self.HAIKU_MODEL,
+                    max_tokens=max_tokens,
+                    system=sys_blocks,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.2,
+                )
+                self._track_llm(self.HAIKU_MODEL, resp, "analyst_haiku_text")
+                text = resp.content[0].text.strip() if resp.content else ""
+                if text:
+                    try:
+                        set_cached(self.HAIKU_MODEL, prompt, system, text)
+                    except Exception:
+                        pass
+                    return text
+                raise ValueError("Empty Haiku response")
+            except Exception as exc:
+                exc_str = str(exc)
+                if "overloaded" in exc_str.lower() or "529" in exc_str:
+                    wait = 30
+                    self._log("WARN", f"Haiku overloaded — espera {wait}s")
+                    time.sleep(wait)
+                elif attempt < retries:
+                    self._log("WARN", f"Haiku error (intento {attempt+1}): {exc}")
+                    time.sleep(5)
+                else:
+                    self._log("ERROR", f"Haiku falló: {exc}")
+                    return ""
+        return ""
+
+    def _haiku_call(self, prompt: str, max_tokens: int = 6000, system: str = "",
+                    retries: int = 1) -> dict | None:
+        """Cost-Opt Fase 1: wrapper Anthropic Haiku 4.5 para JSON extraction.
+        Usado como fallback automático cuando Gemini call falla."""
+        # Cache check
+        try:
+            from tools.llm_cache import get_cached, set_cached
+            cached = get_cached(self.HAIKU_MODEL, prompt + "[JSON]", context=system, ttl_hours=24)
+            if cached is not None:
+                self._log("CACHE_HIT", f"haiku_call {self.HAIKU_MODEL}")
+                return cached
+        except Exception:
+            pass
+
+        try:
+            client = self._get_anthropic_client()
+        except Exception as exc:
+            self._log("ERROR", f"Haiku init failed: {exc}")
+            return None
+
+        sys_text = (system + "\nResponde SOLO JSON válido, sin markdown ni texto adicional."
+                    if system else "Responde SOLO JSON válido, sin markdown ni texto adicional.")
+        sys_blocks = ([{"type": "text", "text": sys_text, "cache_control": {"type": "ephemeral"}}]
+                      if len(sys_text) > 2000 else sys_text)
+
+        for attempt in range(retries + 1):
+            try:
+                resp = client.messages.create(
+                    model=self.HAIKU_MODEL,
+                    max_tokens=max_tokens,
+                    system=sys_blocks,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.1,
+                )
+                self._track_llm(self.HAIKU_MODEL, resp, "analyst_haiku_json")
+                raw = resp.content[0].text.strip() if resp.content else ""
+                if not raw:
+                    raise ValueError("Empty Haiku JSON response")
+                if raw.startswith("```"):
+                    raw = re.sub(r"^```(?:json)?\s*", "", raw)
+                    raw = re.sub(r"\s*```$", "", raw)
+                try:
+                    parsed = json.loads(raw)
+                except json.JSONDecodeError:
+                    parsed = self._repair_json(raw)
+                if parsed:
+                    try:
+                        set_cached(self.HAIKU_MODEL, prompt + "[JSON]", system, parsed)
+                    except Exception:
+                        pass
+                    return parsed
+                return None
+            except Exception as exc:
+                if attempt < retries:
+                    self._log("WARN", f"Haiku JSON error (intento {attempt+1}): {exc}")
+                    time.sleep(5)
+                else:
+                    self._log("ERROR", f"Haiku JSON falló: {exc}")
+                    return None
+        return None
 
     def _sonnet_call(self, system: str, prompt: str, max_tokens: int = 8000, retries: int = 2) -> dict | None:
         """Call Claude Sonnet for JSON extraction (Tier 1). Falls back to Gemini Flash."""
@@ -1310,6 +1495,10 @@ class AnalystAgent:
             from google.genai import types
             client = self._get_gemini_client()
         except Exception as exc:
+            # Cost-Opt Fallback A: Gemini init failed (no key, billing block)
+            if self.GEMINI_FALLBACK_ANTHROPIC:
+                self._log("WARN", f"Gemini init failed ({exc}) — fallback Haiku 4.5 JSON")
+                return self._haiku_call(prompt, max_tokens=max_tokens)
             self._log("ERROR", f"Gemini init failed: {exc}")
             return None
 
@@ -1338,6 +1527,14 @@ class AnalystAgent:
                     raise
             except Exception as exc:
                 exc_str = str(exc)
+                # Cost-Opt Fallback A: PERMISSION_DENIED → Haiku inmediato
+                if any(k in exc_str for k in ("PERMISSION_DENIED", "403",
+                                              "denied access", "401", "Unauthorized")):
+                    if self.GEMINI_FALLBACK_ANTHROPIC:
+                        self._log("WARN",
+                            f"Gemini denied — fallback Haiku 4.5 JSON: {exc_str[:100]}")
+                        return self._haiku_call(prompt, max_tokens=max_tokens)
+                    return None
                 if "429" in exc_str or "ResourceExhausted" in exc_str:
                     wait = 45 * (attempt + 1)
                     self._log("WARN", f"Gemini rate limit — espera {wait}s")
@@ -1346,17 +1543,41 @@ class AnalystAgent:
                     self._log("WARN", f"Gemini error (intento {attempt+1}): {exc}")
                     time.sleep(5)
                 else:
+                    if self.GEMINI_FALLBACK_ANTHROPIC:
+                        self._log("WARN",
+                            f"Gemini JSON falló tras {retries+1} intentos — fallback Haiku 4.5")
+                        return self._haiku_call(prompt, max_tokens=max_tokens)
                     self._log("ERROR", f"Gemini falló tras {retries+1} intentos: {exc}")
                     return None
         return None
 
     def _gemini_text(self, prompt: str, max_tokens: int = 8000, retries: int = 2, tier: str = "standard") -> str:
-        """Call Gemini for FREE TEXT. tier='lite' uses Flash-lite (T3), 'standard' uses Flash (T2)."""
+        """Call Gemini for FREE TEXT. tier='lite' uses Flash-lite (T3), 'standard' uses Flash (T2).
+
+        O1 Cost-Opt (2026-05-02): cache local hash(model+prompt). Si hit → return
+        instantáneo sin llamada LLM (FREE). TTL 24h. Disable con env LLM_CACHE_DISABLED=1.
+        """
         model = self.GEMINI_LITE if tier == "lite" else self.GEMINI_FLASH
+
+        # O1: cache hit check
+        try:
+            from tools.llm_cache import get_cached, set_cached
+            cached = get_cached(model, prompt, context="", ttl_hours=24)
+            if cached is not None:
+                self._log("CACHE_HIT", f"gemini_text {model} (saved tokens)")
+                return cached
+        except Exception:
+            pass  # cache failure no rompe pipeline
+
         try:
             from google.genai import types
             client = self._get_gemini_client()
         except Exception as exc:
+            # Cost-Opt Fallback A (2026-05-02): si Gemini no inicializa
+            # (no API key, billing bloqueado), caer en Haiku.
+            if self.GEMINI_FALLBACK_ANTHROPIC:
+                self._log("WARN", f"Gemini init failed ({exc}) — fallback Haiku 4.5")
+                return self._haiku_text(prompt, max_tokens=max_tokens)
             self._log("ERROR", f"Gemini init failed: {exc}")
             return ""
 
@@ -1374,9 +1595,24 @@ class AnalystAgent:
                 text = resp.text.strip() if resp.text else ""
                 if not text:
                     raise ValueError("Empty Gemini response")
+                # O1: cache hit save
+                try:
+                    set_cached(model, prompt, "", text)
+                except Exception:
+                    pass
                 return text
             except Exception as exc:
                 exc_str = str(exc)
+                # Cost-Opt Fallback A: si PERMISSION_DENIED (billing bloqueado),
+                # 403, 401, project denied → fallback inmediato a Haiku, no retry.
+                if any(k in exc_str for k in ("PERMISSION_DENIED", "403",
+                                              "denied access", "401", "Unauthorized")):
+                    if self.GEMINI_FALLBACK_ANTHROPIC:
+                        self._log("WARN",
+                            f"Gemini denied/unauthorized — fallback Haiku 4.5: {exc_str[:100]}")
+                        return self._haiku_text(prompt, max_tokens=max_tokens)
+                    self._log("ERROR", f"Gemini denied: {exc_str[:200]}")
+                    return ""
                 if "429" in exc_str or "ResourceExhausted" in exc_str:
                     wait = 45 * (attempt + 1)
                     self._log("WARN", f"Gemini rate limit — espera {wait}s")
@@ -1385,6 +1621,11 @@ class AnalystAgent:
                     self._log("WARN", f"Gemini text error (intento {attempt+1}): {exc}")
                     time.sleep(5)
                 else:
+                    # Cost-Opt: tras agotar retries, último intento = Haiku fallback
+                    if self.GEMINI_FALLBACK_ANTHROPIC:
+                        self._log("WARN",
+                            f"Gemini text falló tras {retries+1} intentos — fallback Haiku 4.5")
+                        return self._haiku_text(prompt, max_tokens=max_tokens)
                     self._log("ERROR", f"Gemini text falló tras {retries+1} intentos: {exc}")
                     return ""
         return ""
@@ -1625,16 +1866,44 @@ class AnalystAgent:
             from contextlib import nullcontext
             hb_ctx = nullcontext()
 
+        # O2 Cost-Opt (2026-05-02): skip secciones ya generadas con texto válido
+        # si flag SKIP_EXISTING_SECTIONS=1 (env). Útil para reruns donde solo
+        # quieres regenerar secciones BORRADAS o las que añadiste con --force.
+        # Para forzar regenerar TODAS, simplemente borrar prior output o usar
+        # SKIP_EXISTING_SECTIONS=0 (default).
+        skip_existing = os.environ.get("SKIP_EXISTING_SECTIONS") == "1"
+        if skip_existing:
+            self._log("INFO", "O2: SKIP_EXISTING_SECTIONS=1 — skip secciones ya completas")
+
+        def _is_section_complete(prior: dict) -> bool:
+            """Una sección está 'completa' si tiene texto >100c o perfiles>0
+            o opiniones_clave>0 o recursos_oficiales>0."""
+            if not isinstance(prior, dict):
+                return False
+            if len(str(prior.get("texto", "") or "")) > 100:
+                return True
+            if isinstance(prior.get("perfiles"), list) and len(prior["perfiles"]) > 0:
+                return True
+            if isinstance(prior.get("opiniones_clave"), list) and len(prior["opiniones_clave"]) > 0:
+                return True
+            return False
+
         with hb_ctx as hb:
             for name, method in sections:
                 self._log("START", f"Capa 3 — Sección: {name}")
                 if hasattr(hb, "tick"):
                     hb.tick(f"section: {name}")
+                # O2: skip si sección ya completa y SKIP_EXISTING_SECTIONS=1
+                prior_section = prior_synthesis.get(name)
+                if skip_existing and _is_section_complete(prior_section):
+                    synthesis[name] = prior_section
+                    synthesis["sections_completed"] += 1
+                    self._log("SKIP", f"Sección {name}: ya completa, skip (O2)")
+                    continue
                 try:
                     result = method(data)
                     if result:
                         # Anti-regresión: si tenemos versión previa, decidir cuál guardar
-                        prior_section = prior_synthesis.get(name)
                         if _guard_available and prior_section and name != "documentos":
                             result = accept_section(
                                 name, result, prior_section,
@@ -2375,7 +2644,7 @@ class AnalystAgent:
             cambios_peso.sort(key=lambda x: abs(x["delta_pct"]), reverse=True)
 
             result.append({
-                "periodo": f"{prev_periodo}→{curr_periodo}",
+                "periodo": f"{prev_periodo}->{curr_periodo}",
                 "entradas": entradas[:8],
                 "salidas": salidas[:8],
                 "cambios_peso_significativos": cambios_peso[:5],
@@ -3304,7 +3573,10 @@ class AnalystAgent:
         return raw_context
 
     def _gemini_section(self, prompt: str, max_chars: int = 30000) -> str:
-        """Gemini Pro para secciones narrativas. Devuelve texto plano."""
+        """Gemini Pro para secciones narrativas. Devuelve texto plano.
+
+        Cost-Opt Fallback A (2026-05-02): si Gemini falla → Haiku 4.5.
+        """
         from tools.gemini_wrapper import extract_fast, MODEL_PRO
         try:
             # Usar schema simple {"texto": str} y pedir texto largo
@@ -3317,15 +3589,35 @@ class AnalystAgent:
                 max_chars=max_chars,
             )
             if isinstance(result, dict):
-                return result.get("texto", "") or ""
+                txt = result.get("texto", "") or ""
+                if txt:
+                    return txt
         except Exception as e:
+            exc_str = str(e)
+            if self.GEMINI_FALLBACK_ANTHROPIC and any(
+                k in exc_str for k in ("PERMISSION_DENIED", "403", "denied access",
+                                       "401", "Unauthorized")
+            ):
+                # Cost-Opt Fase 2 (2026-05-02): _gemini_section es para texto
+                # narrativo COMPLEJO (INT secciones). Fallback Sonnet (no Haiku)
+                # — calidad validada en AZ Valor + Magallanes requiere Sonnet.
+                self._log("WARN", f"Gemini section denied — fallback Sonnet 4.6")
+                return self._sonnet_text(
+                    "Eres un analista senior. Escribe texto denso, completo, "
+                    "con datos concretos. Solo datos del input, no inventar.",
+                    prompt[:max_chars],
+                )
             self._log("WARN", f"Gemini section failed: {e}")
         return ""
 
     def _gemini_section_json(self, prompt: str, schema: dict, max_chars: int = 30000) -> dict:
         """Gemini Pro con schema estructurado.
         Regla CRITICA: si no hay dato para un campo, devuelve null/vacio.
-        NUNCA 'no disponible', 'no se menciona', 'datos pendientes', etc."""
+        NUNCA 'no disponible', 'no se menciona', 'datos pendientes', etc.
+
+        Cost-Opt Fallback A (2026-05-02): si Gemini falla → Haiku 4.5 con el
+        mismo schema serializado en el prompt.
+        """
         from tools.gemini_wrapper import extract_fast, MODEL_PRO
         try:
             result = extract_fast(
@@ -3341,13 +3633,35 @@ class AnalystAgent:
                 model=MODEL_PRO,
                 max_chars=max_chars,
             )
-            if not isinstance(result, dict):
-                return {}
-            # Post-filtro: eliminar valores "filler" conocidos
-            return self._strip_filler(result)
+            if isinstance(result, dict) and result:
+                return self._strip_filler(result)
         except Exception as e:
+            exc_str = str(e)
+            if self.GEMINI_FALLBACK_ANTHROPIC and any(
+                k in exc_str for k in ("PERMISSION_DENIED", "403", "denied access",
+                                       "401", "Unauthorized")
+            ):
+                # Cost-Opt Fase 2 (2026-05-02): _gemini_section_json es para JSON
+                # COMPLEJO (INT _int_pro). Fallback Sonnet (no Haiku) — calidad
+                # validada requiere Sonnet para INT críticos.
+                self._log("WARN", f"Gemini section_json denied — fallback Sonnet 4.6")
+                schema_str = json.dumps(schema, ensure_ascii=False, indent=2)
+                full_prompt = (
+                    f"{prompt[:max_chars]}\n\n"
+                    f"Devuelve JSON con esta estructura EXACTA:\n{schema_str}\n\n"
+                    f"REGLAS: si no hay dato real → null o '' (vacío). "
+                    f"NUNCA escribir 'no disponible' / 'no se menciona' / 'datos pendientes'. "
+                    f"Solo datos del input, no inventar."
+                )
+                sn = self._sonnet_call(
+                    "Eres analista senior. Devuelve SOLO JSON válido sin markdown.",
+                    full_prompt,
+                )
+                if isinstance(sn, dict):
+                    return self._strip_filler(sn)
+                return {}
             self._log("WARN", f"Gemini JSON failed: {e}")
-            return {}
+        return {}
 
     def _strip_filler(self, obj):
         """Recorre el dict y elimina valores que sean filler/no-info."""
@@ -4237,12 +4551,16 @@ class AnalystAgent:
             f"EMBLEMÁTICAS/estructurales (no las 10 mayores), sin listar pesos.\n"
             f"- **DECISIONES / CAMBIOS RECIENTES** (segundo bloque): USA los datos "
             f"de 'CAMBIOS DE CARTERA AÑO-A-AÑO' arriba (entradas/salidas/cambios "
-            f"peso por par de años) para citar nombres CONCRETOS y pesos REALES. "
-            f"Ejemplo: 'En 2024→2025 entraron **SANDVIK (3.2%)** y **PERSIMMON (2.6%)**, "
-            f"mientras salieron **COVESTRO (-4.3%)** y **OCI (-2.4%)**, reflejando un "
-            f"viraje hacia industriales europeos…'. Conecta el viraje con el contexto "
-            f"de mercado y cómo encaja en la VISIÓN A FUTURO. Si NO hay cambios "
-            f"calculados (snapshot único), OMITIR este bloque — no inventar.\n"
+            f"peso por par de años) para citar nombres CONCRETOS y pesos REALES.\n"
+            f"  ⚠️ OBLIGATORIO: si hay datos en 'cambios_cartera_anuales', DEBES citar "
+            f"AL MENOS 4 nombres LITERALES (no parafrasear) con sus pesos REALES en negritas. "
+            f"Ejemplo OBLIGATORIO formato: 'En 2024→2025 entraron **SANDVIK (3,2%)** y "
+            f"**PERSIMMON (2,6%)**, mientras salieron **COVESTRO (-4,3%)** y **OCI (-2,4%)**, "
+            f"reflejando un viraje hacia industriales europeos…'.\n"
+            f"  PROHIBIDO: 'el fondo entró en algunas posiciones' / 'salieron varias' / "
+            f"'rotó parte de la cartera' — son paráfrasis sin valor. SIEMPRE nombres + cifras.\n"
+            f"  Conecta el viraje con el contexto de mercado y cómo encaja en la VISIÓN A FUTURO. "
+            f"Si NO hay cambios calculados (snapshot único), OMITIR este bloque — no inventar.\n"
             f"- **CONCENTRACIÓN** (tercer bloque, solo si es fondo RV/RF puro): "
             f"comentario top5/top10/top15 y comparativa con media del tipo de fondo.\n"
             f"- USA TODAS las referencias a cartera en cartas/readings para "
@@ -4771,6 +5089,20 @@ class AnalystAgent:
         except Exception as exc:
             self._log("WARN", f"Merge preserving manual edits falló: {exc}. Guardando sin merge.")
 
+        # Cost-Opt Fase 2 (2026-05-02): regenerar publication_calendar SIEMPRE
+        # tras guardar output. Antes solo el orchestrator (Paso 7) lo hacía,
+        # así que reruns de analyst standalone perdían las fechas última carta /
+        # último informe / próxima esperada que el header del dashboard muestra.
+        try:
+            from tools.publication_calendar import build_publication_calendar
+            cal = build_publication_calendar(self.isin)
+            if cal:
+                output["publication_calendar"] = cal
+                self._log("OK",
+                    f"publication_calendar actualizado: {list(cal.keys())}")
+        except Exception as exc:
+            self._log("WARN", f"publication_calendar update falló: {exc}")
+
         # Atomic write: .tmp → rename (evita que el dashboard lea archivo vacío).
         tmp_path = out_path.with_suffix(out_path.suffix + ".tmp")
         tmp_path.write_text(
@@ -4844,6 +5176,14 @@ class AnalystAgent:
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
+    # H_INT Fase H (2026-05-01): Unicode Windows fix obligatorio.
+    # Sin reconfigure(utf-8), prints con flechas/acentos crashean en cp1252.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
     from dotenv import load_dotenv
     load_dotenv(Path(__file__).parent.parent / ".env")
 
