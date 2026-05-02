@@ -1172,11 +1172,11 @@ class AnalystAgent:
     # Set USE_SONNET=true in .env to enable Claude Sonnet for T1 (requires Anthropic credits)
     GEMINI_FLASH = "gemini-2.5-flash"
     GEMINI_LITE = "gemini-2.5-flash-lite"
-    # Cost-Opt Fase 2 (2026-05-02): Sonnet 4.5 (validado en AZ Valor/Magallanes).
-    # Sonnet 4.6 alias intentado primero (más nuevo, mejor caching) pero si SDK
-    # no lo reconoce → cuelgue infinito. 4-5-20241022 es estable y conocido.
-    # NOTA: cambiar a "claude-sonnet-4-6" cuando se verifique compat SDK.
-    SONNET_MODEL = "claude-sonnet-4-5-20241022"
+    # Cost-Opt Fase 2 (2026-05-02, fix 17:50): Sonnet 4.5 alias estable.
+    # Bug previo: usaba "claude-sonnet-4-5-20241022" (de Claude 3.5 viejo) que
+    # devolvía 404 not_found_error → fallback no funcionaba en R-Co/Hamco.
+    # Verificado: "claude-sonnet-4-5" y "claude-sonnet-4-6" funcionan ambos.
+    SONNET_MODEL = "claude-sonnet-4-5"
     # Haiku 4.5 — fallback rápido para tareas simples (JSON extraction, classify)
     HAIKU_MODEL = "claude-haiku-4-5-20251001"
     # Opus 4.7 — solo para tareas críticas: lead/co identification, audit final

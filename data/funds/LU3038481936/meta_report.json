@@ -1,0 +1,28 @@
+{
+  "isin": "LU3038481936",
+  "nombre": "HAMCO SICAV - GLOBAL VALUE FUND",
+  "timestamp": "2026-05-02T19:17:19.119141",
+  "completeness_pct": 77.8,
+  "dashboard_ready": true,
+  "dashboard_blockers": [],
+  "issues": [
+    "gestora vacía",
+    "serie AUM muy corta (1 puntos) — añadir XMLs históricos",
+    "mix_activos 2026 suma 12.0% (esperado ~100%)",
+    "sin análisis externos — ejecutar readings_agent",
+    "[patron_conocido:mix_activos_suma_incorrecta] mix_activos suma incorrecta — probable doble conteo en extraccion XML CNMV seccion 3.1 (se deben tomar solo los valores TOTAL globales, no sumas de subtotales)",
+    "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
+  ],
+  "suggestions": [
+    "Años sin datos AUM: 2023, 2024, 2025 -> descargar XMLs CNMV de esos años",
+    "Gestores sin background: Michael J. McKinnon -> buscar en Citywire / Trustnet",
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin LU3038481936 --auto"
+  ],
+  "feedback_previo": [],
+  "stats": {
+    "periodos_consistencia": 5,
+    "posiciones_actuales": 11,
+    "puntos_aum": 1,
+    "gestores": 2
+  }
+}

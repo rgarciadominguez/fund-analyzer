@@ -15,6 +15,7 @@ Flujo:
 import argparse
 import asyncio
 import json
+import os
 import sys
 import time
 from datetime import datetime
@@ -183,6 +184,11 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
     """Pipeline completo para un ISIN."""
     isin = isin.strip().upper()
     start_time = time.time()
+
+    # Cost-Opt Fase 2 (2026-05-02): publicar ISIN en env para que componentes
+    # como tools/gemini_wrapper.py extract_fast (extractor INT) puedan
+    # asociar su coste al fondo correcto en cost_log.jsonl.
+    os.environ["CURRENT_FUND_ISIN"] = isin
 
     log_path = ROOT / "progress.log"
     with open(log_path, "a", encoding="utf-8") as f:
