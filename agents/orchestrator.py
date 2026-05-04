@@ -180,8 +180,14 @@ def get_config(isin: str, auto: bool) -> dict:
 
 # ── Pipeline principal ────────────────────────────────────────────────────────
 
-async def analyze_fund(isin: str, auto: bool = False) -> dict:
-    """Pipeline completo para un ISIN."""
+async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -> dict:
+    """Pipeline completo para un ISIN.
+
+    Si prep_only=True (Fase 1 cowork-skill, 2026-05-04): ejecuta toda la prep
+    determinista (CNMV/INT, manager, letters, readings, sources) y SE DETIENE
+    antes del Paso 4 (analyst_agent). Luego invoca bundle_exporter para que la
+    skill `analyst-cowork` consuma los inputs desde Claude Max sin coste API.
+    """
     isin = isin.strip().upper()
     start_time = time.time()
 
@@ -589,6 +595,47 @@ async def analyze_fund(isin: str, auto: bool = False) -> dict:
             log("LETTERS_DEEP", "ERROR", f"Letters Deep falló: {exc}")
 
         progress.advance(main_task)
+
+        # ── Cut --prep-only (Fase 1 cowork-skill, 2026-05-04) ────────────────
+        # Hasta aquí la prep determinista está completa. Si el usuario pidió
+        # --prep-only, exportamos el bundle y nos detenemos ANTES del analyst.
+        # La skill `analyst-cowork` (en Cowork/Claude Code bajo Max) consumirá
+        # `data/funds/{ISIN}/bundle/` sin coste API.
+        if prep_only:
+            log("ORCHESTRATOR", "INFO", "--prep-only: deteniendo antes del Paso 4 (analyst)")
+            try:
+                from agents.bundle_exporter import run as _bundle_run
+                manifest = _bundle_run(isin)
+                log("BUNDLE", "OK",
+                    f"bundle exportado en data/funds/{isin}/bundle/ "
+                    f"({sum(m['size_bytes'] for m in manifest['files'].values())/1024:.1f} KB total)")
+            except Exception as exc:
+                log("BUNDLE", "ERROR", f"bundle_exporter falló: {exc}")
+                import traceback
+                log("BUNDLE", "TRACE", traceback.format_exc()[:500])
+                raise
+            try:
+                from agents.bundle_validator import validate as _bundle_validate
+                vresult = _bundle_validate(isin)
+                if vresult["valid"]:
+                    log("BUNDLE", "OK",
+                        f"bundle_validator: VALID (warnings={len(vresult.get('warnings') or [])})")
+                else:
+                    log("BUNDLE", "ERROR",
+                        f"bundle_validator: INVALID — {vresult.get('errors')}")
+            except Exception as exc:
+                log("BUNDLE", "WARN", f"bundle_validator no ejecutado: {exc}")
+            console.print(Panel(
+                f"[bold green]Prep completa para {isin}[/bold green]\n"
+                f"Bundle: data/funds/{isin}/bundle/\n\n"
+                f"Próximo paso (Cowork / Claude Code bajo Max):\n"
+                f'  Di: "analyst cowork {isin}"\n\n'
+                f"Tras la skill, integra el resultado:\n"
+                f"  python -m agents.orchestrator --isin {isin} --consume-cowork",
+                border_style="green",
+                title="--prep-only",
+            ))
+            return {"isin": isin, "prep_only": True, "bundle_manifest": manifest}
 
         # ── Paso 4: Analyst Agent ─────────────────────────────────────────────
         progress.update(main_task, description="Analyst Agent (síntesis)")
@@ -1348,6 +1395,199 @@ def _find_null_fields(obj, path="") -> list[str]:
     return nulls
 
 
+# ── Cowork-skill integration (Fase 1, 2026-05-04) ─────────────────────────────
+
+def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
+    """Integrate analyst_synthesis_cowork.json (produced by the skill) into output.json.
+
+    - Verifies sha256 of inputs vs the hashes the skill recorded (drift detection).
+    - Overwrites analyst_synthesis.* with the skill's output.
+    - Marks the 8 paths as _manual_edits to preserve them across future Python runs.
+    - Records the run in _meta.cowork_runs[].
+
+    Returns a dict with drift list and integration summary.
+    """
+    import hashlib
+    from tools.output_merger import save_output, mark_manual_edit
+
+    cowork_json = fund_dir / "analyst_synthesis_cowork.json"
+    if not cowork_json.exists():
+        raise FileNotFoundError(
+            f"{cowork_json} no existe. Ejecuta la skill `analyst-cowork` primero."
+        )
+
+    cowork_data = json.loads(cowork_json.read_text(encoding="utf-8"))
+    cowork_meta = cowork_data.get("_meta", {}) or {}
+
+    # Drift detection: compare input hashes the skill saw vs current files
+    expected_hashes = cowork_meta.get("input_files_hash", {}) or {}
+    drift: list[str] = []
+    for fname, expected in expected_hashes.items():
+        path = fund_dir / fname
+        if not path.exists():
+            drift.append(f"{fname}: no existe ahora")
+            continue
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        exp_norm = expected.replace("sha256:", "") if isinstance(expected, str) else ""
+        if exp_norm and exp_norm.lower() != actual.lower():
+            drift.append(f"{fname}: cambió desde la skill")
+    if drift:
+        log("COWORK", "WARN", "Drift en inputs detectado:")
+        for d in drift:
+            log("COWORK", "WARN", f"  - {d}")
+        log("COWORK", "WARN",
+            "El analyst de Cowork puede estar desactualizado vs los datos crudos actuales.")
+
+    # Load existing output.json (or seed)
+    output_path = fund_dir / "output.json"
+    if output_path.exists():
+        output_data = json.loads(output_path.read_text(encoding="utf-8"))
+    else:
+        output_data = {"isin": isin}
+
+    # Replace analyst_synthesis with the skill's
+    if "analyst_synthesis" not in cowork_data:
+        raise ValueError("analyst_synthesis_cowork.json no contiene 'analyst_synthesis'")
+    output_data["analyst_synthesis"] = cowork_data["analyst_synthesis"]
+
+    # Protect each section as _manual_edits so future Python runs don't overwrite
+    sections = list(cowork_data["analyst_synthesis"].keys())
+    for sec in sections:
+        mark_manual_edit(output_data, f"analyst_synthesis.{sec}")
+
+    # Record metadata
+    output_data.setdefault("_meta", {}).setdefault("cowork_runs", []).append({
+        "ts": cowork_meta.get("generated"),
+        "main_model": cowork_meta.get("main_model"),
+        "audit_model": cowork_meta.get("audit_model"),
+        "anti_invencion_flagged_count": len(cowork_meta.get("anti_invencion_flagged", []) or []),
+        "audit_iterations": cowork_meta.get("audit_iterations", 0),
+        "input_drift": drift,
+        "skill_version": cowork_meta.get("skill_version"),
+        "sections_generated": cowork_meta.get("sections_generated") or sections,
+    })
+
+    save_output(isin, output_data)
+    log("COWORK", "OK",
+        f"Analyst de Cowork integrado ({len(sections)} secciones, drift={len(drift)})")
+    if cowork_meta.get("anti_invencion_flagged"):
+        log("COWORK", "WARN",
+            f"Anti-invención: {len(cowork_meta['anti_invencion_flagged'])} flags residuales")
+    return {"drift": drift, "sections": sections, "meta": cowork_meta}
+
+
+async def consume_cowork_pipeline(isin: str, log_path: Path) -> dict:
+    """Standalone pipeline for `--consume-cowork`: integrate skill output then
+    run validation + meta + quality + calendar + dashboard regeneration.
+
+    Skips ALL upstream agents (no CNMV, no manager, no letters, no readings).
+    Reads hints from the existing output.json instead of from upstream JSONs.
+    """
+    isin = isin.strip().upper()
+    os.environ["CURRENT_FUND_ISIN"] = isin
+    fund_dir = ROOT / "data" / "funds" / isin
+
+    def log(agent, level, msg):
+        _log(agent, level, msg, log_path)
+
+    log("ORCHESTRATOR", "START", f"--consume-cowork pipeline {isin}")
+
+    # 1. Integrate the cowork skill output
+    integration = _consume_cowork_analyst(isin, fund_dir, log)
+
+    # 2. Re-load output.json (now has analyst_synthesis from cowork)
+    output_path = fund_dir / "output.json"
+    output_data = json.loads(output_path.read_text(encoding="utf-8"))
+    fund_name_hint = output_data.get("nombre", "") or ""
+    gestora_hint = output_data.get("gestora", "") or ""
+    anio_creacion_hint = (output_data.get("kpis") or {}).get("anio_creacion")
+
+    # Hints for downstream from manager_profile if present
+    gestores_hint: list[str] = []
+    mp_path = fund_dir / "manager_profile.json"
+    if mp_path.exists():
+        try:
+            mp = json.loads(mp_path.read_text(encoding="utf-8"))
+            gestores_hint = list(mp.get("equipo_gestor") or [])[:3]
+        except Exception:
+            pass
+
+    # Reuse config if present, else minimal
+    config_path = fund_dir / "config.json"
+    if config_path.exists():
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+    else:
+        config = {"objetivo": "1", "horizonte_historico": "1",
+                  "fuentes": "1", "clase_accion": "todas", "contexto_adicional": ""}
+
+    # 3. Validation
+    try:
+        from agents.validation_agent import ValidationAgent
+        validator = ValidationAgent(isin, fund_dir=fund_dir, config=config)
+        await validator.run()
+        log("VALIDATION", "OK", "Validation completada (post-cowork)")
+    except Exception as exc:
+        log("VALIDATION", "ERROR", f"Validation falló: {exc}")
+
+    # 4. Meta
+    try:
+        from agents.meta_agent import MetaAgent
+        meta = MetaAgent(isin, fund_dir=fund_dir, config=config)
+        await meta.run()
+        log("META", "OK", "Meta completado (post-cowork)")
+    except Exception as exc:
+        log("META", "ERROR", f"Meta falló: {exc}")
+
+    # 5. Quality loop (same env knob as the normal flow)
+    try:
+        quality_report = await _run_quality_loop(
+            isin, fund_dir, config,
+            fund_name_hint=fund_name_hint,
+            gestora_hint=gestora_hint,
+            anio_creacion_hint=anio_creacion_hint,
+            gestores_hint=gestores_hint,
+            log=log,
+            max_iter=int(os.environ.get("QUALITY_LOOP_MAX_ITER", "1")),
+        )
+        score = quality_report.get("score", 0)
+        log("QUALITY", "OK", f"Quality loop: score={score}/100 (post-cowork)")
+    except Exception as exc:
+        log("QUALITY", "ERROR", f"Quality loop falló: {exc}")
+
+    # 6. publication_calendar
+    try:
+        from tools.publication_calendar import update_output_with_calendar
+        if update_output_with_calendar(isin):
+            log("CALENDAR", "OK", "publication_calendar actualizado")
+    except Exception as exc:
+        log("CALENDAR", "WARN", f"publication_calendar: {exc}")
+
+    # 7. Regenerate dashboard
+    try:
+        import subprocess
+        gen_path = ROOT / "dashboard" / "generate_dashboard.py"
+        result = subprocess.run(
+            ["python", str(gen_path), isin],
+            cwd=str(ROOT), capture_output=True, text=True, timeout=120,
+        )
+        if result.returncode == 0:
+            log("DASHBOARD", "OK", f"dashboard/fund-{isin}.html regenerado")
+        else:
+            log("DASHBOARD", "WARN", f"generate_dashboard rc={result.returncode}: {result.stderr[:200]}")
+    except Exception as exc:
+        log("DASHBOARD", "ERROR", f"generate_dashboard falló: {exc}")
+
+    console.print(Panel(
+        f"[bold green]Consume-cowork OK para {isin}[/bold green]\n"
+        f"Secciones integradas: {len(integration['sections'])}\n"
+        f"Input drift: {len(integration['drift'])} ficheros\n"
+        f"Dashboard: dashboard/fund-{isin}.html",
+        border_style="green",
+        title="--consume-cowork",
+    ))
+    return {"isin": isin, "consume_cowork": True, **integration}
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -1355,6 +1595,15 @@ def main():
     parser.add_argument("--isin", required=True, help="ISIN del fondo (ej. ES0112231008)")
     parser.add_argument("--auto", action="store_true",
                         help="Usar valores por defecto sin preguntar")
+    parser.add_argument("--prep-only", action="store_true",
+                        help="Ejecuta toda la prep determinista (CNMV o INT, manager, "
+                             "letters, readings, sources) pero salta analyst_agent. "
+                             "Deja JSONs listos para que la skill 'analyst-cowork' los "
+                             "consuma desde Claude Max.")
+    parser.add_argument("--consume-cowork", action="store_true",
+                        help="Salta toda la prep. Lee data/funds/{ISIN}/analyst_synthesis_cowork.json "
+                             "(producido por la skill), lo integra en output.json marcando "
+                             "los paths como _manual_edits, y corre validation + quality + dashboard.")
     parser.add_argument("--clean", action="store_true",
                         help="Borra data/funds/{ISIN}/ COMPLETO antes de ejecutar (force fresh re-download).")
     parser.add_argument("--clean-cnmv", action="store_true",
@@ -1397,13 +1646,25 @@ def main():
             out_p.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
             console.print(f"[yellow][--clean-synthesis] analyst_synthesis vaciado[/yellow]")
 
+    # Cowork-skill flags — incompatibility check
+    if args.prep_only and args.consume_cowork:
+        console.print("[red]ERROR: --prep-only y --consume-cowork son mutuamente exclusivos.[/red]")
+        sys.exit(2)
+
     # Lock por fondo: aborta si ya hay otro orchestrator/extractor/analyst
     # corriendo para este ISIN. Evita race conditions cuando el bash background
     # de Claude Code en Windows lanza pythons duplicados que se pisan.
     from tools.process_lock import acquire_or_die
     acquire_or_die("orchestrator", args.isin)
 
-    asyncio.run(analyze_fund(args.isin, auto=args.auto))
+    if args.consume_cowork:
+        # Standalone pipeline: NO pasamos por analyze_fund (sin upstream).
+        log_path = ROOT / "progress.log"
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(f"\n{'='*60}\n[{_ts()}] [ORCHESTRATOR] [START] consume-cowork {args.isin}\n{'='*60}\n")
+        asyncio.run(consume_cowork_pipeline(args.isin, log_path))
+    else:
+        asyncio.run(analyze_fund(args.isin, auto=args.auto, prep_only=args.prep_only))
 
 
 if __name__ == "__main__":
