@@ -704,19 +704,28 @@ class ReadingsCollector:
             f"web de la gestora. Devuelve SOLO dominios, 1 por línea."
         )
 
-        # Intentar Claude Opus (conocimiento financiero superior)
+        # Fase M (2026-05-04): Opus → Haiku. Tarea de clasificación pura
+        # (lista de dominios). Haiku 4.5 basta. ~5x más barato.
         try:
             import anthropic
             import os
+            from tools.llm_models import HAIKU_HINTS
             client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
             r = client.messages.create(
-                model="claude-opus-4-20250514",
+                model=HAIKU_HINTS,
                 max_tokens=200,  # solo necesitamos dominios
                 temperature=0,  # K5 Fase K: determinismo
                 messages=[{"role": "user", "content": prompt}],
             )
+            try:
+                from tools.llm_logger import log_llm_response
+                log_llm_response(r, agent="readings_collector_haiku",
+                                  isin=self.isin, model=HAIKU_HINTS,
+                                  provider="anthropic")
+            except Exception:
+                pass
             text = r.content[0].text
-            self._log("INFO", f"Opus fuentes ({r.usage.input_tokens}+{r.usage.output_tokens} tok)")
+            self._log("INFO", f"Haiku fuentes ({r.usage.input_tokens}+{r.usage.output_tokens} tok)")
             sites = [line.strip().lower().replace("www.", "")
                      for line in text.split("\n")
                      if "." in line and len(line.strip()) > 4

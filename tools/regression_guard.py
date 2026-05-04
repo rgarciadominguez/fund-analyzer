@@ -91,6 +91,22 @@ def _m_decisiones_total(section: dict) -> int:
     return sum(len(p.get("decisiones_clave", []) or []) for p in perfiles if isinstance(p, dict))
 
 
+def _m_opiniones(section: dict) -> int:
+    return len(_safe_list(section, "opiniones_clave"))
+
+
+def _m_recursos_oficiales(section: dict) -> int:
+    return len(_safe_list(section, "recursos_oficiales"))
+
+
+def _m_hechos_enriched(section: dict) -> int:
+    """M4 Fase M (2026-04-30): cuenta hechos con enrichment LLM
+    (que_cambio/motivo/impacto_inversor).
+    """
+    # No aplica a sección, sino a output completo. Llamado solo si presente.
+    return 0
+
+
 # Mapping section_name -> métricas críticas
 SECTION_METRICS: dict[str, dict[str, Callable[[dict], int]]] = {
     "resumen": {"chars": _m_chars, "cifras": _m_cifras, "negritas": _m_negritas},
@@ -103,7 +119,14 @@ SECTION_METRICS: dict[str, dict[str, Callable[[dict], int]]] = {
     "evolucion": {"chars": _m_chars, "cifras": _m_cifras},
     "estrategia": {"chars": _m_chars, "cifras": _m_cifras, "negritas": _m_negritas},
     "cartera": {"chars": _m_chars, "cifras": _m_cifras},
-    "fuentes_externas": {"chars": _m_chars},
+    # M3 v2 Fase M (2026-04-30): añadidos `opiniones` y `recursos_oficiales` para
+    # que el guard sepa que estas son métricas válidas. Antes solo miraba chars
+    # → rechazaba nuevas secciones que añaden recursos pero acortan texto.
+    "fuentes_externas": {
+        "chars": _m_chars,
+        "opiniones": _m_opiniones,
+        "recursos_oficiales": _m_recursos_oficiales,
+    },
     # documentos: no tiene texto típico, no aplicar guard
 }
 
@@ -122,6 +145,58 @@ def _is_anti_invencion_empty(section) -> bool:
     if not isinstance(section, dict):
         return False
     return bool(section.get("_anti_invencion_guard"))
+
+
+# M2 Fase M (2026-04-30): patrones de contenido prohibido por sección.
+# Si el OLD contiene estos patrones, el guard SIEMPRE acepta el new (aunque
+# tenga menos chars), porque el old está contaminado y no merece preservarse.
+_PROHIBITED_PATTERNS_BY_SECTION = {
+    "historia": [
+        re.compile(r"valor\s+liquidativo", re.IGNORECASE),
+        re.compile(r"\bVL\b\s*(?:por\s+participaci|pasando\s+de|alcanz|cerrando)", re.IGNORECASE),
+        re.compile(r"base\s*100\s*\D*\d{4,}", re.IGNORECASE),  # base 100 → 59600
+        re.compile(r"pasando\s+de\s+\*?\*?0\.\d+", re.IGNORECASE),  # "pasando de 0.2"
+    ],
+    "evolucion": [
+        re.compile(r"valor\s+liquidativo", re.IGNORECASE),
+        re.compile(r"\bVL\b\s*(?:por\s+participaci|pasando\s+de|alcanz|cerrando)", re.IGNORECASE),
+        re.compile(r"base\s*100\s*\D*\d{4,}", re.IGNORECASE),
+    ],
+    "resumen": [
+        re.compile(r"valor\s+liquidativo", re.IGNORECASE),
+        re.compile(r"base\s*100\s*\D*\d{4,}", re.IGNORECASE),
+        # M1 v2 Fase M (2026-05-01): bug del LLM copiando header del prompt.
+        # Si el old empieza con "RESPONSABILIDAD ÚNICA" → output contaminado.
+        re.compile(r"RESPONSABILIDAD\s+(?:ÚNICA|UNICA)", re.IGNORECASE),
+        re.compile(r"\[INSTRUCCIONES\s+INTERNAS", re.IGNORECASE),
+    ],
+}
+
+# Campos adicionales por sección donde también hay que buscar contenido prohibido
+# (no solo "texto"). M1 v2: el bug header copy aparece en filosofia_inversion
+# del resumen, no en texto principal.
+_EXTRA_TEXT_FIELDS_BY_SECTION = {
+    "resumen": ["texto", "filosofia_inversion", "para_quien_es", "compromiso_gestor"],
+}
+
+
+def _old_has_prohibited_content(section: dict, section_name: str) -> tuple[bool, list]:
+    """Detecta si la sección OLD tiene contenido prohibido (ej: VL absurdo,
+    bug header LLM). Si True → guard debe aceptar el new (no preservar
+    contaminación).
+    """
+    patterns = _PROHIBITED_PATTERNS_BY_SECTION.get(section_name, [])
+    if not patterns:
+        return False, []
+    fields = _EXTRA_TEXT_FIELDS_BY_SECTION.get(section_name, ["texto"])
+    matched = []
+    for field in fields:
+        text = _safe_text(section, field)
+        for p in patterns:
+            if p.search(text):
+                matched.append(f"{field}: {p.pattern}")
+                break
+    return bool(matched), matched
 
 
 def compute_metrics(section_name: str, section: dict) -> dict:
@@ -162,9 +237,36 @@ def is_regression(
     if _is_error_section(old):
         return False, []  # old estaba mal, new gana siempre
 
+    # M2 Fase M (2026-04-30): si OLD tiene contenido prohibido (VL absurdo,
+    # base 100 con números corruptos), aceptar siempre new para descontaminar.
+    old_dirty, dirty_patterns = _old_has_prohibited_content(old, section_name)
+    if old_dirty:
+        return False, []  # old contaminado → new gana
+
     threshold_resolved = _resolve_threshold(section_name, threshold)
     new_m = compute_metrics(section_name, new)
     old_m = compute_metrics(section_name, old)
+
+    # M3 v2 Fase M (2026-04-30, refinado): si new aporta una MÉTRICA ESTRUCTURAL
+    # (perfiles/hitos/opiniones/recursos_oficiales — listas discretas, no
+    # derivadas del texto) que old NO tenía → siempre aceptar. Estas métricas
+    # representan datos nuevos, no variaciones de redacción.
+    # NOTA: NO incluir métricas derivadas del texto (chars, cifras, negritas)
+    # porque pueden subir naturalmente con cualquier cambio sin ser mejora real.
+    # H2 Fase H_INT (2026-05-01): añadidas métricas INT-específicas para que
+    # versions con datos cartera nuevos no sean falsamente rechazadas.
+    STRUCTURAL_METRICS = {
+        "perfiles", "hitos", "opiniones", "recursos_oficiales",
+        # H2: M_INT — datos enriquecidos por extractor v3 / portfolio_changes
+        "que_cambio_count", "criterios_count", "desglose_exposicion_count",
+    }
+    new_structural_added = [
+        k for k, v in new_m.items()
+        if k in STRUCTURAL_METRICS and v > 0 and old_m.get(k, 0) == 0
+    ]
+    if new_structural_added:
+        return False, []  # campo estructural nuevo → siempre aceptar
+
     for k, old_v in old_m.items():
         new_v = new_m.get(k, 0)
         if old_v <= 0:

@@ -1,0 +1,50 @@
+{
+  "isin": "ES0112612001",
+  "nombre": "",
+  "timestamp": "2026-04-28T17:39:41.978800",
+  "completeness_pct": 0.0,
+  "dashboard_ready": false,
+  "dashboard_blockers": [
+    "nombre del fondo vacío",
+    "sin datos cuantitativos ni cualitativos mínimos (falta: AUM, mix_activos, posiciones y gestores) — el fondo aparecería vacío en el dashboard"
+  ],
+  "issues": [
+    "nombre del fondo vacío",
+    "gestora vacía",
+    "AUM actual vacío — revisar XMLs CNMV o annual report",
+    "gestores vacíos — buscar en Citywire / Finect",
+    "sin estrategia ni filosofía de inversión — necesita PDFs cualitativos",
+    "sin posiciones actuales — revisar extracción de cartera",
+    "serie AUM muy corta (0 puntos) — añadir XMLs históricos",
+    "solo 0 periodos de consistencia — añadir más PDFs semestrales",
+    "sin cartas de gestores — ejecutar letters_agent con DuckDuckGo",
+    "sin análisis externos — ejecutar readings_agent",
+    "[patron_conocido:fondo_no_listo_para_dashboard] BLOQUEANTE: fondo no listo para dashboard — nombre del fondo vacío; sin datos cuantitativos ni cualitativos mínimos (falta: AUM, mix_activos, posiciones y gestores) — el fondo aparecería vacío en el dashboard",
+    "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
+  ],
+  "suggestions": [
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin ES0112612001 --auto",
+    "-> Anadir más PDFs semestrales en raw/reports/"
+  ],
+  "feedback_previo": [],
+  "stats": {
+    "periodos_consistencia": 0,
+    "posiciones_actuales": 0,
+    "puntos_aum": 0,
+    "gestores": 0
+  },
+  "cost": {
+    "total_usd": 0.103962,
+    "total_calls": 52,
+    "input_tokens": 31919,
+    "output_tokens": 47330,
+    "by_agent": {
+      "analyst_gemini_text": 0.084,
+      "analyst_gemini_json": 0.0199
+    },
+    "by_model": {
+      "gemini-2.5-flash": 0.099,
+      "gemini-2.5-flash-lite": 0.0049
+    }
+  }
+}

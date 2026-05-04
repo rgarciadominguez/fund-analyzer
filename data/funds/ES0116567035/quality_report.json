@@ -19,6 +19,30 @@
       "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
     },
     {
+      "regla_id": "resumen_kpis_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen tiene cifras de partícipes/AUM que no cuadran con KPIs reales (cifras_kpi_no_coinciden): texto dice 947 partícipes, KPI real 4689 (80% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen usando SOLO data.kpis para num_participes y aum_actual_meur. Nunca tomar cifras del texto del PDF (gestores a veces escriben mal)."
+    },
+    {
+      "regla_id": "historia_kpis_match_data",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 1187 partícipes, KPI real 4689 (75% drift); texto dice 133.283 M€ AUM, KPI real 464.061 (71% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
+    },
+    {
+      "regla_id": "aum_jump_alert",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Salto AUM >50% año a año detectado (saltos_aum_>50%): 2012→2013: 143→229 M€ (+60%). Posible bug extracción cnmv_agent o cambio real de mercado.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent."
+    },
+    {
       "regla_id": "estrategia_returns_match_data",
       "seccion": "estrategia",
       "fail_type": "content",
@@ -33,14 +57,6 @@
       "problema": "Posiciones con nombres corruptos (nombres_con_separadores): 116/116 (100%) - ejemplos: ['Bonos|UNICAJA|3,500|2031-06-30', 'Obligaciones|ABANCA CORPORACION B|1,531|2049-12', 'Acciones|ACERINOX SA']",
       "agente_responsable": "cnmv_agent",
       "accion": "cnmv_agent esta concatenando varios campos (tipo|nombre|cupon|vto) en el campo nombre. Parsear correctamente: nombre limpio, cupon/vto en campos separados."
-    },
-    {
-      "regla_id": "cartera_posiciones_sectores",
-      "seccion": "cartera",
-      "fail_type": "scarcity",
-      "problema": "Posiciones sin sector (sectores_ausentes): 0/116 (0%) con sector. Minimo 60% deben tener sector.",
-      "agente_responsable": "cnmv_agent",
-      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
     },
     {
       "regla_id": "comision_exito_teorica_presente",
@@ -62,17 +78,41 @@
       "regla_id": "hitos_historia_percentages_verifiable",
       "seccion": "historia",
       "fail_type": "content",
-      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2013: hito dice 50.0%, real 9.5%",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2013: hito dice 50.0%, real 9.4%",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    },
+    {
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (6/6). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta todo (perfil_riesgo no existe).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "fallos_estructura": 5,
+  "fallos_estructura": 7,
   "fallos_scarcity": 3,
-  "total_reglas": 56,
-  "reglas_ok": 48,
+  "total_reglas": 104,
+  "reglas_ok": 91,
   "aceptable": false,
-  "score_display": "48/56 reglas OK (3 pendientes de datos)",
+  "score_display": "91/104 reglas OK (3 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -83,5 +123,5 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-04-26T15:51:00.093837"
+  "evaluado_at": "2026-04-29T16:56:40.435349"
 }

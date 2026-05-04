@@ -162,6 +162,13 @@ class LettersCollector:
                  "If there are images with text, OCR them."],
                 generation_config={"temperature": 0.0, "max_output_tokens": 30000},
             )
+            try:
+                from tools.llm_logger import log_llm_response
+                log_llm_response(response, agent="letters_collector_ocr",
+                                  isin=self.isin, model="gemini-2.5-flash",
+                                  provider="gemini")
+            except Exception:
+                pass
             return response.text or ""
         try:
             return self._retry_gemini(_do_ocr)
@@ -549,8 +556,11 @@ class LettersCollector:
             import anthropic
             import os
             client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+            # Fase M (2026-05-04): Opus → Haiku. Tarea de clasificación pura
+            # (dominios + patrones URL). Haiku 4.5 basta. ~5x más barato.
+            from tools.llm_models import HAIKU_HINTS
             r = client.messages.create(
-                model="claude-opus-4-20250514",
+                model=HAIKU_HINTS,
                 max_tokens=300,
                 temperature=0,  # K5 Fase K: determinismo
                 messages=[{"role": "user", "content": (
@@ -569,7 +579,14 @@ class LettersCollector:
                 )}],
             )
             text = r.content[0].text
-            self._log("INFO", f"Opus hints ({r.usage.input_tokens}+{r.usage.output_tokens} tok)")
+            self._log("INFO", f"Haiku hints ({r.usage.input_tokens}+{r.usage.output_tokens} tok)")
+            try:
+                from tools.llm_logger import log_llm_response
+                log_llm_response(r, agent="letters_collector_haiku_hints",
+                                  isin=self.isin, model=HAIKU_HINTS,
+                                  provider="anthropic")
+            except Exception:
+                pass
 
             # Parsear respuesta libre de Opus
             hints: dict = {"domains": [], "url_patterns": [], "doc_names": []}

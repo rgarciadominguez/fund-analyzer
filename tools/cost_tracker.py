@@ -95,7 +95,12 @@ def calc_cost(model: str, input_tokens: int, output_tokens: int) -> float:
 
 def track(isin: str, model: str, input_tokens: int = 0,
           output_tokens: int = 0, agent: str = "unknown") -> dict:
-    """Registra una llamada LLM. Devuelve el dict actualizado del ISIN."""
+    """Registra una llamada LLM. Devuelve el dict actualizado del ISIN.
+
+    Cost-Opt Fase 2 (2026-05-02): además del cost_report.json por fondo,
+    también escribe append-only al cost_log.jsonl global vía cost_monitor.
+    Esto da visibilidad TOTAL del coste por fondo (no solo analyst).
+    """
     if not isin:
         return {}
     isin = isin.strip().upper()
@@ -131,6 +136,15 @@ def track(isin: str, model: str, input_tokens: int = 0,
         m["input"] += entry["input_tokens"]
         m["output"] += entry["output_tokens"]
         m["cost_usd"] = round(m["cost_usd"] + cost, 6)
+    # Cost-Opt Fase 2: append al log global (visibilidad TOTAL por fondo)
+    try:
+        from tools.cost_monitor import log_call
+        log_call(agent=agent, model=model, isin=isin,
+                 input_tokens=int(input_tokens or 0),
+                 output_tokens=int(output_tokens or 0),
+                 cost_usd=cost)
+    except Exception:
+        pass  # nunca rompe el caller
     return d
 
 

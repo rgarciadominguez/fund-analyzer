@@ -104,6 +104,13 @@ IMPORTANTE:
         messages=[{"role": "user", "content": prompt}],
     )
 
+    try:
+        from tools.llm_logger import log_llm_response
+        log_llm_response(message, agent="claude_extractor",
+                          isin=None, model=MODEL, provider="anthropic")
+    except Exception:
+        pass
+
     response_text = message.content[0].text
     result = _parse_json_response(response_text)
 

@@ -619,14 +619,27 @@ class ManagerProfiler:
                 f"- Devuelve nombres en formato oficial con acentos."
             )
 
+            # Fase M (2026-05-04): downgrade Opus → Haiku para clasificación
+            # de lead/co + biografías cortas. Tareas estructuradas (no reasoning
+            # profundo) que Haiku 4.5 resuelve igual a 1/5 del coste.
+            from tools.llm_models import HAIKU_HINTS, SONNET_FALLBACK
+            _model_used = HAIKU_HINTS
             r = client.messages.create(
-                model="claude-opus-4-20250514",
+                model=_model_used,
                 max_tokens=1500,  # +500 para tarea 2 + jerarquía
                 temperature=0,  # K5 Fase K: determinismo entre runs
                 messages=[{"role": "user", "content": prompt}],
             )
+            # Cost-Opt Fase 2 (2026-05-03): instrumentar coste
+            try:
+                from tools.llm_logger import log_llm_response
+                log_llm_response(r, agent="manager_profiler",
+                                  isin=self.isin, model=_model_used,
+                                  provider="anthropic")
+            except Exception:
+                pass
             opus_text = r.content[0].text
-            self._log("INFO", f"Opus enriquecimiento+lead ({r.usage.input_tokens}+"
+            self._log("INFO", f"Haiku enriquecimiento+lead ({r.usage.input_tokens}+"
                       f"{r.usage.output_tokens} tok)")
 
             # Merge: para cada gestor, si Opus da más info, actualizar.
@@ -680,6 +693,49 @@ class ManagerProfiler:
                 lead_opus = enriched.get("lead")
                 co_opus = enriched.get("co")
                 confidence_opus = (enriched.get("confidence") or "").lower().strip()
+
+                # Fase M (2026-05-04): si Haiku duda (low/desconocido) Y hay >1
+                # candidato a lead, escalar a Sonnet (no Opus). Solo en este
+                # caso ambiguo. Mantiene determinismo + coste contenido.
+                n_candidates = len([g for g in compiled.get("equipo", []) if g.get("nombre")])
+                if (confidence_opus in {"low", "desconocido"}
+                        and n_candidates > 1
+                        and _model_used == HAIKU_HINTS):
+                    self._log("INFO", f"Haiku confidence={confidence_opus} con {n_candidates} candidatos — escalation a Sonnet")
+                    try:
+                        r2 = client.messages.create(
+                            model=SONNET_FALLBACK,
+                            max_tokens=1500,
+                            temperature=0,
+                            messages=[{"role": "user", "content": prompt}],
+                        )
+                        try:
+                            from tools.llm_logger import log_llm_response as _log
+                            _log(r2, agent="manager_profiler_escalation",
+                                 isin=self.isin, model=SONNET_FALLBACK,
+                                 provider="anthropic")
+                        except Exception:
+                            pass
+                        sonnet_text = r2.content[0].text
+                        sonnet_enriched = extract_fast(
+                            text=sonnet_text,
+                            schema={
+                                "lead": "str", "co": "str",
+                                "confidence": "str - high|medium|low|desconocido",
+                            },
+                            context="Estructura este texto sobre gestores de fondos en JSON.",
+                        )
+                        if isinstance(sonnet_enriched, dict):
+                            new_conf = (sonnet_enriched.get("confidence") or "").lower().strip()
+                            # Aceptar Sonnet solo si mejora confidence
+                            if new_conf in {"high", "medium"}:
+                                lead_opus = sonnet_enriched.get("lead") or lead_opus
+                                co_opus = sonnet_enriched.get("co") or co_opus
+                                confidence_opus = new_conf
+                                self._log("INFO", f"Sonnet escalation aceptada: conf={new_conf}")
+                    except Exception as _e:
+                        self._log("WARN", f"Sonnet escalation falló: {type(_e).__name__}")
+
                 if lead_opus and lead_opus.lower() not in ("null", "desconocido", ""):
                     compiled["_lead_opus"] = lead_opus
                 if co_opus and co_opus.lower() not in ("null", "desconocido", ""):

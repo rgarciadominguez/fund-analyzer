@@ -507,6 +507,14 @@ class ManagerDeepAgent:
                 model="gemini-2.5-flash", contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json", temperature=0.1, max_output_tokens=3000))
+            # Cost-Opt Fase 2 (2026-05-03): instrumentar
+            try:
+                from tools.llm_logger import log_llm_response
+                log_llm_response(resp, agent="manager_deep_team",
+                                  isin=self.isin, model="gemini-2.5-flash",
+                                  provider="gemini")
+            except Exception:
+                pass
             raw = resp.text.strip() if resp.text else ""
             # Extract JSON array
             m = re.search(r'\[.*\]', raw, re.DOTALL)
@@ -543,6 +551,13 @@ class ManagerDeepAgent:
                     model="gemini-2.5-flash", contents=prompt,
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json", temperature=0.1, max_output_tokens=300))
+                try:
+                    from tools.llm_logger import log_llm_response
+                    log_llm_response(resp, agent="manager_deep_names",
+                                      isin=self.isin, model="gemini-2.5-flash",
+                                      provider="gemini")
+                except Exception:
+                    pass
                 raw = resp.text.strip() if resp.text else ""
                 self._log("INFO", f"Gemini names raw: {raw[:200]}")
                 # Try to extract JSON array from response
@@ -754,6 +769,13 @@ class ManagerDeepAgent:
                 model="gemini-2.5-flash", contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json", temperature=0.1, max_output_tokens=2000))
+            try:
+                from tools.llm_logger import log_llm_response
+                log_llm_response(resp, agent="manager_deep_extract",
+                                  isin=self.isin, model="gemini-2.5-flash",
+                                  provider="gemini")
+            except Exception:
+                pass
             raw = resp.text.strip() if resp.text else ""
             if not raw:
                 return {"_fuente": page["url"], "_titulo": page["title"], "texto_raw": page["text"][:3000]}
@@ -839,6 +861,13 @@ class ManagerDeepAgent:
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json", temperature=0.1,
                         max_output_tokens=4000))
+                try:
+                    from tools.llm_logger import log_llm_response
+                    log_llm_response(resp, agent="manager_deep_profile",
+                                      isin=self.isin, model="gemini-2.5-flash",
+                                      provider="gemini")
+                except Exception:
+                    pass
                 result = json.loads(resp.text)
                 self._log("OK", f"Gemini OK ({resp.usage_metadata.candidates_token_count} tokens)")
                 return result

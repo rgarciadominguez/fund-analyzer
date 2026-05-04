@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trojan Fund (Ireland) O EUR ACC — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund">Trojan Fund (Ireland) O EUR ACC <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★☆☆</span></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Troy Asset Management</strong></div>
+      <div class="lh-meta-line">Depositario: <strong>Report of the Depositary . . . . . . . . . . . . . . . . . . . . . . . . . . 17</strong></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>IE00B6T42S66</strong> <span style='opacity:.55;font-size:10.5px;'>· Class O EUR Accumulation</span></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:center;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€639M</div>
+        <div class="lh-aum-l">AUM</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 4 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Febrero 2012</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Alternativo Oro</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Sebastian Lyon</strong> <span style='opacity:.7;'>(lead)</span> · Charlotte Yonge <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-04-26</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin IE00B6T42S66 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">El <strong>Trojan Fund</strong> es un fondo multi-activo global lanzado en <strong>febrero de 2012</strong> por <strong>Troy Asset Management</strong>, una gestora independiente fundada en el año 2000 por su actual CIO y gestor principal, <strong>Sebastian Lyon</strong>. El objetivo del fondo es lograr un crecimiento del capital por encima de la inflación del Reino Unido (<strong>UK Retail Prices Index</strong>) en un horizonte de 5 a 7 años, con un fuerte énfasis en la preservación del capital y la protección contra la volatilidad del mercado.</p><p class="pr">Desde su lanzamiento, el fondo ha operado con una filosofía consistente. Un hito en su historia fue su periodo como fondo 'feeder' del Trojan Fund (un UCITS del Reino Unido) desde junio de 2014 hasta marzo de 2019, momento en el que pasó a su estructura actual. La estrategia se ha mantenido fiel a sus principios a lo largo de diversos ciclos de mercado, priorizando la protección del capital en momentos de tensión y buscando pacientemente oportunidades de inversión a largo plazo.</p><p class="pr">La estrategia de inversión es flexible y global, invirtiendo en una amplia gama de clases de activos que incluyen renta variable, bonos gubernamentales y corporativos (convencionales e indexados a la inflación), metales preciosos (principalmente oro) y liquidez. El proceso de toma de decisiones combina un análisis macro 'top-down' para la asignación de activos con un riguroso análisis 'bottom-up' para la selección de valores. El fondo aumenta su exposición a renta variable cuando los mercados caen y adopta una postura más defensiva, con mayor peso en bonos, oro y liquidez, cuando las valoraciones son elevadas y los riesgos aumentan.</p><p class="pr">El fondo ha demostrado un comportamiento defensivo robusto en crisis. Durante la fuerte caída del mercado en abril de 2025, el fondo cedió un <strong>-2,7%</strong> frente al <strong>-12,8%</strong> del <strong>FTSE All-Share Index</strong>. En el mercado bajista de febrero-abril de 2025, donde el S&P 500 cayó un <strong>-20%</strong>, la estrategia del fondo solo retrocedió un <strong>-2%</strong>. Sin embargo, este enfoque conservador puede llevar a un rendimiento inferior en mercados fuertemente alcistas, como en 2021, cuando el fondo obtuvo un <strong>+15,6%</strong> frente al +18,3% del índice. En el año fiscal finalizado en enero de 2025, el fondo obtuvo un rendimiento del <strong>+9,0%</strong>.</p><p class="pr">El equipo gestor está liderado por <strong>Sebastian Lyon</strong>, fundador de la firma, CIO y gestor principal del fondo. Lyon cuenta con una amplia experiencia desde 1989 y fundó Troy en el año 2000. Le acompaña en la gestión <strong>Charlotte Yonge</strong>, quien se incorporó a Troy procedente de Cazenove Capital Management. La larga permanencia y el papel fundacional de Lyon aseguran una continuidad y una profunda alineación con la filosofía de la gestora.</p><p class="pr">La visión actual del equipo gestor es de cautela. Consideran que las valoraciones de la renta variable son elevadas, persisten las tensiones geopolíticas y la inflación se mantiene por encima del objetivo, lo que genera fragilidad en los mercados. Mantienen una postura defensiva con una exposición a renta variable de en torno al 40%, una asignación significativa a bonos ligados a la inflación y una duración corta. El oro se considera un "seguro esencial para la cartera". A pesar del posicionamiento conservador, están preparados para aumentar la exposición al riesgo de forma oportunista si surgen valoraciones más atractivas.</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">El objetivo es la preservación y el crecimiento del capital en términos reales a largo plazo, por encima del UK RPI, con una volatilidad controlada. La estrategia es multi-activo, global y flexible, invirtiendo principalmente en renta variable de alta calidad, bonos gubernamentales (incluyendo ligados a la inflación de UK y US), oro y liquidez. Las decisiones de asignación de activos se basan en una visión macro, mientras que la selección de valores es 'bottom-up'. Históricamente, el oro ha mantenido una ponderación en torno al 10-12% y la exposición a renta variable del Reino Unido se ha mantenido en aproximadamente el 10% durante varios años.</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Selección de Renta Variable de Calidad:</strong> <span class="pr" style="font-size:12.5px;">Invierte en empresas globales con posiciones de mercado dominantes, ventajas competitivas duraderas, alta rentabilidad y poder de fijación de precios. Se buscan 'productos básicos corporativos' resilientes y no cíclicos. Se evita activamente invertir en sectores volátiles como el petrolero o minero, así como en activos especulativos.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Asignación Táctica y Contrarian:</strong> <span class="pr" style="font-size:12.5px;">La asignación entre clases de activo es dinámica y se gestiona en función de las valoraciones y el entorno macro. El peso en renta variable aumenta cuando los mercados caen y se reduce cuando las valoraciones son exigentes, incrementando la liquidez o los activos defensivos. La frase 'cuanto más suben los mercados de valores, menos acciones mantenemos' resume este enfoque.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Gestión Activa de Duración y Divisas:</strong> <span class="pr" style="font-size:12.5px;">El fondo gestiona activamente la duración de su cartera de bonos y la exposición a divisas para mitigar riesgos. Se han realizado movimientos tácticos como reducir la duración de los bonos del Tesoro de EE.UU. de cinco a dos años o recortar la exposición neta al dólar estadounidense del 25% a cerca del 9% en respuesta a cambios en el entorno macroeconómico.</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Sólido perfil de preservación de capital, demostrando una notable protección en caídas de mercado. Durante el mercado bajista de feb-abr 2025 (-20% S&P 500), la estrategia cayó poco más de un -2%.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Filosofía de inversión consistente y largoplacista, aplicada por un gestor experimentado y fundador de la firma (Sebastian Lyon), lo que garantiza la alineación y la continuidad en el proceso.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Flexibilidad en la asignación de activos que le permite adaptarse a diferentes entornos de mercado, ajustando activamente la exposición entre renta variable, bonos, oro y liquidez según las valoraciones y el riesgo percibido.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">El enfoque en la preservación del capital puede provocar un rendimiento inferior al de los mercados de renta variable durante fases fuertemente alcistas, como se observó en 2021 (+15.6% frente al +18.3% del FTSE All-Share).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Fuerte dependencia del gestor principal, Sebastian Lyon, quien es fundador, CIO y la figura central de la estrategia desde su inicio, lo que supone un 'key person risk' significativo.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">La estrategia conservadora, con una asignación estructural a oro y bonos indexados, podría verse afectada negativamente en un entorno de subidas sostenidas de los tipos de interés reales.</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>Class O EUR</strong></td><td>IE000YJ1JGX7</td><td>—</td><td>0,9%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2023</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class O EUR Accumulation</strong></td><td>IE00B6T42S66</td><td>—</td><td>1,0%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2012</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class X EUR</strong></td><td>IE00BF29RG44</td><td>—</td><td>0,9%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2017</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+  </table>
+  
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor conservador con un horizonte temporal a largo plazo (5-7 años) que prioriza la preservación del capital y la obtención de retornos reales por encima de la inflación, aceptando un menor rendimiento en mercados alcistas a cambio de una mayor protección en las caídas.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Troy Asset Management fue fundada en el año 2000 por el gestor principal, Sebastian Lyon, lo que establece una estructura de boutique independiente propiedad de sus profesionales y una fuerte alineación de intereses. La larga permanencia de Lyon como CIO y gestor del fondo desde su creación refuerza este compromiso a largo plazo con la filosofía de inversión y el capital de los inversores.</p></div></div>
+
+  <div class="sr">TER por clase (snapshot actual)</div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctx = document.getElementById('c-com-snap');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ["Class O EUR Accumulation"], datasets: [
+      {label:'TER (%)', data:[0.96], backgroundColor:'rgba(12,35,64,0.85)'}
+    ] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+        scales: {
+          x: { stacked: false, grid: { display: false } },
+          y: { stacked: false, beginAtZero: true, grid: { display: false }, ticks: { callback: v => v+'%' } }
+        }
+      }
+    });
+  })();
+  </script>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Febrero 2012 — presente</span></div>
+
+  <div class="mb24">
+    <p class="pr">El Trojan Fund (Ireland) fue lanzado en <strong>febrero de 2012</strong> por la gestora <strong>Troy Asset Management</strong>, fundada en el año <strong>2000</strong> por <strong>Sebastian Lyon</strong>. La creación del fondo responde a la filosofía de su fundador, forjada tras su experiencia en <strong>Singer & Friedlander</strong> y <strong>Stanhope Investment Management</strong>, donde co-gestionó una cartera de renta variable de <strong>2 mil millones de libras</strong>. El objetivo principal, mantenido desde su origen, es lograr un crecimiento del capital por encima de la inflación (UK Retail Prices Index) a largo plazo (5 a 7 años), con un enfoque en la preservación del capital y la protección contra la volatilidad del mercado a través de una estrategia flexible, global y multiactivo.</p><p class="pr">Desde su lanzamiento, el fondo ha experimentado cambios estructurales clave. Entre <strong>junio de 2014</strong> y el <strong>29 de marzo de 2019</strong>, operó como un *feeder fund* del Trojan Fund, un UCITS del Reino Unido. La filosofía de inversión, sin embargo, ha permanecido constante, centrada en la búsqueda de empresas de alta calidad con modelos de negocio resilientes. A lo largo de los años, el equipo gestor, liderado por <strong>Sebastian Lyon</strong> y <strong>Charlotte Yonge</strong>, ha refinado la cartera, desinvirtiendo en sectores como petróleo, tabaco y bancos, y añadiendo posiciones en compañías como <strong>Paychex</strong>, <strong>Diageo</strong>, <strong>Croda</strong>, <strong>CME</strong> y <strong>Diploma</strong>, reflejando una evolución hacia negocios con un crecimiento de dividendos más resistente.</p><p class="pr">El comportamiento del fondo a través de diferentes ciclos de mercado ha sido consistente con su mandato de preservación de capital. En <strong>2014</strong>, en un entorno de mercado que el gestor consideraba 'burbujeante', el fondo obtuvo un rendimiento del <strong>+4.4%</strong> a finales de julio, superando al FTSE All Share Index (<strong>+1.3%</strong>). Durante el volátil <strong>2018</strong>, el fondo registró rendimientos negativos, pero su posicionamiento se volvió el más conservador en una década. En la crisis de <strong>2020</strong>, reafirmó su estrategia de protegerse con oro y bonos ligados a la inflación. En <strong>2021</strong>, aunque obtuvo un sólido <strong>+15.6%</strong>, quedó por detrás del índice de referencia (<strong>+18.3%</strong>) en el rally post-pandemia. Sin embargo, en el entorno de subida de tipos de <strong>2022</strong>, sufrió una caída del <strong>-6.3%</strong> a finales de abril, un rendimiento inferior al del mercado. Las cartas de <strong>2025</strong> destacan su resiliencia, con una caída de solo <strong>-2.7%</strong> durante una corrección del mercado en la que el FTSE All-Share se desplomó un <strong>-12.8%</strong>.</p><p class="pr">Actualmente, el fondo mantiene un posicionamiento marcadamente conservador y defensivo. La visión a futuro del equipo gestor es de cautela, anticipando que la inflación será estructuralmente más alta y que las valoraciones de ciertos activos, como los relacionados con la inteligencia artificial, son excesivas. La cartera refleja esta visión con una asignación a renta variable de poco más del <strong>40%</strong>, casi un tercio en bonos ligados a la inflación con una duración corta (inferior a dos años), y aproximadamente un <strong>20%</strong> en liquidez. El oro se considera un seguro esencial para la cartera. El equipo se mantiene preparado para aumentar la exposición al riesgo de forma oportunista si surgen valoraciones más atractivas en el mercado.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">14</div><div class="kpi-sub">Febrero 2012 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 639.3;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2012</div>
+      <div class="tl-tag tag-hito">Salto de escala</div>
+      <div class="tl-title">Lanzamiento del fondo con un enfoque en la preservación de capital</div>
+      <div class="tl-desc">El Trojan Fund (Ireland) se lanza en **febrero de 2012** con el objetivo de lograr un crecimiento del capital por encima de la inflación a largo plazo. La filosofía se centra en un enfoque flexible, global y multiactivo, buscando proteger a los inversores de la volatilidad del mercado.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2014</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Estructura de feeder fund y superación del mercado en un entorno de sobrevaloración</div>
+      <div class="tl-desc">En **junio de 2014**, el fondo se convierte en un feeder del Trojan Fund (UK UCITS). En un contexto de mercados 'burbujeantes' y activos sobrevalorados, el fondo mantuvo una postura cautelosa. A finales de julio, obtuvo una rentabilidad del **+4.4%** en el año, superando significativamente al FTSE All Share Index (**+1.3%**).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2018</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Rendimiento negativo en un año volátil y posicionamiento defensivo récord</div>
+      <div class="tl-desc">El año **2018** fue 'desordenado', con un aumento de la volatilidad y el fin de la mentalidad 'TINA' (There Is No Alternative). El fondo experimentó rendimientos negativos, lo que llevó al equipo gestor a entrar en **2019** con el posicionamiento más conservador en una década, esperando oportunidades de compra a valoraciones más bajas.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2019</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Fin de la estructura de feeder fund y consolidación de la estrategia</div>
+      <div class="tl-desc">El **29 de marzo de 2019**, el fondo dejó de ser un feeder del vehículo británico, operando de forma totalmente independiente. Este año, el gestor reflexionó sobre lecciones de inversión clave, como la importancia del liderazgo en **Microsoft** y los peligros de comprar tras una advertencia de beneficios, como en el caso de **EMI**.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2021</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Fuerte rentabilidad absoluta pero por debajo del índice en el rally post-vacuna</div>
+      <div class="tl-desc">En un año de recuperación económica, el fondo obtuvo una rentabilidad del **+15.6%**, alcanzando su valoración más alta en términos de retorno total. Sin embargo, este rendimiento fue inferior al del FTSE All-Share Index (**+18.3%**), especialmente durante el 'rally de las vacunas' del primer semestre que favoreció a los valores cíclicos.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2022</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Caída significativa ante el aumento de tipos de interés y la inflación</div>
+      <div class="tl-desc">Frente a un entorno de endurecimiento monetario para combatir la inflación, el fondo sufrió una caída de aproximadamente **-6.3%** a finales de abril. Este comportamiento contrastó negativamente con el FTSE All-Share (**+0.8%**), ya que los activos de 'mayor duración' se vieron perjudicados por la subida de tipos.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2023</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Posicionamiento cauto ante tipos de interés en máximos desde 2007</div>
+      <div class="tl-desc">Con el rendimiento del Tesoro estadounidense a 10 años alcanzando el **4.8%**, su nivel más alto desde **2007**, el fondo mantuvo una visión escéptica sobre una 'desinflación inmaculada'. Se añadieron posiciones en bonos ligados a la inflación con vencimiento en **2026**, generando retornos modestamente positivos en el año.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2024</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Supera la inflación pero se queda atrás de la renta variable en un mercado optimista</div>
+      <div class="tl-desc">En un contexto de mercados de renta variable alcistas, el fondo obtuvo un retorno del **+3.5%**. Aunque superó su objetivo de inflación (UK RPI **+2.5%**) y la tasa de referencia (UK Official Bank Rate **+2.7%**), se quedó significativamente por detrás del FTSE All-Share Index (**+12.3%**), reflejando su posicionamiento conservador.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2025</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Demostración de resiliencia durante una fuerte corrección del mercado</div>
+      <div class="tl-desc">El fondo demostró su valor como protector de capital durante la volatilidad del año. En la fuerte caída del mercado de abril, el fondo cayó solo un **-2.7%** frente al **-12.8%** del FTSE All-Share. De manera similar, durante el mercado bajista de febrero a abril (S&P 500 **-20%**), la estrategia retrocedió poco más del **-2%**.</div>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  <div class="mb24"><p class="pr">El equipo gestor del <strong>Trojan Fund</strong> está liderado por <strong>Sebastian Lyon</strong>, <strong>Chief Investment Officer</strong> y fundador de <strong>Troy Asset Management</strong>, junto a la gestora <strong>Charlotte Yonge</strong>. <strong>Sebastian Lyon</strong> fundó la firma en el año <strong>2000</strong> tras su etapa en <strong>Stanhope Investment Management</strong>, donde co-gestionaba un importante porfolio de renta variable. La creación de <strong>Troy</strong> respondió a su convicción de establecer una cultura de inversión independiente, centrada en la <strong>preservación del capital</strong> y la generación de <strong>retornos absolutos a largo plazo</strong>. <strong>Charlotte Yonge</strong> se incorporó al equipo procedente de <strong>Cazenove Capital Management</strong>, complementando la estructura de gestión establecida por Lyon.</p><p class="pr">La organización del equipo se articula en torno a la figura central de <strong>Sebastian Lyon</strong> como <strong>CIO</strong> y <strong>gestor principal</strong>, quien define la filosofía y las directrices estratégicas del fondo. <strong>Charlotte Yonge</strong> opera como co-gestora, participando en el proceso de análisis y toma de decisiones.La estrategia se implementa de manera unificada, reflejando un enfoque de gestión centralizado donde <strong>Lyon</strong> tiene la responsabilidad final sobre la asignación de activos y la construcción de la cartera.</p><p class="pr">El perfil colectivo del equipo es <strong>mixto</strong>, combinando un profundo <strong>análisis fundamental</strong> *bottom-up* para la selección de compañías con una visión <strong>macro</strong> *top-down* que guía la asignación estratégica de activos. La filosofía compartida, piedra angular de la gestora desde su fundación, es la <strong>preservación y crecimiento del capital en términos reales</strong> a largo plazo, con un objetivo explícito de proteger a los inversores de la volatilidad y las pérdidas permanentes. Este enfoque se traduce en una cartera concentrada en <strong>activos de alta calidad</strong>, como empresas con ventajas competitivas duraderas, y activos de protección como el <strong>oro</strong> y los <strong>bonos ligados a la inflación</strong>. La trayectoria de <strong>Sebastian Lyon</strong>, marcada por su decisión de crear una firma independiente, soporta directamente esta filosofía de inversión paciente y disciplinada.</p><p class="pr">El equipo gestor se caracteriza por su <strong>alta estabilidad</strong>, con el fundador <strong>Sebastian Lyon</strong> al frente del fondo desde la creación de la gestora en el año <strong>2000</strong>. Esta continuidad ha sido un pilar fundamental para la consistencia de la filosofía y el proceso de inversión a lo largo de más de dos décadas. No se han registrado cambios recientes ni en el equipo gestor principal ni en la estructura de propiedad de <strong>Troy Asset Management</strong>. La permanencia del liderazgo asegura una total alineación con los objetivos históricos del fondo, centrados en la <strong>protección del capital</strong> y la generación de retornos a largo plazo, ofreciendo a los inversores un marco de gestión predecible y estable.</p></div>
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">SL</div>
+        <div class="mgr-nm">Sebastian Lyon</div>
+        <div class="mgr-rl">Chief Investment Officer, Senior Fund Manager</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Troy Asset Management · Fundador, CIO, Senior Fund Manager · 2000-Presente</li><li style="margin-bottom:3px;">Stanhope Investment Management · Director / Co-gestor · 1995-2000 · Co-gestionó cartera de renta variable de £2B</li><li style="margin-bottom:3px;">Singer & Friedlander Investment Management · Gestor de Inversiones · 1989-1995</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">Sebastian Lyon inició su carrera en 1989 en Singer & Friedlander. En 1995, se unió a Stanhope Investment Management, la firma que gestionaba el fondo de pensiones de GEC, donde ascendió a Director en 1999 y co-gestionó una cartera de renta variable de 2.000 millones de libras. En el año 2000, tomó la decisión de fundar Troy Asset Management para desarrollar un enfoque de inversión propio, centrado en la preservación del capital y la generación de retornos absolutos, en lugar de la gestión relativa predominante en la industria. Esta decisión marcó el inicio de una filosofía que ha guiado al Trojan Fund desde su concepción, priorizando la protección del patrimonio de los inversores por encima de todo.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">La filosofía personal de Sebastian Lyon se centra en la creencia de que la primera regla de la inversión es no perder dinero. Prioriza la preservación del capital y el crecimiento en términos reales a largo plazo. Es escéptico con el consenso del mercado y las políticas monetarias expansivas, lo que le lleva a mantener posiciones estructurales en activos de protección como el oro y los bonos ligados a la inflación. Su enfoque es contra-cíclico: reduce la exposición a renta variable cuando los mercados suben y las valoraciones son exigentes, y la aumenta cuando el pesimismo ofrece oportunidades. Critica el enfoque de la industria en los retornos relativos y defiende una gestión basada en el valor absoluto y un margen de seguridad.</p>
+        <ul style="margin-top:12px;padding-left:18px;list-style:disc;"><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Historia:</strong> <span class="pr" style="font-size:12.5px;">Fundó Troy Asset Management en 2000 tras dejar Stanhope para establecer su propia filosofía de inversión centrada en la preservación de capital.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Filosofía:</strong> <span class="pr" style="font-size:12.5px;">Cree firmemente en un mercado bajista secular y critica a la industria financiera por enfocarse en el valor relativo en lugar del absoluto.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Decisión clave:</strong> <span class="pr" style="font-size:12.5px;">En 2013, reafirmó que el oro seguía siendo una posición central en las carteras como protección, en un momento de auge de los mercados de acciones.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Estrategia:</strong> <span class="pr" style="font-size:12.5px;">Su estrategia es contra-cíclica: 'Cuanto más suben los mercados de valores, menos acciones mantenemos, y cuanto más caen los precios, mayor es nuestra asignación'.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Cita:</strong> <span class="pr" style="font-size:12.5px;"><em>"Considera que 'mantener efectivo es la postura contraria más importante en un mercado donde casi todo es caro' (2014)."</em></span></li></ul>
+        
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">CY</div>
+        <div class="mgr-nm">Charlotte Yonge</div>
+        <div class="mgr-rl">Gestora</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Troy Asset Management · Gestora · [Fecha no especificada]-Presente</li><li style="margin-bottom:3px;">Cazenove Capital Management · [Puesto no especificado] · [Fecha no especificada]</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">Charlotte Yonge se incorporó a Troy Asset Management procedente de Cazenove Capital Management. Su rol en el equipo gestor complementa la visión de Sebastian Lyon, aportando su experiencia previa en la gestión de capitales para contribuir al proceso de inversión del fondo. No se proporcionan detalles públicos específicos sobre sus responsabilidades anteriores, los hitos de su carrera antes de unirse a Troy o la fecha exacta de su incorporación.</p>
+        
+        
+        
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="pr">El Trojan Fund busca lograr un <strong>crecimiento del capital por encima de la inflación</strong> (UK Retail Prices Index) en un horizonte de 5 a 7 años, mediante un mandato <strong>multi-activo, global y flexible</strong>. La filosofía se centra en la <strong>preservación y crecimiento del capital en términos reales</strong> a largo plazo, con un enfoque explícito en proteger a los inversores de la volatilidad del mercado.</p><p class="pr">El proceso de inversión es marcadamente contracíclico: el equipo gestor, liderado por <strong>Sebastian Lyon</strong>, añade posiciones en renta variable cuando los mercados caen y las reduce ante valoraciones exigentes o incertidumbre sobre los beneficios futuros. La selección de compañías se enfoca en modelos de negocio de alta calidad con <strong>posiciones de mercado dominantes, poder de fijación de precios y métricas financieras duraderas</strong>. La cartera se construye combinando esta selección de renta variable con bonos soberanos (nominales y ligados a la inflación), metales preciosos (principalmente <strong>oro como seguro de cartera</strong>) y liquidez. La gestión activa de la duración de los bonos y de la exposición a divisas, como la reducción de la exposición al dólar y la adición de bonos japoneses a corto plazo en momentos de debilidad del yen, son palancas clave del proceso.</p><p class="pr">A lo largo de su historia, el fondo ha demostrado su filosofía en acción. En <strong>2014</strong>, en un entorno de mercados que consideraban 'burbujeantes', mantuvieron una elevada posición en liquidez, una decisión contraria que les permitió superar al mercado de renta variable británico. De forma similar, entraron en <strong>2019</strong> con su posicionamiento más conservador en una década, anticipando la volatilidad que se materializó. En <strong>2022</strong>, a pesar de un rendimiento negativo, se mantuvieron fieles a su proceso al no invertir en acciones de materias primas, a pesar de su buen comportamiento a corto plazo, debido a su volatilidad inherente. Esta disciplina se refleja en su comportamiento durante las crisis; por ejemplo, durante la fuerte corrección de mercado en abril de <strong>2025</strong>, el fondo cayó un <strong>-2.7%</strong> frente al <strong>-12.8%</strong> del FTSE All-Share, protegiendo eficazmente el capital.</p><p class="pr">El patrón de comportamiento del fondo es claro: tiende a quedar rezagado en mercados fuertemente alcistas o liderados por segmentos especulativos o cíclicos (como en <strong>2021</strong>), pero demuestra una notable resiliencia en fases de corrección o alta volatilidad (como en <strong>2018</strong> y <strong>2025</strong>). Esta característica es el resultado directo de su enfoque en la preservación del capital. Actualmente, el equipo gestor mantiene una <strong>visión conservadora</strong> debido a las elevadas valoraciones de la renta variable, la fragilidad subyacente del mercado y los riesgos geopolíticos. La cartera está posicionada de forma defensiva, con una exposición a renta variable de poco más del <strong>40%</strong>, un tercio en bonos ligados a la inflación de corta duración, una posición estratégica en oro cercana al <strong>12%</strong> y un <strong>20%</strong> en liquidez, preparada para actuar de forma oportunista si surgen valoraciones más atractivas.</p>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Cuanto más suben los mercados de valores, menos acciones mantenemos, y cuanto más caen los precios, mayor es nuestra asignación a acciones.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Sebastian Lyon, Carta del gestor 2013-Q2 — Filosofía de inversión contracíclica</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Mantener efectivo es la postura contraria más importante en un mercado donde casi todo es caro.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Sebastian Lyon, Carta del gestor 2014-S2 — Posicionamiento en mercados sobrevalorados</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Posicionamiento defensivo ante valoraciones elevadas y riesgos de inflación. La cartera mantiene una exposición reducida a renta variable (~40%), con un tercio en bonos ligados a la inflación, oro como seguro y una alta liquidez (~20%) para aprovechar futuras oportunidades.</p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Multi-activo flexible con foco en preservación de capital</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de asignación de activos: al ser una estrategia flexible, una mala lectura del ciclo económico puede llevar a un posicionamiento incorrecto (demasiado defensivo en un rally o demasiado agresivo en una crisis).</li><li style="margin-bottom:4px;">Riesgo de estilo: el fuerte sesgo hacia acciones de 'calidad' puede provocar un rendimiento inferior significativo durante períodos en los que otros estilos, como el 'valor' o el 'crecimiento especulativo', lideran el mercado.</li><li style="margin-bottom:4px;">Riesgo de inflación: un objetivo clave es batir la inflación; un error en la previsión de la misma o la ineficacia de los activos de cobertura (oro, linkers) podría hacer que no se cumpla el objetivo principal.</li><li style="margin-bottom:4px;">Riesgo de divisa: la exposición global y la gestión activa de divisas (USD, JPY) introducen volatilidad si las apuestas sobre las monedas resultan incorrectas.</li></ul><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Escenarios adversos.</strong> El peor escenario sería un entorno de estanflación prolongada, donde la inflación se mantiene alta pero el crecimiento económico se estanca. En esta situación, tanto la renta variable como los bonos (incluidos los ligados a la inflación) podrían caer simultáneamente, y el oro podría no ser suficiente para compensar las pérdidas. Años como 2018 (-4.38%) y 2022 (-5.51%) ilustran períodos en los que la estrategia sufrió caídas.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Protecciones del gestor.</strong> El gestor mitiga los riesgos mediante una diversificación entre clases de activos descorrelacionadas, una posición estratégica en oro como 'seguro de cartera', el mantenimiento de una duración corta en la cartera de bonos para reducir el riesgo de tipos de interés y la tenencia de un colchón de liquidez significativo (en torno al 20%) para aprovechar caídas.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Liquidez y estructura.</strong> El fondo es una estructura UCITS (OICVM irlandés) que ofrece liquidez diaria para suscripciones y reembolsos. No se mencionan periodos de bloqueo, ventanas de liquidez restringidas ni cláusulas de 'gating'.</p></div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2013</div>
+  <div class="strat-c">Los mercados de valores experimentaron un fuerte auge, impulsados por la confianza en la intervención de los bancos centrales. Las valoraciones alcanzaron niveles similares a los del pico de 2007.</div>
+  <div class="strat-c">Se mantuvo una visión bajista secular, reduciendo la exposición a renta variable a medida que los precios subían y manteniendo el oro como una posición central en la cartera.</div>
+  <div class="strat-c">-4.12% — no superó el objetivo de crecimiento real en un año de mercados fuertemente alcistas debido a su posicionamiento defensivo y contracíclico.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2014</div>
+  <div class="strat-c">Los mercados de activos financieros se percibían como 'burbujeantes' y desconectados de la economía real, con los rendimientos de los bonos en mínimos históricos.</div>
+  <div class="strat-c">Se mantuvo una postura contraria al consenso, considerando que mantener efectivo era una decisión clave en un mercado donde casi todos los activos estaban caros.</div>
+  <div class="strat-c">+7.87% — superó al FTSE All Share Index (+1.3%), demostrando el valor de su enfoque de asignación de activos en un año de baja rentabilidad para la renta variable.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2018</div>
+  <div class="strat-c">Año de alta volatilidad, donde el optimismo inicial dio paso al pesimismo debido al endurecimiento de las condiciones monetarias. La visión de 'no hay alternativa a las acciones' (TINA) llegó a su fin.</div>
+  <div class="strat-c">Se mantuvo una asignación de activos cautelosa durante todo el año, entrando en 2019 con el posicionamiento más conservador en una década.</div>
+  <div class="strat-c">-4.38% — no cumplió el objetivo de crecimiento real, pero el rendimiento fue descrito como 'relativamente resistente' en un año desordenado y con caídas para la mayoría de los activos.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2021</div>
+  <div class="strat-c">El año comenzó con el 'rally de las vacunas', que benefició a las empresas cíclicas y de 'valor', mientras que las de 'calidad' tuvieron un rendimiento inferior en la primera mitad del año.</div>
+  <div class="strat-c">Se mantuvo el enfoque en empresas de alta calidad y se añadieron posiciones en compañías como CME, Big Yellow y Diploma, mientras se vendían modelos de negocio menos atractivos (petróleo, tabaco).</div>
+  <div class="strat-c">+10.83% — por debajo del FTSE All-Share Index (18.3%) pero superando ampliamente la inflación, debido a que su sesgo a 'calidad' se comportó peor que el 'valor' en la primera parte del año.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2022</div>
+  <div class="strat-c">Los mercados se enfrentaron a una inflación creciente y a un endurecimiento drástico de las condiciones financieras, con más de 10 subidas de tipos descontadas en EE.UU. Los valores de materias primas tuvieron un rendimiento excepcional.</div>
+  <div class="strat-c">Se mantuvo la política de no invertir en acciones de petróleo o minería debido a su volatilidad. Se aprovechó la debilidad del mercado para aumentar la ponderación en participaciones de calidad existentes.</div>
+  <div class="strat-c">-5.51% — no cumplió el objetivo de preservación de capital, afectado por la caída simultánea de bonos y acciones de 'calidad' y por no participar en el rally de las materias primas.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2023</div>
+  <div class="strat-c">El rendimiento del bono a 10 años de EE.UU. alcanzó su nivel más alto desde 2007, y el consenso del mercado cambió hacia unas tasas de interés 'más altas por más tiempo'.</div>
+  <div class="strat-c">A medida que los rendimientos reales aumentaron, se incrementó la exposición a bonos ligados a la inflación, iniciando posiciones en bonos con vencimiento en 2026.</div>
+  <div class="strat-c">+0.80% — logró un rendimiento modestamente positivo, preservando el capital en términos nominales en un entorno de tipos al alza que fue desafiante para los activos financieros.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2024</div>
+  <div class="strat-c">Conflictos geopolíticos generaron presiones inflacionarias, pero los mercados de renta variable alcanzaron nuevos máximos ante la expectativa de una flexibilización monetaria. El oro también marcó nuevos récords.</div>
+  <div class="strat-c">Se redujo modestamente la posición en oro tras su fuerte subida, se vendió la participación en Becton Dickinson y se iniciaron nuevas posiciones en Verisign y Chubb.</div>
+  <div class="strat-c">+4.77% — superó al UK Retail Prices Index (+2.5%), cumpliendo su objetivo principal de crecimiento real, aunque por debajo del fuerte rendimiento del FTSE All-Share (+12.3%).</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2025</div>
+  <div class="strat-c">La vuelta de Donald Trump a la presidencia de EE.UU. y la imposición de aranceles provocaron una fuerte volatilidad y una corrección en los mercados de renta variable en abril.</div>
+  <div class="strat-c">Se aumentó la asignación a renta variable en 10 puntos porcentuales, se redujo la exposición neta al dólar del 25% al 8% y se construyó una posición del 10% en bonos del gobierno japonés a corto plazo.</div>
+  <div class="strat-c">+6.28% — superó la inflación y demostró su capacidad de protección en caídas, ya que durante la corrección de abril (-20% del S&P 500), la estrategia solo cayó un -2%.</div>
+</div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);margin-top:24px;">Resumen de consistencia</div>
+  <div style="background:var(--paper-2);border-left:3px solid var(--navy);padding:14px 18px;margin-bottom:16px;">
+    <div style='display:flex;align-items:center;gap:10px;margin-bottom:10px;'><span style='font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;'>Score consistencia</span><span style="font-family:'Source Code Pro',monospace;font-size:18px;font-weight:600;color:var(--navy);">8/10</span></div>
+    <div style="margin-bottom:8px;"><strong style="color:var(--ink);font-size:12px;">Decisiones vs estrategia:</strong> <span class="pr" style="font-size:12.5px;">Las decisiones de cartera son extremadamente consistentes con la filosofía declarada de preservación de capital. Ejemplos como mantener alta liquidez en 2014, una postura conservadora en 2018 y la tenencia estructural de oro y bonos ligados a la inflación lo demuestran.</span></div>
+    <div style="margin-bottom:8px;"><strong style="color:var(--ink);font-size:12px;">Resultados vs objetivo:</strong> <span class="pr" style="font-size:12.5px;">El fondo generalmente cumple su objetivo principal de superar la inflación a largo plazo (ej. 2024: +4.77% vs +2.5% RPI). Sin embargo, como es de esperar, su enfoque defensivo le hace quedarse por detrás de los índices de renta variable en años de fuertes subidas (ej. 2021, 2024).</span></div>
+    <div><strong style="color:var(--ink);font-size:12px;">Justificación:</strong> <span class="pr" style="font-size:12.5px;font-style:italic;">El equipo gestor aplica su filosofía de preservación de capital de forma muy consistente, lo que se refleja en sus decisiones. Esto conduce a un buen control de las caídas pero a una inevitable infraponderación en mercados fuertemente alcistas.</span></div>
+  </div>
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera mantiene un posicionamiento marcadamente defensivo, reflejo de la filosofía de preservación de capital del gestor. La asignación de activos se distribuye en aproximadamente un <strong>45% en bonos gubernamentales</strong>, un <strong>37% en renta variable global</strong> y una posición estratégica del <strong>11% en oro</strong> a través de ETFs, con el resto en liquidez y derivados de cobertura. Esta estructura responde a una visión cautelosa del mercado, fundamentada en valoraciones exigentes en la renta variable, riesgos geopolíticos y la expectativa de que la inflación se mantenga estructuralmente elevada.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El racional de esta asignación es proteger el capital en términos reales. La elevada exposición a bonos ligados a la inflación (TIPS estadounidenses y Linkers británicos) es una apuesta directa contra la pérdida de poder adquisitivo. La inversión en renta variable es muy selectiva, buscando <strong>compañías de alta calidad con modelos de negocio resilientes</strong>, poder de fijación de precios y ventajas competitivas duraderas, capaces de prosperar en distintos entornos económicos. El oro se considera un <strong>seguro esencial para la cartera</strong> y una reserva de valor fundamental frente a la incertidumbre y las políticas monetarias expansivas. Posiciones emblemáticas que ilustran esta filosofía son el <strong>oro físico (vía ETFs)</strong>, como protección contra riesgos sistémicos; los <strong>bonos ligados a la inflación</strong>, como defensa explícita contra la tesis de inflación persistente; y compañías como <strong>Unilever</strong>, que encarna la búsqueda de 'productos básicos corporativos' con flujos de caja estables y predecibles.</p></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Decisiones / cambios recientes</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En los últimos 6-12 meses, la gestión ha ajustado activamente la cartera para reflejar un entorno de mayor volatilidad y tipos de interés persistentemente altos. En renta variable, se ha incrementado la exposición de forma selectiva, aprovechando caídas para iniciar nuevas posiciones en compañías de calidad como <strong>Verisign y Chubb</strong>, y añadir a participaciones existentes como Alphabet y Diageo. Por otro lado, se han cerrado posiciones como Becton Dickinson y Procter & Gamble debido a cambios en sus perspectivas de crecimiento o valoración.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Los movimientos más significativos se han producido en la gestión de la renta fija y las divisas, con un claro sesgo defensivo. El equipo gestor ha <strong>reducido materialmente la duración</strong> de la cartera de bonos, especialmente en los Treasuries estadounidenses, y ha recortado drásticamente la exposición neta al dólar estadounidense desde un 25% a cerca de un 8%. Como contrapartida, se ha construido una nueva posición en <strong>bonos gubernamentales japoneses a corto plazo</strong>, buscando beneficiarse de un yen infravalorado que podría actuar como activo refugio en un entorno de aversión al riesgo. Estos cambios posicionan la cartera para un escenario de incertidumbre continuada y una posible aceleración de la desdolarización, manteniendo una base sólida en activos protectores pero con la flexibilidad para actuar de forma oportunista.</p></div>
+  </div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
+  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><p class="pr" style="font-size:12.5px;margin-bottom:14px;">La cartera está posicionada de forma defensiva. La exposición principal es a una cesta de renta variable global de alta calidad (~40%) y a bonos ligados a la inflación de EE.UU. y Reino Unido (~33%). El riesgo principal es un escenario de 'risk-off' severo donde la correlación entre acciones y bonos se vuelve positiva. El oro (~12%) y una alta liquidez (~20%) actúan como mitigantes. La corta duración de los bonos (inferior a dos años) limita el impacto de subidas de tipos.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>Clase de Activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Renta Variable Global (Quality)</td><td class="num">40.0%</td><td style="font-size:12px;color:var(--ink-3);">Exposición a empresas de alta calidad y resistentes. Sufriría en un 'rally de valor' o una recesión profunda que afecte las ganancias incluso de las mejores compañías.</td></tr><tr><td>Clase de Activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Bonos ligados a la inflación (UK/US)</td><td class="num">33.0%</td><td style="font-size:12px;color:var(--ink-3);">Protección contra la inflación. Un escenario de desinflación o deflación con caída de rendimientos reales sería adverso para esta parte de la cartera.</td></tr><tr><td>Clase de Activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Liquidez y equivalentes</td><td class="num">20.0%</td><td style="font-size:12px;color:var(--ink-3);">Proporciona opcionalidad para comprar en caídas de mercado y reduce la volatilidad general. Supone un coste de oportunidad en mercados fuertemente alcistas.</td></tr><tr><td>Clase de Activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Metales preciosos (Oro)</td><td class="num">12.0%</td><td style="font-size:12px;color:var(--ink-3);">Actúa como seguro de cartera contra la incertidumbre geopolítica y la devaluación de divisas. No ofrecería protección si los rendimientos reales suben bruscamente.</td></tr></tbody></table></div></div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">53</div><div class="kpi-sub">vs media hist. 35</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">50,0%</div><div class="kpi-sub">vs media hist. 53,1%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">1,1%</div><div class="kpi-sub">vs media hist. 7,6%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">45,2%</div><div class="kpi-sub">Renta fija · Renta variable 37,3% · ETF/fondos 11,1% · Derivados 1,5%</div></div>
+  </div>
+
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div>
+    <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctxMix = document.getElementById('c-mix');
+    if (ctxMix) {
+      const tipos = [["RF", 45.2], ["RV", 37.3], ["ETF", 11.1], ["DER", 1.5]];
+      new Chart(ctxMix, {
+        type: 'doughnut',
+        data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+      });
+    }
+    const ctxC = document.getElementById('c-conc');
+    if (ctxC) {
+      new Chart(ctxC, {
+        type: 'bar',
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [27.6, 50.0, 66.3], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
+      });
+    }
+  })();
+  </script>
+
+  <div class="sr">Todas las posiciones (53)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody><tr>
+  <td title="United States Treasury Inflation Indexed Bonds 0.13% 07/15/2026">US Treasury Inflation Indexed Bonds 0.13% 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:51px;background:#0c2340;"></div>6,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>6%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="iShares Physical Gold ETC">iShares Physical Gold</td>
+  <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:47px;background:#0c2340;"></div>5,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:4px;background:var(--ink-3);"></div>12%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Invesco Physical Gold ETC">Invesco Physical Gold</td>
+  <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ireland</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:41px;background:#0c2340;"></div>5,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:7px;background:var(--ink-3);"></div>18%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United Kingdom Inflation-Linked Gilt 0.13% 03/22/2029">United Kingdom Inflation-Linked Gilt 0.13% 2029</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:40px;background:#0c2340;"></div>5,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>23%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United Kingdom Gilt 1.25% 07/22/2027">UK Gilt 1.25% 2027</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:39px;background:#0c2340;"></div>5,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>28%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Unilever PLC">Unilever PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:38px;background:#0c2340;"></div>4,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>32%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United States Treasury Inflation Indexed Bonds 1.25% 04/15/2028">US Treasury Inflation Indexed Bonds 1.25% 2028</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>37%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Japan Government Bond 0.9% 04/01/2027">Japan Government Bond 0.9% 2027</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Japan</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>42%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Alphabet Inc">Alphabet Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>46%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United Kingdom Inflation-Linked Gilt 0.13% 03/22/2026">United Kingdom Inflation-Linked Gilt 0.13% 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>50%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Japan Government Bond 0.8% 03/01/2027">Japan Government Bond 0.8% 2027</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Japan</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>54%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Visa Inc">Visa Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>57%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Diageo PLC">Diageo PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>60%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Microsoft Corp">Microsoft Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>63%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United Kingdom Gilt 3.75% 03/07/2027">UK Gilt 3.75% 2027</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>2,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>66%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United States Treasury Inflation Indexed Bonds 0.38% 01/15/2027">US Treasury Inflation Indexed Bonds 0.38% 2027</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Agilent Technologies Inc">Agilent Technologies Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="VeriSign Inc">VeriSign Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United Kingdom Treasury Bill 0.00% 09/08/2025">United Kingdom Treasury Bill 0.00% 2025</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Nestle SA">Nestle SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Switzerland</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>78%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United Kingdom Inflation-Linked Gilt 0.13% 08/10/2028">United Kingdom Inflation-Linked Gilt 0.13% 2028</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>80%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Chubb Ltd">Chubb Ltd</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Switzerland</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Hubell Inc">Hubell Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Adobe Inc">Adobe Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="L'Oreal SA">L'Oreal SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">France</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Experian PLC">Experian PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ireland</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United States Treasury Inflation Indexed Bonds 0.13% 04/15/2026">US Treasury Inflation Indexed Bonds 0.13% 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="American Express Co">American Express Co</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United States Treasury Inflation Indexed Bonds 0.13% 01/15/2031">US Treasury Inflation Indexed Bonds 0.13% 2031</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Pernord Ricard SA">Pernord Ricard SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">France</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="LVMH Moet Hennesy Louis Vuitton SE">LVMH Moet Hennesy Louis Vuitton SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">France</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Canadian National Railway Co">Canadian National Railway Co</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Canada</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Heineken Holding NV">Heineken Holding NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Netherlands</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class X USD accumulation forward currency contract">Class X USD accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class O EUR accumulation forward currency contract">Class O EUR accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class O USD accumulation forward currency contract">Class O USD accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class I EUR accumulation forward currency contract">Class I EUR accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class X USD income forward currency contract">Class X USD income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class O USD income forward currency contract">Class O USD income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Fund Level forward currency contract">Fund Level forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class X EUR accumulation forward currency contract">Class X EUR accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class X EUR income forward currency contract">Class X EUR income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class O SGD accumulation forward currency contract">Class O SGD accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Mithras Investment Trust PLC">Mithras Investment Trust PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class I EUR income forward currency contract">Class I EUR income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class I USD accumulation forward currency contract">Class I USD accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class I USD income forward currency contract">Class I USD income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class O EUR income forward currency contract">Class O EUR income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class O SGD income forward currency contract">Class O SGD income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class X AUD accumulation forward currency contract">Class X AUD accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class X AUD income forward currency contract">Class X AUD income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class X SGD accumulation forward currency contract">Class X SGD accumulation forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Class X SGD income forward currency contract">Class X SGD income forward currency contract</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Derivado</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
+  
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">TR</div>
+        <div class="src-info">
+          <div class="src-o">Trustnet</div>
+        </div>
+        <span class="src-date">2023-09-26</span>
+      </div>
+      <div class="src-t">Troy Trojan: An ‘unspectacular performer’ still worth buying</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">positiva - A pesar de su reciente rendimiento poco espectacular, el consenso de los expertos es que el fondo Troy Trojan es una buena oportunidad de compra y una posición central valiosa debido a su enfoque en la preservación del capital, su resiliencia en mercados bajistas y su capacidad para superar a un benchmark más apropiado con menor riesgo.</div>
+      <a href="https://www.trustnet.com/news/13391079/troy-trojan-an-unspectacular-performer-still-worth-buying" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">TR</div>
+        <div class="src-info">
+          <div class="src-o">Trustnet</div>
+        </div>
+        <span class="src-date">2012-04-20</span>
+      </div>
+      <div class="src-t">An alternative to the Trojan fund</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Positiva, destacando su excelente historial de rendimiento y su capacidad para preservar el capital en mercados bajistas antes de su soft-closure.</div>
+      <a href="https://www.trustnet.com/news/327863/an-alternative-to-the-trojan-fund" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">FI</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-04-20</span>
+      </div>
+      <div class="src-t">Trojan Funds (Ireland) plc - Trojan Fund (Ireland) X USD Acc</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Este documento del Financial Times, con datos de Morningstar, ofrece un perfil detallado del fondo Trojan Fund (Ireland) X USD Acc (IE00BF29R422). Presenta datos clave como una rentabilidad del +7.45% a un año y un patrimonio de 560.82 millones de GBP a marzo de 2026. El fondo, domiciliado en Irlanda y lanzado en 2017, es gestionado por Sebastian Lyon y Charlotte Yonge, con una comisión de gestión continua del 0.94%. Además, se desglosan sus principales posiciones, incluyendo bonos del Tesoro de EE. UU. y oro, así como su distribución por tipo de activo y región.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=IE00BF29R422:USD" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">FI</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-04-20</span>
+      </div>
+      <div class="src-t">Trojan Funds (Ireland) plc - Trojan Fund (Ireland) X GBP Inc</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Este perfil del Financial Times, con datos de Morningstar, detalla el fondo Trojan Fund (Ireland) X GBP Inc (ISIN: IE00BF29RH50). Se trata de una sociedad de inversión de capital variable domiciliada en Irlanda, lanzada en diciembre de 2017 y gestionada por Sebastian Lyon y Charlotte Yonge. El fondo, clasificado en la categoría de asignación flexible de GBP por Morningstar, reportó una rentabilidad del +6.99% a un año y tiene un patrimonio de 560.82 millones de GBP. Su estrategia incluye una diversificación en bonos del Tesoro de EE. UU., oro físico y bonos gubernamentales del Reino Unido y Japón, con un cargo de gestión continuo del 0.94%.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=IE00BF29RH50:GBP" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">FI</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-04-20</span>
+      </div>
+      <div class="src-t">Trojan Funds (Ireland) plc - Trojan Fund (Ireland) O USD Acc</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Este documento del Financial Times presenta un perfil detallado del fondo Trojan Fund (Ireland) O USD Acc (ISIN IE00B7483W12). Incluye información sobre su estilo de inversión, fecha de lanzamiento, gestores y datos financieros clave. Se especifica una rentabilidad del 7.29% a un año y un tamaño de fondo de 560.82 millones de GBP. También se detallan las comisiones aplicables y las principales posiciones, así como la diversificación por tipo de activo, sector y región.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=ie00b7483w12:usd" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">9 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (9)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Trojan-Investment-Funds-Annual-Report-31-January-2025.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_REPORT-UKRepFundStatus-2022-TFIplc-2022-01-31.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_Trojan-Funds-Ireland-plc-2023-UK-reporting-fund-st.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_Trojan-Funds-Ireland-UK-Reporting-Status-2018-2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_Trojan-Funds-Ireland-UK-Reporting-Status-2019-2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_Trojan-Funds-Ireland-UK-Reporting-Status-2020-2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_Trojan-Funds-Ireland-UK-Reporting-Status-2021-2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Trojan-Funds-Ireland-Interim-Report-July-2025.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">TROJAN-FUND-IE-KIID-O-EUR-Accumulation.pdf</span><a href="#" target="_blank" class="doc-a"></a></div>
+
+  <div class="doc-grp">Cartas del gestor (0)</div>
+  
+
+  <div class="doc-grp">XMLs CNMV (0)</div>
+  
+
+  <div class="doc-grp">Fuentes externas (0)</div>
+  
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Pregunta sobre Trojan Fund (Ireland) O EUR ACC (IE00B6T42S66). El chat tiene acceso a todos los informes CNMV,
+         cartas del gestor, fuentes externas y el analisis completo.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py IE00B6T42S66';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py IE00B6T42S66', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=["23", "24", "25"];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[7710.04, 6377.14, 639.3],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=["25"];
+  const nposMax=Math.max(...[35])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[35],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[31.3],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[53.1],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[70.7],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": [null, null]};
+const TER_DATA={"A": [1.09, 0.96]};
+const TER_EFECTIVO=[1.09, 0.96];
+const CY=["22", "25"];
+const HAS_EXITO=false;
+const EXITO_REAL=[null, null];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='IE00B6T42S66';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>

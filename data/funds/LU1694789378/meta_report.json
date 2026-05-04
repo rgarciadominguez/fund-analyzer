@@ -19,15 +19,23 @@
     "gestores": 2
   },
   "cost": {
-    "total_usd": 0.006205,
-    "total_calls": 2,
-    "input_tokens": 7941,
-    "output_tokens": 1529,
+    "total_usd": 0.18086,
+    "total_calls": 7,
+    "input_tokens": 66195,
+    "output_tokens": 22933,
     "by_agent": {
-      "analyst_gemini_json": 0.0062
+      "analyst_haiku_json": 0.1809
     },
     "by_model": {
-      "gemini-2.5-flash": 0.0062
+      "claude-haiku-4-5-20251001": 0.1809
     }
-  }
+  },
+  "drifts_post_save": [
+    {
+      "field": "_int_gestores",
+      "issue": "_int_gestores tiene 2 pero analyst_synthesis.gestores.perfiles vacío",
+      "advice": "Re-ejecutar analyst — pass INT no completado"
+    }
+  ],
+  "drifts_at": "2026-05-02T12:13:50.220427"
 }

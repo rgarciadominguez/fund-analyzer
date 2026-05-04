@@ -11,20 +11,52 @@
       "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
     },
     {
-      "regla_id": "cartera_posiciones_sectores",
-      "seccion": "cartera",
+      "regla_id": "historia_kpis_match_data",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 109 partícipes, KPI real 5176 (98% drift); texto dice 1496.0 M€ AUM, KPI real 151.648 (886% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
+    },
+    {
+      "regla_id": "aum_jump_alert",
+      "seccion": "datos_cuantitativos",
       "fail_type": "scarcity",
-      "problema": "Posiciones sin sector (sectores_ausentes): 0/46 (0%) con sector. Minimo 60% deben tener sector.",
+      "problema": "Salto AUM >50% año a año detectado (saltos_aum_>50%): 2017→2018: 8→34 M€ (+317%); 2018→2019: 34→16 M€ (-53%); 2020→2021: 15→25 M€ (+63%). Posible bug extracción cnmv_agent o cambio real de mercado.",
       "agente_responsable": "cnmv_agent",
-      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+      "accion": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent."
+    },
+    {
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (4/4). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta todo (perfil_riesgo no existe).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "fallos_estructura": 0,
+  "fallos_estructura": 1,
   "fallos_scarcity": 2,
-  "total_reglas": 55,
-  "reglas_ok": 53,
-  "aceptable": true,
-  "score_display": "53/55 reglas OK (2 pendientes de datos)",
+  "total_reglas": 103,
+  "reglas_ok": 97,
+  "aceptable": false,
+  "score_display": "97/103 reglas OK (2 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -35,5 +67,5 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-04-26T15:45:08.693326"
+  "evaluado_at": "2026-04-29T16:56:39.887297"
 }

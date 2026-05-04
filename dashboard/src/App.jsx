@@ -1,118 +1,112 @@
 import { useState, useEffect } from "react";
-import FundOverview from "./components/FundOverview";
-import FundChart from "./components/FundChart";
-import { FundStrategy, FundTimeline, FundSelector } from "./components/FundComponents";
+import FundHeader from "./components/FundHeader";
+import TabResumen from "./components/TabResumen";
+import TabHistoria from "./components/TabHistoria";
+import TabGestores from "./components/TabGestores";
+import TabEvolucion from "./components/TabEvolucion";
+import TabEstrategia from "./components/TabEstrategia";
+import TabCartera from "./components/TabCartera";
+import TabFuentes from "./components/TabFuentes";
+import TabDocumentos from "./components/TabDocumentos";
+
+const LAYOUTS = [
+  { id: "A", label: "Layout A" },
+  { id: "B", label: "Layout B" },
+  { id: "C", label: "Layout C" },
+];
+
+const TABS = [
+  { id: "resumen", label: "Resumen", icon: "📋" },
+  { id: "historia", label: "Historia", icon: "📅" },
+  { id: "gestores", label: "Gestores", icon: "👤" },
+  { id: "evolucion", label: "Evolución", icon: "📈" },
+  { id: "estrategia", label: "Estrategia", icon: "🎯" },
+  { id: "cartera", label: "Cartera", icon: "💼" },
+  { id: "fuentes", label: "Fuentes", icon: "📰" },
+  { id: "documentos", label: "Docs", icon: "📁" },
+];
 
 export default function App() {
-  const [funds, setFunds] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("resumen");
+  const [layout, setLayout] = useState("A");
 
-  // Cargar índice de fondos disponibles
   useEffect(() => {
-    fetch("/api/funds")
-      .then(r => r.json())
-      .then(setFunds)
-      .catch(() => {
-        // En desarrollo estático: cargar Avantage Fund directamente
-        setFunds([{ isin: "ES0112231008", nombre: "Avantage Fund FI", gestora: "Renta 4 Gestora" }]);
-      });
+    document.documentElement.setAttribute("data-layout", layout);
+  }, [layout]);
+
+  useEffect(() => {
+    fetch("/data/ES0112231008.json")
+      .then((r) => r.json())
+      .then((d) => { setData(d); setLoading(false); })
+      .catch((e) => { console.error(e); setLoading(false); });
   }, []);
 
-  // Cargar datos del fondo seleccionado
-  const loadFund = async (isin) => {
-    setLoading(true);
-    try {
-      const r = await fetch(`/data/${isin}.json`);
-      const data = await r.json();
-      setSelected(data);
-      setActiveTab("overview");
-    } catch (e) {
-      console.error("Error cargando fondo:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>
+      <div className="text-center">
+        <div className="text-3xl mb-3">📊</div>
+        Cargando datos del fondo...
+      </div>
+    </div>
+  );
 
-  const tabs = [
-    { id: "overview",  label: "Resumen" },
-    { id: "charts",    label: "Serie histórica" },
-    { id: "strategy",  label: "Estrategia" },
-    { id: "timeline",  label: "Hitos" },
-  ];
+  if (!data) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>
+      Error cargando datos
+    </div>
+  );
+
+  const synthesis = data.analyst_synthesis || {};
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ background: "var(--bg-secondary)", minHeight: "100vh" }}>
+      {/* Layout switcher — small bar */}
+      <div style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border)", padding: "0.35rem 1.5rem", display: "flex", gap: "0.375rem", alignItems: "center", justifyContent: "flex-end" }}>
+        <span style={{ color: "var(--text-muted)", fontSize: "0.6875rem", marginRight: "0.25rem" }}>Vista:</span>
+        {LAYOUTS.map((l) => (
+          <button key={l.id} onClick={() => setLayout(l.id)} style={{
+            padding: "0.2rem 0.5rem", borderRadius: "4px", fontSize: "0.6875rem", fontWeight: layout === l.id ? 600 : 400,
+            background: layout === l.id ? "var(--accent)" : "transparent",
+            color: layout === l.id ? "#fff" : "var(--text-muted)",
+            border: layout === l.id ? "none" : "1px solid var(--border)", cursor: "pointer",
+          }}>
+            {l.label}
+          </button>
+        ))}
+      </div>
+
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">Fund Analyzer</h1>
-            <p className="text-sm text-gray-500">Análisis cualitativo de fondos de inversión</p>
-          </div>
-          {selected && (
-            <div className="text-right">
-              <div className="text-sm font-medium text-gray-700">{selected.meta.isin}</div>
-              <div className={`text-xs px-2 py-0.5 rounded-full inline-block mt-1 ${
-                selected.meta.extraccion_estado.cualitativo === "completo"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-amber-100 text-amber-700"
-              }`}>
-                {selected.meta.extraccion_estado.cualitativo === "completo" ? "✓ Completo" : "⚠ Parcial"}
-              </div>
-            </div>
-          )}
+      <FundHeader data={data} synthesis={synthesis} layout={layout} />
+
+      {/* Tabs */}
+      <div style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{ maxWidth: "var(--content-max, 1280px)", margin: "0 auto", padding: "0 1.5rem", display: "flex", gap: "0", overflowX: "auto" }}>
+          {TABS.map((tab) => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+              padding: "0.625rem 0.875rem", fontSize: "0.8125rem", fontWeight: activeTab === tab.id ? 600 : 400,
+              color: activeTab === tab.id ? "var(--accent)" : "var(--text-muted)",
+              background: "transparent", border: "none", cursor: "pointer", whiteSpace: "nowrap",
+              borderBottom: activeTab === tab.id ? "2px solid var(--accent)" : "2px solid transparent",
+              transition: "color 0.15s",
+            }}>
+              {tab.label}
+            </button>
+          ))}
         </div>
-      </header>
+      </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-6">
-        {/* Selector */}
-        <FundSelector funds={funds} onSelect={loadFund} selected={selected} />
-
-        {loading && (
-          <div className="text-center py-16 text-gray-400">Cargando datos del fondo...</div>
-        )}
-
-        {selected && !loading && (
-          <>
-            {/* Nombre del fondo */}
-            <div className="mt-6 mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">{selected.meta.nombre}</h2>
-              <p className="text-gray-500">{selected.meta.gestora} {selected.meta.asesor ? `· Asesor: ${selected.meta.asesor}` : ""}</p>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-1 border-b border-gray-200 mb-6">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? "border-blue-600 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Contenido */}
-            {activeTab === "overview"  && <FundOverview data={selected} />}
-            {activeTab === "charts"    && <FundChart data={selected} />}
-            {activeTab === "strategy"  && <FundStrategy data={selected} />}
-            {activeTab === "timeline"  && <FundTimeline data={selected} />}
-          </>
-        )}
-
-        {!selected && !loading && (
-          <div className="text-center py-24 text-gray-400">
-            <div className="text-4xl mb-4">📊</div>
-            <p className="text-lg">Selecciona un fondo para comenzar el análisis</p>
-          </div>
-        )}
+      {/* Content */}
+      <div style={{ maxWidth: "var(--content-max, 1280px)", margin: "0 auto", padding: "1.5rem" }}>
+        {activeTab === "resumen" && <TabResumen synthesis={synthesis} data={data} layout={layout} />}
+        {activeTab === "historia" && <TabHistoria synthesis={synthesis} data={data} layout={layout} />}
+        {activeTab === "gestores" && <TabGestores synthesis={synthesis} data={data} layout={layout} />}
+        {activeTab === "evolucion" && <TabEvolucion synthesis={synthesis} data={data} layout={layout} />}
+        {activeTab === "estrategia" && <TabEstrategia synthesis={synthesis} data={data} layout={layout} />}
+        {activeTab === "cartera" && <TabCartera synthesis={synthesis} data={data} layout={layout} />}
+        {activeTab === "fuentes" && <TabFuentes synthesis={synthesis} data={data} layout={layout} />}
+        {activeTab === "documentos" && <TabDocumentos synthesis={synthesis} data={data} layout={layout} />}
       </div>
     </div>
   );

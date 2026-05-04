@@ -20,9 +20,26 @@ dist/
 data/funds/*/raw/
 data/funds/*/pdf_cache.json
 
-# Logs
+# Backups y archivos temporales generados por el pipeline
+data/funds/*/*.backup_*
+data/funds/*/*.iter_*
+data/funds/*/output.iter_*.json
+data/funds/*/manager_profile.backup_pre_deep.json
+data/funds.backup_*/
+data/funds.archived_*/
+data/cache/
+
+# Logs y reportes temporales
 *.log
 progress.log
+pipelines_*.log
+_audit_report.txt
+_opus_baseline_*.txt
+_pipeline_output_*.txt
+orchestrator_*.log
+
+# Deprecated agents (mantener locales pero no commitear)
+agents/.*.deprecated_*
 
 # OS
 .DS_Store
@@ -36,3 +53,11 @@ Thumbs.db
 # Test cache
 .pytest_cache/
 .coverage
+
+# Cost-Opt Fase 1 (2026-05-02): cache LLM + cost log
+data/.llm_cache/
+data/cost_log.jsonl
+backups/
+
+# Logs directory (pipeline runs)
+logs/

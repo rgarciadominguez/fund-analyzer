@@ -1,0 +1,135 @@
+{
+  "fund": "FR0011253624",
+  "nombre": "R-CO VALOR - C EUR",
+  "fallos": [
+    {
+      "regla_id": "resumen_has_cifras",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen con pocas cifras concretas (0 encontradas, mínimo 5). Parece genérico.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
+    },
+    {
+      "regla_id": "historia_has_cifras",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia con pocas cifras concretas (0). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo cifras concretas: AUM, partícipes, rentabilidad anual, fechas."
+    },
+    {
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "gestores_lead_has_filosofia",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal '' sin filosofía de inversión.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "cartera_min_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 posiciones actuales (mínimo 15).",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones de sección 10 del PDF semestral."
+    },
+    {
+      "regla_id": "cartera_has_hist_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Sin posiciones históricas para análisis de evolución de cartera.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones históricas de PDFs semestrales antiguos."
+    },
+    {
+      "regla_id": "fuentes_min_opiniones",
+      "seccion": "fuentes_externas",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 opiniones externas (mínimo 8).",
+      "agente_responsable": "readings_agent",
+      "accion": "Re-ejecutar readings_agent con más queries y fuentes."
+    },
+    {
+      "regla_id": "historia_min_hitos_7",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Solo 0 hitos en cronologia (minimo 7)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con minimo 7 hitos con anio, titulo, evento, tipo."
+    },
+    {
+      "regla_id": "historia_hitos_have_titulo",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Solo 0 hitos con titulo (minimo 5)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Cada hito debe tener campo titulo descriptivo."
+    },
+    {
+      "regla_id": "gestores_lead_cv_bullets",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+    },
+    {
+      "regla_id": "estrategia_has_quotes",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia sin quotes del gestor (0 encontradas)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con 2-3 citas/frases representativas del gestor."
+    },
+    {
+      "regla_id": "gestores_equipo_not_generic",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Equipo gestor generico (equipo_generico): Equipo ROTHSCHILD & CO ASSET MANAGEMENT. Debe mostrar nombres reales de gestores.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent o revisar orchestrator fallback. Los perfiles estan en manager_profile.json, mover nombres reales a gestores.equipo."
+    },
+    {
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+    }
+  ],
+  "fallos_estructura": 9,
+  "fallos_scarcity": 5,
+  "total_reglas": 87,
+  "reglas_ok": 73,
+  "aceptable": false,
+  "score_display": "73/87 reglas OK (5 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-05-03T11:48:30.007904"
+}

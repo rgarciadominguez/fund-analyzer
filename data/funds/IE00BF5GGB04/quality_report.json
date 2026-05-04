@@ -1,0 +1,103 @@
+{
+  "fund": "IE00BF5GGB04",
+  "nombre": "GAM Star Cat Bond",
+  "fallos": [
+    {
+      "regla_id": "resumen_min_fortalezas",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 2 fortalezas (mínimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con al menos 4 fortalezas específicas del fondo."
+    },
+    {
+      "regla_id": "resumen_min_riesgos",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 2 riesgos (mínimo 3)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con al menos 3 riesgos específicos del fondo."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "estrategia_has_cifras",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia con pocas cifras (1). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
+    },
+    {
+      "regla_id": "fuentes_min_opiniones",
+      "seccion": "fuentes_externas",
+      "fail_type": "scarcity",
+      "problema": "Solo 6 opiniones externas (mínimo 8).",
+      "agente_responsable": "readings_agent",
+      "accion": "Re-ejecutar readings_agent con más queries y fuentes."
+    },
+    {
+      "regla_id": "resumen_returns_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2023: texto dice 12.5%, real 16.0%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 51/190 (27%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+    },
+    {
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (2/7). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
+    },
+    {
+      "regla_id": "header_gestora_with_suffix",
+      "seccion": "header",
+      "fail_type": "incompletitud",
+      "problema": "Gestora 'GAM' aparece sin sufijo institucional (Ltd/Plc/SA/GmbH/Management). Debe usarse el nombre oficial completo.",
+      "agente_responsable": "intl_extractor_v2",
+      "accion": "Enriquecer gestora desde PDFs (annual_report/KID/prospectus). Función _hdr_enrich_gestora_from_ar busca 'GAM Fund Management Limited/Ltd/Plc'."
+    }
+  ],
+  "fallos_estructura": 5,
+  "fallos_scarcity": 3,
+  "total_reglas": 43,
+  "reglas_ok": 33,
+  "aceptable": false,
+  "score_display": "33/43 reglas OK (3 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-04-26T19:54:35.402874"
+}

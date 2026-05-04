@@ -437,27 +437,53 @@ def _build_class_selector(data):
 
     Cascada:
     1. serie_comisiones_por_clase (formato CNMV/ES) — todas las clases históricas.
+    1b. (Bug 3, 2026-04-27) serie_ter_por_clase si serie_comisiones_por_clase vacía.
     2. `_int_clases` (INT) — clases del extractor.
     3. FT search siblings (INT) — clases descubiertas.
     4. Default: una opción con el nombre de clase real inferido del nombre del fondo.
+
+    Default seleccionado = clase con más años de historia (más puntos en la serie).
     """
     import re as _re
     cuant = data.get("cuantitativo", {})
     com_series = cuant.get("serie_comisiones_por_clase", [])
+    ter_clase_series = cuant.get("serie_ter_por_clase", [])
 
-    # 1) ES / CNMV
-    if com_series:
-        current_clases = set(com_series[-1].get("clases", {}).keys())
+    # 1) ES / CNMV — preferir serie_comisiones_por_clase, fallback a serie_ter_por_clase
+    primary_series = com_series or ter_clase_series
+    if primary_series:
+        # Contar puntos por clase para elegir default = clase con más historia
+        per_class_count = {}
         all_clases = set()
-        for s in com_series:
-            all_clases.update(s.get("clases", {}).keys())
+        for s in primary_series:
+            for cls in s.get("clases", {}).keys():
+                per_class_count[cls] = per_class_count.get(cls, 0) + 1
+                all_clases.add(cls)
+        # Clases activas en el último periodo
+        current_clases = set(primary_series[-1].get("clases", {}).keys())
         if all_clases:
-            sorted_cls = sorted(all_clases, key=lambda c: (0 if c in current_clases else 1, c))
+            # Default = la de más puntos (desempata: activa actual primero, luego alfa)
+            default_cls = max(
+                all_clases,
+                key=lambda c: (per_class_count.get(c, 0), 1 if c in current_clases else 0, c),
+            )
+            # Orden visual: default primero, luego activas, luego cerradas
+            def _sort_key(c):
+                if c == default_cls:
+                    return (0, c)
+                if c in current_clases:
+                    return (1, c)
+                return (2, c)
+            sorted_cls = sorted(all_clases, key=_sort_key)
+            # Last period TER per class for label (Bug 1 Fase G — clase con TER visible)
+            last_ter = primary_series[-1].get("clases", {}) if primary_series else {}
             opts = ""
-            for i, cls in enumerate(sorted_cls):
-                sel = " selected" if i == 0 else ""
-                label = cls if cls in current_clases else f"{cls} (cerrada)"
-                opts += f'<option value="{cls}"{sel}>{label}</option>'
+            for cls in sorted_cls:
+                sel = " selected" if cls == default_cls else ""
+                ter_v = last_ter.get(cls)
+                ter_str = f" (TER {str(ter_v).replace('.', ',')}%)" if ter_v is not None else ""
+                base = cls if cls in current_clases else f"{cls} (cerrada)"
+                opts += f'<option value="{cls}"{sel}>{base}{ter_str}</option>'
             return opts
 
     # 2-3) INT: _int_clases + FT siblings
@@ -537,6 +563,12 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
 .lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
 .lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
 .srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
 .srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
 .theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
@@ -2323,28 +2355,48 @@ def _hdr_ft_summary_scrape(isin, currency="EUR"):
 
 
 def _hdr_resolve_aum_meur(data):
-    """AUM en M€ siempre correcto. Prioridad:
-    1. Scrape FT summary del ISIN directo (más reciente, siempre del fondo exacto).
-    2. Extractor `kpis.aum_actual_meur` si parece razonable (>100 M€).
-    3. Último elemento de `serie_aum` (cuidado con entries 'None' period).
-    4. Readings (FILTRADOS a los que tengan URL del mismo ISIN).
+    """AUM en M€ del FONDO ENTERO (NUNCA de una sola clase).
+
+    Prioridad ES (Bug 1, 2026-04-27):
+      1. kpis.aum_actual_meur (extractor CNMV PDF — suma de clases del semestral, fuente canónica).
+      2. Último periodo válido de serie_aum.
+      3. Readings de Morningstar/FT con URL del MISMO ISIN.
+
+    Prioridad INT:
+      1. kpis.aum_actual_meur (extractor INT v2 — ya filtra sub-fondo correcto tras Fase E).
+      2. Último periodo válido de serie_aum.
+      3. FT summary scrape SOLO si extractor vacío (riesgo: puede ser de una clase).
+      4. Readings.
+
+    NUNCA usamos FT scrape para ES porque el endpoint de FT devuelve
+    el AUM de la CLASE consultada, no del fondo agregado, y eso provoca
+    que el header difiera del resumen ejecutivo (issue Magallanes 2026-04-27).
     """
     import re as _re
     isin = data.get("isin", "")
-    # 1) FT summary del ISIN exacto
-    ft = _hdr_ft_summary_scrape(isin, "EUR")
-    if ft.get("fund_size_meur"):
-        return ft["fund_size_meur"]
-    # 2) Extractor kpis
+    tipo = data.get("tipo", "")
+    is_es = tipo == "ES" or isin.upper().startswith("ES")
     k = data.get("kpis", {})
     aum_k = k.get("aum_actual_meur")
-    if aum_k and aum_k > 100:
+
+    # 1) Extractor (canónico). Confianza: ES siempre, INT siempre tras Fase E.
+    if aum_k and aum_k > 1:
         return aum_k
-    # 3) serie_aum: último periodo válido (no "None")
+
+    # 2) Último periodo válido de serie_aum (no "None")
     serie = (data.get("cuantitativo", {}) or {}).get("serie_aum", []) or []
-    valid = [s for s in serie if isinstance(s, dict) and str(s.get("periodo", "")) not in ("", "None", "none") and s.get("valor_meur")]
+    valid = [s for s in serie if isinstance(s, dict)
+             and str(s.get("periodo", "")) not in ("", "None", "none")
+             and s.get("valor_meur")]
     if valid:
         return max(valid, key=lambda s: str(s.get("periodo", ""))).get("valor_meur")
+
+    # 3) (solo INT, NUNCA ES) FT summary — riesgo single-class
+    if not is_es:
+        ft = _hdr_ft_summary_scrape(isin, "EUR")
+        if ft.get("fund_size_meur"):
+            return ft["fund_size_meur"]
+
     # 4) Readings con URL del mismo ISIN
     readings = _hdr_load_side(isin, "readings_data.json")
     all_r = readings.get("analisis_completos", []) + readings.get("otros_readings", [])
@@ -2354,7 +2406,6 @@ def _hdr_resolve_aum_meur(data):
         src = (r.get("source", "") or "").lower()
         if not any(t in src for t in trusted_sources):
             continue
-        # FILTRO: URL debe contener el ISIN del fondo objetivo
         if isin.lower() not in url_l:
             continue
         txt = (r.get("resumen", "") or "") + " " + (r.get("titulo", "") or "")
@@ -2510,6 +2561,151 @@ def _hdr_scrape_rating_from_url(url):
     return None
 
 
+def _build_publication_block_under_aum(data):
+    """Bloque compacto que va DEBAJO del AUM en el header (Fase M_INT G, 2026-05-01).
+    3 líneas alineadas a la derecha:
+      ÚLT CARTA   2026-06
+      ÚLT INFORME 2025-12
+      PRÓX        2026-12 (Informe)
+
+    Si no hay publication_calendar, devuelve "" (no se renderiza).
+    """
+    cal = data.get("publication_calendar") or {}
+    if not cal:
+        return ""
+
+    from datetime import date
+    today = date.today()
+
+    def _fmt_date(iso: str) -> str:
+        if not iso:
+            return "—"
+        try:
+            d = date.fromisoformat(iso)
+            return d.strftime("%Y-%m")
+        except Exception:
+            return iso[:7] if iso else "—"
+
+    def _months_ago(iso: str) -> int | None:
+        if not iso:
+            return None
+        try:
+            d = date.fromisoformat(iso)
+            return (today.year - d.year) * 12 + (today.month - d.month)
+        except Exception:
+            return None
+
+    # Última carta
+    cartas_info = cal.get("quarterly_letters") or {}
+    ult_carta = _fmt_date(cartas_info.get("last_known_date", ""))
+    prox_carta = _fmt_date(cartas_info.get("next_expected_date", ""))
+
+    # Último informe (annual o semiannual)
+    informe_info = (cal.get("semiannual_report") or cal.get("annual_report")
+                    or cal.get("quarterly_report") or {})
+    ult_informe = _fmt_date(informe_info.get("last_known_date", ""))
+    prox_informe = _fmt_date(informe_info.get("next_expected_date", ""))
+
+    # Determinar el próximo más cercano y etiquetarlo
+    next_items = []
+    for label, iso in [("Carta", cartas_info.get("next_expected_date", "")),
+                       ("Informe", informe_info.get("next_expected_date", ""))]:
+        if iso:
+            try:
+                d = date.fromisoformat(iso)
+                next_items.append((d, label, iso))
+            except Exception:
+                continue
+    next_items.sort()
+    if next_items:
+        prox_d, prox_label, prox_iso = next_items[0]
+        delta_months = (prox_d.year - today.year) * 12 + (prox_d.month - today.month)
+        prox_str = f"{_fmt_date(prox_iso)} ({prox_label})"
+        if delta_months <= 1:
+            prox_color_cls = "lh-pub-soon"
+        else:
+            prox_color_cls = "lh-pub-next"
+    else:
+        prox_str = "—"
+        prox_color_cls = "lh-pub-next"
+
+    rows = []
+    if cartas_info:
+        rows.append(
+            f'<div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span>'
+            f'<span class="lh-pub-val">{ult_carta}</span></div>'
+        )
+    if informe_info:
+        rows.append(
+            f'<div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span>'
+            f'<span class="lh-pub-val">{ult_informe}</span></div>'
+        )
+    if next_items:
+        rows.append(
+            f'<div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span>'
+            f'<span class="{prox_color_cls}">{prox_str}</span></div>'
+        )
+
+    if not rows:
+        return ""
+    return f'<div class="lh-pubs">{"".join(rows)}</div>'
+
+
+def _build_recency_badge(data):
+    """Bug 4 Fase G + Fix 2 Fase H (2026-04-28): badge con fechas última publicación
+    + próxima esperada. Hasta 2 líneas — cartas + informe periódico — para programar
+    actualizaciones por fondo.
+    """
+    cal = data.get("publication_calendar") or {}
+    if not cal:
+        return ""
+
+    from datetime import date
+    today = date.today()
+
+    def _line_for(info: dict, label_prefix: str) -> str:
+        if not info:
+            return ""
+        last_date = info.get("last_known_date", "")
+        next_date = info.get("next_expected_date", "")
+        if not last_date:
+            return ""
+        try:
+            last = date.fromisoformat(last_date)
+            meses = (today.year - last.year) * 12 + (today.month - last.month)
+        except Exception:
+            meses = 0
+        color = "#2d6a4f" if meses <= 4 else ("#b48020" if meses <= 8 else "#8c3214")
+        proxima = f" · próxima ~{next_date}" if next_date else ""
+        return (
+            f'<div style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:2px;">'
+            f'<span style="background:{color};color:#fff;padding:1px 6px;border-radius:8px;font-weight:500;">'
+            f'{label_prefix}: {last_date} ({meses}m)</span>{proxima}</div>'
+        )
+
+    lines = []
+    # Línea 1: cartas trimestrales (frecuencia más alta)
+    cartas_info = cal.get("quarterly_letters")
+    if cartas_info:
+        lines.append(_line_for(cartas_info, "Última carta"))
+
+    # Línea 2: informe periódico (annual o semiannual — el de mayor cadencia)
+    informe_info = cal.get("semiannual_report") or cal.get("annual_report") or cal.get("quarterly_report")
+    # Evitar duplicar si quarterly_letters ya cubre annual (no debería)
+    if informe_info and informe_info is not cartas_info:
+        # Etiqueta según tipo
+        freq = informe_info.get("frequency", "")
+        if freq == "annual":
+            label = "Último informe anual"
+        elif freq == "semiannual":
+            label = "Último informe semestral"
+        else:
+            label = "Último informe"
+        lines.append(_line_for(informe_info, label))
+
+    return "".join(l for l in lines if l)
+
+
 def build_header(data):
     k = data.get("kpis", {})
     srri = _hdr_resolve_srri(data)
@@ -2584,11 +2780,12 @@ def build_header(data):
       {isins_line_html}
     </div>
 
-    <!-- ZONA 2: AUM + Riesgo UCITS (SRRI solo si es real) -->
-    <div style="display:flex;align-items:center;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
         <div class="lh-aum-v">€{f(aum_meur,0)}M</div>
         <div class="lh-aum-l">AUM</div>
+        {_build_publication_block_under_aum(data)}
       </div>{pips_html}
     </div>
 
@@ -2683,8 +2880,11 @@ def build_tab_resumen(data):
     # (Morningstar charts rendered by JS)
 
     # ── 4. Fortalezas + Riesgos (2 columnas) ─────────────────────────────
-    fort = "".join(f'<div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">{x}</span></div>' for x in s.get("fortalezas", []))
-    risk = "".join(f'<div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">{x}</span></div>' for x in s.get("riesgos", []))
+    # Bug fix (2026-05-02): convertir **bold** → <strong> también en fortalezas/riesgos
+    def _md_bold(t):
+        return _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', t or "")
+    fort = "".join(f'<div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">{_md_bold(x)}</span></div>' for x in s.get("fortalezas", []))
+    risk = "".join(f'<div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">{_md_bold(x)}</span></div>' for x in s.get("riesgos", []))
 
     fort_block = f'''<div>
       <div class="sr" style="color:var(--pos);">Fortalezas</div>
@@ -2701,10 +2901,14 @@ def build_tab_resumen(data):
     # ── 6. Para quién + Compromiso gestor (2 col) ────────────────────────
     para_quien = s.get("para_quien_es", "")
     compromiso = s.get("compromiso_gestor", "")
+    # Bug fix (2026-05-02): aplicar conversión markdown **bold** → <strong>
+    # también en para_quien_es y compromiso_gestor (antes se insertaba raw).
+    para_quien_html = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', para_quien) if para_quien else ""
+    compromiso_html = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', compromiso) if compromiso else ""
     para_comp_block = ""
     if para_quien or compromiso:
-        pq = f'<div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">{para_quien}</p></div>' if para_quien else ""
-        cg = f'<div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">{compromiso}</p></div>' if compromiso else ""
+        pq = f'<div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">{para_quien_html}</p></div>' if para_quien else ""
+        cg = f'<div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">{compromiso_html}</p></div>' if compromiso else ""
         para_comp_block = f'<div class="col2 mb20">{pq}{cg}</div>'
 
     # ── 7. Evolución de comisiones ───────────────────────────────────────
@@ -2741,19 +2945,40 @@ def build_tab_resumen(data):
 
 
 def _build_com_chart_or_placeholder(data):
-    """Gráfico de comisiones ADAPTATIVO:
-    - >1 año de datos por clase → LINE CHART evolutivo (CNMV con serie).
-    - 1 año → BAR APILADO con descomposición TER: Com.Gestión + Com.Éxito + Otros.
+    """Gráfico de comisiones ADAPTATIVO (Bug 3, 2026-04-27):
+    - Hay datos por clase O ≥3 años de TER global → LINE CHART evolutivo.
+      Default = clase con más historia (serie_comisiones_por_clase O serie_ter_por_clase).
+    - Solo 1-2 años → BAR APILADO con descomposición TER.
     """
     import json as _json
     cuant = data.get("cuantitativo", {})
     com_series = cuant.get("serie_comisiones_por_clase", []) or []
+    ter_clase_series = cuant.get("serie_ter_por_clase", []) or []
+    ter_global = cuant.get("serie_ter", []) or []
     com_exito = data.get("comision_exito", {}) or {}
     k = data.get("kpis", {})
     isin = data.get("isin", "")
 
-    # Caso A: ES/CNMV con múltiples periodos → line chart evolutivo
-    if com_series and len(com_series) > 1:
+    # Caso A: line chart evolutivo si hay histórico REAL (valores no-None).
+    # Bug 3 (2026-04-27): incluir serie_ter_por_clase como fuente válida
+    # cuando serie_comisiones_por_clase está vacía.
+    def _serie_has_real_data(series, value_key="ter_pct"):
+        for s in series:
+            if isinstance(s, dict):
+                clases = s.get("clases") or {}
+                if any(v is not None for v in clases.values()):
+                    return True
+                if s.get(value_key) is not None:
+                    return True
+        return False
+
+    has_per_class_history = (
+        _serie_has_real_data(com_series) or _serie_has_real_data(ter_clase_series)
+    )
+    has_global_history = (
+        ter_global and len(ter_global) >= 3 and _serie_has_real_data(ter_global, "ter_pct")
+    )
+    if has_per_class_history or has_global_history:
         return f'''<div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()">{_build_class_selector(data)}</select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
@@ -2929,6 +3154,10 @@ def build_tab_historia(data):
         anio = str(h.get("anio", "")).strip() or "s/f"
         by_year.setdefault(anio, []).append(h)
 
+    # Bug fix (2026-05-02): convertir **bold** → <strong> también en timeline (title + desc)
+    def _md_bold_tl(t):
+        import re as _re_md
+        return _re_md.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', t or "")
     tl = ""
     for anio in sorted(by_year.keys(), reverse=False):
         items = by_year[anio]
@@ -2938,6 +3167,7 @@ def build_tab_historia(data):
             titulo_hito = h.get("titulo", "")
             dot_cls, tag_cls, tag_text = _clasify_hito(h.get("tipo", ""), titulo_hito, evento)
             title, desc = _split_title_desc(titulo_hito, evento)
+            title = _md_bold_tl(title); desc = _md_bold_tl(desc)
             tl += f"""
     <div class="tl-item">
       <div class="tl-dot {dot_cls}"></div>
@@ -2953,6 +3183,7 @@ def build_tab_historia(data):
                 titulo_hito = h.get("titulo", "")
                 dot_cls, tag_cls, tag_text = _clasify_hito(h.get("tipo", ""), titulo_hito, evento)
                 title, desc = _split_title_desc(titulo_hito, evento)
+                title = _md_bold_tl(title); desc = _md_bold_tl(desc)
                 sub_html += f"""
         <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
@@ -2975,6 +3206,12 @@ def build_tab_historia(data):
   <div class="sr">Cronología de eventos relevantes</div>
   <div class="timeline">{tl}
   </div>''' if tl else ""
+
+    # M4 Fase M (2026-04-30): bloque "Hechos relevantes detallados" si existen
+    # datos enriquecidos (que_cambio/motivo/impacto_inversor) por LLM.
+    # Solo renderiza si al menos 1 hecho tiene enrichment.
+    hechos = data.get("hechos_relevantes", []) or []
+    hechos_block = render_hechos_relevantes(hechos) if hechos else ""
 
     # Gráficos condicionales: solo mostrar los que tienen datos reales.
     # Partícipes: solo si serie no vacía (el resto de fondos INT no tienen).
@@ -3021,7 +3258,82 @@ def build_tab_historia(data):
   window.__HIST_AUM_HEADER__ = {aum_header_meur if aum_header_meur else 'null'};
   </script>
   {cronologia_block}
+  {hechos_block}
 </section>"""
+
+
+def render_hechos_relevantes(hechos: list) -> str:
+    """M4 Fase M (2026-04-30): renderiza hechos relevantes con enrichment LLM.
+
+    Cada hecho muestra: año, evento canónico, qué cambió EXACTAMENTE, motivo (si),
+    impacto al inversor. Solo renderiza si ≥1 hecho tiene campos enriquecidos.
+    """
+    if not hechos:
+        return ""
+    # Verificar si algún hecho tiene enrichment (M4 fields)
+    has_enrichment = any(
+        (h.get("que_cambio") or h.get("motivo") or h.get("impacto_inversor"))
+        for h in hechos if isinstance(h, dict)
+    )
+    if not has_enrichment:
+        # Sin enrichment, no aporta vs cronología → no renderizar
+        return ""
+
+    rows = []
+    for h in sorted(hechos, key=lambda x: str(x.get("anio", "")), reverse=True):
+        if not isinstance(h, dict):
+            continue
+        anio = h.get("anio", "") or "—"
+        evento = h.get("evento", "") or "Hecho relevante"
+        que_cambio = h.get("que_cambio", "")
+        motivo = h.get("motivo", "")
+        impacto = h.get("impacto_inversor", "")
+
+        # Si solo tiene `evento` (sin enrichment), saltar (ya está en timeline cronológico)
+        if not (que_cambio or motivo or impacto):
+            continue
+
+        motivo_html = (
+            f'<div class="hr-field"><span class="hr-label">Motivo:</span> {motivo}</div>'
+            if motivo else ''
+        )
+        impacto_html = (
+            f'<div class="hr-field"><span class="hr-label">Impacto:</span> {impacto}</div>'
+            if impacto else ''
+        )
+        que_cambio_html = (
+            f'<div class="hr-field"><span class="hr-label">Qué cambió:</span> {que_cambio}</div>'
+            if que_cambio else ''
+        )
+
+        rows.append(f"""
+    <div class="hr-card">
+      <div class="hr-head"><span class="hr-year">{anio}</span><span class="hr-evento">{evento}</span></div>
+      {que_cambio_html}
+      {motivo_html}
+      {impacto_html}
+    </div>""")
+
+    if not rows:
+        return ""
+
+    css = """
+<style>
+.hr-card{border-left:3px solid var(--navy);padding:12px 16px;margin:10px 0;background:var(--paper-2);}
+.hr-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--rule-light);}
+.hr-year{font-family:'Source Code Pro',monospace;font-size:13px;color:var(--navy);font-weight:600;min-width:48px;}
+.hr-evento{font-size:14px;font-weight:600;color:var(--ink);}
+.hr-field{font-size:12.5px;line-height:1.55;color:var(--ink-2);margin:5px 0;}
+.hr-label{font-weight:600;color:var(--navy-mid);text-transform:uppercase;font-size:10.5px;letter-spacing:0.5px;margin-right:6px;}
+</style>
+"""
+    return f"""
+  {css}
+  <div class="sr">Hechos relevantes — análisis detallado</div>
+  <div class="hechos-detallados">
+    {"".join(rows)}
+  </div>
+"""
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -3688,13 +4000,26 @@ def _structure_cartera_narrative(texto, tipos_dominantes):
             if any(_re.search(p, header_txt, _re.I) for p in pats):
                 matched = key
                 break
-        # Si el párrafo es solo un header (sin más contenido), guardar el key y seguir
+        # Bug Fase H (2026-04-28): patrones como `principales\s+posiciones`
+        # NO están anclados a `^`, así que matchean en MEDIO del párrafo.
+        # Solo recortar si first_line es REALMENTE un header (corto, sin punto
+        # final, en mayúsculas o con markdown **). Si no, asignar a la sección
+        # pero append párrafo COMPLETO.
+        is_real_header = (
+            len(first_line) < 60
+            and not first_line.rstrip().endswith(".")
+            and (first_line.isupper() or first_line.startswith("**"))
+        )
         if matched:
             current_key = matched
-            # Si el párrafo tiene contenido después del header, añadirlo (sin el header)
-            rest = para[len(first_line):].strip()
-            if rest:
-                sections[current_key].append(rest)
+            if is_real_header:
+                rest = para[len(first_line):].strip()
+                if rest:
+                    sections[current_key].append(rest)
+                # Si no hay rest, el párrafo era solo header → no append
+            else:
+                # Match por keyword interna → asignar sin recortar
+                sections[current_key].append(para)
         else:
             sections[current_key].append(para)
     return sections
@@ -4044,22 +4369,41 @@ def build_tab_cartera(data):
 def build_tab_fuentes(data):
     s = get_section_fuentes_externas(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("fuentes_externas", {})
     ops = s.get("opiniones_clave", [])
+    # M3 v2 Fase M (2026-04-30): recursos oficiales gestora (cartas, KIID,
+    # folleto, presentaciones, videos descubiertos vía Serper en web gestora).
+    # Se renderiza en sección PROPIA antes de "Análisis profesionales".
+    recursos_oficiales = s.get("recursos_oficiales", []) or []
 
-    # Logo colors by source name
+    # Logo + pro source classification cargados desde data/trusted_sources.json
+    # (loader en tools/trusted_sources.py). Para añadir/quitar fuentes editar el JSON.
+    try:
+        from tools.trusted_sources import get_logo_map, get_pro_source_domains
+        logo_map_loaded = get_logo_map()
+        pro_domains = get_pro_source_domains()
+    except Exception:
+        logo_map_loaded, pro_domains = {}, []
+
+    # Iconos especiales no asociados a un dominio (tipo de contenido)
     logo_map = {
-        "substack": ("#ff6719", "SF"),
-        "salud financiera": ("#ff6719", "SF"),
-        "rankia": ("#e85d26", "RK"),
-        "finect": ("#1a8c5a", "FN"),
-        "astralis": ("#6b3fa0", "AS"),
-        "más dividendos": ("#5a6577", "MD"),
-        "masdividendos": ("#5a6577", "MD"),
+        **logo_map_loaded,
         "podcast": ("#8a3a8a", "🎙"),
         "video": ("#c04040", "▶"),
         "vídeo": ("#c04040", "▶"),
-        "youtube": ("#c04040", "▶"),
         "avantage": ("#0c2340", "AC"),
     }
+    if not logo_map_loaded:
+        # Fallback hardcoded si el JSON falla
+        logo_map.update({
+            "substack": ("#ff6719", "SF"),
+            "salud financiera": ("#ff6719", "SF"),
+            "moclano": ("#ff6719", "MO"),
+            "rankia": ("#e85d26", "RK"),
+            "finect": ("#1a8c5a", "FN"),
+            "astralis": ("#6b3fa0", "AS"),
+            "más dividendos": ("#5a6577", "MD"),
+            "masdividendos": ("#5a6577", "MD"),
+            "youtube": ("#c04040", "▶"),
+        })
 
     def get_logo(fuente):
         fl = (fuente or "").lower()
@@ -4068,14 +4412,19 @@ def build_tab_fuentes(data):
                 return color, initials
         return "#555", fuente[:2].upper() if fuente else "??"
 
-    # Separate: análisis profesionales (fuentes fiables de inversión)
-    # vs otros recursos (generalistas, institucionales, vídeos, podcasts, noticias)
-    # REGLA: solo estas fuentes van a "Análisis profesionales":
-    pro_sources = [
-        "salud financiera", "substack", "masdividendos", "más dividendos",
-        "rankia", "astralis", "valueschool", "value school",
-        "finanzasmania", "uncommon finance", "zona value",
-    ]
+    # Pro sources: dominios de pro_sources del JSON + extra hardcoded
+    # (Finanzasmania/UncommonFinance/ZonaValue no tienen entry propia aún).
+    pro_sources_extra = ["finanzasmania", "uncommon finance", "zona value"]
+    pro_sources = [d.split(".")[0] for d in pro_domains] + [
+        "substack",  # cualquier substack (incluye salud financiera, moclano)
+    ] + pro_sources_extra
+    if not pro_domains:
+        # Fallback hardcoded
+        pro_sources = [
+            "salud financiera", "substack", "moclano", "masdividendos", "más dividendos",
+            "rankia", "astralis", "valueschool", "value school",
+            "finanzasmania", "uncommon finance", "zona value",
+        ]
     pro = []
     otros = []
     for op in ops:
@@ -4117,15 +4466,125 @@ def build_tab_fuentes(data):
     pro_html = "".join(render_card(op, expanded=True) for op in pro)
     otros_html = "".join(render_card(op, expanded=False) for op in otros)
 
+    # M3 v2 Fase M (2026-04-30): render recursos oficiales gestora agrupados
+    # por tipo. Mini-cards compactas con icono, título, fecha y link directo.
+    recursos_html = render_recursos_oficiales(recursos_oficiales) if recursos_oficiales else ""
+
+    pro_section = (
+        f'<div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>{pro_html}'
+        if pro_html else ''
+    )
+    otros_section = (
+        f'<div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>{otros_html}'
+        if otros else ''
+    )
+
     return f"""
 <section class="pane" id="p6">
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
-
-  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
-  {pro_html}
-
-  {f'<div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos</div>{otros_html}' if otros else ''}
+  {recursos_html}
+  {pro_section}
+  {otros_section}
 </section>"""
+
+
+def render_recursos_oficiales(recursos: list) -> str:
+    """M3 v2 Fase M (2026-04-30): renderiza recursos oficiales de la web gestora
+    agrupados por tipo. Cada tipo en su propia subsección con icono apropiado.
+    """
+    if not recursos:
+        return ""
+
+    # Agrupar por tipo con orden de prioridad
+    TIPO_LABELS = {
+        "carta_gestor":   ("📝", "Cartas del gestor"),
+        "annual_report":  ("📊", "Informes anuales"),
+        "semestral":      ("📈", "Informes semestrales"),
+        "presentacion":   ("🎯", "Presentaciones"),
+        "comentario":     ("💬", "Comentarios mensuales"),
+        "factsheet":      ("📋", "Factsheets / Fichas"),
+        "mensual":        ("📅", "Informes mensuales"),
+        "video":          ("▶", "Videos / Webinars"),
+        "kiid":           ("⚖", "KIID / DFI / Folleto"),
+        "folleto":        ("⚖", "Folleto"),
+        "sostenibilidad": ("🌱", "Sostenibilidad / ESG"),
+        "documento_otro": ("📄", "Otros documentos"),
+    }
+
+    grouped = {}
+    for r in recursos:
+        tipo = r.get("tipo", "documento_otro")
+        grouped.setdefault(tipo, []).append(r)
+
+    # Ordenar dentro de cada tipo: por fecha descendente
+    for tipo in grouped:
+        grouped[tipo].sort(key=lambda r: r.get("fecha", "") or "", reverse=True)
+
+    # Render por orden de prioridad de TIPO_LABELS
+    sections = []
+    rendered_tipos = set()
+
+    def render_tipo_section(tipo, items, icono, label):
+        if not items:
+            return ""
+        cards = []
+        for r in items[:20]:  # max 20 por tipo
+            titulo = (r.get("titulo", "") or "Documento").strip() or "Documento"
+            url = r.get("url", "#")
+            fecha = r.get("fecha", "")
+            fecha_html = f'<span class="rec-date">{fecha}</span>' if fecha else ""
+            cards.append(f'''
+      <a class="rec-card" href="{url}" target="_blank">
+        <div class="rec-icon">{icono}</div>
+        <div class="rec-meta">
+          <div class="rec-title">{titulo[:120]}</div>
+          {fecha_html}
+        </div>
+      </a>''')
+        cards_html = "".join(cards)
+        more_html = (f'<div class="rec-more">+{len(items)-20} más</div>'
+                     if len(items) > 20 else "")
+        return f'''
+  <div class="rec-group">
+    <div class="rec-group-head">{icono} {label} <span class="rec-count">({len(items)})</span></div>
+    <div class="rec-grid">{cards_html}</div>
+    {more_html}
+  </div>'''
+
+    for tipo, (icono, label) in TIPO_LABELS.items():
+        if tipo in grouped:
+            sections.append(render_tipo_section(tipo, grouped[tipo], icono, label))
+            rendered_tipos.add(tipo)
+
+    # Tipos no listados (rare) — al final como "Otros"
+    for tipo, items in grouped.items():
+        if tipo not in rendered_tipos:
+            sections.append(render_tipo_section(tipo, items, "📄", tipo.replace("_", " ").title()))
+
+    sections_html = "".join(sections)
+
+    # CSS inline scoped to this section
+    css = """
+<style>
+.rec-group{margin:18px 0 24px;}
+.rec-group-head{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-2);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--rule-light);}
+.rec-count{font-size:10.5px;color:var(--ink-4);font-weight:400;margin-left:4px;}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;}
+.rec-card{display:flex;gap:10px;padding:10px 12px;border:1px solid var(--rule-light);background:var(--paper-2);text-decoration:none;color:var(--ink);transition:all 0.15s;}
+.rec-card:hover{border-color:var(--navy);background:var(--white);transform:translateY(-1px);}
+.rec-icon{font-size:18px;line-height:1;flex-shrink:0;width:24px;text-align:center;}
+.rec-meta{flex:1;min-width:0;}
+.rec-title{font-size:12px;line-height:1.4;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.rec-date{font-size:10px;color:var(--ink-4);margin-top:3px;display:block;font-family:'Source Code Pro',monospace;}
+.rec-more{margin-top:6px;font-size:11px;color:var(--ink-4);text-align:right;font-style:italic;}
+</style>
+"""
+
+    return f'''
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">📁 Recursos oficiales del fondo (web gestora)</div>
+  {css}
+  {sections_html}
+'''
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -4164,12 +4623,34 @@ def build_tab_documentos(data):
         except Exception:
             return url_str[:60]
 
+    isin = data.get("isin", "")
+    fund_dir = ROOT / "data" / "funds" / isin
+
+    def _resolve_local_pdf(archivo, icon):
+        """Construye file:// URI para un fichero local en raw/{subdir}/.
+        Devuelve "#" si no existe.
+        """
+        if not archivo:
+            return "#"
+        # Mapping icon → subdir bajo raw/ (preferido)
+        subdir = {"PDF": "reports", "XML": "xml"}.get(icon, "reports")
+        path = fund_dir / "raw" / subdir / archivo
+        if path.exists():
+            return path.as_uri()  # file:///C:/...
+        # Fallback: probar todos los subdirs comunes (INT usa raw/discovery/)
+        for sub in ("reports", "xml", "letters", "discovery", "manual"):
+            alt = fund_dir / "raw" / sub / archivo
+            if alt.exists():
+                return alt.as_uri()
+        return "#"
+
     def doc_rows(items, icon, max_n=12):
         html = ""
         for item in items[:max_n]:
             if isinstance(item, dict):
-                name = item.get("archivo", str(item))
-                url = "#"
+                archivo = item.get("archivo", "")
+                name = archivo or str(item)
+                url = _resolve_local_pdf(archivo, icon)
             else:
                 url = str(item) if str(item).startswith("http") else "#"
                 name = url_to_name(str(item)) if url != "#" else str(item)[:60]
@@ -4286,8 +4767,9 @@ def build_tab_chat(data):
   <div class="chat-container">
     <div class="chat-header">
       <h1>Chat con los documentos del fondo</h1>
-      <p>Pregunta sobre {nombre} ({isin}). El chat tiene acceso a todos los informes CNMV,
-         cartas del gestor, fuentes externas y el analisis completo.</p>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         {nombre} ({isin}): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
       <div class="chat-status">
         <div class="dot" id="chatDot"></div>
         <span id="chatStatusText">Conectando...</span>
@@ -4503,9 +4985,14 @@ def build_scripts(data):
     ))
 
     # All classes from comisiones (source of truth for COMMERCIAL names)
+    # Bug 3 fix (2026-04-27): si serie_comisiones_por_clase vacía, fallback a
+    # serie_ter_por_clase (también tiene clases por año).
     all_classes = set()
     for s in com_a:
         all_classes.update(s.get("clases", {}).keys())
+    if not all_classes:
+        for s in cuant.get("serie_ter_por_clase", []):
+            all_classes.update(s.get("clases", {}).keys())
     all_classes = sorted(all_classes) if all_classes else ["A"]
 
     # Build mapping: commercial class name → TER internal name (per year)
@@ -4523,6 +5010,9 @@ def build_scripts(data):
         return mapping
 
     # Build com_gestion and TER per commercial class, aligned to all_com_years
+    # Bug 3 fix (2026-04-27): si com_a vacía, usar nombres de clase directamente
+    # de serie_ter_por_clase (sin mapping com→ter).
+    com_a_empty = not bool(com_a)
     com_by_class = {}
     ter_by_class = {}
     for cls in all_classes:
@@ -4535,22 +5025,40 @@ def build_scripts(data):
             # TER: map commercial name to internal name for this year
             com_y = com_by_year.get(y, {})
             ter_y = ter_cls_by_year.get(y, {})
-            mapping = _map_ter_to_com(com_y, ter_y)
-            ter_internal = mapping.get(cls)
-            if ter_internal and ter_internal in ter_y:
-                ter_vals.append(ter_y[ter_internal])
-            elif len(all_classes) == 1 and ter_global_by_year.get(y):
-                # Single class fund: use global TER
-                ter_vals.append(ter_global_by_year[y])
+            if com_a_empty:
+                # Sin serie_comisiones, las clases YA son los nombres de TER
+                if cls in ter_y:
+                    ter_vals.append(ter_y[cls])
+                elif ter_global_by_year.get(y):
+                    ter_vals.append(ter_global_by_year[y])
+                else:
+                    ter_vals.append(None)
             else:
-                ter_vals.append(None)
+                mapping = _map_ter_to_com(com_y, ter_y)
+                ter_internal = mapping.get(cls)
+                if ter_internal and ter_internal in ter_y:
+                    ter_vals.append(ter_y[ter_internal])
+                elif len(all_classes) == 1 and ter_global_by_year.get(y):
+                    ter_vals.append(ter_global_by_year[y])
+                else:
+                    ter_vals.append(None)
 
         com_by_class[cls] = com_vals
         ter_by_class[cls] = ter_vals
 
-    # For the chart: TER = per-class TER of selected class (not global)
-    # Default to first class
-    default_cls = all_classes[0] if all_classes else "A"
+    # Default = clase con más historia (más puntos no-None en TER o COM)
+    def _class_history_count(cls):
+        com_pts = sum(1 for v in com_by_class.get(cls, []) if v is not None)
+        ter_pts = sum(1 for v in ter_by_class.get(cls, []) if v is not None)
+        return com_pts + ter_pts
+    default_cls = max(all_classes, key=_class_history_count) if all_classes else "A"
+    # Reordenar com_by_class y ter_by_class para que default_cls sea el PRIMERO
+    # (Object.keys(COM_DATA)[0] en JS lo selecciona por defecto si no hay <select>).
+    if default_cls in com_by_class:
+        com_by_class = {default_cls: com_by_class[default_cls],
+                        **{k: v for k, v in com_by_class.items() if k != default_cls}}
+        ter_by_class = {default_cls: ter_by_class[default_cls],
+                        **{k: v for k, v in ter_by_class.items() if k != default_cls}}
     ter_aligned = ter_by_class.get(default_cls, [None] * len(all_com_years))
 
     # Comisión de éxito: importes REALES cobrados por año (no el residual TER-com)

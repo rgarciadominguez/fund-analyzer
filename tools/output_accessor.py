@@ -291,6 +291,13 @@ def get_economia_fondo(output: dict) -> dict:
     return _get(output, "economia_fondo") or {}
 
 
+def get_publication_calendar(output: dict) -> dict:
+    """Calendario de publicaciones detectado por tools/publication_calendar.py.
+    Estructura: {annual_report|semiannual_report|quarterly_letters: {frequency, last_known_date, next_expected_date, confidence}}
+    """
+    return _get(output, "publication_calendar") or {}
+
+
 def get_clases(output: dict) -> list:
     """Clases canónicas (top-level, INT). Para ES usar get_clases_info()."""
     return _get(output, "clases") or []

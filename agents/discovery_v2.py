@@ -785,8 +785,11 @@ class DiscoveryV2:
         gestora = self.identity.get("gestora_oficial", "")
 
         try:
+            # Fase M (2026-05-04): Opus → Haiku. Tarea de clasificación pura
+            # (lista de dominios). Haiku 4.5 basta. ~5x más barato.
+            from tools.llm_models import HAIKU_HINTS
             r = client.messages.create(
-                model="claude-opus-4-20250514",
+                model=HAIKU_HINTS,
                 max_tokens=400,
                 temperature=0,  # K5 Fase K: determinismo
                 messages=[{"role": "user", "content": (
@@ -802,9 +805,16 @@ class DiscoveryV2:
                     f"Devuelve SOLO dominios (uno por linea). NO URLs completas."
                 )}],
             )
-            cost = (r.usage.input_tokens * 15 + r.usage.output_tokens * 75) / 1_000_000
-            console.log(f"[cyan]Opus hints ({r.usage.input_tokens}+"
-                        f"{r.usage.output_tokens} tok, ${cost:.3f})")
+            console.log(f"[cyan]Haiku hints ({r.usage.input_tokens}+"
+                        f"{r.usage.output_tokens} tok)")
+            # Cost-Opt Fase 2 (2026-05-03): instrumentar coste
+            try:
+                from tools.llm_logger import log_llm_response
+                log_llm_response(r, agent="discovery_v2_haiku_hints",
+                                  isin=self.isin, model=HAIKU_HINTS,
+                                  provider="anthropic")
+            except Exception:
+                pass
             text = r.content[0].text
             sites = []
             for line in text.split("\n"):

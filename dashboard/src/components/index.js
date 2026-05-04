@@ -1,3 +1,10 @@
-export { default as FundOverview } from "./FundOverview";
-export { default as FundChart } from "./FundChart";
-export { FundStrategy, FundTimeline, FundSelector } from "./FundComponents";
+export { default as FundHeader } from "./FundHeader";
+export { default as TabResumen } from "./TabResumen";
+export { default as TabHistoria } from "./TabHistoria";
+export { default as TabGestores } from "./TabGestores";
+export { default as TabEvolucion } from "./TabEvolucion";
+export { default as TabEstrategia } from "./TabEstrategia";
+export { default as TabCartera } from "./TabCartera";
+export { default as TabFuentes } from "./TabFuentes";
+export { default as TabDocumentos } from "./TabDocumentos";
+export { default as Narrative } from "./Narrative";
