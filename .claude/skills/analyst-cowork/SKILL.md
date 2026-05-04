@@ -1,222 +1,400 @@
 ---
 name: analyst-cowork
-description: Genera el bloque `analyst_synthesis.*` (8 secciones narrativas) de un fondo del proyecto fund-analyzer usando la cuota de Claude Max en lugar de la API Anthropic. Reemplaza al `agents/analyst_agent.py` de 5197 LOC. Úsala SIEMPRE que Rafa diga "analyst cowork", "analiza fondo X con cowork", "regenera síntesis de X via skill", "skill analyst X", "consume preview de X", "monta el analyst de X aquí", o cualquier variante sobre ejecutar la síntesis del analyst del fund-analyzer dentro de Cowork. NO la uses para ejecutar el pipeline de descarga (CNMV, PDFs, scraping) — eso sigue en Python. NO la uses para fondos que no han pasado antes por la prep determinista (`python -m agents.orchestrator --isin X --prep-only`).
+description: Genera el bloque `analyst_synthesis.*` (8 secciones narrativas + estructuradas) de un fondo del proyecto fund-analyzer usando la cuota de Claude Max. Reemplaza al `agents/analyst_agent.py` legacy. Úsala SIEMPRE que Rafa diga "analyst cowork", "analiza fondo X con cowork", "regenera síntesis de X via skill", "skill analyst X", "consume preview de X", "monta el analyst de X aquí", o cualquier variante sobre ejecutar la síntesis del analyst del fund-analyzer dentro de Cowork. NO la uses para ejecutar el pipeline de descarga (CNMV, PDFs, scraping) — eso sigue en Python. NO la uses para fondos que no han pasado antes por la prep determinista (`python -m agents.orchestrator --isin X --prep-only`).
 ---
 
-# analyst-cowork
+# analyst-cowork v2.3
 
-Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera las 8 secciones de `analyst_synthesis.*` consumiendo los JSONs intermedios producidos por la prep determinista en Python. Diseñada para correr bajo Claude Max (Cowork o Claude Code) y eliminar el coste API de Anthropic.
+Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bloque `analyst_synthesis.*` con 8 secciones siguiendo el **schema EXACTO** que espera el dashboard renderer (`dashboard/generate_dashboard.py`). Diseñada para correr bajo Claude Max y eliminar el coste API de Anthropic.
+
+**v2 (2026-05-04)**: corrige 3 schema mismatches críticos descubiertos en smoke test Avantage. Ahora usa exactamente los nombres de campo que el dashboard renderiza. Audit pass obligatorio.
+
+**v2.2 (2026-05-04)**: añade campos que el quality_loop v1 chequea — `estrategia.fortalezas/riesgos/perfil_riesgo` y `cartera.top_posiciones`.
+
+**v2.3 (2026-05-04)**: reglas estrictas de formato en `texto` para evitar headers disruptivos y listas inline apelmazadas (feedback visual usuario).
+
+## REGLAS DE FORMATO en `texto` fields (críticas — v2.4)
+
+Las siguientes pautas aplican a TODOS los campos `texto` y `trayectoria`/`filosofia` largos. **Asume que el dashboard renderiza `**Header**\n\n` como sub-header sutil** (font-size 15px, bold, sin border horizontal, sin caps). Si tu instalación del dashboard aún tiene el render antiguo con border + caps, deja headers en línea con `—` como fallback (versión v2.3).
+
+### Regla 1 (v2.4): SÍ usa `**Header**\n\n` para sub-secciones — el renderer los pinta sutil.
+
+Para dividir secciones largas (>2K chars) en bloques temáticos, usa headers standalone. El dashboard renderiza tipo "subtitle" sin border ni text-transform.
+
+✅ BIEN:
+```
+... párrafo previo.
+
+**Origen y fundación de Troy (2000)**
+
+Troy Asset Management fue fundada en Londres en el año 2000...
+
+**Lanzamiento del sub-fondo Irlandés (febrero 2012)**
+
+La fecha del lanzamiento es notable...
+```
+
+Pautas:
+- Headers descriptivos pero no demasiado largos (3-12 palabras).
+- Sin "(YYYY)" final salvo cuando aporta contexto temporal claro.
+- 1ª letra en mayúscula, resto del header en minúsculas (no all-caps).
+- Máximo 3-5 sub-headers por sección. Más es exceso de fragmentación.
+
+### Regla 2: Listas con periodos temporales — cada periodo en su propio párrafo, NO bullets.
+
+Los periodos son párrafos narrativos con cuerpo amplio, no items de lista corta. Mantenlos como párrafos con `**YYYY**:` como label inline.
+
+✅ BIEN — cada periodo es su propio párrafo con label en bold:
+```
+A lo largo de su historia el fondo ha enfrentado:
+
+**2013-2015**: periodo de discusión sobre tapering de la Fed...
+
+**2022**: año de fuertes correcciones en RV+RF por subidas de tipos...
+
+**2023**: año del rendimiento del 4,8% del bono del Tesoro a 10 años...
+```
+
+❌ MAL — todo apelmazado:
+```
+A lo largo de su historia el fondo ha enfrentado: - 2013-2015: ... - 2022: ...
+```
+
+❌ TAMPOCO — bullets para periodos largos (los items quedan como tarjetas extrañas):
+```
+- **2013-2015**: largo párrafo descriptivo...
+- **2022**: largo párrafo descriptivo...
+```
+
+### Regla 3 (v2.4): Enumeraciones cortas con label — SÍ usa bullets markdown explícitos.
+
+Cuando enumeras 3-6 criterios/principios/escenarios con cuerpo corto (≤500 chars cada uno), usa lista markdown explícita. El dashboard renderiza como `<ul>` con `<li>` correctos.
+
+✅ BIEN:
+```
+El proceso combina criterios sistemáticos:
+
+- **Adición contracíclica**: añadir a posiciones existentes y abrir nuevas cuando los mercados caen.
+- **Salida disciplinada**: salir de posiciones por incertidumbre sobre el crecimiento futuro de beneficios.
+- **Gestión activa de oro**: ajustar la ponderación de metales preciosos según ciclo y valoración relativa.
+- **Disciplina de duración**: reducir la duración media ponderada de los bonos en escenarios de tipos en máximos.
+```
+
+Diferencia con la Regla 2: aquí cada item es **corto** (1-3 sentences). Si los items son párrafos largos, usa Regla 2 (párrafos con label inline) en vez de bullets.
+
+### Regla 4: `**bold**` solo para énfasis dentro de un sentence o como label de párrafo, NUNCA para envolver párrafos enteros.
+
+❌ MAL: `**Todo este párrafo en bold porque parece importante.**`
+
+✅ BIEN: `Texto normal con **palabras clave** o **conceptos importantes** en bold.`
+
+### Regla 5: Separación de párrafos siempre con `\n\n`.
+
+`\n` simple no separa párrafos en el render del dashboard. Cualquier salto de párrafo debe ser doble newline.
+
+### Regla 6 (v2.4): No abuses de sub-headers. Máximo 3-5 por sección.
+
+Si una sección tiene más de 5 sub-headers, probablemente cabe reorganizar agrupando temas. Más de 5 fragmenta la lectura. Menos de 2 hace que la sección lea como un bloque único difícil de escanear.
 
 ## Pre-requisito obligatorio
 
-El usuario debe haber ejecutado primero la prep determinista del pipeline:
-```bash
+El usuario debe haber ejecutado primero la prep determinista:
+```
 cd /ruta/a/fund-analyzer
 python -m agents.orchestrator --isin {ISIN} --prep-only
 ```
-(Ver `INSTALL.md` para añadir el flag `--prep-only` al orchestrator.)
 
-Esto deja en `data/funds/{ISIN}/`:
-- `cnmv_data.json` (ES) **o** `intl_data.json` (INT)
-- `manager_profile.json` (con `articulos_completos`)
-- `letters_data.json` (cartas K15 estructuradas)
-- `readings.json` (análisis externos sintetizados)
-- `sources.json` (fuentes pro identificadas)
-- `output.json` parcial (top-level + meta, sin `analyst_synthesis`)
+Esto deja en `data/funds/{ISIN}/bundle/`:
+- `fund_data.json` (cnmv_data.json o intl_data.json normalizado)
+- `manager_profile.json`
+- `letters_data.json`
+- `readings.json`
+- `sources.json`
+- `bundle_manifest.json`
 
-Si falta cualquiera de los cuatro JSONs centrales, ABORTA y pide a Rafa que ejecute la prep antes.
+Si falta cualquiera de los 5 inputs, ABORTA y pide a Rafa que ejecute la prep antes.
 
-## Inputs que la skill DEBE consumir
+## Schema EXACTO del output (no inventes nombres de campos)
 
-| Path | Contenido | Uso |
-|---|---|---|
-| `data/funds/{ISIN}/cnmv_data.json` o `intl_data.json` | KPIs, posiciones, cualitativo CNMV | Base de `resumen`, `evolucion`, `estrategia`, `cartera`, KPIs en `historia` |
-| `data/funds/{ISIN}/manager_profile.json` | Equipo, perfiles, `articulos_completos`, `equipo_roles` con lead/co | `gestores.perfiles` y `gestores.texto` |
-| `data/funds/{ISIN}/letters_data.json` | Cartas trimestrales con K15 (tesis, decisiones, contexto, citas) | `evolucion`, `estrategia`, citas en `cartera` |
-| `data/funds/{ISIN}/readings.json` | Análisis Morningstar/Citywire/blogs pro estructurados | `fuentes_externas`, contraste en `gestores` |
-| `data/funds/{ISIN}/sources.json` | Catálogo de fuentes consideradas válidas | `documentos`, atribuciones |
-| `docs/cowork_handoff/CLAUDE.md` | Schema canónico + convenciones | LEER PRIMERO. No improvisar el schema. |
+Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.json`
 
-## Output que la skill DEBE producir
-
-Un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.json`
-
-Estructura exacta (ver `output_schema.example.json` adjunto):
 ```json
 {
   "_meta": {
     "isin": "...",
-    "generated": "2026-05-04T...",
+    "generated": "ISO timestamp",
     "generator": "skill:analyst-cowork",
+    "skill_version": "2.0.0",
     "main_model": "opus",
     "audit_model": "sonnet",
-    "sections_generated": ["resumen", "historia", ...],
+    "sections_generated": [...],
     "audit_pass_done": true,
+    "audit_iterations": 1,
     "anti_invencion_flagged": [],
     "input_files_hash": {...}
   },
   "analyst_synthesis": {
-    "resumen": {"texto": "...", "filosofia_inversion": "...", "criterios_inversion": [...]},
-    "historia": {"texto": "...", "hitos": [...]},
-    "gestores": {"perfiles": [...], "texto": "..."},
-    "evolucion": {"texto": "...", "puntos_clave": [...]},
-    "estrategia": {"texto": "...", "fortalezas": [...], "riesgos": [...]},
-    "cartera": {"texto": "...", "top_posiciones": [...], "citas": [...]},
-    "fuentes_externas": {"texto": "...", "lecturas_destacadas": [...]},
-    "documentos": {"texto": "...", "lista": [...]}
+    "resumen": {...},
+    "historia": {...},
+    "gestores": {...},
+    "evolucion": {...},
+    "estrategia": {...},
+    "cartera": {...},
+    "fuentes_externas": {...},
+    "documentos": {...}
   }
 }
 ```
 
-Después de escribir el fichero, indica a Rafa que ejecute:
-```bash
-python -m agents.orchestrator --isin {ISIN} --consume-cowork
+### resumen (campos obligatorios — usa EXACTAMENTE estos nombres)
+
+```json
+{
+  "texto": "1500-2000 chars de narrativa principal. Cita fuentes entre paréntesis. Densa.",
+  "filosofia_inversion": "1000-1400 chars. Filosofía detallada del gestor.",
+  "criterios_inversion": [
+    {"titulo": "...", "descripcion": "..."},
+    ...3-5 criterios
+  ],
+  "fortalezas": ["frase 1", "frase 2", ...4-6 strings cada uno 100-300 chars],
+  "riesgos": ["frase 1", "frase 2", ...3-5 strings cada uno 100-300 chars],
+  "para_quien_es": "300-500 chars. Perfil del inversor adecuado.",
+  "compromiso_gestor": "200-400 chars. Skin in the game, alineación, propiedad.",
+  "signal": "POSITIVO | NEUTRAL | NEGATIVO",
+  "signal_rationale": "200-300 chars. Por qué esa señal."
+}
 ```
-Esto integra el analyst en `output.json`, corre validators + quality rules + genera el dashboard HTML.
+
+### historia
+
+```json
+{
+  "texto": "4000-6000 chars. Narrativa cronológica del fondo desde inicio hasta hoy.",
+  "hitos": [
+    {"anio": "2014", "titulo": "...", "evento": "...", "tipo": "lanzamiento|premio|cambio_gestor|cambio_estrategia|hecho_relevante"},
+    ...8-15 hitos
+  ]
+}
+```
+
+`tipo` opciones: `lanzamiento, premio, cambio_gestor, cambio_estrategia, cambio_owner, hecho_relevante, contexto_mercado, otro`.
+
+### gestores (CRÍTICO — schema exacto, no usar `biografia`)
+
+```json
+{
+  "texto": "10000-18000 chars. Narrativa profunda del equipo gestor.",
+  "perfiles": [
+    {
+      "nombre": "Juan Gómez Bada",
+      "cargo": "CEO y Director de Inversiones",
+      "trayectoria": "Texto largo (1500-3000 chars) en MARKDOWN con **bold** para énfasis. Cuenta su carrera, formación, experiencia, reconocimientos.",
+      "filosofia": "Texto (500-1000 chars) sobre su filosofía de inversión personal. NO duplicar con resumen.filosofia_inversion (este es del GESTOR, aquel es del FONDO).",
+      "cv_bullets": [
+        "CEO y Director de Inversiones de Avantage Capital",
+        "Rating AA Citywire",
+        "Fondo Avantage Fund con 5 estrellas Morningstar",
+        "+15 años de experiencia",
+        ...4-8 bullets cortos
+      ],
+      "decisiones_clave": [
+        "Decisión 1 con contexto: qué hizo y por qué (200-400 chars)",
+        ...3-5 decisiones
+      ],
+      "rasgos_diferenciales": "300-500 chars. Qué le distingue de otros gestores.",
+      "fuente": "manager_profiler"
+    },
+    ...incluir TODOS los miembros del equipo (lead + co-managers + IR si aplica)
+  ]
+}
+```
+
+**REGLAS GESTORES**:
+- `nombre` y `cargo` SON OBLIGATORIOS para todos los perfiles.
+- `trayectoria` es OBLIGATORIO para los 1-2 perfiles lead. Para miembros secundarios puede ser más breve (300-600 chars).
+- `cv_bullets` es OBLIGATORIO para lead. Opcional para secundarios.
+- NO inventes empresas previas o años no presentes en `manager_profile.json`. Si no sabes dónde trabajó antes, no lo digas.
+- `fuente` debe ser uno de: `manager_profiler, manager_deep_agent, google_snippet, sibling_auto, manual_verificado, analyst_llm`.
+
+### evolucion
+
+```json
+{
+  "texto": "5000-9000 chars. Narrativa de la evolución del fondo: AUM, partícipes, rentabilidad, posiciones, cambios estratégicos en el tiempo.",
+  "datos_graficos": {
+    "concentracion_historica": [
+      {"periodo": "2024", "top5_pct": 23.5, "top10_pct": 38.2, "top15_pct": 49.8},
+      ...
+    ],
+    "drawdown": [{"periodo": "...", "drawdown_pct": ...}],
+    "exposicion_geografica": [{"periodo": "...", "espana_pct": ..., "internacional_pct": ...}],
+    "num_posiciones_por_anio": [{"anio": "...", "num": ...}],
+    "rentabilidades_anuales": [{"anio": "2024", "fondo_pct": ..., "ibex_pct": ..., "sp500_eur_pct": ...}]
+  }
+}
+```
+
+`datos_graficos` debe poblarse con datos REALES extraídos de `fund_data.cuantitativo` y `letters_data.cartas[*]`. Si no tienes el dato, omite la entry. NO inventes números.
+
+### estrategia
+
+```json
+{
+  "texto": "6000-10000 chars. Narrativa profunda de la estrategia. Sub-secciones con **bold** headers.",
+  "estrategia_actual_resumen": "200-400 chars. Resumen de la estrategia hoy.",
+  "fortalezas": [
+    "frase 1 (100-300 chars)",
+    "frase 2",
+    ...4-6 strings — DUPLICAN los de resumen.fortalezas (el dashboard renderiza ambos sitios)
+  ],
+  "riesgos": [
+    "frase 1 (100-300 chars)",
+    ...3-5 strings — DUPLICAN los de resumen.riesgos
+  ],
+  "perfil_riesgo": {
+    "tipo_activo_principal": "Mixto Flexible Global / Renta Variable Global / Renta Fija / etc",
+    "riesgos_especificos": ["riesgo 1", "riesgo 2", "riesgo 3"],
+    "desglose_exposicion": [
+      {"dimension": "geografía", "detalle": "60% internacional, 20% España, 16% Argentina, 4% otros"},
+      {"dimension": "sectores", "detalle": "..."}
+    ]
+  },
+  "hitos_estrategia": [
+    {
+      "periodo": "2025-S2",
+      "contexto_mercado": "300-500 chars. Qué pasaba en el mercado.",
+      "decisiones": "300-600 chars. Qué decidió el gestor.",
+      "resultado": "+X.XX% — driver explicativo (200-400 chars)"
+    },
+    ...4-8 hitos cubriendo años con cartas K15
+  ],
+  "quotes": [
+    {
+      "texto": "cita literal entre 30-200 chars",
+      "autor": "Juan Gómez Bada",
+      "contexto": "Carta Semestral julio 2025"
+    },
+    ...3-6 quotes
+  ]
+}
+```
+
+**REGLAS estrategia** (v2.2):
+- Los `quotes` deben ser CITAS LITERALES extraídas de `letters_data.cartas[*].texto_completo`. Si no encuentras citas reales, devuelve lista vacía (no inventes).
+- `fortalezas` y `riesgos` se DUPLICAN aquí en estrategia (también en resumen). El v1 dashboard renderiza ambos sitios. NO es redundancia inocua — el quality_loop chequea los dos.
+- `hitos_estrategia[].resultado` debe seguir el formato `"+X.XX% — driver"` (cifra + por qué). Sin driver explicativo, el quality_loop lo flaggea.
+- `perfil_riesgo` es OBLIGATORIO con los 3 sub-campos. Sin esto, el quality_loop reporta "Perfil de riesgo de la estrategia incompleto".
+
+### cartera
+
+```json
+{
+  "texto": "5000-8000 chars. Narrativa COMPOSICIONAL de la cartera: tipo de activos, sectores, geografía, racional general. NO enumerar las posiciones individuales — la tabla del dashboard ya las muestra. Foco en composición + racional + riesgos.",
+  "top_posiciones": [
+    {"nombre": "...", "peso_pct": 6.05, "categoria": "Real estate / Tech / Banca / etc"},
+    ...10 entries — DUPLICAN top10 de posiciones.actuales[] del top-level del schema
+  ],
+  "concentracion": {
+    "top5_pct": 23.5,
+    "top10_pct": 38.2,
+    "top15_pct": 49.8
+  },
+  "concentracion_historica": [
+    {"periodo": "2024", "top5_pct": ..., "top10_pct": ..., "top15_pct": ..., "fuente": "fund_data"},
+    ...8-15 entries
+  ],
+  "distribucion_tipo": {
+    "rv_internacional_pct": 60.0,
+    "rv_españa_pct": 20.3,
+    "rf_pct": 18.7,
+    "liquidez_pct": 1.0
+  }
+}
+```
+
+**REGLAS cartera** (v2.2):
+- `top_posiciones` es OBLIGATORIO con 10 entries duplicando los top10 de `posiciones.actuales` (datos top-level). El quality_loop chequea esto. NO es redundancia con el dashboard — es input para el quality_check, no para visualización (el dashboard sigue leyendo de `posiciones.actuales`).
+
+**REGLAS cartera.texto** (críticas — feedback v2.1):
+- **NO ENUMERAR posiciones individuales con sus pesos en el texto**. La tabla de `posiciones.actuales` (top-level del schema, top-level del dashboard) ya las muestra. Repetirlo es redundancia visual molesta para el lector.
+- El texto debe ser **un párrafo resumen sobre composición**: tipo de activo (RV vs RF vs liquidez), distribución geográfica (zonas y tesis por zona), distribución sectorial general, concentración relativa (top-N como % del patrimonio sin nombrar valores), racional global de la cartera y riesgos estructurales actuales.
+- Cuando menciones una posición concreta porque ilustra un punto del racional (p.ej. "exposición a Argentina vía empresas como X e Y"), hazlo con moderación y SIN poner el peso. El peso lo da la tabla.
+- Cifras de `concentracion` y `distribucion_tipo` SOLO de `fund_data.posiciones.actuales` y `fund_data.cuantitativo.mix_activos_historico`. NO inventes.
+
+### fuentes_externas (CRÍTICO — usa `opiniones_clave`, no `lecturas_destacadas`)
+
+```json
+{
+  "texto": "5000-9000 chars. Síntesis cualitativa de qué dicen las fuentes externas sobre el fondo.",
+  "opiniones_clave": [
+    {
+      "fuente": "Substack Salud Financiera",
+      "titulo": "Análisis de Avantage Fund - Salud Financiera",
+      "url": "https://saludfinanciera.substack.com/p/analisis-avantage-fund",
+      "tipo": "analisis | review | interview | rating | comunidad | podcast | video",
+      "opinion": "200-400 chars. Síntesis de lo que dice esta fuente.",
+      "fecha": "2025"
+    },
+    ...8-15 opiniones
+  ]
+}
+```
+
+**REGLAS fuentes_externas**:
+- Lee `readings.readings[]` del bundle.
+- Filtra ruido (videos de música irrelevantes, posts genéricos sin contenido).
+- Para cada reading legítimo, escribe su `opinion` sintetizada (no copies, sintetiza).
+- `tipo` debe ser uno de: `analisis, review, interview, rating, comunidad, podcast, video, articulo`.
+
+### documentos (CRÍTICO — schema URL-based, no descriptivo)
+
+```json
+{
+  "informes_pdf": [
+    {"archivo": "CNMV_ES0112231008_2024_H2.pdf"},
+    ...todos los pdfs en fund_data.fuentes.informes_descargados
+  ],
+  "xmls_cnmv": [
+    {"archivo": "Abril_FONDMENS_202504.xml"},
+    ...todos los xmls en fund_data.fuentes.xmls_cnmv
+  ],
+  "cartas_urls": [
+    "https://www.avantagecapital.com/carta-semestral-a-los-inversores-enero-2025/",
+    ...todas las URL únicas en letters_data.cartas[].url_fuente
+  ],
+  "fuentes_externas_urls": [
+    "https://saludfinanciera.substack.com/p/analisis-avantage-fund",
+    ...todas las URL únicas en readings.readings[].url
+  ],
+  "urls_consultadas": [
+    "https://www.cnmv.es/portal/Consultas/IIC/Fondo.aspx?isin=ES0112231008",
+    ...URLs de fund_data.fuentes.urls_consultadas (CNMV portal, regulator portals)
+  ],
+  "total_fuentes": 127
+}
+```
+
+**REGLAS documentos**:
+- `documentos` es 100% AGREGACIÓN MECÁNICA, no narrativa. NO incluyas `texto` ni descripciones.
+- `informes_pdf` y `xmls_cnmv`: extrae directo de `fund_data.fuentes.{informes_descargados, xmls_cnmv}` (cada item es `{archivo: "..."}`).
+- `cartas_urls`: deduplica `letters_data.cartas[].url_fuente`, ordena.
+- `fuentes_externas_urls`: deduplica `readings.readings[].url`, ordena. Filtra URLs claramente ruidosas (videos no relacionados, etc.).
+- `urls_consultadas`: típicamente 1-2 URLs del portal del regulador.
+- `total_fuentes` = suma de longitudes de las 5 listas anteriores.
 
 ## Workflow paso a paso
 
 ### 1. Validación de pre-requisitos (1 turn)
 
-Ejecuta en Bash:
-```bash
+Bash:
+```
 ISIN={ISIN}
 cd /ruta/a/fund-analyzer
-ls -la data/funds/$ISIN/{cnmv_data.json,intl_data.json,manager_profile.json,letters_data.json,readings.json,sources.json} 2>/dev/null
+ls -la data/funds/$ISIN/bundle/
 ```
 
-Si falta algo crítico (cnmv O intl, los demás obligatorios) → aborta y pide ejecutar prep. Si OK → continúa.
+Si falta el bundle o cualquiera de los 5 inputs → aborta y pide ejecutar prep. Si OK → continúa.
 
-### 2. Lectura de schema canónico (1 turn)
+### 2. Lectura del schema (1 turn)
 
-Lee `docs/cowork_handoff/CLAUDE.md` sección 1 (schema `output.json`) y sección 11 (manager_profile.json schema). Esto te recuerda los paths exactos esperados. NO inventes campos.
-
-### 3. Lectura paralela de inputs (1 turn, llamadas Read en paralelo)
-
-Lee los 5 JSONs de inputs en una sola tanda. Si alguno >50K tokens, léelo entero igualmente — Opus tiene 200K de contexto. Si tras leer los 5 superas 150K, usa subagentes (paso 4 alternativo).
-
-### 4. Generación de las 8 secciones (1 turn por sección, secuencial)
-
-Por cada sección en este orden — DETERMINISTA, no cambies:
-1. `resumen` (texto + filosofia_inversion + criterios_inversion[])
-2. `historia` (texto + hitos[] cronológicos)
-3. `gestores` (perfiles[] + texto narrativo)
-4. `evolucion` (texto + puntos_clave[])
-5. `estrategia` (texto + fortalezas[] + riesgos[])
-6. `cartera` (texto + top_posiciones[] + citas[] de cartas)
-7. `fuentes_externas` (texto + lecturas_destacadas[])
-8. `documentos` (texto + lista[])
-
-Reglas de cada sección (no negociables):
-- **Atribuir fuente** entre comillas o con paréntesis: "(Carta Q4 2025)", "(Annual Report 2024 p.47)", "(Morningstar)". No inventar fuentes.
-- **Anti-invención**: si una entidad (gestor, posición, cifra) NO aparece en ninguno de los 5 JSONs leídos → no la incluyas. No completes huecos con texto genérico tipo "se considera un fondo equilibrado".
-- **Cifras literales**: copia AUM, TER, %, fechas exactamente como aparecen en las fuentes. Si hay inconsistencia entre fuentes, marca con paréntesis "(según CNMV)" / "(según AR 2024)".
-- **Markdown bold se renderiza** en el dashboard: usa `**texto**` para énfasis, no para llenar.
-- **Largo orientativo por sección** (sin pasarse): resumen 600-1200 palabras, historia 800-1500, gestores 500-1000 + perfiles, evolucion 400-800, estrategia 500-900 con bullets, cartera 400-700 + tabla, fuentes_externas 200-400, documentos 100-300 + lista.
-
-Tras cada sección, guárdala en una variable de trabajo (no escribas el JSON final aún).
-
-### 5. Pase de auditoría con Sonnet en subagente (1 turn)
-
-Una vez tienes las 8 secciones en draft, lanza UN subagente Sonnet con el Agent tool:
-
-```
-Agent({
-  description: "Audit anti-invención analyst",
-  subagent_type: "general-purpose",
-  model: "sonnet",
-  prompt: `Eres auditor independiente. Tienes que validar que el draft del analyst NO contiene entidades, cifras o citas inventadas.
-
-INPUTS QUE PUEDES VERIFICAR (lee solo estos):
-- data/funds/{ISIN}/cnmv_data.json o intl_data.json
-- data/funds/{ISIN}/manager_profile.json
-- data/funds/{ISIN}/letters_data.json
-- data/funds/{ISIN}/readings.json
-
-DRAFT A AUDITAR:
-{pega aquí el JSON con las 8 secciones}
-
-Para cada sección, lista:
-1. Entidades nombradas (gestores, empresas, instituciones) que NO aparecen en los inputs.
-2. Cifras (%, €, fechas) que no se pueden verificar contra los inputs.
-3. Citas entre comillas que no aparecen literal en letters_data.json o readings.json.
-4. Atribuciones a fuentes (ej. "según Morningstar") que no respaldan ningún input.
-
-Output formato JSON estricto:
-{
-  "issues": [
-    {"section": "gestores", "type": "entidad_inventada", "snippet": "...", "evidence": "no aparece en manager_profile.equipo ni en articulos_completos"},
-    {"section": "cartera", "type": "cita_no_verificable", "snippet": "...", "evidence": "no encontrada en letters_data K15.citas_textuales"}
-  ],
-  "verdict": "clean" | "minor_issues" | "major_issues"
-}
-
-Si verdict=clean, devuelve {"issues": [], "verdict": "clean"}. Sé estricto: ante la duda, marca como issue.`
-})
-```
-
-Espera el resultado del subagente.
-
-### 6. Aplicar correcciones (1 turn por sección con issues, máximo 3)
-
-Si `verdict == "clean"` → pasa al paso 7.
-
-Si hay issues:
-- Por cada sección con issues, regenera SOLO esa sección eliminando o corrigiendo los snippets flagged. Re-lee el input correspondiente para confirmar qué SÍ está respaldado.
-- Máximo 3 secciones revisables en este pase. Si hay >3 issues → algo va mal en los inputs, escribe el output igual pero registra todos los issues en `_meta.anti_invencion_flagged` para que Rafa los vea.
-- NO repitas el pase de audit: una sola iteración. Si quedan issues residuales, anótalos en `_meta` y avisa a Rafa.
-
-### 7. Ensamblado y escritura del JSON final (1 turn)
-
-Construye el dict final con `_meta` + `analyst_synthesis` y escríbelo a:
-```
-data/funds/{ISIN}/analyst_synthesis_cowork.json
-```
-
-`_meta.input_files_hash` debe contener un hash sha256 de cada input file leído (Bash: `sha256sum`). Esto permite a la prep saber si los inputs cambiaron entre la skill y el consume.
-
-`_meta.sections_generated` lista qué secciones se generaron. Si por algún motivo una se omitió (ej. no había datos para `fuentes_externas` porque `readings.json` estaba vacío), márcalo aquí en lugar de escribir relleno.
-
-### 8. Mensaje final a Rafa
-
-Confirma:
-- Path del JSON escrito.
-- Resumen de qué contiene (8 secciones generadas con N issues residuales).
-- Comando exacto para integrar:
-  ```bash
-  python -m agents.orchestrator --isin {ISIN} --consume-cowork
-  ```
-- Si hay anti_invencion_flagged residuales, lístalos para que él decida.
-
-NO ejecutes el `--consume-cowork` automáticamente. Es un side effect sobre `output.json` y debe ser explícito.
-
-## Modelo recomendado
-
-- **Sesión principal**: Opus (configurable en Cowork settings o forzando con `/model opus` en Claude Code).
-- **Subagente de audit**: Sonnet (forzado vía `model: "sonnet"` en la llamada Agent).
-- **No usar Haiku para nada** dentro de esta skill — la calidad de validación que necesitamos no la garantiza.
-
-Justificación de no usar Opus también para audit: el valor del audit es la *segunda perspectiva*. Si Opus audita Opus, hay sesgo de confirmación. Sonnet como modelo distinto cumple el papel del `_opus_audit_per_section` original (que en la versión Python usaba Opus auditando Sonnet — mismo patrón al revés).
-
-## Coste y rate limit (orientación honesta)
-
-- Por fondo nuevo: 250-400K tokens totales (input+output combinado a través de las ~10-12 turns).
-- Equivalente API Sonnet: ~$1.10-$1.75. Equivalente API Opus: ~$3-5. Bajo Max: 0€ marginales pero ~10-15 mensajes de tu cuota de 5h.
-- Volumen práctico: 5-15 fondos por ventana de 5h. Para >20 fondos en ráfaga, fragmenta entre ventanas.
-- Re-runs: si los inputs no han cambiado (`input_files_hash` igual al run anterior), no tiene sentido regenerar — la skill puede leer el `analyst_synthesis_cowork.json` previo y validar que sigue válido en 1-2 turns en lugar de regenerar 8 secciones.
-
-## Errores comunes y cómo evitarlos
-
-1. **Generar antes de validar pre-requisitos** → siempre paso 1 primero.
-2. **Inventar paths de campos** ("kpis.aum_eur", "kpis.aum_total", "aum") → el path canónico es `kpis.aum_actual_meur`. Lee CLAUDE.md sección 2 si dudas.
-3. **Auditar con Opus en lugar de Sonnet** → rompe el patrón de segunda mirada. Subagente con `model: "sonnet"` explícito.
-4. **Ejecutar `--consume-cowork` automáticamente** → no hacerlo. Devolver el comando al usuario.
-5. **Asumir que un fondo INT tiene `cualitativo` top-level** → solo ES tiene eso. INT tiene `_int_cualitativo` (cache). Para INT, lee el cualitativo desde `intl_data.json`.
-6. **Olvidar el `articulos_completos` del manager_profile** → es la mina de oro para `gestores.perfiles` (CV con bios reales, no inventos). Léelo entero.
-7. **Markdown sin renderizar**: usa `**bold**` literal en los textos. El dashboard lo convierte a `<strong>`. NO uses HTML directo.
-
-## Cierre obligatorio
-
-Cuando termines (escrito el JSON + dado el comando consume al usuario), no invoques otras skills. Esta tarea acaba con el handoff a Python.
-
-Si Rafa pide después "regenera la sección X" → es una invocación nueva de esta skill con un argumento adicional. Carga el `analyst_synthesis_cowork.json` previo, regenera SOLO la sección pedida, vuelve a hacer audit pass solo sobre esa sección, y reescribe el fichero.
+Lee `docs/cowork_handoff/CLAUDE.md` secc

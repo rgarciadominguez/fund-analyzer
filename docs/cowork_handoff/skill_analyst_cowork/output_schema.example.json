@@ -1,29 +1,22 @@
 {
   "_meta": {
-    "isin": "LU3038481936",
-    "fund_name": "HAMCO SICAV - GLOBAL VALUE FUND",
-    "tipo": "INT",
+    "isin": "ES0112231008",
+    "fund_name": "AVANTAGE FUND, FI",
+    "tipo": "ES",
     "generated": "2026-05-04T18:30:00Z",
     "generator": "skill:analyst-cowork",
-    "skill_version": "1.0.0",
+    "skill_version": "2.0.0",
     "main_model": "claude-opus-4-7",
     "audit_model": "claude-sonnet-4-6",
     "sections_generated": [
-      "resumen",
-      "historia",
-      "gestores",
-      "evolucion",
-      "estrategia",
-      "cartera",
-      "fuentes_externas",
-      "documentos"
+      "resumen", "historia", "gestores", "evolucion",
+      "estrategia", "cartera", "fuentes_externas", "documentos"
     ],
-    "sections_skipped_no_data": [],
     "audit_pass_done": true,
     "audit_iterations": 1,
     "anti_invencion_flagged": [],
     "input_files_hash": {
-      "intl_data.json": "sha256:abc123...",
+      "fund_data.json": "sha256:abc123...",
       "manager_profile.json": "sha256:def456...",
       "letters_data.json": "sha256:ghi789...",
       "readings.json": "sha256:jkl012...",
@@ -32,104 +25,155 @@
   },
   "analyst_synthesis": {
     "resumen": {
-      "texto": "HAMCO SICAV - Global Value Fund (LU3038481936) se lanzó el 03/04/2023... [600-1200 palabras con cifras citadas, fuentes entre paréntesis, anti-invención]",
-      "filosofia_inversion": "Selección bottom-up de compañías globales infravaloradas con potencial de revalorización a largo plazo, priorizando fortaleza financiera y generación de flujo de caja libre... [200-400 palabras]",
+      "texto": "1500-2000 chars. Narrativa principal del fondo con KPIs clave, gestora, lead manager, año creación, rentabilidad, atribuyendo fuentes entre paréntesis...",
+      "filosofia_inversion": "1000-1400 chars. Filosofía detallada del gestor: enfoque, criterios, horizonte temporal, asset allocation flexibility...",
       "criterios_inversion": [
-        {
-          "titulo": "Selección de renta variable",
-          "descripcion": "Inversión en acciones ordinarias, preferentes, ADRs y GDRs de compañías globales infravaloradas sin restricciones por capitalización ni geografía... [150-300 palabras]"
-        }
-      ]
+        {"titulo": "Alineación de intereses", "descripcion": "200-300 chars detallando criterio 1"},
+        {"titulo": "Excelente modelo de negocio", "descripcion": "200-300 chars criterio 2"},
+        {"titulo": "Precio razonable", "descripcion": "200-300 chars criterio 3"}
+      ],
+      "fortalezas": [
+        "Historial de rentabilidad consistente: dentro del 10% mejor de su categoría por 6 años consecutivos (Carta enero 2026)",
+        "Compromiso del gestor: skin in the game >50% del patrimonio personal, comprometido ante notario (avantagecapital.com)",
+        "Volatilidad controlada: 12.28% (CNMV), aprox. mitad de los principales índices RV",
+        "Reconocimiento profesional: AA Citywire + 5 estrellas Morningstar en todos los horizontes (Carta julio 2025)"
+      ],
+      "riesgos": [
+        "Concentración decisional: una sola persona toma las decisiones de inversión sin co-gestor formal",
+        "Exposición Argentina: 6.05% en IRSA + posiciones en Pampa Energía, Banco Macro, MercadoLibre, deuda soberana (riesgo país)",
+        "Estructura de comisiones: TER 0.9% Class A / 1.38% Class B (CNMV)"
+      ],
+      "para_quien_es": "300-500 chars. Inversor pacientes con horizonte 5+ años, perfil moderado, valora consistencia + alineación gestor sobre rentabilidades extraordinarias...",
+      "compromiso_gestor": "200-400 chars. Juan Gómez Bada comprometido ante notario a invertir >50% patrimonio personal en el fondo. Cobra TER 0.9% sin comisión de éxito (CNMV)...",
+      "signal": "POSITIVO",
+      "signal_rationale": "200-300 chars. Por qué la señal es positiva: combinación de track record, compromiso, volatilidad controlada y diversificación..."
     },
     "historia": {
-      "texto": "Desde su lanzamiento en abril de 2023 como continuación del SIH-Global Equity Class B (LU2375689663), el fondo ha atravesado... [800-1500 palabras con timeline narrativo]",
+      "texto": "4000-6000 chars. Narrativa cronológica desde lanzamiento 31/07/2014. Cubrir lanzamiento + cambios estratégicos + premios + crecimiento AUM + cambios regulatorios + contexto mercado por año.",
       "hitos": [
-        {
-          "fecha": "2002",
-          "tipo": "Equipo",
-          "titulo": "Daniel J. O'Keefe se incorpora a Artisan Partners como analista",
-          "descripcion": "Daniel J. O'Keefe se une a Artisan Partners en mayo de 2002 procedente de Harris Associates LP... [80-200 palabras]"
-        }
-      ],
-      "anios_desde_inicio": 3,
-      "cagr_desde_inicio_pct": null,
-      "peor_anio": null,
-      "mejor_anio": null
+        {"anio": "2014", "tipo": "lanzamiento", "titulo": "Lanzamiento Avantage Fund FI", "evento": "31 julio 2014 — Juan Gómez Bada funda Avantage Capital y lanza Avantage Fund con compromiso notarial de invertir >50% patrimonio personal."},
+        {"anio": "2015", "tipo": "hecho_relevante", "titulo": "Actualización folleto CNMV", "evento": "Actualización de oficio del folleto/DFI por cambio en delegación de funciones de Renta 4 Gestora."},
+        {"anio": "2018", "tipo": "cambio_estrategia", "titulo": "Reducción nivel de riesgo", "evento": "El nivel de riesgo del fondo se reduce de 7 a 4 (CNMV)."},
+        {"anio": "2021", "tipo": "hecho_relevante", "titulo": "Creación de Clase B", "evento": "CNMV verifica creación de Clase B con sistema de comisiones diferenciado para inversiones desde 0€..."}
+      ]
     },
     "gestores": {
-      "texto": "El equipo gestor del HAMCO SICAV - Global Value Fund está liderado por Daniel J. O'Keefe (Lead Portfolio Manager) y Michael J. McKinnon (co-gestor)... [500-1000 palabras de narrativa cruzando bios + filosofía + cambios históricos del equipo]",
+      "texto": "10000-18000 chars. Narrativa profunda del equipo gestor con énfasis en lead manager, sus decisiones públicas, comunicación, filosofía, presencia mediática.",
       "perfiles": [
         {
-          "nombre": "Daniel J. O'Keefe",
-          "role": "lead",
-          "experiencia_anios": 30,
-          "cv": "Director gerente de Artisan Partners y socio fundador del Equipo Global Value. Gestiona las estrategias Artisan Global Value y Artisan Select Equity desde su inicio... [200-500 palabras]",
-          "trayectoria": [
-            {"anio": "1997-2002", "puesto": "Analista renta variable internacional", "empresa": "Harris Associates LP"},
-            {"anio": "2002-2006", "puesto": "Analista", "empresa": "Artisan Partners (estrategia International Value)"},
-            {"anio": "2006-presente", "puesto": "Lead Portfolio Manager", "empresa": "Artisan Partners (Global Value)"}
+          "nombre": "Juan Gómez Bada",
+          "cargo": "CEO y Director de Inversiones",
+          "trayectoria": "Texto MARKDOWN (1500-3000 chars) con **bold**. **Juan Gómez Bada** es el **CEO y Director de Inversiones** de **Avantage Capital EAFN**, gestora-asesor independiente registrada en CNMV (nº 34). Con **más de 15 años de experiencia** en gestión de inversiones (avantagecapital.com), fundó la firma en 2014 con la misión de aplicar criterios de inversión rigurosos y transparentes...",
+          "filosofia": "500-1000 chars. Filosofía de inversión personal de Juan Gómez Bada: tres criterios duros (alineación intereses, modelo de negocio, precio razonable), enfoque empresarial vs financiero, horizonte largo plazo, baja rotación...",
+          "cv_bullets": [
+            "CEO y Director de Inversiones de Avantage Capital EAFN",
+            "Rating AA Citywire",
+            "Avantage Fund con 5 estrellas Morningstar en todos los horizontes",
+            "Dirige Avantage Fund, Avantage Pure Equity y Plan de Pensiones",
+            "+15 años experiencia en gestión de activos",
+            "Licenciado ADE por CUNEF + Executive MBA por IE Business School",
+            "Compromiso notarial >50% patrimonio personal en sus fondos"
           ],
-          "filosofia": "Identificación de compañías globales infravaloradas con potencial de revalorización a largo plazo, priorizando registros de rentabilidad, endeudamiento y generación de caja...",
-          "fuentes": ["Artisan Partners website", "Bloomberg profile", "Hargreaves Lansdown 2025 review"]
+          "decisiones_clave": [
+            "2017: Inversión en Banco Popular tras cambio de presidente, esperando reestructuración o venta del banco (Carta enero 2017)",
+            "2024: Lanzamiento Avantage Fund Plan de Pensiones cubriendo demanda histórica de partícipes (Carta julio 2024)",
+            "2025-S2: Reducción exposición renta variable de 83% a 72% por incertidumbre Cataluña (Carta enero 2018)..."
+          ],
+          "rasgos_diferenciales": "300-500 chars. Skin in the game notarial >50%, transparencia activa (cartas mensuales+semestrales+conferencia anual), filosofía empresarial vs financiera, baja rotación, claridad en errores reconocidos públicamente.",
+          "fuente": "manager_profiler"
         }
       ]
     },
     "evolucion": {
-      "texto": "El fondo y su predecesor han atravesado múltiples ciclos de mercado. En 2018, el fondo predecesor Causeway Global Value NextShares retornó 5,70%... [400-800 palabras]",
-      "puntos_clave": [
-        "AUM actual €10M (Class R EUR, marzo 2026), partiendo de €5.3M USD en 2018 como SIH Global Equity",
-        "Rentabilidad 2025 del 34,05% (Class I USD) vs MSCI ACWI 22,34%",
-        "159 posiciones gestionadas desde inicio, 75% ganadoras"
-      ]
+      "texto": "5000-9000 chars. Narrativa de la evolución del fondo: AUM histórico (€1.5M en 2014 → €151.6M en 2025), partícipes (109 → 5176), rentabilidad anualizada año a año, cambios en composición de cartera, contexto de mercado en cada periodo significativo.",
+      "datos_graficos": {
+        "rentabilidades_anuales": [
+          {"anio": "2024", "fondo_pct": 18.7, "ibex_pct": 15.7, "sp500_eur_pct": 3.8},
+          {"anio": "2025", "fondo_pct": 13.1, "ibex_pct": 49.3, "sp500_eur_pct": 2.6}
+        ],
+        "concentracion_historica": [
+          {"periodo": "2024", "top5_pct": 21.3, "top10_pct": 36.1, "top15_pct": 47.2}
+        ]
+      }
     },
     "estrategia": {
-      "texto": "La estrategia invierte al menos el 75% en renta variable global... [500-900 palabras]",
-      "fortalezas": [
-        "Tasa de aciertos del 75% (118/159 posiciones desde inicio) con rentabilidad anualizada a 3 años del 20,30% (primer quintil según Barron's).",
-        "Equipo gestor con casi 30 años de experiencia liderado por Daniel J. O'Keefe, socio fundador del Equipo Global Value de Artisan Partners.",
-        "Flexibilidad geográfica sin restricciones predeterminadas, capacidad de invertir hasta el 100% en mercados asiáticos."
-      ],
-      "riesgos": [
-        "Concentración en situaciones complejas con compañías que presentan desempeños históricos desafiantes (ej. Diageo -29%, PayPal -31% en 2025).",
-        "Reconocimiento explícito de los gestores de ser 'demasiado dispuestos a mantener posiciones perdedoras'.",
-        "Exposición significativa a mercados emergentes (hasta 100% asiáticos), incrementando sensibilidad a shocks geopolíticos."
-      ],
-      "para_quien": "Inversores pacientes con horizonte 5-10 años que buscan crecimiento de capital mediante renta variable global infravalorada, toleran volatilidad elevada y valoran enfoque discrecional bottom-up...",
-      "compromiso_gestor": "Daniel J. O'Keefe es socio fundador del Equipo Global Value de Artisan Partners y director gerente, estructura que implica propiedad significativa y alineación de intereses..."
-    },
-    "cartera": {
-      "texto": "A marzo de 2026, la cartera mantenía 88% en renta variable y 12% en liquidez... [400-700 palabras]",
-      "top_posiciones": [
-        {"nombre": "Alphabet Inc.", "peso_pct": 2.64, "categoria": "Renta variable - Tecnología"},
-        {"nombre": "Newmont Corp", "peso_pct": 2.59, "categoria": "Renta variable - Materiales"},
-        {"nombre": "Amazon.com Inc.", "peso_pct": 2.56, "categoria": "Renta variable - Consumo discrecional"}
-      ],
-      "citas": [
+      "texto": "6000-10000 chars. Narrativa profunda con sub-secciones (estrategia y visión actual, asignación táctica, gestión de riesgo, consistencia por año).",
+      "estrategia_actual_resumen": "200-400 chars. Hoy: ~80% RV global (mayoría Argentina + España + tech US), 18.7% RF (deuda Argentina), 1% liquidez. Sin coberturas activas tras retirada de venta de futuros Ibex.",
+      "hitos_estrategia": [
         {
-          "texto": "Deja que tus ganadores ganen y tus perdedores se encojan",
-          "fuente": "Carta Q4 2025"
+          "periodo": "2025-S2",
+          "contexto_mercado": "Bolsas europeas con gran avance (Ibex +23.7%) vs S&P 500 +2.6% en EUR por depreciación dólar -13.9%. Bancos centrales mantienen tipos compatibles con inflación elevada.",
+          "decisiones": "Mantenimiento posiciones Argentina por estabilización política tras Milei. Reducción cobertura tipos. Foco en empresas software con barreras competitivas defendibles ante IA.",
+          "resultado": "+7.3% en S2 2025 (+13.1% año), dentro del 10% mejor de categoría por 6º año consecutivo."
+        }
+      ],
+      "quotes": [
+        {
+          "texto": "Avantage Fund se ha vuelto a situar dentro del 10% más rentable por sexto año consecutivo",
+          "autor": "Juan Gómez Bada",
+          "contexto": "Carta Semestral enero 2026"
         }
       ]
     },
+    "cartera": {
+      "texto": "5000-8000 chars. Narrativa de la cartera: tipo de activos, sectores principales, geografía (España + Argentina + EEUU + Europa), racional de las grandes posiciones a nivel macro (no posición por posición), riesgos actuales identificados.",
+      "concentracion": {
+        "top5_pct": 21.61,
+        "top10_pct": 36.50,
+        "top15_pct": 47.80
+      },
+      "concentracion_historica": [
+        {"periodo": "2024", "top5_pct": 20.5, "top10_pct": 35.2, "top15_pct": 46.1, "fuente": "fund_data"}
+      ],
+      "distribucion_tipo": {
+        "rv_internacional_pct": 60.0,
+        "rv_españa_pct": 20.3,
+        "rf_pct": 18.7,
+        "liquidez_pct": 1.0
+      }
+    },
     "fuentes_externas": {
-      "texto": "Hargreaves Lansdown añadió fondos similares de valor global a su Wealth Shortlist en julio de 2025... [200-400 palabras]",
-      "lecturas_destacadas": [
+      "texto": "5000-9000 chars. Síntesis cualitativa de la cobertura mediática del fondo. Qué dicen Salud Financiera (positivo, escéptico inicial), Rankia (review estructurada), Astralis (entrevistas), Cinco Días (deuda Argentina), Más Dividendos (foros comunidad).",
+      "opiniones_clave": [
         {
-          "fuente": "Hargreaves Lansdown",
-          "fecha": "2025-07",
-          "titulo": "Wealth Shortlist update — Global Value strategies",
-          "puntos_clave": ["Potencial de rendimiento a largo plazo", "Identificación de oportunidades infravaloradas"],
-          "url": "https://..."
+          "fuente": "Substack Salud Financiera",
+          "titulo": "Análisis de Avantage Fund - Salud Financiera",
+          "url": "https://saludfinanciera.substack.com/p/analisis-avantage-fund",
+          "tipo": "analisis",
+          "opinion": "Análisis inicial cauteloso ante afirmaciones de 'el mejor fondo de España', con foco en validación de la consistencia y revisión profunda de la concentración decisional.",
+          "fecha": "2025"
+        },
+        {
+          "fuente": "Rankia",
+          "titulo": "Análisis de Avantage Fund: Filosofía, Cartera, Rentabilidad y Comisiones",
+          "url": "https://www.rankia.com/blog/fondos-inversion/6866984-analisis-avantage-fund",
+          "tipo": "analisis",
+          "opinion": "Review estructurada destacando el quality investing con sesgo value, las 5 estrellas Morningstar y +100M€ AUM. Analiza filosofía, cartera y comisiones.",
+          "fecha": "2026-02"
         }
       ]
     },
     "documentos": {
-      "texto": "Documentos consultados para este análisis: KIID, prospectus, Annual Report 2024, cartas trimestrales Q1-Q4 2025 + Q1 2026, factsheets mensuales...",
-      "lista": [
-        {"tipo": "KIID", "fecha": "2026-01", "url": "https://...", "fuente": "CSSF"},
-        {"tipo": "Prospectus", "fecha": "2025-09", "url": "https://...", "fuente": "Gestora"},
-        {"tipo": "Annual Report", "fecha": "2024-12", "url": "https://...", "fuente": "Gestora + Wayback"}
-      ]
+      "informes_pdf": [
+        {"archivo": "CNMV_ES0112231008_2014_H2.pdf"},
+        {"archivo": "CNMV_ES0112231008_2024_H2.pdf"}
+      ],
+      "xmls_cnmv": [
+        {"archivo": "Abril_FONDMENS_202504.xml"},
+        {"archivo": "Diciembre_FONDTRIM_202504.xml"}
+      ],
+      "cartas_urls": [
+        "https://www.avantagecapital.com/carta-semestral-a-los-inversores-enero-2026/",
+        "https://www.avantagecapital.com/carta-semestral-a-los-inversores-julio-2025/"
+      ],
+      "fuentes_externas_urls": [
+        "https://saludfinanciera.substack.com/p/analisis-avantage-fund",
+        "https://www.rankia.com/blog/fondos-inversion/6866984-analisis-avantage-fund"
+      ],
+      "urls_consultadas": [
+        "https://www.cnmv.es/portal/Consultas/IIC/Fondo.aspx?isin=ES0112231008"
+      ],
+      "total_fuentes": 127
     }
   }
 }

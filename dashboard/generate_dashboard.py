@@ -388,46 +388,85 @@ def build_classes_table(data):
 
 
 def render_narrative_inline(text, fund_name=""):
-    """Convert analyst_synthesis text (with **bold** markdown) to HTML paragraphs with subsection headers.
-    Skips redundant title headers (e.g. 'RESUMEN EJECUTIVO: FONDO X') and avoids stacking headers."""
+    """Convert analyst_synthesis text (with **bold** markdown) to HTML.
+
+    Supported markdown patterns inside a paragraph block (split by blank line):
+    - `**Header**` standalone → subtle subsection (.subsec): bold, slightly
+      larger than body, no uppercase, no border. Replaces the old .sr label
+      that fragmented narrative reading. (2026-05-04)
+    - `- item` or `* item` lines → <ul class="nl"> with <li> items. Lists
+      were previously rendered as literal text with the dash visible.
+    - Plain prose with inline `**bold**` → <p class="pr"> with <strong>.
+
+    Skips redundant title headers (e.g. 'RESUMEN EJECUTIVO: FONDO X') and
+    avoids two consecutive subsec headers (would mean an empty subsection).
+    """
     if not text:
         return '<p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>'
 
-    # Clean fund name for comparison
     fund_lower = (fund_name or "").lower().split(",")[0].strip()
-
     paragraphs = text.split("\n\n")
     html = ""
     prev_was_header = False
+
+    def _bold(s):
+        return _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', s)
 
     for para in paragraphs:
         para = para.strip()
         if not para:
             continue
 
-        # Detect header: line that is ONLY **bold text**
-        is_header = para.startswith("**") and para.endswith("**") and para.count("**") == 2
-
+        # 1. Pure bold standalone → subtle subsec
+        is_header = (para.startswith("**") and para.endswith("**")
+                     and para.count("**") == 2 and "\n" not in para)
         if is_header:
             header_text = para.strip("*").strip()
             header_lower = header_text.lower()
-
-            # Skip redundant headers that just repeat the fund name or section title
             if fund_lower and fund_lower in header_lower:
                 continue
-            if any(skip in header_lower for skip in ["resumen ejecutivo", "informe analítico", "informe para comité"]):
+            if any(skip in header_lower for skip in ("resumen ejecutivo", "informe analítico", "informe para comité")):
                 continue
-
-            # Don't stack headers — if previous was also a header, skip this one
             if prev_was_header:
                 continue
-
-            html += f'<div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);margin-top:20px;">{header_text}</div>'
+            html += f'<p class="subsec">{_bold(header_text)}</p>'
             prev_was_header = True
-        else:
-            formatted = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', para)
-            html += f'<p class="pr">{formatted}</p>'
-            prev_was_header = False
+            continue
+
+        # 2. Mixed prose + list inside the block: emit interleaved <p>/<ul>.
+        # Lines starting with `- ` or `* ` form a contiguous <ul>; the rest
+        # accumulates into a <p> until a list line breaks the run (or v.v.).
+        buf_text: list[str] = []
+        buf_list: list[str] = []
+
+        def _flush_text():
+            if buf_text:
+                joined = " ".join(buf_text).strip()
+                if joined:
+                    html_parts.append(f'<p class="pr">{_bold(joined)}</p>')
+                buf_text.clear()
+
+        def _flush_list():
+            if buf_list:
+                items = "".join(f'<li>{_bold(it)}</li>' for it in buf_list)
+                html_parts.append(f'<ul class="nl">{items}</ul>')
+                buf_list.clear()
+
+        html_parts: list[str] = []
+        for ln in para.split("\n"):
+            if not ln.strip():
+                continue
+            m = _re.match(r'^\s*[-*]\s+(.*)', ln)
+            if m:
+                _flush_text()
+                buf_list.append(m.group(1).strip())
+            else:
+                _flush_list()
+                buf_text.append(ln.strip())
+        _flush_text()
+        _flush_list()
+        html += "".join(html_parts)
+        prev_was_header = False
 
     return html
 
@@ -583,7 +622,13 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
 .pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
 .sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
 .col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 .mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
 hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}

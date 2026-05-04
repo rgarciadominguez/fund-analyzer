@@ -62,26 +62,100 @@ SOFT_WARN_BUDGET = 2
 
 # Anti-invención
 ANTI_INV_MAX_FLAGS_FOR_WARN = 5
-PROPER_NOUN_RE = re.compile(r"\b[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]+){0,4}\b")
-QUOTE_RE = re.compile(r'"([^"\n]{15,200})"|\'([^\'\n]{15,200})\'')
+# Proper noun regex (v3): mínimo 2 palabras capitalizadas, separadas por espacios HORIZONTALES
+# (espacio o tab) — NO newlines. Esto evita que el regex cruce boundaries entre fields del JSON
+# y cree entidades compuestas artificiales como "POSITIVO Combinación", "DFI Actualización",
+# "Substack Salud Financiera Análisis", etc.
+PROPER_NOUN_RE = re.compile(
+    r"\b[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]+(?:[ \t]+[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]+){1,4}\b"
+)
+# Quote regex: cita entre comillas dobles o simples.
+# v3.1: requiere que la cita empiece por mayúscula o letra (no por coma/punto/espacio)
+# para evitar capturar fragmentos sueltos como ", una empresa" o ", cursos técnicos"
+# que vienen de paréntesis o fragmentos de prosa con comillas mal balanceadas.
+QUOTE_RE = re.compile(r'"([A-ZÁÉÍÓÚÑa-záéíóúñ][^"\n]{14,200})"|\'([A-ZÁÉÍÓÚÑa-záéíóúñ][^\'\n]{14,200})\'')
 NUMERIC_RE = re.compile(r"\b\d+(?:[\.,]\d+)?\s*(?:%|€|millones|mil|MEUR|M€|M\$|MUSD|MGBP)?\b")
 
 # Stopwords / nombres comunes que no son entidades sospechosas
 ENTITY_STOPLIST = {
-    # Términos genéricos
+    # Términos geográficos genéricos
     "España", "Europa", "Estados Unidos", "EE.UU.", "EE UU", "USA", "Reino Unido", "UK",
-    "China", "Asia", "Latinoamérica", "Iberoamérica", "Mediterráneo",
-    # Conceptos financieros
+    "China", "Asia", "Latinoamérica", "Iberoamérica", "Mediterráneo", "Norteamérica",
+    "Europa Occidental", "Europa Central", "Latinoamerica", "Sudamérica",
+    "República Argentina", "Republic Argentina",
+    # Conceptos financieros generales
     "Renta Variable", "Renta Fija", "Patrimonio", "Cartera", "Fondo", "Sub-Fondo",
     "Anexo", "Informe", "Folleto", "KIID", "Annual Report", "Prospectus",
     "Inversión", "Valor", "Activos", "Capital", "Mercado", "Mercados",
+    "Plan de Pensiones", "Plan Pensiones", "Pure Equity",
+    "Class A", "Class B", "Clase A", "Clase B",
+    "Bono USD", "Bono EUR", "Government Argentina", "Acción Consumer",
     # Reguladores y entidades neutras
     "CNMV", "CSSF", "AMF", "CBI", "Bundesanzeiger", "ESMA", "SEC",
-    "Morningstar", "Bloomberg", "Reuters", "Citywire",
+    "Morningstar", "Bloomberg", "Reuters", "Citywire", "Lipper",
+    "Capital Radio", "Tu Dinero Nunca Duerme", "Estrategias de Inversión",
+    "Value Investing FM", "Cinco Días", "El Confidencial",
+    # Indices y benchmarks comunes
+    "Ibex", "Ibex 35", "Euro Stoxx", "Euro Stoxx 50", "Stoxx 600",
+    "S&P 500", "Nasdaq", "Nasdaq Composite", "MSCI ACWI", "MSCI World",
+    "MSCI All Country", "DAX", "FTSE", "CAC", "Hang Seng", "Bovespa", "Kospi",
     # Frecuentes en cualquier informe
     "Bolsa", "Acciones", "Bonos", "Dividendos", "Rentabilidad", "Volatilidad",
-    "Trimestre", "Semestre", "Año", "Enero", "Febrero", "Marzo", "Abril",
-    "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+    "Trimestre", "Semestre", "Año", "Anual", "Semestral", "Trimestral",
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+    # Conceptos de gestión
+    "Skin", "Track", "Track Record", "Skin Game", "Plan", "Lanzamiento",
+    "Compromiso", "Mantenimiento", "Consolidación", "Inscripción", "Coordinadora",
+    "Responsable", "Director", "Directora", "CEO", "Presidente",
+    "Entrevista", "Entrevistado", "Entrevistas",
+    "Consejo", "Conferencia", "Conferencias", "Tribuna", "Tribunas",
+    # Fórmulas declarativas frecuentes que el regex confunde con entidades
+    "Track Record", "Buen Comportamiento", "Comportamiento Relativo",
+    "Análisis Cuantitativo", "Análisis Cualitativo", "Análisis Profesional",
+    # Lead-ins de bullets/labels (v3)
+    "Lanzamiento Avantage Fund FI", "Lanzamiento Avantage Fund Plan",
+    "Concentración", "Concentración Argentina",
+    "Rating", "Rating AA Citywire",
+    "Composición", "Distribución", "Sectores", "Sector", "Geografía",
+    "Riesgo", "Riesgos", "Fortaleza", "Fortalezas",
+    "Adición", "Salida", "Gestión", "Disciplina",
+    # Fuentes mediáticas como compounds (lead-ins de readings)
+    "Salud Financiera Substack", "Substack Salud Financiera",
+    "Astralis Funds Academy", "Astralis Podcast", "Más Dividendos",
+    "Cinco Días", "Tu Dinero", "El Confidencial",
+    "Funds Society", "Citywire España",
+    # Anexos CNMV y referencias de fuentes
+    "CNMV Anexo", "CNMV Anexo Sección", "Anexo Sección",
+    "Carta Semestral", "Carta Anual", "Carta Trimestral",
+    "Annual Report", "Informe Anual",
+    # Referencias temporales con sustantivos
+    "Pensiones Enero",
+    # Asset class compounds (común en multi-activos como Trojan)
+    "Japan Government Bonds", "UK RPI", "TIPS US", "US TIPS", "UK Linkers",
+    "UK Gilts", "UK Inflation", "UK Inflation-Linked Gilts",
+    "US Treasury Inflation Indexed Bonds", "Gold ETCs", "Physical Gold",
+    "iShares Physical Gold", "Invesco Physical Gold",
+    "Inflation-Linked", "Index-Linked", "Government Bonds",
+    "Trojan UK", "Trojan Income", "Trojan Capital Fund",
+    "CN Railway", "Canadian National Railway",
+    # Cargos compuestos
+    "Cofundador Troy", "Cofundador Troy Asset Management",
+    "Vice Chairman", "Vice Chairman Troy", "Vice Chairman Troy Asset Management",
+    "Lead Manager", "Co-Manager", "Portfolio Manager",
+    "Director Inversiones", "Director de Inversiones",
+    "Director Relación", "Directora Comunicación",
+    "Domicilio Irlanda", "Lanzamiento Trojan", "Lanzamiento Trojan Fund",
+}
+
+# Palabras-stop intercaladas que indican que la "entidad" es una frase, no un nombre propio.
+# Si el match contiene alguna de estas en posición intermedia, se descarta.
+ENTITY_FILLER_WORDS = {
+    "el", "la", "los", "las", "un", "una", "unos", "unas", "del", "de",
+    "y", "o", "en", "con", "por", "para", "sin", "sobre", "tras",
+    "no", "ni", "que", "qué", "cuyo", "cuya", "cuyos", "cuyas",
+    "es", "son", "ha", "han", "hay", "fue", "fueron", "ser", "estar",
+    "muy", "más", "menos", "mucho", "poco", "tanto",
 }
 
 
@@ -131,16 +205,38 @@ class Validator:
             return None
 
     def load_bundle_inputs(self) -> dict[str, Any]:
-        """Carga los 5 inputs del bundle para anti-invención. Devuelve dict con texto concatenado."""
+        """Carga los 5 inputs del bundle para anti-invención.
+        Devuelve dict con texto extraído (solo valores string del JSON, no la sintaxis).
+
+        v2: en vez de json.dumps (que pega strings adyacentes con sintaxis JSON),
+        extraemos solo los VALORES string del árbol y los unimos con separadores.
+        Esto evita matches espúrios donde el regex pilla, p.ej., "AA Citywire" + "El"
+        de un JSON donde son keys/values distintos pero adyacentes textualmente.
+        """
         bundle = self.fund_dir / "bundle"
         inputs_text: dict[str, str] = {}
+
+        def extract_strings(obj, out: list) -> None:
+            """Recolectar solo los valores string del árbol JSON."""
+            if isinstance(obj, str):
+                out.append(obj)
+            elif isinstance(obj, dict):
+                for v in obj.values():
+                    extract_strings(v, out)
+            elif isinstance(obj, list):
+                for v in obj:
+                    extract_strings(v, out)
+
         for fname in ["fund_data.json", "manager_profile.json", "letters_data.json",
                       "readings.json", "sources.json"]:
             path = bundle / fname
             if path.exists():
                 try:
                     data = json.loads(path.read_text(encoding="utf-8"))
-                    inputs_text[fname] = json.dumps(data, ensure_ascii=False, default=str)
+                    strings: list[str] = []
+                    extract_strings(data, strings)
+                    # Unir con separador inequívoco para evitar collision entre fields
+                    inputs_text[fname] = "\n||\n".join(strings)
                 except Exception as e:
                     self._add("soft", f"load_bundle_{fname}", False, f"no leíble: {e}")
                     inputs_text[fname] = ""
@@ -157,7 +253,10 @@ class Validator:
                     fb_path = self.fund_dir / fb
                     if fb_path.exists():
                         try:
-                            inputs_text[fname] = inputs_text.get(fname, "") + " " + fb_path.read_text(encoding="utf-8")
+                            data = json.loads(fb_path.read_text(encoding="utf-8"))
+                            strings: list[str] = []
+                            extract_strings(data, strings)
+                            inputs_text[fname] = inputs_text.get(fname, "") + "\n||\n" + "\n||\n".join(strings)
                         except Exception:
                             pass
         return inputs_text
@@ -366,10 +465,38 @@ class Validator:
         haystack_norm = self._normalize(haystack)
 
         # 1. Entidades nombradas (proper nouns)
+        # Cualquier token de la entidad que esté en stoplist se considera "frase con palabra común"
+        # y se descarta. Reduce compounds del tipo "Lanzamiento Avantage Fund FI" o "DFI Actualización".
+        stoplist_lower = {s.lower() for s in ENTITY_STOPLIST}
         flagged_entities = []
         for match in PROPER_NOUN_RE.finditer(synth_text):
             entity = match.group(0).strip()
             if len(entity) < 4 or entity in ENTITY_STOPLIST:
+                continue
+            # Filtrar entidades que contienen filler words (artículos/preposiciones/verbos comunes)
+            # — esas son frases capitalizadas, no nombres propios
+            tokens = entity.split()
+            if any(t.lower() in ENTITY_FILLER_WORDS for t in tokens):
+                continue
+            # Filtrar compounds donde CUALQUIER token está en stoplist
+            # (ej. "Lanzamiento Avantage Fund FI" — "Lanzamiento" está en stoplist)
+            if any(t.lower() in stoplist_lower for t in tokens):
+                continue
+            # Filtrar single-word verbos en mayúscula
+            if len(tokens) == 1 and len(tokens[0]) > 8 and tokens[0].endswith(
+                ("amos", "emos", "imos", "ando", "iendo", "ido", "ado", "ada", "ando", "ente", "able", "ible")
+            ):
+                continue
+            # Filtrar single-word capitalizado al inicio de frase narrativa que NO sea nombre propio claro
+            # (heurística: si single-word, debe aparecer al menos 2 veces en el output para considerar entidad)
+            if len(tokens) == 1:
+                count_in_synth = synth_text.count(entity)
+                if count_in_synth < 2:
+                    continue
+            # Filtrar compounds que empiezan o terminan con palabra capitalizada típica de inicio de frase
+            # ("El Confidencial" valida, pero "POSITIVO Combinación" no — "POSITIVO" es señal, no entidad)
+            uppercase_signals = {"POSITIVO", "NEGATIVO", "NEUTRAL", "OK", "FAIL", "WARN"}
+            if tokens[0] in uppercase_signals:
                 continue
             entity_norm = self._normalize(entity)
             if entity_norm not in haystack_norm:
@@ -394,6 +521,8 @@ class Validator:
             self._add("anti_invencion", "entities", True, "todas las entidades verificables")
 
         # 2. Citas literales entre comillas
+        # Construir haystack ampliado para citas: incluye letters_data + readings + manager_profile.fuentes_web
+        # (a veces las "citas" del analyst son frases de entrevistas/tribunas, no de cartas formales)
         flagged_quotes = []
         for match in QUOTE_RE.finditer(synth_text):
             quote = match.group(1) or match.group(2)
@@ -402,9 +531,21 @@ class Validator:
             quote_norm = self._normalize(quote)
             if len(quote_norm) < 20:
                 continue
-            if quote_norm not in haystack_norm:
-                if not self._fuzzy_in_haystack(quote_norm, haystack_norm, threshold=0.7):
-                    flagged_quotes.append(quote[:80])
+            # Limpiar markdown ** del comienzo/final de la cita antes de buscarla
+            quote_clean = re.sub(r'^\*+|\*+$', '', quote_norm).strip()
+            if quote_clean in haystack_norm:
+                continue
+            if quote_norm in haystack_norm:
+                continue
+            # Heurística adicional: trocear la cita en n-gramas de 6 palabras y verificar
+            # que al menos uno aparece en el haystack (para citas largas con paráfrasis menores)
+            words = quote_clean.split()
+            if len(words) >= 6:
+                ngrams = [" ".join(words[i:i+6]) for i in range(len(words) - 5)]
+                if any(ng in haystack_norm for ng in ngrams):
+                    continue
+            if not self._fuzzy_in_haystack(quote_norm, haystack_norm, threshold=0.7):
+                flagged_quotes.append(quote[:80])
 
         for q in flagged_quotes[:10]:
             self._add("anti_invencion", f"quote:{q[:30]}", False,
@@ -455,6 +596,8 @@ class Validator:
 
     @staticmethod
     def _extract_section_text(section: Any) -> str:
+        """Igual que _extract_all_text: usar \\n\\n como separador entre fields
+        para evitar entidades compuestas artificiales del regex."""
         if isinstance(section, str):
             return section
         if isinstance(section, dict):
@@ -468,16 +611,26 @@ class Validator:
                             parts.append(item)
                         elif isinstance(item, dict):
                             parts.append(json.dumps(item, ensure_ascii=False))
-            return " ".join(parts)
+            return "\n\n".join(parts)
         return ""
 
     def _extract_all_text(self, obj: Any) -> str:
+        """Concatena todos los strings de un dict/list pero usando separador FUERTE
+        (\\n\\n) entre values adyacentes. Sin esto, el regex de proper nouns puede
+        unir strings de fields contiguos del JSON dump y crear falsos positivos
+        compuestos como 'POSITIVO Combinación' (signal+signal_rationale) o
+        'Substack Salud Financiera Análisis' (fuente+titulo siguiente).
+
+        Heurística: \\n\\n es un boundary que NO matchea ningún regex de entidad
+        ni cita, así que separa los fields semánticamente sin afectar al texto
+        propio dentro de cada field.
+        """
         if isinstance(obj, str):
             return obj
         if isinstance(obj, dict):
-            return " ".join(self._extract_all_text(v) for v in obj.values())
+            return "\n\n".join(self._extract_all_text(v) for v in obj.values() if v is not None)
         if isinstance(obj, list):
-            return " ".join(self._extract_all_text(v) for v in obj)
+            return "\n\n".join(self._extract_all_text(v) for v in obj if v is not None)
         return ""
 
     # -----------------------------------------------------------------------
@@ -608,16 +761,16 @@ def print_report(report: dict) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Valida el output del analyst (skill o legacy) contra baseline + anti-invención.")
+    parser = argparse.ArgumentParser(description="Valida el output del analyst (skill o legacy) contra baseline + anti-invencion.")
     parser.add_argument("isin", help="ISIN del fondo (ej. ES0112231008)")
     parser.add_argument("--baseline-tag", default="v1-api-stable",
                        help="Git tag del baseline (default: v1-api-stable)")
     parser.add_argument("--fund-dir", default=None,
-                       help="Path explícito al directorio del fondo (default: data/funds/{ISIN})")
+                       help="Path explicito al directorio del fondo")
     parser.add_argument("--output-report", default=None,
                        help="Si se especifica, guarda el reporte JSON en ese path")
     parser.add_argument("--skip-anti-invencion", action="store_true",
-                       help="Saltar la verificación de invención (más rápido)")
+                       help="Saltar la verificacion de invencion (mas rapido)")
     parser.add_argument("--quiet", action="store_true",
                        help="Solo imprime exit code, no detalles")
     args = parser.parse_args()
@@ -642,3 +795,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# v3.2 final

@@ -3,18 +3,42 @@
   "nombre": "AVANTAGE FUND, FI",
   "fallos": [
     {
-      "regla_id": "gestores_min_perfiles",
-      "seccion": "gestores",
-      "fail_type": "scarcity",
-      "problema": "Solo 1 perfiles de gestores (mínimo 2)",
-      "agente_responsable": "manager_deep_agent",
-      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+      "regla_id": "historia_no_headers",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Historia tiene 5 subsecciones — debe ser 3-5 parrafos fluidos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia como narrativa pura sin headers."
+    },
+    {
+      "regla_id": "estrategia_no_headers",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia tiene 6 subsecciones — debe ser parrafos evaluativos sin headers",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia como narrativa evaluativa pura."
+    },
+    {
+      "regla_id": "resumen_returns_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2025: texto dice 200.3%, real 13.2%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
+    },
+    {
+      "regla_id": "resumen_kpis_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen tiene cifras de partícipes/AUM que no cuadran con KPIs reales (cifras_kpi_no_coinciden): texto dice 3787 partícipes, KPI real 5176 (27% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen usando SOLO data.kpis para num_participes y aum_actual_meur. Nunca tomar cifras del texto del PDF (gestores a veces escriben mal)."
     },
     {
       "regla_id": "historia_kpis_match_data",
       "seccion": "historia",
       "fail_type": "content",
-      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 109 partícipes, KPI real 5176 (98% drift); texto dice 1496.0 M€ AUM, KPI real 151.648 (886% drift)",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 150 partícipes, KPI real 5176 (97% drift); texto dice 100.0 M€ AUM, KPI real 151.648 (34% drift)",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
     },
@@ -27,10 +51,34 @@
       "accion": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent."
     },
     {
+      "regla_id": "estrategia_returns_match_data",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2017: texto dice 0.2%, real 13.5%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia sin inventar porcentajes. Usar solo serie_rentabilidad real."
+    },
+    {
+      "regla_id": "hitos_historia_percentages_verifiable",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2017: hito dice 10.0%, real 13.5% | 2018: hito dice 20.0%, real -3.6% | 2024: hito dice 9.3%, real 19.3%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    },
+    {
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+    },
+    {
       "regla_id": "hitos_estrategia_have_driver",
       "seccion": "estrategia",
       "fail_type": "completitud",
-      "problema": "Hitos sin driver explicativo (4/4). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "problema": "Hitos sin driver explicativo (4/6). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
       "agente_responsable": "analyst_agent",
       "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
     },
@@ -51,12 +99,12 @@
       "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "fallos_estructura": 1,
+  "fallos_estructura": 7,
   "fallos_scarcity": 2,
   "total_reglas": 103,
-  "reglas_ok": 97,
+  "reglas_ok": 91,
   "aceptable": false,
-  "score_display": "97/103 reglas OK (2 pendientes de datos)",
+  "score_display": "91/103 reglas OK (2 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -67,5 +115,5 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-05-04T07:52:25.441198"
+  "evaluado_at": "2026-05-04T13:27:44.020221"
 }
