@@ -187,14 +187,57 @@ def build_classes_table(data):
     for cls in clases:
         clases[cls]["activa"] = cls in current_clases
 
-    # TER: use global TER for all classes (per-class TER names may differ)
+    # TER por clase: leer serie_ter_por_clase (tiene valor real de cada clase),
+    # NO serie_ter que es el agregado del fondo (típicamente coincide con la
+    # clase A institucional). Bug: si usabas el agregado, TER < com_gestión
+    # para B/C/D y la coherencia check de líneas ~347-352 blanqueaba la com.
+    ter_por_clase_latest: dict = {}
+    if ter_series:
+        # Última entry de serie_ter_por_clase = más reciente
+        last_ter = ter_series[-1] if isinstance(ter_series, list) else {}
+        if isinstance(last_ter, dict):
+            ter_por_clase_latest = last_ter.get("clases", {}) or {}
+
+    # Fallback al TER agregado para clases SIN valor por clase
     global_ter = None
     for t in cuant.get("serie_ter", []):
         if t.get("ter_pct"):
             global_ter = t["ter_pct"]
+
     for cls in clases:
-        if clases[cls].get("activa") and global_ter:
+        if not clases[cls].get("activa"):
+            continue
+        # 1) preferir TER específico de la clase
+        cls_ter = ter_por_clase_latest.get(cls)
+        if cls_ter is None:
+            # match insensible: las keys pueden venir mayús/min mezcladas
+            for k, v in ter_por_clase_latest.items():
+                if str(k).lower() == str(cls).lower():
+                    cls_ter = v
+                    break
+        if cls_ter is not None:
+            clases[cls]["ter"] = cls_ter
+        elif global_ter:
+            # 2) si no hay valor por clase, fallback al agregado
             clases[cls]["ter"] = global_ter
+
+    # Fix bug "todas las filas con mismo ISIN": propagar ISIN por clase desde
+    # serie_clases_info (lo escribe cnmv_agent en cnmv_data.cualitativo, ya
+    # capturado por el fix heurístico 2-fases). La última entry es la más
+    # reciente. Si una clase no tiene ISIN ahí, se mantiene el fallback al
+    # ISIN principal en línea ~338.
+    serie_clases_info = cuant.get("serie_clases_info", []) or []
+    if serie_clases_info and isinstance(serie_clases_info, list):
+        last_entry = serie_clases_info[-1] if serie_clases_info else {}
+        if isinstance(last_entry, dict):
+            for cls_name, cls_data in last_entry.items():
+                if cls_name == "periodo":
+                    continue
+                if not isinstance(cls_data, dict):
+                    continue
+                cls_isin = cls_data.get("isin")
+                if cls_isin and cls_name in clases:
+                    clases[cls_name]["isin"] = cls_isin
 
     # Fallback INT: reducir tabla a retail + limpia + 1 extra (máx 3 filas).
     # Prioridad: retail EUR, limpia EUR, y si falta alguna, otra EUR significativa.
@@ -334,8 +377,17 @@ def build_classes_table(data):
                 pass
         inicio = clases_inicio.get(cls_name, "—")
         activa = cls_data.get("activa", True)
-        # ISIN de la clase: usar el específico si existe, si no el principal
-        cls_isin = cls_data.get("isin") or isin
+        # ISIN de la clase: usar el específico si existe; si no, mostrar "—"
+        # en lugar de repetir el ISIN principal (que daría falsa impresión de
+        # que todas las clases tienen el mismo ISIN — bug previo).
+        # Para la clase principal del fondo (típicamente A), sí usar el
+        # ISIN del fondo si no hay específico.
+        if cls_data.get("isin"):
+            cls_isin = cls_data["isin"]
+        elif cls_name.strip().upper() in ("A", "BASE", "MAIN"):
+            cls_isin = isin
+        else:
+            cls_isin = "—"
 
         # Status badge
         estado = '<span style="color:var(--pos);font-size:10px;">Activa</span>' if activa else '<span style="color:var(--ink-4);font-size:10px;">Cerrada</span>'
@@ -3843,10 +3895,21 @@ def build_tab_estrategia(data):
             m = _re.search(r"(\d{1,2})", str(score))
             if m:
                 score_display = f"{m.group(1)}/10"
+        # Bloque score: extraído como variable para evitar f-string con backslash escape
+        # (PEP 701, requeriría Python >=3.12). Refactor compatible con Python 3.10+.
+        score_block = ""
+        if score_display:
+            _score_span_style = "font-family:'Source Code Pro',monospace;font-size:18px;font-weight:600;color:var(--navy);"
+            score_block = (
+                '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+                '<span style="font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;">Score consistencia</span>'
+                f'<span style="{_score_span_style}">{score_display}</span>'
+                '</div>'
+            )
         consistencia_html = f'''
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);margin-top:24px;">Resumen de consistencia</div>
   <div style="background:var(--paper-2);border-left:3px solid var(--navy);padding:14px 18px;margin-bottom:16px;">
-    {f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:10px;'><span style='font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;'>Score consistencia</span><span style=\"font-family:'Source Code Pro',monospace;font-size:18px;font-weight:600;color:var(--navy);\">{score_display}</span></div>" if score_display else ''}
+    {score_block}
     {f'<div style="margin-bottom:8px;"><strong style="color:var(--ink);font-size:12px;">Decisiones vs estrategia:</strong> <span class="pr" style="font-size:12.5px;">{dec_est}</span></div>' if dec_est else ''}
     {f'<div style="margin-bottom:8px;"><strong style="color:var(--ink);font-size:12px;">Resultados vs objetivo:</strong> <span class="pr" style="font-size:12.5px;">{res_obj}</span></div>' if res_obj else ''}
     {f'<div><strong style="color:var(--ink);font-size:12px;">Justificación:</strong> <span class="pr" style="font-size:12.5px;font-style:italic;">{just}</span></div>' if just else ''}

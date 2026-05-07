@@ -1010,39 +1010,110 @@ class ReadingsCollector:
     # ══════════════════════════════════════════════════════════════════════
 
     def _extract_structured(self, text: str, url: str, source_name: str) -> dict | None:
-        """Extraer contenido estructurado con Gemini Flash."""
-        from tools.gemini_wrapper import extract_fast
+        """Extraer contenido estructurado con Anthropic Haiku 4.5.
+
+        Migrado de Gemini Flash → Haiku el 2026-05-07: Gemini API daba 403
+        PERMISSION_DENIED y el collector dejaba `analisis_completos` vacío,
+        lo que vacía la sección de fuentes externas del dashboard. Haiku
+        cuesta ~$0.001-0.003 por extracción, total ~$0.05-0.10/fondo.
+        """
+        import json as _json
+        import os as _os
+        try:
+            import anthropic
+        except Exception as exc:
+            self._log("WARN", f"anthropic SDK no disponible: {exc}")
+            return None
 
         try:
-            result = extract_fast(
-                text=text[:15000],
-                schema=READING_SCHEMA,
-                context=(
-                    f"Extrae informacion sobre el fondo {self.fund_name} ({self.isin}), "
-                    f"gestora {self.gestora}. Fuente: {source_name}. "
-                    f"El texto puede estar en CUALQUIER idioma (ES, EN, FR, DE, IT). "
-                    f"Quiero: resumen, puntos clave, opinion del autor, datos concretos "
-                    f"(rentabilidad, AUM, rating, comisiones, riesgo). "
-                    f"ACEPTA como contenido valido: analisis editoriales, fichas con datos "
-                    f"de performance/riesgo/comisiones, noticias sobre el fondo (cambio gestor, "
-                    f"flujos entrada/salida, cambio benchmark), entrevistas del gestor, "
-                    f"datos de Morningstar/Citywire/Trustnet, blogs de inversion. "
-                    f"RECHAZA SOLO si: el fondo aparece en un listado generico de 50+ fondos "
-                    f"sin datos individuales, o es pagina de login/error/cookie. "
-                    f"Resumen SIEMPRE en ESPANOL. No inventar datos."
-                ),
+            from tools.llm_models import HAIKU_HINTS as _HAIKU
+        except Exception:
+            _HAIKU = "claude-haiku-4-5-20251001"
+
+        # Schema description -> readable prompt for Haiku
+        schema_lines = []
+        for k, v in READING_SCHEMA.items():
+            if isinstance(v, dict):
+                sub = ", ".join(f"{sk}: {sv}" for sk, sv in v.items())
+                schema_lines.append(f'  "{k}": {{ {sub} }}')
+            elif isinstance(v, list):
+                schema_lines.append(f'  "{k}": [{v[0] if v else "str"}]')
+            else:
+                schema_lines.append(f'  "{k}": "{v}"')
+        schema_str = "{\n" + ",\n".join(schema_lines) + "\n}"
+
+        system = (
+            "Eres un extractor de datos estructurados sobre fondos de inversión. "
+            "Devuelves SOLO JSON válido, sin markdown, sin texto adicional. "
+            "Si un campo no tiene información en el texto, devuelve string vacío "
+            "o lista vacía. NO inventes datos. Resumen SIEMPRE en español."
+        )
+        user_prompt = (
+            f"Texto fuente (web {source_name}):\n"
+            f"---\n{text[:15000]}\n---\n\n"
+            f"Fondo objetivo: {self.fund_name} ({self.isin}), gestora {self.gestora}.\n"
+            f"El texto puede estar en cualquier idioma (ES, EN, FR, DE, IT). "
+            f"ACEPTA: análisis editoriales, fichas con datos de performance/riesgo/comisiones, "
+            f"noticias sobre el fondo, entrevistas del gestor, datos Morningstar/Citywire/Trustnet, "
+            f"blogs de inversión. "
+            f"RECHAZA solo si: el fondo aparece en listado genérico de 50+ fondos sin datos "
+            f"individuales, o es página de login/error/cookie.\n\n"
+            f"Devuelve un JSON con este schema (sin markdown, sin ```json):\n{schema_str}"
+        )
+
+        try:
+            client = anthropic.Anthropic(
+                api_key=_os.getenv("ANTHROPIC_API_KEY"), timeout=120,
             )
-            if isinstance(result, dict):
-                # Filtrar no-relevantes
-                resumen = result.get("resumen") or ""
-                if resumen.lower().startswith("no_relev"):
-                    return None
-                if len(resumen) < 30:
-                    return None
-                return result
+            r = client.messages.create(
+                model=_HAIKU,
+                max_tokens=2000,
+                temperature=0.0,
+                system=system,
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+            try:
+                from tools.llm_logger import log_llm_response
+                log_llm_response(
+                    r, agent="readings_collector_haiku_extract",
+                    isin=self.isin, model=_HAIKU, provider="anthropic",
+                )
+            except Exception:
+                pass
+
+            raw = r.content[0].text if r.content else ""
+            # Robust JSON extract: si vino con ```json...``` o ruido extra
+            raw = raw.strip()
+            if raw.startswith("```"):
+                # quitar fences
+                lines = raw.split("\n")
+                if lines and lines[0].startswith("```"):
+                    lines = lines[1:]
+                if lines and lines[-1].startswith("```"):
+                    lines = lines[:-1]
+                raw = "\n".join(lines).strip()
+            # Buscar primer { y último } por si Haiku añadió texto extra
+            i, j = raw.find("{"), raw.rfind("}")
+            if i >= 0 and j > i:
+                raw = raw[i:j + 1]
+
+            try:
+                result = _json.loads(raw)
+            except Exception as exc:
+                self._log("WARN", f"Haiku JSON parse failed: {exc} (raw[:120]={raw[:120]!r})")
+                return None
+
+            if not isinstance(result, dict):
+                return None
+            resumen = result.get("resumen") or ""
+            if resumen.lower().startswith("no_relev"):
+                return None
+            if len(resumen) < 30:
+                return None
+            return result
         except Exception as e:
-            self._log("WARN", f"Extract failed: {e}")
-        return None
+            self._log("WARN", f"Haiku extract failed: {e}")
+            return None
 
     # ══════════════════════════════════════════════════════════════════════
     # RUN
