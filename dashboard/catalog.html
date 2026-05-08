@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fund Analyzer — Catálogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #faf9f7;
+    --paper-2: #f3f1ec;
+    --paper-3: #e8e5dd;
+    --ink: #1a1a1a;
+    --ink-2: #4a4a4a;
+    --ink-3: #888;
+    --navy: #1f3a5f;
+    --navy-pale: #e8edf4;
+    --accent: #c89b3c;
+    --pos: #2d6a4f;
+    --neg: #9d2c2c;
+    --border: #d8d4c9;
+    --border-soft: #ebe7df;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Source Sans 3', -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px 32px 60px;
+  }
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .subtitle {
+    color: var(--ink-2);
+    font-size: 13px;
+    letter-spacing: 0.3px;
+  }
+  .generated {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 6px;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .stat-card {
+    background: var(--paper-2);
+    border-left: 3px solid var(--navy);
+    padding: 12px 16px;
+  }
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .stat-value {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-top: 4px;
+  }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--ink-2);
+    margin-top: 2px;
+  }
+  .filters {
+    background: var(--paper-2);
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    align-items: end;
+  }
+  .filter-group label {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .filter-group input,
+  .filter-group select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .filter-group input:focus,
+  .filter-group select:focus {
+    outline: none;
+    border-color: var(--navy);
+  }
+  .filters-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  button.btn {
+    padding: 7px 14px;
+    border: 1px solid var(--navy);
+    background: var(--navy);
+    color: white;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  button.btn:hover {
+    background: #15294a;
+  }
+  button.btn.btn-secondary {
+    background: var(--paper);
+    color: var(--navy);
+  }
+  button.btn.btn-secondary:hover {
+    background: var(--navy-pale);
+  }
+  .counter {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-bottom: 8px;
+  }
+  table.catalog {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  table.catalog thead {
+    background: var(--paper-2);
+    border-bottom: 2px solid var(--ink);
+  }
+  table.catalog th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink-2);
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+  }
+  table.catalog th:hover { color: var(--navy); }
+  table.catalog th.sorted-asc::after { content: ' ▲'; color: var(--navy); font-size: 9px; }
+  table.catalog th.sorted-desc::after { content: ' ▼'; color: var(--navy); font-size: 9px; }
+  table.catalog th.numeric, table.catalog td.numeric {
+    text-align: right;
+    font-family: 'Source Code Pro', monospace;
+  }
+  table.catalog tbody tr {
+    border-bottom: 1px solid var(--border-soft);
+    transition: background 0.1s;
+  }
+  table.catalog tbody tr:hover {
+    background: var(--navy-pale);
+    cursor: pointer;
+  }
+  table.catalog td {
+    padding: 9px 12px;
+    vertical-align: top;
+  }
+  td.isin {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+  td.nombre {
+    font-weight: 500;
+    max-width: 360px;
+  }
+  td.nombre a {
+    color: var(--navy);
+    text-decoration: none;
+  }
+  td.nombre a:hover { text-decoration: underline; }
+  td.gestora {
+    color: var(--ink-2);
+    font-size: 12px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 1px 7px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+  .badge.es { background: var(--navy-pale); color: var(--navy); }
+  .badge.int { background: #fef3e2; color: var(--accent); }
+  .badge.no-dashboard { background: #fce8e8; color: var(--neg); }
+  .badge.top {
+    background: var(--pos);
+    color: white;
+  }
+  .badge.bueno {
+    background: var(--navy);
+    color: white;
+  }
+  .badge.medio {
+    background: var(--ink-3);
+    color: white;
+  }
+  .badge.no-cualit {
+    background: var(--paper-3);
+    color: var(--ink-3);
+    font-size: 9px;
+    padding: 1px 5px;
+  }
+  .badge.has-cualit {
+    background: var(--pos);
+    color: white;
+    font-size: 10px;
+  }
+  td.opinion {
+    color: var(--ink-2);
+    font-style: italic;
+    font-size: 12px;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  td.opinion:hover {
+    white-space: normal;
+    background: var(--paper-2);
+  }
+
+  /* Botón de analizar */
+  .btn-analyze {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 3px 9px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: inherit;
+  }
+  .btn-analyze:hover { background: #a87b1f; }
+  .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .modal-header {
+    background: var(--navy);
+    color: white;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 16px;
+  }
+  .modal-header button.close {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    background: var(--paper-2);
+  }
+  /* Progress bar */
+  .progress-steps {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .step {
+    background: var(--paper-2);
+    border: 1px solid var(--border);
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--ink-3);
+  }
+  .step.done {
+    background: var(--pos);
+    color: white;
+    border-color: var(--pos);
+  }
+  .step.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--paper-3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .progress-bar > div {
+    height: 100%;
+    background: var(--navy);
+    transition: width 0.5s;
+  }
+  .log-tail {
+    background: #1a1a1a;
+    color: #e0e0e0;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    padding: 12px;
+    max-height: 280px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .meta-line {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 8px;
+  }
+  .meta-line strong { color: var(--ink); }
+  /* Header action button */
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .completitud-bar {
+    display: inline-block;
+    width: 60px;
+    height: 6px;
+    background: var(--paper-3);
+    position: relative;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .completitud-bar > div {
+    height: 100%;
+    background: var(--navy);
+    border-radius: 3px;
+  }
+  .completitud-bar.low > div { background: var(--neg); }
+  .completitud-bar.mid > div { background: var(--accent); }
+  .completitud-bar.high > div { background: var(--pos); }
+  .state {
+    padding: 40px;
+    text-align: center;
+    color: var(--ink-3);
+    background: var(--paper-2);
+    border: 1px dashed var(--border);
+  }
+  .state.error { color: var(--neg); border-color: var(--neg); }
+  footer {
+    margin-top: 30px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+    color: var(--ink-3);
+    font-size: 11px;
+    font-family: 'Source Code Pro', monospace;
+  }
+  footer code {
+    background: var(--paper-2);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Fund Analyzer — Catálogo</h1>
+    <div class="subtitle">Visor de fondos analizados por el pipeline cualitativo (CNMV + LLM)</div>
+    <div class="generated" id="generated-at">Cargando catálogo…</div>
+    <div class="header-actions">
+      <button class="btn" id="btn-analyze-new">+ Analizar nuevo ISIN</button>
+      <button class="btn btn-secondary" id="btn-regen-catalog">↻ Regenerar catálogo</button>
+      <span id="server-status" style="font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-3);align-self:center;">verificando server…</span>
+    </div>
+  </header>
+
+  <div class="stats" id="stats">
+    <div class="stat-card"><div class="stat-label">Universo total</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub" id="stat-total-sub">fondos en taxonomía</div></div>
+    <div class="stat-card"><div class="stat-label">Top</div><div class="stat-value" id="stat-top">—</div><div class="stat-sub" id="stat-top-sub">analizados / total</div></div>
+    <div class="stat-card"><div class="stat-label">Bueno</div><div class="stat-value" id="stat-bueno">—</div><div class="stat-sub" id="stat-bueno-sub">analizados / total</div></div>
+    <div class="stat-card"><div class="stat-label">Análisis cualitativo</div><div class="stat-value" id="stat-analyzed">—</div><div class="stat-sub" id="stat-analyzed-sub">con dashboard HTML</div></div>
+    <div class="stat-card"><div class="stat-label">Gestoras únicas</div><div class="stat-value" id="stat-gestoras">—</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label>Búsqueda (nombre / ISIN / gestora / opinión)</label>
+      <input type="text" id="filter-search" placeholder="Ej: Magallanes, ES011, Cobas, value…" autocomplete="off">
+    </div>
+    <div class="filter-group">
+      <label>Clasificación</label>
+      <select id="filter-clasificacion">
+        <option value="">Todas</option>
+        <option value="Top">Top (54)</option>
+        <option value="Bueno">Bueno</option>
+        <option value="Medio">Medio</option>
+        <option value="__top_or_bueno">Top + Bueno</option>
+        <option value="__no_clasif">Sin clasificar</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Análisis cualitativo</label>
+      <select id="filter-analyzed">
+        <option value="">Todos</option>
+        <option value="yes">Solo analizados</option>
+        <option value="no">Solo SIN analizar</option>
+        <option value="__top_pending">Top pendientes (prioridad)</option>
+        <option value="__bueno_pending">Bueno pendientes</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Tipo activo</label>
+      <select id="filter-tipo-activo">
+        <option value="">Todos</option>
+      </select>
+    </div>
+    <div class="filter-group filters-actions">
+      <button class="btn btn-secondary" id="btn-reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="filters" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+    <div class="filter-group">
+      <label>Gestora</label>
+      <select id="filter-gestora">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Geografía</label>
+      <select id="filter-geografia">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Categoría</label>
+      <select id="filter-categoria">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Tipo origen</label>
+      <select id="filter-tipo">
+        <option value="">Todos</option>
+        <option value="ES">ES (CNMV)</option>
+        <option value="INT">INT</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Divisa</label>
+      <select id="filter-divisa">
+        <option value="">Todas</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="counter" id="counter">—</div>
+
+  <table class="catalog" id="catalog-table" style="display:none">
+    <thead>
+      <tr>
+        <th class="sortable" data-sort="clasificacion_user">Clasif.</th>
+        <th class="sortable" data-sort="isin">ISIN</th>
+        <th class="sortable" data-sort="nombre">Nombre del fondo</th>
+        <th class="sortable" data-sort="gestora">Gestora</th>
+        <th class="sortable" data-sort="tipo_activo">Tipo activo</th>
+        <th class="sortable" data-sort="geografia">Geografía</th>
+        <th class="sortable" data-sort="estilo">Estilo</th>
+        <th class="sortable numeric" data-sort="aum_meur">AUM (M€)</th>
+        <th class="sortable numeric" data-sort="ter_pct">TER %</th>
+        <th class="sortable" data-sort="has_qualitative_analysis">Análisis</th>
+        <th class="sortable numeric" data-sort="completitud_pct">Compl.</th>
+        <th class="opinion-col">Opinión</th>
+      </tr>
+    </thead>
+    <tbody id="catalog-body"></tbody>
+  </table>
+
+  <div class="state" id="state-loading">Cargando catálogo…</div>
+  <div class="state error" id="state-error" style="display:none"></div>
+  <div class="state" id="state-empty" style="display:none">
+    No hay fondos que coincidan con los filtros actuales.
+  </div>
+
+  <footer>
+    <div>Regenerar catálogo: <code>python -m tools.build_catalog</code></div>
+    <div style="margin-top:4px;">
+      Para lanzar análisis desde la web: <code>python -m tools.web_server</code> y abrir <code>localhost:5000</code>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Modal: Analizar nuevo ISIN / progreso -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modal-title">Lanzar análisis cualitativo</span>
+      <button class="close" id="modal-close" type="button">×</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <!-- contenido dinámico -->
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="btn btn-secondary" id="modal-cancel" type="button">Cerrar</button>
+      <button class="btn" id="modal-action" type="button">Lanzar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const STATE = {
+  catalog: null,
+  filtered: [],
+  sort: { key: '__priority', dir: 'desc' },
+  filters: {
+    search: '',
+    tipo: '',
+    gestora: '',
+    geografia: '',
+    categoria: '',
+    divisa: '',
+    tipo_activo: '',
+    clasificacion: '',
+    analyzed: '',
+  },
+};
+
+// Prioridad para ordenación por defecto: Top con análisis > Top pending > Bueno con análisis > Bueno pending > resto analyzed > resto
+function priorityScore(f) {
+  let s = 0;
+  if (f.es_top) s += 1000;
+  if (f.es_bueno) s += 500;
+  if (f.has_qualitative_analysis) s += 100;
+  s += (f.completitud_pct || 0);
+  return s;
+}
+
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+function fmtNumber(v, decimals = 0) {
+  if (v === null || v === undefined || v === '') return '—';
+  if (typeof v !== 'number') return String(v);
+  return v.toLocaleString('es-ES', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
+function fmtAum(v) {
+  if (!v || typeof v !== 'number') return '—';
+  if (v >= 1000) return (v / 1000).toFixed(1) + 'B';
+  return v.toFixed(0);
+}
+
+function fmtTer(v) {
+  if (v === null || v === undefined) return '—';
+  if (typeof v !== 'number') return String(v);
+  return v.toFixed(2);
+}
+
+function fmtFecha(v) {
+  if (!v) return '—';
+  return v.length >= 10 ? v.substring(0, 10) : v;
+}
+
+function badgeTipo(t) {
+  const cls = t === 'ES' ? 'es' : 'int';
+  return `<span class="badge ${cls}">${t || '?'}</span>`;
+}
+
+function completitudBar(pct) {
+  const v = pct || 0;
+  let cls = 'low';
+  if (v >= 70) cls = 'high';
+  else if (v >= 50) cls = 'mid';
+  return `<span class="completitud-bar ${cls}"><div style="width:${v}%"></div></span><span style="font-family:'Source Code Pro',monospace;font-size:11px;">${v}%</span>`;
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function badgeClasificacion(f) {
+  if (f.es_top) return '<span class="badge top">TOP</span>';
+  if (f.es_bueno) return '<span class="badge bueno">Bueno</span>';
+  if (f.clasificacion_user === 'Medio') return '<span class="badge medio">Medio</span>';
+  if (f.clasificacion_user) return `<span class="badge medio">${escapeHtml(f.clasificacion_user)}</span>`;
+  return '<span style="color:var(--ink-3);font-size:11px;">—</span>';
+}
+
+function badgeAnalisis(f) {
+  if (f.has_qualitative_analysis && f.has_dashboard) {
+    return `<a href="fund-${f.isin}.html" target="_blank" rel="noopener" class="badge has-cualit" style="text-decoration:none;display:inline-block;padding:2px 8px;">✓ ver</a>`;
+  }
+  if (f.has_qualitative_analysis) {
+    return '<span class="badge has-cualit">✓</span>';
+  }
+  // Sin análisis: mostrar badge + botón Analizar (si server disponible)
+  const btn = SERVER.available
+    ? `<button class="btn-analyze" data-isin="${f.isin}" type="button">▶ Analizar</button>`
+    : '<span class="badge no-cualit">sin análisis</span>';
+  return btn;
+}
+
+function renderRow(fund) {
+  const dashboardLink = fund.has_dashboard ? `fund-${fund.isin}.html` : null;
+  const nombreCell = dashboardLink
+    ? `<a href="${dashboardLink}" target="_blank" rel="noopener">${escapeHtml(fund.nombre || fund.isin)}</a>`
+    : escapeHtml(fund.nombre || fund.isin);
+
+  const opinionCell = fund.opinion
+    ? `<span title="${escapeHtml(fund.opinion)}">${escapeHtml(fund.opinion.substring(0, 100))}${fund.opinion.length > 100 ? '…' : ''}</span>`
+    : '';
+
+  return `
+    <tr data-isin="${fund.isin}" ${dashboardLink ? `data-dashboard="${dashboardLink}"` : ''}>
+      <td>${badgeClasificacion(fund)}</td>
+      <td class="isin">${escapeHtml(fund.isin)}</td>
+      <td class="nombre">${nombreCell}</td>
+      <td class="gestora">${escapeHtml(fund.gestora || '—')}</td>
+      <td>${escapeHtml(fund.tipo_activo || '—')}</td>
+      <td>${escapeHtml(fund.geografia || '—')}</td>
+      <td>${escapeHtml(fund.estilo || '—')}</td>
+      <td class="numeric">${fmtAum(fund.aum_meur)}</td>
+      <td class="numeric">${fmtTer(fund.ter_pct)}</td>
+      <td>${badgeAnalisis(fund)}</td>
+      <td class="numeric">${fund.has_qualitative_analysis ? completitudBar(fund.completitud_pct) : '<span style="color:var(--ink-3);font-size:10px;">—</span>'}</td>
+      <td class="opinion">${opinionCell}</td>
+    </tr>
+  `;
+}
+
+function applyFilters() {
+  const f = STATE.filters;
+  const search = (f.search || '').toLowerCase().trim();
+  STATE.filtered = STATE.catalog.funds.filter((fund) => {
+    if (f.tipo && fund.tipo !== f.tipo) return false;
+    if (f.gestora && fund.gestora !== f.gestora) return false;
+    if (f.geografia && fund.geografia !== f.geografia) return false;
+    if (f.categoria && fund.categoria !== f.categoria) return false;
+    if (f.divisa && fund.divisa !== f.divisa) return false;
+    if (f.tipo_activo && fund.tipo_activo !== f.tipo_activo) return false;
+
+    // Clasificación
+    if (f.clasificacion === 'Top' && !fund.es_top) return false;
+    if (f.clasificacion === 'Bueno' && !fund.es_bueno) return false;
+    if (f.clasificacion === 'Medio' && fund.clasificacion_user !== 'Medio') return false;
+    if (f.clasificacion === '__top_or_bueno' && !(fund.es_top || fund.es_bueno)) return false;
+    if (f.clasificacion === '__no_clasif' && fund.clasificacion_user) return false;
+
+    // Análisis cualitativo
+    if (f.analyzed === 'yes' && !fund.has_qualitative_analysis) return false;
+    if (f.analyzed === 'no' && fund.has_qualitative_analysis) return false;
+    if (f.analyzed === '__top_pending' && !(fund.es_top && !fund.has_qualitative_analysis)) return false;
+    if (f.analyzed === '__bueno_pending' && !(fund.es_bueno && !fund.has_qualitative_analysis)) return false;
+
+    if (search) {
+      const haystack = [
+        fund.isin, fund.nombre, fund.gestora,
+        fund.opinion, fund.estilo, fund.tipo_activo,
+        fund.geografia, fund.categoria_morningstar,
+      ].filter(Boolean).join(' ').toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+  applySort();
+  renderTable();
+}
+
+function applySort() {
+  const { key, dir } = STATE.sort;
+  const mult = dir === 'asc' ? 1 : -1;
+  STATE.filtered.sort((a, b) => {
+    if (key === '__priority') {
+      return (priorityScore(b) - priorityScore(a));
+    }
+    let va = a[key];
+    let vb = b[key];
+    if (va === null || va === undefined) va = typeof a[key] === 'boolean' ? false : '';
+    if (vb === null || vb === undefined) vb = typeof b[key] === 'boolean' ? false : '';
+    if (key === 'has_qualitative_analysis' || typeof va === 'boolean') {
+      return ((va === true ? 1 : 0) - (vb === true ? 1 : 0)) * mult;
+    }
+    if (key === 'clasificacion_user') {
+      const order = { 'Top': 3, 'Bueno': 2, 'Medio': 1, '': 0 };
+      return ((order[a.clasificacion_user] || 0) - (order[b.clasificacion_user] || 0)) * mult;
+    }
+    if (typeof va === 'number' && typeof vb === 'number') {
+      return (va - vb) * mult;
+    }
+    return String(va).localeCompare(String(vb), 'es') * mult;
+  });
+}
+
+function renderTable() {
+  const tbody = $('#catalog-body');
+  const table = $('#catalog-table');
+  const empty = $('#state-empty');
+  if (STATE.filtered.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    table.style.display = '';
+    tbody.innerHTML = STATE.filtered.map(renderRow).join('');
+    bindRowClicks();
+  }
+  const total = STATE.catalog.funds.length;
+  const shown = STATE.filtered.length;
+  $('#counter').textContent = shown === total
+    ? `${total} fondos`
+    : `Mostrando ${shown} de ${total} fondos`;
+  $$('th.sortable').forEach((th) => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.sort === STATE.sort.key) {
+      th.classList.add(STATE.sort.dir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+    }
+  });
+}
+
+function bindRowClicks() {
+  $$('tbody tr').forEach((tr) => {
+    tr.addEventListener('click', (e) => {
+      // Si es link o botón, no navegar al dashboard
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+      const dest = tr.dataset.dashboard;
+      if (dest) window.open(dest, '_blank', 'noopener');
+    });
+  });
+  // Botón "Analizar" en filas sin análisis
+  $$('button.btn-analyze').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isin = btn.dataset.isin;
+      showAnalyzeForm(isin);
+    });
+  });
+}
+
+function renderStats() {
+  const c = STATE.catalog;
+  const s = c.stats || {};
+  $('#stat-total').textContent = c.n_funds;
+  $('#stat-total-sub').textContent = `${s.n_es || 0} ES + ${s.n_int || 0} INT`;
+  $('#stat-top').textContent = `${s.n_top_analyzed || 0} / ${s.n_top || 0}`;
+  $('#stat-top-sub').textContent = (s.n_top_pending || 0) > 0 ? `${s.n_top_pending} pendientes` : 'todos analizados ✓';
+  $('#stat-bueno').textContent = `${s.n_bueno_analyzed || 0} / ${s.n_bueno || 0}`;
+  $('#stat-bueno-sub').textContent = (s.n_bueno_pending || 0) > 0 ? `${s.n_bueno_pending} pendientes` : 'todos analizados ✓';
+  $('#stat-analyzed').textContent = s.n_analyzed || 0;
+  $('#stat-analyzed-sub').textContent = `${s.n_dashboard || 0} con dashboard HTML`;
+  $('#stat-gestoras').textContent = s.gestoras_unicas || 0;
+  $('#generated-at').textContent =
+    `Catálogo generado: ${c.generated_at}  |  ${c.n_funds} fondos en universo`;
+}
+
+function populateSelect(selId, values) {
+  const sel = $(selId);
+  if (!sel) return;
+  const sorted = [...new Set(values.filter(Boolean))].sort((a, b) =>
+    String(a).localeCompare(String(b), 'es'));
+  for (const v of sorted) {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = v;
+    sel.appendChild(opt);
+  }
+}
+
+function populateAllFilters() {
+  const funds = STATE.catalog.funds;
+  populateSelect('#filter-gestora', funds.map((f) => f.gestora));
+  populateSelect('#filter-geografia', funds.map((f) => f.geografia));
+  populateSelect('#filter-categoria', funds.map((f) => f.categoria));
+  populateSelect('#filter-divisa', funds.map((f) => f.divisa));
+  populateSelect('#filter-tipo-activo', funds.map((f) => f.tipo_activo));
+}
+
+function bindFilters() {
+  const filterMap = {
+    'filter-search': 'search',
+    'filter-tipo': 'tipo',
+    'filter-gestora': 'gestora',
+    'filter-geografia': 'geografia',
+    'filter-categoria': 'categoria',
+    'filter-divisa': 'divisa',
+    'filter-tipo-activo': 'tipo_activo',
+    'filter-clasificacion': 'clasificacion',
+    'filter-analyzed': 'analyzed',
+  };
+  for (const [id, key] of Object.entries(filterMap)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const ev = el.tagName === 'INPUT' ? 'input' : 'change';
+    el.addEventListener(ev, (e) => {
+      STATE.filters[key] = e.target.value;
+      applyFilters();
+    });
+  }
+  $('#btn-reset').addEventListener('click', () => {
+    STATE.filters = {
+      search: '', tipo: '', gestora: '', geografia: '', categoria: '',
+      divisa: '', tipo_activo: '', clasificacion: '', analyzed: '',
+    };
+    for (const id of Object.keys(filterMap)) {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    }
+    applyFilters();
+  });
+}
+
+function bindSorting() {
+  $$('th.sortable').forEach((th) => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      if (STATE.sort.key === key) {
+        STATE.sort.dir = STATE.sort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        STATE.sort.key = key;
+        STATE.sort.dir = ['nombre', 'gestora', 'isin', 'tipo', 'ultima_actualizacion'].includes(key)
+          ? 'asc'
+          : 'desc';
+      }
+      applySort();
+      renderTable();
+    });
+  });
+}
+
+async function loadCatalog() {
+  try {
+    const res = await fetch('funds_catalog_analyzer.json', { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    STATE.catalog = await res.json();
+    if (!STATE.catalog || !Array.isArray(STATE.catalog.funds)) {
+      throw new Error('Catálogo inválido');
+    }
+    $('#state-loading').style.display = 'none';
+    renderStats();
+    populateAllFilters();
+    applyFilters();
+  } catch (err) {
+    $('#state-loading').style.display = 'none';
+    const e = $('#state-error');
+    e.style.display = 'block';
+    e.innerHTML = `
+      <strong>No se pudo cargar el catálogo.</strong><br>
+      ${escapeHtml(String(err))}<br><br>
+      Ejecuta <code>python -m tools.build_catalog</code> para generarlo, y sirve el directorio con <code>python -m http.server 8000</code> abriendo <code>localhost:8000/dashboard/catalog.html</code>.
+    `;
+  }
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Backend Flask: detección + lanzar análisis + polling progreso
+// ───────────────────────────────────────────────────────────────────────
+const SERVER = {
+  available: false,
+  pollInterval: null,
+};
+
+async function checkServer() {
+  try {
+    const res = await fetch('/api/health', { cache: 'no-cache' });
+    if (res.ok) {
+      SERVER.available = true;
+      $('#server-status').textContent = '● server: ON';
+      $('#server-status').style.color = 'var(--pos)';
+      $('#btn-analyze-new').disabled = false;
+      $('#btn-regen-catalog').disabled = false;
+      return true;
+    }
+  } catch (e) { /* server no disponible */ }
+  SERVER.available = false;
+  $('#server-status').textContent = '● server: OFF (lanza con `python -m tools.web_server`)';
+  $('#server-status').style.color = 'var(--neg)';
+  $('#btn-analyze-new').disabled = true;
+  $('#btn-regen-catalog').disabled = true;
+  return false;
+}
+
+function openModal(title) {
+  $('#modal-title').textContent = title;
+  $('#modal').classList.add('show');
+}
+function closeModal() {
+  $('#modal').classList.remove('show');
+  if (SERVER.pollInterval) {
+    clearInterval(SERVER.pollInterval);
+    SERVER.pollInterval = null;
+  }
+}
+
+function showAnalyzeForm(prefilledIsin = '') {
+  openModal('Lanzar análisis cualitativo');
+  $('#modal-body').innerHTML = `
+    <div style="margin-bottom:14px;color:var(--ink-2);font-size:13px;">
+      Lanza el pipeline completo (<code>analizar_fondo.bat</code>) para un ISIN.<br>
+      Tarda <strong>35-50 minutos</strong>. El servidor lo ejecuta en background.
+    </div>
+    <label style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);font-weight:600;margin-bottom:6px;">ISIN del fondo</label>
+    <input id="analyze-isin" type="text" placeholder="ES0123456789" style="width:100%;padding:10px;border:1px solid var(--border);background:var(--paper);font-family:'Source Code Pro',monospace;font-size:14px;text-transform:uppercase;" value="${prefilledIsin}" maxlength="12" autocomplete="off" autofocus>
+    <div id="analyze-error" style="color:var(--neg);font-size:12px;margin-top:8px;display:none;"></div>
+    <div style="margin-top:14px;font-size:11px;color:var(--ink-3);">
+      ⚠ Si el ISIN ya tiene datos en <code>data/funds/</code>, se moverán a un backup antes de lanzar (cold-start real).
+    </div>
+  `;
+  $('#modal-action').textContent = 'Lanzar';
+  $('#modal-action').style.display = '';
+  $('#modal-action').onclick = submitAnalyze;
+  setTimeout(() => $('#analyze-isin')?.focus(), 50);
+}
+
+const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}\d$/;
+
+async function submitAnalyze() {
+  const isin = ($('#analyze-isin').value || '').trim().toUpperCase();
+  const errEl = $('#analyze-error');
+  errEl.style.display = 'none';
+  if (!ISIN_RE.test(isin)) {
+    errEl.textContent = 'ISIN inválido. Debe tener formato XX0000000000 (12 chars).';
+    errEl.style.display = 'block';
+    return;
+  }
+  $('#modal-action').disabled = true;
+  $('#modal-action').textContent = 'Lanzando…';
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isin }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Error desconocido';
+      if (data.run_id) {
+        errEl.textContent += ` (run existente: ${data.run_id})`;
+      }
+      errEl.style.display = 'block';
+      $('#modal-action').disabled = false;
+      $('#modal-action').textContent = 'Lanzar';
+      return;
+    }
+    showProgress(data.run_id, isin);
+  } catch (e) {
+    errEl.textContent = 'Error de red: ' + e.message;
+    errEl.style.display = 'block';
+    $('#modal-action').disabled = false;
+    $('#modal-action').textContent = 'Lanzar';
+  }
+}
+
+function showProgress(runId, isin) {
+  openModal(`Análisis en curso: ${isin}`);
+  $('#modal-action').style.display = 'none';
+  $('#modal-cancel').textContent = 'Cerrar (sigue corriendo)';
+  $('#modal-body').innerHTML = `
+    <div class="meta-line">
+      <strong>Run:</strong> ${runId} &nbsp;|&nbsp;
+      <strong>Estado:</strong> <span id="run-status">running</span> &nbsp;|&nbsp;
+      <strong>Duración:</strong> <span id="run-duration">—</span>
+    </div>
+    <div class="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-steps" id="progress-steps">
+      <div class="step" data-step="step1_prep">1. Prep</div>
+      <div class="step" data-step="step2_extract_pdfs">2. Extract PDFs</div>
+      <div class="step" data-step="step3_manager_deep">3. Manager Deep</div>
+      <div class="step" data-step="step4_letters_extract">4. Letters K15</div>
+      <div class="step" data-step="step5_analyst">5. Analyst</div>
+      <div class="step" data-step="step6_dashboard">6. Dashboard</div>
+    </div>
+    <div style="font-size:11px;color:var(--ink-3);margin-bottom:6px;">Últimas líneas del log:</div>
+    <div class="log-tail" id="log-tail">Esperando salida…</div>
+    <div id="run-result" style="margin-top:14px;display:none;"></div>
+  `;
+
+  // Polling cada 5s
+  pollProgress(runId);
+  SERVER.pollInterval = setInterval(() => pollProgress(runId), 5000);
+}
+
+async function pollProgress(runId) {
+  try {
+    const res = await fetch(`/api/runs/${runId}`, { cache: 'no-cache' });
+    if (!res.ok) return;
+    const r = await res.json();
+
+    $('#run-status').textContent = r.status;
+    $('#run-status').style.color = r.status === 'done'
+      ? 'var(--pos)'
+      : r.status === 'failed'
+        ? 'var(--neg)'
+        : 'var(--accent)';
+
+    // Duración
+    if (r.start_time) {
+      const start = new Date(r.start_time);
+      const end = r.end_time ? new Date(r.end_time) : new Date();
+      const durMin = Math.floor((end - start) / 60000);
+      const durSec = Math.floor(((end - start) % 60000) / 1000);
+      $('#run-duration').textContent = `${durMin}m ${durSec}s`;
+    }
+
+    // Progreso visual
+    if (r.progress) {
+      $('#progress-fill').style.width = `${r.progress_pct}%`;
+      const stepsOrder = ['step1_prep','step2_extract_pdfs','step3_manager_deep','step4_letters_extract','step5_analyst','step6_dashboard'];
+      const lastDone = stepsOrder.findLastIndex(s => r.progress[s]);
+      $$('#progress-steps .step').forEach((el, i) => {
+        el.classList.remove('done', 'active');
+        const stepKey = el.dataset.step;
+        if (r.progress[stepKey]) {
+          el.classList.add('done');
+        } else if (r.status === 'running' && i === lastDone + 1) {
+          el.classList.add('active');
+        }
+      });
+    }
+
+    // Log tail
+    if (r.log_tail) {
+      const logEl = $('#log-tail');
+      logEl.textContent = r.log_tail;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // Si terminó, parar polling y mostrar acción final
+    if (r.status === 'done' || r.status === 'failed') {
+      if (SERVER.pollInterval) {
+        clearInterval(SERVER.pollInterval);
+        SERVER.pollInterval = null;
+      }
+      const result = $('#run-result');
+      result.style.display = 'block';
+      if (r.status === 'done' && r.dashboard_url) {
+        result.innerHTML = `
+          <div style="background:var(--navy-pale);padding:12px;border-left:3px solid var(--pos);">
+            <strong style="color:var(--pos);">✓ Completado</strong> en ${r.duration_seconds}s.
+            <a href="${r.dashboard_url}" target="_blank" rel="noopener" class="btn" style="margin-left:10px;text-decoration:none;">Abrir dashboard →</a>
+          </div>
+        `;
+      } else {
+        result.innerHTML = `
+          <div style="background:#fce8e8;padding:12px;border-left:3px solid var(--neg);">
+            <strong style="color:var(--neg);">✗ Run terminó con estado: ${r.status}</strong>
+            (exit code: ${r.exit_code || '?'}). Revisa el log: <code>${r.log_relative}</code>
+          </div>
+        `;
+      }
+      // Refrescar catálogo automáticamente
+      setTimeout(refreshCatalog, 1500);
+    }
+  } catch (e) {
+    console.error('poll error', e);
+  }
+}
+
+async function refreshCatalog() {
+  try {
+    await fetch('/api/regenerate-catalog', { method: 'POST' });
+    // Recargar catalog en memoria
+    await loadCatalog();
+  } catch (e) {
+    console.warn('refresh failed', e);
+  }
+}
+
+async function regenerateCatalogManual() {
+  $('#btn-regen-catalog').disabled = true;
+  $('#btn-regen-catalog').textContent = 'Regenerando…';
+  try {
+    const res = await fetch('/api/regenerate-catalog', { method: 'POST' });
+    const data = await res.json();
+    if (data.ok) {
+      await loadCatalog();
+    } else {
+      alert('Error: ' + (data.error || data.stderr));
+    }
+  } catch (e) {
+    alert('Error de red: ' + e.message);
+  }
+  $('#btn-regen-catalog').disabled = false;
+  $('#btn-regen-catalog').textContent = '↻ Regenerar catálogo';
+}
+
+function bindModal() {
+  $('#modal-close').addEventListener('click', closeModal);
+  $('#modal-cancel').addEventListener('click', closeModal);
+  $('#btn-analyze-new').addEventListener('click', () => showAnalyzeForm());
+  $('#btn-regen-catalog').addEventListener('click', regenerateCatalogManual);
+  // Click fuera del modal para cerrar
+  $('#modal').addEventListener('click', (e) => {
+    if (e.target.id === 'modal') closeModal();
+  });
+  // ESC para cerrar
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && $('#modal').classList.contains('show')) {
+      closeModal();
+    }
+  });
+}
+
+bindFilters();
+bindSorting();
+bindModal();
+loadCatalog();
+checkServer();
+setInterval(checkServer, 30000);  // re-check cada 30s
+</script>
+</body>
+</html>

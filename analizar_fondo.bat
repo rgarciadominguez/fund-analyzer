@@ -31,6 +31,26 @@ if "%ISIN%"=="" (
     exit /b 1
 )
 
+REM ====================================================================
+REM Fix coste: vaciar ANTHROPIC_API_KEY del env del bat para que las 4
+REM invocaciones de `claude -p` (skills cowork) usen el login Claude Max
+REM en lugar de consumir balance prepago de la API console.
+REM
+REM - Sin esto: claude -p hereda ANTHROPIC_API_KEY del env (cargada por
+REM   dotenv en algun proceso padre) -> modo API -> ~$3-13 por fondo
+REM   (Opus 4 con 1M context es caro en API).
+REM - Con esto: claude -p NO ve la key -> usa subscripcion Claude Max
+REM   (sin coste por uso, cubierto por mensualidad).
+REM
+REM Python (paso 1, 6) NO se ve afectado porque load_dotenv() lee .env
+REM directamente y popula os.environ del proceso Python. La key sigue
+REM disponible para readings_collector_haiku_extract y demas usos
+REM "extremadamente necesarios" via API directa.
+REM
+REM Scope: solo afecta cmd.exe del bat (no propaga al PowerShell padre).
+REM ====================================================================
+set "ANTHROPIC_API_KEY="
+
 REM Caveat 1 (Refactor L2): set FUND_ANALYZER_MODE BEFORE the first python
 REM invocation. argparse in orchestrator also flips it, but defense-in-depth.
 if "%2"=="--allow-api-fallback" (
