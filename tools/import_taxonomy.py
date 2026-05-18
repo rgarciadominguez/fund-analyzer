@@ -621,6 +621,9 @@ def agrupar_por_fondo(funds_dict: dict) -> tuple[list[dict], list[dict]]:
                 "fund_group_id": group_id,
                 "nombre_base": nombre_base,
                 "gestora": gestora,
+                # is_curated_universe=True porque viene del Excel del usuario.
+                # Los huérfanos creados por sync_to_supabase (tras bat) tienen el default FALSE.
+                "is_curated_universe": True,
                 # Categorización (heredada por clases)
                 "tipo_activo": f.get("tipo_activo") or None,
                 "categoria": f.get("categoria") or None,

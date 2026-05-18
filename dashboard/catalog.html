@@ -548,7 +548,7 @@
     </div>
   </div>
 
-  <div class="filters" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+  <div class="filters" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;">
     <div class="filter-group">
       <label>Gestora</label>
       <select id="filter-gestora">
@@ -579,6 +579,14 @@
       <label>Divisa</label>
       <select id="filter-divisa">
         <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Universo</label>
+      <select id="filter-universo">
+        <option value="">Todo</option>
+        <option value="curated">Solo universo curado (Excel)</option>
+        <option value="orphan">Solo huérfanos (backfill)</option>
       </select>
     </div>
   </div>
@@ -655,6 +663,7 @@ const STATE = {
     tipo_activo: '',
     clasificacion: '',
     analyzed: '',
+    universo: '',
   },
 };
 
@@ -826,6 +835,11 @@ function applyFilters() {
     if (f.analyzed === '__top_pending' && !(fund.es_top && !fund.has_qualitative_analysis)) return false;
     if (f.analyzed === '__bueno_pending' && !(fund.es_bueno && !fund.has_qualitative_analysis)) return false;
 
+    // Filtro universo curado vs huérfanos backfill
+    if (f.universo === 'curated' && !fund.is_curated_universe) return false;
+    if (f.universo === 'orphan' && fund.is_curated_universe) return false;
+    if (f.analyzed === '__bueno_pending' && !(fund.es_bueno && !fund.has_qualitative_analysis)) return false;
+
     if (search) {
       const haystack = [
         fund.isin, fund.nombre, fund.gestora,
@@ -959,6 +973,7 @@ function bindFilters() {
     'filter-tipo-activo': 'tipo_activo',
     'filter-clasificacion': 'clasificacion',
     'filter-analyzed': 'analyzed',
+    'filter-universo': 'universo',
   };
   for (const [id, key] of Object.entries(filterMap)) {
     const el = document.getElementById(id);
@@ -972,7 +987,7 @@ function bindFilters() {
   $('#btn-reset').addEventListener('click', () => {
     STATE.filters = {
       search: '', tipo: '', gestora: '', geografia: '', categoria: '',
-      divisa: '', tipo_activo: '', clasificacion: '', analyzed: '',
+      divisa: '', tipo_activo: '', clasificacion: '', analyzed: '', universo: '',
     };
     for (const id of Object.keys(filterMap)) {
       const el = document.getElementById(id);
@@ -1080,6 +1095,8 @@ function joinFundsWithGroups(funds, groups) {
       opinion: opinionEfectiva,
       es_top: clasifEfectiva === 'Top',
       es_bueno: clasifEfectiva === 'Bueno',
+      // Universo curado (true = del Excel, false = huérfano del backfill)
+      is_curated_universe: g.is_curated_universe || false,
       // Análisis cualitativo
       has_qualitative_analysis: f.has_qualitative_analysis || false,
       has_dashboard: !!f.dashboard_storage_path,
