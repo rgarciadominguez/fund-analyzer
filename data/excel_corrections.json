@@ -1,0 +1,54 @@
+{
+  "source_file": "20260513_Listado Fondos Def.xlsm",
+  "source_sheet": "Listado fondos",
+  "applied_at": "2026-05-14",
+  "notes": "Correcciones manuales validadas por el usuario antes del bootstrap a Supabase. NO modifica el Excel original; se aplican en runtime por tools.import_taxonomy. Matching ROBUSTO por ISIN+nombre_starts (independiente del número de fila del Excel).",
+  "schema_version": "2.0",
+  "corrections": [
+    {
+      "match": {"isin": "LU0132662635"},
+      "set": {"nombre": "UBAM - EUR Floating Rate Notes IC EUR"},
+      "razon": "Nombre faltante para ISIN valido (v2). Defensive: si v3 ya tiene nombre, no se sobrescribe (solo aplica si nombre está vacío)."
+    },
+    {
+      "match": {"isin": "FR0013289022"},
+      "set": {"nombre": "La Francaise Tresorerie ISR TC"},
+      "razon": "Nombre faltante para ISIN valido (v2). Defensive."
+    },
+    {
+      "match": {"isin": "ES0175414004", "nombre_starts": "DUNAS VALOR EQUILIBR"},
+      "set": {"nombre": "Dunas Valor Equilibrado, FI"},
+      "razon": "Typo: 'Equilibrio' -> 'Equilibrado' (nombre oficial CNMV)"
+    },
+    {
+      "match": {"isin": "ES0175414004", "nombre_starts": "Dunas Valor Flexible"},
+      "set": {"isin": "ES0175316001", "nombre": "Dunas Valor Flexible, FI"},
+      "razon": "ISIN apuntaba a Equilibrado pero el fondo es Flexible. Cambio de ISIN al correcto."
+    },
+    {
+      "match": {"isin": "LU0248177411", "nombre_starts": "ALLIANZ ORIENTAL"},
+      "set": {"isin": "LU0348784041"},
+      "razon": "Allianz Oriental Income con ISIN de Schroder. Cambio a ISIN propio de Allianz."
+    },
+    {
+      "match": {"isin": "IE0004ZP1ND"},
+      "set": {"isin": "IE00BMZ3NN11"},
+      "razon": "ISIN con formato roto (11 chars). Corregido a ISIN valido."
+    }
+  ],
+  "excluded_from_import": [
+    {"code": "Cartera RSALLTERRAIN", "razon": "Cartera modelo Return Stacking, no es un fondo individual"},
+    {"code": "Cartera RSOFFENDURANCE", "razon": "Cartera modelo Return Stacking, no es un fondo individual"},
+    {"code": "Cartera RSOFFROAD", "razon": "Cartera modelo Return Stacking, no es un fondo individual"},
+    {"code": "N5459", "razon": "Plan de pensiones DGSFP (MyInvestor Cartera Permanente PP), no es ISIN"},
+    {"code": "N5394", "razon": "Plan de pensiones DGSFP (MyInvestor Indexado SP500 PP), no es ISIN"},
+    {"code": "N5396", "razon": "Plan de pensiones DGSFP (MyInvestor Indexado Global PP), no es ISIN"}
+  ],
+  "auto_normalize": {
+    "strip_whitespace_isin": true,
+    "strip_whitespace_nombre": true,
+    "strip_nbsp": true,
+    "isin_to_uppercase": true,
+    "dedupe_by_isin": true
+  }
+}

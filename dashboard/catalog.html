@@ -240,6 +240,51 @@
     background: var(--ink-3);
     color: white;
   }
+  .badge.clase-similar {
+    background: var(--accent);
+    color: white;
+  }
+  .badge.clase-sucia {
+    background: var(--neg);
+    color: white;
+  }
+  /* Broker chips */
+  .brokers-cell {
+    max-width: 180px;
+  }
+  .broker-chip {
+    display: inline-block;
+    padding: 1px 6px;
+    margin: 1px 2px 1px 0;
+    font-size: 9px;
+    font-weight: 600;
+    color: white;
+    border-radius: 2px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  /* Action cell con cualitativo + cuantitativo */
+  .action-cell {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+  .btn-cuanti {
+    display: inline-block;
+    text-decoration: none;
+    background: var(--paper-2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 12px;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+  .btn-cuanti:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
   .badge.no-cualit {
     background: var(--paper-3);
     color: var(--ink-3);
@@ -473,9 +518,11 @@
       <label>Clasificación</label>
       <select id="filter-clasificacion">
         <option value="">Todas</option>
-        <option value="Top">Top (54)</option>
+        <option value="Top">Top</option>
         <option value="Bueno">Bueno</option>
         <option value="Medio">Medio</option>
+        <option value="Clase_similar">Clase similar</option>
+        <option value="Clase_sucia">Clase sucia</option>
         <option value="__top_or_bueno">Top + Bueno</option>
         <option value="__no_clasif">Sin clasificar</option>
       </select>
@@ -550,6 +597,7 @@
         <th class="sortable" data-sort="estilo">Estilo</th>
         <th class="sortable numeric" data-sort="aum_meur">AUM (M€)</th>
         <th class="sortable numeric" data-sort="ter_pct">TER %</th>
+        <th>Brokers</th>
         <th class="sortable" data-sort="has_qualitative_analysis">Análisis</th>
         <th class="sortable numeric" data-sort="completitud_pct">Compl.</th>
         <th class="opinion-col">Opinión</th>
@@ -675,22 +723,52 @@ function badgeClasificacion(f) {
   if (f.es_top) return '<span class="badge top">TOP</span>';
   if (f.es_bueno) return '<span class="badge bueno">Bueno</span>';
   if (f.clasificacion_user === 'Medio') return '<span class="badge medio">Medio</span>';
+  if (f.clasificacion_user === 'Clase_similar') return '<span class="badge clase-similar">Clase similar</span>';
+  if (f.clasificacion_user === 'Clase_sucia') return '<span class="badge clase-sucia">Clase sucia</span>';
   if (f.clasificacion_user) return `<span class="badge medio">${escapeHtml(f.clasificacion_user)}</span>`;
   return '<span style="color:var(--ink-3);font-size:11px;">—</span>';
 }
 
 function badgeAnalisis(f) {
+  let cualitativo = '';
   if (f.has_qualitative_analysis && f.has_dashboard) {
-    return `<a href="fund-${f.isin}.html" target="_blank" rel="noopener" class="badge has-cualit" style="text-decoration:none;display:inline-block;padding:2px 8px;">✓ ver</a>`;
+    cualitativo = `<a href="fund-${f.isin}.html" target="_blank" rel="noopener" class="badge has-cualit" style="text-decoration:none;display:inline-block;padding:2px 8px;" title="Ver análisis cualitativo">✓ ver</a>`;
+  } else if (f.has_qualitative_analysis) {
+    cualitativo = '<span class="badge has-cualit" title="Análisis cualitativo disponible">✓</span>';
+  } else {
+    cualitativo = SERVER.available
+      ? `<button class="btn-analyze" data-isin="${f.isin}" type="button" title="Lanzar análisis cualitativo">▶ Analizar</button>`
+      : '<span class="badge no-cualit">sin análisis</span>';
   }
-  if (f.has_qualitative_analysis) {
-    return '<span class="badge has-cualit">✓</span>';
+
+  // Botón 📊 cuantitativo: cross-link a fund-dashboard con ?action=fund&isins=X
+  const cuanti = `<a href="${FUND_DASHBOARD_URL}?action=fund&isins=${encodeURIComponent(f.isin)}" target="_blank" rel="noopener" class="btn-cuanti" title="Ver análisis cuantitativo en fund-dashboard (Morningstar). Espera ~45s a que cargue.">📊</a>`;
+
+  return `<div class="action-cell">${cualitativo}${cuanti}</div>`;
+}
+
+// Brokers como chips de colores
+const BROKER_COLORS = {
+  'MyInvestor': '#0066cc', 'Myinvestor': '#0066cc',
+  'Renta4': '#1b8c3b',
+  'Mapfre': '#cc0033',
+  'BBVA': '#0033a0',
+  'Caixa': '#003e8a',
+  'ABANCA': '#7e3ba7',
+  'Santander': '#ec0000',
+  'CJRS': '#3d6b30',
+  'Ironia': '#ff7a00',
+  'EBN': '#5a6b7d',
+};
+
+function renderBrokerChips(brokers) {
+  if (!brokers || !Array.isArray(brokers) || brokers.length === 0) {
+    return '<span style="color:var(--ink-3);font-size:10px;">—</span>';
   }
-  // Sin análisis: mostrar badge + botón Analizar (si server disponible)
-  const btn = SERVER.available
-    ? `<button class="btn-analyze" data-isin="${f.isin}" type="button">▶ Analizar</button>`
-    : '<span class="badge no-cualit">sin análisis</span>';
-  return btn;
+  return brokers.map(b => {
+    const color = BROKER_COLORS[b] || '#888';
+    return `<span class="broker-chip" style="background:${color};">${escapeHtml(b)}</span>`;
+  }).join('');
 }
 
 function renderRow(fund) {
@@ -714,6 +792,7 @@ function renderRow(fund) {
       <td>${escapeHtml(fund.estilo || '—')}</td>
       <td class="numeric">${fmtAum(fund.aum_meur)}</td>
       <td class="numeric">${fmtTer(fund.ter_pct)}</td>
+      <td class="brokers-cell">${renderBrokerChips(fund.broker_disponible)}</td>
       <td>${badgeAnalisis(fund)}</td>
       <td class="numeric">${fund.has_qualitative_analysis ? completitudBar(fund.completitud_pct) : '<span style="color:var(--ink-3);font-size:10px;">—</span>'}</td>
       <td class="opinion">${opinionCell}</td>
@@ -736,6 +815,8 @@ function applyFilters() {
     if (f.clasificacion === 'Top' && !fund.es_top) return false;
     if (f.clasificacion === 'Bueno' && !fund.es_bueno) return false;
     if (f.clasificacion === 'Medio' && fund.clasificacion_user !== 'Medio') return false;
+    if (f.clasificacion === 'Clase_similar' && fund.clasificacion_user !== 'Clase_similar') return false;
+    if (f.clasificacion === 'Clase_sucia' && fund.clasificacion_user !== 'Clase_sucia') return false;
     if (f.clasificacion === '__top_or_bueno' && !(fund.es_top || fund.es_bueno)) return false;
     if (f.clasificacion === '__no_clasif' && fund.clasificacion_user) return false;
 
@@ -774,7 +855,7 @@ function applySort() {
       return ((va === true ? 1 : 0) - (vb === true ? 1 : 0)) * mult;
     }
     if (key === 'clasificacion_user') {
-      const order = { 'Top': 3, 'Bueno': 2, 'Medio': 1, '': 0 };
+      const order = { 'Top': 5, 'Bueno': 4, 'Medio': 3, 'Clase_similar': 2, 'Clase_sucia': 1, '': 0 };
       return ((order[a.clasificacion_user] || 0) - (order[b.clasificacion_user] || 0)) * mult;
     }
     if (typeof va === 'number' && typeof vb === 'number') {
@@ -919,14 +1000,168 @@ function bindSorting() {
   });
 }
 
+// ───────────────────────────────────────────────────────────────────────
+// Supabase: fuente única de verdad del catálogo
+// IMPORTANTE: el user debe rellenar estos 2 placeholders con sus keys reales
+// antes de abrir el catálogo. Los placeholders son detectados automáticamente.
+// ───────────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://mfbtebngddjjuwfaelat.supabase.co';        // ej: 'https://xxxxx.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mYnRlYm5nZGRqanV3ZmFlbGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzY1NjQsImV4cCI6MjA5NDI1MjU2NH0.ebb82XiocFQx5YtFSFkFnRaaIfetu3QI3rlMca4yeoM';  // anon key (segura para client)
+
+// fund-dashboard cuantitativo — cross-link desde cada fila (📊)
+// Formato de URL: <base>?action=fund&isins=<ISIN>
+// (param es "isins" plural por convención del autoFlow de fund-dashboard, incluso para 1 solo fondo)
+// Apunta directamente a index_fixed.html para evitar el meta refresh intermedio.
+const FUND_DASHBOARD_URL = 'https://rgarciadominguez.github.io/fund-dashboard/index_fixed.html';
+
+function supabaseConfigured() {
+  return SUPABASE_URL && !SUPABASE_URL.startsWith('__') &&
+         SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.startsWith('__');
+}
+
+async function fetchSupabase(table, query = '') {
+  if (!supabaseConfigured()) {
+    throw new Error('Supabase no configurada: rellena SUPABASE_URL y SUPABASE_ANON_KEY en catalog.html');
+  }
+  const url = `${SUPABASE_URL}/rest/v1/${table}${query ? '?' + query : ''}`;
+  const res = await fetch(url, {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Accept': 'application/json',
+      'Prefer': 'count=exact',
+    },
+    cache: 'no-cache',
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Supabase ${table} HTTP ${res.status}: ${text.substring(0, 200)}`);
+  }
+  return res.json();
+}
+
+function joinFundsWithGroups(funds, groups) {
+  // Index groups por fund_group_id para JOIN eficiente
+  const groupById = {};
+  for (const g of groups) {
+    groupById[g.fund_group_id] = g;
+  }
+
+  return funds.map(f => {
+    const g = groupById[f.fund_group_id] || {};
+    // Clasificación efectiva: override de funds.clasificacion_user > default del group
+    const clasifEfectiva = f.clasificacion_user || g.clasificacion_user_default || '';
+    const opinionEfectiva = f.opinion_user || g.opinion_user_default || '';
+    return {
+      // Identidad
+      isin: f.isin,
+      fund_group_id: f.fund_group_id,
+      nombre: f.nombre_clase || g.nombre_base || f.isin,
+      gestora: g.gestora || '',
+      // Tipo origen (heurística por prefijo ISIN)
+      tipo: f.isin && f.isin.startsWith('ES') ? 'ES' : 'INT',
+      // Categorización (del grupo)
+      tipo_activo: g.tipo_activo || '',
+      categoria: g.categoria || '',
+      geografia: g.geografia || '',
+      estilo: g.estilo || '',
+      categoria_morningstar: g.categoria_morningstar || '',
+      // Cuantitativos del fondo
+      aum_meur: g.aum_meur,
+      num_participes: g.num_participes,
+      años_antiguedad: g.años_antiguedad,
+      // Clase
+      clase_comercial: f.clase_comercial || '',
+      divisa: f.divisa || '',
+      divisa_hedge_bool: f.divisa_hedge_bool || false,
+      ter_pct: f.ter_pct,
+      // Clasificación user (efectiva)
+      clasificacion_user: clasifEfectiva,
+      opinion: opinionEfectiva,
+      es_top: clasifEfectiva === 'Top',
+      es_bueno: clasifEfectiva === 'Bueno',
+      // Análisis cualitativo
+      has_qualitative_analysis: f.has_qualitative_analysis || false,
+      has_dashboard: !!f.dashboard_storage_path,
+      dashboard_storage_path: f.dashboard_storage_path,
+      // Brokers + horizonte
+      broker_disponible: f.broker_disponible || [],
+      horizonte_temporal: f.horizonte_temporal || [],
+      encaje_texto: f.encaje_texto || '',
+      evaluacion_jsonb: f.evaluacion_jsonb || null,
+      // Compatibilidad con UI antigua
+      completitud_pct: f.has_qualitative_analysis ? 100 : 0,
+      num_posiciones: 0,
+      num_perfiles_gestores: g.gestores_nombres ? g.gestores_nombres.length : 0,
+      num_readings: 0,
+      ultima_actualizacion: g.fecha_ultimo_analisis || '',
+    };
+  });
+}
+
+function computeStats(funds, groups) {
+  const n_total = funds.length;
+  const n_groups = groups.length;
+  let n_es = 0, n_int = 0;
+  let n_top = 0, n_bueno = 0, n_clase_similar = 0;
+  let n_top_analyzed = 0, n_bueno_analyzed = 0;
+  let n_analyzed = 0, n_dashboard = 0;
+  const gestoras = new Set();
+  let aum_total = 0;
+
+  for (const f of funds) {
+    if (f.tipo === 'ES') n_es++; else n_int++;
+    if (f.gestora) gestoras.add(f.gestora);
+    if (typeof f.aum_meur === 'number') aum_total += f.aum_meur;
+    if (f.es_top) {
+      n_top++;
+      if (f.has_qualitative_analysis) n_top_analyzed++;
+    }
+    if (f.es_bueno) {
+      n_bueno++;
+      if (f.has_qualitative_analysis) n_bueno_analyzed++;
+    }
+    if (f.clasificacion_user === 'Clase_similar') n_clase_similar++;
+    if (f.has_qualitative_analysis) n_analyzed++;
+    if (f.has_dashboard) n_dashboard++;
+  }
+
+  return {
+    n_es, n_int,
+    n_top, n_bueno, n_mapfre_top: 0, n_clase_similar,
+    n_top_analyzed, n_top_pending: n_top - n_top_analyzed,
+    n_bueno_analyzed, n_bueno_pending: n_bueno - n_bueno_analyzed,
+    n_analyzed, n_dashboard,
+    gestoras_unicas: gestoras.size,
+    aum_total_meur: Math.round(aum_total * 10) / 10,
+    skipped_pseudo: 0,
+  };
+}
+
 async function loadCatalog() {
   try {
-    const res = await fetch('funds_catalog_analyzer.json', { cache: 'no-cache' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    STATE.catalog = await res.json();
-    if (!STATE.catalog || !Array.isArray(STATE.catalog.funds)) {
-      throw new Error('Catálogo inválido');
+    if (!supabaseConfigured()) {
+      throw new Error('Supabase no configurada — rellena las 2 keys en catalog.html (líneas SUPABASE_URL/SUPABASE_ANON_KEY)');
     }
+
+    // Fetch paralelo de las 2 tablas
+    const [funds, groups] = await Promise.all([
+      fetchSupabase('funds', 'select=*&limit=2000'),
+      fetchSupabase('fund_groups', 'select=*&limit=2000'),
+    ]);
+
+    // JOIN en cliente
+    const mergedFunds = joinFundsWithGroups(funds, groups);
+    const stats = computeStats(mergedFunds, groups);
+
+    STATE.catalog = {
+      version: '2.0-supabase',
+      generated_at: new Date().toISOString(),
+      n_funds: mergedFunds.length,
+      stats: stats,
+      funds: mergedFunds,
+    };
+
     $('#state-loading').style.display = 'none';
     renderStats();
     populateAllFilters();
@@ -936,9 +1171,14 @@ async function loadCatalog() {
     const e = $('#state-error');
     e.style.display = 'block';
     e.innerHTML = `
-      <strong>No se pudo cargar el catálogo.</strong><br>
+      <strong>No se pudo cargar el catálogo desde Supabase.</strong><br>
       ${escapeHtml(String(err))}<br><br>
-      Ejecuta <code>python -m tools.build_catalog</code> para generarlo, y sirve el directorio con <code>python -m http.server 8000</code> abriendo <code>localhost:8000/dashboard/catalog.html</code>.
+      Verifica:<br>
+      1. Las 2 keys de Supabase están rellenadas en catalog.html (busca <code>__SUPABASE_URL__</code> y <code>__SUPABASE_ANON_KEY__</code>)<br>
+      2. La tabla <code>fund_groups</code> y <code>funds</code> existen y tienen datos en Supabase<br>
+      3. La <code>anon key</code> tiene permisos SELECT en las tablas (RLS deshabilitado o policy permisiva)<br><br>
+      Si necesitas regenerar los datos, ejecuta:<br>
+      <code>python -m tools.import_taxonomy --upload-supabase</code>
     `;
   }
 }

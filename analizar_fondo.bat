@@ -201,6 +201,18 @@ if errorlevel 1 (
 echo.
 
 REM ----------------------------------------------------------------------
+REM Paso 7: Sync a Supabase (Storage + tablas). NO bloquea el bat si falla.
+REM Requiere .env con SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY y bucket 'funds-data'.
+echo === Paso 7/7: Sync a Supabase (Storage + fund_groups + funds) ===
+python -m tools.sync_to_supabase %ISIN%
+if errorlevel 1 (
+    echo [WARN] Sync to Supabase fallo. El analisis local sigue OK; reintenta luego con:
+    echo   python -m tools.sync_to_supabase %ISIN%
+    set FAILED_STEPS=!FAILED_STEPS! sync-supabase
+)
+echo.
+
+REM ----------------------------------------------------------------------
 if "!FAILED_STEPS!"=="" (
     echo === Listo -- todos los pasos OK ===
 ) else (
