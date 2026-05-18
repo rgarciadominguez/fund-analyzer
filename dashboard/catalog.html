@@ -1155,13 +1155,30 @@ function computeStats(funds, groups) {
   };
 }
 
+// Pre-warm: lanza fetch invisible a funds_catalog.json de fund-dashboard al cargar
+// el catalog. Cuando el user clique 📊, el browser sirve el JSON (~3.4 MB) desde
+// cache → fund-dashboard arranca 3-5s más rápido.
+function prewarmFundDashboard() {
+  try {
+    const dashboardDir = FUND_DASHBOARD_URL.replace(/\/index_fixed\.html$/, '').replace(/\/$/, '');
+    const catalogUrl = `${dashboardDir}/funds_catalog.json`;
+    // Fetch fire-and-forget (no await, no bloquea)
+    fetch(catalogUrl, { mode: 'cors', cache: 'force-cache' })
+      .then(r => r.ok && console.log(`[prewarm] funds_catalog.json cached (${(r.headers.get('content-length') || '?')} bytes)`))
+      .catch(() => {/* silent */});
+  } catch (e) {/* silent */}
+}
+
 async function loadCatalog() {
   try {
     if (!supabaseConfigured()) {
       throw new Error('Supabase no configurada — rellena las 2 keys en catalog.html (líneas SUPABASE_URL/SUPABASE_ANON_KEY)');
     }
 
-    // Fetch paralelo de las 2 tablas
+    // Pre-warm fund-dashboard catalog en paralelo (acelera click 📊)
+    prewarmFundDashboard();
+
+    // Fetch paralelo de las 2 tablas Supabase
     const [funds, groups] = await Promise.all([
       fetchSupabase('funds', 'select=*&limit=2000'),
       fetchSupabase('fund_groups', 'select=*&limit=2000'),
