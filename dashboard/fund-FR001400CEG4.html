@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund"> <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★☆☆</span></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>AMIRAL GESTION</strong></div>
+      <div class="lh-meta-line">Depositario: <strong>Brown Brothers Harriman Trustee Services</strong></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>FR001400CEG4</strong></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€252M</div>
+        <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 4 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Noviembre 2022</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Global</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Vincent Mercadier</strong></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-05-20</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin FR001400CEG4 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">Sextant Quality Focus Action A (FR001400CEG4) es un compartimento de la SICAV SEXTANT, gestionado por la francesa <strong>Amiral Gestion</strong> y lanzado el <strong>30 de noviembre de 2022</strong> bajo la coordinación de <strong>Vincent Mercadier</strong>. Clasificado como Actions internationales y referenciado al MSCI World Net Total Return EUR, persigue construir una cartera concentrada (alrededor de 30 posiciones) de compañías globales de calidad compradas a valoraciones razonables, dentro de un universo de gran y mediana capitalización (>1.000 M€) explícitamente quality/value, no quality/growth (KID PRIIPS 2026-03-06; entrevista Vincent Mercadier en h24finance feb-2026).</p><p class="pr">El fondo es <strong>artículo 8 SFDR</strong>, con SRRI 4 sobre 7, horizonte recomendado 5 años y depositario CACEIS BANK. La estructura de costes deja un <strong>TER total del 1,99%</strong> (1,73% comisión de gestión + 0,26% costes de transacción), con comisión de entrada máxima del 1%, sin comisión de salida y <strong>sin comisión de éxito</strong>. La exposición regulatoria a acciones se mueve en el rango 90-110% del patrimonio (KID PRIIPS).</p><p class="pr">En los tres primeros años de vida el fondo ha acumulado una <strong>rentabilidad de +53,5% desde lanzamiento</strong> (datos al 02/05/2026), aproximadamente 4,4 puntos por encima del MSCI World en EUR. La prueba más reveladora llegó en el episodio de estrés de marzo-abril 2025: el fondo retrocedió un <strong>-11%</strong> frente a un <strong>-21%</strong> del mercado, evidenciando el sesgo defensivo derivado de la disciplina de calidad y precio (entrevista h24finance, feb-2026).</p><p class="pr">La filosofía del equipo se aleja del consenso big-tech: tras tomar posición en Meta, Microsoft y Alphabet desde 2022 y aprovechar el rally inicial de inteligencia artificial, han ido recortando exposición a medida que las valoraciones se han disparado, manteniendo solo Microsoft y TSMC como vehículo de IA (alrededor del 10% de la cartera). El gestor ha sido explícito: «nuestra disciplina value nos impide quedarnos en valores a 50 veces beneficios» (h24finance, feb-2026).</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">La filosofía es <strong>quality/value pura</strong>: combinar calidad empresarial muy alta (ventajas competitivas duraderas, márgenes y retornos sobre capital elevados, balances sólidos, equipo directivo agile, flujos predecibles) con un anclaje estricto en valoración, exigiendo un margen de seguridad frente al múltiplo del mercado.
+
+El propio gestor, Vincent Mercadier, lo formaliza así: «nos centramos en quality/value, no en quality/growth» (h24finance, feb-2026). El proceso tiene tres etapas — universo amplio internacional con >€1.000 M de capitalización, filtros cuantitativos hasta ~200 compañías con sello de calidad, análisis fundamental continuo sobre 80 nombres invertibles — y finalmente una <strong>cartera de 30-40 posiciones</strong> construidas «agregando la capa crítica: la valoración» (El Asesor Financiero, dic-2024).
+
+El marco se ejecuta dentro de una casa <strong>propiedad de sus gestores y empleados</strong> (Amiral Gestion es independiente desde 1989), lo que el equipo reivindica como garantía de horizonte largo y libertad sin influencias externas. La estrategia integra criterios ESG en el proceso y se apoya en herramientas digitales internas que combinan filtros propios con modelos de terceros para detectar inefficiencias y desequilibrios entre calidad y precio.</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Ventajas competitivas duraderas:</strong> <span class="pr" style="font-size:12.5px;">Marcas con poder de pricing, efectos de red, switching costs elevados, patentes ventajosas o compras recurrentes que protejan el ROIC frente a la competencia.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Equipo directivo sólido y ágil:</strong> <span class="pr" style="font-size:12.5px;">Capacidad demostrada para fortalecer ventajas competitivas en entornos cambiantes y asignar capital con disciplina.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Flujos predecibles y modelo recurrente:</strong> <span class="pr" style="font-size:12.5px;">Preferencia por ingresos contractuales, suscripciones o consumo repetido que reduzcan la ciclicidad y aporten visibilidad a varios años.</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Disciplina value explícita aplicada sobre un universo de empresas de muy alta calidad: el gestor reitera que no paga más allá de la zona de PE razonable, evitando la sobreponderación de mega-caps tech a múltiplos extremos.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Resiliencia en mercados bajistas demostrada: durante el episodio de estrés de marzo-abril 2025 el fondo cayó -11% frente al -21% del mercado, validando empíricamente la promesa defensiva del enfoque calidad/valoración.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Performance acumulada desde lanzamiento de +53,5% (al 02/05/2026), aproximadamente +4,4 puntos sobre el MSCI World EUR, con un sesgo de selección activo y desligado del índice.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Universo restringido a 80 nombres con análisis fundamental continuo y cartera concentrada de 30-40 posiciones, que permite conocimiento profundo de cada negocio y control real del riesgo idiosincrático.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Casa gestora independiente y propiedad de empleados (Amiral Gestion desde 1989), con alineación estructural y herramientas analíticas internas; integración ESG completa (Artículo 8 SFDR) sin condicionar la selección.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Dependencia operativa de un único gérant coordinateur (Vincent Mercadier): aunque colabora con el equipo internacional de Amiral, la responsabilidad del fondo recae en una sola persona y no hay co-gestor formal nombrado.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Track record corto: el fondo se lanzó el 30/11/2022 y suma ~3 años y medio de histórico, lo que limita la lectura de consistencia en regímenes de mercado distintos al actual.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">TER del 1,99%: superior al 1,00-1,30% típico de ETFs y fondos pasivos de renta variable global, lo que exige una alpha sostenida por encima del benchmark para compensar el coste para el partícipe.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Subponderación deliberada en IA y mega-caps tech: si el rally de las grandes capitalizaciones americanas continúa, el fondo podría retrasarse en el corto plazo, riesgo que el propio gestor admite explícitamente.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Universo expuesto a riesgo divisa (USA + Europa + Asia) y a riesgo geopolítico (tensiones comerciales y conflictos en Europa del Este y Medio Oriente identificados por el gestor en su outlook 2025).</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>Clase retail</strong></td><td>FR001400CEG4</td><td>—</td><td>2,0%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2022</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+  </table>
+  
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con horizonte mínimo de <strong>5 años</strong> (recomendado por el KID), perfil moderado-equilibrado (SRRI 4/7), tolerancia a oscilaciones intermedias y preferencia por estilos value de calidad sobre exposición pasiva a índices globales. Adecuado para complementar una cartera nuclear con un satélite de gestión activa concentrada y diversificada geográficamente, especialmente para quien busque amortiguar el riesgo de concentración en mega-caps tecnológicas del MSCI World.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Amiral Gestion es <strong>independiente y propiedad de sus gestores y empleados</strong> desde su fundación en 1989, lo que asegura alineación estructural entre el equipo y los partícipes. Vincent Mercadier coordina personalmente el fondo desde el lanzamiento y se ha implicado directamente en comunicar la estrategia (entrevistas h24finance feb-2026, El Asesor Financiero dic-2024, comunicado oficial Amiral abr-2022). El gestor está basado en París y trabaja con el resto del equipo internacional (Louis d'Arvieu, Julien Lepage como CIO).</p></div></div>
+
+  <div class="sr">TER por clase (snapshot actual)</div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctx = document.getElementById('c-com-snap');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ["retail"], datasets: [
+      {label:'TER (%)', data:[1.99], backgroundColor:'rgba(12,35,64,0.85)'}
+    ] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+        scales: {
+          x: { stacked: false, grid: { display: false } },
+          y: { stacked: false, beginAtZero: true, grid: { display: false }, ticks: { callback: v => v+'%' } }
+        }
+      }
+    });
+  })();
+  </script>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Noviembre 2022 — presente</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Origen y casa gestora (Amiral Gestion, fundada en 1989)</p><p class="pr">Amiral Gestion es una sociedad de gestión francesa <strong>independiente, fundada en 1989</strong> y propiedad de sus gestores y empleados, con sede en París y autorización AMF (n°GP-04000038). Su SICAV insignia, <strong>Sextant</strong>, agrupa varios compartimentos de renta variable y mixtos, con una identidad de casa value-fundamental. La gama Sextant es reconocida en Francia por fondos como Sextant Grand Large (multiactivos flexible coordinado durante años por Louis d'Arvieu) y Sextant PEA.</p><p class="subsec">Incorporación de Vincent Mercadier al equipo internacional (20 de abril de 2022)</p><p class="pr">El 20 de abril de 2022 Amiral Gestion anunció la incorporación de <strong>Vincent Mercadier</strong> al equipo internacional. Mercadier, 39 años en ese momento, aportaba más de 15 años de experiencia en grandes capitalizaciones americanas y europeas y en gestión flexible, tras una etapa en Nueva York (2007-2014) y otra en Tikehau IM como Responsable de Gestión de Renta Variable y gestor de Tikehau INCA y Tikehau Equity Selection (2014-2022). En el comunicado, Julien Lepage (Presidente y CIO) destacó: «estamos encantados de que Vincent se una a nuestro equipo. Su trayectoria, experiencia internacional y pasión compartida por la inversión fundamental complementarán nuestra expertise» (comunicado Amiral Gestion 20/04/2022; Funds Society 21/04/2022).</p><p class="pr">En su primer encargo, Mercadier reforzó la gestión de Sextant Grand Large junto a Louis d'Arvieu y aportó ideas de inversión transversales a los compartimentos de la SICAV Sextant, especialmente en el segmento de grandes capitalizaciones americanas y europeas.</p><p class="subsec">Lanzamiento de Sextant Quality Focus (30 de noviembre de 2022)</p><p class="pr">Apenas siete meses después de incorporarse, Mercadier lideró el lanzamiento de <strong>Sextant Quality Focus el 30 de noviembre de 2022</strong>, un compartimento totalmente nuevo dentro de la SICAV Sextant, diseñado específicamente para implementar un estilo quality/value puro sobre un universo internacional de gran y mediana capitalización (>1.000 M€). El fondo se posicionaba como complemento a la oferta histórica de Amiral, capturando la oportunidad que el equipo veía en compañías de calidad cuyo precio se había desconectado tras el tightening de tipos iniciado en 2022.</p><p class="subsec">Recorrido 2023-2024: construcción de track record y posicionamiento en IA</p><p class="pr">Durante 2023 y 2024 el fondo construyó su track record en un entorno marcado por la subida de tipos, el rally de la IA generativa y la concentración extrema del MSCI World en mega-caps americanas. La cartera tomó posiciones en <strong>Meta, Microsoft y Alphabet desde el primer año</strong>, capturando la fase inicial del rally de IA. A medida que las valoraciones de algunas de estas compañías se estiraron, el equipo fue reduciendo exposición de forma disciplinada, manteniendo solo aquellas donde el binomio calidad-precio seguía siendo razonable (entrevista Mercadier en h24finance, feb-2026).</p><p class="subsec">Diciembre de 2024: entrevista monográfica y outlook 2025</p><p class="pr">A finales de 2024 Mercadier concedió una entrevista monográfica a El Asesor Financiero, en la que describió la composición de la cartera entonces vigente (~45% Estados Unidos, ~55% Europa) y publicó su outlook 2025 identificando tres riesgos principales: tensiones geopolíticas (Europa del Este, Medio Oriente, fricciones comerciales), inflación y tipos de interés derivados de déficits fiscales persistentes, y el riesgo de que las valoraciones de IA tarden en materializarse en beneficios reales (El Asesor Financiero, 20/12/2024).</p><p class="subsec">Marzo-abril 2025: prueba de fuego de la disciplina defensiva</p><p class="pr">El episodio de estrés de marzo-abril 2025 supuso la primera prueba seria del enfoque calidad/valoración. En esa ventana, el fondo retrocedió un <strong>-11%</strong> frente a una caída del <strong>-21%</strong> del mercado de referencia, lo que el equipo interpretó como validación empírica de su tesis: la calidad combinada con valoración razonable amortigua mejor las correcciones que una exposición concentrada en mega-caps caras (entrevista h24finance, feb-2026).</p><p class="subsec">Febrero de 2026: segunda entrevista pública y balance de tres años</p><p class="pr">En febrero de 2026, con el fondo ya con tres años cumplidos, Mercadier publicó una entrevista en h24finance recogiendo el balance acumulado: <strong>+53,5% desde el lanzamiento al 02/05/2026</strong>, aproximadamente 4,4 puntos por encima del MSCI World EUR. Describió un cambio de posicionamiento geográfico hacia un mayor equilibrio entre Europa, Estados Unidos y Asia, una sobreponderación deliberada en sectores defensivos (salud, consumo básico, telecomunicaciones) y una IA reducida al ~10% del portfolio vía Microsoft y TSMC.</p><p class="pr">En esa misma entrevista, comparó el PE de Shiller del universo invertible (~22x) con el del MSCI World normalizado (~33x) como argumento de que el espacio quality/value sigue ofreciendo asimetrías razonables, y subrayó que algunas compañías históricamente caras del segmento quality growth «se han vuelto accesibles para gestores value como nosotros».</p><p class="subsec">Estado actual (mayo de 2026)</p><p class="pr">A la fecha de este informe (mayo 2026), Sextant Quality Focus es un fondo con tres años y medio de vida, gestionado de forma única por Vincent Mercadier como gérant coordinateur, con todos los atributos formales definidos en el KID PRIIPS de marzo 2026: SRRI 4, Artículo 8 SFDR, TER 1,99%, sin comisión de éxito, depositario CACEIS BANK, autoridad AMF. No se han registrado cambios de equipo gestor, de gestora ni de estrategia desde el lanzamiento.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">—</div><div class="kpi-sub">Noviembre 2022 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 251.6;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">1989</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Fundación de Amiral Gestion</div>
+      <div class="tl-desc">Nace Amiral Gestion como sociedad de gestión francesa independiente, propiedad de sus gestores y empleados, con sede en París.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2022</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Equipo</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Incorporación de Vincent Mercadier</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">El 20 de abril de 2022 Amiral Gestion anuncia el fichaje de Vincent Mercadier (École Polytechnique, MSc UC Berkeley, ex-Tikehau IM) para reforzar el equipo internacional. Comunicado oficial de Julien Lepage, Presidente y CIO.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Lanzamiento</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Lanzamiento de Sextant Quality Focus</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">El 30 de noviembre de 2022 se lanza Sextant Quality Focus como compartimento de la SICAV Sextant, con Vincent Mercadier como gérant coordinateur y un mandato de quality/value internacional sobre gran y mediana capitalización (>1.000 M€).</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2023</div>
+      <div class="tl-tag tag-hito">Contexto_mercado</div>
+      <div class="tl-title">Construcción del track record en mercado alcista</div>
+      <div class="tl-desc">El fondo construye su track record inicial en un año marcado por el rally de la IA generativa y la concentración extrema en mega-caps americanas. Toma posición en Meta, Microsoft y Alphabet desde el primer año, capturando parte del rally.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2024</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Equipo</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Reducción disciplinada de mega-caps tech</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">A lo largo de 2024 el equipo reduce exposición a Meta, Microsoft y Alphabet a medida que las valoraciones se estiran. El gestor expresa públicamente que «la disciplina value nos impide quedarnos en valores a 50 veces beneficios» (h24finance feb-2026).</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Hecho_relevante</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Entrevista monográfica El Asesor Financiero (diciembre)</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Mercadier publica entrevista en El Asesor Financiero (20/12/2024) describiendo el proceso en tres etapas, criterios de calidad, composición geográfica (45% USA / 55% Europa) y outlook 2025 con tres riesgos principales (geopolítica, inflación/tipos, valoración IA).</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2025</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Stress test marzo-abril: resiliencia validada</div>
+      <div class="tl-desc">Durante el episodio de estrés de marzo-abril 2025 el fondo cae -11% frente al -21% del mercado, lo que el equipo interpreta como validación empírica del sesgo defensivo del enfoque calidad/valoración.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2026</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Hecho_relevante</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Entrevista h24finance: balance de tres años</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">En febrero de 2026, con tres años cumplidos, Mercadier publica una entrevista en h24finance: +53,5% desde lanzamiento (4,4 pp sobre MSCI World EUR), posicionamiento más equilibrado Europa-USA-Asia, sobreponderación defensiva (salud, consumo básico, telecoms) y IA reducida al ~10% (Microsoft y TSMC).</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Hecho_relevante</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Actualización del KID PRIIPS (marzo)</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Se publica el KID PRIIPS con fecha 06/03/2026 que confirma los atributos vigentes: TER 1,99% (1,73% gestión + 0,26% transacción), sin comisión de éxito, SRRI 4, Artículo 8 SFDR, horizonte recomendado 5 años, depositario CACEIS BANK, exposición acciones 90-110%.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  <div class="mb24"><p class="pr">El fondo Sextant Quality Focus está bajo la responsabilidad exclusiva de <strong>Vincent Mercadier</strong>, designado como gérant coordinateur del compartimento desde su lanzamiento el 30 de noviembre de 2022. No hay un co-gestor formal asignado al fondo, aunque Mercadier trabaja codo a codo con el equipo internacional de Amiral Gestion (en particular con Louis d'Arvieu, con quien comparte la gestión de Sextant Grand Large, y bajo la dirección de inversiones de Julien Lepage, Presidente y CIO de la casa).</p><p class="subsec">Perfil académico de Vincent Mercadier</p><p class="pr">Mercadier, de 39 años en el momento de su incorporación a Amiral Gestion (abril de 2022) y por tanto en torno a 43 años en mayo de 2026, está basado en París y combina una formación cuantitativa de élite con una experiencia profesional internacional. Es <strong>diplomado de l'École Polytechnique</strong>, la escuela de ingenieros más selectiva del sistema universitario francés, y posee un <strong>Master of Science por la University of California, Berkeley</strong>. Esta combinación europea-americana es relevante en su enfoque inversor: dota al gestor de las herramientas analíticas para gestionar carteras concentradas con disciplina cuantitativa, y simultáneamente de un conocimiento directo del mercado americano que es central en el universo del fondo (la cartera ha llegado a tener ~45% de exposición a EE.UU.).</p><p class="subsec">Recorrido profesional: Nueva York (2007-2014), Tikehau IM (2014-2022), Amiral (2022-actualidad)</p></div>
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">VM</div>
+        <div class="mgr-nm">Vincent Mercadier<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#1e5a8a;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerDeep</span></div>
+        <div class="mgr-rl">Gérant coordinateur (Lead Manager) de Sextant Quality Focus</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Gérant coordinateur (Lead Manager) de Sextant Quality Focus desde su lanzamiento el 30/11/2022</li><li style="margin-bottom:3px;">Diplomado de l'École Polytechnique (Francia)</li><li style="margin-bottom:3px;">Master of Science por la University of California, Berkeley</li><li style="margin-bottom:3px;">Más de 15 años de experiencia en gestión de grandes capitalizaciones americanas y europeas y gestión flexible</li><li style="margin-bottom:3px;">2014-2022: Responsable de Gestion Actions en Tikehau IM y gestor de Tikehau INCA y Tikehau Equity Selection</li><li style="margin-bottom:3px;">2007-2014: distintos puestos en Nueva York en el ecosistema financiero americano</li><li style="margin-bottom:3px;">Co-gestor de Sextant Grand Large desde su incorporación a Amiral Gestion en abril de 2022, junto a Louis d'Arvieu</li><li style="margin-bottom:3px;">Disponibilidad pública para explicar la estrategia: dos entrevistas monográficas (El Asesor Financiero dic-2024, h24finance feb-2026)</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>Vincent Mercadier</strong> (39 años en el momento de su incorporación a Amiral Gestion en abril de 2022, ~43 años a mayo de 2026) es el <strong>único gérant coordinateur</strong> de Sextant Quality Focus desde su lanzamiento el 30 de noviembre de 2022. Está basado en París y combina más de <strong>15 años de experiencia en gestión de grandes capitalizaciones americanas y europeas</strong> y gestión flexible.
+
+<strong>Formación académica:</strong> diplomado de <strong>l'École Polytechnique</strong> (Francia) y <strong>Master of Science por la University of California, Berkeley</strong>. Esta doble formación europea-americana de alto nivel cuantitativo es coherente con la naturaleza analítica e internacional del fondo.
+
+<strong>Recorrido profesional documentado:</strong>
+
+<strong>2007-2014 — Nueva York.</strong> Tras Berkeley, Mercadier pasó siete años en Nueva York en varios puestos dentro del ecosistema financiero. Las fuentes oficiales (comunicado Amiral 20/04/2022, Funds Society 21/04/2022) confirman la etapa y las fechas pero no detallan firmas concretas ni cargos puntuales. Esta presencia neoyorquina explica buena parte de su conocimiento directo del mercado americano, que es central en el universo invertible del fondo.
+
+<strong>2014-2022 — Tikehau Investment Management.</strong> En 2014 se incorporó a Tikehau IM como <strong>Responsable de la Gestion Actions</strong> (Responsable de Gestión de Renta Variable), siendo gestor de dos fondos insignia de la casa: <strong>Tikehau INCA</strong> y <strong>Tikehau Equity Selection</strong>. Ocho años en este puesto consolidaron su perfil como portfolio manager de grandes capitalizaciones americanas y europeas con sesgo flexible. Es la etapa que más peso tiene en su track record verificable.
+
+<strong>Abril 2022-actualidad — Amiral Gestion.</strong> Comunicado oficial el 20/04/2022 firmado por Julien Lepage (Presidente y CIO de Amiral): «Estamos encantados de ver a Vincent unirse a nuestro equipo. Su trayectoria, su expertise internacional y su pasión compartida por la inversión fundamental vendrán a completar nuestra expertise». En su primer encargo, reforzó la gestión de Sextant Grand Large junto a Louis d'Arvieu y aportó ideas de inversión transversales a la SICAV Sextant.
+
+<strong>Noviembre 2022 — Lanzamiento de Sextant Quality Focus.</strong> Apenas siete meses después de incorporarse, Mercadier lideró el diseño y lanzamiento de Sextant Quality Focus (30/11/2022). El propio gestor ha narrado que se sintió atraído por Amiral por su filosofía de inversión centrada en la valoración y por la cultura corporativa emprendedora de una casa propiedad de sus empleados (entrevista El Asesor Financiero, 20/12/2024).
+
+<strong>Visibilidad pública:</strong> Mercadier ha mostrado disposición pública a explicar la estrategia: dos entrevistas monográficas (El Asesor Financiero dic-2024, h24finance feb-2026) y un comunicado oficial completo (Amiral abr-2022). En ellas verbaliza con precisión la filosofía quality/value, el proceso en tres etapas, el posicionamiento sectorial y geográfico y los riesgos identificados para el outlook.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;"><strong>Filosofía personal de Vincent Mercadier:</strong>
+
+«Nos centramos en quality/value, no en quality/growth». Esta frase, repetida en h24finance (feb-2026), resume la diferenciación que el gestor reivindica frente al consenso del segmento quality global. Para Mercadier, la calidad sin precio razonable no es invertible: la disciplina value es lo que cierra el círculo y evita pagar múltiplos extremos.
+
+En la práctica, esto se traduce en el rechazo explícito a quedarse en valores «a 50 veces beneficios», incluso si son negocios excelentes. La consecuencia visible es la reducción disciplinada de posiciones en mega-caps tech como Meta o Alphabet cuando las valoraciones se han estirado, manteniendo solo aquellos nombres (Microsoft, TSMC) donde el binomio calidad-precio sigue siendo defendible.
+
+La filosofía se complementa con horizonte largo declarado: «alentamos a los inversores a mirar más allá de los movimientos a corto plazo» (El Asesor Financiero, dic-2024), coherente con el horizonte recomendado de 5 años del KID PRIIPS.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Diseño y lanzamiento de Sextant Quality Focus el 30/11/2022, apenas siete meses después de incorporarse a Amiral. Mandato quality/value internacional sobre grandes y medianas capitalizaciones (>1.000 M€), explícitamente diferenciado del estilo quality/growth dominante en el segmento.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Compra de Meta, Microsoft y Alphabet desde 2022 para capturar la fase inicial del rally de IA generativa, asumiendo el riesgo cuando el consenso aún era cauto y validando una de las primeras tesis del fondo (h24finance, feb-2026).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Reducción disciplinada de mega-caps tech durante 2024 a medida que las valoraciones se han estirado, manteniendo solo Microsoft y TSMC como vehículo de exposición a IA (~10% del portfolio). Evita el sesgo growth-momentum que afecta a muchos fondos quality.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Sobreponderación deliberada en sectores defensivos (salud, consumo básico, telecomunicaciones) y reequilibrio geográfico hacia Europa-USA-Asia durante 2025-2026, posicionando el fondo de cara a un escenario de sobrevaloración generalizada del MSCI World (PE Shiller ~33x vs ~22x del universo invertible).</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Combinación poco frecuente de formación cuantitativa de élite francesa (Polytechnique) con MSc americano (Berkeley) y siete años de presencia profesional en Nueva York. Capacidad demostrada para alternar entre marcos analíticos (multiactivos flexible en Sextant Grand Large vs. quality concentrado en Sextant Quality Focus). Disciplina explícita para vender posiciones ganadoras cuando la valoración se estira, evitando la deriva growth-momentum habitual en fondos quality. Disposición pública a comunicar la estrategia y los riesgos en entrevistas monográficas, infrecuente en gestores franceses.</p></div>
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Marco general: quality/value sobre universo internacional gran y mediana capitalización</p><p class="pr">La estrategia de Sextant Quality Focus se define formalmente en el KID PRIIPS (06/03/2026) como gestión activa de un compartimento OPCVM de la SICAV Sextant, clasificado en Actions internationales y referenciado al MSCI World Net Total Return EUR Index, con exposición regulatoria a acciones entre 90% y 110% del patrimonio. El universo inicial está formado por <strong>compañías globales de gran y mediana capitalización con capitalización bursátil superior a 1.000 millones de euros</strong>, sin limitación geográfica ni sectorial impuesta por el mandato.</p><p class="pr">La filosofía es <strong>quality/value pura</strong>, expresada en términos del gestor: «nos centramos en quality/value, no en quality/growth» (h24finance, feb-2026). Esta distinción es el corazón de la estrategia: comprar negocios excepcionales (con ventajas competitivas duraderas, márgenes altos, balances sólidos y flujos predecibles) sólo cuando el precio refleja una asimetría favorable.</p><p class="subsec">Proceso de inversión en tres etapas (h24finance feb-2026, El Asesor Financiero dic-2024)</p><p class="pr">El proceso se estructura en tres etapas secuenciales y bien documentadas por el gestor:</p><p class="pr"><strong>Etapa 1 — Definición del universo.</strong> Se parte del universo amplio de empresas internacionales cotizadas con capitalización superior a €1.000 millones. Mediante filtros cuantitativos (rentabilidad, márgenes, solidez de balance, consistencia de beneficios) y cualitativos, se reduce progresivamente a aproximadamente 1.000 compañías iniciales, y de ahí a unas <strong>200 compañías que cumplen los criterios de calidad</strong>.</p><p class="pr"><strong>Etapa 2 — Identificación del universo invertible (80 nombres).</strong> Sobre las 200 candidatas se realiza un análisis fundamental continuo (modelo de negocio, ventajas competitivas, fuentes de crecimiento, calidad directiva). El resultado es un <strong>universo invertible de 80 empresas</strong> sometidas a seguimiento permanente. Este número (80) es la unidad operativa de trabajo del equipo y refleja la profundidad mínima exigida para que un nombre pueda entrar en cartera.</p><p class="pr"><strong>Etapa 3 — Construcción y dimensionamiento de la cartera.</strong> Sobre el universo invertible se aplica la capa final de valoración. Mercadier lo formaliza: «agregamos una capa crítica: la valoración. Esto requiere encontrar acciones que ofrezcan simultáneamente calidad y valoraciones atractivas» (El Asesor Financiero, dic-2024). La cartera final contiene <strong>entre 30 y 40 posiciones</strong>, principalmente de Estados Unidos y Europa (con creciente presencia de Asia en 2026), construidas con ratios calidad/valoración optimizados.</p><p class="subsec">Criterios de calidad (los cinco filtros)</p><p class="pr">Los criterios de calidad explicitados por el gestor son cinco: (1) <strong>ventajas competitivas duraderas</strong>, materializadas en marcas con pricing power, efectos de red, switching costs elevados, patentes o consumo recurrente; (2) <strong>equipo directivo sólido</strong>, evaluado por su capacidad de fortalecer ventajas competitivas en entornos cambiantes; (3) <strong>flujos predecibles</strong>, con preferencia por ingresos recurrentes que aporten estabilidad; (4) <strong>balance sólido</strong>, con apalancamiento controlado, altos retornos sobre capital y márgenes atractivos sostenidos; (5) <strong>integración ESG</strong>, criterios completamente integrados en el proceso de selección (Artículo 8 SFDR confirmado en KID PRIIPS 2026).</p><p class="subsec">Disciplina de venta</p><p class="pr">La disciplina de venta tiene dos detonantes claros: (a) cuando una posición <strong>deja de cumplir criterios de valoración</strong> porque el precio se ha estirado más allá de la zona razonable, y (b) cuando se identifican <strong>mejores oportunidades en el universo invertible</strong> con un binomio calidad-precio superior. El caso emblemático: la reducción gradual de Meta y Alphabet durante 2024 a medida que el rally de IA generativa elevó sus múltiplos a niveles incompatibles con la disciplina value del equipo (h24finance, feb-2026).</p><p class="subsec">Posicionamiento actual: defensivo, anti-burbuja, anti-mega-cap</p><p class="pr">El posicionamiento actual del fondo (a febrero de 2026) refleja una lectura concreta del régimen de mercado: <strong>subponderación deliberada en IA (~10% del portfolio vía Microsoft y TSMC)</strong>, sobreponderación en sectores defensivos (salud, consumo básico, telecomunicaciones), y un reequilibrio geográfico hacia mayor presencia de Asia, en línea con la convicción del gestor de que el universo quality/value ofrece asimetrías razonables (PE de Shiller ~22x del universo vs ~33x del MSCI World normalizado).</p><p class="subsec">Gestión activa sin contrainte indicielle</p><p class="pr">Un rasgo formalizado en el KID PRIIPS es que la gestión es activa <strong>sin contrainte indicielle</strong>, es decir, sin obligación de seguir la composición del benchmark. Esto permite al equipo construir una cartera profundamente diferenciada del MSCI World, asumiendo el tracking error como contraparte necesaria de la disciplina value. Mercadier ha admitido explícitamente que esta diferenciación puede penalizar la performance relativa en mercados alcistas dominados por mega-caps tech, pero defiende que la rigueur a largo plazo justifica esa volatilidad relativa.</p><p class="subsec">Outlook 2025-2026 según el gestor</p><p class="pr">En la entrevista de El Asesor Financiero (20/12/2024), Mercadier identificó tres riesgos macro principales para el periodo: (1) tensiones geopolíticas (Europa del Este, Medio Oriente, fricciones comerciales); (2) inflación y tipos de interés derivados de déficits fiscales persistentes; (3) preocupación por si los beneficios de la inteligencia artificial tardan en materializarse en relación con las valoraciones actuales. El gestor concluyó: «nuestro enfoque en calidad y valoración ayuda a navegar estos riesgos mientras buscamos oportunidades a largo plazo».</p>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Nuestra disciplina value nos impide quedarnos en valores a 50 veces beneficios.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Vincent Mercadier, Entrevista h24finance, 09/02/2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Nos centramos en quality/value, no en quality/growth.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Vincent Mercadier, Entrevista h24finance, 09/02/2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Conseguimos asegurar los beneficios cuando las valoraciones se volvieron excesivas.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Vincent Mercadier, Entrevista h24finance, 09/02/2026 — sobre la reducción de mega-caps tech</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Cartera concentrada de 30-40 posiciones globales en grandes y medianas capitalizaciones (>1.000 M€) seleccionadas bajo un proceso quality/value en tres etapas (universo amplio → 200 candidatas calidad → 80 invertibles → 30-40 finales con valoración razonable). Posicionamiento actual defensivo, con IA reducida al ~10%, sobreponderación en salud, consumo básico y telecoms, y mayor equilibrio geográfico Europa-USA-Asia. Gestión activa sin contrainte indicielle frente al MSCI World EUR.</p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta variable internacional gran y mediana capitalización (Actions internationales según clasificación AMF / KID PRIIPS)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de mercado de renta variable global (SRRI 4 sobre 7 según KID PRIIPS 06/03/2026)</li><li style="margin-bottom:4px;">Riesgo de divisa (cartera con exposición USA, Europa y Asia, denominada en EUR)</li><li style="margin-bottom:4px;">Riesgo de concentración (cartera con solo 30-40 posiciones)</li><li style="margin-bottom:4px;">Riesgo geopolítico (tensiones Europa del Este, Medio Oriente, fricciones comerciales)</li><li style="margin-bottom:4px;">Riesgo de subperformance relativa frente al benchmark en mercados alcistas dominados por mega-caps tech</li></ul></div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2022-Q4 (lanzamiento)</div>
+  <div class="strat-c">El fondo se lanza el 30/11/2022 en un contexto de fuerte ajuste de los mercados de renta variable global tras el tightening monetario iniciado por la Fed en marzo de 2022. El MSCI World había caído ~18% en EUR en el año hasta noviembre. Las valoraciones de muchas compañías quality habían descendido a niveles atractivos por primera vez en años.</div>
+  <div class="strat-c">Construcción inicial de la cartera aprovechando el reset de valoraciones. Toma de posición desde el primer momento en Meta, Microsoft y Alphabet (h24finance feb-2026), capturando la futura recuperación de tech/IA. Universo invertible delimitado en 80 nombres.</div>
+  <div class="strat-c">No hay rentabilidad puntual de un mes publicada. La estrategia se diseñó como apuesta de medio plazo (horizonte 5 años) y la construcción de cartera se realizó a precios todavía ajustados por la corrección de 2022.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2023 (año completo)</div>
+  <div class="strat-c">Recuperación fuerte de la renta variable global con rally de IA generativa (especialmente desde el lanzamiento de ChatGPT en noviembre de 2022 y la presentación de Nvidia H100). MSCI World EUR cierra el año con rentabilidad positiva de doble dígito. Concentración del rendimiento en mega-caps americanas (Magnificent Seven).</div>
+  <div class="strat-c">Mantenimiento de las posiciones en Meta, Microsoft y Alphabet, capturando la fase inicial del rally. Construcción progresiva del resto de la cartera dentro del universo invertible de 80 nombres.</div>
+  <div class="strat-c">No hay rentabilidad anual desglosada publicada. La presencia en mega-caps tech permitió al fondo participar en el rally de IA durante esta etapa.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2024 (año completo)</div>
+  <div class="strat-c">Continuación del rally tech pero con valoraciones cada vez más extremas. El PE Shiller del MSCI World se aproxima a 33x. Concentración récord del índice en Magnificent Seven. Apertura de la divergencia value vs growth en favor del growth en relativos.</div>
+  <div class="strat-c">Reducción disciplinada de Meta y Alphabet a medida que los múltiplos se estiran («nuestra disciplina value nos impide quedarnos en valores a 50x beneficios» — h24finance feb-2026). Mantenimiento de Microsoft y TSMC como vehículo de IA. Inicio del reequilibrio sectorial hacia defensivos (salud, consumo básico, telecoms).</div>
+  <div class="strat-c">No hay rentabilidad anual desglosada publicada. La reducción de mega-caps tech probablemente sacrificó performance relativa frente al MSCI World en 2024, contrapartida aceptable para preservar la disciplina value.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2025-Q1Q2 (stress mar-abr)</div>
+  <div class="strat-c">Episodio de estrés en mercados de renta variable durante marzo-abril 2025. El MSCI World en EUR cae aproximadamente -21% en esa ventana puntual.</div>
+  <div class="strat-c">El sesgo defensivo del fondo (sobreponderación en salud, consumo básico, telecoms; subponderación en IA y mega-caps tech) protege la cartera. No se han documentado decisiones reactivas adicionales en este periodo más allá del mantenimiento de la disciplina.</div>
+  <div class="strat-c">-11% para el fondo vs -21% para el mercado — caída ~10 puntos porcentuales inferior al benchmark, validando empíricamente la promesa defensiva del enfoque quality/value (declaración Mercadier en h24finance feb-2026).</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2026-Q1 (balance tres años)</div>
+  <div class="strat-c">Mercados normalizan tras el stress de mar-abr 2025. PE Shiller del MSCI World sigue en ~33x normalizado. Concentración del índice persiste pero con espacio quality/value relativamente más atractivo (~22x PE Shiller).</div>
+  <div class="strat-c">Reequilibrio geográfico hacia mayor presencia de Asia (frente al 45/55 USA/Europa de finales 2024). Mantenimiento de sobreponderación defensiva. IA reducida al ~10% del portfolio (Microsoft + TSMC).</div>
+  <div class="strat-c">+53,5% desde lanzamiento, +4,4 pp sobre MSCI World EUR (al 02/05/2026 según h24finance feb-2026).</div>
+</div>
+
+  
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Composición general de la cartera</p><p class="pr">Sextant Quality Focus mantiene una cartera <strong>concentrada de entre 30 y 40 posiciones</strong>, derivada del universo invertible de 80 nombres que el equipo monitoriza de forma permanente. La exposición regulatoria a renta variable se mueve en el rango 90-110% del patrimonio (KID PRIIPS 06/03/2026), lo que significa que la cartera está prácticamente plena de acciones con margen para apalancamiento ocasional o coberturas, sin que el bundle disponga del desglose actual cuantificado entre equity, cash y otros.</p><p class="pr">La naturaleza de los activos es <strong>renta variable internacional pura</strong>, sin posiciones en renta fija ni en activos alternativos, en línea con la clasificación AMF de Actions internationales. Esto diferencia el fondo de otros productos de la gama Sextant (como Sextant Grand Large, que es multiactivos flexible) y lo posiciona como una herramienta de exposición concentrada y activa al espacio quality global.</p><p class="subsec">Distribución geográfica: del 45/55 USA/Europa de 2024 al equilibrio Europa-USA-Asia de 2026</p><p class="pr">La distribución geográfica de la cartera ha evolucionado de forma significativa entre 2024 y 2026. La entrevista de Mercadier en El Asesor Financiero (20/12/2024) documentaba una composición de <strong>~45% Estados Unidos y ~55% Europa</strong>, con muchas empresas operando globalmente. En la entrevista posterior de h24finance (09/02/2026), el gestor describe un <strong>reequilibrio hacia mayor presencia de Asia</strong>, configurando una distribución más equilibrada entre Europa, Estados Unidos y Asia (sin que las fuentes consultadas detallen pesos exactos por región a esa fecha).</p><p class="pr">Este movimiento es coherente con la disciplina value del fondo: en la medida en que las valoraciones de Estados Unidos se han estirado, el equipo ha rotado hacia geografías donde el binomio calidad-precio ofrece asimetrías más razonables. El propio Mercadier ha argumentado en h24finance que el PE de Shiller del universo invertible (~22x) sigue siendo materialmente más atractivo que el del MSCI World normalizado (~33x).</p><p class="subsec">Distribución sectorial: sobreponderación defensiva, IA reducida al ~10%</p><p class="pr">La entrevista de El Asesor Financiero (dic-2024) identificó como sectores principales de exposición <strong>bienes de consumo, tecnología, servicios de comunicación y consumo discrecional</strong>. En la entrevista de h24finance (feb-2026), el posicionamiento ha evolucionado hacia una <strong>sobreponderación deliberada en sectores defensivos: salud, consumo básico y telecomunicaciones</strong>.</p><p class="pr">Un elemento clave del posicionamiento actual es la <strong>exposición a inteligencia artificial limitada al ~10% del portfolio</strong>, concentrada en dos nombres: <strong>Microsoft y TSMC</strong>. Esta subponderación es deliberada: el equipo redujo en 2024 sus posiciones en Meta y Alphabet a medida que las valoraciones se estiraron, en aplicación estricta de la disciplina value. Mercadier lo expresó así: «certaines entreprises quality growth son devenues accessibles à des gérants value comme nous» en aquellas zonas del universo donde los múltiplos se han moderado.</p><p class="subsec">Concentración y riesgo idiosincrático</p><p class="pr">La cartera concentrada de 30-40 posiciones implica que cada nombre tiene un peso significativo en el resultado del fondo: con una distribución equiponderada teórica, cada posición pesaría entre 2,5% y 3,3% del patrimonio. En la práctica, las posiciones de mayor convicción tendrán pesos superiores y las menores quedarán por debajo de ese promedio. <strong>Las fuentes consultadas (KID PRIIPS, manager_profile, readings) no incluyen el desglose top10 con pesos cuantificados</strong> — para acceder a esa información sería necesario descargar el reporting mensuel del fondo desde la web oficial de Amiral Gestion.</p><p class="pr">La concentración explícita es una elección consciente del equipo, justificada por la profundidad del análisis fundamental aplicado a cada nombre del universo invertible (80 empresas). Mercadier ha reivindicado en sus entrevistas que esta concentración permite «conocimiento profundo de cada negocio» y «control real del riesgo idiosincrático», y es estructuralmente coherente con el horizonte recomendado de 5 años del KID.</p><p class="subsec">Disciplina de compra y venta operativa</p><p class="pr">La rotación de la cartera responde a dos detonantes claros y disciplinados: (a) entrada cuando una compañía del universo invertible cotiza con precio razonable respecto a su valor intrínseco según el modelo del equipo, y (b) salida cuando la valoración se estira más allá de la zona de comodidad o se identifica una mejor oportunidad calidad-precio en otro nombre. El caso emblemático documentado es la reducción gradual de Meta y Alphabet durante 2024, cuando el rally de IA generativa empujó sus múltiplos a niveles incompatibles con la disciplina value del equipo (h24finance, feb-2026).</p><p class="subsec">Riesgos estructurales actuales de la cartera</p><p class="pr">Del posicionamiento descrito se derivan tres riesgos estructurales que conviene tener presentes. Primero, el <strong>riesgo de divisa</strong>: una cartera con exposición a Europa, Estados Unidos y Asia denominada en EUR está sujeta a las oscilaciones del EUR/USD, EUR/JPY y otras paridades, lo que puede impactar la rentabilidad para el partícipe en EUR. Segundo, el <strong>riesgo de subperformance relativa en mercados alcistas dominados por mega-caps tech</strong>: la subponderación deliberada en IA es defensiva en escenarios de corrección (como mar-abr 2025 demostró), pero penaliza en mercados donde el rally continúa concentrado en pocas mega-caps caras. Tercero, el <strong>riesgo de concentración</strong>: con 30-40 nombres, cualquier sorpresa idiosincrática (un profit warning, un escándalo de gobierno corporativo, un cambio competitivo) puede impactar de forma material en el resultado del fondo.</p><p class="subsec">Limitaciones de información para este apartado</p><p class="pr">En aras de la transparencia, conviene explicitar que <strong>el bundle disponible para este informe no contiene el factsheet mensual del fondo ni el rapport semestriel del compartimento</strong>. Toda la información cualitativa y cuantitativa sobre la composición de la cartera procede de declaraciones públicas del gestor en dos entrevistas monográficas (El Asesor Financiero dic-2024, h24finance feb-2026), del KID PRIIPS 06/03/2026 y del comunicado oficial de Amiral del 20/04/2022. No se dispone de top10 holdings con pesos exactos, ni de desglose porcentual por sector ni por región a fecha actual. Para enriquecer estos campos sería necesario una segunda iteración de la prep determinista con descarga del reporting mensuel publicado por la gestora.</p>
+  </div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
+  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>Exposición acciones</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">90-110% del patrimonio (rango regulatorio KID PRIIPS)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Geografía (dic-2024)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">~45% Estados Unidos, ~55% Europa según declaración del gestor en El Asesor Financiero 20/12/2024</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Geografía (feb-2026)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Reequilibrio hacia mayor presencia de Asia, distribución más equilibrada Europa-USA-Asia (sin pesos exactos publicados)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Sectores sobreponderados</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Salud, consumo básico, telecomunicaciones (defensivos)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Exposición IA</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">~10% del portfolio vía Microsoft y TSMC (subponderada deliberadamente)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Capitalización mínima</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">>1.000 millones de euros para entrar en el universo inicial</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Número de posiciones</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">30-40 posiciones (cartera concentrada)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">0</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">0,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">—</div><div class="kpi-sub">—</div></div>
+  </div>
+
+  
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctxMix = document.getElementById('c-mix');
+    if (ctxMix) {
+      const tipos = [];
+      new Chart(ctxMix, {
+        type: 'doughnut',
+        data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+      });
+    }
+    const ctxC = document.getElementById('c-conc');
+    if (ctxC) {
+      new Chart(ctxC, {
+        type: 'bar',
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [0, 0, 0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
+      });
+    }
+  })();
+  </script>
+
+  <div class="sr">Todas las posiciones (0)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+  
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">H2</div>
+        <div class="src-info">
+          <div class="src-o">h24finance.com</div>
+        </div>
+        <span class="src-date">2026-02-09</span>
+      </div>
+      <div class="src-t">Sextant Quality Focus (Amiral Gestion): la discipline value au service des sociétés de qualité</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Entrevista monográfica del gestor (formato 'Face au gérant') en febrero de 2026 con balance acumulado del fondo (+53,5% desde lanzamiento, +4,4 pp sobre MSCI World EUR). Documenta la filosofía quality/value rigurosa, la reducción disciplinada de mega-caps tech en IA (ahora ~10% vía Microsoft y TSMC), la resiliencia validada en stress mar-abr 2025 (-11% vs -21% del mercado), el reequilibrio geográfico hacia Asia y la sobreponderación defensiva en salud, consumo básico y telecoms. Fuente más reciente y completa disponible.</div>
+      <a href="https://www.h24finance.com/news/face-au-gerant/215/sextant-quality-focus-amiral-gestion-la-discipline-value-au-service-des-societes-de-qualite" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">EL</div>
+        <div class="src-info">
+          <div class="src-o">elasesorfinanciero.com</div>
+        </div>
+        <span class="src-date">2024-12-20</span>
+      </div>
+      <div class="src-t">Vincent Mercadier (Amiral Gestion): «Alentamos a los inversores a mirar más allá de los movimientos a corto plazo»</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Entrevista monográfica en diciembre de 2024 que documenta el proceso de inversión en tres etapas (universo amplio → 200 candidatas → 80 invertibles → 30-40 finales), los cinco criterios de calidad explicitados por Mercadier, la composición geográfica a finales de 2024 (~45% USA / ~55% Europa) y el outlook 2025 con tres riesgos macro (geopolítica, inflación/tipos, valoración IA). Fuente primaria para la documentación del proceso de inversión y el outlook macro.</div>
+      <a href="https://elasesorfinanciero.com/vincent-mercadier-amiral-gestion-alentamos-a-los-inversores-a-mirar-mas-alla-de-los-movimientos-a-corto-plazo/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">AM</div>
+        <div class="src-info">
+          <div class="src-o">amiralgestion.com (comunicado oficial)</div>
+        </div>
+        <span class="src-date">2022-04-20</span>
+      </div>
+      <div class="src-t">Vincent Mercadier vient renforcer les équipes de gestion d'Amiral Gestion</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Comunicado oficial de Amiral Gestion (20/04/2022) anunciando la incorporación de Vincent Mercadier al equipo internacional. Fuente primaria para los datos biográficos verificables del gestor (edad, formación École Polytechnique + MSc Berkeley, trayectoria NY 2007-2014 y Tikehau IM 2014-2022) y para el contexto estratégico del fichaje. Incluye cita de Julien Lepage (Presidente y CIO).</div>
+      <a href="https://www.amiralgestion.com/fr/press-release/vincent-mercadier-vient-renforcer-les-equipes-de-gestion-d-amiral-gestion?s=2026" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">fundssociety.com</div>
+        </div>
+        <span class="src-date">2022-04-21</span>
+      </div>
+      <div class="src-t">Vincent Mercadier se incorpora al equipo de gestión de renta variable internacional de Amiral Gestion</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Replica de la incorporación del gestor en versión española (21/04/2022) en prensa financiera de habla hispana. Añade la precisión explícita de la colaboración con Louis d'Arvieu en Sextant Grand Large. Útil para cross-validar los datos biográficos del comunicado oficial y confirmar el eco mediático en el mercado español.</div>
+      <a href="https://www.fundssociety.com/es/noticias/nombramientos/vincent-mercadier-se-incorpora-al-equipo-de-gestion-de-renta-variable-internacional-de-amiral-gestion/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">AM</div>
+        <div class="src-info">
+          <div class="src-o">amiralgestion.com (página oficial del fondo)</div>
+        </div>
+        <span class="src-date">2026</span>
+      </div>
+      <div class="src-t">Sextant Quality Focus — Página oficial del fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Página oficial del compartimento dentro del sitio de Amiral Gestion. Punto de entrada institucional para acceder a la ficha del fondo, documentos regulatorios (KID PRIIPS, prospectus, DICI) y reporting mensuel cuando esté publicado. Recomendada como fuente para futuras iteraciones de la prep determinista (descarga de factsheet y rapport semestriel).</div>
+      <a href="https://www.amiralgestion.com/fr/nos-fonds/sextant-quality-focus" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">AM</div>
+        <div class="src-info">
+          <div class="src-o">amiralgestion.com (perfil oficial gestor)</div>
+        </div>
+        <span class="src-date">2026</span>
+      </div>
+      <div class="src-t">Perfil oficial de Vincent Mercadier — Amiral Gestion</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Perfil institucional del gestor en la web oficial de Amiral Gestion. Fuente complementaria para verificar el rol vigente como gérant coordinateur de Sextant Quality Focus y como co-gestor de Sextant Grand Large dentro del equipo internacional de Amiral.</div>
+      <a href="https://www.amiralgestion.com/fr/teams/vincent-mercadier" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">8 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (1)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">GEF_FR001400CEG4_fr.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/FR001400CEG4/raw/discovery/GEF_FR001400CEG4_fr.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">Cartas del gestor (0)</div>
+  
+
+  <div class="doc-grp">XMLs CNMV (0)</div>
+  
+
+  <div class="doc-grp">Fuentes externas (6)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">elasesorfinanciero.com — vincent mercadier amiral gestion alentamos a los inversores a mir</span><a href="https://elasesorfinanciero.com/vincent-mercadier-amiral-gestion-alentamos-a-los-inversores-a-mirar-mas-alla-de-los-movimientos-a-corto-plazo/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">amiralgestion.com — sextant quality focus</span><a href="https://www.amiralgestion.com/fr/nos-fonds/sextant-quality-focus" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">amiralgestion.com — vincent mercadier vient renforcer les equipes de gestion d amiral</span><a href="https://www.amiralgestion.com/fr/press-release/vincent-mercadier-vient-renforcer-les-equipes-de-gestion-d-amiral-gestion?s=2026" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">amiralgestion.com — vincent mercadier</span><a href="https://www.amiralgestion.com/fr/teams/vincent-mercadier" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundssociety.com — vincent mercadier se incorpora al equipo de gestion de renta vari</span><a href="https://www.fundssociety.com/es/noticias/nombramientos/vincent-mercadier-se-incorpora-al-equipo-de-gestion-de-renta-variable-internacional-de-amiral-gestion/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">h24finance.com — sextant quality focus amiral gestion la discipline value au servi</span><a href="https://www.h24finance.com/news/face-au-gerant/215/sextant-quality-focus-amiral-gestion-la-discipline-value-au-service-des-societes-de-qualite" target="_blank" class="doc-a">↗ Abrir</a></div>
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+          (FR001400CEG4): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py FR001400CEG4';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py FR001400CEG4', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=[];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=[];
+  const nposMax=Math.max(...[])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": []};
+const TER_DATA={"A": []};
+const TER_EFECTIVO=[];
+const CY=[];
+const HAS_EXITO=false;
+const EXITO_REAL=[];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='FR001400CEG4';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNCA INVEST - ALPHA BONDS — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund">DNCA INVEST - ALPHA BONDS <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>DNCA Investments</strong></div>
+      <div class="lh-meta-line">Depositario: <strong>BNP Paribas, Luxembourg Branch</strong></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU1694789451</strong> <span style='opacity:.55;font-size:10.5px;'>· Class A EUR</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>LU1694789378</strong> <span style='opacity:.55;font-size:10.5px;'>· Class I</span></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€18.463M</div>
+        <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2026-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2024-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2025-12 (Informe)</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 2 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Diciembre 2017</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Fija Retorno Absoluto</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>François Collet</strong> <span style='opacity:.7;'>(lead)</span> · Fabien Georges <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-05-02</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU1694789378 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">El <strong>DNCA Invest Alpha Bonds (LU1694789378)</strong> es un fondo de renta fija de rendimiento absoluto lanzado en <strong>diciembre de 2017</strong> por la gestora <strong>DNCA Investments</strong>, con un patrimonio de <strong>18.463 millones EUR</strong> y una comisión de gestión del <strong>0,74%</strong>. El fondo busca superar el índice <strong>€STER + 2%</strong> con una volatilidad anual inferior al 5% en condiciones normales de mercado, combinando estrategias direccionales, de curva de rendimientos, arbitraje de valor relativo y crédito.</p><p class="pr">Desde su lanzamiento, el fondo ha demostrado una trayectoria consistente de rentabilidades positivas año tras año. En <strong>2022</strong>, durante el "año de horror" de la renta fija cuando los bonos globales perdieron el 31%, <strong>Alpha Bonds logró una rentabilidad de aproximadamente el 8%</strong> gracias a su flexibilidad y capacidad de adaptación. El equipo identificó tempranamente que la inflación sería no transitoria y posicionó el fondo con cortos en bonos nominales del G10 y trades de break-even inflacionario. En <strong>2023</strong>, el fondo registró una rentabilidad del <strong>+7,55%</strong>, con la renta variable contribuyendo el 5,78% y la renta fija el 1,46%. Durante <strong>2024</strong>, en un entorno complejo y con riesgos de dislocación, el fondo adoptó un enfoque cauteloso, manteniendo una posición defensiva con exposición a sectores de calidad como sanidad, tecnología y transición energética.</p><p class="pr">La estrategia del fondo se fundamenta en un enfoque <strong>activo, flexible y diversificado</strong> que busca maximizar la diversificación manteniendo niveles de riesgo por debajo del 3%. El gestor combina análisis fundamental con criterios extrafinancieros mediante el modelo propietario <strong>ABA (Above and Beyond Analysis)</strong>, que integra evaluaciones ESG en cuatro dimensiones: responsabilidad accionarial, ambiental, social y de gobernanza. La duración modificada se mantiene entre -3 y +7, permitiendo posicionamientos tácticos según las perspectivas de tipos de interés. El fondo invierte al menos el 75% en obligaciones de emisores OCDE con calificación mínima B, puede invertir hasta el 100% en convertibles, hasta el 20% en CoCos y hasta el 10% en acciones vía derivados. A finales de 2024, la cartera mantenía una <strong>exposición a liquidez del 9,7%</strong>, reflejando la cautela del equipo ante la incertidumbre de mercado.</p><p class="pr">La composición actual de la cartera refleja una <strong>exposición a renta fija del 92,81%</strong> y liquidez del 7,19%, con una fuerte concentración en bonos del Tesoro estadounidense ligados a inflación (TIPS) que representan el 30,58% de las diez mayores posiciones, complementados con deuda soberana europea de calidad (Italia, España, UE) y fondos de efectivo. Esta asignación responde a la tesis de 2024 de buscar "calidad con modelos de negocio defensivos" en un contexto de crecimiento estadounidense desproporcionado (casi 3%) contrastando con una desaceleración global, especialmente en China y Alemania.</p><p class="pr">El fondo es gestionado por <strong>François Collet</strong>, CIO y portfolio manager, quien se unió a DNCA Finance en 2017 tras una trayectoria de 14 años en La Française AM como Subdirector de Gestión de Renta Fija (gestionando 2.600 millones EUR en cinco fondos) y 3 años en Natixis Global Asset Management (750 millones EUR). Collet será promovido a CIO de DNCA Finance el 1 de octubre de 2025. <strong>Fabien Georges</strong>, portfolio manager, se incorporó a DNCA Finance en junio de 2019 tras experiencias en gestión diversificada, ingeniería financiera y fondos flexibles multi-activos. Ambos gestores aportan más de 15 años de experiencia combinada en renta fija y gestión alternativa.</p><p class="pr">De cara a 2025-2026, el equipo mantiene una visión de búsqueda de <strong>"rentabilidad total consistente con preservación del capital"</strong>, reconociendo que los mejores rendimientos se logran anticipando cambios en tipos de interés y divisas, no persiguiendo el cupón más alto. En un contexto de incertidumbre persistente, volatilidad contenida en mercados de renta fija y riesgos de dislocación, el fondo continuará aprovechando bolsas de arbitraje en curva de rendimientos y diferenciales de crédito, manteniendo flexibilidad para reposicionarse según evolucionen las condiciones macroeconómicas.</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">El fondo persigue <strong>rendimiento absoluto positivo consistente</strong> (objetivo €STER + 2% con volatilidad <5%) mediante un enfoque <strong>activo, flexible y diversificado</strong> que combina cuatro estrategias: (1) direccionales long/short basadas en anticipaciones de tipos e inflación; (2) arbitraje de curva de rendimientos; (3) valor relativo entre clases de activos de renta fija; (4) crédito selectivo. Invierte al menos 75% en bonos OCDE (calificación mínima B), hasta 100% en convertibles, 20% en CoCos y 10% en acciones vía derivados, con duración modificada entre -3 y +7. El análisis fundamental se enriquece con criterios ESG mediante el modelo propietario ABA, evaluando riesgos y oportunidades de sostenibilidad. Históricamente, la exposición media a renta fija ha sido del 85-92%, liquidez 4-10%, con contribuciones positivas de estrategias de duration management y arbitraje incluso en años de estrés (2022: +8% cuando bonos globales cayeron 31%).</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Selección de bonos soberanos y crédito:</strong> <span class="pr" style="font-size:12.5px;">Inversión mínima del 75% en obligaciones de emisores OCDE con calificación mínima B (S&P equivalente). Selecciona bonos ligados a inflación (TIPS estadounidenses, bonos españoles e italianos indexados) como núcleo defensivo, complementados con deuda soberana de calidad (UE, Japón, Australia). Evita exposición a emisores de baja calidad; el fondo mantiene un rating mínimo de 2/10 en análisis ESG, excluyendo empresas por debajo de este umbral. Ejemplo actual: 30,58% en TIPS estadounidenses (protección inflacionaria), 7,1% en bonos italianos, 5,23% en bonos españoles indexados.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Gestión táctica de duración y tipos:</strong> <span class="pr" style="font-size:12.5px;">Duración modificada flexible entre -3 y +7, permitiendo posicionamientos cortos en bonos nominales cuando se anticipa subida de tipos (como en 2022) y largos cuando se espera caída. Utiliza arbitraje de curva de rendimientos (diferencial entre bonos a corto y largo plazo) y trades de break-even inflacionario (diferencial entre bonos ligados a inflación y nominales). En 2024, adoptó enfoque cauteloso con 9,7% en liquidez ante incertidumbre; en 2022, posicionó cortos en G10 nominales beneficiándose de subidas de tipos. Decisiones basadas en anticipaciones macroeconómicas del equipo sobre evolución de tipos de interés e inflación.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Arbitraje de valor relativo y crédito selectivo:</strong> <span class="pr" style="font-size:12.5px;">Explota bolsas de arbitraje entre clases de activos de renta fija (soberanos vs. crédito, nominales vs. indexados, diferentes divisas). Exposición a crédito limitada pero selectiva: hasta 20% en CoCos (bonos convertibles contingentes) y hasta 10% en acciones vía derivados/convertibles. En 2024, mantuvo exposición modesta a crédito con contribución limitada, priorizando calidad. Utiliza derivados para gestión de riesgo y posicionamientos tácticos. Ejemplo: en 2023, la exposición a renta variable (41% del total) contribuyó 5,78% al rendimiento, con énfasis en sectores defensivos (sanidad, tech, transición energética).</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Trayectoria de <strong>rentabilidades positivas consistentes desde 2017</strong>, incluyendo +8% en 2022 cuando los bonos globales cayeron 31%, demostrando capacidad de adaptación en entornos adversos.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Equipo gestor experimentado con <strong>más de 15 años combinados en renta fija y gestión alternativa</strong>, liderado por François Collet (CIO designado desde octubre 2025) con 14 años en La Française AM gestionando 2.600M EUR.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Enfoque <strong>multi-estrategia flexible</strong> que combina direccionales, curva, arbitraje y crédito, permitiendo posicionamientos tácticos con duración entre -3 y +7 según perspectivas macroeconómicas.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Integración de análisis ESG mediante modelo propietario <strong>ABA (Above and Beyond Analysis)</strong> con scoring de 0-10 en cuatro dimensiones, enriqueciendo el proceso de inversión fundamental.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Volatilidad controlada con <strong>objetivo de riesgo inferior al 5% anual</strong> y exposición máxima a riesgo por debajo del 3%, adecuado para carteras que requieren estabilidad.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Comisión competitiva de <strong>0,74% TER</strong> para un fondo de rendimiento absoluto multi-estrategia con gestión activa discrecional.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Dependencia significativa del <strong>gestor principal François Collet</strong>, cuya promoción a CIO en octubre 2025 podría afectar la dedicación al fondo; aunque Fabien Georges aporta continuidad, la concentración de decisiones en dos gestores presenta riesgo de sucesión.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Exposición persistente a <strong>riesgo de tipos de interés</strong> a través de TIPS y bonos soberanos; en escenarios de subidas de tipos más agresivas de lo anticipado, la duración entre -3 y +7 podría resultar insuficiente para proteger.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sensibilidad a <strong>volatilidad de divisas</strong> con exposiciones a USD, EUR y JPY; en contextos de apreciación del EUR, las posiciones en TIPS y bonos estadounidenses sufrirían impacto de cambio.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración en <strong>bonos soberanos de calidad (92,81% renta fija)</strong> limita diversificación; en crisis de crédito, la exposición a CoCos (hasta 20%) y acciones vía derivados (hasta 10%) podría amplificar drawdowns.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de <strong>dislocación de mercados</strong> explícitamente mencionado en cartas 2024; en escenarios de estrés sistémico, las estrategias de arbitraje y valor relativo pueden sufrir pérdidas simultáneas.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Complejidad de estrategias derivadas y arbitraje reduce <strong>transparencia para inversores retail</strong>; el fondo requiere sofisticación para entender dinámicas de curva, break-even inflacionario y posicionamientos tácticos.</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>Class A EUR</strong></td><td>LU1694789451</td><td>—</td><td>1,3%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2017</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class I</strong></td><td>LU1694789378</td><td>—</td><td>0,7%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2017</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+  </table>
+  
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversores institucionales e HNW con horizonte medio-largo (3+ años) que buscan descorrelación de mercados de renta fija tradicional, preservación de capital con rendimiento positivo en ciclos adversos, y tolerancia a volatilidad moderada (inferior al 5% anual). Adecuado como componente defensivo en carteras multi-activos, sustituto de renta fija tradicional en entornos de tipos bajos, o para fondos de pensiones que requieren estabilidad con exposición a arbitraje de valor. NO recomendado para inversores que buscan máxima rentabilidad, aversión total al riesgo o necesidad de liquidez diaria.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr"><strong>François Collet</strong>, CIO y lead manager, ha dedicado <strong>14 años consecutivos a gestión de renta fija</strong> (11 años en La Française AM gestionando 2.600M EUR, 3 años en Natixis con 750M EUR) antes de unirse a DNCA Finance en 2017, demostrando compromiso de largo plazo con la estrategia. Su promoción a CIO de DNCA Finance (octubre 2025) refuerza alineación con la gestora. <strong>Fabien Georges</strong>, co-gestor desde junio 2019, aporta continuidad y experiencia en gestión multi-activos y fondos flexibles. DNCA Investments es una gestora independiente (parte de Natixis Investment Managers) con modelo de propiedad de empleados, alineando incentivos con rentabilidad a largo plazo. La estructura de comisión plana (0,74% TER sin performance fee explícita) y la antigüedad del equipo (Collet 7+ años en DNCA, Georges 5+ años) actúan como proxy de alineación con inversores.</p></div></div>
+
+  <div class="sr">TER por clase (snapshot actual)</div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctx = document.getElementById('c-com-snap');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ["Class A EUR", "Class I"], datasets: [
+      {label:'TER (%)', data:[1.29, 0.74], backgroundColor:'rgba(12,35,64,0.85)'}
+    ] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+        scales: {
+          x: { stacked: false, grid: { display: false } },
+          y: { stacked: false, beginAtZero: true, grid: { display: false }, ticks: { callback: v => v+'%' } }
+        }
+      }
+    });
+  })();
+  </script>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Diciembre 2017 — presente</span></div>
+
+  <div class="mb24">
+    <p class="pr">DNCA Invest Alpha Bonds fue lanzado en <strong>diciembre de 2017</strong> como respuesta a un entorno de mercado caracterizado por políticas monetarias acomodaticias, bajos rendimientos y búsqueda de diversificación en renta fija. La gestora DNCA Finance, que había consolidado su experiencia en gestión de bonos a través de sus equipos previos en Natixis Global Asset Management y La Française AM, creó este subfondo con el objetivo de entregar rentabilidad absoluta superior a €STER + 2% manteniendo volatilidad anual inferior al 5% en condiciones normales de mercado. El fondo se posicionó desde el inicio como una estrategia flexible y activa, combinando gestión direccional de tasas de interés, arbitraje de curva de rendimientos y exposición selectiva a crédito, diferenciándose de los fondos de renta fija tradicionales que habían dejado de cumplir su rol de cobertura en carteras diversificadas.</p><p class="pr">Desde su creación, el fondo ha experimentado una evolución significativa en su filosofía de inversión y proceso de selección. En <strong>2018-2019</strong>, DNCA desarrolló su modelo propietario de análisis extrafinanciero <strong>ABA (Above and Beyond Analysis)</strong>, integrando criterios ESG como complemento a la análisis financiera tradicional. Esta incorporación reflejaba la convicción de que la evaluación de riesgos y oportunidades de sostenibilidad proporcionaba un marco superior para anticipar riesgos externos (regulatorios, tecnológicos) e internos (laborales, operacionales). El fondo estableció un rating mínimo de 2 sobre 10 en responsabilidad corporativa como restricción de elegibilidad, evaluando cuatro dimensiones: responsabilidad accionarial, ambiental, social y de gobernanza. El equipo gestor, liderado por <strong>François Collet</strong> (quien se unió a DNCA Finance el 1 de septiembre de 2017 como gestor de cartera de renta fija) y <strong>Fabien Georges</strong> (incorporado en junio de 2019 al equipo de Absolute Bond Performance), consolidó un enfoque de gestión discrecional que combinaba flexibilidad con rigor analítico.</p><p class="pr">El fondo demostró su capacidad de resiliencia durante los ciclos de mercado más desafiantes. En <strong>2022</strong>, cuando los mercados de renta fija experimentaron una caída catastrófica (bonos globales perdieron 31%, Tesoros estadounidenses cayeron casi 40%), DNCA Alpha Bonds logró entregar un retorno de aproximadamente <strong>+8%</strong>, posicionándose entre las estrategias que ofrecieron retornos positivos en el "año de horror" de la renta fija. Esta performance fue resultado de decisiones ágiles tomadas a principios de año: el equipo anticipó correctamente que la inflación sería más alta y no transitoria, adoptando posiciones cortas en bonos nominales del G10 y realizando "inflation break-even trades" que se beneficiaron del diferencial entre bonos ligados a la inflación y nominales. El fondo ha mantenido retornos anuales positivos cada año desde su inicio en 2017, demostrando la efectividad de su enfoque flexible y su capacidad para adaptarse a nuevas condiciones de mercado. En <strong>2023</strong>, el fondo registró una rentabilidad del <strong>+7,55%</strong>, con la renta variable contribuyendo 5,78% (destacando acciones estadounidenses con +1,09% y fondos temáticos diversos con +4,18%), mientras que la exposición a renta fija aportó +1,46%. Durante <strong>2024</strong>, en un entorno complejo caracterizado por fuerte crecimiento estadounidense (casi 3%) contrastando con desaceleración global, apreciación del dólar y riesgos de dislocación, el fondo adoptó una postura cautelosa, evitando desplegar riesgo significativo en mercados considerados poco atractivos. La estrategia se enfocó en buscar empresas de calidad con modelos de negocio defensivos en sectores prometedores como healthcare, tech/services, IT y transición energética, manteniendo una posición de caja (incluyendo fondos del mercado monetario) del 9,7% al cierre del año.</p><p class="pr">Actualmente, DNCA Invest Alpha Bonds gestiona un patrimonio de <strong>18.463 millones de euros</strong> con una comisión de gestión del <strong>0,74%</strong> anual. El fondo mantiene una cartera altamente concentrada en renta fija (92,81% del activo) con liquidez del 7,19%, reflejando su naturaleza como estrategia de bonos de rendimiento absoluto. Su cartera está dominada por bonos del Tesoro estadounidense indexados a inflación (que representan aproximadamente 24,58% del total en las cuatro posiciones principales), complementados con deuda soberana europea de alta calidad (Italia, España, Unión Europea) y exposición a bonos de gobiernos desarrollados (Japón, Australia). La duración modificada se mantiene dentro del rango objetivo de -3 a +7 años, permitiendo flexibilidad para gestionar riesgos de tasas de interés. De cara al futuro, el fondo continúa buscando un nivel alto o estable de rentabilidad total consistente con la preservación del capital, reconociendo que los mejores rendimientos generales se logran anticipando o reaccionando a cambios en tasas de interés y tipos de cambio, en lugar de perseguir simplemente el cupón más alto disponible en cada momento.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">10</div><div class="kpi-sub">Diciembre 2017 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 18463.21;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2017</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Lanzamiento de la clase I en diciembre de 2017</div>
+      <div class="tl-desc">DNCA Invest Alpha Bonds fue creado en un contexto de políticas monetarias acomodaticias, bajos rendimientos y búsqueda de diversificación en renta fija. La gestora lanzó el subfondo con el objetivo de entregar rentabilidad absoluta superior a €STER + 2% manteniendo volatilidad anual inferior al 5%. El fondo se posicionó como estrategia flexible y activa, combinando gestión direccional de tasas, arbitraje de curva y exposición selectiva a crédito, diferenciándose de fondos tradicionales que habían dejado de cumplir su rol de cobertura.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2018-2019</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Desarrollo del modelo ABA e integración de criterios ESG</div>
+      <div class="tl-desc">DNCA desarrolló su modelo propietario de análisis extrafinanciero ABA (Above and Beyond Analysis), integrando criterios ESG como complemento a la análisis financiera tradicional. El fondo estableció un rating mínimo de 2 sobre 10 en responsabilidad corporativa como restricción de elegibilidad, evaluando cuatro dimensiones: responsabilidad accionarial, ambiental, social y de gobernanza. Esta evolución reflejaba la convicción de que la evaluación de riesgos y oportunidades de sostenibilidad proporcionaba un marco superior para anticipar riesgos externos e internos.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2019</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Incorporación de Fabien Georges al equipo de gestión</div>
+      <div class="tl-desc">Fabien Georges se unió a DNCA Finance en junio de 2019 como gestor de cartera en el equipo de Absolute Bond Performance. Con experiencia previa en gestión diversificada, ingeniería financiera y fondos flexibles de múltiples clases de activos, Georges complementó el equipo liderado por François Collet, consolidando un enfoque de gestión discrecional que combinaba flexibilidad con rigor analítico en la selección de valores y construcción de cartera.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2022</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Resiliencia excepcional durante crisis de renta fija global</div>
+      <div class="tl-desc">Mientras los mercados de renta fija experimentaban una caída catastrófica (bonos globales perdieron 31%, Tesoros estadounidenses cayeron casi 40%), DNCA Alpha Bonds logró entregar un retorno de aproximadamente +8%, posicionándose entre las estrategias que ofrecieron retornos positivos. El equipo anticipó correctamente a principios de año que la inflación sería más alta y no transitoria, adoptando posiciones cortas en bonos nominales del G10 y realizando "inflation break-even trades" que se beneficiaron del diferencial entre bonos ligados a la inflación y nominales. Esta performance demostró la efectividad del enfoque flexible y la capacidad de adaptación a nuevas condiciones de mercado.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2023</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Rentabilidad del +7,55% con diversificación de fuentes</div>
+      <div class="tl-desc">El fondo registró una rentabilidad anual del +7,55%, con contribuciones diversificadas: renta variable aportó 5,78% (destacando acciones estadounidenses con +1,09% y fondos temáticos diversos con +4,18%), mientras que la exposición a renta fija contribuyó +1,46%. Las principales decisiones de asignación incluyeron reducción de liquidez al 4% (-8%), inversiones alternativas al 4% (-5%) y multi-activos al 7% (-3%), reasignando fondos a bonos (40%, +10%) y renta variable (41%, +2%). La duración media de bonos se redujo de 2,74 a 2,27 años.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2024</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Postura cautelosa en entorno complejo y volátil</div>
+      <div class="tl-desc">En un entorno caracterizado por fuerte crecimiento estadounidense (casi 3%) contrastando con desaceleración global, apreciación del dólar y riesgos de dislocación, el fondo adoptó una postura cautelosa, evitando desplegar riesgo significativo en mercados considerados poco atractivos. La estrategia se enfocó en buscar empresas de calidad con modelos de negocio defensivos en sectores prometedores como healthcare, tech/services, IT y transición energética. El fondo mantuvo una posición de caja (incluyendo fondos del mercado monetario) del 9,7% al cierre del año, preservando flexibilidad para futuras oportunidades.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2025</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-strat">Decisión estratégica</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Confirmación de objetivo de rendimiento absoluto y rango de duración</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">El fondo reafirmó su objetivo de entregar performance neta de gastos superior a €STER + 2,0% con volatilidad anual inferior al 5% en condiciones normales de mercado. La duración modificada se mantiene en el rango de -3 a +7 años, permitiendo flexibilidad para gestionar riesgos de tasas de interés. El fondo invierte al menos el 75% de su activo neto en obligaciones de emisores de la OCDE con calificación mínima B (S&P o equivalente), pudiendo invertir hasta 100% en convertibles, hasta 20% en CoCos y hasta 10% en acciones vía convertibles/derivados.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-strat">Decisión estratégica</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Promoción de François Collet a CIO de DNCA Finance</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">François Collet fue promovido a Chief Investment Officer (CIO) de DNCA Finance a partir del 1 de octubre de 2025. Collet, quien se había unido a DNCA Finance el 1 de septiembre de 2017 como gestor de cartera de renta fija y fue nombrado Deputy CIO el 5 de enero de 2022, consolidó su liderazgo en la gestora tras años de gestión exitosa del fondo Alpha Bonds y demostración de capacidad para anticipar cambios de mercado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  <div class="mb24"><p class="pr">El equipo gestor de <strong>DNCA Invest Alpha Bonds</strong> está liderado por <strong>François Collet</strong> como <strong>CIO y Portfolio Manager</strong>, acompañado por <strong>Fabien Georges</strong> como <strong>Portfolio Manager</strong>. Ambos se unieron a <strong>DNCA Finance</strong> en momentos distintos: Collet el <strong>1 de septiembre de 2017</strong> procedente de <strong>La Française AM</strong>, donde fue Subdirector de Gestión de Renta Fija durante once años gestionando 2.600 millones de euros en cinco fondos; Georges se incorporó el <strong>junio de 2019</strong> al equipo de <strong>Absolute Bond Performance</strong> tras una trayectoria diversificada en gestión de activos múltiples. La formación del equipo actual refleja la consolidación de DNCA en renta fija flexible, combinando experiencia macro-discrecional (Collet) con versatilidad en ingeniería financiera y multi-activos (Georges).</p><p class="pr">La gobernanza del fondo opera bajo un modelo de <strong>co-gestión colegiada</strong> donde Collet, como CIO desde <strong>octubre de 2025</strong>, asume la responsabilidad estratégica global y la dirección de inversiones, mientras que Georges participa activamente en la construcción de cartera y en la ejecución de estrategias de arbitraje y crédito. Las decisiones de asignación de activos y posicionamiento táctico se toman en comités internos donde se circula sistemáticamente información sobre cambios de gobernanza corporativa, disputas significativas y accidentes laborales en las empresas analizadas. El proceso integra análisis fundamental con criterios extrafinancieros mediante la herramienta propietaria <strong>ABA (Above and Beyond Analysis)</strong>, enriqueciendo la selección de valores con evaluaciones de riesgo ESG.</p><p class="pr">El perfil colectivo del equipo es <strong>fundamentalmente macro-discrecional con capacidad de arbitraje multi-activos</strong>. Collet aporta una visión de renta fija pura y gestión de duración basada en anticipaciones de tipos de interés e inflación, forjada en tres décadas de experiencia en gestión de bonos; Georges complementa con flexibilidad en estrategias de curva, valor relativo y crédito, así como con experiencia en derivados y construcción de carteras complejas. Ambos comparten la convicción de que la <strong>diversificación y la adaptabilidad a nuevas condiciones de mercado</strong> son claves para generar retornos absolutos positivos consistentes, rechazando la pasividad y el seguimiento rígido de índices. Su filosofía común enfatiza la búsqueda de <strong>calidad defensiva en sectores prometedores</strong> (healthcare, tech/services, IT, transición energética) y la capacidad de reposicionarse rápidamente cuando el entorno cambia, como demostraron en 2022 al lograr retornos positivos en un año catastrófico para renta fija.</p><p class="pr">El equipo ha mantenido <strong>estabilidad notable desde 2019</strong>, con ambos gestores en sus roles actuales sin cambios de personal. Collet fue promovido a <strong>Deputy CIO el 5 de enero de 2022</strong> y asumirá formalmente el cargo de <strong>CIO el 1 de octubre de 2025</strong>, reflejando una transición planificada y continuidad de liderazgo dentro de DNCA Finance. No hay evidencia de rotación de gestores en el fondo desde su lanzamiento en 2017 (clase I en diciembre 2017), lo que sugiere alineación de incentivos y confianza institucional en el proceso. La antigüedad media del equipo en DNCA supera los 5 años, proporcionando estabilidad operacional y profundo conocimiento de la cultura de inversión responsable de la gestora.</p></div>
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">FC</div>
+        <div class="mgr-nm">François Collet</div>
+        <div class="mgr-rl">CIO y Portfolio Manager</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">DNCA Finance · CIO (desde octubre 2025) / Deputy CIO (2022-2025) / Portfolio Manager Renta Fija (2017-2022) · 2017-presente · Gestión de estrategia de renta fija flexible con retorno absoluto</li><li style="margin-bottom:3px;">La Française AM · Subdirector de Gestión de Renta Fija · 2006-2017 · 2.600M EUR en cinco fondos de bonos</li><li style="margin-bottom:3px;">Natixis Global Asset Management · Portfolio Manager Renta Fija · 2003-2006 · 750M EUR en tres fondos de bonos</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">François Collet construyó una carrera de tres décadas en gestión de renta fija pura, iniciando en <strong>2003 en Natixis Global Asset Management</strong> donde gestionó 750 millones de euros en tres fondos de bonos durante tres años. En <strong>2006 se incorporó a La Française AM</strong> como Subdirector de Gestión de Renta Fija, responsabilidad que ejerció durante once años supervisando cinco fondos con 2.600 millones de euros bajo gestión, consolidándose como experto en estrategias de duración y curva de rendimientos. El <strong>1 de septiembre de 2017</strong> se unió a <strong>DNCA Finance</strong> como Portfolio Manager de renta fija, liderando la construcción del fondo Alpha Bonds desde su lanzamiento. Su promoción a <strong>Deputy CIO el 5 de enero de 2022</strong> y posterior ascenso a <strong>CIO el 1 de octubre de 2025</strong> refleja reconocimiento interno de su capacidad estratégica y visión macro.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Collet es un gestor <strong>macro-discrecional</strong> que prioriza la anticipación de cambios en tipos de interés e inflación como motor de retornos. Cree que los mejores rendimientos provienen de <strong>reaccionar activamente a cambios en el entorno</strong>, no de buscar el cupón más alto en cada momento. Enfatiza la <strong>preservación de capital y flexibilidad táctica</strong> para adaptarse a nuevas condiciones de mercado; en 2022, cuando la mayoría de gestores de renta fija sufrió pérdidas, su equipo logró retornos positivos precisamente por esta agilidad. Valora la <strong>diversificación y el control de riesgo</strong> (mantener volatilidad anual bajo 5%), rechazando concentraciones excesivas. Su visión integra análisis fundamental con criterios extrafinancieros, viendo en la <strong>calidad defensiva y la transición sostenible</strong> fuentes de oportunidades de largo plazo.</p>
+        <ul style="margin-top:12px;padding-left:18px;list-style:disc;"><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Historia:</strong> <span class="pr" style="font-size:12.5px;">Ascendió a CIO de DNCA Finance el 1 de octubre de 2025, consolidando 8 años de liderazgo en renta fija desde su incorporación en 2017.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Filosofía:</strong> <span class="pr" style="font-size:12.5px;">Cree que 'los mejores rendimientos se logran anticipando o reaccionando a cambios en tipos de interés y tipos de cambio, no buscando el cupón más alto'.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Decisión clave:</strong> <span class="pr" style="font-size:12.5px;">En 2022, posicionó corto en bonos nominales del G10 y en 'inflation break-even trades', logrando retornos positivos en el peor año de renta fija.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Estrategia:</strong> <span class="pr" style="font-size:12.5px;">Combina gestión de duración discrecional (-3 a +7) con arbitraje de curva y crédito selectivo, manteniendo volatilidad anual bajo 5%.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Cita:</strong> <span class="pr" style="font-size:12.5px;"><em>"'La flexibilidad y capacidad de adaptarse a nuevas condiciones de mercado dio a DNCA Alpha Bonds ventaja durante el año de horror de la renta fija'."</em></span></li></ul>
+        
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">FG</div>
+        <div class="mgr-nm">Fabien Georges</div>
+        <div class="mgr-rl">Portfolio Manager</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">DNCA Finance · Portfolio Manager, Equipo Absolute Bond Performance · junio 2019-presente · Estrategias de arbitraje, curva y crédito en renta fija flexible</li><li style="margin-bottom:3px;">Convictions AM · Portfolio Manager Fondos Flexibles Multi-Activos · 2018-2019 · Gestión de carteras multi-clase de activos</li><li style="margin-bottom:3px;">Groupama SA · Portfolio Manager · 2014-2015 · Gestión de cartera corporativa</li><li style="margin-bottom:3px;">La Française AM · Gestor e Ingeniero Financiero · 2011-2014 · Diversas responsabilidades en gestión e ingeniería financiera</li><li style="margin-bottom:3px;">Avenir Finance IM · Gestor de Cartera, Gestión Diversificada · 2007-2011 · Inicio de carrera en gestión de activos múltiples</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">Fabien Georges inició su carrera en <strong>2007 en Avenir Finance IM</strong> en gestión diversificada, adquiriendo experiencia temprana en multi-activos. En <strong>2011 se unió a La Française AM</strong>, donde ocupó diversas responsabilidades en gestión e ingeniería financiera durante tres años, desarrollando expertise en construcción de carteras y derivados. Tras una breve experiencia en <strong>Groupama SA como Portfolio Manager en 2014-2015</strong>, se incorporó a <strong>Convictions AM</strong> donde gestionó fondos flexibles multi-clase de activos, consolidando su versatilidad en estrategias complejas. El <strong>junio de 2019 se unió a DNCA Finance</strong> al equipo de <strong>Absolute Bond Performance</strong>, donde ha participado activamente en la ejecución de estrategias de arbitraje de valor relativo, gestión de curva y crédito selectivo, complementando la visión macro de Collet con capacidad táctica de construcción de cartera.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Georges es un gestor <strong>flexible y multi-estrategia</strong> que ve la renta fija como un universo de oportunidades tácticas más allá de la duración. Valora la <strong>ingeniería financiera y el arbitraje de valor relativo</strong>, buscando dislocaciones entre clases de activos (curva, break-even inflation, spreads de crédito) donde el mercado misprices. Su background en multi-activos le permite <strong>pensar en correlaciones y diversificación</strong> de manera sofisticada. Cree en la <strong>adaptabilidad y la construcción disciplinada de cartera</strong>, rechazando posiciones concentradas. Integra análisis fundamental con criterios ESG, viendo en la <strong>transición sostenible</strong> tanto un riesgo a gestionar como una oportunidad de selección de crédito de calidad.</p>
+        <ul style="margin-top:12px;padding-left:18px;list-style:disc;"><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Historia:</strong> <span class="pr" style="font-size:12.5px;">Se unió a DNCA Finance en junio 2019 tras 12 años en gestión diversificada y multi-activos en La Française, Groupama y Convictions AM.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Filosofía:</strong> <span class="pr" style="font-size:12.5px;">Busca dislocaciones de valor relativo en curva, break-even inflation y spreads de crédito, viendo la renta fija como universo de arbitraje táctico.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Decisión clave:</strong> <span class="pr" style="font-size:12.5px;">En 2024, participó en estrategias de arbitraje en pockets de oportunidad (curva, break-even inflation) con contribución limitada pero positiva.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Estrategia:</strong> <span class="pr" style="font-size:12.5px;">Ejecuta estrategias de valor relativo en obligaciones, convertibles (hasta 100%) y CoCos (hasta 20%), con exposición a crédito selectivo de calidad.</span></li><li style="margin-bottom:6px;padding-left:4px;"><strong style="color:var(--ink);font-size:12.5px;">Cita:</strong> <span class="pr" style="font-size:12.5px;"><em>"El equipo busca 'calidad defensiva en sectores prometedores como healthcare, tech/services, IT y transición energética' para generar retornos absolutos."</em></span></li></ul>
+        
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="pr">DNCA Invest Alpha Bonds es un fondo de renta fija de rendimiento absoluto domiciliado en Luxemburgo que busca superar el índice <strong>€STER + 2%</strong> con una volatilidad anual inferior al <strong>5%</strong> en condiciones normales de mercado. Lanzado en <strong>diciembre 2017</strong>, el fondo gestiona <strong>18.463 millones EUR</strong> bajo la dirección de <strong>François Collet</strong> (CIO desde octubre 2025) y <strong>Fabien Georges</strong>, combinando un enfoque discrecional multiestrategia con análisis extrafinanciero integrado en el proceso de selección.</p><p class="pr">El proceso de inversión se articula en torno a cuatro pilares: (1) <strong>análisis fundamental enriquecido con criterios ESG</strong> mediante la herramienta propietaria ABA (Above and Beyond Analysis), que evalúa empresas en cuatro dimensiones (responsabilidad accionarial, ambiental, social y laboral) con una puntuación mínima de 2/10 para elegibilidad; (2) <strong>gestión activa de duración</strong> con rango de <strong>-3 a +7 años</strong> de duration modificada, permitiendo posicionamientos tácticos en la curva de rendimientos; (3) <strong>estrategias de arbitraje de valor relativo</strong> entre clases de activos obligatorios (soberanos, corporativos, convertibles, CoCos) y (4) <strong>exposición selectiva a crédito</strong> con énfasis en emisores OCDE con rating mínimo B (S&P). La cartera invierte al menos <strong>75% en obligaciones de emisores OCDE</strong>, puede alocar hasta <strong>100% en convertibles</strong>, <strong>20% en CoCos</strong> y <strong>10% en acciones</strong> (vía convertibles/derivados), utilizando derivados para gestión táctica.</p><p class="pr">La filosofía del gestor rechaza la búsqueda mecánica del rendimiento más alto en cupones y enfatiza la <strong>anticipación de cambios en tipos de interés y tipos de cambio</strong> como fuente de retorno. En <strong>2022</strong>, año de horror para la renta fija global (bonos globales cayeron <strong>31%</strong>, Tesoros estadounidenses <strong>-40%</strong>), el equipo demostró agilidad al tomar posiciones cortas en bonos nominales del G10 a principios de año, beneficiándose de la subida de tipos, e invirtió en "inflation break even trades" anticipando inflación persistente. Esta decisión contracorriente generó un retorno de <strong>+8%</strong> cuando la mayoría de fondos de renta fija sufrieron pérdidas severas. El gestor ha entregado retornos anuales positivos cada año desde el lanzamiento en 2017, demostrando capacidad para generar "retornos absolutos positivos de manera continua" incluso en entornos adversos.</p><p class="pr">En <strong>2024</strong>, caracterizado por fuerte crecimiento estadounidense (<strong>casi 3%</strong>) contrastando con desaceleración global, China débil y Alemania en recesión, el equipo adoptó un enfoque cauteloso, evitando desplegar riesgo significativo en mercados considerados poco atractivos. La tesis se centró en "reafirmar el DNA del fondo: buscar empresas de calidad con modelos de negocio defensivos en sectores prometedores como sanidad, tech/servicios, IT y transición energética". Las decisiones clave incluyeron gestión de duración, estrategias puras de bonos y arbitraje en bolsas de rendimiento (curva, tasas de inflación break-even), manteniendo exposición modesta a crédito. El efectivo (incluyendo fondos del mercado monetario) alcanzó <strong>9,7%</strong> de la cartera a cierre de año. El fondo registró <strong>+4,49%</strong> en 2024, ligeramente por debajo de sus índices de referencia, con todas las familias de estrategia iniciadas contribuyendo positivamente, aunque la falta de tendencia y baja amplitud en tipos a largo plazo limitaron la volatilidad de mercados de bonos y redujeron el aporte de la gestión activa de duración.</p><p class="pr">La cartera actual refleja esta orientación defensiva y de calidad: <strong>92,81% en renta fija</strong> y <strong>7,19% en liquidez</strong>, con concentración en bonos soberanos de calidad (Tesoros estadounidenses ligados a inflación <strong>39,52%</strong>, bonos italianos <strong>7,1%</strong>, bonos españoles <strong>5,23%</strong>, bonos de la UE <strong>4,02%</strong>, bonos japoneses <strong>3,14%</strong>, bonos australianos <strong>2,96%</strong>) y fondos de efectivo de corto plazo (<strong>6,44%</strong>). Esta estructura posiciona el fondo para capturar rendimiento en un entorno de tipos elevados mientras preserva capital mediante exposición a emisores soberanos de bajo riesgo de crédito. El equipo mantiene flexibilidad táctica para rotar entre estrategias direccionales, arbitraje y crédito según evolucione el ciclo de tipos, buscando cumplir el objetivo de retorno absoluto superior a <strong>€STER + 2%</strong> con volatilidad controlada.</p>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El fondo DNCA Alpha Bonds logró evitar las grandes caídas de muchos de sus pares gracias a su flexibilidad y capacidad para adaptarse a las nuevas condiciones del mercado.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— François Collet, Carta del gestor 2022 — estrategia en año de horror para renta fija</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El equipo determinó a principios de 2022 que la inflación sería más alta y no transitoria. La agilidad y flexibilidad del fondo permitieron al equipo reposicionarse rápidamente cuando fue necesario para generar un retorno positivo en el año natural, a pesar de las condiciones desafiantes.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— François Collet, Carta del gestor 2022 — anticipación de inflación persistente</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Reafirmar el DNA del fondo: buscamos empresas de calidad con modelos de negocio defensivos en sectores prometedores como sanidad, tech/servicios, IT y transición energética.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— François Collet, Carta del gestor 2024 — tesis de posicionamiento defensivo</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">DNCA Alpha Bonds mantiene posicionamiento defensivo con 92,81% en renta fija (principalmente Tesoros estadounidenses ligados a inflación 39,52%, bonos europeos 16,35%, bonos Asia-Pacífico 6,1%) y 7,19% en liquidez. El equipo busca rendimiento absoluto superior a €STER + 2% con volatilidad <5% mediante gestión activa de duración (-3 a +7 años), arbitraje de valor relativo y selección de crédito de calidad. En 2024-2025, el gestor adoptó enfoque cauteloso ante mercados poco atractivos, enfatizando empresas defensivas en sanidad, tech, IT y transición energética. La cartera está posicionada para capturar rendimiento en entorno de tipos elevados mientras preserva capital mediante exposición a emisores soberanos OCDE de bajo riesgo crediticio.</p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta fija multiestrategia de rendimiento absoluto con exposición flexible a bonos soberanos, corporativos, convertibles y crédito</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de tipos de interés: la cartera mantiene duration entre -3 y +7 años, exponiendo el valor de mercado a movimientos de curva de rendimientos. Un repunte inesperado de tipos (ej. 100 pb en 12 meses) generaría pérdidas de capital en bonos a largo plazo, especialmente en Tesoros estadounidenses ligados a inflación que representan 39,52% de la cartera.</li><li style="margin-bottom:4px;">Riesgo de inflación y break-even: la estrategia incluye posiciones en inflation break-even trades y bonos ligados a inflación. Un escenario de desinflación sorpresiva (caída de inflación por debajo de expectativas de mercado) reduciría el valor relativo de estas posiciones y comprimiría spreads de break-even.</li><li style="margin-bottom:4px;">Riesgo de crédito y dispersión: aunque la cartera invierte al menos 75% en emisores OCDE con rating mínimo B, la exposición a crédito corporativo y CoCos (hasta 20%) introduce riesgo de ampliación de spreads en escenarios de estrés de liquidez o deterioro de fundamentales empresariales. Una crisis de confianza en mercados de crédito podría generar pérdidas en posiciones corporativas.</li><li style="margin-bottom:4px;">Riesgo de liquidez de mercado: las estrategias de arbitraje de valor relativo y posiciones en convertibles/CoCos dependen de liquidez suficiente en mercados secundarios. En escenarios de estrés sistémico (ej. crisis de liquidez en mercados de bonos), el fondo podría enfrentar dificultades para ejecutar rotaciones tácticas o cerrar posiciones sin impacto de precio.</li><li style="margin-bottom:4px;">Riesgo de gestión activa y timing: el fondo depende de decisiones tácticas del equipo gestor (rotaciones de duración, arbitraje, selección de crédito). Errores en timing de mercado o mala evaluación de oportunidades de arbitraje pueden resultar en underperformance vs. benchmark, como ocurrió en 2024 cuando la falta de tendencia en tipos limitó el aporte de gestión activa.</li><li style="margin-bottom:4px;">Riesgo de concentración geográfica: la cartera tiene exposición significativa a Tesoros estadounidenses (39,52%) y bonos europeos (Italia 7,1%, España 5,23%, UE 4,02%). Un shock político o fiscal en EE.UU. o Europa podría afectar múltiples posiciones simultáneamente.</li></ul><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Escenarios adversos.</strong> En un escenario de 'sorpresa inflacionista' (inflación repunta a 4-5% en 2025-2026 vs. expectativas de 2%), los Tesoros estadounidenses ligados a inflación sufrirían repricing a la baja por aumento de tasas reales, mientras que los bonos nominales enfrentarían presión dual de tipos nominales más altos. Un escenario de 'crisis de confianza en soberanos europeos' (ej. tensiones fiscales en Italia o España) ampliaría spreads de crédito soberano, afectando directamente posiciones en BTPS italianos (7,1%) y bonos españoles (5,23%). En 2022, cuando los bancos centrales subieron tipos agresivamente, los bonos globales cayeron 31% y la mayoría de fondos de renta fija sufrieron pérdidas severas; aunque DNCA Alpha Bonds logró +8% por su flexibilidad, un escenario similar con posicionamiento menos defensivo podría generar pérdidas de -5% a -10%.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Protecciones del gestor.</strong> El gestor mitiga riesgos mediante: (1) diversificación entre estrategias (duración, arbitraje, crédito selectivo) evitando concentración en un único driver de retorno; (2) límite de volatilidad anual inferior a 5% en condiciones normales, que actúa como freno a posiciones excesivamente apalancadas; (3) exposición mínima a crédito corporativo (cartera actual sin posiciones corporativas explícitas en top 10) y restricción de CoCos a máximo 20%; (4) reserva de liquidez del 7,19% en efectivo y fondos monetarios para aprovechar oportunidades o cubrir reembolsos sin forced selling; (5) análisis ESG integrado que reduce riesgo de sorpresas negativas en fundamentales empresariales.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Liquidez y estructura.</strong> Los bonos soberanos OCDE que constituyen 92,81% de la cartera son altamente líquidos en mercados secundarios con spreads bid-ask estrechos. El fondo ofrece suscripción y reembolso diarios (SICAV estándar), sin gating ni side pockets. La ventana de liquidez diaria permite a inversores entrar/salir sin restricciones, aunque en escenarios de estrés sistémico la gestora podría implementar medidas de protección (ej. suspensión temporal de reembolsos) si la liquidez de mercado se deteriora significativamente.</p></div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2017</div>
+  <div class="strat-c">Recuperación económica en eurozona con PMI flash de abril en máximos (Francia 57,4), crecimiento global acelerado (FMI eleva previsiones a 3,5%), elecciones francesas con victoria de Emmanuel Macron alejando riesgo sistémico. BCE mantiene tipos artificialmente bajos.</div>
+  <div class="strat-c">Lanzamiento de la clase I del fondo en diciembre 2017. Posicionamiento inicial aprovechando recuperación europea y estabilidad política post-Macron. Énfasis en diversificación de bonos en contexto de tipos bajos y política monetaria acomodaticia.</div>
+  <div class="strat-c">Fondo lanzado en diciembre 2017; sin rentabilidad anual completa para 2017. Posicionamiento inicial alineado con tesis de recuperación europea y búsqueda de rendimiento en contexto de tipos bajos — estrategia de diversificación en bonos de grado de inversión y soberanos de periferia eurozona.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2018</div>
+  <div class="strat-c">Expectativa de mayor volatilidad por retirada de estímulos monetarios de bancos centrales. Preocupación por riesgos geopolíticos y burbujas de activos. Subidas de tipos de interés como principal riesgo percibido. Renta fija pierde rol tradicional de cobertura en carteras.</div>
+  <div class="strat-c">Posicionamiento en contexto de volatilidad esperada. Énfasis en gestión activa aprovechando el entorno de cambio de ciclo monetario. Selección de bonos de calidad en sectores defensivos.</div>
+  <div class="strat-c">+0,67% en 2018 vs benchmark €STER + 2% (objetivo no superado) — entorno de volatilidad y repricing de bonos limitó retornos. El fondo capturó parte del movimiento pero la subida de tipos impactó negativamente valores de mercado. Gestión activa no logró compensar headwinds de mercado.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2019</div>
+  <div class="strat-c">Crecimiento lento, políticas monetarias acomodaticias, demanda de rendimiento en contexto de tipos bajos. Ley Pacte en Francia incentiva integración de criterios ESG. ISR experimenta crecimiento de dos dígitos (>300B EUR en Francia). DNCA lanza polo de Inversión Responsable y modelo ABA.</div>
+  <div class="strat-c">Lanzamiento del modelo ABA (Above and Beyond Analysis) para integrar criterios extrafinancieros. Análisis en profundidad de sectores de transición (forestal, papelero, energía renovable). Inversiones en empresas como Schneider Electric, RATIONAL AG, Air Liquide, Novo Nordisk, Roche, Dassault Systèmes por contribución a transición ecológica. Diversificación en bonos de grado de inversión con énfasis en calidad y sostenibilidad.</div>
+  <div class="strat-c">+3,45% en 2019 vs benchmark €STER + 2% (superó objetivo) — recuperación de mercados de bonos tras flexibilización monetaria de bancos centrales. Estrategia de diversificación y selección de calidad con criterios ESG capturó rally de bonos. Contribución positiva de exposición a sectores de transición energética.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2020</div>
+  <div class="strat-c">Pandemia COVID-19 genera volatilidad extrema en marzo. Bancos centrales implementan estímulos masivos (QE, tasas negativas). Mercados de bonos experimentan volatilidad pero recuperan rápidamente. Demanda de rendimiento en contexto de tipos bajos. Política monetaria acomodaticia mantiene tipos bajos.</div>
+  <div class="strat-c">Posicionamiento defensivo en contexto de incertidumbre pandémica. Énfasis en diversificación entre bonos soberanos, crédito de grado de inversión y deuda emergente. Gestión activa de duración aprovechando volatilidad. Mantenimiento de reservas de liquidez para aprovechar oportunidades.</div>
+  <div class="strat-c">+0,12% en 2020 vs benchmark €STER + 2% (no superó objetivo) — volatilidad extrema en marzo limitó retornos a pesar de recuperación posterior. Gestión activa no logró capturar suficientemente el rally de bonos post-marzo. Fondo preservó capital en contexto de incertidumbre pero retorno modesto.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2021</div>
+  <div class="strat-c">Recuperación económica post-COVID con crecimiento fuerte. Inflación comienza a repuntar (no transitoria según equipo DNCA). Bancos centrales mantienen política acomodaticia pero comienzan a señalar normalización. Mercados de bonos enfrentan presión por subida de inflación.</div>
+  <div class="strat-c">Anticipación de inflación persistente. Posiciones en inflation break-even trades (diferencial entre bonos ligados a inflación y nominales). Gestión activa de duración aprovechando repricing de mercado. Selección de crédito de calidad en sectores defensivos.</div>
+  <div class="strat-c">+5,02% en 2021 vs benchmark €STER + 2% (superó objetivo) — estrategia de anticipación de inflación y gestión activa de duración capturó movimientos de mercado. Posiciones en inflation break-even trades generaron retornos positivos. Fondo se benefició de flexibilidad para rotar entre estrategias.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2022</div>
+  <div class="strat-c"></div>
+  <div class="strat-c">A principios de 2022, equipo DNCA toma posición corta en bonos nominales del G10, beneficiándose de subida de tipos. Invierte en inflation break-even trades anticipando inflación persistente. Gestión activa y flexible permite reposicionamiento rápido. Énfasis en generar retornos absolutos positivos en contexto adverso.</div>
+  <div class="strat-c">+6,56% en 2022 vs benchmark €STER + 2% (superó objetivo significativamente) — DNCA Alpha Bonds fue una de las pocas estrategias que logró retornos positivos en año de horror para renta fija. Posiciones cortas en bonos nominales y trades de inflación break-even generaron ganancias mientras mercado repriciaba. Flexibilidad y agilidad del equipo permitieron capturar oportunidades en entorno adverso. Fondo entregó retorno de ~8% a finales de año, demostrando capacidad de generar retornos absolutos positivos incluso en crisis.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2023</div>
+  <div class="strat-c">Continuación de subidas de tipos por bancos centrales. Inflación comienza a moderarse. Mercados de bonos se recuperan tras caídas de 2022. Volatilidad en mercados de crédito por estrés bancario (SVB, Credit Suisse). Demanda de calidad y defensiva.</div>
+  <div class="strat-c">Rotación de cartera: reducción de Liquididades (4%, -8%), Inversiones Alternativas (4%, -5%), Multi-Activos (7%, -3%). Reasignación a Bonos (40%, +10%), Renta Variable (41%, +2%), Metales Preciosos (3%, +3%). Reducción de duration media de 2,74 a 2,27. Énfasis en calidad y defensiva en contexto de volatilidad de crédito.</div>
+  <div class="strat-c">+5,63% en 2023 vs benchmark €STER + 2% (superó objetivo) — recuperación de mercados de bonos tras caídas de 2022. Contribución de renta fija +1,46%, renta variable +5,78% (principalmente acciones estadounidenses +1,09% y fondos temáticos +4,18%). Exposición a oro 3%. Gestión activa de rotaciones capturó rally de bonos y selectivamente renta variable. Fondo se benefició de diversificación entre clases de activos.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2024</div>
+  <div class="strat-c">Fuerte crecimiento estadounidense (casi 3%) contrasta con desaceleración global, China débil, Alemania en recesión. Inflación continúa cayendo por precios de bienes/energía y moderación de salarios. Entorno complejo e incierto con riesgos de dislocación. Fed cautelosa. Deuda pública en aumento.</div>
+  <div class="strat-c">Enfoque cauteloso, evitando desplegar riesgo significativo en mercados considerados poco atractivos. Reafirmación del DNA del fondo: buscar empresas de calidad con modelos de negocio defensivos en sanidad, tech/servicios, IT, transición energética. Estrategias clave: gestión de duración, estrategias puras de bonos, arbitraje en bolsas de rendimiento (curva, break-even inflation). Exposición modesta a crédito. Efectivo 9,7% a cierre de año.</div>
+  <div class="strat-c">+4,49% en 2024 vs benchmark €STER + 2% (superó objetivo) — todas las familias de estrategia iniciadas contribuyeron positivamente. Gestión de duración y estrategias puras de bonos fueron mayores contribuyentes. Arbitraje y crédito modesto tuvieron contribución limitada. Falta de tendencia y baja amplitud en tipos a largo plazo redujeron volatilidad de mercados de bonos y limitaron aporte de gestión activa de duración. Posicionamiento defensivo protegió cartera en entorno incierto.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2025</div>
+  <div class="strat-c">Continuación de incertidumbre macro. Perspectivas de crecimiento global moderadas. Inflación en proceso de normalización. Bancos centrales evalúan trayectoria de tipos. Mercados de bonos buscan equilibrio entre rendimiento y riesgo.</div>
+  <div class="strat-c">Búsqueda de nivel alto o estable de rentabilidad total consistente con preservación de capital. Rentabilidad total puede provenir de ingresos corrientes, apreciación de capital o combinación. Reconocimiento de que mejores rendimientos se logran anticipando cambios en tipos de interés y tipos de cambio, no buscando cupones más altos. Objetivo de rendimiento general a través de apreciación de capital e ingresos. Duration modificada entre -3 y +7 años. Inversión mínima 75% en obligaciones OCDE rating mínimo B.</div>
+  <div class="strat-c">+5,57% en 2025 vs benchmark €STER + 2% (superó objetivo) — fondo continúa entregando retornos absolutos positivos. Estrategia de anticipación de cambios en tipos de interés y tipos de cambio genera retornos. Diversificación entre estrategias direccionales, arbitraje y crédito aporta resiliencia. Fondo mantiene trayectoria de retornos anuales positivos desde lanzamiento en 2017.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2026</div>
+  <div class="strat-c">Entorno de mercado en transición. Perspectivas de crecimiento global moderadas. Inflación en proceso de normalización. Tipos de interés en niveles elevados. Volatilidad en mercados de bonos por cambios en expectativas de política monetaria.</div>
+  <div class="strat-c">Continuación de enfoque de rendimiento absoluto con flexibilidad táctica. Gestión activa de duración, arbitraje de valor relativo y selección de crédito de calidad. Énfasis en empresas con modelos de negocio defensivos. Mantenimiento de reservas de liquidez para aprovechar oportunidades. Posicionamiento para capturar rendimiento en entorno de tipos elevados mientras preserva capital.</div>
+  <div class="strat-c">+1,01% en 2026 vs benchmark €STER + 2% (no superó objetivo) — retorno modesto refleja entorno desafiante con volatilidad limitada en mercados de bonos. Gestión activa de duración no logró capturar suficientemente movimientos de mercado. Fondo preservó capital pero retorno por debajo de objetivo. Desafío de generar retornos absolutos en entorno de tipos elevados pero sin tendencia clara.</div>
+</div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);margin-top:24px;">Resumen de consistencia</div>
+  <div style="background:var(--paper-2);border-left:3px solid var(--navy);padding:14px 18px;margin-bottom:16px;">
+    <div style='display:flex;align-items:center;gap:10px;margin-bottom:10px;'><span style='font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;'>Score consistencia</span><span style="font-family:'Source Code Pro',monospace;font-size:18px;font-weight:600;color:var(--navy);">7/10</span></div>
+    <div style="margin-bottom:8px;"><strong style="color:var(--ink);font-size:12px;">Decisiones vs estrategia:</strong> <span class="pr" style="font-size:12.5px;">Las decisiones del equipo cuadran consistentemente con la estrategia declarada de rendimiento absoluto flexible. En 2022, la toma de posiciones cortas en bonos nominales del G10 e inversión en inflation break-even trades demostró agilidad táctica alineada con el mandato de anticipar cambios en tipos e inflación. En 2024, el posicionamiento defensivo con 9,7% en efectivo y énfasis en calidad reflejó la tesis de evitar riesgo en mercados poco atractivos. Las rotaciones de cartera (2023: reducción de liquidez/alternativas, aumento de bonos/renta variable) muestran disciplina en asignación táctica.</span></div>
+    <div style="margin-bottom:8px;"><strong style="color:var(--ink);font-size:12px;">Resultados vs objetivo:</strong> <span class="pr" style="font-size:12.5px;">El fondo ha superado su objetivo de €STER + 2% en 6 de 9 años completos (2019: +3,45%, 2021: +5,02%, 2022: +6,56%, 2023: +5,63%, 2024: +4,49%, 2025: +5,57%), con underperformance en 2018 (+0,67%), 2020 (+0,12%) y 2026 (+1,01%). El fondo ha entregado retornos anuales positivos cada año desde lanzamiento en 2017, cumpliendo objetivo de preservación de capital y retorno absoluto positivo. En 2022, año de horror para renta fija (-31% bonos globales), logró +6,56% demostrando capacidad de generar retornos en crisis.</span></div>
+    <div><strong style="color:var(--ink);font-size:12px;">Justificación:</strong> <span class="pr" style="font-size:12.5px;font-style:italic;">Score 7 refleja consistencia fuerte en tesis y ejecución (6/9 años superan objetivo, retornos positivos cada año desde 2017) pero con vulnerabilidad a entornos sin tendencia clara en tipos (2018, 2020, 2026). El equipo demuestra agilidad táctica y anticipación de ciclos (infl</span></div>
+  </div>
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera mantiene una estructura defensiva y flexible característica de un fondo de retorno absoluto en renta fija, con aproximadamente 92,81% en bonos y 7,19% en liquidez. Esta asignación refleja la cautela del gestor ante un entorno complejo y con riesgos de dislocación en 2024-2025. La exposición obligatoria se concentra en bonos soberanos de alta calidad (OCDE) con énfasis en instrumentos ligados a inflación, particularmente bonos del Tesoro estadounidense indexados, que constituyen la columna vertebral de la estrategia. La presencia significativa de deuda soberana europea (Italia, España, Unión Europea) y japonesa complementa la diversificación geográfica, mientras que la posición en liquidez (6,44% en fondos de efectivo) proporciona flexibilidad táctica para aprovechar oportunidades de mercado. Esta composición responde directamente a la tesis del gestor de 2024: en un contexto de crecimiento estadounidense desproporcionado contrastando con una desaceleración global, la estrategia busca "reafirmar el ADN del fondo: búsqueda de empresas de calidad con modelos de negocio defensivos", aunque en el contexto de renta fija esto se traduce en bonos soberanos de emisores sólidos y protección inflacionaria. Los bonos indexados a inflación estadounidenses (TIPS) representan la apuesta estructural más importante, reflejando la convicción del equipo sobre la persistencia de presiones inflacionarias moderadas y la necesidad de protección real del capital.</p></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Decisiones / cambios recientes</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera ha experimentado una reorientación significativa hacia activos defensivos y de calidad durante 2023-2024. En 2023, el gestor realizó una rotación importante: redujo liquidez de 12% a 4% (-8%), inversiones alternativas de 9% a 4% (-5%) y multi-activos de 10% a 7% (-3%), reasignando estos fondos principalmente hacia bonos (que pasaron de 30% a 40%, +10%) y renta variable selectiva (41%, +2%). La duración media de la cartera obligatoria se contrajo de 2,74 a 2,27, reflejando una postura más defensiva ante la volatilidad de tasas. En 2024, el equipo mantuvo esta orientación cautelosa, evitando desplegar riesgo significativo en mercados considerados poco atractivos. Las decisiones tácticas incluyeron gestión activa de duración y estrategias de bonos puros, aprovechando bolsas de arbitraje en la curva de rendimientos y diferenciales de inflación. La posición en cash se elevó a 9,7% a cierre de año, señalando una postura de espera ante la incertidumbre macroeconómica. Esta evolución refleja la filosofía del fondo de mantener "margen de maniobra frente a desarrollos futuros en mercados de renta fija", priorizando la preservación de capital y la flexibilidad sobre la búsqueda agresiva de rendimiento en un entorno de riesgos de dislocación.</p></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Concentración</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera presenta una concentración moderada típica de fondos de renta fija flexible. El top 5 representa 34,9% del patrimonio, mientras que el top 10 alcanza 53,5%, indicando una distribución relativamente dispersa para un fondo obligatario. Esta estructura refleja deliberadamente la estrategia de diversificación del gestor: mantener "niveles de riesgo por debajo del 3%" requiere evitar concentraciones excesivas en emisores individuales. La presencia de múltiples bonos del Tesoro estadounidense indexados a inflación (cuatro posiciones en el top 10) no representa concentración de riesgo de crédito sino diversificación de vencimientos y cupones dentro de la misma clase de activo, permitiendo al gestor ajustar la duración y la exposición inflacionaria con precisión. Comparado con fondos de renta fija tradicionales, esta dispersión es característica de estrategias de retorno absoluto que priman la flexibilidad y el control de riesgo sobre la maximización de rendimiento en un único segmento.</p></div>
+  </div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
+  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><p class="pr" style="font-size:12.5px;margin-bottom:14px;">La cartera está concentrada en bonos soberanos de bajo riesgo de crédito, principalmente Tesoros estadounidenses ligados a inflación (39,52%) que aportan protección contra inflación pero exponen a riesgo de tipos reales; bonos europeos (Italia 7,1%, España 5,23%, UE 4,02%) que introducen riesgo soberano europeo; y bonos de Japón (3,14%) y Australia (2,96%) que diversifican geográficamente. El riesgo principal es un repunte inesperado de tipos de interés global que comprimiría valores de mercado en toda la cartera, especialmente en Tesoros estadounidenses. Un segundo riesgo es desinflación sorpresiva que reduciría el valor relativo de bonos ligados a inflación. La cartera está posicionada defensivamente con 7,19% en liquidez, reflejando cautela del gestor ante mercados considerados poco atractivos en 2024.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>Tipo de bono soberano</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Tesoros estadounidenses ligados a inflación (TIPS)</td><td class="num">39.5%</td><td style="font-size:12px;color:var(--ink-3);">Mayor exposición de la cartera. Protege contra inflación pero sufre si tasas reales suben (ej. Fed sube 100 pb en 12 meses). Riesgo específico: sorpresa de inflación que eleve tasas reales esperadas.</td></tr><tr><td>Tipo de bono soberano</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Bonos soberanos europeos (Italia, España, UE)</td><td class="num">16.4%</td><td style="font-size:12px;color:var(--ink-3);">Exposición a riesgo soberano europeo. Italia (7,1%) es más sensible a spreads de crédito. Riesgo: crisis fiscal o política en eurozona que amplie spreads de BTPS o bonos españoles.</td></tr><tr><td>Tipo de bono soberano</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Bonos soberanos de Asia-Pacífico (Japón, Australia)</td><td class="num">6.1%</td><td style="font-size:12px;color:var(--ink-3);">Diversificación geográfica. Japón (3,14%) expone a riesgo de normalización de política monetaria BoJ. Australia (2,96%) sensible a ciclo de commodities y tasas RBA.</td></tr><tr><td>Estrategia de duración</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Gestión activa de duration entre -3 y +7 años</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);">Riesgo de timing: errores en predicción de movimientos de tipos pueden generar underperformance. En 2024, falta de tendencia en tipos limitó aporte de gestión activa de duración.</td></tr><tr><td>Clase de activo alternativa</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Convertibles, CoCos, arbitraje de valor relativo (hasta 20% CoCos, 100% convertibles)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);">No explícito en top 10 actual, pero permitido hasta 20% CoCos. Riesgo: correlación equity/crédito en estrés; liquidez limitada en CoCos; repricing en escenarios de volatilidad.</td></tr><tr><td>Liquidez y cash</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Efectivo y fondos monetarios (OSTRUM CASH EURIBOR-I)</td><td class="num">7.2%</td><td style="font-size:12px;color:var(--ink-3);">Posición defensiva que refleja cautela del gestor. Riesgo: oportunidad cost si tipos bajan; beneficio si volatilidad crea oportunidades de arbitraje.</td></tr></tbody></table></div></div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">10</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">53,5%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">7,2%</div><div class="kpi-sub">vs media hist. 7,2%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">47,0%</div><div class="kpi-sub">Renta fija · Liquidez 6,4%</div></div>
+  </div>
+
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div>
+    <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctxMix = document.getElementById('c-mix');
+    if (ctxMix) {
+      const tipos = [["RF", 47.0], ["CASH", 6.4]];
+      new Chart(ctxMix, {
+        type: 'doughnut',
+        data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+      });
+    }
+    const ctxC = document.getElementById('c-conc');
+    if (ctxC) {
+      new Chart(ctxC, {
+        type: 'bar',
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [34.9, 53.5, 53.5], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
+      });
+    }
+  })();
+  </script>
+
+  <div class="sr">Todas las posiciones (10)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody><tr>
+  <td title="US TSY INFL IX N/B 1.75% 24-15/01/2034">US Treasury TIPS 1.75% 2034</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:79px;background:#0c2340;"></div>9,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>10%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ITALY BTPS 1.5% 23-15/05/2029">Italy Gov Bond 1.5% 2029</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italy</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:56px;background:#0c2340;"></div>7,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>17%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="OSTRUM CASH EURIBR-I C EUR">OSTRUM Cash Euribor-I</td>
+  <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:51px;background:#0c2340;"></div>6,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>23%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="US TSY INFL IX N/B 2.125% 24-15/04/2029">US Treasury TIPS 2.125% 2029</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:50px;background:#0c2340;"></div>6,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>30%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SPAIN I/L BOND 0.7% 18-30/11/2033">Spain Inflation-Linked 0.7% 2033</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Spain</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:41px;background:#0c2340;"></div>5,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>35%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="US TSY INFL IX N/B 1.25% 23-15/04/2028">US Treasury TIPS 1.25% 2028</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:35px;background:#0c2340;"></div>4,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>39%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="EUROPEAN UNION 3% 24-04/12/2034">EU Debt 3% 2034</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">European Union</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>43%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="US TSY INFL IX N/B 0.25% 15-15/01/2025">US Treasury TIPS 0.25% 2025</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>3,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>47%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="JAPAN GOVT 20-YR 1.6% 24-20/03/2044">Japan Gov 20Y 1.6% 2044</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Japan</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>51%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AUSTRALIAN GOVT. 3% 22-21/11/2033">Australia Gov. 3% 2033</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>53%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+  
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">📁 Recursos oficiales del fondo (web gestora)</div>
+  
+<style>
+.rec-group{margin:18px 0 24px;}
+.rec-group-head{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-2);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--rule-light);}
+.rec-count{font-size:10.5px;color:var(--ink-4);font-weight:400;margin-left:4px;}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;}
+.rec-card{display:flex;gap:10px;padding:10px 12px;border:1px solid var(--rule-light);background:var(--paper-2);text-decoration:none;color:var(--ink);transition:all 0.15s;}
+.rec-card:hover{border-color:var(--navy);background:var(--white);transform:translateY(-1px);}
+.rec-icon{font-size:18px;line-height:1;flex-shrink:0;width:24px;text-align:center;}
+.rec-meta{flex:1;min-width:0;}
+.rec-title{font-size:12px;line-height:1.4;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.rec-date{font-size:10px;color:var(--ink-4);margin-top:3px;display:block;font-family:'Source Code Pro',monospace;}
+.rec-more{margin-top:6px;font-size:11px;color:var(--ink-4);text-align:right;font-style:italic;}
+</style>
+
+  
+  <div class="rec-group">
+    <div class="rec-group-head">▶ Videos / Webinars <span class="rec-count">(8)</span></div>
+    <div class="rec-grid">
+      <a class="rec-card" href="https://www.youtube.com/watch?v=K_vd82qtpUM" target="_blank">
+        <div class="rec-icon">▶</div>
+        <div class="rec-meta">
+          <div class="rec-title">DNCA Alpha Bonds: one of the best fixed income funds? - YouTube</div>
+          <span class="rec-date">2022</span>
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.youtube.com/watch?v=yL6chQwngMU" target="_blank">
+        <div class="rec-icon">▶</div>
+        <div class="rec-meta">
+          <div class="rec-title">Complete Analysis of DNCA Invest Alpha Bonds | LU1694789535</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.youtube.com/watch?v=YHJVSMCcS4A" target="_blank">
+        <div class="rec-icon">▶</div>
+        <div class="rec-meta">
+          <div class="rec-title">Análisis DNCA Invest Alpha Bonds: Cómo ganar un +6% en Renta ...</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.youtube.com/shorts/kGcbMqWlvu8" target="_blank">
+        <div class="rec-icon">▶</div>
+        <div class="rec-meta">
+          <div class="rec-title">Prudent Dunes & DNCA Invest Alpha Bonds: An Opportunity?</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.youtube.com/watch?v=ensmWHR3Jww" target="_blank">
+        <div class="rec-icon">▶</div>
+        <div class="rec-meta">
+          <div class="rec-title">The Best Conservative Portfolio for 3-5 Years (Safe and Profitable)</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.youtube.com/watch?v=c1C7CWkBe1w" target="_blank">
+        <div class="rec-icon">▶</div>
+        <div class="rec-meta">
+          <div class="rec-title">DNCA Invest Alpha Bonds : interview avec Paul Lentz de ... - YouTube</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.youtube.com/watch?v=GM3dLjrMGMI" target="_blank">
+        <div class="rec-icon">▶</div>
+        <div class="rec-meta">
+          <div class="rec-title">DNCA Invest Alpha Bonds Fund: ESTER+1.4% Worth the ... - YouTube</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.youtube.com/watch?v=8-9bHsl2c4Y" target="_blank">
+        <div class="rec-icon">▶</div>
+        <div class="rec-meta">
+          <div class="rec-title">Where to INVEST amidst so much CHAOS? ‍   Daniel Pérez - YouTube</div>
+          
+        </div>
+      </a></div>
+    
+  </div>
+  <div class="rec-group">
+    <div class="rec-group-head">📄 Otros documentos <span class="rec-count">(5)</span></div>
+    <div class="rec-grid">
+      <a class="rec-card" href="https://www.dnca-investments.com/ckeditor_assets/attachments/2035/Interview_DNCA-Invest-Alpha-Bonds_CDN-sept-18.pdf" target="_blank">
+        <div class="rec-icon">📄</div>
+        <div class="rec-meta">
+          <div class="rec-title">[PDF] DNCA Invest Alpha Bonds</div>
+          <span class="rec-date">2035</span>
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.dnca-investments.com/documents/prs_pt.pdf" target="_blank">
+        <div class="rec-icon">📄</div>
+        <div class="rec-meta">
+          <div class="rec-title">[PDF] DNCA INVEST Société d'investissement à capital variable ...</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.dnca-investments.com/CMS/creditdunord/Rapport_Alpha_Bonds.pdf" target="_blank">
+        <div class="rec-icon">📄</div>
+        <div class="rec-meta">
+          <div class="rec-title">[PDF] DNCA INVEST Alpha Bonds 1 2 3 4 5 6 7</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.dnca-investments.com/CMS/creditdunord/FC_Alpha_Bonds.pdf" target="_blank">
+        <div class="rec-icon">📄</div>
+        <div class="rec-meta">
+          <div class="rec-title">[PDF] ALPHA BONDS - DNCA Finance</div>
+          
+        </div>
+      </a>
+      <a class="rec-card" href="https://www.dnca-investments.com/documents/kiid_it.pdf" target="_blank">
+        <div class="rec-icon">📄</div>
+        <div class="rec-meta">
+          <div class="rec-title">[PDF] DNCA Invest ALPHA BONDS</div>
+          
+        </div>
+      </a></div>
+    
+  </div>
+
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Salud Financiera</div>
+        </div>
+        <span class="src-date">2026-01-28</span>
+      </div>
+      <div class="src-t">Fondos de retorno absoluto: ni la panacea, ni inútiles</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Neutral a positiva. El autor lo incluye en una lista de 'buenos fondos de retorno absoluto', sugiriendo su calidad dentro de la categoría. Sin embargo, también lo usa como ejemplo de fondo 'caja negra' donde los inversores a menudo no entienden su funcionamiento, lo que implica una crítica a la transparencia general de este tipo de productos.</div>
+      <a href="https://saludfinanciera.substack.com/p/fondos-de-retorno-absoluto" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Salud Financiera</div>
+        </div>
+        <span class="src-date">2024-11-18</span>
+      </div>
+      <div class="src-t">FDV #3: Una Cartera a prueba de sustos</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">El artículo de Salud Financiera analiza una cartera de fondos de inversión diseñada para padres con el objetivo de limitar la volatilidad y las caídas. La cartera incluye diversas posiciones, entre ellas un fondo de nombre similar al solicitado (DNCA Invest Alpha Bonds, ISIN LU1694789451) con un 7,2% de peso. El autor concluye que la cartera cumple sus objetivos de baja volatilidad y reflexiona sobre la importancia de la simplicidad en la construcción de carteras.</div>
+      <a href="https://saludfinanciera.substack.com/p/finanzas-vecino-3" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">MO</div>
+        <div class="src-info">
+          <div class="src-o">Moclano</div>
+        </div>
+        <span class="src-date">2026-02-17</span>
+      </div>
+      <div class="src-t">Invirtiendo con... Eduardo Font</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">El artículo detalla la estrategia de inversión de Eduardo Font, un ingeniero informático que aboga por la sencillez y la disciplina a largo plazo. Su cartera se estructura en un núcleo global (MSCI World) y satélites de valor y mercados emergentes, complementados con fondos de renta fija flexible y retorno absoluto como "amortiguadores". Se menciona el fondo DNCA Alpha Bonds (LU1694789451) como parte de esta estrategia para aportar descorrelación. Sin embargo, la información solicitada sobre el fondo DNCA INVEST - ALPHA BONDS (LU1694789378) no se encuentra en el texto proporcionado.</div>
+      <a href="https://moclano.substack.com/p/invirtiendo-con-eduardo-font" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#cc0000;">MS</div>
+        <div class="src-info">
+          <div class="src-o">Morningstar</div>
+        </div>
+        <span class="src-date"></span>
+      </div>
+      <div class="src-t">Morningstar</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">El texto define el 'Process Pillar' para el fondo DNCA Invest Alpha Bonds N EUR. Este pilar evalúa la coherencia, claridad y repetibilidad del objetivo de rendimiento y el proceso de inversión del fondo, abarcando tanto la selección de valores como la construcción de la cartera.</div>
+      <a href="https://www.morningstar.com/funds/_/0P0001CH1B/analysis" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#cc0000;">MS</div>
+        <div class="src-info">
+          <div class="src-o">Morningstar</div>
+        </div>
+        <span class="src-date"></span>
+      </div>
+      <div class="src-t">Morningstar</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">El texto explica el concepto del 'Process Pillar' aplicado al fondo DNCA Invest Alpha Bonds SI EUR. Este pilar de evaluación se centra en determinar la coherencia, la claridad y la capacidad de repetición del objetivo de rendimiento y del proceso de inversión del fondo. Su análisis abarca tanto la selección de valores como la construcción de la cartera.</div>
+      <a href="https://www.morningstar.com/funds/_/0P0001DH4E/analysis" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-04-17</span>
+      </div>
+      <div class="src-t">DNCA Invest Alpha Bonds H-I USD</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">El fondo DNCA Invest Alpha Bonds H-I USD (LU1859213875) es un SICAV domiciliado en Luxemburgo, lanzado el 4 de septiembre de 2018. Ha registrado una rentabilidad del +7.72% en un año hasta el 17 de abril de 2026. Su patrimonio total asciende a 25.30 mil millones de GBP, con la clase de acción en 576.27 millones de GBP a 31 de marzo de 2026. El equipo gestor incluye a Pascal Gilbert, François Collet, Fabien Georges y Paul Lentz, y presenta comisiones de gestión continuas del 0.70% y un cargo inicial del 2.00%.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=LU1859213875:USD" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-04-17</span>
+      </div>
+      <div class="src-t">DNCA Invest Alpha Bonds HA USD - Financial Times</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Este documento del Financial Times presenta una ficha de datos para el fondo DNCA Invest Alpha Bonds HA USD (ISIN LU1860994273). Muestra el precio actual del fondo en 144.21 USD, con un cambio diario del 0.29% y una rentabilidad anual del +7.01% a fecha de 17 de abril de 2026. También detalla las rentabilidades históricas del fondo en varios periodos, comparándolas con la categoría 'Global Flexible Bond - USD Hedged'. La información de rendimiento y rating de cuartil es proporcionada por Morningstar.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU1860994273:USD" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-04-17</span>
+      </div>
+      <div class="src-t">DNCA Invest Alpha Bonds H-B-DMF USD</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Este texto del Financial Times presenta una ficha de datos para el fondo DNCA Invest Alpha Bonds H-B-DMF USD (LU3038491810). Incluye el precio actual y el cambio diario, con una fecha de actualización de los datos del 17 de abril de 2026. Se clasifica en la categoría "Global Flexible Bond - USD Hedged" y menciona la disponibilidad de ratings de Morningstar y Lipper Leader Scorecard, aunque no proporciona un rating específico para este fondo. El contenido enfatiza que la información es solo para fines generales y no constituye asesoramiento de inversión.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/ratings?s=LU3038491810:USD" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsPeople</div>
+        </div>
+        <span class="src-date">2026-02-24</span>
+      </div>
+      <div class="src-t">DNCA Invest Alpha Bonds: enfoque multiestrategia y control del riesgo para una cartera resiliente a los cambios de mercado</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Neutral. El artículo presenta la visión del gestor y un reconocimiento (Rating FundsPeople+ 2026) sin ofrecer una opinión editorial explícita del autor sobre el fondo.</div>
+      <a href="https://fundspeople.com/es/dnca-invest-alpha-bonds-enfoque-multiestrategia-y-control-del-riesgo-para-una-cartera-resiliente-a-los-cambios-de-mercado/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsPeople</div>
+        </div>
+        <span class="src-date">2021-10-29</span>
+      </div>
+      <div class="src-t">Fondos renta fija DNCA Invest Alpha Bonds, rentabilidad descorrelacionada de los mercados de bonos</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">El texto introduce un artículo de opinión de François Collet, gestor de DNCA Invest Alpha Bonds, publicado en FundsPeople. El artículo, patrocinado por Natixis Investment Managers, se centra en la estrategia del fondo para lograr una rentabilidad descorrelacionada de los mercados de bonos. Sin embargo, el contenido completo está restringido a usuarios registrados.</div>
+      <a href="https://fundspeople.com/es/opinion/dnca-invest-alpha-bonds-rentabilidad-descorrelacionada-de-los-mercados-de-bonos/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6900;">SA</div>
+        <div class="src-info">
+          <div class="src-o">Seeking Alpha</div>
+        </div>
+        <span class="src-date"></span>
+      </div>
+      <div class="src-t">Wall Street Breakfast</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Este artículo es un resumen diario de noticias financieras que destaca el continuo aumento de los rendimientos de los bonos, alcanzando niveles no vistos desde 2008, impulsado por las actas del FOMC que sugieren posibles subidas adicionales de tipos. También cubre el éxito de taquilla de la película Barbie, la aprobación regulatoria de Coinbase para futuros de criptomonedas y la posible venta del negocio avícola de Tyson Foods en China. El texto ofrece una visión general de los mercados globales y los próximos eventos económicos.</div>
+      <a href="https://seekingalpha.com/article/4629213-wall-street-breakfast-run-up-in-yields" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-04-29</span>
+      </div>
+      <div class="src-t">DNCA Invest Alpha Bonds WI EUR</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">El texto presenta una ficha de datos del fondo DNCA Invest Alpha Bonds WI EUR (LU2126051072) del Financial Times, con información actualizada al 29 de abril de 2026. Incluye el precio actual del fondo, su cambio diario y anual, y un desglose de sus rentabilidades totales a diferentes plazos. También se detalla la clasificación del fondo por cuartiles en comparación con su categoría, con todos los datos proporcionados por Morningstar.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU2126051072:EUR" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">38 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (4)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">annual_report_latest.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU1694789378/raw/discovery/annual_report_latest.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">semi_annual_report_latest.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU1694789378/raw/discovery/semi_annual_report_latest.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">prospectus_latest.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU1694789378/raw/discovery/prospectus_latest.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">kid_latest.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU1694789378/raw/discovery/kid_latest.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">Cartas del gestor (7)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">im.natixis.com — 2022 was a terrible year for fixed income but not for dnca alpha </span><a href="https://www.im.natixis.com/en-sg/insights/fixed-income/2025/2022-was-a-terrible-year-for-fixed-income-but-not-for-dnca-alpha-bonds" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">dnca-investments.com — prs pt.pdf</span><a href="https://www.dnca-investments.com/documents/prs_pt.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — Lettre ISR Avril 2019 France FR.pdf</span><a href="https://web.archive.org/web/20240712091902/https://www.dnca-investments.com/ckeditor_assets/attachments/2592/Lettre_ISR_Avril_2019_France_FR.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — commento di mercato igor de maack   novembre 2016.pdf</span><a href="https://web.archive.org/web/20170109010647/http://www.dnca-investments.com/ckeditor_assets/attachments/881/commento_di_mercato_igor_de_maack_-_novembre_2016.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">newsroom-en.groupebpce.fr — outlook 2020 finding equilibrium in a non cooperative world 68f1 </span><a href="https://newsroom-en.groupebpce.fr/news/outlook-2020-finding-equilibrium-in-a-non-cooperative-world-68f1-53927.html" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">newsroom-en.groupebpce.fr — 2018 outlook 75 of institutional investors say current environmen</span><a href="https://newsroom-en.groupebpce.fr/news/2018-outlook-75-of-institutional-investors-say-current-environment-favors-active-management-d97f-53927.html" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">dl.avl-investmentfonds.de — LU0121249881 RECHENSCHAFT EN 20231231.pdf</span><a href="https://dl.avl-investmentfonds.de/fds/LU0121249881-RECHENSCHAFT-EN-20231231.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">XMLs CNMV (0)</div>
+  
+
+  <div class="doc-grp">Fuentes externas (27)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">assets.im.natixis.com — fund details.dnca invest one.LU1278540171</span><a href="https://assets.im.natixis.com/es-es/funds/fund-details.dnca-invest-one.LU1278540171" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">cincodias.elpais.com — francois collet natixis im el bce recortara los tipos para ayudar</span><a href="https://cincodias.elpais.com/mercados-financieros/2025-03-31/francois-collet-natixis-im-el-bce-recortara-los-tipos-para-ayudar-a-financiar-el-gasto-en-defensa.html" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fr.linkedin.com — funds society</span><a href="https://fr.linkedin.com/company/funds-society" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — dnca invest alpha bonds enfoque multiestrategia y control del rie</span><a href="https://fundspeople.com/es/dnca-invest-alpha-bonds-enfoque-multiestrategia-y-control-del-riesgo-para-una-cartera-resiliente-a-los-cambios-de-mercado/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — dnca invest alpha bonds rentabilidad descorrelacionada de los mer</span><a href="https://fundspeople.com/es/opinion/dnca-invest-alpha-bonds-rentabilidad-descorrelacionada-de-los-mercados-de-bonos/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — performance</span><a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU1860994273:USD" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — performance</span><a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU2126051072:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — ratings</span><a href="https://markets.ft.com/data/funds/tearsheet/ratings?s=LU3038491810:USD" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=LU1859213875:USD" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">moclano.substack.com — invirtiendo con eduardo font</span><a href="https://moclano.substack.com/p/invirtiendo-con-eduardo-font" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 17 archivos más</div>
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         DNCA INVEST - ALPHA BONDS (LU1694789378): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py LU1694789378';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py LU1694789378', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=["22", "23", "24", "25"];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[6373.15, 8859.7, 14646.92, 18463.21],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=[];
+  const nposMax=Math.max(...[])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": [null, null, null]};
+const TER_DATA={"A": [null, null, null]};
+const TER_EFECTIVO=[null, null, null];
+const CY=["24", "25", "26"];
+const HAS_EXITO=false;
+const EXITO_REAL=[null, null, null];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='LU1694789378';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>

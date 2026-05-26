@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROBECO CAPITAL GROWTH FUNDS - ROBECO BP GLOBAL PREMIUM EQUITIES — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund">ROBECO CAPITAL GROWTH FUNDS - ROBECO BP GLOBAL PREMIUM EQUITIES <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★☆☆</span></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Robeco Institutional Asset Management B.V. (sub-advised by Boston Partners Global Investors)</strong></div>
+      
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0203975437</strong></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>LU0891727132</strong> <span style='opacity:.55;font-size:10.5px;'>· Class C EUR</span></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€7.239M</div>
+        <div class="lh-aum-l">AUM</div>
+        
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 4 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Diciembre 2004</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Global</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Christopher Hart</strong> <span style='opacity:.7;'>(lead)</span> · Joshua Jones <span style='opacity:.6;font-size:9px;'>(co)</span> · Soyoun Song <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-05-07</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0203975437 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">Robeco BP Global Premium Equities (LU0203975437, clase B EUR Acc) es un fondo de renta variable global de estilo <strong>value</strong>, <strong>all-cap</strong> y <strong>sin restricciones</strong> geográficas, sectoriales ni de capitalización. Estructurado como sub-fondo del UCITS luxemburgués Robeco Capital Growth Funds SICAV, está sub-asesorado por <strong>Boston Partners Global Investors</strong> (filial estadounidense de Robeco con sede en Boston) y tiene como benchmark el <strong>MSCI World Index (Net Return, EUR)</strong> con horizonte de inversión recomendado de 5 años (factsheet marzo 2026; objetivo de inversión).</p><p class="pr">El fondo aplica el marco propietario de Boston Partners conocido como <strong>"three circles"</strong>: cada compañía candidata debe satisfacer simultáneamente tres condiciones — valoración atractiva en términos relativos al mercado, fundamentales sólidos con flujo de caja robusto y momentum operativo positivo (capacidad demostrada de crecimiento de beneficios). El gestor principal, <strong>Christopher Hart</strong>, lo describe en una entrevista a FundsPeople 2026 como una filosofía deliberadamente diversificada: *"No tengo una acción favorita; tengo 80 que creo que pueden funcionar"*. La cartera mantiene típicamente <strong>80-110 posiciones</strong> seleccionadas de un universo de aproximadamente 10.000 valores (FundsSociety, 2015), priorizando la gestión del tamaño del error sobre la concentración en ideas de alta convicción.</p><p class="pr">Los datos disponibles a 31-03-2026 muestran un patrimonio agregado del sub-fondo de aproximadamente <strong>6.350 millones de GBP</strong> (todas las clases) y una <strong>comisión total anual (ongoing charge) del 1,46%</strong> (Financial Times tearsheets). La distribución geográfica del factsheet a marzo 2026 está sesgada hacia <strong>Estados Unidos (37,80%) y Eurozona (30,92%)</strong>, con peso adicional en <strong>Reino Unido (14,23%)</strong>, y los sectores con mayor peso son <strong>Financials (25,33%), Industrials (16,56%) y Healthcare (15,77%)</strong>. La concentración es muy baja: el top 5 representa solo el <strong>7,84% del patrimonio</strong>, consistente con la filosofía de diversificación amplia del gestor.</p><p class="pr">El fondo tiene <strong>Rating FundsPeople 2026</strong> y un track record de premios Morningstar incluyendo el <strong>European Manager of the Year 2016</strong> en categoría Global Equity (Hart) y el reconocimiento como mejor de su clase en <strong>nueve países europeos</strong> en 2014.</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">La filosofía es <strong>value bottom-up disciplinado</strong> dentro del framework "three circles" de Boston Partners. La selección de valores parte del análisis fundamental y solo entran en cartera compañías que cumplen <strong>simultáneamente</strong> los tres criterios: (1) <strong>valoración atractiva</strong> — la compañía debe ser barata o estar a precio razonable respecto al mercado en métricas de múltiplos (FundsSociety 2014); (2) <strong>fundamentales sólidos</strong> — flujo de caja libre robusto y balance saneado; (3) <strong>momentum de negocio positivo</strong> — capacidad demostrada de crecimiento de beneficios en el ciclo actual.
+
+La filosofía es deliberadamente <strong>no concentrada y agnóstica al consenso</strong>: la cartera se construye "basada puramente en compañías seleccionadas en lugar de seguir el consenso del mercado" (Hart, FundsSociety 2015). Esto se traduce en <strong>80-110 posiciones</strong> simultáneas, sin posiciones individuales superiores al ~2% (top 5 = 7,84%), priorizando la gestión del riesgo idiosincrático mediante diversificación amplia. La filosofía explícita del gestor es que el éxito en value no consiste en acertar siempre con la idea concentrada sino en <strong>gestionar adecuadamente el tamaño de los errores</strong> y dejar que la asimetría del proceso bottom-up funcione a través de muchas decisiones marginalmente positivas (FundsPeople 2026).
+
+El fondo es Artículo 8 SFDR — promueve características E&S, integra riesgos de sostenibilidad y aplica la política Good Governance de Robeco, pero <strong>no condiciona</strong> la selección a métricas ESG estrictas: aplica exclusiones normativas, basadas en actividad y región, además de proxy voting y engagement.</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Valoración atractiva en términos relativos:</strong> <span class="pr" style="font-size:12.5px;">Toda candidata debe estar barata o a precio razonable frente al mercado en múltiplos de valoración. Es la primera condición eliminatoria: si la compañía es de calidad pero el múltiplo no compensa, no entra (FundsSociety 2014, criterio explícito Hart).</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Fundamentales sólidos y flujo de caja libre robusto:</strong> <span class="pr" style="font-size:12.5px;">El balance debe ser saneado y la generación de caja recurrente y suficiente para sostener el negocio en escenarios adversos. Filtra value traps (compañías baratas con fundamentales en deterioro estructural).</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Momentum operativo positivo:</strong> <span class="pr" style="font-size:12.5px;">Crecimiento demostrado o demostrable de beneficios en el ciclo actual. Diferencia el value puro de Boston Partners de un value puramente cuantitativo basado solo en múltiplos. La compañía debe estar mejorando, no solo siendo barata.</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Track record validado por Morningstar: superó la mediana de su categoría en el 89% de los periodos rolling de 12 meses desde el nombramiento de Hart como gestor en 2008, situándose en el primer decil para los periodos rolling de 3 y 5 años (Morningstar, 2016).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Equipo gestor con muy alta estabilidad: Christopher Hart lleva como portfolio manager desde el 15-07-2008 (17+ años en el cargo), con respaldo de Joshua Jones desde 2015 y Soyoun Song desde 2024 — sin rotación al frente del fondo.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Filosofía "three circles" disciplinada y transparente que integra valoración, fundamentales y momentum, evitando los dos modos de fallo típicos del value puro (value traps y compounders sobrevalorados).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Diversificación estructural muy elevada (top 5 = 7,84% del patrimonio, ~80-110 posiciones), lo que reduce la sensibilidad al riesgo idiosincrático de cualquier emisor individual y limita drawdowns por error puntual.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Marco institucional sólido: sub-asesoramiento por Boston Partners (firma especialista en value desde Boston con décadas de track record), comercialización vía UCITS luxemburgués Robeco con liquidez diaria y régimen de un grupo cotizado.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Inversión personal del gestor en la estrategia ("la inversión personal de Hart en la estrategia alinea sus intereses con los de los inversores" — Morningstar 2016), aportando alineación de incentivos.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sesgo de estilo value que puede underperformar en regímenes prolongados de mercado dominados por growth/momentum puro (caso histórico 2017-2020), generando tracking error sostenido frente al MSCI World que puede pesar al inversor menos paciente.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Comisión total anual del 1,46% (ongoing charge) considerada elevada en el contexto de alternativas indexadas globales con TERs por debajo del 0,30%; el análisis crítico de Salud Financiera (FDV #30) cuestiona explícitamente la relación coste-valor frente a indexados similares.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración geográfica significativa en USA + Eurozona (~69% combinado) con exposición limitada a emergentes; el fondo está diseñado como satellite global value, no como single-fund global todo-en-uno.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Peso elevado del sector Financials (25,33%) y exposición pro-cíclica a Industrials (16,56%) que podrían sufrir conjuntamente en escenarios de recesión global aguda.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sin cartas trimestrales públicas dedicadas al sub-fondo en el bundle disponible (0 cartas K15 descargadas) — la transparencia narrativa del gestor depende de entrevistas a prensa especializada y del factsheet trimestral, menos detallado que las cartas de gestoras boutique.</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>Clase retail</strong></td><td>LU0203975437</td><td>—</td><td>1,5%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2004</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class C EUR</strong></td><td>LU0891727132</td><td>—</td><td>0,6%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2013</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+  </table>
+  
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor de horizonte largo (5+ años, según el holding period recomendado oficial) con tolerancia a tracking error frente a índices globales y preferencia por estilo value disciplinado dentro del componente RV global de su cartera. Adecuado como <strong>satellite value diversificado</strong> complementario a un core indexado, no como vehículo único globalizador. Encaja con perfiles que valoran selección activa con disciplina cuantitativa y aceptan TER 1,46% a cambio de filosofía probada y track record de premios Morningstar. No apto para perfiles enfocados a coste mínimo absoluto.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Hart tiene <strong>inversión personal directa</strong> en la estrategia que gestiona, hecho explícitamente reconocido por Morningstar en 2016 al otorgarle el premio European Manager of the Year: "la inversión personal de Hart en la estrategia alinea sus intereses con los de los inversores". Adicionalmente, su tenure como PM (15-07-2008 hasta hoy, 17+ años) sin rotación al frente del fondo refuerza el compromiso a largo plazo con el vehículo y la consistencia del proceso de inversión.</p></div></div>
+
+  <div class="sr">TER por clase (snapshot actual)</div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctx = document.getElementById('c-com-snap');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ["retail", "Class C EUR"], datasets: [
+      {label:'TER (%)', data:[1.46, 0.61], backgroundColor:'rgba(12,35,64,0.85)'}
+    ] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+        scales: {
+          x: { stacked: false, grid: { display: false } },
+          y: { stacked: false, beginAtZero: true, grid: { display: false }, ticks: { callback: v => v+'%' } }
+        }
+      }
+    });
+  })();
+  </script>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Diciembre 2004 — presente</span></div>
+
+  <div class="mb24">
+    <p class="pr">Robeco BP Global Premium Equities es un sub-fondo del UCITS luxemburgués <strong>Robeco Capital Growth Funds SICAV</strong>, sub-asesorado desde su origen por <strong>Boston Partners Global Investors</strong>, la filial estadounidense de Robeco con sede en Boston especializada en estrategias value fundamentales. La clase B EUR Acc (LU0203975437) es la clase comercial principal en euros y está disponible para distribución europea desde mediados de la década de 2000 — el patrón ISIN LU0203... corresponde a emisiones de finales de 2004, lo que sitúa el lanzamiento de la clase en 2004-2005 (no confirmado al 100% en fuentes del bundle).</p><p class="subsec">Llegada de Christopher Hart como portfolio manager (15-07-2008)</p><p class="pr">La fecha más relevante en la historia del fondo es el <strong>15 de julio de 2008</strong>, momento en que Christopher Hart asume la gestión de la estrategia Global Premium Equities (factsheet marzo 2026, confirmación oficial). Hart se había incorporado a Robeco Boston Partners en 2002 procedente de Fidelity Investments — donde había pasado 10 años como analista cubriendo conglomerados, ingeniería, construcción y REITs — y había sido nombrado gestor de un fondo small-cap value en 2004. Su nombramiento como PM de la estrategia Global Premium en plena crisis financiera global le permitió construir la cartera desde mínimos de mercado y desplegar el framework "three circles" (valoración + fundamentales + momentum) en un escenario óptimo para el value bottom-up disciplinado.</p><p class="subsec">Reconocimiento Morningstar — los premios de 2014 y 2016</p><p class="pr">En abril de 2014, Morningstar designó a Robeco BP Global Premium Equities como <strong>"el mejor de su clase en nueve países europeos"</strong> — España, Suiza, Finlandia, Luxemburgo, Alemania, Bélgica, Austria, Francia y Países Bajos (FundsSociety, 29-04-2014) — un récord para una sola estrategia. La filosofía bottom-up basada en los "three circles" y el track record de Hart desde 2008 fueron los factores citados por la agencia para justificar el premio.</p><p class="pr">En abril de 2016, <strong>Hart recibió individualmente el premio Morningstar European Manager of the Year</strong> en la categoría Global Equity (FundsSociety, 29-04-2016). La justificación cuantitativa publicada por Morningstar fue contundente: el fondo había superado la mediana de su categoría en el <strong>89% de los periodos rolling de 12 meses</strong> desde el nombramiento de Hart en 2008 y se situaba en el <strong>primer decil</strong> para periodos rolling de 3 y 5 años. Morningstar destacó además la <strong>inversión personal de Hart en la estrategia</strong> como factor de alineación con los inversores.</p><p class="subsec">Roadshows en España y consolidación de la base inversora europea (2015 en adelante)</p><p class="pr">En junio de 2015, Hart realizó un roadshow en Madrid (16 de junio) para reunirse con clientes españoles, ya que el fondo había acumulado relevancia en el mercado ibérico tras los premios Morningstar de 2014 (FundsSociety, 11-06-2015). En esta época Hart ya acumulaba 22 años de experiencia en gestión de activos y la cartera mantenía aproximadamente 90-110 posiciones seleccionadas de un universo de 10.000 valores investigables.</p><p class="subsec">Incorporación de Joshua Jones como Co-PM (01-01-2015)</p><p class="pr">Joshua Jones, CFA, B.A. en Economía por Bowdoin College, se había incorporado a Boston Partners en enero de 2006 procedente de Cambridge Associates. Asume responsabilidades de co-gestión sobre las estrategias Global Equity, Global Long/Short Equity e International Equity (con responsabilidad primaria sobre las dos últimas) según las fichas de fondo del Financial Times consultadas en mayo de 2026, que sitúan su incorporación al rol de co-PM en Global Premium en 01-01-2015.</p><p class="subsec">La era post-pandemia y el debate sobre IA (2023-2024)</p><p class="pr">En una entrevista a FundsSociety en septiembre de 2023, Hart manifestó preocupaciones sobre la persistencia de la inflación ("Esperaba que la inflación se moderara, pero se mantiene más alta de lo que muchos esperan") y un posicionamiento crítico hacia el rally de IA: *"Creo que el mercado está empezando a cuestionar realmente el tema de la IA"*. El gestor citó valoraciones tensas en EE. UU. frente a oportunidades relativamente más baratas fuera de Estados Unidos, justificando un posicionamiento que privilegiaba el value internacional. La preocupación dominante en su tesis pasó de los driver puramente de mercado a los <strong>factores geopolíticos</strong>.</p><p class="subsec">Incorporación de Soyoun Song como Co-PM (01-07-2024)</p><p class="pr">La última actualización del equipo gestor incorpora a <strong>Soyoun Song</strong> como Co-Portfolio Manager el 01-07-2024 (fichas FT a mayo 2026). Su biografía pública detallada no está disponible en las fuentes consultadas, pero figura como tercera firma del equipo gestor en el factsheet de marzo de 2026 junto a Hart y Jones, y aparece listada como Portfolio Manager en la página oficial de Boston Partners.</p><p class="subsec">Rating FundsPeople 2026 y entrevista pública (abril 2026)</p><p class="pr">En abril de 2026, FundsPeople incluyó a Robeco BP Global Premium Equities en su lista de fondos con <strong>Rating FundsPeople 2026</strong> y publicó una entrevista a Hart titulada "No tengo una acción favorita; tengo 80 que creo que pueden funcionar" (Regina Webb, FundsPeople, 13-04-2026), reforzando el posicionamiento del fondo como referente value diversificado en el mercado ibérico.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">—</div><div class="kpi-sub">Diciembre 2004 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 7239.0;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2002</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Christopher Hart se incorpora a Robeco Boston Partners</div>
+      <div class="tl-desc">Tras 10 años como analista en Fidelity Investments cubriendo conglomerados, ingeniería, construcción y REITs, Hart se incorpora a Boston Partners (oficina de Boston) inicialmente como analista de research. Es el origen del vínculo gestor-fondo.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2004</div>
+      <div class="tl-tag tag-hito">Cambio_gestor</div>
+      <div class="tl-title">Hart nombrado gestor de un fondo small-cap value de Boston Partners</div>
+      <div class="tl-desc">Boston Partners promueve a Hart de analista a gestor de un fondo small-cap value, su primer rol como portfolio manager y antesala del salto a Global Premium Equities.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2004-2005</div>
+      <div class="tl-tag tag-hito">Lanzamiento</div>
+      <div class="tl-title">Lanzamiento estimado de la clase B EUR Acc (LU0203975437)</div>
+      <div class="tl-desc">Patrón ISIN LU0203... compatible con emisiones de finales de 2004 / inicio de 2005. La clase comercial principal en euros del sub-fondo Global Premium Equities queda disponible para distribución en mercados europeos. (No confirmado al 100% en fuentes del bundle).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2006</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Joshua Jones se incorpora a Boston Partners</div>
+      <div class="tl-desc">Jones, CFA y B.A. en Economía por Bowdoin College, se incorpora a Boston Partners en enero de 2006 procedente de Cambridge Associates. Inicialmente sin rol directo en Global Premium Equities.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2008</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Christopher Hart asume la gestión de Global Premium Equities (15-07-2008)</div>
+      <div class="tl-desc">Hart toma el mando como Lead Portfolio Manager el 15 de julio de 2008, en plena crisis financiera global. Despliega el framework "three circles" desde mínimos cíclicos. Marca la era moderna del fondo.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2014</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Premio Morningstar al mejor fondo de la clase en nueve países europeos</div>
+      <div class="tl-desc">Morningstar designa al fondo "el mejor de su clase" simultáneamente en España, Suiza, Finlandia, Luxemburgo, Alemania, Bélgica, Austria, Francia y Países Bajos (FundsSociety, 29-04-2014). Récord para una única estrategia.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2015</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Roadshow de Hart en Madrid (16 de junio) y nombramiento de Joshua Jones como Co-PM</div>
+      <div class="tl-desc">Hart realiza roadshow en Madrid para clientes ibéricos. Joshua Jones es nombrado Co-Portfolio Manager (01-01-2015 según fichas FT a mayo 2026), formalizando el equipo gestor de dos personas.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2016</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Christopher Hart gana Morningstar European Manager of the Year (Global Equity)</div>
+      <div class="tl-desc">Hart recibe individualmente el premio en la séptima edición. Morningstar justifica: 89% de periodos rolling 12m por encima de la mediana desde 2008, primer decil 3y/5y, e inversión personal del gestor en la estrategia (FundsSociety, 29-04-2016).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2023</div>
+      <div class="tl-tag tag-hito">Contexto_mercado</div>
+      <div class="tl-title">Entrevista de Hart a FundsSociety: cuestionamiento del tema IA y sesgo no-EEUU</div>
+      <div class="tl-desc">Hart manifiesta preocupaciones sobre inflación persistente y geopolítica, y posiciona la cartera con sesgo value internacional citando valoraciones más atractivas fuera de Estados Unidos. Cita literal: "Creo que el mercado está empezando a cuestionar realmente el tema de la IA" (FundsSociety, 15-09-2023).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2024</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Incorporación de Soyoun Song como Co-PM (01-07-2024)</div>
+      <div class="tl-desc">Soyoun Song, Portfolio Manager en Boston Partners, se incorpora como tercera firma del equipo gestor de Global Premium Equities a partir del 01-07-2024 (fichas FT a mayo 2026). Equipo pasa a ser de tres personas.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2026</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-strat">Decisión estratégica</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Rating FundsPeople 2026 y entrevista "No tengo una acción favorita; tengo 80"</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">FundsPeople otorga su Rating 2026 al fondo y publica entrevista exclusiva a Hart (Regina Webb, 13-04-2026) reforzando la filosofía de cartera diversificada (~80 posiciones) y gestión del tamaño del error frente a estrategias high-conviction.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Salto de escala</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Patrimonio del sub-fondo de aproximadamente 6.350 millones GBP (31-03-2026)</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Las fichas FT a mayo 2026 reportan AUM agregado del sub-fondo (todas las clases combinadas) cercano a 6.350 millones de GBP, indicador de una base inversora amplia y consolidada tras 18 años de Hart al frente.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  <div class="mb24"><p class="pr">El equipo gestor de Robeco BP Global Premium Equities está formado por <strong>tres portfolio managers</strong> de Boston Partners Global Investors, con <strong>Christopher Hart como Lead PM</strong> (desde el 15-07-2008, 17+ años en el cargo), <strong>Joshua Jones como Co-PM</strong> (desde el 01-01-2015, ~11 años) y <strong>Soyoun Song como Co-PM</strong> (desde el 01-07-2024, ~2 años). El equipo opera desde la oficina de Boston Partners en Boston (filial estadounidense de Robeco) y aplica de forma compartida el framework propietario "three circles" — valoración relativa atractiva + fundamentales sólidos + momentum operativo positivo — para la selección bottom-up del fondo.</p></div>
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">CH</div>
+        <div class="mgr-nm">Christopher Hart<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#1e5a8a;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerDeep</span></div>
+        <div class="mgr-rl">Lead Portfolio Manager (CFA charterholder)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Lead Portfolio Manager de Robeco BP Global Premium Equities desde el 15-07-2008 (17+ años en el cargo)</li><li style="margin-bottom:3px;">CFA charterholder</li><li style="margin-bottom:3px;">Licenciado en Finanzas por Clemson University</li><li style="margin-bottom:3px;">10 años como analista en Fidelity Investments cubriendo conglomerados, ingeniería, construcción y REITs</li><li style="margin-bottom:3px;">Incorporación a Robeco Boston Partners en 2002 como analista; promovido a gestor de small-cap value en 2004</li><li style="margin-bottom:3px;">Premio Morningstar European Manager of the Year 2016 en categoría Global Equity</li><li style="margin-bottom:3px;">Fondo distinguido por Morningstar como mejor de su clase en 9 países europeos (2014)</li><li style="margin-bottom:3px;">Rating FundsPeople 2026 e inversión personal documentada en la estrategia</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>Formación académica</strong>
+
+Christopher Hart es <strong>CFA charterholder</strong> y licenciado en <strong>Finanzas por Clemson University</strong> (Carolina del Sur, EE. UU.). Es el background formativo estándar de un equity analyst especialista en value fundamental.
+
+<strong>Diez años en Fidelity Investments (~1992-2002)</strong>
+
+Hart comenzó su carrera profesional con <strong>diez años como analista de research en Fidelity Investments</strong>, una de las gestoras institucionales más grandes del mundo. En Fidelity cubrió los sectores de <strong>conglomerados, ingeniería, construcción y REITs</strong>, sectores que requieren análisis fundamental complejo de balances con activos pesados, ciclos de capital y estructuras corporativas multi-segmento. Esta experiencia sectorial diversa fue la base del análisis bottom-up que aplicaría posteriormente en Boston Partners.
+
+<strong>Incorporación a Robeco Boston Partners (2002) y promoción a PM (2004)</strong>
+
+En <strong>2002 Hart se incorporó a Robeco Boston Partners</strong> (oficina de Boston) inicialmente como <strong>analista de research</strong>. En <strong>2004 fue promovido a gestor de un fondo small-cap value</strong>, su primer rol como portfolio manager. La transición de analista a PM dentro de la misma firma — y dentro del estilo value — refleja la confianza temprana de Boston Partners en la disciplina y el criterio del gestor.
+
+<strong>Lead PM de Robeco BP Global Premium Equities (15-07-2008 — actualidad)</strong>
+
+El <strong>15 de julio de 2008</strong> Hart asumió la gestión de la estrategia Global Premium Equities. Su nombramiento coincidió con el inicio de la crisis financiera global, lo que le permitió construir cartera desde mínimos cíclicos. Desde entonces gestiona el fondo de forma ininterrumpida — más de <strong>17 años</strong> al frente.
+
+<strong>Premios Morningstar (2014 y 2016)</strong>
+
+En 2014 el fondo fue designado por Morningstar como <strong>"el mejor de su clase en nueve países europeos"</strong> (España, Suiza, Finlandia, Luxemburgo, Alemania, Bélgica, Austria, Francia y Países Bajos), un récord para una única estrategia. En 2016 Hart ganó <strong>individualmente el premio Morningstar European Manager of the Year</strong> en la categoría Global Equity. Morningstar publicó las métricas que justificaban el premio: el fondo había superado la mediana de su categoría en el <strong>89% de los periodos rolling de 12 meses</strong> desde 2008 y se situaba en el <strong>primer decil</strong> para periodos rolling de 3 y 5 años. Morningstar destacó adicionalmente la <strong>inversión personal de Hart</strong> en la estrategia como factor de alineación con los inversores.
+
+<strong>Rating FundsPeople 2026 y entrevistas recientes</strong>
+
+En 2026 FundsPeople incluyó al fondo en su Rating 2026 y publicó una entrevista monográfica a Hart (Regina Webb, 13-04-2026) titulada *"No tengo una acción favorita; tengo 80 que creo que pueden funcionar"*, frase que sintetiza la filosofía de cartera diversificada del gestor. En septiembre de 2023 había concedido entrevista a FundsSociety (Cecilia Prieto) cuestionando el rally de IA y posicionando la cartera con sesgo no-EE. UU. por valoración relativa.
+
+<strong>Visibilidad en el mercado ibérico</strong>
+
+Hart ha realizado roadshows en Madrid (junio 2015 documentado) y es entrevistado regularmente por la prensa financiera en español (FundsSociety, FundsPeople), lo que refleja la importancia del mercado ibérico para la estrategia y el peso del fondo en carteras de asesores españoles e independientes.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">La filosofía personal de Hart se resume en una idea central: <strong>el éxito en value no consiste en acertar siempre con la idea concentrada sino en gestionar adecuadamente el tamaño de los errores</strong>. La cita que da nombre a la entrevista de FundsPeople 2026 lo formula explícitamente: *"No tengo una acción favorita; tengo 80 que creo que pueden funcionar"*. La cartera mantiene 80-110 posiciones simultáneas (FundsSociety 2015) seleccionadas de un universo de ~10.000 valores, sin posiciones individuales que dominen.
+
+Metodológicamente aplica el framework "three circles" de Boston Partners: solo entran compañías que cumplen <strong>simultáneamente</strong> valoración atractiva, fundamentales sólidos y momentum operativo positivo. La construcción de cartera es <strong>bottom-up pura</strong>, agnóstica al benchmark MSCI World y "basada puramente en compañías seleccionadas en lugar de seguir el consenso del mercado" (Hart, FundsSociety 2015). El gestor reconoce explícitamente que las preocupaciones macro relevantes son cada vez más <strong>geopolíticas que de mercado</strong> (FundsSociety 2023).</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Asumir el fondo en plena crisis financiera global (15-07-2008)</strong>: Hart hereda la estrategia Global Premium Equities en un momento de mínimos cíclicos del mercado, lo que le permite construir cartera con valoraciones excepcionales y desplegar el framework "three circles" desde una base óptima para el value bottom-up.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Mantener la disciplina de cartera diversificada (~80-110 posiciones) frente a la tendencia industria a portfolios concentrados de alta convicción</strong>: Hart elige explícitamente la diversificación amplia como mecanismo de control de riesgo idiosincrático, una decisión metodológica diferencial que mantiene durante toda su tenure.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Posicionamiento sesgado fuera de EE. UU. en 2023 ante valoraciones tensas de la IA</strong>: Hart manifiesta públicamente que "el conjunto de oportunidades estadounidenses parecen caras, mientras que las posiciones fuera de los Estados Unidos son relativamente más baratas" y reorienta la cartera para capturar el spread de valoración (FundsSociety, 15-09-2023).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Inversión personal en la estrategia como demostración de alineación</strong>: hecho explícitamente reconocido por Morningstar en 2016 al otorgarle el premio European Manager of the Year. La decisión de mantener skin in the game refuerza credibilidad y compromiso a largo plazo.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Construir un equipo gestor sin rotación al frente</strong>: la incorporación de Joshua Jones como Co-PM en 2015 y de Soyoun Song en 2024 se hizo sin sustituir al gestor principal, manteniendo continuidad metodológica y reforzando la consistencia del proceso a través de los años.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Hart se diferencia de la mayoría de gestores value por su preferencia explícita por la **diversificación amplia (~80-110 posiciones) frente a la concentración** (10-30 posiciones) habitual entre value managers boutique. Esta filosofía de "gestión del tamaño del error" prioriza la asimetría del conjunto sobre el acierto individual, generando un perfil de retornos menos volátil idiosincráticamente. Su **track record de 17+ años al frente del mismo fondo**, validado por Morningstar (89% rolling 12m, primer decil 3y/5y) y reforzado por inversión personal documentada, lo sitúa entre los gestores value globales con mayor consistencia probada del mercado europeo.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">JJ</div>
+        <div class="mgr-nm">Joshua Jones<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Co-Portfolio Manager (CFA charterholder)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Co-Portfolio Manager de Robeco BP Global Premium Equities desde el 01-01-2015</li><li style="margin-bottom:3px;">CFA charterholder</li><li style="margin-bottom:3px;">B.A. en Economía por Bowdoin College</li><li style="margin-bottom:3px;">Boston Partners desde enero de 2006 (procedente de Cambridge Associates)</li><li style="margin-bottom:3px;">Responsabilidad primaria sobre estrategias International Equity y Global Long/Short Equity</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">Joshua Jones es <strong>CFA charterholder</strong> y <strong>B.A. en Economía por Bowdoin College</strong> (Brunswick, Maine, EE. UU.). Se incorporó a <strong>Boston Partners en enero de 2006</strong> procedente de <strong>Cambridge Associates</strong>, firma de asesoramiento institucional global con base en Boston conocida por servir a fondos de pensiones, endowments y family offices con análisis de gestores y construcción de carteras institucionales.
+
+En Boston Partners, Jones desarrolla su trayectoria como Portfolio Manager con responsabilidad sobre múltiples estrategias del segmento de renta variable global. Co-gestiona las estrategias <strong>Global Equity</strong> (donde se encuadra Robeco BP Global Premium Equities), <strong>Global Long/Short Equity</strong> e <strong>International Equity</strong>, con <strong>responsabilidad primaria sobre International Equity y Global Long/Short</strong>. Su perfil aporta al equipo de Global Premium Equities especialización en universo internacional ex-EE. UU. y experiencia en gestión de exposiciones relativas (long/short) que enriquece la perspectiva de selección.
+
+Su rol formal como <strong>Co-Portfolio Manager de Robeco BP Global Premium Equities</strong> data del <strong>01-01-2015</strong> según las fichas FT consultadas en mayo de 2026 — incorporación que reforzó la cobertura del universo internacional de la estrategia y formalizó la estructura de equipo de dos personas vigente entre 2015 y 2024.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Jones aplica el framework compartido "three circles" de Boston Partners para la selección de valores en Global Premium Equities, complementando la perspectiva global de Hart con su enfoque en el universo internacional ex-EE. UU. — una división de trabajo natural dado que su responsabilidad primaria está en International Equity. La filosofía de cartera diversificada (~80-110 posiciones) y gestión del tamaño del error es compartida con Hart como principio estructural del equipo.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-1" class="exp-body"><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Aporta al equipo experiencia institucional adquirida en Cambridge Associates (asesoramiento a inversores institucionales) y especialización primaria en **renta variable internacional ex-EE. UU. y estrategias long/short**, complementaria al perfil de Hart como gestor global all-cap. La división de trabajo refuerza la cobertura del universo internacional dentro de la estrategia compartida.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#2c6e49,#4ecf99);">SS</div>
+        <div class="mgr-nm">Soyoun Song<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Co-Portfolio Manager</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Soyoun Song es Portfolio Manager en **Boston Partners**, listada como tal en la página oficial del equipo (`bostonpartners.com/about-us/our-people/`). Figura como **tercera firma del equipo gestor** de Robeco BP Global Premium Equities en el factsheet del fondo a marzo de 2026, junto a Christopher Hart y Joshua Jones. Su incorporación al rol formal de Co-PM del fondo data del **01-07-2024** según las fichas FT consultadas en mayo de 2026.
+
+**Información biográfica detallada limitada**: la página corporativa de Boston Partners confirma su pertenencia al equipo de Portfolio Management pero **no incluye texto biográfico extendido** (educación, año de incorporación a Boston Partners, trayectoria previa). No se han encontrado entrevistas, perfiles ni artículos dedicados a Song en la prensa especializada consultada (FundsSociety, FundsPeople, Citywire, Morningstar). Esta limitación está documentada en el campo `_known_public_undersourced` del bundle.</p>
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="pr">La estrategia de Robeco BP Global Premium Equities es <strong>value global all-cap sin restricciones</strong> ejecutada mediante el framework propietario "three circles" de Boston Partners. Es uno de los procesos value institucionales más documentados de la industria europea, con 17+ años de aplicación ininterrumpida bajo Christopher Hart y track record validado por Morningstar.</p><p class="subsec">El framework "three circles" — fundamento del proceso</p><p class="pr">La selección de cada compañía exige el cumplimiento <strong>simultáneo</strong> de tres condiciones, formuladas explícitamente por Hart en FundsSociety (29-04-2014):</p><ul class="nl"><li><strong>Valoración relativa atractiva</strong>: la compañía debe ser barata o estar a precio razonable respecto al mercado en métricas de múltiplos. Esta es la primera condición eliminatoria — sin valoración no entra al proceso.</li><li><strong>Fundamentales sólidos</strong>: balance saneado y flujo de caja libre robusto. Filtra value traps (compañías baratas con fundamentales en deterioro).</li><li><strong>Momentum operativo positivo</strong>: capacidad demostrada de crecimiento de beneficios en el ciclo actual. Diferencia el value disciplinado del value puramente cuantitativo basado solo en múltiplos.</li></ul><p class="pr">El framework es <strong>eliminatorio en cualquiera de los tres ejes</strong>: una compañía con valoración tensa pero fundamentales y momentum excelentes no entra; una compañía barata con fundamentales sólidos pero momentum deteriorado tampoco. Solo entran los emisores que satisfacen los tres criterios simultáneamente, lo que reduce drásticamente el universo investigable y genera una cartera de alta convicción metodológica aunque no concentrada en peso.</p><p class="subsec">Construcción bottom-up agnóstica al benchmark</p><p class="pr">La cartera se construye "basada puramente en compañías seleccionadas en lugar de seguir el consenso del mercado" (Hart, FundsSociety 11-06-2015). El benchmark MSCI World es referencia para medir resultado pero no condiciona los pesos — el fondo asume tracking error explícito frente al índice cuando las anomalías de valoración lo justifican. Esto es coherente con el sesgo no-EE. UU. actual (USA 37,80% en cartera frente a ~70% en MSCI World) que Hart fundamenta por valoración relativa más atractiva fuera de Estados Unidos (FundsSociety 15-09-2023).</p><p class="subsec">Diversificación amplia y gestión del tamaño del error</p><p class="pr">La cartera mantiene típicamente <strong>80-110 posiciones simultáneas</strong> (FundsSociety 2015) con concentración baja: el top 5 a 31-03-2026 representa apenas el <strong>7,84% del patrimonio</strong>, sin posiciones individuales superiores al ~1,7%. Esta diversificación deliberada es metodológica, no accidental. Hart lo articuló como filosofía explícita en FundsPeople (13-04-2026): *"No tengo una acción favorita; tengo 80 que creo que pueden funcionar"*. La preferencia por diversificación frente a concentración alta se traduce en una premisa central: <strong>el éxito en value no consiste en acertar siempre con la idea concentrada sino en gestionar adecuadamente el tamaño de los errores</strong>.</p><p class="pr">Metodológicamente esto significa que ningún fallo individual de tesis puede destruir el resultado del fondo. La asimetría favorable del proceso bottom-up funciona a través de muchas decisiones marginalmente positivas, donde los aciertos compensan ampliamente los errores cuando el proceso es disciplinado. Es la antítesis del enfoque high-conviction concentrado típico de gestoras boutique value (10-30 posiciones), y diferencia a Boston Partners de la mayoría de los gestores premiados por Morningstar en categorías similares.</p><p class="subsec">Universo global all-cap sin restricciones</p><p class="pr">La selección es agnóstica a región, sector y capitalización. Hart describe el proceso como "gestión sin restricciones con posiciones marcadamente activas para explotar anomalías de valoración en un entorno global" (FundsSociety 11-06-2015), construido sobre un universo investigable de <strong>~10.000 valores</strong> del que se filtran las 80-110 posiciones finales. El factsheet a marzo 2026 confirma la diversificación geográfica: USA 37,80%, Eurozona 30,92%, Reino Unido 14,23%, con el ~17% restante distribuido entre otros mercados desarrollados y emergentes selectivos.</p><p class="subsec">Posicionamiento sectorial pro-cíclico value</p><p class="pr">La exposición sectorial actual (marzo 2026) refleja el perfil value clásico: Financials 25,33% como sector ancla (bancos europeos y americanos con capital exigente y dividendos sostenibles), Industrials 16,56% (compañías de capital pesado con flujo de caja robusto en ciclos de inversión) y Healthcare 15,77% (defensivo con valoraciones racionales). El peso elevado en Financials es característico de Boston Partners y diferencia el fondo de estrategias growth o quality-growth donde el sector tiende a estar infraponderado por sensibilidad cíclica.</p><p class="subsec">Sesgo geográfico actual no-EEUU por valoración relativa</p><p class="pr">La decisión de cartera más visible en los últimos dos años es el sesgo activo fuera de Estados Unidos. Hart lo justificó públicamente: *"El conjunto de oportunidades estadounidenses parecen caras, mientras que las posiciones fuera de los Estados Unidos son relativamente más baratas"* (FundsSociety, 15-09-2023). El factsheet a marzo 2026 confirma la persistencia del sesgo dos años después: USA 37,80% en cartera frente a peso típico ~70% en MSCI World — un infrapeso activo de ~32 puntos sobre EE. UU. que se compensa con sobrepeso en Eurozona y Reino Unido.</p><p class="subsec">Marco ESG — Artículo 8 SFDR</p><p class="pr">El fondo es Artículo 8 SFDR — promueve características E&S, integra riesgos de sostenibilidad y aplica la política Good Governance de Robeco. Los indicadores incluyen exclusiones normativas, basadas en actividad y región, además de proxy voting y engagement. La integración ESG <strong>no condiciona</strong> la selección a métricas estrictas: es una capa de filtros sobre el universo investigable y un complemento de stewardship, no el motor principal de la selección bottom-up.</p><p class="subsec">Limitación: ausencia de cartas trimestrales en el bundle</p><p class="pr">El bundle disponible no contiene cartas trimestrales del sub-fondo (`letters_data.cartas` está vacío con 0 cartas para los años 2018-2026). El análisis de hitos de estrategia se construye por tanto a partir de las <strong>entrevistas públicas del gestor en prensa especializada</strong> (FundsSociety 2014, 2015, 2016, 2023; FundsPeople 2026) y de los snapshots de las fichas técnicas FT a mayo 2026.</p>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;No tengo una acción favorita. Tengo 80 que creo que pueden funcionar.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Christopher Hart, Entrevista a FundsPeople (Regina Webb), 13-04-2026. Cita central que da nombre al artículo y resume la filosofía de cartera diversificada del gestor frente a estrategias high-conviction.</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Creo que el mercado está empezando a cuestionar realmente el tema de la IA.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Christopher Hart, Entrevista a FundsSociety (Cecilia Prieto), 15-09-2023. Cita pública sobre el cuestionamiento de la narrativa IA y el sesgo de cartera no-EEUU por valoración relativa.</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El conjunto de oportunidades estadounidenses parecen caras, mientras que las posiciones fuera de los Estados Unidos son relativamente más baratas.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Christopher Hart, Entrevista a FundsSociety, 15-09-2023. Justificación pública del sesgo geográfico no-EEUU en la cartera, mantenido en factsheets posteriores hasta marzo 2026.</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Renta variable global value all-cap sin restricciones, ~80 posiciones, framework "three circles" de Boston Partners (valoración + fundamentales + momentum) con sesgo activo no-EEUU por valoración relativa (USA 37,80% vs ~70% MSCI World). Top 5 = 7,84% de la cartera, sectores principales Financials 25,33%, Industrials 16,56%, Healthcare 15,77%. Artículo 8 SFDR. Benchmark MSCI World Net Return EUR. Holding period recomendado 5 años.</p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Global Value All-Cap (categoría Morningstar: Global Large-Cap Value Equity)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de estilo value vs growth — tracking error frente a MSCI World en regímenes growth-dominantes</li><li style="margin-bottom:4px;">Riesgo divisa para clase B EUR Acc — exposición a USD, GBP y otras monedas no cubierta automáticamente (la clase no es hedged; las clases hedged son DH USD, H, etc.)</li><li style="margin-bottom:4px;">Riesgo sectorial concentrado en Financials (25,33%) sensible a tipos de interés y ciclo crediticio</li><li style="margin-bottom:4px;">Riesgo geográfico concentrado en mercados desarrollados (USA + Eurozona + UK ≈ 83%); exposición limitada a emergentes</li><li style="margin-bottom:4px;">Riesgo de gestor — dependencia significativa del estilo individual de Hart (17+ años); incorporación reciente de Song (2024) sin trayectoria pública detallada</li></ul></div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2008-S2</div>
+  <div class="strat-c">Crisis financiera global tras la quiebra de Lehman Brothers (15 de septiembre de 2008). Mercados de renta variable globales en mínimos cíclicos profundos, dispersión de valoraciones extrema entre sectores y geografías. Bancos europeos y americanos cotizando a múltiplos deprimidos por riesgo sistémico percibido.</div>
+  <div class="strat-c">Hart asume la gestión del fondo el 15-07-2008 y construye cartera desde mínimos cíclicos aplicando "three circles". Selección bottom-up agnóstica al ruido macro: la dispersión de valoraciones permite identificar 80-110 compañías que cumplen simultáneamente las tres condiciones — bajo múltiplo, fundamentales sólidos resistiendo la crisis y momentum operativo aún positivo en ciertos nichos defensivos y de capital pesado.</div>
+  <div class="strat-c">Construcción de track record sólido. Las métricas Morningstar publicadas en 2016 documentan que desde el nombramiento de Hart el fondo superó la mediana de su categoría en el 89% de los periodos rolling de 12 meses y se posicionó en el primer decil 3y/5y — driver explicativo: el momento de entrada coincidió con valoraciones de inicio de ciclo óptimas para value bottom-up disciplinado.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2014</div>
+  <div class="strat-c">Mercados europeos en recuperación post-crisis del euro (2011-2012). Política BCE de tipos cero y forward guidance. Valoraciones globales razonables tras el rally de 2013. Estilo value en proceso de re-rating tras varios años de underperformance frente a growth.</div>
+  <div class="strat-c">Mantenimiento de la cartera de ~90-110 posiciones diversificadas globalmente con mantenimiento del proceso "three circles". Hart describe el enfoque como "gestión sin restricciones con posiciones marcadamente activas para explotar anomalías de valoración en un entorno global" (FundsSociety, junio 2015).</div>
+  <div class="strat-c">Premio Morningstar al mejor fondo de su clase en nueve países europeos simultáneamente — driver explicativo: track record consistente en múltiples mercados europeos ya posicionaba al fondo como el mejor de su categoría en una fracción significativa del universo de fondos competidores.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2015-2016</div>
+  <div class="strat-c">Volatilidad por preocupaciones sobre desaceleración china (2015-Q3) y políticas divergentes de bancos centrales (Fed iniciando ciclo de subidas, BCE en QE). Estilo value continuando re-rating frente a growth.</div>
+  <div class="strat-c">Joshua Jones nombrado Co-PM (01-01-2015) formalizando equipo de dos personas. Hart roadshow en Madrid (junio 2015). Mantenimiento de la disciplina de cartera diversificada (~90-110 posiciones) sin desviaciones tácticas materiales del proceso.</div>
+  <div class="strat-c">Hart gana Morningstar European Manager of the Year 2016 en categoría Global Equity (FundsSociety, 29-04-2016) — driver explicativo: "selección de valores consistente, generando valor en prácticamente todos los sectores, regiones y capitalizaciones bursátiles" (Morningstar). Confirmación del proceso "three circles" como estrategia premium en el universo value global europeo.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2023-S2</div>
+  <div class="strat-c">Persistencia inflacionaria por encima del objetivo de bancos centrales. Subidas de tipos prolongadas Fed/BCE. Concentración extrema de retornos del S&P 500 en megacaps tecnológicos ("Magnificent 7") por la narrativa de IA generativa. Valoraciones tensas en mercados estadounidenses, oportunidades relativas en Europa y Reino Unido.</div>
+  <div class="strat-c">Hart manifiesta públicamente preocupaciones sobre inflación persistente y posicionamiento crítico ante la narrativa IA: cita literal *"Creo que el mercado está empezando a cuestionar realmente el tema de la IA"* (FundsSociety, 15-09-2023). Sesgo activo de cartera fuera de EE. UU. citando *"el conjunto de oportunidades estadounidenses parecen caras, mientras que las posiciones fuera de los Estados Unidos son relativamente más baratas"*. Reorientación gradual hacia Eurozona y Reino Unido.</div>
+  <div class="strat-c">Posicionamiento posteriormente confirmado por persistencia del sesgo dos años después (factsheet 31-03-2026: USA 37,80% vs ~70% MSCI World) — driver explicativo: la disciplina value bottom-up llevó a infrapeso activo en EE. UU. de ~32 puntos sobre el benchmark, lo que generó tracking error pero coherente con valoraciones.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2024-S2</div>
+  <div class="strat-c">Continuación del régimen growth-dominante con concentración en megacaps US. Estilo value bajo presión de tracking error frente a índices globales. Spreads de valoración value vs growth en niveles históricos altos.</div>
+  <div class="strat-c">Incorporación de Soyoun Song como tercer Co-PM (01-07-2024) reforzando la capacidad del equipo gestor. Mantenimiento del posicionamiento sesgado no-EE. UU. y de la disciplina diversificada (~80 posiciones) sin desviaciones reactivas al régimen growth.</div>
+  <div class="strat-c">Equipo gestor de tres personas operativo. Continuidad metodológica preservada — driver explicativo: la incorporación de Song no sustituye al gestor principal sino que complementa, manteniendo la coherencia del proceso "three circles" durante el periodo de mayor presión sobre el estilo value.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2026-Q1</div>
+  <div class="strat-c">Rotación incipiente desde megacaps US growth hacia value y mercados internacionales en los primeros meses de 2026. Re-rating de Eurozona y Reino Unido. Cuestionamiento de valoraciones extremas en IA y tecnología US tras varios años de excesos.</div>
+  <div class="strat-c">Mantenimiento del sesgo no-EE. UU. ya establecido en 2023 y reforzado posteriormente. Hart en entrevista a FundsPeople (13-04-2026) reafirma la filosofía: *"No tengo una acción favorita; tengo 80 que creo que pueden funcionar"*, defendiendo la diversificación estructural frente a estrategias high-conviction concentradas. Cartera de ~80 posiciones con top 5 = 7,84% y sectores Financials 25,33% / Industrials 16,56% / Healthcare 15,77%.</div>
+  <div class="strat-c">+22,67% (clase D USD) / +23,30% (clase DH USD hedged) en el rolling 12 meses a 5-mayo-2026 — driver explicativo: combinación de re-rating value, sesgo geográfico Eurozona+UK favorable a la rotación de inicios de 2026 y selección bottom-up disciplinada en sectores Financials e Industrials, ganadores del régimen value en este periodo. Rentabilidad de la clase B EUR Acc no detallada en el bundle (puede diferir por efecto divisa).</div>
+</div>
+
+  
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    <p class="pr">La cartera de Robeco BP Global Premium Equities a 31 de marzo de 2026 es <strong>renta variable global value all-cap</strong> con diversificación estructural muy elevada y sesgos geográficos y sectoriales activos frente al benchmark MSCI World. La composición refleja la aplicación disciplinada del framework "three circles" de Boston Partners y el posicionamiento estratégico no-EEUU comunicado públicamente por el gestor desde 2023.</p><p class="subsec">Composición por tipo de activo</p><p class="pr">La cartera es <strong>100% renta variable global cotizada</strong> seleccionada de un universo investigable de aproximadamente 10.000 valores. No hay exposición material a renta fija ni instrumentos derivados estructurales — el fondo es un equity fund puro UCITS. La liquidez en cartera es residual (cash de gestión operativa). La capitalización es <strong>all-cap sin restricciones</strong>, con preferencia natural por compañías de gran capitalización dado que la categoría Morningstar oficial es "Global Large-Cap Value Equity".</p><p class="subsec">Composición por geografía (factsheet 31-03-2026)</p><p class="pr">La distribución regional muestra el sesgo activo no-EE. UU. fundamentado por valoración relativa: <strong>Estados Unidos 37,80%, Eurozona 30,92%, Reino Unido 14,23%</strong>, con el ~17% restante distribuido entre otros mercados desarrollados (Suiza, Escandinavia, Japón, Canadá, Australia) y exposición selectiva a emergentes. El infrapeso activo sobre Estados Unidos frente al MSCI World (~70% USA en el índice) es de aproximadamente <strong>32 puntos porcentuales</strong> — una desviación estructural muy material que el gestor justifica explícitamente por valoraciones tensas en EE. UU. tras el rally de IA y oportunidades relativas más atractivas en Europa y Reino Unido (Hart, FundsSociety 15-09-2023).</p><p class="subsec">Composición por sector (factsheet 31-03-2026)</p><p class="pr">Los sectores con mayor peso reflejan el perfil value clásico: <strong>Financials 25,33%</strong> como sector ancla — bancos europeos y americanos con capital exigente, dividendos sostenibles y valoraciones racionales que cumplen el framework "three circles". <strong>Industrials 16,56%</strong> — compañías de capital pesado con flujo de caja robusto, selección típica del estilo value en ciclos de inversión. <strong>Healthcare 15,77%</strong> — sector defensivo con valoraciones razonables que aporta protección al portfolio. El ~42% restante está distribuido entre otros sectores (Consumer Discretionary, Materials, Energy, Communication Services, Technology, Real Estate, Consumer Staples, Utilities) sin pesos individuales destacados.</p><p class="pr">La exposición elevada a Financials e Industrials (combinada ~42%) genera un perfil <strong>pro-cíclico value</strong> que tiende a outperformar en escenarios de re-rating value y rotación desde growth, pero es sensible al ciclo crediticio y a la inversión empresarial. El peso en Healthcare (15,77%) actúa como compensación defensiva.</p><p class="subsec">Concentración y diversificación estructural</p><p class="pr">La concentración es <strong>muy baja</strong> y disciplinadamente coherente con la filosofía del gestor: el <strong>top 5 representa solo el 7,84% del patrimonio</strong> (factsheet DH USD a 31-03-2026), con la primera posición en torno al 1,67% y la quinta en el 1,46%. No hay posiciones individuales que dominen el resultado del fondo. La cartera tiene aproximadamente <strong>80 posiciones según declaración reciente del gestor</strong> (Hart, FundsPeople 13-04-2026: "tengo 80 que creo que pueden funcionar"), en línea con el rango histórico documentado de 80-110 posiciones (FundsSociety 2015). La razón metodológica es la <strong>gestión del tamaño del error</strong>: ningún fallo individual de tesis puede destruir el resultado del fondo cuando el peso por emisor está limitado por debajo del 2%.</p><p class="pr">La cartera contrasta deliberadamente con estrategias value boutique high-conviction (10-30 posiciones) y se acerca más al universo institucional clásico de Boston Partners — una característica que diferencia el fondo en su categoría y un punto explícito de marketing del gestor.</p><p class="subsec">Posiciones que ilustran el racional (top 5 disponibles)</p><p class="pr">Las cinco mayores posiciones reportadas en el factsheet de la clase DH USD a 31-03-2026 ilustran el racional value bottom-up del fondo: distribuidor industrial europeo (Rexel, Francia), compañía global de materiales de construcción (CRH, Irlanda), banco español con franquicia internacional (BBVA), banco escandinavo (Nordea, Finlandia/Suecia) y farmacéutica británica/sueca (AstraZeneca, Reino Unido). Las cinco son compañías europeas o con peso europeo significativo, con valoraciones racionales y fundamentales sólidos, lo que es coherente con el sesgo geográfico no-EE. UU. de la cartera. Los pesos individuales se muestran en la tabla de posiciones del dashboard.</p><p class="pr">Cabe notar que <strong>solo se dispone de los top 5 nombres con sus pesos exactos</strong> en las fuentes del bundle — no hay top 10 detallado para la clase B EUR Acc. La estructura sectorial y geográfica agregada confirma que el resto de la cartera mantiene la disciplina diversificada (sin posiciones por encima del ~1,7%).</p><p class="subsec">Marco ESG aplicado a la cartera</p><p class="pr">La cartera respeta el marco Artículo 8 SFDR de Robeco: aplica exclusiones normativas (armamento controvertido, etc.), exclusiones basadas en actividad y región, además de proxy voting y engagement liderado por Boston Partners y Robeco. La integración ESG es complementaria al proceso "three circles" y no condiciona la selección a métricas estrictas — opera como filtro previo y como capa de stewardship sobre las posiciones seleccionadas.</p><p class="subsec">Riesgos estructurales actuales de la composición</p><p class="pr">El perfil de cartera presenta tres riesgos estructurales relevantes para el inversor:</p><ul class="nl"><li><strong>Sesgo de estilo value vs growth</strong> — en regímenes de mercado dominados por growth/momentum puro la cartera underperforma frente a MSCI World con tracking error material y sostenido (caso histórico 2017-2020).</li><li><strong>Concentración geográfica en mercados desarrollados</strong> — USA + Eurozona + UK ≈ 83% conjuntamente; exposición limitada a emergentes implica que el fondo no captura crecimiento estructural de mercados emergentes y debe complementarse con vehículos específicos en una cartera completa.</li><li><strong>Sensibilidad sectorial al ciclo financiero e industrial</strong> — Financials 25,33% e Industrials 16,56% combinados son ~42% del fondo, perfil pro-cíclico vulnerable a recesión global aguda con compresión de spreads bancarios.</li></ul><p class="pr">La cartera está diseñada para inversor que comprende y acepta estos sesgos estructurales como parte del estilo del fondo, no como riesgo no deseado.</p><p class="subsec">Limitación del bundle: sin serie histórica de posiciones</p><p class="pr">El campo `fund_data.posiciones.historicas` está vacío en el bundle disponible y no hay serie histórica de mix activos ni mix geográfico. La descripción de cartera se construye con el snapshot del factsheet de la clase DH USD a 31-03-2026 más la información agregada de las fichas FT a mayo de 2026. Las series históricas de cartera requerirían procesamiento adicional de annual reports del SICAV Robeco Capital Growth Funds (varios disponibles vía Wayback en sources.json).</p>
+  </div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
+  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>geografía</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">USA 37,80%, Eurozona 30,92%, Reino Unido 14,23%, resto ~17% (otros desarrollados y emergentes selectivos). Sesgo activo no-EEUU vs benchmark MSCI World (~70% USA). Factsheet 31-03-2026.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sectores</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Financials 25,33% (banca europea y americana), Industrials 16,56% (capital pesado con flujo de caja robusto), Healthcare 15,77% (defensivo con valoraciones racionales), resto ~42% distribuido en otros sectores. Factsheet 31-03-2026.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>concentración</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Top 5 holdings = 7,84% del patrimonio (Rexel SA 1,67%, CRH PLC 1,61%, BBVA 1,55%, Nordea Bank 1,55%, AstraZeneca 1,46%). Cartera de ~80-110 posiciones, sin emisor superior a ~1,7%. Diversificación estructural muy elevada.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>estilo de inversión</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Value bottom-up framework "three circles" (valoración + fundamentales + momentum). All-cap, sin restricciones geográficas/sectoriales. Benchmark MSCI World Net Return EUR (referencia, no restricción).</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>perfil SRRI / divisa base</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">SRRI 4 (perfil de riesgo medio según escala UCITS 1-7). Divisa base del sub-fondo EUR. Holding period recomendado 5 años.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">0</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">0,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">—</div><div class="kpi-sub">—</div></div>
+  </div>
+
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div>
+    <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctxMix = document.getElementById('c-mix');
+    if (ctxMix) {
+      const tipos = [];
+      new Chart(ctxMix, {
+        type: 'doughnut',
+        data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+      });
+    }
+    const ctxC = document.getElementById('c-conc');
+    if (ctxC) {
+      new Chart(ctxC, {
+        type: 'bar',
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [0, 0, 0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
+      });
+    }
+  })();
+  </script>
+
+  <div class="sr">Todas las posiciones (0)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+  
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Salud Financiera (Substack)</div>
+        </div>
+        <span class="src-date">2025-04-10</span>
+      </div>
+      <div class="src-t">FDV #30: Un asesor y el arte de la complejidad</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Crítica estructural — no al fondo en sí sino al modelo coste-valor frente a alternativas indexadas. Cuestiona la inclusión del fondo (1,46% comisión + 0,51563% retrocesión) en cartera de 20 fondos cuando alternativas indexadas ofrecen resultados similares con costes mucho menores. Encuadre: conflictos de intereses en asesoramiento financiero.</div>
+      <a href="https://saludfinanciera.substack.com/p/fdv-30" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Salud Financiera (Substack)</div>
+        </div>
+        <span class="src-date">2025-04-18</span>
+      </div>
+      <div class="src-t">FDV #32: Con los Dividendos hemos topado</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Análisis de cartera personal donde el fondo (clase LU0203975197) aparece con 10% de asignación. Crítica neutral-negativa: reconoce calidad del fondo pero señala solapamiento en posiciones de RV global con otros fondos activos de la cartera. Recomienda simplificación con 3-4 fondos indexados. No critica al gestor ni al proceso, solo la utilidad marginal en cartera saturada.</div>
+      <a href="https://saludfinanciera.substack.com/p/fdv-32" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Moclano (Substack)</div>
+        </div>
+        <span class="src-date">2025-03-28</span>
+      </div>
+      <div class="src-t">Quijote y Sancho Panza</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Opinión positiva. Recomienda Robeco BP Global Premium Equities como ejemplo de estrategia value consolidada y estable, complemento de calidad en carteras diversificadas a largo plazo. Contexto: artículo sobre la complementariedad growth/value (analogía cervantina). El autor sugiere que el fondo puede asumir pesos superiores en cartera equilibrada por la consistencia probada del proceso.</div>
+      <a href="https://moclano.substack.com/p/quijote-y-sancho-panza/comments" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times (markets.ft.com)</div>
+        </div>
+        <span class="src-date">2026-05-05</span>
+      </div>
+      <div class="src-t">Robeco BP Global Premium Equities D USD - Ficha de Fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha técnica institucional sin opinión editorial. Reporta rentabilidad 1y +22,67%, AUM agregado del sub-fondo ~6.350M GBP a 31-03-2026, ongoing charge 1,46%, top 5 holdings = 7,84% del patrimonio, geografía USA 37,80% / Eurozona 30,92% / UK 14,23%, sectores Financials 25,33% / Industrials 16,56% / Healthcare 15,77%. Categoría Morningstar Global Large-Cap Value Equity. Datos 5-mayo-2026.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0951559797:usd" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times (markets.ft.com)</div>
+        </div>
+        <span class="src-date">2026-05-05</span>
+      </div>
+      <div class="src-t">Robeco BP Global Premium Equities DH USD - Ficha de Fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha técnica de la clase DH USD (con cobertura de divisa). Rentabilidad 1y +23,30% (clase hedged USD). Detalla las cinco mayores posiciones a 31-03-2026: Rexel SA 1,67%, CRH PLC 1,61%, BBVA 1,55%, Nordea Bank 1,55%, AstraZeneca 1,46%. Confirma equipo gestor con tres firmas (Hart desde 01-02-2005, Jones desde 01-01-2015, Song desde 01-07-2024 según FT).</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu1260070781:usd" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsPeople</div>
+        </div>
+        <span class="src-date">2026-04-13</span>
+      </div>
+      <div class="src-t">Christopher Hart (Boston Partners, Robeco): "No tengo una acción favorita; tengo 80 que creo que pueden funcionar"</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Entrevista monográfica positiva. Articula la filosofía del fondo de manera favorable (diversificación, gestión del tamaño del error frente a estrategias high-conviction). Confirma Rating FundsPeople 2026. La pieza posiciona al fondo como referente value diversificado en el mercado ibérico. Autora: Regina Webb. Artículo de pago — solo extracto público disponible.</div>
+      <a href="https://fundspeople.com/es/christopher-hart-boston-partners-robeco-no-tengo-una-accion-favorita-tengo-80-que-creo-que-pueden-funcionar/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsSociety</div>
+        </div>
+        <span class="src-date">2014-04-29</span>
+      </div>
+      <div class="src-t">Robeco BP Global Premium Equities, mejor de su clase en nueve países europeos según Morningstar</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Cobertura del premio Morningstar 2014: el fondo es designado mejor de su clase simultáneamente en España, Suiza, Finlandia, Luxemburgo, Alemania, Bélgica, Austria, Francia y Países Bajos. Récord para una única estrategia. Detalle del proceso "three circles" (valoración + fundamentales + momentum) y biografía profesional de Christopher Hart.</div>
+      <a href="https://www.fundssociety.com/es/noticias/negocio/robeco-bp-global-premium-equities-wins-record-ninth-morningstar-award/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsSociety</div>
+        </div>
+        <span class="src-date">2016-04-29</span>
+      </div>
+      <div class="src-t">Alexei Jourovski, Christopher Hart y Michael Krautzberger: los mejores gestores europeos del año según Morningstar</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Cobertura del premio Morningstar European Manager of the Year 2016 a Hart en categoría Global Equity. Métricas justificativas: superación del 89% de los periodos rolling 12m desde 2008, primer decil 3y/5y, e inversión personal del gestor en la estrategia como factor de alineación con inversores.</div>
+      <a href="https://www.fundssociety.com/es/noticias/negocio/alexei-jourovski-christopher-hart-y-michael-krautzberger-los-mejores-gestores-europeos-del-ano-segun-morningstar/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsSociety</div>
+        </div>
+        <span class="src-date">2023-09-15</span>
+      </div>
+      <div class="src-t">"Creo que el mercado está empezando a cuestionar realmente el tema de la IA"</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Entrevista de Cecilia Prieto a Hart. Posicionamiento crítico ante la narrativa IA y justificación pública del sesgo cartera fuera de Estados Unidos por valoración relativa más atractiva. Citas literales del gestor sobre inflación persistente y preocupaciones geopolíticas. Una de las fuentes más relevantes para entender el posicionamiento estratégico actual.</div>
+      <a href="https://www.fundssociety.com/es/noticias/mercados/creo-que-el-mercado-esta-empezando-a-cuestionar-realmente-el-tema-de-la-ia/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">BO</div>
+        <div class="src-info">
+          <div class="src-o">Boston Partners (web institucional)</div>
+        </div>
+        <span class="src-date">None</span>
+      </div>
+      <div class="src-t">Boston Partners — Our People (página oficial del equipo)</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Página corporativa oficial. Confirma a Hart, Jones y Song como Portfolio Managers de la firma. Bio extendida disponible para Hart y Jones; bio sintética para Song (sin trayectoria detallada pública). Es la fuente primaria oficial sobre el empleador del equipo gestor.</div>
+      <a href="https://www.bostonpartners.com/about-us/our-people/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsSociety</div>
+        </div>
+        <span class="src-date">2015-06-11</span>
+      </div>
+      <div class="src-t">Chris Hart, portfolio manager del Robeco BP Global Premium, estará de roadshow en Madrid el próximo 16 de junio</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Cobertura del roadshow de Hart en Madrid (16 de junio de 2015). Detalle del proceso de inversión "three circles" y filosofía de gestión sin restricciones con cartera de 90-110 posiciones de un universo de 10.000 valores. Indicador de la importancia del mercado ibérico en la base inversora del fondo.</div>
+      <a href="https://www.fundssociety.com/es/noticias/negocio/christ-hart-portfolio-manager-del-robeco-bp-global-premium-estara-de-roadshow-en-madrid-el-proximo-16-de-junio/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">30 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (16)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_CGF_GLV_B-fact-202603-profgloben.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_CGF_GLV_B-fact-202603-profgloben.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_CGF_GLVH_D-fact-202603-profgloben.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_CGF_GLVH_D-fact-202603-profgloben.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_CGF_GLVU_D-fact-202603-profuken.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_CGF_GLVU_D-fact-202603-profuken.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_LU0951559797.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_LU0951559797.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_docu-robeco-integrated-annual-report-2025.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_docu-robeco-integrated-annual-report-2025.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_2016-global-survey-of-institutional-investors-1.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_2016-global-survey-of-institutional-investors-1.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_2020-global-retirement-index-full-report.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_2020-global-retirement-index-full-report.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_2021-global-retirement-index-full-report.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_2021-global-retirement-index-full-report.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_10.2025-engagement-report-for-global-lux.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_10.2025-engagement-report-for-global-lux.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_bostonpartners_globalpremiumequities_engagementrep.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_bostonpartners_globalpremiumequities_engagementrep.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_bostonpartners_janengagementreportglobal-021226.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_bostonpartners_janengagementreportglobal-021226.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_laura-kaliszewski-appointed-global-head-of-client-.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0203975437/raw/discovery/_web_laura-kaliszewski-appointed-global-head-of-client-.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 4 archivos más</div>
+
+  <div class="doc-grp">Cartas del gestor (0)</div>
+  
+
+  <div class="doc-grp">XMLs CNMV (0)</div>
+  
+
+  <div class="doc-grp">Fuentes externas (11)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — christopher hart boston partners robeco no tengo una accion favor</span><a href="https://fundspeople.com/es/christopher-hart-boston-partners-robeco-no-tengo-una-accion-favorita-tengo-80-que-creo-que-pueden-funcionar/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0951559797:usd" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu1260070781:usd" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">moclano.substack.com — comments</span><a href="https://moclano.substack.com/p/quijote-y-sancho-panza/comments" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">saludfinanciera.substack.com — fdv 30</span><a href="https://saludfinanciera.substack.com/p/fdv-30" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">saludfinanciera.substack.com — fdv 32</span><a href="https://saludfinanciera.substack.com/p/fdv-32" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">bostonpartners.com — our people</span><a href="https://www.bostonpartners.com/about-us/our-people/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundssociety.com — creo que el mercado esta empezando a cuestionar realmente el tema</span><a href="https://www.fundssociety.com/es/noticias/mercados/creo-que-el-mercado-esta-empezando-a-cuestionar-realmente-el-tema-de-la-ia/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundssociety.com — alexei jourovski christopher hart y michael krautzberger los mejo</span><a href="https://www.fundssociety.com/es/noticias/negocio/alexei-jourovski-christopher-hart-y-michael-krautzberger-los-mejores-gestores-europeos-del-ano-segun-morningstar/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundssociety.com — christ hart portfolio manager del robeco bp global premium estara</span><a href="https://www.fundssociety.com/es/noticias/negocio/christ-hart-portfolio-manager-del-robeco-bp-global-premium-estara-de-roadshow-en-madrid-el-proximo-16-de-junio/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 1 archivos más</div>
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         ROBECO CAPITAL GROWTH FUNDS - ROBECO BP GLOBAL PREMIUM EQUITIES (LU0203975437): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py LU0203975437';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py LU0203975437', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=[];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=[];
+  const nposMax=Math.max(...[])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": []};
+const TER_DATA={"A": []};
+const TER_EFECTIVO=[];
+const CY=[];
+const HAS_EXITO=false;
+const EXITO_REAL=[];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='LU0203975437';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>

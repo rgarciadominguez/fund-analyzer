@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund">JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
+      
+      <div class="lh-meta-line">Depositario: <strong>J.P. Morgan SE - Luxembourg Branch</strong></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0289214628</strong> <span style='opacity:.55;font-size:10.5px;'>· Europe Equity Plus Fund D (perf) (acc) EUR</span></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€2.006M</div>
+        <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2026-03</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2027-03 (Carta)</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 4 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Junio 2007</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Europea</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Michael Barakos</strong> <span style='opacity:.7;'>(lead)</span> · Nicholas Horne <span style='opacity:.6;font-size:9px;'>(co)</span> · Ben Stapley <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-05-21</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0289214628 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">JPMorgan Funds - Europe Equity Plus Fund es un sub-fondo de la SICAV UCITS luxemburguesa JPMorgan Funds (R.C.S. Luxembourg B 8478), gestionado por J.P. Morgan Asset Management desde su lanzamiento el 25 de junio de 2007. Invierte en renta variable europea con un enfoque "active extension" 130/30: combina posiciones largas en valores considerados atractivos (~130% del patrimonio neto) con ventas en corto sintéticas vía derivados (~30%) sobre valores menos interesantes, manteniendo una exposición neta similar al mercado (~100%) pero con mayor flexibilidad para generar alfa. Sigue como benchmark el MSCI Europe Index (Total Return Net) y está clasificado como Artículo 8 SFDR, integrando análisis ESG sistemático en al menos el 90% de las decisiones de compra (KIID 2023; carta 2023).</p><p class="pr">El proceso de selección de valores es bottom-up y fusiona dos capas analíticas: investigación fundamental cualitativa y modelos cuantitativos —Ratio de Información, amplitud de previsiones, coeficientes de transferencia—, un marco metodológico que la propia gestora ha contribuido a refinar en publicaciones académicas ("Extending the Fundamental Law of Investment Management", JPM 2005). El equipo selecciona compañías de alta calidad con valoraciones atractivas y momentum positivo, mientras vende en corto las que muestran características opuestas (FundsPeople 2019).</p><p class="pr">A 30 de abril de 2026 el fondo gestiona aproximadamente £5.410M en activos totales (todas las clases), con la clase D EUR objetivo (LU0289214628) gestionando £353M y cotizando a 31,41 EUR (FT tearsheet 20-may-2026). La rentabilidad a 1 año es del +17,16% (clase D) / +17,34% (clase A) / +19,56% (clase A GBP), con un alfa significativo frente al MSCI Europe de +5,82 a 1 año, +6,56 a 3 años y +3,90 a 5 años, y un Information Ratio de +2,28 a 1 año (FT). El TER de la clase D asciende al 2,71% anual frente al 1,71% de la clase A, una diferencia relevante que penaliza al inversor minorista sin acceso a clases institucionales (KIID; fund_data). El equipo gestor está liderado por Michael Barakos, CIO de Renta Variable Europea de J.P. Morgan AM y gestor del fondo desde el lanzamiento en junio de 2007, acompañado por Nicholas Horne (desde mayo de 2010) y Ben Stapley (desde enero de 2017).</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">La filosofía del fondo combina rigor cuantitativo con discernimiento fundamental dentro de un marco "active extension" o 130/30. Parte de la convicción de que relajar la restricción de venta en corto incrementa significativamente el coeficiente de transferencia —la eficiencia con la que las opiniones del gestor se traducen en apuestas reales en cartera— y por extensión el Ratio de Información del producto. La gestora ha desarrollado este marco partiendo del trabajo académico de Grinold y los refinamientos de Clarke, de Silva y Thorley, refinando cómo cada palanca —amplitud de previsiones, coeficiente de información, costes de rotación— impacta en la calidad del exceso de retorno (JPM 2005).
+
+En la práctica, esto se concreta en la búsqueda sistemática de compañías europeas con tres atributos: calidad fundamental, valoración atractiva y momentum positivo. Las posiciones cortas se reservan para nombres con perfil opuesto —calidad cuestionable, valoración exigente, momentum negativo—. El análisis ESG está sistemáticamente integrado en al menos el 90% de los valores comprados, alineado con la clasificación SFDR Artículo 8 (KIID). El proceso es disciplinado, repetible y se apoya en una infraestructura cuantitativa amplia, mientras conserva discrecionalidad humana para desviarse significativamente del índice por convicción cuando las señales fundamentales y cuantitativas convergen.</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Calidad fundamental:</strong> <span class="pr" style="font-size:12.5px;">Selección de compañías europeas con balances sólidos, rentabilidad sostenible y ventajas competitivas verificables, integrando research fundamental de J.P. Morgan AM.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Valoración atractiva:</strong> <span class="pr" style="font-size:12.5px;">Enfoque en precios razonables ajustados a fundamentales (FCF, ROIC, múltiplos relativos al sector y al histórico), evitando excesos de mercado en cualquiera de los lados del libro.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Momentum positivo:</strong> <span class="pr" style="font-size:12.5px;">Filtros cuantitativos sistemáticos para detectar nombres con tracción operativa (revisiones al alza de beneficios) y momentum de precio favorable, complementando el análisis fundamental.</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Continuidad del lead manager Michael Barakos al frente del fondo desde su lanzamiento en junio de 2007 — casi dos décadas de continuidad como CIO de Renta Variable Europea de J.P. Morgan AM (FT mayo 2026; FundsPeople 2019).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Alfa consistente frente al MSCI Europe Index: +5,82 a 1 año, +6,56 a 3 años y +3,90 a 5 años, con un Information Ratio de +2,28 a 1 año y R-squared del 95,5% (FT mayo 2026).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Marco cuantitativo-fundamental robusto que la propia gestora ha contribuido a formalizar académicamente (extensión del marco Grinold/CdeST publicado en JPM 2005), aportando profundidad metodológica.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Recursos institucionales de J.P. Morgan AM: amplitud de cobertura sectorial europea, datos propietarios, infraestructura cuantitativa y de gestión de riesgo, equipo de research global.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estrategia active extension 130/30 amplía el universo efectivo de alfa al permitir cortos, aumentando el coeficiente de transferencia frente a fondos solo-largo manteniendo exposición neta al mercado ~100%.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Clasificación SFDR Artículo 8 con integración ESG sistemática en al menos el 90% de las decisiones de compra, requisito creciente en mandatos europeos.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">TER del 2,71% en la clase D (LU0289214628) es elevado para renta variable europea de gran capitalización con benchmark MSCI Europe; comprime el alfa neto frente a alternativas pasivas o clases institucionales (clase A: 1,71% anual).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Exposición direccional a renta variable europea: SRRI 4/7 (perfil moderado-alto), drawdowns históricos significativos en correcciones (el KIID 2020 mostraba un escenario desfavorable 5y con retorno anual del -7,4% y escenario de estrés del -29,1% anual).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Complejidad del lado corto vía derivados introduce riesgo operativo, de contraparte y de margin call en episodios de estrés extremo, aunque la exposición neta queda controlada en ~100%.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Dependencia del lead manager Michael Barakos: aunque cuenta con co-managers veteranos (Horne desde 2010, Stapley desde 2017), su salida sería un evento material para la continuidad del proceso.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Beta a 1 año de +0,94 frente al MSCI Europe (FT) implica protección limitada en correcciones del mercado europeo: el fondo cae casi en línea con el índice en fases bajistas.</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>Clase EUR</strong></td><td>LU0973649402</td><td>—</td><td>0,7%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2013</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Europe Equity Fund C (acc) EUR</strong></td><td>LU0129441100</td><td>—</td><td>0,7%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2004</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Europe Equity Plus Fund D (perf) (acc) EUR</strong></td><td>LU0289214628</td><td>—</td><td>2,7%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2007</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+  </table>
+  
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor que busca exposición pura a renta variable europea de gran y mediana capitalización con un proceso activo bien definido, dispuesto a pagar comisiones de gestión activa —idealmente vía clase A o institucional, no la clase D minorista al 2,71%— a cambio de un alfa histórico significativo frente al MSCI Europe. Apto para horizontes a 5+ años y perfiles SRRI 4/7 (KIID). No adecuado para quien prefiere exposición pasiva pura ni para quien necesita protección estructural frente a caídas del mercado europeo: la beta neta es ~0,94, muy similar al mercado.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">La gestora J.P. Morgan AM no publica información granular sobre coinversión personal del equipo (skin in the game) en este fondo, una práctica habitual en gestoras institucionales globales frente a boutiques. La continuidad excepcional del equipo —Barakos 19 años, Horne 15 años, Stapley 9 años a fecha mayo 2026— sí indica una alineación contractual estable y compromiso de carrera con el producto, pero no equivale a la propiedad personal típica de boutiques value europeas (Magallanes, Cobas, AzValor) donde el gestor concentra patrimonio personal en el fondo.</p></div></div>
+
+  <div class="sr">TER por clase (snapshot actual)</div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctx = document.getElementById('c-com-snap');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ["Europe Equity Plus Fund D (perf) (acc) EUR"], datasets: [
+      {label:'TER (%)', data:[2.73], backgroundColor:'rgba(12,35,64,0.85)'}
+    ] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+        scales: {
+          x: { stacked: false, grid: { display: false } },
+          y: { stacked: false, beginAtZero: true, grid: { display: false }, ticks: { callback: v => v+'%' } }
+        }
+      }
+    });
+  })();
+  </script>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Junio 2007 — presente</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Origen y lanzamiento del sub-fondo (junio 2007)</p><p class="pr">El sub-fondo JPMorgan Funds - Europe Equity Plus Fund se lanzó el 25 de junio de 2007 dentro de la SICAV paraguas luxemburguesa JPMorgan Funds (R.C.S. Luxembourg B 8478), una de las grandes SICAVs UCITS europeas con más de 60 sub-fondos. Michael Barakos asumió la gestión desde el día del lanzamiento, posición que mantiene en mayo de 2026 (FT tearsheet). El producto se diseñó como vehículo "active extension" 130/30 para capitalizar las ventajas del lado corto en la mejora del coeficiente de transferencia, una idea que la propia gestora había formalizado dos años antes en su trabajo "Extending the Fundamental Law of Investment Management" (JPM 2005), basándose en el marco teórico original de Grinold y los refinamientos posteriores de Clarke, de Silva y Thorley.</p><p class="subsec">Crisis financiera global y zona euro (2008-2012)</p><p class="pr">El fondo nació apenas un año antes del estallido de la crisis financiera global de 2008. La renta variable europea acumuló caídas profundas en 2008-2009, recuperándose parcialmente antes de sufrir la crisis de deuda soberana de la eurozona de 2011-2012. No hay cartas trimestrales del bundle para estos años, lo que limita el detalle público disponible sobre la actuación del equipo en este periodo formativo. La única referencia cuantitativa disponible es el rendimiento "since inception" anualizado del +10,8% (fund_data), que sugiere capacidad de capitalizar la recuperación post-crisis a pesar del entorno desafiante.</p><p class="subsec">Llegada de Nicholas Horne y consolidación del equipo (mayo 2010)</p><p class="pr">El 1 de mayo de 2010 Nicholas Horne se incorporó como co-gestor, ampliando el equipo de uno a dos miembros (FT). Esta incorporación coincide con el periodo de máxima tensión en la eurozona —rescate de Grecia, Irlanda y posteriormente Portugal— y refleja la apuesta de J.P. Morgan AM por reforzar la cobertura del fondo durante un ciclo macro especialmente difícil para la renta variable europea.</p><p class="subsec">Ciclo de bajos tipos y QE del BCE (2013-2016)</p><p class="pr">Una carta semestral de enero de 2016 (Weekly Strategy Report del 2 de enero, recuperada vía Wayback Machine) describe el contexto del momento: crecimiento del PIB estadounidense anémico (+0,7% en 4T 2015), fuerte venta global a principios de enero, ampliación de spreads de crédito, fortaleza del dólar y debilidad de mercados emergentes. La gestora mantenía postura neutral entre acciones y bonos, sobreponderación en high yield —los spreads valoraban un riesgo de recesión que la casa consideraba excesivo— y minimizaba la debilidad del 4T americano como temporal. Aunque la carta es a nivel multi-asset y no específica del fondo, refleja el marco intelectual de J.P. Morgan AM en el periodo y la disciplina de mantener posiciones en momentos de pánico cuando los fundamentales no se han deteriorado.</p><p class="subsec">Llegada de Ben Stapley y maduración del proceso (enero 2017)</p><p class="pr">El 31 de enero de 2017 Ben Stapley se incorpora como tercer co-gestor, llevando el equipo a la configuración actual de Barakos (lead) + Horne + Stapley. En abril de 2019 FundsPeople organizó un desayuno con Michael Barakos en colaboración con EFPA España para presentar las perspectivas del fondo junto a JPMorgan Funds - Europe Strategic Value Fund. En julio de 2019 una entrevista posterior publicada en FundsPeople Italia describió el proceso como "fusión de análisis cuantitativa y fundamental", "disciplinado bottom-up", con énfasis en momentum positivo y estrategia 130/30 que permite "tanto sobreponderaciones como posiciones cortas en empresas que no cumplen los criterios de inversión".</p><p class="subsec">Pandemia COVID-19 y dispersión sectorial (2020)</p><p class="pr">El Informe Semestral No Auditado de JPMorgan Funds SICAV al 31 de diciembre de 2020 confirma el patrimonio del sub-fondo en €2.006,15 millones a cierre del ejercicio, con NAV de la clase D EUR (perf) (acc) en 109,64 EUR frente a 100,59 al cierre de 2019, una recuperación significativa tras el shock COVID (fund_data). El año fue particularmente desafiante para las estrategias de extensión activa dada la dispersión sectorial extrema —tecnología y growth disparándose, value sufriendo profundamente—. El KIID de 2020 describe un escenario desfavorable 2015-2020 (ventana de 5 años) que reduciría 10.000 EUR a 6.810 EUR (retorno anual del -7,4%), un escenario de estrés que resultaría en 1.790 EUR (-29,1% anual), reflejando la sensibilidad del fondo a entornos adversos prolongados.</p><p class="subsec">Inflación, subidas de tipos y guerra de Ucrania (2022-2023)</p><p class="pr">No hay carta del fondo en el bundle para el ejercicio 2022, un periodo de fuertes correcciones en renta variable europea por la guerra de Ucrania, el choque energético y las subidas agresivas de tipos del BCE. El KIID actualizado en 2023 describe el escenario moderado para una inversión 2018-2023: 10.000 EUR pasan a 12.280 EUR, retorno anual del +4,2% — un resultado positivo pero modesto, reflejo del entorno difícil que combinó pandemia, inflación y reseteo de valoraciones.</p><p class="subsec">Rally AI, "Magníficas 7" y descuento europeo (2023-2024)</p><p class="pr">La carta de cierre del ejercicio fiscal junio 2024 destaca el rebote de la renta variable global desde el 4T 2023 hasta el 1S 2024, impulsado por desinflación y esperanzas de recortes de tipos. La gestora identifica como factores dominantes la trayectoria de la inflación, el impacto transformador de la inteligencia artificial sobre modelos de negocio y las disrupciones post-pandemia. Subraya que la concentración del mercado americano es notable —las "Siete Magníficas" (Microsoft, Nvidia, Apple, Alphabet, Amazon, Meta, Tesla) suponen ~32% del S&P 500— y argumenta que Europa y Reino Unido cotizan con descuentos récord de varias décadas frente a EE.UU., una de las tesis estructurales que apoya el encuadre del fondo dentro del asset allocation global de un inversor.</p><p class="subsec">Volatilidad arancelaria Trump-2 (2024-2025)</p><p class="pr">La carta del ejercicio 2025 describe un periodo marcado por las elecciones de noviembre 2024 en EE.UU., las expectativas reducidas de recortes de tipos para 2025, el efecto "America First" y la sucesión de anuncios arancelarios desde principios de 2025 (México, Canadá, China, acero, aluminio, automóviles). El "Día de la Liberación" arancelario en 2T 2025 provocó una venta brusca antes del rebote tras la pausa unilateral de EE.UU. en aranceles recíprocos y un acuerdo comercial con China. La gestora destaca que "Europa ha entrado en acción con un apoyo fiscal significativo" (carta 2025), refiriéndose al paquete fiscal alemán anunciado en 2025, una tesis macro estructuralmente favorable al fondo.</p><p class="subsec">Q1 2026: alfa positivo en entorno volátil</p><p class="pr">En el primer trimestre de 2026 el fondo retornó +0,83% frente al MSCI Europe Total Return Net del -0,94%, generando un exceso del +1,78% (carta Q1 2026). El equipo aumentó posición en ASML, vendió Roche Holding y mantuvo sobreponderaciones en energía, bancos y servicios de telecomunicaciones. La infraponderación en SAP y la sobreponderación en SBM Offshore fueron los principales contribuyentes positivos del periodo, compensando parcialmente el efecto adverso de la infraponderación en semiconductores y la selección negativa en transporte.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">—</div><div class="kpi-sub">Junio 2007 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 2006.15;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2005</div>
+      <div class="tl-tag tag-hito">Contexto_mercado</div>
+      <div class="tl-title">Marco metodológico previo: extensión del Fundamental Law</div>
+      <div class="tl-desc">J.P. Morgan AM publica "Extending the Fundamental Law of Investment Management", refinando el marco Grinold/Clarke-de Silva-Thorley para justificar académicamente las ventajas del 130/30 en coeficiente de transferencia.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2007</div>
+      <div class="tl-tag tag-hito">Lanzamiento</div>
+      <div class="tl-title">Lanzamiento del sub-fondo</div>
+      <div class="tl-desc">Lanzamiento del JPMorgan Funds - Europe Equity Plus Fund el 25 de junio de 2007 dentro de la SICAV paraguas JPMorgan Funds (R.C.S. Luxembourg B 8478). Michael Barakos asume la gestión desde el día uno.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2008</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Crisis financiera global</div>
+      <div class="tl-desc">El fondo afronta la crisis financiera global apenas un año después de su lanzamiento. Caídas profundas en renta variable europea en 2008-2009 (sin carta del bundle para este periodo).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2010</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Incorporación de Nicholas Horne</div>
+      <div class="tl-desc">El 1 de mayo de 2010 Nicholas Horne se incorpora como co-gestor, ampliando el equipo en plena crisis de deuda soberana de la eurozona (FT tearsheet).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2011</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Crisis de deuda soberana de la eurozona</div>
+      <div class="tl-desc">Rescates de Grecia, Irlanda y Portugal; tensiones bancarias y volatilidad extrema en RV europea. Entorno de máxima tensión durante la consolidación del equipo de dos.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2016</div>
+      <div class="tl-tag tag-hito">Contexto_mercado</div>
+      <div class="tl-title">Ventana enero 2016: defensa de la postura neutral</div>
+      <div class="tl-desc">Weekly Strategy Report de enero 2016 muestra el marco multi-asset de J.P. Morgan AM defendiendo la postura neutral RV/RF y la sobreponderación en high yield frente a las ventas masivas iniciales del año.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2017</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Incorporación de Ben Stapley</div>
+      <div class="tl-desc">El 31 de enero de 2017 Ben Stapley se incorpora como tercer co-gestor, completando la configuración Barakos+Horne+Stapley vigente en mayo de 2026.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2019</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Visibilidad pública del proceso</div>
+      <div class="tl-desc">FundsPeople organiza un desayuno con Michael Barakos en colaboración con EFPA España (abril 2019) y publica entrevista detallada (julio 2019) sobre la fusión cuantitativo-fundamental del proceso.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2020</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Cierre 2020 post-COVID: €2.006M AUM</div>
+      <div class="tl-desc">Informe Semestral No Auditado de JPMorgan Funds SICAV al 31 dic 2020 confirma AUM del sub-fondo en €2.006,15M y NAV clase D EUR en 109,64 EUR (vs 100,59 al cierre 2019).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2022</div>
+      <div class="tl-tag tag-hito">Contexto_mercado</div>
+      <div class="tl-title">Shock inflación, guerra y subidas BCE (sin carta)</div>
+      <div class="tl-desc">Periodo de fuertes correcciones por la guerra de Ucrania, el choque energético europeo y las subidas agresivas de tipos del BCE. No hay carta del bundle para este año (laguna).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2024</div>
+      <div class="tl-tag tag-hito">Contexto_mercado</div>
+      <div class="tl-title">Rally AI y descuento Europa vs EE.UU.</div>
+      <div class="tl-desc">La carta ejercicio jun-2024 destaca el rebote global impulsado por desinflación, IA y descuentos récord en RV europea frente a EE.UU. Las "Magníficas 7" alcanzan ~32% del S&P 500.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2025</div>
+      <div class="tl-tag tag-hito">Contexto_mercado</div>
+      <div class="tl-title">Volatilidad arancelaria Trump-2 y fiscal alemán</div>
+      <div class="tl-desc">El año está marcado por anuncios arancelarios masivos, el "Día de la Liberación" en 2T y posterior recuperación. Europa responde con paquete fiscal alemán significativo, tesis macro favorable al fondo.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2026</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Salto de escala</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Q1 2026: +1,78pp exceso sobre MSCI Europe</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">El fondo retorna +0,83% vs MSCI Europe -0,94% en Q1 2026 (+1,78pp exceso). Aumenta ASML, vende Roche; SAP infraponderada y SBM Offshore sobreponderada contribuyen positivamente.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-strat">Comportamiento vs mercado</span>
+            <strong style="font-size:12.5px;color:var(--ink);">AUM total de £5.410M en mayo 2026</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">FT tearsheet (mayo 2026) confirma AUM total del fondo en £5.410M, con la clase D EUR objetivo en £353M y rentabilidad a 1 año del +17,16%.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">MB</div>
+        <div class="mgr-nm">Michael Barakos<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Lead Portfolio Manager & CIO de Renta Variable Europea de J.P. Morgan Asset Management</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Lead Portfolio Manager del JPMorgan Funds - Europe Equity Plus Fund desde 25 jun 2007 (FT mayo 2026)</li><li style="margin-bottom:3px;">CIO de Renta Variable Europea de J.P. Morgan Asset Management (FundsPeople España 2019)</li><li style="margin-bottom:3px;">Casi 19 años de continuidad al frente del fondo desde su inception</li><li style="margin-bottom:3px;">Responsable también de JPMorgan Funds - Europe Strategic Value Fund (FundsPeople España 2019)</li><li style="margin-bottom:3px;">Portavoz público del proceso en eventos con FundsPeople España y FundsPeople Italia (2019)</li><li style="margin-bottom:3px;">Defiende públicamente la fusión cuantitativo-fundamental como ventaja estructural del proceso</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">Michael Barakos es el lead manager del JPMorgan Funds - Europe Equity Plus Fund desde su lanzamiento el <strong>25 de junio de 2007</strong>, una continuidad de casi 19 años en mayo de 2026 (FT tearsheet). Ocupa simultáneamente el cargo de <strong>CIO de Renta Variable Europea</strong> dentro de J.P. Morgan Asset Management, responsabilidad senior estructural confirmada por FundsPeople España en el evento "Desayuno con Michael Barakos" organizado en colaboración con EFPA España en abril de 2019, donde se le presenta con ese título oficial.
+
+Como CIO de RV Europea supervisa el marco de research, proceso y gestión de riesgo del equipo europeo de RV activa de la gestora. Como lead manager del Europe Equity Plus Fund aplica este marco al producto insignia 130/30 europeo de la casa. En el evento de FundsPeople España 2019 presentó las perspectivas para los meses siguientes y discutió oportunidades de inversión tanto en el Europe Equity Plus Fund como en el JPMorgan Funds - Europe Strategic Value Fund, confirmando que su rol abarca varios productos del equipo europeo de RV.
+
+Una entrevista en FundsPeople Italia publicada el <strong>25 de julio de 2019</strong> describe la filosofía aplicada por su equipo como un "proceso estructurado que combina análisis cuantitativo y análisis fundamental", con "enfoque disciplinado bottom-up en la selección de valores", buscando "títulos sobreponderados de alta calidad con valoraciones atractivas" y enfatizando "el momentum positivo como criterio de selección". La estrategia 130/30 permite "tanto sobreponderaciones como posiciones cortas en empresas con características opuestas".
+
+Información biográfica adicional —formación académica, empleos previos a J.P. Morgan AM, fecha de incorporación a la gestora antes del lanzamiento del fondo— no está documentada en el bundle de prep determinista. Lo que sí queda firmemente establecido es: (1) continuidad casi sin precedentes al frente del fondo desde inception; (2) posición senior estructural como CIO, no solo como gestor de un producto; (3) portavoz público activo del proceso de RV europea de la gestora durante años.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Combina rigor cuantitativo con discernimiento fundamental en un marco active extension 130/30. Su tesis es que relajar la restricción de venta en corto incrementa el coeficiente de transferencia (eficiencia con la que las convicciones se traducen en posiciones reales) y por extensión el Ratio de Información del producto. Busca compañías europeas con tres atributos simultáneos —calidad, valoración atractiva, momentum positivo— y vende en corto las que muestran el perfil opuesto. Integra ESG como filtro sistemático sobre ≥90% del universo de compra (Artículo 8 SFDR).</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mantenimiento del marco 130/30 a lo largo de ciclos muy diversos: GFC 2008, eurozona 2011-12, QE 2013-19, COVID 2020, inflación 2022, IA-Trump-2 2024-25, generando alfa consistente vs MSCI Europe (FT)</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Q1 2026: aumento de posición en ASML y venta de Roche Holding; sobreponderación táctica en energía, bancos y servicios de telecomunicaciones que contribuyó positivamente al exceso del +1,78pp (carta Q1 2026)</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mantenimiento sostenido de la infraponderación en SAP, que en Q1 2026 fue uno de los principales contribuyentes positivos al rendimiento relativo (carta Q1 2026)</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Integración temprana de ESG como capa sistemática del proceso (≥90% del universo de compra), alineando el fondo con la clasificación Artículo 8 SFDR</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Combinación poco frecuente de continuidad excepcional (19 años en el mismo fondo) con responsabilidad senior estructural (CIO RV Europea de una de las gestoras globales más grandes). Refrenda el proceso 130/30 con publicaciones académicas previas de la propia gestora, no solo con marketing comercial. Disposición a comunicar públicamente el proceso en formatos formativos (eventos FundsPeople con EFPA España).</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">NH</div>
+        <div class="mgr-nm">Nicholas Horne<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Co-Portfolio Manager</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Co-Portfolio Manager del JPMorgan Funds - Europe Equity Plus Fund desde 1 may 2010 (FT mayo 2026)</li><li style="margin-bottom:3px;">Aproximadamente 15 años de continuidad en el equipo</li><li style="margin-bottom:3px;">Incorporación durante la crisis de deuda soberana de la eurozona</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">Nicholas Horne se incorporó como co-gestor del JPMorgan Funds - Europe Equity Plus Fund el <strong>1 de mayo de 2010</strong>, según confirma la ficha técnica del Financial Times (consultada en mayo de 2026 para las clases A EUR, D EUR y A GBP del fondo). Lleva acumulados aproximadamente 15 años en el equipo, una continuidad significativa como segundo gestor.
+
+Su incorporación coincide temporalmente con el periodo de máxima tensión en la eurozona —el rescate de Grecia se anunció en mayo de 2010, Irlanda accedió al rescate en noviembre de 2010 y Portugal en abril de 2011— y refleja la decisión de J.P. Morgan AM de reforzar la cobertura del fondo durante un ciclo especialmente desafiante para la renta variable europea.
+
+El bundle no contiene información biográfica adicional verificable sobre formación previa, trayectoria profesional antes de la incorporación al fondo o área de especialización sectorial dentro del equipo. En equipos de gestión activa con tres miembros, los co-managers suelen tener responsabilidades complementarias (cobertura sectorial, integración cuantitativa, ejecución de derivados/cortos, ESG), pero la asignación concreta dentro de este equipo no está documentada en las fuentes del bundle.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Comparte el marco quant+fundamental + 130/30 del equipo. La información pública específica sobre su contribución diferencial dentro del proceso no está documentada en el bundle.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-1" class="exp-body"><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Continuidad larga (15 años) en el equipo refuerza la estabilidad del proceso. Información biográfica específica no disponible en las fuentes del bundle.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#2c6e49,#4ecf99);">BS</div>
+        <div class="mgr-nm">Ben Stapley<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Co-Portfolio Manager</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Ben Stapley se incorporó como tercer co-gestor del JPMorgan Funds - Europe Equity Plus Fund el **31 de enero de 2017**, según confirma la ficha técnica del Financial Times consultada en mayo de 2026. Su llegada en 2017 completó la configuración actual del equipo (Barakos + Horne + Stapley) y coincide con un periodo de consolidación del proceso del fondo, validado posteriormente en la entrevista de FundsPeople Italia de julio de 2019 que describe el proceso como "fusión de análisis cuantitativa y fundamental".
+
+Acumula aproximadamente 9 años en el equipo en mayo de 2026. La estabilidad de la configuración del trío desde 2017 hasta hoy (sin cambios de equipo en casi una década) sugiere que la división interna de responsabilidades funciona, aunque el detalle de su área de especialización no está documentado en el bundle. Como en el caso de Nicholas Horne, no hay información biográfica verificable sobre formación, empleos previos o especialización sectorial en las fuentes consultadas.</p>
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Arquitectura del producto: active extension 130/30</p><p class="pr">La estrategia del JPMorgan Funds - Europe Equity Plus Fund se articula sobre una arquitectura "active extension" o <strong>130/30</strong>, descrita en los KIID del fondo (2020 y 2023) con palabras casi idénticas año tras año: "El sub-fondo mantendrá típicamente posiciones largas de aproximadamente el 130% y posiciones cortas de aproximadamente el 30% (a través de derivados) del patrimonio neto, pero puede variar respecto a estos objetivos en función de las condiciones del mercado" (cita literal KIID 2023). La exposición neta resultante es ~100%, es decir, similar a la de un fondo solo-largo, pero con un libro bruto del 160% que permite implementar convicciones cortas además de las largas.</p><p class="pr">El mandato explícito (objetivo_inversion de fund_data) es "proporcionar crecimiento del capital a largo plazo mediante la exposición a sociedades europeas, a través de la inversión directa en valores de dichas sociedades y el uso de derivados. (...) Emplea un proceso de selección de valores ascendente. Emplea toda la amplitud del universo de inversión en renta variable apto mediante una combinación de conocimientos de análisis fundamental y análisis cuantitativo. Aplica un enfoque «active extension» por medio del cual compra valores que se consideran atractivos y vende en corto valores que parecen menos interesantes con el fin de mejorar los resultados potenciales sin incrementar la exposición neta global al mercado".</p><p class="subsec">Marco metodológico subyacente: extensión del Fundamental Law</p><p class="pr">El sustento teórico del 130/30 está documentado en el bundle a través del documento de J.P. Morgan AM "Extending the Fundamental Law of Investment Management" (2005, recuperado vía Wayback). Este trabajo extiende el marco de Grinold —descomposición del Ratio de Información en Information Coefficient (IC), amplitud (N), coeficiente de transferencia (TC), costes de rotación y rotación de cartera— refinado por Clarke, de Silva y Thorley (CdeST). La tesis central es que <strong>relajar la restricción de venta en corto</strong> tiene un impacto positivo significativo sobre el coeficiente de transferencia y, por extensión, sobre el Ratio de Información esperado del producto.</p><p class="pr">El documento de 2005 explica que "más de la mitad de la brecha en el TC entre la cartera 'solo largo' y la cartera '100/100' se cierra en el primer 20% de las ventas en corto, y aproximadamente dos tercios con el 30%". Esta observación justifica directamente la elección del 30% de cortos como punto óptimo entre amplitud de alfa y carga operativa, y se explicita como consistente con "la nueva ola de productos de renta variable híbridos que buscan formas más eficientes de lograr niveles más altos de retorno con perfiles de 130% largo y 30% corto" — el propio fondo encaja en esta categoría.</p><p class="subsec">Tres criterios de selección de valores</p><p class="pr">La entrevista de FundsPeople Italia (julio 2019) consolida los <strong>tres criterios</strong> que el equipo aplica a la selección de valores: alta calidad fundamental, valoración atractiva y momentum positivo. Las posiciones largas son compañías que cumplen los tres atributos simultáneamente; las posiciones cortas son compañías con perfil opuesto en los tres ejes. El proceso es <strong>bottom-up</strong>, es decir, parte del análisis individual de compañías más que de visiones top-down macro o sectoriales.</p><p class="subsec">Integración cuantitativo-fundamental</p><p class="pr">El proceso fusiona dos capas que se ejecutan en paralelo: (1) <strong>investigación fundamental</strong> —análisis cualitativo de modelos de negocio, ventajas competitivas, calidad de gestión, exposición a temáticas estructurales, riesgos contables y operativos—; (2) <strong>modelos cuantitativos</strong> —screens sistemáticos sobre métricas de calidad (ROIC, márgenes, apalancamiento), valoración (múltiplos relativos al sector e histórico, FCF yield) y momentum (revisiones de beneficios al alza, momentum de precio). Esta integración se presenta como una ventaja diferencial frente a procesos puramente cuantitativos (que no capturan calidad cualitativa) y frente a procesos puramente fundamentales (que no escalan la amplitud de previsiones necesaria para un universo paneuropeo amplio).</p><p class="subsec">ESG sistemático y SFDR Artículo 8</p><p class="pr">El fondo está clasificado como <strong>Artículo 8 SFDR</strong>, y los KIID del bundle confirman que "el sub-fondo incluye sistemáticamente análisis ESG en sus decisiones de inversión en al menos el 90% de los valores comprados" (KIID 2023, cita literal). Esta integración se ejecuta como filtro sobre el universo elegible y como input adicional en la valoración cualitativa, apoyada por la infraestructura ESG corporativa de J.P. Morgan AM.</p><p class="subsec">Benchmark y discrecionalidad activa</p><p class="pr">El benchmark del fondo es el <strong>MSCI Europe Index (Total Return Net)</strong> con dividendos netos de retenciones. El KIID describe el fondo como "gestionado activamente" y, aunque "la mayoría de sus posiciones (excluyendo derivados) probablemente serán componentes del benchmark, el Investment Manager tiene amplia discreción para desviarse de sus valores, ponderaciones y características de riesgo". Esta discrecionalidad se manifiesta en las sobre/infraponderaciones sectoriales y de país que el equipo aplica según convicción.</p><p class="subsec">Riesgos específicos de la estrategia</p><p class="pr">Los riesgos específicos del producto incluyen: (1) <strong>riesgo de derivados</strong> asociado a la implementación del ~30% de cortos —contraparte, margin call en estrés extremo, error operativo—; (2) <strong>riesgo de modelo cuantitativo</strong> —los screens pueden fallar si los regímenes de mercado cambian estructuralmente, por ejemplo si la dominancia macro/política supera a los fundamentales—; (3) <strong>riesgo de concentración relativa</strong> en sectores europeos —el universo elegible es la RV europea, sin diversificación regional global—; (4) <strong>riesgo de tracking error</strong> en periodos en que el alfa de las dos capas (largo y corto) se comprime simultáneamente.</p><p class="subsec">Implementación táctica reciente: Q1 2026 como ventana ilustrativa</p><p class="pr">La carta del primer trimestre de 2026 ofrece la mejor ventana disponible sobre cómo se ejecuta tácticamente el proceso. En un contexto de venta global en marzo por el conflicto EE.UU.-Irán y el impacto en el precio del petróleo, el equipo aumentó posición en ASML (equipos de semiconductores), vendió Roche Holding (farmacéutica suiza), mantuvo sobreponderaciones en energía, bancos y servicios de telecomunicaciones, e infraponderaciones en bienes de capital, alimentos/bebidas/tabaco y productos para el hogar y cuidado personal. La selección de valores en telecos y materiales contribuyó positivamente, mientras que la infraponderación en semiconductores y la selección en transporte perjudicaron. El resultado fue un exceso del +1,78pp sobre el MSCI Europe (+0,83% vs -0,94%), con atribución específica a la infraponderación en SAP y la sobreponderación en SBM Offshore como mayores contribuyentes positivos.</p><p class="pr">Esta ventana ilustra varios elementos del proceso: (a) decisiones individuales nominales (ASML, Roche) coexisten con sobreponderaciones temáticas sectoriales (energía/bancos/telecos); (b) los cortos implícitos en la infraponderación de SAP funcionan como instrumentos de alfa —no se trata solo de comprar nombres que suben, sino también de identificar nombres que el mercado pagará menos—; (c) la atribución de rendimiento permite al equipo desagregar qué decisiones aportaron y cuáles restaron, retroalimentando el proceso.</p>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Uses a bottom-up stock selection process.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— J.P. Morgan AM, KIID JPMorgan Funds - Europe Equity Plus Fund 2023</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Uses an active extension approach, buying securities considered attractive and selling short securities considered less attractive to improve potential return without increasing the overall net exposure to the market.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— J.P. Morgan AM, KIID 2023</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;The Sub-Fund will typically hold long positions of approximatively 130%, and short positions of approximatively 30% (achieved through derivatives) of net assets.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— J.P. Morgan AM, KIID 2023</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Active extension 130/30 sobre RV europea, bottom-up con fusión quant+fundamental, MSCI Europe como benchmark, integración ESG sistemática Artículo 8 SFDR. En Q1 2026 sobreponderado en energía, bancos y telecos; infraponderado en bienes de capital, alimentos/bebidas/tabaco y productos para el hogar.</p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta variable europea de gran y mediana capitalización con estrategia active extension 130/30</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo direccional de mercado europeo (beta a 1y +0,94 vs MSCI Europe, SRRI 4/7)</li><li style="margin-bottom:4px;">Riesgo de derivados y contraparte derivado del ~30% de posiciones cortas implementadas vía derivados</li><li style="margin-bottom:4px;">Riesgo de concentración relativa en RV europea sin diversificación regional global</li><li style="margin-bottom:4px;">Riesgo de modelo cuantitativo: posibles regímenes de mercado en los que los screens quant pierdan poder predictivo</li></ul></div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2016-Q1</div>
+  <div class="strat-c">Crecimiento del PIB estadounidense anémico (+0,7% en 4T 2015), fuerte venta global en enero de 2016, ampliación de spreads de crédito, fortaleza del dólar y debilidad de mercados emergentes. Recortes de precios del petróleo desconcertaban al mercado a corto plazo (Weekly Strategy Report J.P. Morgan AM, 02-ene-2016).</div>
+  <div class="strat-c">Mantenimiento de postura neutral entre acciones y bonos, así como en duración. Reticencia a infraponderar acciones frente a bonos tras de-risking previo. Mantenimiento de sobreponderación en bonos de high yield, considerando que los spreads valoraban un riesgo de recesión mayor al proyectado por la casa. Enfoque en oportunidades de valor relativo internacional (Weekly Strategy Report).</div>
+  <div class="strat-c">+10,8% — driver explicativo: rendimiento desde inception anualizado (alcanzando ~+10,8% acumulado a fecha actual). La carta de enero 2016 es multi-asset y no específica del fondo; cubre el marco mental de J.P. Morgan AM en el periodo, no decisiones concretas del Europe Equity Plus.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2020</div>
+  <div class="strat-c">Pandemia COVID-19, confinamientos globales, shock de demanda y oferta, respuesta monetaria y fiscal masiva. Dispersión sectorial extrema entre tech/growth (al alza) y value (a la baja) que penalizó las estrategias multi-factor con momentum cíclico.</div>
+  <div class="strat-c">Mantenimiento del marco 130/30 durante el shock. El KIID de 2020 reafirma todos los elementos del proceso (bottom-up, fundamental+quant, 130%/30%, ESG ≥90%). La carta específica del fondo para 2020 no está en el bundle.</div>
+  <div class="strat-c">+8,9% NAV clase D EUR — driver explicativo: recuperación del NAV de la clase D EUR de 100,59 (cierre 2019) a 109,64 EUR (cierre 2020), un retorno del año del +9,0% pese al shock COVID. AUM del sub-fondo confirmado en €2.006M a 31-dic-2020 (fund_data).</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2023</div>
+  <div class="strat-c">Cierre del ciclo de subidas BCE, desinflación gradual en eurozona, inicio del rally global de IA con concentración extrema en gran capitalización tecnológica americana. RV europea relativamente rezagada vs S&P 500.</div>
+  <div class="strat-c">KIID 2023 reafirma proceso 130/30 sin cambios. Énfasis en integración ESG ≥90% del universo de compra. La carta específica del fondo para 2023 no está en el bundle.</div>
+  <div class="strat-c">+4,2% anual 2018-2023 — driver explicativo: escenario moderado del KIID 2023 muestra retorno anualizado del +4,2% para una inversión 2018-2023 (10.000 EUR → 12.280 EUR), un periodo que combinó guerra comercial 2018, COVID, recuperación 2021 e inflación/guerra 2022. Resultado positivo pero modesto reflejo del entorno.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2024</div>
+  <div class="strat-c">Rebote global desde el 4T 2023 hasta 1S 2024 por desinflación y esperanzas de recortes de tipos. Concentración del mercado americano: "Magníficas 7" (Microsoft, Nvidia, Apple, Alphabet, Amazon, Meta, Tesla) suponen ~32% del S&P 500. Europa y Reino Unido cotizan con descuentos récord vs EE.UU.</div>
+  <div class="strat-c">Postura macro del equipo: aprovechar el descuento estructural de RV europea vs EE.UU. como tesis estratégica. Continuidad del marco 130/30 sin cambios documentados.</div>
+  <div class="strat-c">+16,0% anual 5y — driver explicativo: rentabilidad anualizada a 5 años del +16,0% (fund_data performance) cubre el periodo 2021-2026 con periodos como 2024 contribuyendo al rebote. Alfa de +3,90pp a 5 años vs MSCI Europe.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2025</div>
+  <div class="strat-c">Volatilidad arancelaria Trump-2: México, Canadá, China, acero, aluminio, automóviles. "Día de la Liberación" arancelario en 2T 2025 causa venta brusca; pausa unilateral de EE.UU. y acuerdo con China impulsan recuperación. Europa responde con paquete fiscal alemán significativo, tesis macro favorable a RV europea.</div>
+  <div class="strat-c">El equipo de RV europea capitaliza el descuento estructural y el apoyo fiscal alemán. Mantenimiento de sobreponderación táctica en sectores cíclicos beneficiados (energía, bancos) y servicios de telecomunicaciones. La carta 2025 es del Annual Report, narra contexto sin detalle de decisiones específicas del fondo.</div>
+  <div class="strat-c">+17,5% anual 3y — driver explicativo: rentabilidad anualizada a 3 años del +17,5% (fund_data) refleja el rendimiento sostenido del fondo en el ciclo 2023-2026. Alfa de +6,56pp anuales vs MSCI Europe en 3y.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2026-Q1</div>
+  <div class="strat-c">Mercados europeos empiezan Q1 con fuerza por crecimiento sólido, ganancias optimistas y PMIs firmes en eurozona. Sentimiento se deteriora por incertidumbre arancelaria y conflicto EE.UU.-Irán. Volatilidad de marzo provoca venta global por preocupaciones de inflación y cierre del Estrecho de Ormuz que impacta petróleo, GNL y fertilizantes (carta Q1 2026).</div>
+  <div class="strat-c">Aumento de posición en ASML, fabricante holandés de equipos de semiconductores. Venta de Roche Holding (farmacéutica suiza). Sobreponderaciones en energía, bancos y servicios de telecomunicaciones. Infraponderaciones en bienes de capital, alimentos/bebidas/tabaco y productos para el hogar y cuidado personal.</div>
+  <div class="strat-c">+0,83% Q1 2026 — driver explicativo: el fondo retorna +0,83% vs MSCI Europe Total Return Net -0,94% (+1,78pp exceso). Contribuyen positivamente la infraponderación en SAP y la sobreponderación en SBM Offshore; restan la no tenencia de Eni y la infraponderación en TotalEnergies.</div>
+</div>
+
+  
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Composición por tipo de activo</p><p class="pr">La cartera está prácticamente concentrada en renta variable. Según fund_data (asset_allocation snapshot reciente), el desglose es <strong>99,3% renta variable, 0,7% liquidez y 0,0% renta fija u otros</strong>. La ficha técnica de FT a 30 de abril de 2026 ofrece una lectura algo distinta —Acciones no-Reino Unido 75,01%, Efectivo 13,05%, Acciones Reino Unido 10,94%, Bonos no-Reino Unido 0,19% y Otros 0,81%—. La diferencia del 13% de efectivo se explica por la presencia del <strong>JPMorgan Liquidity Funds EUR</strong> como primera posición agregada de la cartera (9,29% del patrimonio según FT), un fondo monetario interno de la propia gestora utilizado como vehículo de liquidez operativa para gestionar los flujos del 130%/30% sin tener que cambiar posiciones estructurales constantemente. La exposición neta direccional al mercado europeo se mantiene en ~100% del patrimonio, en línea con la arquitectura 130/30.</p><p class="subsec">Distribución geográfica diversificada con peso británico, suizo y alemán</p><p class="pr">El detalle granular de fund_data muestra una cartera diversificada en 20 jurisdicciones europeas. Los pesos principales son <strong>Reino Unido (15,63%), Suiza (15,06%), Alemania (12,87%), Países Bajos (10,38%), Francia (9,32%) y Luxemburgo (9,32%)</strong>, seguidos de Dinamarca (7,39%), Italia (4,58%), Suecia (3,88%), Finlandia (3,02%) y España (2,74%). La presencia simultánea de Europa-euro y Europa-ex-euro confirma el mandato pan-europeo del producto: no es un fondo exclusivamente eurozona ni exclusivamente UCITS continentales.</p><p class="pr">El FT tearsheet (abr-2026) reagrupa esta distribución a alto nivel como <strong>Eurozona 45,84%, Europa ex-Euro 25,99%, Reino Unido 10,94%</strong>, con 1,69% de Estados Unidos, 1,12% de América Latina y trazas en otras regiones. La presencia de un pequeño porcentaje en EE.UU. y América Latina sugiere que el fondo permite cierta exposición a valores europeos con cotización principal o secundaria fuera de Europa, o a ADRs/GDRs de compañías europeas.</p><p class="subsec">Sectores principales: financieros e industriales lideran</p><p class="pr">Los sectores top-5 de la cartera según FT (abr-2026) son <strong>Servicios Financieros (20,35%), Industriales (18,08%), Tecnología (9,54%), Healthcare (8,63%) y Consumer Cyclical (6,22%)</strong>. Esta distribución es típicamente europea: peso significativo de bancos y aseguradoras en financieros, industriales reflejando la fortaleza manufacturera de Alemania, Países Bajos y Suiza, y tecnología relativamente baja vs. la composición del S&P 500 (consistente con la estructura económica europea). La carta Q1 2026 confirma sobreponderaciones tácticas en energía, bancos y telecomunicaciones y infraponderaciones en bienes de capital (a pesar del peso de industriales), alimentos/bebidas/tabaco y productos para el hogar y cuidado personal.</p><p class="subsec">Concentración relativa</p><p class="pr">El bundle no proporciona los pesos consolidados de top-5/top-10/top-15 directamente. A partir de la información disponible: el FT reporta que las 5 mayores posiciones agregadas representan aproximadamente el <strong>18,9%</strong> del patrimonio (JPMorgan Liquidity Funds EUR 9,29% + ASML 4,48% + Novartis 2,19% + Nestlé 1,78% + Roche Holding 1,42%). Si se excluye el fondo monetario interno (que es un vehículo de liquidez, no una apuesta de inversión convencional), la concentración real en RV de las 5 mayores posiciones de equity sería ~9,87%. Esto sugiere una cartera con <strong>concentración relativamente baja</strong> en sus apuestas top, consistente con un proceso cuantitativo + fundamental que busca amplitud (muchas apuestas pequeñas no correlacionadas) más que pocas apuestas grandes de alta convicción tipo boutique value.</p><p class="subsec">Racional de las posiciones individuales</p><p class="pr">El bundle no contiene el racional individual de la mayor parte de las posiciones (no hay carta de gestor europea con detalle por nombre como en otros productos). El listado de fund_data incluye nombres como <strong>SAP SE, Siemens AG, ASML Holding NV, Novo Nordisk A/S, TUI AG, Solvay SA, SBM Offshore NV, AstraZeneca plc, Shell plc, HSBC Holdings plc</strong>, que combinan campeones tecnológicos (SAP, ASML), industriales (Siemens), farmacéuticas (Novo Nordisk, AstraZeneca), energía (Shell, SBM Offshore) y financieros (HSBC). Los pesos reportados para algunas de estas posiciones en fund_data (Siemens 0,77%, TUI 0,75%, Solvay 0,43%) parecen corresponder a <strong>sobre/infraponderaciones relativas al benchmark</strong> más que a pesos absolutos en cartera, consistente con el lenguaje de la carta Q1 2026 que habla en términos de sobre/infraponderaciones (SAP infraponderada, SBM Offshore sobreponderada). Los pesos absolutos top reales serían los del FT tearsheet (ASML 4,48%, Novartis 2,19%, etc.), no los del listado de fund_data.</p><p class="subsec">Cobertura ESG en la cartera</p><p class="pr">El proceso aplica análisis ESG sistemático a ≥90% de los valores comprados (KIID 2023), lo que justifica la clasificación Artículo 8 SFDR. Esto se traduce en filtros sobre exclusiones (armas controvertidas, tabaco bajo ciertos criterios) y en una capa adicional de valoración cualitativa sobre temas climáticos, gobernanza y sociales para cada nombre del universo elegible. El detalle granular de los scores ESG por posición no está disponible en el bundle.</p><p class="subsec">Riesgos estructurales de la cartera actual</p><p class="pr">Los principales riesgos estructurales identificables son: (1) <strong>exposición pan-europea</strong> sin diversificación global, lo que concentra el riesgo macro en la región; (2) <strong>peso significativo en financieros (20%)</strong>, sensible a tipos del BCE, calidad crediticia y regulación bancaria europea; (3) <strong>uso de derivados</strong> para implementar el ~30% de cortos, con riesgo operativo y de contraparte controlado pero presente; (4) <strong>dependencia del JPMorgan Liquidity Funds EUR</strong> como vehículo de liquidez (9,3% del patrimonio según FT) — concentra parte del cash management en otro producto de la misma gestora.</p>
+  </div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
+  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>Composición por activos (fund_data)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">RV 99,3%, bonos 0,0%, cash 0,7%, otros 0,0%. FT abr-2026 reporta 13,05% en JPMorgan Liquidity Funds EUR usado como vehículo de liquidez operativa.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Geografía granular (fund_data)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Reino Unido 15,63%, Suiza 15,06%, Alemania 12,87%, Países Bajos 10,38%, Francia 9,32%, Luxemburgo 9,32%, Dinamarca 7,39%, Italia 4,58%, Suecia 3,88%, Finlandia 3,02%, España 2,74%, resto 8,71%.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Geografía agregada (FT abr-2026)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Eurozona 45,84%, Europa ex-Euro 25,99%, Reino Unido 10,94%, EE.UU. 1,69%, América Latina 1,12% (mediante exposición indirecta o valores con cotización paralela).</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Sectores top-5 (FT abr-2026)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Servicios Financieros 20,35%, Industriales 18,08%, Tecnología 9,54%, Healthcare 8,63%, Consumer Cyclical 6,22%.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>Estructura larga/corta</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Posiciones largas típicas ~130% del patrimonio neto, posiciones cortas típicas ~30% vía derivados, exposición neta ~100% (KIID 2023).</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">10</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">8,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">6,5%</div><div class="kpi-sub">Otros · Renta variable 1,5%</div></div>
+  </div>
+
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctxMix = document.getElementById('c-mix');
+    if (ctxMix) {
+      const tipos = [["OTHER", 6.5], ["RV", 1.5]];
+      new Chart(ctxMix, {
+        type: 'doughnut',
+        data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+      });
+    }
+    const ctxC = document.getElementById('c-conc');
+    if (ctxC) {
+      new Chart(ctxC, {
+        type: 'bar',
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [8.0, 8.0, 8.0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
+      });
+    }
+  })();
+  </script>
+
+  <div class="sr">Todas las posiciones (10)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody><tr>
+  <td title="Novo Nordisk A/S 'B'">Novo Nordisk A/S 'B'</td>
+  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:38px;background:#0c2340;"></div>4,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>5%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SBM Offshore NV">SBM Offshore NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>6%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Siemens AG">Siemens AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>7%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="TUI AG">TUI AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Solvay SA">Solvay SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Bélgica</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SAP SE">SAP SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ASML Holding NV">ASML Holding NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AstraZeneca plc">AstraZeneca plc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Shell plc">Shell plc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HSBC Holdings plc">HSBC Holdings plc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+  
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-05-20</span>
+      </div>
+      <div class="src-t">JPMorgan Funds - Europe Equity Plus Fund D (perf) (acc) EUR - Ficha de Fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha técnica neutra que documenta patrimonio £5,41B (fondo total) / £353M (clase D), TER 2,71% anual, rentabilidad +17,16% a 1 año y continuidad del equipo de tres gestores desde 2007 / 2010 / 2017. Datos sin opinión editorial pero objetivamente favorables.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0289214628:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-05-19</span>
+      </div>
+      <div class="src-t">JPMorgan Funds - Europe Equity Plus Fund A (perf) (acc) EUR</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha técnica neutra de la clase A EUR con TER 1,71%, rentabilidad +17,34% a 1 año y top-5 holdings detallados (JPMorgan Liquidity Funds EUR 9,29%, ASML 4,48%, Novartis 2,19%, Nestlé 1,78%, Roche 1,42%). Confirma equipo gestor de tres miembros y categoría Morningstar Europe Large-Cap Blend Equity.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0289089384:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-05-19</span>
+      </div>
+      <div class="src-t">JPMorgan Funds - Europe Equity Plus Fund A (perf) (dist) GBP</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha de riesgo de la clase A GBP que aporta métricas alfa/beta/Sharpe: alfa +5,82 a 1y, +6,56 a 3y y +3,90 a 5y vs MSCI Europe NR EUR; beta +0,94; Sharpe 1y +1,85; Information Ratio +2,28; R-squared 95,5%. Indica alfa significativo y persistente con tracking error moderado.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU0289230079:GBP" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsPeople</div>
+        </div>
+        <span class="src-date">2019-07-25</span>
+      </div>
+      <div class="src-t">JPMorgan Funds Europe Equity Plus Fund - Fusione di analisi quantitativa e fondamentale</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Análisis positivo del proceso del fondo descrito como "estructurado y disciplinado" combinando análisis cuantitativo con fundamental en proceso bottom-up. Destaca selección de títulos de alta calidad con valoraciones atractivas y momentum positivo, y la flexibilidad 130/30 para implementar tanto sobreponderaciones como cortos. Identifica al equipo de tres: Barakos, Horne, Stapley.</div>
+      <a href="https://fundspeople.com/it/jpmorgan-funds-europe-equity-plus-fund-fusione-di-analisi-quantitativa-e-fondamentale/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsPeople</div>
+        </div>
+        <span class="src-date">2019-04-10</span>
+      </div>
+      <div class="src-t">J.P. Morgan AM: Desayuno con Michael Barakos</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Evento informativo organizado con EFPA España donde Michael Barakos, identificado como CIO de Renta Variable Europea de J.P. Morgan AM, presenta perspectivas y oportunidades de inversión en el Europe Equity Plus Fund y Europe Strategic Value Fund. Confirma seniority y rol estructural del lead manager dentro de la organización.</div>
+      <a href="https://fundspeople.com/es/evento/j-p-morgan-am-desayuno-con-michael-barakos/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">11 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (0)</div>
+  
+
+  <div class="doc-grp">Cartas del gestor (6)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — Extending the Fundamental Law of Investment Management .pdf</span><a href="https://web.archive.org/web/20200920060233/https://www.jpmorgan.com/cm/BlobServer/Extending_the_Fundamental_Law_of_Investment_Management_.pdf?blobkey=id&blobwhere=1158630145176&blobheader=application%2Fpdf&blobheadername1=Cache-Control&blobheadervalue1=private&blobcol=urldata&blobtable=MungoBlobs" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — Weekly Strategy Report 020116.pdf</span><a href="https://web.archive.org/web/20191021104652/https://am.jpmorgan.com/blob-gim/1383300874826/83456/Weekly-Strategy-Report_020116.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">espaceclient.suravenir.fr — LU0880062913.pdf</span><a href="https://espaceclient.suravenir.fr/o/documents/WsPUS/RAPPORT_PER_SFDR/LU0880062913.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">assets-eu-01.kc-usercontent.com — jpmf europe equity plus fund kiid.pdf</span><a href="https://assets-eu-01.kc-usercontent.com/60904777-a2a4-01d4-db89-4b2578e605c6/82b62eac-7d64-4d7c-992b-624971ce2a2a/jpmf_europe_equity_plus_fund_kiid.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">am.jpmorgan.com — jpm europe equity plus fund commentary ce en.pdf</span><a href="https://am.jpmorgan.com/content/dam/jpm-am-aem/emea/regional/en/literature/commentary/jpm-europe-equity-plus-fund-commentary-ce-en.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">am.jpmorgan.com — jpmorgan funds annual report ce en.pdf</span><a href="https://am.jpmorgan.com/content/dam/jpm-am-aem/emea/regional/en/global-regulatory/annual-report/jpmorgan-funds-annual-report-ce-en.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">XMLs CNMV (0)</div>
+  
+
+  <div class="doc-grp">Fuentes externas (5)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — j p morgan am desayuno con michael barakos</span><a href="https://fundspeople.com/es/evento/j-p-morgan-am-desayuno-con-michael-barakos/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — jpmorgan funds europe equity plus fund fusione di analisi quantit</span><a href="https://fundspeople.com/it/jpmorgan-funds-europe-equity-plus-fund-fusione-di-analisi-quantitativa-e-fondamentale/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — risk</span><a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU0289230079:GBP" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0289089384:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0289214628:eur" target="_blank" class="doc-a">↗ Abrir</a></div>
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND (LU0289214628): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py LU0289214628';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py LU0289214628', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=[];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=[];
+  const nposMax=Math.max(...[])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": []};
+const TER_DATA={"A": []};
+const TER_EFECTIVO=[];
+const CY=[];
+const HAS_EXITO=false;
+const EXITO_REAL=[];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='LU0289214628';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>

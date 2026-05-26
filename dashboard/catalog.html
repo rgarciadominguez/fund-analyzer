@@ -1463,26 +1463,21 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Apunta directamente a index_fixed.html para evitar el meta refresh intermedio.
 const FUND_DASHBOARD_URL = 'https://rgarciadominguez.github.io/fund-dashboard/index_fixed.html';
 
-// W9 (2026-05-21): URL del Supabase Storage para servir los dashboards
-// cualitativos cuando el catalog se accede desde Pages (sin server local).
-// Requiere que el bucket `funds-data` (o al menos /dashboards) sea PÚBLICO.
-const SUPABASE_STORAGE_PUBLIC_BASE = `${SUPABASE_URL}/storage/v1/object/public/funds-data`;
-
+// W11 (2026-05-21): Servir dashboards desde el mismo dominio que catalog.html.
+// Pages y web_server local sirven los archivos en la misma carpeta `dashboard/`,
+// así que un path relativo funciona en ambos modos.
+//
+// Antes intentamos servirlos desde Supabase Storage (W9) pero Supabase fuerza
+// Content-Type: text/plain + CSP sandbox para HTMLs públicos por seguridad,
+// y eso impide renderizar.
 function isHostedMode() {
-  // True si el catalog está en GitHub Pages u otro hosting remoto.
-  // False si es localhost (server local). Determina si usamos URLs absolutas
-  // de Storage o paths relativos del web_server.
   const h = (window.location && window.location.host) || '';
   return h.includes('github.io') ||
          (!h.startsWith('localhost') && !h.startsWith('127.0.0.1') && h !== '');
 }
 
 function getDashboardUrl(isin) {
-  // En modo Pages: URL absoluta del Supabase Storage (bucket público).
-  // En modo localhost: path relativo que sirve el web_server (`fund-XXX.html`).
-  if (isHostedMode()) {
-    return `${SUPABASE_STORAGE_PUBLIC_BASE}/dashboards/fund-${isin}.html`;
-  }
+  // Path relativo — funciona en local (Flask sirve) y en Pages (sirve archivos del repo)
   return `fund-${isin}.html`;
 }
 

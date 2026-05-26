@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COBAS INTERNACIONAL, FI — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund">COBAS INTERNACIONAL, FI <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>COBAS ASSET MANAGEMENT, SGIIC, S.A.</strong></div>
+      <div class="lh-meta-line">Depositario: <strong>BNP PARIBAS S.A., SUCURSAL EN ESPAÑA</strong></div>
+      <div class='lh-meta-line'>ISIN limpia EUR: <strong>ES0119199000</strong> <span style='opacity:.55;font-size:10.5px;'>· Cobas Internacional C FI</span></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€927M</div>
+        <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2017-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2018-12 (Carta)</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 5 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Marzo 2017</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Francisco García Paramés</strong> <span style='opacity:.7;'>(lead)</span> · Carmen Pérez Baguena <span style='opacity:.6;font-size:9px;'>(co)</span> · Iván Chvedine Santa María <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-05-07</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin ES0119199000 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">Cobas Internacional, FI (ISIN ES0119199000) es el vehículo de renta variable global de Cobas Asset Management SGIIC, gestora fundada por Francisco García Paramés en septiembre de 2016 y autorizada por la CNMV en febrero de 2017 (CNMV anexo semestral 2025). El fondo arrancó en marzo de 2017 con €422M de patrimonio y 5.791 partícipes y a cierre de 2025 alcanza €926,95M y 10.032 partícipes, tras un año excepcional en el que la cartera se revalorizó +26,4% frente al +19,7% del índice de referencia BBG Developed Markets (carta semestral 2S2025).</p><p class="pr">El mandato es claro: invertir al menos un 80% en renta variable global de cualquier capitalización y sector de la OCDE excluyendo España y Portugal — la exposición ibérica se cubre en el fondo hermano Cobas Iberia FI — con posibilidad de hasta un 40% en emergentes y duración media de la pata de renta fija inferior a 18 meses (folleto CNMV sección 1). El fondo opera prácticamente al límite legal del 99% invertido (97,05% RV + 2,19% RF + 0,31% liquidez en 2025) y vehicula la filosofía value investing fundacional de Paramés: comprar compañías infravaloradas, normalmente fuera del radar consensual, con horizonte plurianual y sin coberturas de divisa activas.</p><p class="pr">La cartera 2025 cotiza con un PER ajustado a equity de 6,9x y un ROCE del 27% (anexo CNMV S2-2025), con un potencial de revalorización autocalculado del 106% sobre valor objetivo. El fondo se ofrece en cuatro clases — A, B, C y D — con TER que van del 0,96% (clase A institucional) al 1,81% (clase D), todas sin comisión sobre resultados. La volatilidad anualizada en 2025 es del 14,58% y el perfil de riesgo CNMV es 5/7.</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">La filosofía de inversión es una traslación íntegra del value investing clásico al ecosistema español: selección bottom-up de compañías individuales infravaloradas por el mercado, con foco en negocios comprensibles, calidad y estabilidad de los flujos de caja y disciplina estricta en la valoración de entrada. Paramés combina este corpus (Graham, Buffett, Lynch) con la teoría austriaca del ciclo económico, marco que utiliza explícitamente para entender los excesos monetarios y las distorsiones de precios relativos (carta inaugural 2017, Wikipedia).
+
+El proceso descansa sobre cuatro pilares operativos: (1) preferencia por compañías familiares o con un único accionista de control — en el lanzamiento ~80% de la cartera respondía a este criterio —; (2) tolerancia explícita a la volatilidad como generadora de valor ("welcome volatility", carta 2017); (3) rechazo estructural a la renta fija y al mercado monetario por el riesgo de depreciación de las divisas en un contexto de manipulación monetaria — el fondo invierte casi siempre cerca del 99%; y (4) regla dura de no pagar más de doce años de beneficios (PER 12x) por una compañía. La salida de una posición se justifica únicamente cuando aparece una oportunidad mejor o cuando la cotización converge a la valoración interna.</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Compañías infravaloradas con margen de seguridad:</strong> <span class="pr" style="font-size:12.5px;">Selección de empresas que cotizan por debajo de su valor intrínseco estimado, con PER de entrada típicamente por debajo de 12x y, a cierre de 2025, una cartera media a PER ajustado a equity de 6,9x — la mitad del múltiplo del mercado.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Negocios de calidad y comprensibles:</strong> <span class="pr" style="font-size:12.5px;">ROCE alto y sostenible (27% en la cartera 2025; 32% si se excluyen materias primas) como filtro de calidad. Preferencia por modelos sencillos, evitando explícitamente burbujas tecnológicas (Paramés esquivó el dot-com 2000 y la banca/inmobiliario español 2007 desde Bestinver).</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Empresas familiares y con accionista de control:</strong> <span class="pr" style="font-size:12.5px;">En la carta inaugural Paramés cifra en torno al 80% el peso de empresas familiares o con un solo accionista de control, perfil que entiende como alineamiento natural con accionistas minoritarios y horizonte de gestión más largo.</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Lead Manager con uno de los mejores track records del value investing europeo: Paramés multiplicó por más de 7x al MSCI World en Bestinver Internacional (1998-2007) y esquivó la burbuja tecnológica del 2000 y la crisis financiera de 2008.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Skin in the game extremo y público: la familia Paramés invierte la totalidad de sus ahorros disponibles en los fondos de Cobas (carta inaugural 2017), creando una alineación de incentivos estructural y verificable.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Cartera con métricas de valoración muy atractivas: PER ajustado a equity 6,9x y ROCE 27% en 2025 — la mitad del múltiplo del mercado y un retorno del capital significativamente superior al promedio.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Equipo de inversión estable y experimentado: el núcleo gestor procede mayoritariamente de Bestinver y trabaja con Paramés desde antes de 2014, con incorporaciones internacionales (perfiles británicos, peruano, taiwanés y americano) que aportan diversidad geográfica.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Track record reciente sólido tras superar el cementerio histórico: +11% en 2022 (vs MSCI Euro -9,5%), +11,6% en 2023, +23,4% en 2024 (vs +9% benchmark) y +26,4% en 2025 (vs +19,7%).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estructura de comisiones competitiva en clase A (TER 1,06%, gestión 1,0% sin comisión de éxito) frente a la media de fondos de gestión activa española.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Volatilidad alta y drawdowns severos históricos: el fondo perdió un 27,5% acumulado a cierre de 2018 desde su lanzamiento en marzo 2017 (CNMV anexo 2018), tras concentraciones desafortunadas en Aryzta, transporte marítimo de crudo y Teekay.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración elevada por construcción: el top 5 representa el 19,15% de la cartera y el top 15 cerca del 43%, con apuestas idiosincráticas (energía marítima, materias primas, holdings europeos cíclicos) que pueden generar dispersión fuerte respecto a índices.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sin cobertura de divisa: la exposición a USD, NOK, GBP, BRL y otras divisas no se cubre activamente, lo que añade un componente FX a la volatilidad — visible especialmente en 2017 con el impacto negativo del 4% del euro al lanzamiento.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sesgo estructural anti-megacaps tecnológicas: el value puro de Paramés evita las Siete Magníficas y compañías de crecimiento puro, lo que en ciclos de dominio tecnológico (2018-2020, 2023) genera underperformance significativa frente a S&P 500 e índices globales.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de comportamiento del partícipe en drawdowns largos: el partícipe que entró en 2017 y vendió en 2020 con VL en 63,6 cristalizó pérdidas relevantes; la propuesta exige horizonte mínimo de 5-10 años y tolerancia explícita a periodos de underperformance.</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>Clase A</strong></td><td>ES0119199000</td><td>1,0%</td><td>1,1%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2017</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase B</strong></td><td>—</td><td>1,2%</td><td>1,3%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2020</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase C</strong></td><td>—</td><td>1,5%</td><td>1,6%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2020</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase D</strong></td><td>—</td><td>1,8%</td><td>1,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2020</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+  </table>
+  
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con horizonte de muy largo plazo (mínimo 7-10 años, idealmente más), perfil de riesgo medio-alto y tolerancia explícita a drawdowns severos en el corto plazo. Adecuado para quien busca exposición pura al value investing europeo y global con sesgo anti-consenso (fuera de megacaps tecnológicas), ya entiende la filosofía de Paramés y la teoría austriaca del ciclo, y está preparado para soportar tres o cuatro años seguidos de underperformance frente a índices globales sin entrar en pánico vendedor. No apto como única exposición de cartera ni para perfiles que prioricen estabilidad a corto plazo.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Compromiso explícito y verificable: "My family and I already invest all our available savings in the funds managed by Cobas Asset Management SGIIC SA and we will always continue to do so" (carta inaugural Paramés, marzo 2017). Adicionalmente, los empleados de Cobas AM tienen los fondos como vehículo principal de ahorro. La política de capacidad establecida en 2017 (cierre de Cobas Selección al alcanzar €2.000M, estrategia global tope €4.000-€5.000M) refleja una orientación a la rentabilidad por partícipe sobre la maximización del AUM.</p></div></div>
+
+  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 1,0%)</option><option value="B">B (TER 1,25%)</option><option value="C">C (TER 1,5%)</option><option value="D">D (TER 1,75%)</option></select></span></div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
+  </div>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Marzo 2017 — presente</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Origen del proyecto Cobas (2014-2016)</p><p class="pr">La historia de Cobas Internacional FI no se entiende sin el episodio previo de Bestinver. Francisco García Paramés se incorporó a Bestinver Asset Management en 1989, donde durante 25 años construyó uno de los track records value más reconocidos de Europa: sus fondos de renta variable española triplicaron al índice de referencia entre 1993 y 2007, y los internacionales multiplicaron por siete al MSCI World entre 1998 y 2007 (Wikipedia). Esquivó la burbuja tecnológica del 2000 y la exposición a banca e inmobiliario antes de la crisis financiera de 2008. En septiembre de 2014 dimitió de Bestinver por desacuerdos con la matriz Acciona y, tras un periodo legal de no-competencia de dos años, fundó Cobas Asset Management en septiembre de 2016 declinando la oferta de unirse a sus antiguos colegas en azValor.</p><p class="subsec">Autorización CNMV y lanzamiento de los fondos (febrero-marzo 2017)</p><p class="pr">El 3 de febrero de 2017 la CNMV inscribió a Cobas AM en el Registro Administrativo de SGIIC. El 17 de febrero recibió autorización para transferir el fondo Cobas Selección FI a la nueva gestora y el 3 de marzo se aprobó la gestión de los primeros cuatro fondos, comercializados desde el miércoles 8 de marzo de 2017. La estructura inaugural fue: Cobas Selección (90% global + 10% ibérica), Cobas Internacional (global), Cobas Iberia, Cobas Grandes Compañías (global, capitalizaciones >€4.000M) y Cobas Renta (renta fija corto plazo + 10% RV) (carta inaugural Paramés 7-mar-2017). Cobas Internacional FI inició actividad inversora a mediados de marzo con valor liquidativo base de 100€ y €422,3M de patrimonio.</p><p class="subsec">Año 1 (2017): arranque con perfil defensivo y exposición a commodities</p><p class="pr">La cartera inaugural incluyó 62 valores: 23 ya conocidos por el equipo (incluidas las 9 ibéricas) y 29 nuevos. El sector de materias primas y commodities pesaba cerca del 20% (10 valores), justificado por la manipulación monetaria de bancos centrales y los ajustes de precio tras el exceso de inversión 2008-2014. Compañías con caja neta representaban un 38% de la cartera y en cuatro empresas (6% del portfolio) la caja neta excedía el valor bursátil. Aryzta era ya una posición destacada. El fondo cerró 2017 con +5,75% YTD desde marzo (vs +6,47% del MSCI Europe Total Return Net), VL de 105,75€/participación y 5.791 partícipes (anexo CNMV 2017 H2).</p><p class="subsec">El cementerio (2018): primera gran prueba con drawdown del -32%</p><p class="pr">El cuarto trimestre de 2018 fue catastrófico para los fondos value europeos. La cartera internacional cayó un 23,5% en Q4-2018 (vs -11,3% del MSCI Europe TR) y acumulaba un -27,5% desde el lanzamiento en marzo 2017 frente al -4,8% del benchmark (CNMV anexo 2018). Aryzta y Teekay fueron los principales detractores con impactos individuales del -3,3% y -2,6% respectivamente sobre la rentabilidad. El VL cerró el año en 72,53€ — una caída del 31,4% frente al cierre 2017. A pesar del castigo, el equipo mantuvo la convicción: el valor objetivo se elevó a 173€/participación con un potencial del 138% y la cartera cotizaba a PER 7,2x con ROCE 26%.</p><p class="subsec">Recuperación parcial y rotación de tesis (2019-2020)</p><p class="pr">En 2019 el fondo recuperó terreno hasta VL 82,23€ y cristalizó la tesis del transporte marítimo de crudo: las nuevas regulaciones de emisiones (IMO 2020) y el agotamiento de la ola de construcción de petroleros llevaron las tasas de flete a niveles récord, permitiendo al equipo reducir significativamente esta exposición. La crisis del COVID en 2020 castigó duramente al fondo (VL cerró el año en 63,6€), pero el rally value de Q4-2020 desde el anuncio de las vacunas generó una fuerte recuperación: Cobas Internacional +26,9% en el trimestre frente al +10,8% del benchmark.</p><p class="subsec">Cambio de ciclo (2021-2022): vuelta del value y comportamiento defensivo</p><p class="pr">El año 2021 trajo el regreso de la inflación y un cambio de régimen monetario al que el fondo estaba estructuralmente bien posicionado por su exposición a energía y materias primas. En 2022, mientras los principales índices europeos cayeron cerca del 10% y el S&P 500 perdió un 18%, Cobas Internacional cerró el año con +11% (frente a -9,49% del MSCI Euro), con la cartera cotizando a PER 5,5x y precio objetivo en máximos desde el inicio (anexo CNMV 2022). El AUM creció hasta €536M y los partícipes a 8.395.</p><p class="subsec">Consolidación del retorno (2023-2024)</p><p class="pr">En 2023, año dominado por las "Siete Magníficas" tecnológicas que aportaron ~80% de los rendimientos del S&P 500, Cobas Internacional obtuvo +11,6% frente al +15,8% de su benchmark — una underperformance esperable dado el sesgo value puro de la cartera. El ROCE medio se mantuvo en el 32% y el endeudamiento medio en 0,3x deuda neta/EBITDA. 2024 marcó un punto de inflexión: la cartera se revalorizó +23,4%, superando ampliamente al BBG Europe Developed Markets (+9%), gracias a Teva (+110%), Golar (+88%), Currys (+86%) y Babcock (+27%), más la OPA recibida sobre TI Fluid Systems con +29% en el año.</p><p class="subsec">Año excepcional (2025) y reposicionamiento de la cartera</p><p class="pr">2025 cerró con una revalorización del +26,4% frente al +19,7% del BBG Developed Markets (carta semestral 2S2025). Los principales contribuidores en cartera internacional fueron Avio (+156%), BW Energy (+100%), Danieli (+94%) y Bayer (+93%); en la cartera ibérica Técnicas Reunidas (+146%), Atalaya (+128%), Almirall (+59%) y Repsol (+47%). Tras varios años de rentabilidades muy elevadas, el equipo realizó numerosas ventas parciales o totales y reinvirtió en valores de perfil de riesgo moderado a buenos precios: ventas totales de Avio (semi-monopolio en motores de cohetes europeos), Samsung C&T (presente desde 2016 con descuento del 50-60%) y Elecnor (presente desde el inicio de Cobas AM). Compras y aumentos en TGS, Borr Drilling y Wizz Air; refuerzo de Brava Energía y nueva posición en Petroreconcavo (productoras de petróleo y gas en Brasil) tras viaje del equipo al país. El AUM cerró en €926,95M y los partícipes en 10.032 — máximos históricos para el fondo. El valor objetivo se elevó a 338€/participación clase C, con un potencial del 106%.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">9</div><div class="kpi-sub">Marzo 2017 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div><div class="ch-b"><div class="ch-l">Partícipes</div><div class="ch-h"><canvas id="c-part"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 926.95;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2014</div>
+      <div class="tl-tag tag-hito">Cambio_owner</div>
+      <div class="tl-title">Salida de Paramés de Bestinver</div>
+      <div class="tl-desc">Francisco García Paramés dimite de Bestinver Asset Management el 23 de septiembre de 2014 por desacuerdos con la matriz Acciona, tras 25 años de track record value europeo (Wikipedia).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2016</div>
+      <div class="tl-tag tag-hito">Lanzamiento</div>
+      <div class="tl-title">Fundación de Cobas AM</div>
+      <div class="tl-desc">Tras un periodo legal de no-competencia de dos años, Paramés funda Cobas Asset Management en septiembre de 2016, declinando unirse a sus antiguos colegas en azValor.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-reg"></div>
+      <div class="tl-date">2017</div>
+      <div class="tl-tag tag-reg">Regulatorio</div>
+      <div class="tl-title">Autorización CNMV y lanzamiento del fondo</div>
+      <div class="tl-desc">El 3 de febrero de 2017 la CNMV inscribe Cobas AM en el Registro de SGIIC. El 8 de marzo arrancan los cinco fondos iniciales, entre ellos Cobas Internacional FI con €422M y 5.791 partícipes.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2018</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Drawdown histórico del Q4</div>
+      <div class="tl-desc">Caída del 23,5% en el cuarto trimestre y -27,5% acumulado desde el lanzamiento. Aryzta y Teekay actúan como principales detractores. VL cierra en 72,53€ con potencial de revalorización del 138% sobre valor objetivo.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2019</div>
+      <div class="tl-tag tag-hito">Salto de escala</div>
+      <div class="tl-title">Cristalización de la tesis shipping</div>
+      <div class="tl-desc">Tras varios años de exposición al transporte marítimo de crudo, las nuevas regulaciones IMO 2020 y el agotamiento de la oferta llevan las tasas de flete a máximos, permitiendo reducir la posición. AUM €451M.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2020</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-crisis">Crisis</span>
+            <strong style="font-size:12.5px;color:var(--ink);">COVID y rotación a value en Q4</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Caída a VL 63,6€ en mínimos COVID y rally del +26,9% en Q4 desde el anuncio de las vacunas, frente al +10,8% del benchmark. Confirmación del cambio de ciclo a favor del value.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Cambio_estrategia</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Reestructuración de clases comerciales</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Lanzamiento de las clases B (institucional medio), C (retail) y D (premium) sobre la base existente, ampliando el rango de TER del 1,0% al 1,79% según clase.</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2022</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Año bisagra: outperformance defensivo</div>
+      <div class="tl-desc">Cobas Internacional +11% frente al -9,49% del MSCI Euro y -10% promedio de los principales índices europeos. Cartera cotizando a PER 5,5x y precio objetivo en máximos desde el inicio.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2024</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Outperformance amplia y OPA sobre TI Fluid Systems</div>
+      <div class="tl-desc">Revalorización del +23,4% (vs +9% benchmark) liderada por Teva (+110%), Golar (+88%) y Currys (+86%). OPA sobre TI Fluid Systems con +29% en el año. AUM cierra en €704M.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2025</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Salto de escala</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Año récord y reposicionamiento defensivo</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Revalorización del +26,4% (vs +19,7% benchmark). Avio +156%, BW Energy +100%, Danieli +94% y Bayer +93%. Ventas totales de 11 valores con peso >7% y entrada en 7 valores nuevos. AUM €926,95M y 10.032 partícipes — máximos históricos.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Equipo</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Viaje del equipo a Brasil</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">A finales de 2025 el equipo viaja a Brasil para validar in situ las tesis de Brava Energía y Petroreconcavo (productoras de petróleo y gas con accionistas de control alineados), reforzando la convicción en ambas posiciones.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  <div class="mb24"><p class="pr">Cobas Asset Management opera con un modelo *team-managed* bajo la dirección unipersonal de Francisco García Paramés como CIO, quien firma las cartas estratégicas y representa públicamente al equipo. La página oficial de Cobas (cobasam.com/equipo) y la propia carta inaugural de marzo de 2017 confirman este modelo: Paramés figura como Presidente y CIO, y el equipo de inversión adicional incluye a Carmen Pérez Baguena, Iván Chvedine Santa María, Juan Cantus Pastor, Juan Huerta de Soto Huarte, Mingkun Chan, Vicente Martín Brogeras y Carla Villarmín Martínez, sin asignación nominal individual por fondo en las fuentes públicas.</p></div>
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">FG</div>
+        <div class="mgr-nm">Francisco García Paramés<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#1e5a8a;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerDeep</span></div>
+        <div class="mgr-rl">Presidente y CIO (Lead Portfolio Manager)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Presidente y CIO de Cobas Asset Management SGIIC desde su fundación en 2016</li><li style="margin-bottom:3px;">Director de inversiones de Bestinver Asset Management durante 25 años (1989-2014)</li><li style="margin-bottom:3px;">Track record en Bestinver: 7x MSCI World (fondos internacionales 1998-2007), 3x índice de renta variable española (1993-2007)</li><li style="margin-bottom:3px;">MBA por IESE Business School, licenciado en Económicas por la Universidad Complutense de Madrid</li><li style="margin-bottom:3px;">Doctor honoris causa por la Universidad Francisco Marroquín (Guatemala, 2016)</li><li style="margin-bottom:3px;">Autor del libro 'Invirtiendo a largo plazo' (2016), referencia value en castellano</li><li style="margin-bottom:3px;">Esquivó la burbuja dot-com del 2000 y la crisis financiera de 2008 desde Bestinver</li><li style="margin-bottom:3px;">Skin in the game extremo: la familia Paramés invierte la totalidad de sus ahorros en fondos de Cobas</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>Formación y primeros años</strong>
+
+Nacido el 22 de diciembre de 1963 en Ferrol (Galicia, España). Licenciado en Económicas por la Universidad Complutense de Madrid y MBA por IESE Business School (Universidad de Navarra). Doctor *honoris causa* por la Universidad Francisco Marroquín de Guatemala (7 de mayo de 2016), distinción otorgada habitualmente a referentes de la Escuela Austriaca de Economía.
+
+<strong>Bestinver Asset Management (1989-2014)</strong>
+
+Se incorporó a Bestinver en 1989 y permaneció en la gestora durante 25 años, convirtiéndose en su director de inversiones y figura pública de referencia. La prensa financiera anglosajona le bautizó como *"the Spanish Warren Buffett"* por su track record value de largo plazo. Sus fondos de renta variable española <strong>triplicaron al índice de referencia entre 1993 y 2007</strong> y sus fondos internacionales <strong>multiplicaron por siete al MSCI World entre 1998 y 2007</strong>, convirtiendo a Bestinver en una referencia europea del value investing. Esquivó la burbuja tecnológica del 2000 y la exposición a banca e inmobiliario antes de la crisis financiera de 2008 — dos llamadas top-down documentadas que cimentaron su reputación de disciplina metodológica.
+
+Sobrevivió el 7 de marzo de 2006 a un accidente de avioneta privada en el que fallecieron el piloto y el director financiero de Bestinver. El episodio forma parte de su biografía pública y aparece recogido en Wikipedia.
+
+<strong>Salida de Bestinver y fundación de Cobas (2014-2017)</strong>
+
+Dimitió de Bestinver el 23 de septiembre de 2014 por desacuerdos con la matriz Acciona. Tras un periodo legal de no-competencia de dos años, fundó <strong>Cobas Asset Management</strong> en septiembre de 2016 declinando explícitamente la opción de incorporarse a sus antiguos colegas en azValor — una decisión que marca su preferencia por liderar un proyecto propio. La autorización CNMV llegó el 3 de febrero de 2017 y los primeros cinco fondos comenzaron a comercializarse el 8 de marzo de 2017.
+
+<strong>Producción intelectual</strong>
+
+Autor del libro *Invirtiendo a largo plazo* (Investing in the Long Term), publicado en 2016, que sintetiza su enfoque combinando value investing clásico (Graham, Buffett, Lynch) con la teoría austriaca del ciclo económico. El libro se ha convertido en lectura habitual en escuelas de negocios españolas y círculos value europeos. Es ponente habitual en conferencias del sector y mantiene comunicación regular con sus partícipes a través de las cartas trimestrales y la conferencia anual de inversores de Cobas.
+
+<strong>Track record en Cobas (2017-2025)</strong>
+
+Tras un arranque difícil en Cobas Internacional FI — drawdown del -27,5% acumulado a cierre de 2018 desde el lanzamiento en marzo 2017 — la cartera ha encadenado cuatro años consecutivos de outperformance: <strong>+11% en 2022</strong> (vs MSCI Euro -9,5%), <strong>+11,6% en 2023</strong>, <strong>+23,4% en 2024</strong> (vs +9% benchmark) y <strong>+26,4% en 2025</strong> (vs +19,7%). El AUM ha crecido de los €422M iniciales a €926,95M en 2025 y los partícipes de 5.791 a 10.032.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Combina los principios clásicos del value investing (Graham, Buffett, Lynch) con la teoría austriaca del ciclo económico — una combinación poco habitual entre gestores españoles que le aporta un marco macro coherente. Reglas operativas explícitas: no pagar más de 12 años de beneficios (PER 12x), preferencia por empresas familiares o con accionista de control (~80% de la cartera), inversión casi siempre cerca del límite legal del 99%, rechazo estructural de la renta fija y los mercados monetarios por riesgo de depreciación de divisas, y bienvenida explícita a la volatilidad como generadora de valor. La disciplina de venta es binaria: se vende cuando aparece una oportunidad mejor o cuando la cotización converge a la valoración interna.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Identificación de Anglo American en diciembre de 2015 a 270 peniques en un Investor Day extremadamente negativo en la City de Londres. Calificada como 'la mayor oportunidad en mercados financieros desde 2000 o quizás 2009'. Cuando escribe la carta inaugural en marzo 2017, la acción cotiza a 1.400 peniques — multiplicación por 5x.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mantener convicción en Aryzta y Teekay durante el drawdown del Q4-2018 a pesar del impacto individual del -3,3% y -2,6% respectivamente sobre la cartera. La tesis del transporte marítimo cristalizó en 2019 con la regulación IMO 2020 que llevó las tasas de flete a máximos.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Rechazo estructural a las megacaps tecnológicas durante todo el ciclo 2018-2025. Aunque generó underperformance frente al S&P 500 en 2018-2020 y 2023, validó la disciplina value y permitió capturar la rotación a value de 2022 (+11% vs -9,5% MSCI Euro).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Decisión en 2025 de realizar ventas totales de Avio (+156%), Samsung C&T (presente desde 2016 con descuento del 50-60%) y Elecnor (presente desde el inicio de Cobas, multiplicación por casi 4x) tras revalorizaciones de triple dígito, reinvirtiendo en valores de perfil de riesgo moderado a buenos precios.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Viaje del equipo a Brasil a finales de 2025 para validar in situ las tesis de Brava Energía y Petroreconcavo. La diligencia presencial reforzó la convicción en ambas posiciones, ilustrando el enfoque colaborativo de due diligence del equipo bajo su dirección.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Combina tres rasgos poco habituales entre gestores españoles: (1) track record value de 36 años continuados desde 1989, con periodos largos documentados de outperformance multi-índice; (2) marco intelectual que une value investing clásico con teoría austriaca del ciclo, dándole coherencia top-down; y (3) skin in the game extremo y público con la familia invirtiendo la totalidad de sus ahorros en los fondos. La comunicación con partícipes es franca y didáctica, sin esquivar las fases de drawdown.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">CP</div>
+        <div class="mgr-nm">Carmen Pérez Baguena<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Gestora / Analista (Equipo de Inversión)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Miembro del equipo de inversión de Cobas AM desde la fundación (marzo 2017)</li><li style="margin-bottom:3px;">Procedente del equipo histórico de Bestinver bajo Paramés</li><li style="margin-bottom:3px;">Mencionada en la carta inaugural de Paramés (2017) como núcleo del equipo</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;">Miembro del equipo gestor de Cobas AM desde su fundación en marzo de 2017. Mencionada explícitamente por Francisco García Paramés en la carta inaugural como parte del núcleo histórico de profesionales que ya habían trabajado con él en Bestinver durante años. Forma parte del equipo de análisis e inversión que cubre la cartera internacional. Su biografía individual no figura detallada en las fuentes públicas oficiales (cobasam.com/equipo); las cartas y comunicaciones de la gestora se firman colectivamente por el equipo o por Paramés como CIO, sin asignación nominal por fondo.</p>
+        
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-1" class="exp-body"><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Continuidad con el equipo histórico de Bestinver y conocimiento profundo del proceso value de Paramés.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#2c6e49,#4ecf99);">IC</div>
+        <div class="mgr-nm">Iván Chvedine Santa María<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Gestor / Analista (Equipo de Inversión)</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Miembro del equipo gestor de Cobas AM desde la fundación en 2017. Mencionado en la carta inaugural de Paramés (marzo 2017) como parte del núcleo histórico de profesionales procedente de Bestinver. Forma parte del equipo de análisis e inversión integrado de Cobas. Sin biografía individual pública detallada.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:#3d5a80;">JC</div>
+        <div class="mgr-nm">Juan Cantus Pastor<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Gestor / Analista (Equipo de Inversión)</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Miembro del equipo de inversión de Cobas AM desde su fundación en 2017. Mencionado en la carta inaugural de Paramés como parte del núcleo histórico procedente de Bestinver. Sin biografía individual pública detallada.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:#5c5850;">JH</div>
+        <div class="mgr-nm">Juan Huerta de Soto Huarte<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Gestor / Analista (Equipo de Inversión)</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Miembro del equipo de inversión de Cobas AM desde su fundación en 2017. Mencionado en la carta inaugural de Paramés como parte del núcleo histórico procedente de Bestinver. Sin biografía individual pública detallada en las fuentes oficiales de la gestora.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">MC</div>
+        <div class="mgr-nm">Mingkun Chan<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Gestor / Analista (Equipo de Inversión)</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Miembro del equipo de inversión de Cobas AM desde la fundación en 2017. Mencionado en la carta inaugural de Paramés como parte del núcleo histórico procedente de Bestinver. Aporta diversidad cultural al equipo (origen taiwanés según la propia carta de Paramés, que cita explícitamente la composición multicultural del equipo). Sin biografía individual pública detallada.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">VM</div>
+        <div class="mgr-nm">Vicente Martín Brogeras<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Gestor / Analista (Equipo de Inversión)</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Incorporado al equipo de Cobas AM en su fundación en 2017. Según la carta inaugural de Paramés, forma parte del grupo de cuatro fichajes adicionales — junto a John Barden, Andrés Allende y Peter Smith — con una media de 20 años de experiencia que se sumaron al núcleo histórico procedente de Bestinver. Continúa listado en la página oficial actual del equipo (cobasam.com/equipo). Sin biografía individual pública detallada.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#2c6e49,#4ecf99);">CV</div>
+        <div class="mgr-nm">Carla Villarmín Martínez<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Gestora / Analista (Equipo de Inversión)</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Miembro actual del equipo de inversión de Cobas AM, listada en la página oficial del equipo (cobasam.com/equipo). Su incorporación es posterior a 2017 (no aparece en la carta inaugural de Paramés). Sin biografía individual pública detallada en las fuentes oficiales de la gestora.</p>
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Política de inversión (folleto CNMV)</p><p class="pr">El folleto registrado en la CNMV define el mandato con precisión: al menos un 80% de la exposición total se invierte en renta variable de cualquier capitalización y sector, en emisores y mercados de la OCDE excluyendo España y Portugal — la pata ibérica se cubre en el fondo hermano Cobas Iberia FI. Hasta un 40% puede invertirse en emisores y mercados de países emergentes. La pata residual de renta fija debe tener calidad crediticia mínima BBB- (o la del Reino de España si fuera inferior), duración media inferior a 18 meses y se compone esencialmente de instrumentos de mercado monetario y depósitos. El riesgo divisa puede oscilar del 0% al 100% de la exposición — Cobas no realiza coberturas activas. El perfil de riesgo regulatorio CNMV es <strong>5/7</strong>.</p><p class="subsec">Filosofía operativa: value investing + escuela austriaca</p><p class="pr">La estrategia traslada con fidelidad los principios value clásicos: selección bottom-up de compañías individuales infravaloradas por el mercado, con preferencia por negocios comprensibles, calidad y estabilidad de los flujos de caja, y disciplina estricta de valoración. La regla operativa más explícita en la carta inaugural de Paramés es <strong>no pagar más de 12 años de beneficios (PER 12x)</strong> por una compañía. La cartera 2025 cotiza muy por debajo de ese umbral: <strong>PER ajustado a equity de 6,9x</strong> y un <strong>ROCE del 27%</strong> — la mitad del múltiplo del mercado y un retorno del capital significativamente superior al promedio (anexo CNMV S2-2025).</p><p class="subsec">Cuatro principios operativos heredados de Bestinver</p><ul class="nl"><li><strong>Preferencia por empresas familiares o con accionista de control</strong>: en el lanzamiento de Cobas, ~80% de la cartera respondía a este criterio. Paramés argumenta que estas estructuras alinean naturalmente al gestor con los accionistas minoritarios y aportan horizonte de gestión más largo.</li><li><strong>Tolerancia explícita a la volatilidad</strong>: la carta inaugural lo enmarca con claridad: *"we welcome volatility (which helps generate value) and market dips and collapses since they push down the prices of the assets that interest us"*.</li><li><strong>Rechazo estructural a la renta fija y al mercado monetario</strong>: justificado por el riesgo de depreciación de las divisas en un contexto de manipulación monetaria. El fondo invierte casi siempre cerca del <strong>99%</strong> del patrimonio.</li><li><strong>Disciplina de venta binaria</strong>: se vende cuando aparece una oportunidad mejor o cuando la cotización converge a la valoración interna. *"When asked the question 'When do you sell a security?', we always offer the same response: when a better opportunity presents itself"*.</li></ul><p class="subsec">Universo geográfico y sectorial</p><p class="pr">Foco principal en Europa por familiaridad cultural y de información, con posiciones menores en EE. UU. y Asia. El equipo viaja para validar tesis presencialmente — el viaje más reciente documentado a Brasil a finales de 2025 para confirmar las tesis sobre Brava Energía y Petroreconcavo. La cartera 2025 está fuertemente sesgada a Europa cíclica y energía/materias primas: nombres como Atalaya Mining (Cyprus), Golar LNG (Bermudas), BW Offshore (Bermudas), BW Energy (Bermudas), TGS ASA (Noruega), Danieli (Italia), Bayer (Alemania), Wizz Air (Jersey/Hungría), Saipem (Italia) y Borr Drilling (Bermudas) componen el grueso del top 15. La presencia de US es relativamente baja (Viatris, Teva, GIIIApp).</p><p class="subsec">Resumen de la estrategia actual</p><p class="pr">Cartera de 25+ posiciones individuales más un agregado de "Resto Renta Variable Exterior" del 30% que representa decenas de posiciones pequeñas (cartera diversificada *long tail*). La concentración del top 5 está en el nivel más bajo de la serie histórica (19,15%), reflejando la rotación significativa realizada en 2025. El equipo ha utilizado el rally para realizar 11 ventas totales (peso agregado >7%) y abrir 7 nuevas posiciones (~6%), reposicionando la cartera hacia perfiles de riesgo moderado. La filosofía y la disciplina permanecen idénticas a las del lanzamiento.</p><p class="subsec">El marco austriaco aplicado a la asignación sectorial</p><p class="pr">La teoría austriaca del ciclo económico (Mises, Hayek, Rothbard) que Paramés invoca explícitamente desde su libro *Invirtiendo a largo plazo* tiene consecuencias prácticas directas en la asignación sectorial del fondo. La hipótesis austriaca de que las políticas monetarias expansivas crean malas inversiones (*malinvestment*) en sectores de capital intensivo y de duración larga implica, por contraste, que los precios de las materias primas y los activos *real-economy* son típicamente reprimidos por las distorsiones monetarias y se convierten en oportunidades una vez se inicia la normalización monetaria. Esta lógica explica la persistencia de la exposición a energía y materias primas en la cartera de Cobas — exposición que en 2017 representaba ~20% en commodities, en 2018-2020 se cebó duramente en periodos de petróleo bajo, y en 2022 se convirtió en el principal driver de la outperformance cuando la inflación volvió.</p><p class="subsec">Construcción de cartera y posición sizing</p><p class="pr">Aunque las fuentes públicas no detallan la fórmula exacta de *position sizing* utilizada por el equipo, la observación empírica de la cartera muestra patrones consistentes: las posiciones nuevas suelen entrar con pesos del 1-2% y se incrementan progresivamente conforme se confirman las tesis y aparecen ventanas de precios atractivas; las posiciones de máxima convicción rara vez exceden el 8-9% del patrimonio (Aryzta llegó al 8,01% en 2019, Golar al 8,25% en 2021); y las salidas se realizan típicamente de forma escalonada (reducciones parciales seguidas de ventas totales) cuando el descuento sobre valor objetivo se estrecha. La regla operativa explícita de la carta inaugural — *"If a new opportunity presents itself while we are already at full investment capacity, we will sell off our least attractive existing company in the portfolio"* — implica una comparación constante de las tesis de cartera entre sí: cada nueva idea desplaza a la más débil del momento.</p><p class="subsec">Uso de derivados y coberturas</p><p class="pr">La política de la gestora es explícita en este punto: en H2-2025 *"el fondo no ha realizado operaciones en derivados en el periodo"* — y este patrón es consistente con la filosofía declarada de no cobertura de divisa y no apalancamiento estructural. La exposición FX (USD, GBP, NOK, BRL principalmente) se asume como parte intrínseca de la tesis de cada compañía y de su realidad de negocio. La excepción ocasional son los REPOs de tesorería, que en 2025 incluyen un único contrato con BNP Paribas por €20,3M (peso 2,19%) con vencimiento 2 de enero de 2026 y cupón 1,6% — instrumento de gestión de liquidez de muy corto plazo, no estrategia.</p><p class="pr">Cobas AM gestiona varios vehículos value bajo la misma filosofía pero con mandatos diferenciados: <strong>Cobas Selección FI</strong> (90% global + 10% ibérica, vehículo histórico de Paramés con cap de €2.000M de capacidad), <strong>Cobas Internacional FI</strong> (objeto de este análisis, 100% global ex-ES/PT), <strong>Cobas Iberia FI</strong> (100% ibérica, capacidad €750M-€1.000M), <strong>Cobas Grandes Compañías FI</strong> (global con capitalización >€4.000M) y <strong>Cobas Renta FI</strong> (90% renta fija corto plazo + 10% RV). Cobas Internacional es, dentro de la suite, el vehículo de mayor capacidad declarada (€4.000-€5.000M según la carta inaugural) y el que ofrece la exposición más pura a la cartera value global del equipo. Para un partícipe que quiere también exposición ibérica, la combinación natural es Internacional + Iberia (alternativa más barata vs Cobas Selección que duplica los gastos del fondo subyacente).</p><p class="subsec">Estructura de comisiones por clase</p><p class="pr">El fondo se ofrece en cuatro clases con TER muy distinto en 2024-2025: <strong>clase A</strong> (TER 0,96%-1,06%, comisión gestión 0,91%-1,0% — clase más barata, típicamente para institucionales o saldos elevados), <strong>clase B</strong> (TER 1,28%-1,31%, gestión 1,25%), <strong>clase C</strong> (TER 1,54%-1,56%, gestión 1,50% — clase retail estándar) y <strong>clase D</strong> (TER 1,79%-1,81%, gestión 1,75% — clase retail clásica). Ninguna clase aplica comisión sobre resultados (comision_exito.existe = false desde lanzamiento). Esta estructura es competitiva en el contexto de gestoras value españolas y ha mejorado para la clase A respecto a los TER iniciales de 2017-2019 (1,49%-1,78%).</p>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;buying undervalued assets with the ultimate aim of preserving (and if possible increasing) the purchasing power of our clients' savings with a long-term outlook&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Francisco García Paramés, Carta inaugural a inversores, marzo de 2017</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;When asked the question, 'When do you sell a security?', we always offer the same response: when a better opportunity presents itself. That is our permanent objective: improving our portfolio each and every day&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Francisco García Paramés, Carta inaugural a inversores, marzo de 2017</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;We are not prepared to assume the dangers of investing in fixed-income securities and the money markets due to the risk of our chosen currencies depreciating in value, especially while the authorities are experimenting with monetary policy&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Francisco García Paramés, Carta inaugural a inversores, marzo de 2017</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Cartera global value de ~25 posiciones identificables más una cola larga ("Resto Renta Variable Exterior" 30%), invertida al 97,05% en RV con sesgo Europa cíclica + energía. PER ajustado a equity 6,9x, ROCE 27%. Sin coberturas FX. Rotación 113% en 2025 tras rallies de triple dígito; 11 ventas totales y 7 entradas nuevas en el ejercicio.</p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Internacional (Global Value Equity, ex-España/Portugal)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Concentración sectorial en energía y materias primas (Golar, BW Energy, BW Offshore, TGS, Borr Drilling, Atalaya Mining), con exposición agregada significativa a precio del petróleo, gas natural y materias primas.</li><li style="margin-bottom:4px;">Riesgo divisa no cubierto (USD, GBP, NOK, BRL principalmente), que puede añadir volatilidad significativa a la rentabilidad en euros.</li><li style="margin-bottom:4px;">Sesgo estructural anti-megacaps tecnológicas, que genera underperformance en ciclos de dominio tecnológico (2018-2020, 2023) frente a índices globales.</li><li style="margin-bottom:4px;">Drawdowns severos históricos: -27,5% acumulado en los 21 primeros meses tras el lanzamiento, y -22,7% interanual en 2020 (COVID).</li></ul></div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2017</div>
+  <div class="strat-c">Mercados con buen comportamiento en primer semestre 2015 con muchos valores en máximos históricos. Cambio brusco en verano 2015 por el malestar de la economía china que provocó el desplome del petróleo y commodities, creando 'la mayor oportunidad en mercados financieros desde 2000 o quizás 2009' según Paramés. La conferencia clave fue el Investor Day de Anglo American el 7 diciembre 2015 con ambiente extremadamente negativo en la City de Londres.</div>
+  <div class="strat-c">Cartera inaugural de 62 valores (23 conocidos + 29 nuevos). ~20% en materias primas y commodities (10 valores). Compañías con caja neta = 38% de la cartera; en 22% del portfolio la caja neta supone ~50% de la capitalización; en cuatro empresas (6%) la caja neta excede el valor bursátil. ~80% de la cartera son empresas familiares o con accionista de control único. Anglo American identificada como ejemplo concreto en diciembre 2015 (entró a 270p; en marzo 2017 cotiza a 1.400p, 5x).</div>
+  <div class="strat-c">+5,75% — desde marzo 2017 hasta diciembre 2017 vs +6,47% del MSCI Europe TR. Underperformance ligero del 0,7%. VL cerró en 105,75€ y partícipes en 5.791. Impacto negativo del 4% por la apreciación del euro al lanzamiento.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2018</div>
+  <div class="strat-c">Cuarto trimestre catastrófico para los fondos value europeos. Caídas globales fuertes en EuroStoxx 600 (-12,5%) y S&P 500 (-12,2%) por incertidumbres políticas y económicas: guerra comercial EEUU-China, Brexit, desaceleración de China y miedo a una recesión global. Aryzta y Teekay (transporte marítimo) sufrieron especialmente.</div>
+  <div class="strat-c">Mantenimiento de la convicción en Aryzta y Teekay a pesar del castigo. Aryzta: a niveles de cierre cotiza con descuento medio del 40% respecto a comparables, asumiendo márgenes sin mejorar; tesis: márgenes deberían mejorar al 10-15% vs 8% actual. Teekay LNG: mejora del negocio por delante de los planes propios, gracias al mercado de transporte marítimo de GNL; entrega anticipada de 4 nuevos barcos.</div>
+  <div class="strat-c">-31,4% — VL cierra en 72,53€ (-31,4% en el año, -27,5% acumulado desde el lanzamiento). Q4-2018: -23,5% vs -11,3% del MSCI Europe TR. Aryzta -3,3% y Teekay -2,6% como contribuciones individuales más negativas. Valor objetivo se eleva a 173€/participación (+138%).</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2020</div>
+  <div class="strat-c">Año marcado por el COVID. Verano con datos epidemiológicos negativos y escalada de tensiones EEUU-China. Bancos centrales inyectando liquidez. Mercado bifurcado entre sector manufacturero (recuperándose) y servicios (afectados). Despeje de elecciones EEUU con Biden y noticias de vacunas en noviembre impulsan rotación histórica favoreciendo sectores y compañías olvidadas.</div>
+  <div class="strat-c">Mantener convicción durante el COVID con baja rotación (42%, mínimo de la serie). Rally del Q4 desde el anuncio de las vacunas: el value vuelve a comportamiento positivo frente al growth. Lanzamiento de las clases B, C y D en 2020.</div>
+  <div class="strat-c">+26,9% en Q4 — vs +10,8% del benchmark. Año cerró en VL 63,6€ (mínimo COVID). Cartera cotizando a PER 7-8x vs 17-20x del mercado. Cobas Iberia +26,5% y Cobas Grandes Compañías +34,5% en el mismo trimestre.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2022</div>
+  <div class="strat-c">Confirmación por bancos centrales de actuaciones agresivas en endurecimiento monetario: subidas de tipos y, en el caso del BCE, primera subida desde 2011. Recuperación tras correcciones del Q3 por optimismo de inflación tocando máximos. Cierre de 2022 con el peor comportamiento de los principales índices europeos desde 2018; bonos occidentales con los mayores recortes de precios en décadas. Cambio de régimen monetario y de ciclo.</div>
+  <div class="strat-c">Continuidad de la evolución positiva iniciada en 2021. Cartera bien posicionada por exposición a energía y materias primas en un entorno de inflación. Convicción mantenida: PER cartera 5,5x; precio objetivo en máximos desde el inicio.</div>
+  <div class="strat-c">+11% — vs MSCI Euro -9,49% e índices europeos cerca del -10% promedio. Cobas Iberia +4% vs IGBM+PSI20 +0,93%. Año bisagra que valida la cartera value tras varios años de underperformance.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2023</div>
+  <div class="strat-c">Año positivo para mercados financieros, especialmente tecnología e IA. Año marcado por preocupación inicial por recesión, crisis bancaria EEUU (Silicon Valley Bank) y Europa (Credit Suisse). El último trimestre con caída de inflación y mensajes de la Fed sobre futuros recortes ayudaron. BBG Europe Developed Markets +15,8%; S&P 500 +24,2% con las 'Siete Magníficas' aportando ~80% del retorno; IBEX 35 +22%.</div>
+  <div class="strat-c">Foco en compañías con calidad y valoración: ROCE medio cartera internacional 32% e ibérica 25%; >40% compañías con caja neta en internacional (23% en ibérica); endeudamiento medio 0,3x deuda neta/EBITDA en internacional y 0,5x en ibérica. Carteras de calidad, con potencial y descorrelacionadas con el mercado.</div>
+  <div class="strat-c">+11,6% — vs +15,8% del BBG Europe Developed Markets. Underperformance esperable dado el dominio tecnológico (las Siete Magníficas no formaban parte de la cartera). H2-2023: +9,4% vs +4% del benchmark.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2024</div>
+  <div class="strat-c">H2 marcado por incertidumbre por desaceleración en EEUU y subida de tipos del Banco de Japón afectando el carry trade. Reserva Federal sorprende con recorte de 50pb. Victoria de Trump y mayoría republicana impulsaron mercados estadounidenses, especialmente small caps por desregulación. Renta variable europea con ligeras caídas por preocupaciones por políticas comerciales. 'Siete Magníficas' continúan dominando: representan ~1/3 del S&P 500.</div>
+  <div class="strat-c">Mantener exposición a tesis de largo plazo. Golar LNG sigue como principal posición (>3 años en el top 5). OPA recibida sobre TI Fluid Systems (peso 2%) con +53% sobre el precio del anuncio.</div>
+  <div class="strat-c">+23,4% — vs +9% del BBG Europe Developed Markets. Teva (+110%), Golar (+88%), Currys (+86%), Babcock (+27%) y la OPA sobre TI Fluid Systems (+29% en el año) como motores principales. AUM cierra en €704M.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2025</div>
+  <div class="strat-c">S2-2025 marcado por cambio de ritmo en mercados. Tras verano sólido, último tramo más lateral con menor impulso. S&P 500 con avances moderados (consolidación). Fed inicia recortes graduales situando el tipo en 3,50%-3,75%. BCE mantiene tipos con depo en 2,00%. EEUU representa ~70% del MSCI World y las siete grandes tecnológicas ~1/3 del S&P 500. Debilidad del dólar (-9% en 2025). Petróleo volátil; oro cerca de máximos.</div>
+  <div class="strat-c">Tras varios años de rentabilidades muy elevadas, numerosas ventas parciales o totales y reinversión en valores de perfil de riesgo moderado a buenos precios. Ventas totales: Avio (semi-monopolio motores cohetes europeos, vendido tras +156%), Samsung C&T (presente desde 2016 con descuento 50-60%, beneficiada por reforma gobierno corporativo coreano y boom IA en semiconductores) y Elecnor (presente desde inicio Cobas, multiplicación casi 4x tras venta división renovables). Ventas adicionales: Equinox (oro Canadá), AMG (gestora americana). Reducciones en Currys y Atalaya. Compras y aumentos en TGS, Borr Drilling y Wizz Air. Refuerzo de Brava Energía e incorporación de Petroreconcavo (productoras de petróleo y gas en Brasil) tras viaje del equipo al país. Total: 11 ventas totales (peso agregado >7%) y 7 entradas nuevas (peso agregado ~6%).</div>
+  <div class="strat-c">+26,4% — vs +19,7% del BBG Developed Markets. Avio (+156%), BW Energy (+100%), Danieli (+94%) y Bayer (+93%) lideraron en cartera internacional. AUM cierra en €926,95M y partícipes en 10.032 — máximos históricos.</div>
+</div>
+
+  
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El sesgo sectorial más visible es la <strong>exposición agregada a energía marítima y upstream</strong>: Golar LNG (operación FLNG/transporte gas natural licuado), BW Offshore (producción offshore), BW Energy (E&P), TGS ASA (servicios sísmicos para E&P), Borr Drilling (perforadoras aguas someras), Saipem (servicios oil & gas) y Meren Energy (producción) suman varios puntos del patrimonio. A esto se añade exposición a <strong>mining/materiales</strong> (Atalaya Mining, Derichebourg) y a <strong>industriales europeos cíclicos</strong> (Danieli, SAF-Holland, Saipem). El <strong>consumo discrecional</strong> está representado por Currys, FNAC, Wizz Air, Renault y DOUGLAS. La <strong>pharma con descuento</strong> ocupa un peso significativo (Bayer, Viatris, Teva). Esta composición es coherente con el marco austriaco de Paramés: compañías cíclicas y de capital intensivo penalizadas por las distorsiones monetarias y los excesos del ciclo previo, frente a megacaps tecnológicas a las que el fondo evita estructuralmente.</p></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Concentración</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El <strong>top 5</strong> representa el <strong>19,15%</strong> del patrimonio (Golar LNG 4,72%, Atalaya 4,09%, Danieli 3,64%, BW Offshore 3,44%, BW Energy 3,26%) — el nivel más bajo de la serie histórica desde 2019. El <strong>top 10</strong> alcanza el <strong>32,20%</strong> y el <strong>top 15</strong> el <strong>42,98%</strong>. El resto del patrimonio (~57%) se distribuye entre las posiciones 16-25 identificables y la cola larga del 30% "Resto Renta Variable Exterior". Esta concentración es coherente con la filosofía value de selección bottom-up con alta convicción en las primeras posiciones, aunque está más diversificada que en años previos (top 5 fue del 31,8% en 2019 con Aryzta y Golar como apuestas concentradas).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Métricas de calidad y valoración</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera 2025 cotiza con un <strong>PER ajustado a equity de 6,9x</strong> y un <strong>ROCE del 27%</strong> (anexo CNMV S2-2025). La valoración es muy inferior al múltiplo de los principales índices globales (S&P 500, MSCI World), reflejando el sesgo deliberado anti-consenso del fondo. El equipo cuantifica el <strong>potencial de revalorización en el 106%</strong> sobre valor objetivo interno, calculado posición a posición.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Movimientos del último semestre</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El semestre H2-2025 ha sido especialmente activo en términos de rotación (rotación anual del 113%, máximo histórico): el equipo ha realizado <strong>11 ventas totales</strong> con un peso agregado superior al 7% y ha entrado en <strong>7 valores nuevos</strong> con un peso agregado del ~6%. Las salidas más relevantes — Avio, Samsung C&T y Elecnor — corresponden a posiciones que habían acumulado revalorizaciones de triple dígito, ejecutando la disciplina de venta cuando el descuento se estrecha. Las entradas se han orientado a valores con perfil de riesgo moderado y buenos precios: TGS, Borr Drilling, Wizz Air y la nueva exposición brasileña (Brava Energía, Petroreconcavo).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Riesgos estructurales de la cartera actual</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La concentración temática en energía marítima y upstream introduce sensibilidad significativa al precio del petróleo, gas natural y a las tasas diarias de flete (FLNG, tankers, jack-ups). La ausencia de coberturas de divisa añade exposición FX a USD, NOK, GBP y, ahora, BRL. El sesgo anti-megacaps tecnológicas — coherente con la filosofía — implica seguir generando dispersión en ciclos de dominio tecnológico. El partícipe debe entender que esta es una cartera *bottom-up* con alta convicción y, por construcción, puede divergir significativamente de los índices globales en el corto plazo.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Comparación con la cartera del año anterior</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El contraste entre el top 10 de 2024 y el de 2025 ilustra la rotación significativa ejecutada en el ejercicio. En 2024 las primeras posiciones eran Golar (5,02%), Currys (4,78%), Babcock (4,46%), Atalaya (4,46%), Danieli (3,12%), Academedia (3,08%), BW Offshore (3,05%), Energean (2,49%) y Bayer (2,47%). En 2025 desaparecen del top 10 Currys (reducción), Babcock (venta total tras alcanzar valoración), Academedia y Energean; entran con peso TGS (2,80%), Derichebourg (2,53%), GIIIApp (2,43%), Viatris (2,37%) y Wizz Air (2,92%). La presencia de Golar, Atalaya y Danieli como anclas multi-anuales muestra el patrón típico de la cartera: posiciones de convicción que permanecen varios años acompañadas de un *cluster* rotatorio de oportunidades cíclicas más tácticas.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>El agregado 'Resto Renta Variable Exterior' (~30%)</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Una particularidad reportable: aproximadamente el 30% del patrimonio aparece en los anexos CNMV bajo el epígrafe agregado *"Resto Renta Variable Exterior"*, sin desglose individual por posición. Este patrón es habitual en informes regulatorios — solo se detallan las posiciones más significativas — pero implica que la cartera real supera ampliamente las 25 posiciones identificables. Las cartas de la gestora y los comentarios mensuales (*Comentario Carteras*) publicados en cobasam.com permiten trazar parcialmente nombres de la cola: en 2025 aparecen mencionadas Brava Energía, Petroreconcavo, Equinox (vendida) y AMG (vendida), entre otras. Esta dispersión en la cola es coherente con un proceso *bottom-up* puro y reduce el impacto idiosincrático de cualquier posición individual fuera del top 15.</p></div>
+  </div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
+  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>tipo de activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">97,05% RV + 2,19% RF (REPO BNP Paribas, vencimiento ene-2026) + 0,31% liquidez. Cerca del máximo legal del 99% invertido en RV.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>geografía</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Foco principal en Europa (familiaridad y conocimiento), con posiciones menores en EE. UU. y Asia. La pata ibérica está expresamente excluida del mandato (se cubre en Cobas Iberia FI). Exposición a Brasil vía Brava Energía y Petroreconcavo desde 2025.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sectores</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Concentración significativa en energía marítima/upstream (Golar, BW Energy, BW Offshore, TGS, Borr Drilling), materiales y mining (Atalaya, Saipem, Derichebourg), industriales europeos (Danieli, SAF-Holland, Saipem), consumo discrecional (Currys, FNAC, Wizz Air, Renault), pharma (Bayer, Teva, Viatris).</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>tamaño</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Sin restricción de capitalización (small/mid/large cap), aunque el sesgo histórico es a mid y small caps europeas con descuento sobre comparables.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">25</div><div class="kpi-sub">vs media hist. 36</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">59,8%</div><div class="kpi-sub">vs media hist. 52,1%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,3%</div><div class="kpi-sub">vs media hist. 1,2%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">86,3%</div><div class="kpi-sub">Renta variable · Otros 2,2%</div></div>
+  </div>
+
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-l">Nº posiciones por año</div><div class="ch-h"><canvas id="c-npos"></canvas></div></div>
+    <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
+  </div>
+
+  <div class="sr">Todas las posiciones (25)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody><tr>
+  <td title="Resto Renta Variable Exterior">Resto Renta Variable Exterior</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:240px;background:#0c2340;"></div>30,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>30%</div></td>
+  <td><span style="background:rgba(26,77,46,0.12049999999999994);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,8%</span></td>
+</tr><tr>
+  <td title="Golar LNG LTD">Golar LNG LTD</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>35%</div></td>
+  <td><span style="background:rgba(107,26,26,0.09499999999999999);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
+</tr><tr>
+  <td title="Atalaya Mining PLC">Atalaya Mining PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>GBP</td>
+  <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>39%</div></td>
+  <td><span style="background:rgba(107,26,26,0.0985);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,4%</span></td>
+</tr><tr>
+  <td title="DanieCo">DanieCo</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>42%</div></td>
+  <td><span style="background:rgba(26,77,46,0.106);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,5%</span></td>
+</tr><tr>
+  <td title="Bw Offshore LTD">Bw Offshore LTD</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>NOK</td>
+  <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>46%</div></td>
+  <td><span style="background:rgba(26,77,46,0.0995);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,4%</span></td>
+</tr><tr>
+  <td title="BW Energy LTD">BW Energy LTD</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>NOK</td>
+  <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>49%</div></td>
+  <td><span style="background:rgba(26,77,46,0.1435);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,3%</span></td>
+</tr><tr>
+  <td title="Wizz Air Holdings">Wizz Air Holdings</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>GBP</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>2,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>52%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="TGS ASA">TGS ASA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>NOK</td>
+  <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>55%</div></td>
+  <td><span style="background:rgba(26,77,46,0.143);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,3%</span></td>
+</tr><tr>
+  <td title="Derichebourg SA">Derichebourg SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>57%</div></td>
+  <td><span style="background:rgba(26,77,46,0.08599999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
+</tr><tr>
+  <td title="GIIIApp">GIIIApp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>60%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="Viatris INC">Viatris INC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>62%</div></td>
+  <td><span style="background:rgba(26,77,46,0.11200000000000002);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,6%</span></td>
+</tr><tr>
+  <td title="Bayer AG-REG">Bayer AG-REG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>65%</div></td>
+  <td><span style="background:rgba(107,26,26,0.08550000000000002);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
+</tr><tr>
+  <td title="BNP Paribas, S.A.">BNP Paribas, S.A.</td>
+  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>67%</div></td>
+  <td><span style="background:rgba(26,77,46,0.16399999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,7%</span></td>
+</tr><tr>
+  <td title="Borr Drilling Limit">Borr Drilling Limit</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
+  <td><span style="background:rgba(26,77,46,0.10200000000000001);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,4%</span></td>
+</tr><tr>
+  <td title="Teleperformance SE">Teleperformance SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="FNAC">FNAC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
+  <td><span style="background:rgba(26,77,46,0.0995);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,4%</span></td>
+</tr><tr>
+  <td title="Currys Plc">Currys Plc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>GBP</td>
+  <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>75%</div></td>
+  <td><span style="background:rgba(107,26,26,0.21450000000000002);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-2,7%</span></td>
+</tr><tr>
+  <td title="Renault">Renault</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
+  <td><span style="background:rgba(26,77,46,0.093);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,3%</span></td>
+</tr><tr>
+  <td title="SAF-HOLLAND SE">SAF-HOLLAND SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="Saipem SPA">Saipem SPA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="Cofide">Cofide</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
+  <td><span style="background:rgba(107,26,26,0.11500000000000002);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,7%</span></td>
+</tr><tr>
+  <td title="Teva Pharmaceutical">Teva Pharmaceutical</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>USD</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
+  <td><span style="background:rgba(107,26,26,0.0975);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
+</tr><tr>
+  <td title="Meren Energy Inc">Meren Energy Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>SEK</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="DOUGLAS AG">DOUGLAS AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>EUR</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr><tr>
+  <td title="Ibstock PLC">Ibstock PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
+  <td>GBP</td>
+  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span class="delta-new">NUEVO</span></td>
+</tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+  
+  
+  
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">74 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (9)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2017_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2017_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2018_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2018_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2019_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2019_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2020_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2021_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2021_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2022_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2022_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2023_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2023_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2024_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2024_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0119199000_2025_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/reports/CNMV_ES0119199000_2025_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">Cartas del gestor (1)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">cobasam.com — Letter to investors from Francisco Garcia Parames.pdf</span><a href="https://www.cobasam.com/wp-content/uploads/Letter-to-investors-from-Francisco-Garcia-Parames.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">XMLs CNMV (60)</div>
+  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201704.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/xml/Abril_FONDMENS_201704.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201704.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/xml/Abril_FONDREGISTRO_201704.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201708.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/xml/Agosto_FONDMENS_201708.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201708.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/xml/Agosto_FONDREGISTRO_201708.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201712.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/xml/Diciembre_FONDCART_201712.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201712.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0119199000/raw/xml/Diciembre_FONDDERI_201712.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
+
+  <div class="doc-grp">Fuentes externas (0)</div>
+  
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         COBAS INTERNACIONAL, FI (ES0119199000): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0119199000';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0119199000', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=["17", "18", "19", "20", "21", "22", "23", "24", "25"];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[422.266, 377.298, 451.431, 347.011, 467.921, 536.104, 559.946, 704.218, 926.95],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[5791, 7849, 8174, 8215, 8176, 8395, 8224, 8873, 10032],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[100.0, 68.58, 77.75].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[100.0, 68.58, 77.75])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[100.0, 68.58, 77.75],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=["19", "20", "21", "22", "23", "24", "25"];
+  const nposMax=Math.max(...[43, 38, 44, 48, 24, 28, 25])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[43, 38, 44, 48, 24, 28, 25],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[31.8, 27.3, 28.0, 22.2, 50.6, 47.9, 45.9],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[50.1, 44.2, 46.1, 36.6, 66.0, 62.1, 59.8],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[60.0, 56.2, 57.1, 47.5, 77.4, 73.3, 71.0],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": [null, null, null, null, 1.46, 1.75, 1.75, 0.0, 0.0, 0.0, 0.0, 0.91, 1.0], "B": [null, null, null, null, null, null, null, 0.0, 0.0, 1.14, 1.25, 1.25, 1.25], "C": [null, null, null, null, null, null, null, 1.75, 1.5, 1.5, 1.5, 1.5, 1.5], "D": [null, null, null, null, null, null, null, 0.0, 1.75, 1.75, 1.75, 1.75, 1.75]};
+const TER_DATA={"A": [null, null, null, null, 1.49, 1.78, 1.78, 1.0, 1.53, 1.17, 1.28, 0.96, 1.06], "B": [null, null, null, null, null, null, null, 1.0, 1.79, 1.53, 1.54, 1.31, 1.32], "C": [null, null, null, null, null, null, null, 1.78, null, 1.79, 1.79, 1.56, 1.57], "D": [null, null, null, null, null, null, null, 1.0, null, null, null, 1.81, 1.81]};
+const TER_EFECTIVO=[0.13, 0.44, 0.45, 0.45, 1.49, 1.78, 1.78, 0.16, 0.26, 0.27, 0.27, 0.96, 1.06];
+const CY=["13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25"];
+const HAS_EXITO=false;
+const EXITO_REAL=[null, null, null, null, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='ES0119199000';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>

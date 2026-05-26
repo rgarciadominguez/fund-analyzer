@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIFTER FUND - GLOBAL — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund">SIFTER FUND - GLOBAL <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★☆</span></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Sifter Capital Ltd (PM delegado) / Adepa Asset Management S.A. (ManCo)</strong></div>
+      <div class="lh-meta-line">Depositario: <strong>Mr. Vazil Hudak Quintet Private Bank (Europe) S.A</strong></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0168736675</strong> <span style='opacity:.55;font-size:10.5px;'>· Global PA</span></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€340M</div>
+        <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2026-03</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2027-03 (Carta)</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 4 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Junio 2003</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Global</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Santeri Korpinen</strong> <span style='opacity:.7;'>(lead)</span> · Olli Pöyhönen <span style='opacity:.6;font-size:9px;'>(co)</span> · Alexander Järf <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-05-20</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0168736675 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">Sifter Fund - Global es una SICAV UCITS luxemburguesa lanzada el 19 de junio de 2003 y gestionada por la boutique finlandesa Sifter Capital Oy (PM delegado, sede en Helsinki) con Adepa Asset Management S.A. como sociedad gestora legal en Luxemburgo. El fondo aplica un proceso propietario llamado <strong>Nordic Quality Investing</strong> (también conocido como Stocksifter™) que parte del universo de ~65.000 empresas cotizadas a nivel global y, por sucesivas eliminaciones, se queda con 50 análisis profundos al año para acabar añadiendo solo 3-5 nuevas posiciones anuales a una cartera concentrada de 25-30 valores (Moclano, mayo 2026).</p><p class="pr">La filosofía es agnóstica al benchmark, sin apalancamiento, totalmente invertida en todos los ciclos de mercado, sin coberturas de divisa y sin uso de derivados. El gestor formal registrado en Financial Times desde el 1 de noviembre de 2016 es <strong>Santeri Korpinen</strong> (CEO de Sifter Capital y Partner), apoyado por un equipo de cuatro Portfolio Managers Partner: Olli Pöyhönen, Alexander Järf y Karl-Johan Lidsle. Las decisiones se toman colectivamente por el Investment Committee. La firma fue fundada por <strong>Hannes Kulvik</strong> en 2003, creador del modelo Nordic Value Investing, que sigue siendo el principal accionista del fondo y miembro del Consejo.</p><p class="pr">El track record histórico es notable: desde inicio en 2003 hasta abril 2026, la clase PB acumula +783% frente a +669% del MSCI ACWI EUR (Moclano, mayo 2026), con primer cuartil en 7 de los últimos 10 años. A 30 de abril de 2026 el patrimonio del fondo era de 345,9 M€ (Finect) / 298,61 M£ (FT) repartido entre clases PA, PB, PI y la nueva RA lanzada en octubre 2024 para distribución en Iberia/LatAm a través de ACCI Capital. La rentabilidad a 1 año a mayo 2026 está en torno a +24,4-24,6% para las distintas clases; en lo que va de 2026 acumula +11,9% y la cartera está cargada hacia fabricantes de equipos de semiconductores (Lam Research, Applied Materials, Disco), industriales de calidad (Safran, Atlas Copco, Old Dominion) y defensivas (Costco, North West Company, Johnson & Johnson).</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">La filosofía es <strong>calidad por eliminación</strong>: Sifter rechaza explícitamente más del 95% de las 65.000 empresas cotizadas globales y solo investiga en profundidad ~50 negocios al año. La definición de calidad descansa sobre cuatro pilares que la gestora considera no negociables: (1) crecimiento predecible vía ganancia de cuota de mercado o expansión del TAM, (2) ventaja competitiva sostenible y comprensible, (3) solidez financiera (bajo apalancamiento, preferiblemente caja neta) y (4) valoración disciplinada usando una métrica propia llamada <strong>Cylinder</strong> que proyecta earnings yield a 5 años ajustado por riesgo en lugar de múltiplos PER tradicionales.
+
+La cartera resultante es concentrada (25-30 nombres), de baja rotación (3-5 entradas/salidas al año, horizonte medio de 5 años, rotación anual ~10%), agnóstica al benchmark (active share 0,09 vs MSCI ACWI) y totalmente invertida en todo el ciclo (no timing, no hedging, no leverage). El gestor se considera <strong>propietario, no especulador</strong>: vende cuando el modelo de ingresos se debilita, aparece una alternativa claramente mejor, o el precio se desvía significativamente de los fundamentales. Se descartan por filosofía sectores estructuralmente débiles (energía, bancos, utilities) y se concentra en B2B (~80% de la cartera).</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Crecimiento predecible no apalancado:</strong> <span class="pr" style="font-size:12.5px;">La empresa debe tener vías claras de crecimiento (cuota de mercado o expansión del TAM) sin que ese crecimiento dependa de apalancamiento agresivo o adquisiciones arriesgadas. Crecimiento orgánico debe poder superar al PIB de largo plazo.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Ventaja competitiva comprensible y sostenible:</strong> <span class="pr" style="font-size:12.5px;">El moat debe ser entendible y duradero: marca, escala, integración vertical, propiedad intelectual, costes de cambio. Se rechazan empresas con ventajas borrosas o erosionándose (caso Cisco 2024 por enfoque en adquisiciones arriesgadas, VeriSign 2024 por consolidación de dominios).</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Solidez financiera y bajo apalancamiento:</strong> <span class="pr" style="font-size:12.5px;">Balances saludables, preferiblemente con más caja que deuda con intereses. ROIC mediano de la cartera ≥15%. La indebtedness media de las empresas de Sifter es muy baja, lo que les permite operar en recesiones sin daño permanente.</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b"><strong>Proceso sistemático y repetible</strong>: el embudo Stocksifter™ → 50 deep-dives → Cylinder → 25-30 posiciones es transparente, basado en evidencia y deja poca margen a la improvisación. Active share 0,09 vs MSCI ACWI es de los más altos del universo quality global.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b"><strong>Bajísimo solapamiento con índices globales</strong> (<20% common holdings vs índice según factsheet feb-2026), lo que aporta diversificación real en una cartera quality. En la práctica, Sifter genera alfa sin duplicar exposiciones temáticas con otros fondos quality (Moclano, mayo 2026).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b"><strong>Track record largo y consistente</strong>: desde 2003 acumula +783% (clase PB) vs +669% del MSCI ACWI EUR; primer cuartil en 7 de los últimos 10 años; +12,8% anualizado a 10 años; superó al MSCI ACWI por +3,8pp en el shock COVID Q1 2020.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b"><strong>Alineación de intereses fuerte</strong>: la firma es partner-owned, empleados poseen ~30% del patrimonio del fondo según Salud Financiera, y el fundador Hannes Kulvik sigue siendo principal accionista. Olli Pöyhönen y los PMs son Partners.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b"><strong>Disciplina demostrada en estrés</strong>: en Q1 2020 (COVID) el fondo retornó -15,7% vs -19,5% del MSCI ACWI, aprovechando para reforzar calidad (Johnson & Johnson, Atlas Copco, Cisco). En 2026-Q1 la mínima exposición a software protegió frente al pinchazo de SaaS al inicio del año.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b"><strong>Concentración geográfica y sectorial elevada</strong>: 59-65% de la cartera en Estados Unidos, 36-39% en tecnología y semiconductores. Bajo un escenario de corrección sostenida del Nasdaq o del USD frente al EUR, el fondo amplifica el movimiento (down capture 105,4% según Moclano).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b"><strong>Underperformance estructural en ciclos megacap-driven</strong>: en 2024 calendario el fondo entregó +10,9% vs +25,3% del MSCI ACWI, -14,4pp de underperformance derivada de la ausencia de NVIDIA, Apple y Amazon. El modelo Cylinder excluye explícitamente megacaps caras, lo que estructuralmente hace que el fondo decepcione cuando el liderazgo del mercado lo concentran los Magnificent 7.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b"><strong>Coste total alto</strong> en clases retail: gastos corrientes 1,7% (PA, Finect) y 2,3% (RA, con 15% performance fee sobre hurdle 5%). Solo la clase institucional PI baja a 1,21% (FT). Esto exige sobre-rendimiento sostenido para justificarse, y Salud Financiera reconoce que con TER 1,7% el fondo solo ha 'igualado o superado mínimamente al índice' durante muchos años.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b"><strong>Cartera no defensiva pese a la etiqueta quality</strong>: Moclano advierte explícitamente que Sifter NO es un quality tranquilo —amplifica volatilidad en ambas direcciones (up capture 107,5%, down capture 105,4%)— y exige horizonte mínimo 7 años. La beta a 1 año reportada por FT es 1,29 y la desviación estándar 15,46% (clase PB).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b"><strong>Riesgo de gestor / equipo pequeño</strong>: equipo de 4 PMs Partner con 9 años juntos. Atribución pública ambigua (FT registra a Santeri Korpinen como gestor desde 2016 pero su título formal es CEO; los PM nominales son Olli, Alexander y Karl-Johan). Sin biografía pública detallada de los miembros secundarios.</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>Global PA</strong></td><td>LU0168736675</td><td>—</td><td>1,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2003</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Global PB</strong></td><td>LU0168577939</td><td>—</td><td>1,6%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2003</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Global PI</strong></td><td>LU1194076995</td><td>—</td><td>1,2%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2015</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+  </table>
+  
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Sifter Fund - Global encaja con inversores de renta variable global con horizonte mínimo de 7 años, tolerancia real a volatilidad alta (desviación estándar 15,5% a 1 año, beta 1,29) y disposición a aceptar periodos largos de underperformance frente al MSCI ACWI cuando el mercado lo lideran megacaps caras (caso 2024 calendar). Es complementario, no sustituto, de un core indexado global: aporta diversificación real (bajo solapamiento) en carteras moderadas y dinámicas con pesos típicos 12-15%. No apto para inversores que confunden quality con baja volatilidad: amplifica movimientos en ambas direcciones.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Sifter Capital Oy es 100% partner-owned. Los empleados/gestores son accionistas significativos del fondo (~30% del patrimonio según Salud Financiera, marzo 2026) y el fundador Hannes Kulvik sigue siendo el principal inversor individual del vehículo y miembro del Consejo. La estructura es independiente —no hay matriz bancaria— y los PMs Partner (Olli Pöyhönen, Alexander Järf, Karl-Johan Lidsle) firman su rol como propietarios alineados. El equipo actual lleva 9 años junto según Moclano (mayo 2026), aunque la estrategia y su track record arrancaron en 2003.</p></div></div>
+
+  <div class="sr">TER por clase (snapshot actual)</div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctx = document.getElementById('c-com-snap');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ["Global PA"], datasets: [
+      {label:'TER (%)', data:[1.8], backgroundColor:'rgba(12,35,64,0.85)'}
+    ] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+        scales: {
+          x: { stacked: false, grid: { display: false } },
+          y: { stacked: false, beginAtZero: true, grid: { display: false }, ticks: { callback: v => v+'%' } }
+        }
+      }
+    });
+  })();
+  </script>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Junio 2003 — presente</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Origen del fondo y del modelo Nordic Quality Investing (2003)</p><p class="pr">Sifter Fund - Global fue lanzado el 19 de junio de 2003 por <strong>Hannes Kulvik</strong>, economista finlandés con 40 años de experiencia en sector financiero, desarrollo corporativo y corporate finance. Kulvik —que ha sido CEO de varias compañías cotizadas, asesor del Presidente de Finlandia y miembro del gabinete del Ministerio de Defensa finlandés— diseñó un proceso sistemático de inversión llamado entonces 'Stocksifter' y desarrollado durante años como 'Nordic Value Investing' / 'Nordic Quality Investing'. La premisa era escanear el universo cotizado global completo (~65.000 empresas) y, mediante eliminación sistemática, quedarse solo con 25-30 negocios excepcionales por calidad y precio.</p><p class="pr">El vehículo se constituyó como SICAV-Subfondo UCITS en Luxemburgo —domicilio elegido por su flexibilidad transfronteriza UCITS— con Sifter Capital Oy (Helsinki) como gestor delegado del portfolio y, posteriormente, Adepa Asset Management S.A. asumiendo la función de ManCo legal/administrativa luxemburguesa. La fecha de inicio que figura en Finect es el 19/06/2003.</p><p class="subsec">Construcción del modelo y consolidación (2003-2016)</p><p class="pr">Durante sus primeros 13 años el fondo desarrolló y depuró la metodología Stocksifter™ y la métrica propietaria Cylinder, que sustituye el clásico PER por una proyección de earnings yield a 5 años ajustada por riesgo. Este periodo configuró la cartera con apuestas de muy largo plazo: Oracle (posición ~9 años hasta venta en 2021), Ain Holdings (~5 años hasta venta en 2021), Safran (posición consolidada como holding histórico) y un conjunto de industriales y empresas de equipo nórdicas/europeas.</p><p class="subsec">Llegada de Santeri Korpinen como CEO y lead manager (2016)</p><p class="pr">El 1 de noviembre de 2016, <strong>Santeri Korpinen</strong> se incorporó como CEO, Partner y miembro del Consejo de Sifter Capital Ltd. Financial Times lo registra desde esa fecha como el gestor formal del fondo (FT tearsheet, mayo 2026). Korpinen aportó 25+ años de experiencia en servicios financieros y 17 años previos como consultor de estrategia, y asumió liderazgo del equipo de inversión, relaciones con inversores y supervisión de la colaboración con la ManCo de Luxemburgo. A partir de ese momento la firma cristaliza el equipo actual de Portfolio Managers Partner (Olli Pöyhönen, Alexander Järf, Karl-Johan Lidsle), que según Moclano lleva 9 años junto.</p><p class="subsec">Test COVID-19 Q1 2020 — la calidad demuestra su tesis</p><p class="pr">El primer trimestre de 2020 fue el primer gran test público del modelo. Con el mercado MSCI ACWI cayendo -19,5%, Sifter Fund retornó -15,7%, un outperformance de +3,8pp en el peor trimestre desde 2008. La gestora aprovechó para rebalancear hacia calidad segura: aumentó Cisco, Oracle, Atlas Copco, Johnson & Johnson y Lam Research; redujo Check Point y Mohawk por riesgos competitivos; vendió Hexcel por una fusión problemática propuesta con Woodward. La carta Q1 2020 condensó la filosofía en una frase que el equipo sigue citando: *'After all the crises, the reconstruction period is often more powerful and comes sooner than one might imagine in advance'*.</p><p class="subsec">2021 — el año del compounding (+34,3%)</p><p class="pr">2021 fue el mejor año reciente del fondo: rentabilidad anual del +34,3%. Las posiciones estrella fueron Old Dominion Freight Line (+98,1%), Alphabet/Google (+77,8%) y Novo Nordisk (+75,7%). La venta de iRobot —tras un short squeeze— generó +240% de beneficio en una posición de corto plazo; la venta de Oracle, tras más de 9 años en cartera, generó +248% más dividendos. Las nuevas incorporaciones fueron Sony (por su posicionamiento en consolas, música y sensores de imagen) y Nitori (retailer japonés con integración vertical y crecimiento rentable).</p><p class="subsec">2024 fiscal (Sep-2023/Ago-2024) — buen año por el tirón de semis y consumo defensivo</p><p class="pr">En el año fiscal que cierra a 31 de agosto de 2024, las distintas clases entregaron +19,01% (R EUR), +19,03% (I EUR) y +19,31% (PI EUR). Los grandes contribuidores fueron Taiwan Semiconductor Manufacturing Company, Costco y North West Company; los peores fueron West Pharmaceutical Services, Cisco Systems y Old Dominion Freight Line. Durante el año la gestora desinvirtió Cisco Systems (por crecimiento limitado por tamaño y enfoque en adquisiciones arriesgadas) y VeriSign (por consolidación a la baja de dominios .com), e incorporó TOMRA Systems (líder en máquinas de venta inversa, beneficiándose de la legislación UE de plásticos 2029) y Mettler-Toledo (instrumentos de precisión para ciencias de la vida). También redujo Disco Corporation (-33%) por sobrevaloración tras el rally y bajó Novo Nordisk para no rozar el límite del 10% por posición.</p><p class="subsec">2024 calendar — el underperformance estructural más documentado (-14,4pp)</p><p class="pr">En el año natural 2024, sin embargo, el fondo entregó +10,9% frente a +25,3% del MSCI ACWI, una underperformance de -14,4 puntos porcentuales (Moclano, mayo 2026). Esa brecha es estructural: el rally del mercado en 2024 estuvo concentrado en NVIDIA, Apple, Amazon y Microsoft (los 'Magnificent 7'), y el modelo Cylinder de Sifter excluyó NVIDIA, Apple y Amazon por valoraciones que no superaban el cribado. Este episodio es la mejor ilustración pública de la tesis de Sifter: si el liderazgo del mercado lo concentran megacaps caras, el fondo va a quedar por debajo durante ese ciclo. La gestora no flexibilizó el proceso.</p><p class="subsec">2024-Q3 — ACCI Capital trae el fondo a Iberia y LatAm (23 sep 2024)</p><p class="pr">El 23 de septiembre de 2024, la gestora española ACCI Capital firmó un acuerdo de distribución con Sifter Capital para comercializar el fondo en mercados de Iberia y América Latina (FundsPeople, 23/09/2024). Santeri Korpinen aparece como interlocutor público del acuerdo. En octubre de 2024 se lanza la clase RA (LU2905591629) específicamente para inversión retail española con comisión 2,0% + 15% performance fee sobre hurdle 5%, accesible desde 100€ a través de comercializadores como EBN Banco, Renta 4, IronIA, MyInvestor, Bankinter y Self Bank.</p><p class="subsec">2025 fiscal (Sep-2024/Ago-2025) — año turbulento, Liberation Day y rotación profunda</p><p class="pr">El año fiscal que cierra a 31 de agosto de 2025 estuvo marcado por la incertidumbre arancelaria de la administración Trump y el 'Liberation Day' (abril 2025) que provocó un pico momentáneo del VIX y debilitamiento del USD. El resultado de operaciones del fondo fue negativo (-9,1 M€ de pérdida en el ejercicio). Las mejores posiciones del periodo fueron Safran, TSMC, Walt Disney, Deutsche Börse y Alphabet; las peores Novo Nordisk, SMC Corporation y Old Dominion Freight Line. La rotación fue significativa: salieron Sony, Walt Disney y Autoliv por no cumplir criterios; entraron Cintas e IDEXX Laboratories. El ajuste de pesos más relevante fue una reducción del 30% en TSMC y un aumento del 20% en Alphabet en diciembre 2024.</p><p class="subsec">2026-Q1 — la prueba inversa: AI sentiment shift y SaaS crash</p><p class="pr">A inicios de 2026 el sentimiento sobre IA cambió bruscamente: pasó de tema alcista (todo 2025) a amenaza percibida para empresas de software (SaaS). El fondo, con exposición mínima a software por proceso, capeó bien la caída del sector: a febrero 2026 acumulaba +8,2% YTD vs +6,1% del MSCI World (EUR). A 18 de mayo de 2026 la rentabilidad YTD se sitúa en +11,9% (Finect). Los contribuidores principales han sido fabricantes de equipos de semiconductores (+4-5 pp), industriales como Safran/Old Dominion/Canadian National (+1-1,5 pp) y defensivas como Costco/North West/Johnson & Johnson (+1-1,5 pp). Patrimonio del fondo: 345,9 M€ (Finect, 18/05/2026).</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">—</div><div class="kpi-sub">Junio 2003 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 340.4;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2003</div>
+      <div class="tl-tag tag-hito">Lanzamiento</div>
+      <div class="tl-title">Fundación y lanzamiento del fondo</div>
+      <div class="tl-desc">Hannes Kulvik (economista finlandés, ex-CEO cotizadas, asesor del Presidente de Finlandia) funda Sifter Capital y lanza Sifter Fund - Global el 19 de junio de 2003 como SICAV UCITS en Luxemburgo. Diseña el modelo 'Stocksifter' (luego Nordic Quality Investing) para filtrar 65.000 empresas globales a 25-30.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2003-2015</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Consolidación del modelo Stocksifter</div>
+      <div class="tl-desc">Durante 12 años se depura la metodología propietaria de eliminación y la métrica Cylinder (earnings yield a 5 años ajustado por riesgo). Cartera de muy baja rotación: Oracle se mantiene 9+ años, Ain Holdings 5 años, Safran como holding histórico.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2016</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Llegada de Santeri Korpinen como CEO y lead manager registrado</div>
+      <div class="tl-desc">1 de noviembre de 2016: Santeri Korpinen se incorpora como CEO, Partner y miembro del Consejo de Sifter Capital. Financial Times lo registra desde esa fecha como gestor formal del Sifter Fund - Global. Aporta 25+ años de experiencia en servicios financieros y 17 años previos como consultor de estrategia.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2020</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Test COVID Q1 — outperformance de +3,8pp</div>
+      <div class="tl-desc">En Q1 2020, con MSCI ACWI cayendo -19,5%, Sifter Fund retornó -15,7%. Microsoft fue la única posición con retorno positivo del trimestre (peso 7,2%). La gestora aprovechó para reforzar calidad: aumentó Cisco, Oracle, Atlas Copco, Johnson & Johnson y Lam Research; redujo Check Point, Mohawk y Hexcel.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2021</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Año pico: +34,3% anual y ventas históricas</div>
+      <div class="tl-desc">Mejor año reciente del fondo: +34,3%. Old Dominion +98,1%, Alphabet +77,8%, Novo Nordisk +75,7%. Venta de iRobot +240% (corto plazo, tras short squeeze) y de Oracle +248% (tras 9+ años). Incorporación de Sony (consolas/sensores) y Nitori (retail japonés con integración vertical).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2022</div>
+      <div class="tl-tag tag-hito">Hecho_relevante</div>
+      <div class="tl-title">Apertura de posición en Disney (mayo 2022)</div>
+      <div class="tl-desc">El fondo invierte en The Walt Disney Company en mayo de 2022, considerándola una de las empresas de medios más fuertes del mundo. Posición que más tarde sería desinvertida (año fiscal 2025) por no seguir cumpliendo criterios.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2024</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Contexto_mercado</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Año fiscal Ago-2024 cierra en +19% pero calendar 2024 underperforma -14,4pp</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Fiscal Sep-2023/Ago-2024: +19,01% (R EUR), driver TSMC + Costco + North West. Pero año natural 2024: +10,9% vs +25,3% MSCI ACWI (-14,4pp underperformance), por ausencia estructural de NVIDIA, Apple y Amazon (descartados por el filtro Cylinder). Episodio clave para entender los límites del modelo.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-strat">Decisión estratégica</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Rotación cartera: salen Cisco y VeriSign, entran TOMRA y Mettler-Toledo</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Desinvertidas Cisco Systems (crecimiento orgánico limitado por tamaño, foco en M&A arriesgada) y VeriSign (consolidación a la baja de dominios). Incorporadas TOMRA Systems ASA (líder global 70% en máquinas de venta inversa, viento de cola legislación UE 2029) y Mettler-Toledo International (instrumentos de precisión).</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Hecho_relevante</span>
+            <strong style="font-size:12.5px;color:var(--ink);">ACCI Capital trae el fondo a Iberia y LatAm (23 sep 2024)</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Acuerdo de distribución con la gestora española ACCI Capital para comercializar Sifter Fund - Global en mercados de Iberia y América Latina. Santeri Korpinen como interlocutor público. Octubre 2024: lanzamiento de clase RA (LU2905591629) para inversor retail español con 2,0% gestión + 15% performance fee sobre hurdle 5%, accesible desde 100€.</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2025</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Año fiscal turbulento: Liberation Day y rotación profunda</div>
+      <div class="tl-desc">Fiscal Sep-2024/Ago-2025 cierra con resultado de operaciones negativo (-9,1 M€). Tariffs de Trump y 'Liberation Day' (abril 2025) provocan pico del VIX. Salen Sony, Walt Disney y Autoliv; entran Cintas e IDEXX Laboratories. TSMC -30% en peso, Alphabet +20% en peso. Mejores: Safran, TSMC, Disney, Deutsche Börse, Alphabet. Peores: Novo Nordisk, SMC, Old Dominion.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2026</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-crisis">Crisis</span>
+            <strong style="font-size:12.5px;color:var(--ink);">AI sentiment shift Q1 — exposición mínima a SaaS protege la cartera</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Inicio 2026: el sentimiento sobre IA pasa de alcista a amenaza para empresas SaaS. El fondo, con exposición mínima a software por proceso, capea bien la caída. A febrero 2026: +8,2% YTD vs +6,1% MSCI World (EUR). Contribuidores: semiconductor equipment (+4-5pp), industriales (+1-1,5pp) y defensivas Costco/North West/J&J (+1-1,5pp).</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-strat">Comportamiento vs mercado</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Patrimonio del fondo: 345,9 M€ a mayo 2026</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">A 18 de mayo de 2026, Finect reporta 345,9 M€ de patrimonio del fondo, con clases PA (98,9 M€), PB (63,4 M€), PI (133,6 M€) y RA (15,0 M€, lanzada oct-2024 para Iberia). FT reporta 298,61 M£ a 30/04/2026. Rentabilidad 1Y entre +24,1% y +24,6% según clase. Primer cuartil en 7 de los últimos 10 años (Moclano).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">SK</div>
+        <div class="mgr-nm">Santeri Korpinen<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">CEO, Partner y miembro del Consejo de Sifter Capital — Lead manager registrado</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">CEO, Partner y miembro del Consejo de Sifter Capital Oy desde 2016</li><li style="margin-bottom:3px;">Lead manager registrado del Sifter Fund - Global desde el 1 de noviembre de 2016 (Financial Times)</li><li style="margin-bottom:3px;">25+ años de experiencia en servicios financieros y consultoría de gestión</li><li style="margin-bottom:3px;">17 años previos como consultor de management estratégico (pre-Sifter)</li><li style="margin-bottom:3px;">Portavoz público de Sifter Capital en el acuerdo con ACCI Capital (Iberia/LatAm, 23 sep 2024)</li><li style="margin-bottom:3px;">Supervisor de la colaboración con Adepa Asset Management S.A. (ManCo Luxemburgo)</li><li style="margin-bottom:3px;">Responsable de relaciones con inversores institucionales</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>CEO y lead manager registrado de Sifter Fund - Global desde noviembre de 2016</strong>
+
+Santeri Korpinen es CEO de Sifter Capital Oy, Partner y miembro del Consejo desde 2016. Lidera el equipo de gestión de inversiones, gestiona las relaciones con los inversores y supervisa la colaboración con la sociedad gestora luxemburguesa (Adepa Asset Management S.A.). Aunque su título formal en la página /our-team es 'CEO, Partner' y no 'Portfolio Manager', <strong>Financial Times lo registra como el gestor formal del Sifter Fund - Global desde el 1 de noviembre de 2016</strong> (FT tearsheet LU0168736675, mayo 2026). Esa atribución externa autorizada resuelve la ambigüedad: en términos de responsabilidad ante el regulador y los inversores, Korpinen es el lead del vehículo.
+
+<strong>Más de 25 años en servicios financieros y consultoría</strong>
+
+Santeri tiene una sólida trayectoria de liderazgo y un historial probado de iniciativas estratégicas. Antes de incorporarse a Sifter en 2016, pasó 17 años como consultor de management especializado en estrategia empresarial y desarrollo organizacional. Esa combinación —consultoría estratégica de fondo + liderazgo ejecutivo + supervisión de gestión de activos— es atípica en el perfil de un gestor de fondos pero encaja con la naturaleza del rol en Sifter: las decisiones de inversión se toman colectivamente por el Investment Committee, y el CEO ejerce de coordinador, portavoz y responsable formal frente al regulador y los distribuidores.
+
+<strong>Portavoz público de la firma</strong>
+
+Korpinen es la cara visible de Sifter Capital en eventos públicos. Cuando ACCI Capital firmó el acuerdo de distribución para Iberia y LatAm el 23 de septiembre de 2024, Korpinen aparece como interlocutor en el pie de foto del artículo de FundsPeople. Es habitual encontrarlo en presentaciones a inversores institucionales españoles a través de ACCI Capital. La página /our-team confirma que su mandato cubre 'liderar el equipo de gestión de inversiones, gestionar relaciones con inversores y supervisar la colaboración con la ManCo en Luxemburgo'.
+
+<strong>Atribución compleja en el reparto de roles del equipo</strong>
+
+La decisión analítica de etiquetar a Korpinen como 'lead manager' descansa sobre tres pilares: (1) atribución formal FT desde 2016, (2) CEO del PM delegado (Sifter Capital), y (3) portavoz público de la firma. Los Portfolio Managers Partner nominales (Olli Pöyhönen, Alexander Järf, Karl-Johan Lidsle) ejecutan el proceso de análisis y deciden colectivamente, pero la atribución externa apunta a Korpinen como referente. Esta estructura es coherente con la cultura nórdica de toma de decisiones en equipo: en Sifter no hay 'star manager' al estilo americano; hay un equipo Partner-owned con un líder formal.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Lidera un proceso de inversión basado en evidencia, sistemático y repetible, donde las decisiones se toman colectivamente por el equipo. Su filosofía pública es la del 'Nordic engineering mindset' compartida por toda la firma: decisiones basadas en reglas, precisas y consistentes en mercados turbulentos. Defiende explícitamente que 'el oportunismo excesivo puede ser costoso' (carta 2023-Q4) y que la disciplina del proceso —Stocksifter™ + Cylinder— es lo que ha permitido evitar errores importantes en 23 años de historia.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Mantenimiento del proceso Stocksifter en el shock COVID Q1 2020</strong>: en lugar de salir de mercado, el equipo bajo su liderazgo reforzó posiciones de calidad (Cisco, Oracle, Atlas Copco, Johnson & Johnson, Lam Research) durante la caída de -19,5% del MSCI ACWI. Resultado: outperformance de +3,8pp en el trimestre y validación del modelo en estrés.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>No flexibilizar el filtro Cylinder durante 2024 pese al rally de los Magnificent 7</strong>: NVIDIA, Apple y Amazon fueron descartados por valoración. Coste: -14,4pp de underperformance frente al MSCI ACWI en el año natural 2024. Decisión disciplinada que demuestra disposición a aceptar tracking error grande por proceso.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Apertura del mercado Iberia y LatAm vía ACCI Capital (sep 2024)</strong>: acuerdo de distribución y lanzamiento de la clase RA específicamente diseñada para el inversor retail español (mínimo 100€, 2,0% gestión + 15% performance fee sobre hurdle 5%). Diversifica la base de inversores frente al mercado finlandés/escandinavo histórico.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Rotación 2025 post-Liberation Day</strong>: salida de Sony, Walt Disney y Autoliv por incumplimiento de criterios; entrada de Cintas e IDEXX Laboratories. Reducción del 30% en TSMC y aumento del 20% en Alphabet en diciembre 2024, gestionando los riesgos de concentración tras el rally de tecnológicas.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Combina un perfil de consultor estratégico (17 años pre-Sifter) con liderazgo ejecutivo y responsabilidad regulatoria del vehículo. No es un PM 'tradicional' que pase el día analizando empresas: es el coordinador del proceso, garante de la disciplina del modelo y interlocutor con el ecosistema externo (distribuidores, inversores institucionales, regulador). En una firma partner-owned con decisiones colectivas, su rol es asegurar que el proceso Nordic Quality Investing se respeta sin flexibilizaciones tácticas.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">OP</div>
+        <div class="mgr-nm">Olli Pöyhönen<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Portfolio Manager, Partner — Co-manager</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Portfolio Manager y Partner en Sifter Capital Oy</li><li style="margin-bottom:3px;">Listado primero entre los PMs Partner en la página oficial /our-team</li><li style="margin-bottom:3px;">Experiencia previa: analista en el sector financiero</li><li style="margin-bottom:3px;">Experiencia previa: analista en el Banco de Finlandia (Suomen Pankki)</li><li style="margin-bottom:3px;">Activo en medios financieros finlandeses (Inderes) comentando posiciones del fondo</li><li style="margin-bottom:3px;">Post LinkedIn febrero 2024 sobre Disco Corporation (posición desde 2019)</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>Portfolio Manager veterano de Sifter Capital</strong>
+
+Olli Pöyhönen es Portfolio Manager y Partner en Sifter Capital. La página oficial /our-team lo lista en primer lugar entre los Portfolio Managers Partner —orden que, en boutiques nórdicas, suele indicar seniority o jerarquía interna— y lo describe como 'seasoned portfolio manager and Partner... ensuring his interests are fully aligned with those of the investors'.
+
+<strong>Trayectoria previa: analista financiero y Banco de Finlandia</strong>
+
+Antes de incorporarse a Sifter, Olli trabajó como analista en el sector financiero y en el <strong>Banco de Finlandia</strong> (Suomen Pankki, banco central del país), donde desarrolló una comprensión profunda de los mercados financieros y el análisis económico. Esa experiencia macro-financiera complementa el resto del equipo, más enfocado en análisis bottom-up de empresas.
+
+<strong>Filosofía: meticuloso, analítico, aversion al riesgo</strong>
+
+La biografía oficial enfatiza su 'enfoque meticuloso y analítico para descubrir oportunidades de inversión de alta calidad' y describe su pensamiento como 'disciplinado y con una fuerte mentalidad aversa al riesgo, asegurando que cada inversión se alinee con los objetivos a largo plazo del fondo'. Esa aversion al riesgo coloca a Pöyhönen como uno de los exponentes más claros del lado 'eliminación' del proceso Stocksifter —el lado que rechaza el 95% del universo por no cumplir criterios— frente al lado constructivo que añade las 3-5 nuevas posiciones al año.
+
+<strong>Presencia pública: medios financieros finlandeses (Inderes)</strong>
+
+A diferencia del resto del equipo, Olli tiene actividad pública documentada en redes sociales financieras. En febrero de 2024 publicó en LinkedIn (en finés) un post comentando una entrevista con Inderes —medio financiero finlandés especializado— sobre Disco Corporation, posición en la cartera de Sifter desde 2019. El post agradece a Antti Järvenpää (Inderes) por las preguntas e incluye enlace al vídeo de YouTube de la entrevista. Esa actividad confirma que Olli participa activamente en comunicación pública del fondo, hace seguimiento de posiciones individuales y representa a Sifter en medios financieros nacionales.
+
+<strong>Co-manager natural del equipo según el orden oficial y el flujo público</strong>
+
+El etiquetado de Olli como 'co-manager' descansa sobre dos pilares: (1) figura primero entre los PMs Partner en la página /our-team, lo que sugiere seniority frente a Alexander y Karl-Johan; (2) es el único PM del equipo (aparte del CEO) con actividad pública documentada externamente, comentando posiciones específicas del fondo. Las decisiones de cartera, no obstante, se toman colectivamente por el Investment Committee.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Disciplina rigurosa y aversion al riesgo. Filosofía individual fuertemente alineada con el lado 'eliminación' del Stocksifter: rechazar empresas que no cumplen criterios de calidad antes que tomar riesgos por oportunismo. La cita oficial es clara: 'each investment aligns with the long-term objectives of the fund'. Su background en el Banco de Finlandia aporta una capa macro-financiera al análisis bottom-up del equipo.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-1" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Seguimiento público de la posición Disco Corporation</strong>: publicó en LinkedIn (feb 2024) y participó en entrevista con Inderes comentando la tesis sobre Disco Corporation, fabricante japonés de equipos para semiconductores en la cartera desde 2019. Disco fue reducida -33% en 2024 por sobrevaloración tras rally, y aumentada de nuevo en Q4 2025 según factsheet diciembre 2025.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Lado eliminación del Stocksifter — rechazos documentados</strong>: en el material colectivo del equipo (carta 2023-Q4) se documentan rechazos por falta de moat claro (Garmin, Rockwell), crecimiento estancado (Cisco antes de ser comprado y luego vendido, Generac), riesgo excesivo (Moncler, SolarEdge) y ética (Vertex Pharmaceuticals). El estilo aversion-al-riesgo del proceso refleja la influencia explícita de Olli.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Único PM Partner del equipo con actividad pública documentada externamente (post LinkedIn 2024, entrevista Inderes). Su background en Banco de Finlandia diferencia su perspectiva del resto del equipo (más bottom-up corporativo). En un equipo nórdico que rehúye protagonismos individuales, Olli es el comunicador externo natural del proceso de análisis.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#2c6e49,#4ecf99);">AJ</div>
+        <div class="mgr-nm">Alexander Järf<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Portfolio Manager, Partner</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Portfolio Manager y Partner en Sifter Capital. Doble grado académico y amplia experiencia en análisis de inversión. Especializado en evaluar modelos de ingresos de negocio e identificar oportunidades de alto potencial. Forma parte del equipo de PMs Partner que ejecutan el análisis profundo de las ~50 empresas candidatas al año dentro del proceso Stocksifter. La biografía pública es escueta —el equipo nórdico evita la sobre-exposición individual— y no se encontraron entrevistas ni perfiles externos detectados en la búsqueda. Forma parte del equipo actual que, según Moclano (mayo 2026), lleva 9 años junto.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:#3d5a80;">KL</div>
+        <div class="mgr-nm">Karl-Johan Lidsle<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Portfolio Manager, Partner</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Portfolio Manager y Partner en Sifter Capital. Aporta una 'mentalidad analítica afilada y un enfoque metódico de evaluación de inversiones' según la biografía oficial de /our-team. Investigador. Como Alexander Järf, su cobertura pública es escueta —característica de boutiques nórdicas con cultura de decisiones colectivas— y no se encontraron entrevistas ni perfiles externos en la búsqueda. Parte del equipo de 9 años junto.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:#5c5850;">HK</div>
+        <div class="mgr-nm">Hannes Kulvik<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Founder & Board of Directors — Principal accionista del fondo</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">**Fundador del Sifter Fund (2003) y arquitecto del modelo Nordic Quality Investing**
+
+Hannes Kulvik fundó Sifter Capital y lanzó el Sifter Fund - Global el 19 de junio de 2003. Es el creador del modelo 'Stocksifter' que la firma desarrollaría durante más de dos décadas hasta su forma actual de Nordic Quality Investing. Graduado en Economía, su trayectoria suma 40 años en el sector financiero, desarrollo corporativo y corporate finance.
+
+**Perfil atípico: CEO de cotizadas, asesor del Presidente de Finlandia, gabinete del Ministerio de Defensa**
+
+Fuera de la gestión de activos, Kulvik ha sido CEO de varias compañías cotizadas finlandesas, asesor del Presidente de Finlandia y miembro del gabinete del Ministerio de Defensa finlandés. Es uno de los pocos gestores europeos con experiencia ejecutiva en empresas listadas y simultáneamente experiencia institucional al más alto nivel del estado.
+
+**Sigue siendo principal accionista del fondo y miembro del Consejo**
+
+Aunque ya no ejerce como Portfolio Manager activo, Kulvik **sigue siendo el principal inversor individual del fondo y miembro del Board of Directors de Sifter Capital**. Su skin-in-the-game personal sigue siendo el ancla de la alineación de intereses con el resto de inversores: el creador del modelo es también el mayor inversor del vehículo. Esta continuidad es la razón por la que el track record de 23 años se considera coherente: aunque el equipo operativo cambió con la llegada de Korpinen en 2016, la filosofía y el proceso siguen siendo los diseñados originalmente por Kulvik en 2003.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">PK</div>
+        <div class="mgr-nm">Pauli Kulvik<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Investment Committee Member (no PM)</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Inversor de private equity y ejecutivo corporativo experimentado. Aporta pensamiento estratégico, experiencia financiera y perspectiva industrial al Investment Committee de Sifter. **No es Portfolio Manager activo** —forma parte del Comité de Inversión que ratifica decisiones del equipo operativo— pero su perspectiva PE/industrial complementa el análisis bottom-up de las posiciones candidatas. Su presencia en el IC junto a otros miembros (Antti Vasara, Wilhelm Fazer según Moclano) es la pieza de gobernanza que asegura desafío crítico a las propuestas del equipo de PMs Partner.</p>
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="subsec">El proceso Stocksifter™ — eliminación sistemática desde 65.000 empresas hasta 25-30 posiciones</p><p class="pr">La estrategia de Sifter Fund - Global descansa sobre un proceso propietario de seis etapas conocido como Stocksifter™ que parte del universo cotizado global completo (~65.000 empresas según factsheet feb-2026 y carta 2023-Q4) y, mediante eliminaciones sucesivas en embudo, lo reduce a 25-30 posiciones finales. El proceso es el siguiente:</p><p class="pr">1. <strong>Universo global completo (~65.000 empresas)</strong>: punto de partida sin sesgo geográfico, sectorial ni de capitalización. 2. <strong>Stocksifter screening</strong>: filtros automáticos sobre métricas cuantitativas (ROIC, márgenes, apalancamiento, crecimiento histórico). Rechaza más del 95% del universo por considerarlo de baja calidad. 3. <strong>Cylinder valoración</strong>: métrica propietaria que proyecta earnings yield a 5 años ajustado por riesgo. Reemplaza el PER tradicional. Empresas con Cylinder atractivo pasan al análisis profundo. 4. <strong>Análisis profundo (~50 empresas/año)</strong>: 6-8 semanas por empresa, con cobertura de modelo de negocio, ventaja competitiva, dirigentes, estados financieros y proyecciones a 5 años. 5. <strong>Investment Committee</strong>: validación colectiva por el IC (Korpinen + PMs Partner + Pauli Kulvik + otros miembros). 6. <strong>Cartera final: 25-30 posiciones</strong>: solo se añaden 3-5 nuevas posiciones al año. Rotación anual ~10%. Horizonte medio por posición ~5 años.</p><p class="subsec">Los cuatro pilares de calidad — no negociables</p><p class="pr">La gestora define calidad sobre cuatro pilares que aparecen explícitamente en cartas (2024, 2025, 2026-Q1) y en el factsheet:</p><ul class="nl"><li><strong>Pilar 1 — Crecimiento predecible</strong>: la empresa debe tener vías claras de crecimiento (cuota de mercado o expansión del TAM) sin depender de adquisiciones arriesgadas. El crecimiento orgánico debe poder superar al PIB de largo plazo.</li><li><strong>Pilar 2 — Ventaja competitiva sostenible y comprensible</strong>: moat duradero y entendible (marca, escala, integración vertical, IP, switching costs). Casos de rechazo documentados: Garmin (sin moat claro), Rockwell Automation, Cisco (al 2024, por moat erosionándose vs nuevos competidores ágiles).</li><li><strong>Pilar 3 — Solidez financiera y bajo apalancamiento</strong>: balances saludables, preferiblemente caja neta. ROIC mediano de la cartera ≥15% (carta 2020-Q1). Las empresas de Sifter tienen 'on average... very low' apalancamiento.</li><li><strong>Pilar 4 — Valoración disciplinada vía Cylinder</strong>: la valoración debe ser 'al menos razonable' (cartas 2024, 2025). No es un fondo barato per se —no se mide por PER bajo— pero el Cylinder asegura que el precio descuente realista las expectativas de los próximos 5 años.</li></ul><p class="subsec">Exclusiones estructurales por filosofía</p><p class="pr">Sifter descarta de raíz tres sectores que considera estructuralmente débiles para inversión quality: <strong>energía, bancos y utilities</strong> (Moclano, mayo 2026). Esto contrasta con índices globales y explica parte del bajo solapamiento del fondo con benchmarks (<20% common holdings según factsheet feb-2026). También se descartan empresas por razones éticas, con Vertex Pharmaceuticals como caso documentado (carta 2023-Q4).</p><p class="subsec">Características técnicas del proceso</p><ul class="nl"><li><strong>Sin coberturas de divisa</strong>: la rentabilidad EUR refleja directamente el riesgo cambiario USD/JPY/SEK/CHF de las posiciones.</li><li><strong>Sin uso de derivados ni apalancamiento</strong>.</li><li><strong>Totalmente invertido en todos los ciclos</strong>: cash típico <1% (FT reporta 0,91% a abril 2026). No hay timing de mercado.</li><li><strong>Sin desviación de estilo (no style drift)</strong>: el fondo no rota entre value/growth/momentum según ciclo.</li><li><strong>Active share 0,09 vs MSCI ACWI</strong>: uno de los más altos del universo quality global. La cartera comparte <20% holdings con índices globales (factsheet feb-2026).</li><li><strong>Decisiones colectivas por el Investment Committee</strong>: 'team-driven, rules-based and precise' (factsheet feb-2026). No hay PM 'estrella'.</li></ul><p class="subsec">La métrica Cylinder en detalle — el sustituto del PER</p><p class="pr">La métrica Cylinder es uno de los rasgos diferenciales más citados (Moclano mayo 2026). En lugar de evaluar valoración por PER, EV/EBITDA o múltiplos similares, Cylinder proyecta el earnings yield (beneficios/precio) a 5 años de la empresa y lo ajusta por el riesgo específico del negocio. Esto tiene dos consecuencias:</p><ul class="nl"><li>Empresas con crecimiento real y sostenido tienen Cylinder atractivo aunque el PER actual sea alto (caso Old Dominion, Alphabet en histórico).</li><li>Empresas con crecimiento estancado o reversible no entran aunque el PER sea bajo (caso Cisco al 2024, VeriSign al 2024).</li></ul><p class="pr">El resultado en cartera: los megacaps caros del mercado (NVIDIA, Apple, Amazon) suelen no pasar el Cylinder porque su valoración descuenta crecimiento extraordinario sostenido; eso fue la causa principal del -14,4pp de underperformance vs MSCI ACWI en el año natural 2024 (Moclano mayo 2026).</p><p class="subsec">Cómo se ejecuta la tesis — decisiones recientes documentadas</p><p class="pr">La cartera refleja la tesis con consistencia en los últimos años:</p><ul class="nl"><li><strong>Año fiscal 2024 (Sep-Ago)</strong>: venta de Cisco (crecimiento limitado por tamaño, foco en M&A arriesgada) y VeriSign (consolidación a la baja de dominios). Compras: TOMRA Systems (líder global 70% en máquinas de venta inversa, viento de cola legislación UE 2029 plásticos) y Mettler-Toledo (instrumentos de precisión, crecimiento ligado a CapEx ciencias de la vida). Reducciones tácticas: Disco Corporation -33% por rally que excedió fundamentales; Novo Nordisk hacia el límite del 10% por posición.</li><li><strong>Año fiscal 2025 (Sep-Ago)</strong>: salidas de Sony, Walt Disney y Autoliv por incumplimiento de criterios. Entradas: Cintas (mantenimiento industrial B2B) e IDEXX Laboratories (diagnóstico veterinario). Reducción 30% TSMC (rotación de riesgo) y aumento 20% Alphabet en diciembre 2024.</li><li><strong>2026-Q1</strong>: cartera 'cargada hacia fabricantes de equipos de semiconductores, así como empresas industriales y defensivas de alta calidad' (carta 2026-Q1). La exposición mínima a software protegió la cartera del pinchazo SaaS de inicio de año.</li></ul><p class="subsec">Comportamiento esperado bajo distintos escenarios — implicaciones para el inversor</p><p class="pr">El track record y la composición permiten anticipar el comportamiento del fondo bajo distintos escenarios:</p><ul class="nl"><li><strong>Mercado en correción rápida y profunda (caso COVID Q1 2020)</strong>: el fondo cae menos que el índice (en Q1 2020 -15,7% vs -19,5%, outperformance +3,8pp). La calidad financiera (caja neta, ROIC alto) protege.</li><li><strong>Rally amplio y diversificado por sectores (caso 2021 +34,3%)</strong>: el fondo amplifica el upside vía posiciones long-tail (Old Dominion +98%, Alphabet +78%, Novo Nordisk +76%). Up capture 107,5%.</li><li><strong>Rally concentrado en megacaps que el filtro rechaza (caso 2024 calendar)</strong>: el fondo underperforma significativamente (-14,4pp vs MSCI ACWI). Coste esperado de la disciplina.</li><li><strong>Mercado lateral con rotación sectorial (caso 2025 fiscal)</strong>: el fondo entrega resultado de operaciones cercano a cero o negativo, dependiendo del peso relativo de las posiciones que ese año funcionen vs las que sufran.</li><li><strong>Crisis sectorial específica que no afecta a la cartera (caso 2026-Q1 SaaS crash)</strong>: el fondo es defensivo por exclusión —no por composición conservadora—. La ausencia estructural de SaaS protegió ante el sentiment shift.</li></ul>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Decisions are made collectively by our investment team, using a transparent and repeatable process. That's the essence of Nordic Quality Investing — evidence-based, calm, and consistent.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo Sifter Capital, Factsheet febrero 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Crises create opportunities. After all the crises, the reconstruction period is often more powerful and comes sooner than one might imagine in advance.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo Sifter Capital, Carta Quarterly Report Q1 2020 (COVID)</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Through the Stocksifter method, we reject more than 95% of the 65,000 publicly listed companies because we consider them to be of low quality. The quality of the business is, ultimately, the only thing that matters.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo Sifter Capital, Carta 2023-Q4 — Three reasons to avoid investing in a company</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Cartera concentrada (25-30 nombres) con tilt actual a fabricantes de equipos de semiconductores (Lam Research, Applied Materials, Disco, TSMC), industriales de calidad (Safran, Atlas Copco, Old Dominion, Canadian National) y defensivas (Costco, North West, J&J). Exposición mínima a software por proceso. Geográficamente USA ~60-65% / Europa ~25-28% / Japón+Asia ~7%. Sin uso de derivados, sin coberturas de divisa, totalmente invertida (~99% RV, <1% cash).</p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Global Quality, Large-Cap Blend (categoría Morningstar: Global Large-Cap Blend Equity, riesgo SRRI 4/7)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Concentración geográfica EE.UU. (~60-65% de la cartera) y exposición USD/EUR sin cobertura</li><li style="margin-bottom:4px;">Concentración sectorial en Tecnología (~37-39%) e Industriales (~23-24%); exclusión estructural de Energía, Banca y Utilities</li><li style="margin-bottom:4px;">Concentración por posición elevada: top10 ~56-59% del patrimonio, top5 ~35-38%</li><li style="margin-bottom:4px;">Volatilidad amplificada: beta 1Y = 1,29 vs MSCI ACWI, desviación estándar 1Y = 15,46% (clase PB FT)</li><li style="margin-bottom:4px;">Underperformance estructural en regímenes megacap-driven (caso 2024 calendar: -14,4pp por ausencia NVIDIA/Apple/Amazon)</li><li style="margin-bottom:4px;">Riesgo de cambio EUR/USD y otras divisas (no se cubre)</li><li style="margin-bottom:4px;">Riesgo de gestor: equipo Partner-owned pequeño (4 PMs + IC); concentración de proceso en Sifter Capital Oy (Helsinki)</li><li style="margin-bottom:4px;">Coste total alto: clases retail 1,7-2,3% gastos corrientes, exige outperformance sostenido</li></ul></div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2020-Q1</div>
+  <div class="strat-c">Q1 2020 marcado por la irrupción del coronavirus a finales de febrero ('Cisne Negro'). Disrupción global impredecible: las tasas de interés se reducen, valoraciones y precios de acciones caen significativamente, sectores como viajes, turismo y aviación especialmente afectados. El MSCI ACWI cae -19,5%.</div>
+  <div class="strat-c">El equipo reforzó posiciones de calidad segura: aumentó Cisco, Oracle, Atlas Copco, Johnson & Johnson y Lam Research aprovechando precios atractivos. Redujo Check Point y Mohawk por riesgos competitivos. Vendió Hexcel por fusión propuesta problemática con Woodward. Mantuvo Safran pese a la presión del sector aeroespacial por su gran cuota de mantenimiento. Rebalanceó pesos para limitar concentración.</div>
+  <div class="strat-c">-15,7% — outperformance de +3,8pp vs MSCI ACWI (-19,5%). Microsoft fue la única posición con retorno positivo del trimestre (peso 7,2%, contribución significativa). Validación pública del modelo en estrés.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2021</div>
+  <div class="strat-c">2021 fue un año de fuerte recuperación post-COVID. Inversiones tecnológicas en infraestructura para entrenamiento de modelos IA. Short squeezes en acciones con alto interés corto (GameStop, iRobot). Industria del software en transición hacia cloud computing (afectando incumbentes como Oracle).</div>
+  <div class="strat-c">Dos nuevas inversiones: Sony (consolas, música, sensores de imagen) y Nitori (retail japonés con integración vertical, márgenes operativos líderes). Tres ventas significativas: iRobot tras short squeeze (+240% beneficio), Oracle tras 9+ años (+248% más dividendos, deterioro de posición competitiva en bases de datos cloud), Ain Holdings tras casi 5 años (desviación de hipótesis de inversión).</div>
+  <div class="strat-c">+34,3% anual — mejor año reciente del fondo. Drivers: Old Dominion Freight Line +98,1%, Alphabet (Google) +77,8%, Novo Nordisk +75,7%. Demostración de up capture amplificado (107,5%).</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2024 fiscal (Sep-2023/Ago-2024)</div>
+  <div class="strat-c">Año fiscal con buen tono general en RV global. S&P500, Euro Stoxx50 y MSCI ACWI EUR registrando aumentos. Optimismo sobre IA (tecnológicas invierten en infraestructura). Algunas dudas sobre sobreinversión en verano. BCE inicia recorte de tipos (-25bp). Banco de Japón sube por primera vez en 10 años. Mejor sector: financiero; peor: energía.</div>
+  <div class="strat-c">Desinvertidas Cisco Systems (no puede crecer orgánicamente sobre PIB por tamaño, foco en M&A arriesgada) y VeriSign (consolidación a la baja del número de dominios). Nuevas: TOMRA Systems ASA (líder 70% en máquinas de venta inversa, viento de cola legislación UE 2029) y Mettler-Toledo (instrumentos de precisión). Reducción del 33% en Disco Corporation por rally que excedió fundamentales. Novo Nordisk reducida hacia el 10% por posición.</div>
+  <div class="strat-c">+19,01% (R EUR), +19,03% (I EUR), +19,31% (PI EUR) — driver TSMC + Costco + North West Company. Sectores: Consumer Staples (Costco/North West), Tech (semis para IA), Financials (Deutsche Börse). Peor: Consumer Discretionary.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2024 calendar (Ene-Dic)</div>
+  <div class="strat-c">Año natural 2024 con rally fuertemente concentrado en megacaps tecnológicos: NVIDIA, Apple, Amazon y Microsoft ('Magnificent 7') lideran retornos. El MSCI ACWI EUR sube +25,3%.</div>
+  <div class="strat-c"><strong>La gestora NO flexibilizó el filtro Cylinder pese al rally</strong>: NVIDIA, Apple y Amazon siguen descartados por valoración (el Cylinder proyecta earnings yield ajustado por riesgo y considera que descuentan crecimiento extraordinario insostenible). Microsoft sí está en cartera, pero con peso reducido vs su peso en el índice. Decisión disciplinada, no táctica.</div>
+  <div class="strat-c">+10,9% vs +25,3% MSCI ACWI — underperformance de -14,4pp (Moclano mayo 2026). Episodio público que mejor ilustra los límites estructurales del modelo: cuando el liderazgo del mercado lo concentran megacaps caras, el fondo queda atrás. Coste esperado de la disciplina.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2025 fiscal (Sep-2024/Ago-2025)</div>
+  <div class="strat-c">Año fiscal turbulento. Trump gana elecciones (oct 2024), mercado repunta inicialmente con esperanzas de menor regulación. Pivot rápido a temores arancelarios. 'Liberation Day' abril 2025 revela aranceles inesperadamente grandes sobre todos los bloques económicos, pico momentáneo del VIX. USD se devalúa frente al EUR. Europa aumenta gasto en defensa. Mejores sectores: comunicación, finanzas, tecnología. Peores: real estate, healthcare.</div>
+  <div class="strat-c">Salidas: Sony Corporation, Walt Disney y Autoliv (no cumplen criterios). Entradas: Cintas (servicios de mantenimiento industrial B2B) e IDEXX Laboratories (diagnóstico veterinario). Ajuste mayor: reducción del 30% en TSMC y aumento del 20% en Alphabet en diciembre 2024. Mantiene proceso pese a turbulencia.</div>
+  <div class="strat-c">Resultado de operaciones negativo: -9,1 M€ en el ejercicio. NAV por acción cae para todas las clases (PB pasa de 752,76 a 728,46 EUR). Mejores posiciones: Safran, TSMC, Walt Disney, Deutsche Börse, Alphabet. Peores: Novo Nordisk, SMC, Old Dominion. Sectores: Finanzas / Comunicación / Consumo Discrecional > Healthcare.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2026-Q1 (Ene-Feb 2026)</div>
+  <div class="strat-c">A inicios de 2026 el sentimiento sobre IA cambia bruscamente: pasa de tema alcista (todo 2025) a amenaza percibida para empresas SaaS. Fuerte caída en acciones de software (Software as a Service). Mercados sensibles a 'disappointments' (factsheet). Volatilidad creciente.</div>
+  <div class="strat-c">El fondo capea bien por proceso, no por reacción táctica: exposición mínima a software por diseño Stocksifter. Cartera cargada en fabricantes de equipos de semiconductores (Lam Research, Applied Materials, Disco), industriales (Safran, Old Dominion, Canadian National) y defensivas (Costco, North West, J&J). Aumento marginal de Disco en Q4 2025 por valoración atractiva. Old Dominion incrementada ligeramente por valoración y expectativa de mejora industrial.</div>
+  <div class="strat-c">+8,2% YTD a febrero 2026 vs +6,1% MSCI World (EUR) — outperformance +2,1pp. Drivers YTD: semiconductor equipment +4-5pp, industriales +1-1,5pp, defensivas +1-1,5pp. Posiciones estrella YTD: Costco +17%, North West Company +15% (USD), Johnson & Johnson +20%. A 18/05/2026: +11,9% YTD (Finect).</div>
+</div>
+
+  
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera es prácticamente 100% renta variable: ~99% acciones, ~1% liquidez. Sin renta fija, sin derivados, sin coberturas de divisa y sin apalancamiento. La estrategia es 'long only sub-fund which uses no leverage' (folleto, objetivo de inversión). La gestora se ha comprometido públicamente con estar totalmente invertida en todos los ciclos de mercado, sin timing táctico.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Distribución geográfica</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El mapa geográfico es claramente atlántico con tilt americano:</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">- <strong>Norteamérica ~64,5%</strong> (de la cual Estados Unidos representa la inmensa mayoría —~59% según FT). El peso americano es estructuralmente alto porque el universo de quality cotizado con escala global está concentrado en EE.UU.
+- <strong>Europa desarrollada ~27,8%</strong> (Eurozona 15,99% + Europa ex-Euro 10,29% según FT). Posiciones notables: Safran (Francia), Deutsche Boerse (Alemania), Atlas Copco (Suecia), TOMRA Systems (Noruega).
+- <strong>Asia desarrollada ~4,6%</strong>, fundamentalmente Taiwan (TSMC vía ADR) y posiciones residuales.
+- <strong>Japón ~3,1%</strong>, históricamente con presencia de Disco Corporation, Mettler-Toledo, SMC Corp.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Notablemente, <strong>no hay exposición material a emergentes</strong> (China, India, Latinoamérica) — coherente con un filtro de calidad estricto que prima visibilidad de earnings y solidez institucional. La exposición a Taiwan vía TSMC es indirecta (ADR).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Distribución sectorial</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El tilt sectorial es muy marcado:</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">- <strong>Tecnología ~36,8% (fund_data) / 39,21% (FT)</strong> — el peso más alto. La composición interna es notable: el grueso son fabricantes de equipos de semiconductores (Lam Research, Applied Materials, Disco) y TSMC como pure-play foundry, no megacaps de software. Esta composición refleja que el proceso Cylinder rechaza por valoración los grandes pure-plays de software/IA mega-caps (NVIDIA, Apple, Amazon) pero acepta los players de infraestructura física (los 'bottlenecks' del value chain según factsheet feb-2026).
+- <strong>Industriales ~23,5%</strong> — segundo peso. Compuesto por industriales de calidad europeos y norteamericanos: Safran (motores aeronáuticos LEAP), Atlas Copco (compresores y vacío industrial), Old Dominion Freight Line (transporte LTL EE.UU.), Canadian National Railway. Son negocios de moat operativo, márgenes elevados y posición competitiva defendible.
+- <strong>Healthcare ~16,9%</strong> — incluye fabricantes especializados (West Pharmaceutical Services, Mettler-Toledo, IDEXX Laboratories) más posiciones farma defensivas (Johnson & Johnson, Novo Nordisk con peso reducido tras sobrevaloración 2024). La preferencia es por proveedores de infraestructura/equipo médico antes que farma pura.
+- <strong>Communication Services ~12,4%</strong> — fundamentalmente Alphabet (la mayor posición individual del fondo a 9,5% del patrimonio según intl_data.json).
+- <strong>Financial Services ~6,6%</strong> — peso bajo y concentrado en Deutsche Boerse (operador de bolsa alemán, no banca tradicional). La banca como sector está estructuralmente excluida.
+- <strong>Consumer Defensive ~3,9%</strong> — Costco, North West Company (retail canadiense).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Sectores excluidos por filosofía</strong>: la firma rechaza estructuralmente energía, banca y utilities (Moclano mayo 2026), lo que junto al sesgo B2B (~80% de la cartera) explica el bajísimo solapamiento con índices globales (<20% common holdings, factsheet feb-2026).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Racional de las grandes apuestas — por qué estos nombres</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera responde a la tesis de cuatro pilares con coherencia:</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En <strong>semiconductor equipment</strong>, la gestora ve un tema estructural ligado a IA y expansión de data centers para 2026. Las empresas que selecciona —Lam Research, Applied Materials, Disco— son 'critical bottlenecks in the value chain' (factsheet diciembre 2025), con visibilidad de pedidos fuerte. TSMC es el pure-play foundry de calidad. La carta 2026-Q1 subraya que la exposición a semiconductores ronda el 30% de la cartera. NVIDIA queda excluida por valoración Cylinder.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En <strong>industriales de calidad</strong>, Safran (motores aeronáuticos para Airbus y Boeing) es histórico del fondo y posición top desde hace años. Old Dominion en LTL norteamericano, Canadian National en ferrocarril Canadá-EE.UU., y Atlas Copco en equipo industrial sueco son ejemplos del 'high-quality industrial' (~24% de cartera según factsheet diciembre 2025) que la gestora ve bien posicionado si la actividad industrial global se fortalece en 2026.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En <strong>healthcare</strong>, el sesgo es claro: equipos y consumibles de calidad antes que farma pura. West Pharmaceutical Services (componentes para inyectables), Mettler-Toledo (precisión analítica), IDEXX Laboratories (diagnóstico veterinario). Johnson & Johnson aparece como exposición defensiva clásica. Novo Nordisk se mantiene tras la reducción 2024 por la oportunidad estructural de diabetes/obesidad y Semaglutide.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En <strong>defensivas</strong>, Costco y North West Company representan retail con moat operativo (Costco por escala y membership, North West por geografía remota en Canadá). Han actuado como 'safe havens' en 2026 YTD según la propia gestora.</p></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Concentración</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera es concentrada pero no extrema:</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">- <strong>Top 5</strong> representa ~35-38% del patrimonio según fuente (intl_data: 38,3% / FT: 35,47%).
+- <strong>Top 10</strong> representa ~56-59% del patrimonio (intl_data: 59,0% / FT: 56,44%).
+- <strong>Active share</strong>: 0,09 vs MSCI ACWI — extremadamente alto para un fondo quality global. Significa que la cartera comparte muy poco con el índice de referencia.
+- <strong><20% common holdings con índices globales</strong> según factsheet feb-2026. Esta es la métrica clave de diversificación real frente a otros fondos quality.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La concentración por posición está limitada por el proceso a un máximo del 10% por valor (lo que motivó la reducción de Novo Nordisk en 2024). Eso da un techo natural a la concentración top1.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Rotación y horizonte por posición</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La rotación anual es muy baja (~10% según Moclano), consistente con un horizonte medio por posición de 5 años. Casos extremos documentados en cartas: Oracle estuvo 9+ años en cartera antes de su venta en 2021, Ain Holdings ~5 años antes de venta en 2021. Cuando la gestora vende, lo hace por uno de tres motivos: (1) el modelo de ingresos se debilita (Cisco 2024, VeriSign 2024), (2) aparece una alternativa claramente mejor, (3) el precio se desvía significativamente de los fundamentales (caso iRobot 2021 +240% en corto plazo).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Riesgos estructurales actuales de la composición</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La composición actual concentra varios riesgos que el inversor debe tener presentes:</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">- <strong>Riesgo USD</strong>: ~60% de la cartera en EE.UU. sin cobertura. Una corrección del USD frente al EUR (caso 2025) erosiona retorno EUR.
+- <strong>Riesgo tecnología/semiconductores</strong>: ~37-39% sector tech, con peso fuerte en equipos de semiconductores. Una corrección de la demanda IA/data centers de 2026 impactaría la cartera de forma desproporcionada.
+- <strong>Riesgo concentración top5</strong>: 35-38% en 5 nombres. Si Alphabet o Safran sufrieran sorpresas negativas idiosincráticas, el impacto sería significativo.
+- <strong>Riesgo de underperformance estructural en regímenes megacap-driven</strong>: documentado (2024 calendar, -14,4pp). La exclusión por Cylinder de NVIDIA/Apple/Amazon es persistente.</p></div>
+  </div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
+  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>geografía</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Norteamérica 64,5% / Europa desarrollada 27,8% / Asia desarrollada 4,6% / Japón 3,1% (fund_data.geographic_allocation). FT reporta: EE.UU. 59,24% / Eurozona 15,99% / Europa ex-Euro 10,29% / América ex-EE.UU. 4,43%</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sectores</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Tecnología 36,8% / Industriales 23,5% / Healthcare 16,9% / Communication Services 12,4% / Financial Services 6,6% / Consumer Defensive 3,9% (fund_data.sector_allocation). Sectores excluidos por filosofía: Energía, Banca, Utilities</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>tipo de activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Renta variable ~99% / Liquidez ~1% / Sin renta fija, sin derivados, sin apalancamiento, sin cobertura de divisa, totalmente invertido en todos los ciclos</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>concentración</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">25-30 posiciones objetivo. Top5 35,5-38,3% / Top10 56,4-59,0% según fuente. Active share 0,09 vs MSCI ACWI, <20% holdings común con índices globales</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>perfil B2B vs B2C</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">~80% B2B (empresas que venden a otras empresas) según Moclano mayo 2026, lo que aporta cierta estabilidad de ingresos</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">10</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">59,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">59,0%</div><div class="kpi-sub">Renta variable</div></div>
+  </div>
+
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctxMix = document.getElementById('c-mix');
+    if (ctxMix) {
+      const tipos = [["RV", 59.0]];
+      new Chart(ctxMix, {
+        type: 'doughnut',
+        data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+      });
+    }
+    const ctxC = document.getElementById('c-conc');
+    if (ctxC) {
+      new Chart(ctxC, {
+        type: 'bar',
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [38.3, 59.0, 59.0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
+      });
+    }
+  })();
+  </script>
+
+  <div class="sr">Todas las posiciones (10)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody><tr>
+  <td title="Alphabet Inc Class A">Alphabet Inc Class A</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:76px;background:#0c2340;"></div>9,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>10%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Safran SA">Safran SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">France</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:62px;background:#0c2340;"></div>7,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>17%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Microsoft Corp">Microsoft Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:59px;background:#0c2340;"></div>7,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>25%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Lam Research Corp">Lam Research Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:56px;background:#0c2340;"></div>7,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>32%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Applied Materials Inc">Applied Materials Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:52px;background:#0c2340;"></div>6,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>38%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Taiwan Semiconductor Manufacturing Co Ltd ADR">Taiwan Semiconductor Manufacturing Co Ltd ADR</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Taiwan</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>43%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="West Pharmaceutical Services Inc">West Pharmaceutical Services Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:35px;background:#0c2340;"></div>4,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>47%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Deutsche Boerse AG">Deutsche Boerse AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Germany</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>52%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Mettler-Toledo International Inc">Mettler-Toledo International Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>55%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Atlas Copco AB Class B">Atlas Copco AB Class B</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Sweden</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>59%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+  
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Salud Financiera (Substack)</div>
+        </div>
+        <span class="src-date">2026-03-11</span>
+      </div>
+      <div class="src-t">Análisis del Sifter Global Fund</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Análisis cualitativo claramente POSITIVO. El autor expresa sorpresa favorable tras descubrir el fondo en Morningstar y destaca: rentabilidad superior al MSCI World desde lanzamiento, mejor desempeño que fondos quality más vendidos en España, filosofía disciplinada, alineación de intereses (empleados poseen ~30% del patrimonio del fondo), transparencia educativa de la gestora y trayectoria del equipo. Documenta acceso en España a través de EBN Banco, Renta 4, IronIA, MyInvestor, Bankinter y Self Bank.</div>
+      <a href="https://saludfinanciera.substack.com/p/analisis-sifter-global-fund" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Salud Financiera (Substack)</div>
+        </div>
+        <span class="src-date">2025-03-11</span>
+      </div>
+      <div class="src-t">Análisis del Sifter Global Fund — comentarios</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Sección de comentarios al análisis principal. El autor consolida la opinión POSITIVA: 'uno de los mejores fondos de gestión activa de renta variable global disponibles en Europa', con un equipo que ha demostrado seleccionar consistentemente compañías de calidad. Reconoce explícitamente que el TER de 1,7% es alto y dificulta superar al índice, pero valora que el fondo haya 'igualado o superado mínimamente al índice durante muchos años', considerándolo candidato a entrar en su Focus List de fondos recomendados.</div>
+      <a href="https://saludfinanciera.substack.com/p/analisis-sifter-global-fund/comments" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Moclano (Substack)</div>
+        </div>
+        <span class="src-date">2026-05-12</span>
+      </div>
+      <div class="src-t">Sifter Fund Global — Nordic Quality Investing y el arte de invertir por eliminación</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Análisis EXHAUSTIVO con opinión POSITIVA pero con MATICES CRÍTICOS IMPORTANTES. Es la pieza externa más completa publicada en español. Documenta: proceso Stocksifter™ + Cylinder en seis etapas, los 4 pilares de calidad, exclusiones sectoriales (energía/banca/utilities), composición 80% B2B / 35% Tech / 28% Industriales, active share 0,09 (de los más altos del universo quality global), up capture 107,5% / down capture 105,4%, outperformance acumulado +783% PB vs +669% MSCI ACWI desde 2003, y el **caso público clave** del underperformance 2024 calendario (-14,4 pp vs índice por ausencia de NVIDIA/Apple/Amazon). El autor enfatiza explícitamente: 'no es un fondo defensivo' —amplifica volatilidad en ambas direcciones— y exige horizonte mínimo de 7 años más tolerancia real a volatilidad.</div>
+      <a href="https://moclano.substack.com/p/sifter-global-fund" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#ff6719;">SF</div>
+        <div class="src-info">
+          <div class="src-o">Moclano (Substack)</div>
+        </div>
+        <span class="src-date">2026-05-16</span>
+      </div>
+      <div class="src-t">Carteras modelo V.1 — Construidas con los 100 mejores fondos de la Cueva del Tesoro</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">POSITIVA con uso práctico explícito: el autor incluye Sifter Fund Global en dos de sus cinco carteras modelo (Moderado 15% y Dinámico 12%), calificándolo de 'joya poco conocida' que encaja en carteras equilibradas. Destaca rentabilidad anualizada a 5 años de +12,14%, Sharpe 0,55, filosofía de calidad concentrada y capacidad de generar alfa sin correlaciones excesivas con otros fondos quality. Recomendado para inversores con horizonte de 5-10 años.</div>
+      <a href="https://moclano.substack.com/p/carteras-modelo-v1" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2026-05-18</span>
+      </div>
+      <div class="src-t">Sifter Fund - Global PA — Ficha técnica</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Ficha técnica neutra (mayo 2026). Datos clave: valor liquidativo 888,49€, patrimonio fondo 345,9 M€ / clase 98,9 M€, rentabilidad 2026 YTD +11,90%, 5 años anualizado +12,14%, riesgo 4/7, comisión gestión 1,2% / comisión éxito 15% / gastos corrientes 1,7%. Sin recomendación explícita. Aporta dato actualizado del patrimonio total del fondo en EUR.</div>
+      <a href="https://www.finect.com/fondos-inversion/LU0168736675-Sifter_fund__global_pi" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2026-05-18</span>
+      </div>
+      <div class="src-t">Sifter Fund - Global PB — Ficha técnica</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Ficha técnica de la clase PB. Patrimonio fondo total 345,9 M€ / clase 63,4 M€, rentabilidad 2026 YTD +11,94%, 5 años anualizado +12,25%, riesgo 4/7, comisión gestión 1,4% / éxito 15% / gastos corrientes 1,5%. Sin opinión editorial. Útil para comparar comisiones entre clases.</div>
+      <a href="https://www.finect.com/fondos-inversion/LU0168577939-Sifter_fund__global_i" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2026-05-18</span>
+      </div>
+      <div class="src-t">Sifter Fund - Global RA — Ficha técnica (clase retail española)</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Ficha de la clase RA específicamente lanzada en octubre 2024 para inversor retail español vía ACCI Capital. Datos: valor liquidativo 840,20€, patrimonio clase 15,0 M€, rentabilidad 2026 YTD +11,69%, riesgo 4/7, comisión gestión 2,0% + 15% performance fee sobre hurdle 5%, gastos corrientes 2,3%. Fecha inicio 22/10/2024. Es la clase más cara del fondo, accesible desde 100€. Sin valoración editorial.</div>
+      <a href="https://www.finect.com/fondos-inversion/LU2905591629-Sifter_fund__global_pi" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-05-20</span>
+      </div>
+      <div class="src-t">Sifter Fund - Global PA (LU0168736675:EUR) — Tearsheet summary</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha técnica neutra sin opinión editorial. Datos clave a mayo 2026: precio 888,79 EUR (-0,21% diario), rentabilidad 1Y +24,17%, AUM fondo 298,61 M£, ongoing charge 1,65%. Top 5 sectores Tech 39,21% / Industrials 23,53% / Healthcare 14,23%. Top regiones EE.UU. 59,24% / Eurozona 15,99%. **Pieza clave**: identifica formalmente a Santeri Korpinen como gestor desde el 1 noviembre 2016, lo que resuelve la ambigüedad pública sobre su rol.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168736675:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-05-20</span>
+      </div>
+      <div class="src-t">Sifter Fund - Global PB — Tearsheet risk metrics</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha técnica de la clase PB con métricas de riesgo: precio 900,32 EUR, rentabilidad 1Y +24,41%, Sharpe ratio 1Y +1,90, Beta 1Y +1,29, Desviación estándar 1Y 15,46%. Benchmark referencia: Morningstar Global TME NR USD. Las métricas confirman que el fondo amplifica la volatilidad sistemática (beta >1) pero entrega Sharpe alto en los últimos 12 meses.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU0168577939:EUR" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-05-20</span>
+      </div>
+      <div class="src-t">Sifter Fund - Global PI — Tearsheet summary (clase institucional)</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha de la clase institucional PI: precio 926,17 EUR, rentabilidad 1Y +24,58% (la más alta de las clases por menor TER), patrimonio del fondo 298,61 M£, comisión anual 1,21% (frente al 1,65-1,70% de PA/PB). Top 5 holdings: Alphabet 8,45% / Lam Research 8,02% / Safran 6,87% / Applied Materials 6,21% / Microsoft 5,91%. Sin opinión editorial.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu1194076995:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#6b3fa0;">AS</div>
+        <div class="src-info">
+          <div class="src-o">FundsPeople</div>
+        </div>
+        <span class="src-date">2024-09-23</span>
+      </div>
+      <div class="src-t">ACCI trae a España la gestora finlandesa Sifter</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">News informativo (también disponible en versión portuguesa equivalente) sobre el acuerdo de distribución firmado entre ACCI Capital (gestora española) y Sifter Capital (finlandesa) en septiembre 2024 para comercializar el Sifter Fund Global en Iberia y América Latina. Sin valoración editorial del fondo; pie de foto sitúa a Santeri Korpinen como interlocutor público del acuerdo. Marca el inicio de la cobertura mediática española del fondo.</div>
+      <a href="https://fundspeople.com/es/acci-trae-a-espana-la-gestora-finlandesa-sifter/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">37 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (12)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifter-fund-factsheet-eom-february-2026.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifter-fund-factsheet-december-2025.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0168736675/raw/discovery/sifter-fund-factsheet-december-2025.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifter-fund-factsheet-January-2026.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifter-annual-report-31082025-signed.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">DOCREP-O00003553-00000000-0000-2024-08-31-AR-EN-0000.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Sifter-Fund-Annual-Report-300820-SIGNED-by-STE.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0168736675/raw/discovery/Sifter-Fund-Annual-Report-300820-SIGNED-by-STE.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifter-fund-prospectus-september-2025.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">SifterFund-Quarterly-report-Q1-2020.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">SifterFund-Quarterly-report-Q2-2020.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">KIDDOC-LU0168736675-CH.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0168736675/raw/discovery/KIDDOC-LU0168736675-CH.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">ApplicationForm_Moralinvestor_TA_EN_GDPR.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">tomra_annual-report-2023.pdf</span><a href="#" target="_blank" class="doc-a"></a></div>
+
+  <div class="doc-grp">Cartas del gestor (7)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — SifterFund Quarterly report Q1 2020.pdf</span><a href="https://sifterfund.com/wp-content/uploads/SifterFund-Quarterly-report-Q1-2020.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — DOCREP O00003553 00000000 0000 2024 08 31 AR EN 0000.pdf</span><a href="https://sifterfund.com/wp-content/uploads/DOCREP-O00003553-00000000-0000-2024-08-31-AR-EN-0000.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — three reasons to avoid investing in a company</span><a href="https://sifterfund.com/en/three-reasons-to-avoid-investing-in-a-company/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — quality investing generated an annual return of 34 3 to the sifte</span><a href="https://sifterfund.com/en/quality-investing-generated-an-annual-return-of-34-3-to-the-sifter-fund-in-2021/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — blog</span><a href="https://sifterfund.com/en/blog/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">2579063.fs1.hubspotusercontent-na1.net — sifter fund factsheet eom february 2026.pdf</span><a href="https://2579063.fs1.hubspotusercontent-na1.net/hubfs/2579063/sifter-fund-factsheet-eom-february-2026.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">2579063.fs1.hubspotusercontent-na1.net — sifter annual report 31082025 signed.pdf</span><a href="https://2579063.fs1.hubspotusercontent-na1.net/hubfs/2579063/sifter-annual-report-31082025-signed.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">XMLs CNMV (0)</div>
+  
+
+  <div class="doc-grp">Fuentes externas (16)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — acci trae a espana la gestora finlandesa sifter</span><a href="https://fundspeople.com/es/acci-trae-a-espana-la-gestora-finlandesa-sifter/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — acci traz para a peninsula iberica a gestora finlandesa sifter</span><a href="https://fundspeople.com/pt/acci-traz-para-a-peninsula-iberica-a-gestora-finlandesa-sifter/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — holdings</span><a href="https://markets.ft.com/data/funds/tearsheet/holdings?s=LU0168736675:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — risk</span><a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU0168577939:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168577939:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168736675:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu1194076995:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">moclano.substack.com — carteras modelo v1</span><a href="https://moclano.substack.com/p/carteras-modelo-v1" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">moclano.substack.com — sifter global fund</span><a href="https://moclano.substack.com/p/sifter-global-fund" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">saludfinanciera.substack.com — analisis sifter global fund</span><a href="https://saludfinanciera.substack.com/p/analisis-sifter-global-fund" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 6 archivos más</div>
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         SIFTER FUND - GLOBAL (LU0168736675): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py LU0168736675';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py LU0168736675', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=[];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=[];
+  const nposMax=Math.max(...[])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": []};
+const TER_DATA={"A": []};
+const TER_EFECTIVO=[];
+const CY=[];
+const HAS_EXITO=false;
+const EXITO_REAL=[];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='LU0168736675';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>
