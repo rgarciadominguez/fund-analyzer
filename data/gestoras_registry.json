@@ -1,5 +1,25 @@
 {
-  "_description": "Registro de gestoras con URLs de publicación exitosas. Se acumula con cada ejecución.",
+  "_description": "Registro de gestoras con URLs de publicaciÃƒÂ³n exitosas. Se acumula con cada ejecuciÃƒÂ³n.",
+  "_schema_version": "2.0",
+  "_schema_keys": {
+    "required": [
+      "web",
+      "letters_pages",
+      "successful_pdf_urls",
+      "funds",
+      "notes"
+    ],
+    "optional_v2": [
+      "reports_url",
+      "wayback_slug",
+      "annual_report_pattern"
+    ]
+  },
+  "_optional_keys_doc": {
+    "reports_url": "URL listing de annual/semiannual reports (pÃƒÂ¡gina ÃƒÂ­ndice). discovery_v2 la usa como hint prioritario.",
+    "wayback_slug": "Slug para Wayback Machine lookups (ej. 'amiralgestion.com/sextant'). Usado por discovery_v2 cuando live falla.",
+    "annual_report_pattern": "Regex o glob del nombre tÃƒÂ­pico del Annual Report PDF (ej. '.*Annual.*Report.*\\.pdf' o 'Sextant_AR_*.pdf'). Discovery filtra resultados con este patrÃƒÂ³n antes de descargar."
+  },
   "gestoras": {
     "Avantage Capital": {
       "web": "https://www.avantagecapital.com",
@@ -16,7 +36,10 @@
       "funds": [
         "ES0112231008"
       ],
-      "notes": "Fondo transferido a Renta 4 Gestora en 2023. Web puede no estar activa."
+      "notes": "Fondo transferido a Renta 4 Gestora en 2023. Web puede no estar activa.",
+      "reports_url": null,
+      "wayback_slug": null,
+      "annual_report_pattern": null
     },
     "Renta 4 Gestora": {
       "web": "https://www.renta4.com",
@@ -25,7 +48,28 @@
       "funds": [
         "ES0112231008"
       ],
-      "notes": "Gestora actual de Avantage Fund FI (rebautizado)"
+      "notes": "Gestora actual de Avantage Fund FI (rebautizado)",
+      "reports_url": null,
+      "wayback_slug": null,
+      "annual_report_pattern": null
+    },
+    "AMIRAL GESTION": {
+      "auto_learned": true,
+      "learned_at": "2026-05-20T15:48:41.389853",
+      "from_isin": "FR001400CEK6",
+      "letters_pages": [],
+      "successful_pdf_urls": [],
+      "funds": [
+        "FR001400CEK6"
+      ],
+      "notes": "",
+      "html_fallback_useful_domains": [
+        "markets.ft.com",
+        "stockevents.app",
+        "www.amiralgestion.com",
+        "www.crosassets.com",
+        "ycharts.com"
+      ]
     }
   }
 }

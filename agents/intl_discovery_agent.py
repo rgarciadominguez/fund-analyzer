@@ -116,6 +116,32 @@ class IntlDiscoveryAgent:
             {"doc_type": dt, "periodo": p}
             for dt, p in state.missing_doc_targets()
         ]
+
+        # Fix-5.3: capturar URL canónica del sub-fondo (la que contiene el ISIN
+        # en el path). Patrón frecuente: gestora.com/[lang]/products/funds/<isin>
+        # o ?isin=<isin>. Buscar en fetched_urls y URLs de docs descargados.
+        import re as _re
+        fund_url = ""
+        candidates = []
+        candidates.extend(d.url for d in state.downloaded_docs if getattr(d, "url", ""))
+        candidates.extend(state.fetched_urls or [])
+        isin_lc = self.isin.lower()
+        for u in candidates:
+            ul = (u or "").lower()
+            if not ul:
+                continue
+            # ISIN aparece en el path/query
+            if _re.search(rf"\b{isin_lc}\b", ul):
+                # Preferir HTML (no PDF) — las páginas live son más útiles para WebFetch
+                if not ul.endswith(".pdf") and ".pdf?" not in ul:
+                    fund_url = u
+                    break
+        if not fund_url:
+            for u in candidates:
+                if isin_lc in (u or "").lower():
+                    fund_url = u
+                    break
+
         return {
             "isin": self.isin,
             "ultima_actualizacion": datetime.now().isoformat(timespec="seconds"),
@@ -128,6 +154,7 @@ class IntlDiscoveryAgent:
             "documents": docs,
             "still_missing": still_missing,
             "fetched_urls_count": len(state.fetched_urls),
+            "fund_url": fund_url,
             "notes": "",
         }
 

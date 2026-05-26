@@ -807,12 +807,16 @@ def format_date(date_str):
 
 def _hdr_download_pdf(url, isin, fname):
     """Descarga un PDF a raw/discovery/{fname}. Devuelve True si OK."""
+    # P3 (2026-05-19): respect env flag DASHBOARD_SKIP_ENRICH para escapes rápidos
+    import os as _os
+    if _os.environ.get("DASHBOARD_SKIP_ENRICH") == "1":
+        return False
     try:
         import httpx
         base = ROOT / "data" / "funds" / isin / "raw" / "discovery"
         base.mkdir(parents=True, exist_ok=True)
         target = base / fname
-        with httpx.Client(timeout=30, follow_redirects=True,
+        with httpx.Client(timeout=15, follow_redirects=True,
                           headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}) as c:
             resp = c.get(url)
             if resp.status_code == 200 and len(resp.content) > 5000 and resp.headers.get("content-type", "").startswith("application/pdf"):
@@ -828,10 +832,14 @@ def _hdr_ddg_search_pdfs(query, max_results=10):
     Devuelve lista de URLs PDF encontradas, priorizando las que contienen
     keywords de documento financiero en la ruta."""
     import re as _re
+    # P3: respect skip-enrich
+    import os as _os
+    if _os.environ.get("DASHBOARD_SKIP_ENRICH") == "1":
+        return []
     try:
         import httpx
         url = "https://html.duckduckgo.com/html/"
-        r = httpx.post(url, timeout=12, follow_redirects=True,
+        r = httpx.post(url, timeout=8, follow_redirects=True,
                        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
                        data={"q": query})
         if r.status_code != 200:
@@ -880,7 +888,7 @@ def _hdr_try_download_kid(isin, gestora=""):
         try:
             import httpx
             url = f"https://www.fundsquare.net/security/summary?idInstr={isin}"
-            with httpx.Client(timeout=10, follow_redirects=True,
+            with httpx.Client(timeout=8, follow_redirects=True,
                               headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}) as c:
                 r = c.get(url)
                 if r.status_code == 200:
@@ -2027,7 +2035,7 @@ def _hdr_ft_search_sibling_classes(fund_name, target_isin):
     url = f"https://markets.ft.com/data/search?query={fund_query.replace(' ', '%20')}&searchCategory=funds"
     try:
         import httpx
-        with httpx.Client(timeout=10, follow_redirects=True,
+        with httpx.Client(timeout=8, follow_redirects=True,
                           headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}) as c:
             resp = c.get(url)
             if resp.status_code != 200:
@@ -2384,7 +2392,7 @@ def _hdr_ft_summary_scrape(isin, currency="EUR"):
     html = ""
     try:
         import httpx
-        with httpx.Client(timeout=10, follow_redirects=True,
+        with httpx.Client(timeout=8, follow_redirects=True,
                           headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}) as c:
             resp = c.get(url)
             if resp.status_code == 200:
@@ -2616,7 +2624,7 @@ def _hdr_scrape_rating_from_url(url):
     html = None
     try:
         import httpx
-        with httpx.Client(timeout=10, follow_redirects=True,
+        with httpx.Client(timeout=8, follow_redirects=True,
                           headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}) as c:
             for u in urls_to_try:
                 resp = c.get(u)
@@ -3315,13 +3323,19 @@ def build_tab_historia(data):
     has_participes = any(
         isinstance(p, dict) and p.get("valor") for p in serie_part
     )
-    charts_html_parts = []
-    # AUM: mostrar con el último valor coincidiendo con el header
+    # F4: AUM también necesita guard — antes se renderizaba incondicionalmente
+    # y dejaba un canvas vacío para fondos sin serie_aum.
     aum_header_meur = _hdr_resolve_aum_meur(data)
-    charts_html_parts.append(
-        f'<div class="ch-b"><div class="ch-l">AUM (M€)</div>'
-        f'<div class="ch-h"><canvas id="c-aum"></canvas></div></div>'
+    has_aum = (
+        bool(aum_header_meur)
+        or any(isinstance(p, dict) and p.get("valor_meur") for p in serie_aum)
     )
+    charts_html_parts = []
+    if has_aum:
+        charts_html_parts.append(
+            f'<div class="ch-b"><div class="ch-l">AUM (M€)</div>'
+            f'<div class="ch-h"><canvas id="c-aum"></canvas></div></div>'
+        )
     if has_participes:
         charts_html_parts.append(
             f'<div class="ch-b"><div class="ch-l">Partícipes</div>'
@@ -3331,8 +3345,14 @@ def build_tab_historia(data):
     # Para fondos multi-clase el "VL" del fondo no existe (cada clase tiene NAV
     # propio). El gráfico de valoración Base 100 vive en pestaña Evolución
     # (canvas mst-growth) que es semánticamente más correcto.
-    col_cls = "col2"  # AUM + Partícipes (si existe), sino solo AUM ocupa toda anchura
-    charts_block = f'<div class="{col_cls} mb20">{"".join(charts_html_parts)}</div>'
+    # col2 si hay 2 charts; col1 si solo 1; bloque omitido si ninguno (charts_block = '')
+    if len(charts_html_parts) >= 2:
+        col_cls = "col2"
+    elif len(charts_html_parts) == 1:
+        col_cls = "col1"
+    else:
+        col_cls = None
+    charts_block = f'<div class="{col_cls} mb20">{"".join(charts_html_parts)}</div>' if col_cls else ""
 
     return f"""
 <section class="pane" id="p1">
@@ -3673,6 +3693,23 @@ def build_tab_gestores(data):
 # ═══════════════════════════════════════════════════════════════
 
 def build_tab_evolucion(data):
+    # F4: guard a nivel de bloque. Si el fondo NO tiene NINGUNA señal cuantitativa
+    # (ni rating MS, ni series local), los 3 charts MS (Rent/Vol anual, Drawdown)
+    # + los rolling se omiten del HTML y se muestra un placeholder.
+    cuant = (data or {}).get("cuantitativo") or {}
+    kpis = (data or {}).get("kpis") or {}
+    has_quant_signals = (
+        bool(kpis.get("rating_morningstar"))
+        or bool(cuant.get("serie_rentabilidad"))
+        or bool(cuant.get("serie_vl_base100"))
+        or bool(cuant.get("serie_aum"))
+    )
+    if not has_quant_signals:
+        return """
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+</section>"""
     return """
 <section class="pane" id="p3">
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
@@ -4412,10 +4449,23 @@ def build_tab_cartera(data):
         # Solo 1 año → snapshot bar con top5/10/15 actual + nº posiciones como KPI grande
         cur_top5 = round(sum(cur_weights[:5]), 1)
         cur_top15 = round(sum(cur_weights[:15]), 1)
-        charts_html = f'''<div class="col2 mb20">
-    <div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div>
-    <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
-  </div>
+        # F4: guards — sin mix de tipos válido NO renderizar Composición; sin posiciones NO renderizar Conc.
+        has_mix = bool(tipos_weights) and any(v > 0.5 for v in tipos_weights.values())
+        has_conc_snapshot = bool(cur_weights)
+        mix_card = (
+            '<div class="ch-b"><div class="ch-l">Composición por tipo de activo</div>'
+            '<div class="ch-h"><canvas id="c-mix"></canvas></div></div>'
+            if has_mix else ""
+        )
+        conc_card = (
+            '<div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div>'
+            '<div class="ch-h"><canvas id="c-conc"></canvas></div></div>'
+            if has_conc_snapshot else ""
+        )
+        cards_n = sum(1 for c in (mix_card, conc_card) if c)
+        wrapper_cls = "col2" if cards_n == 2 else ("col1" if cards_n == 1 else "")
+        cards_block = f'<div class="{wrapper_cls} mb20">{mix_card}{conc_card}</div>' if wrapper_cls else ""
+        charts_html = f'''{cards_block}
   <script>
   (function(){{
     if (typeof Chart === 'undefined') return;

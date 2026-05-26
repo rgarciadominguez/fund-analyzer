@@ -39,6 +39,221 @@ console = Console()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Registry helper — compartido entre G7 (PDFs) y BUG-D (HTML fallback)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def _registry_path() -> Path:
+    return Path(__file__).resolve().parent.parent / "data" / "gestoras_registry.json"
+
+
+def _write_registry_entry(
+    isin: str,
+    gestora: str,
+    domain: str,
+    doc_count: int = 0,
+    html_fallback_useful_domains: list[str] | None = None,
+) -> bool:
+    """Escribe/mergea una entrada en gestoras_registry.json.
+
+    Compartido por:
+      - G7 (PDFs descargados): doc_count >= 1, html_fallback_useful_domains None
+      - BUG-D (HTML fallback exitoso, sin PDFs): doc_count == 0,
+        html_fallback_useful_domains = ["dom1", "dom2", ...]
+
+    Respeta manuales (auto_learned=false → no toca).
+    Devuelve True si escribió cambios, False si fue un skip.
+    """
+    if not gestora:
+        return False
+    registry_path = _registry_path()
+    if registry_path.exists():
+        with registry_path.open(encoding="utf-8") as f:
+            reg = json.load(f)
+    else:
+        reg = {"_description": "Auto-aprendido por discovery_v2", "gestoras": {}}
+    gestoras = reg.setdefault("gestoras", {})
+    existing = gestoras.get(gestora) or {}
+    if existing.get("auto_learned") is False:
+        console.log(f"[yellow]G7 skip: '{gestora}' es manual (auto_learned=false)")
+        return False
+
+    merged = dict(existing)
+    if domain:
+        inferred_url = f"https://{domain}"
+        merged.setdefault("web", inferred_url)
+        if not merged.get("reports_url"):
+            merged["reports_url"] = inferred_url
+    merged["auto_learned"] = True
+    merged["learned_at"] = datetime.now().isoformat()
+    merged["from_isin"] = isin
+    if doc_count > 0:
+        merged["discovered_doc_count"] = doc_count
+    merged.setdefault("letters_pages", existing.get("letters_pages", []) or [])
+    merged.setdefault("successful_pdf_urls", existing.get("successful_pdf_urls", []) or [])
+    funds_list = list(existing.get("funds", []) or [])
+    if isin not in funds_list:
+        funds_list.append(isin)
+    merged["funds"] = sorted(funds_list)
+    merged.setdefault("notes", existing.get("notes") or "")
+
+    # BUG-D: merge html_fallback_useful_domains (unión, no overwrite)
+    if html_fallback_useful_domains:
+        prev = list(existing.get("html_fallback_useful_domains") or [])
+        new_set = set(prev) | {
+            d.lower().strip() for d in html_fallback_useful_domains if d
+        }
+        merged["html_fallback_useful_domains"] = sorted(new_set)
+
+    gestoras[gestora] = merged
+    registry_path.write_text(
+        json.dumps(reg, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+    tag = f"docs={doc_count}" if doc_count else "html-fb"
+    domain_label = domain or (
+        (html_fallback_useful_domains or [""])[0]
+        if html_fallback_useful_domains else ""
+    )
+    console.log(f"[green]G7 persist registry: '{gestora}' → {domain_label} ({tag})")
+    return True
+
+
+def persist_html_fallback_to_registry(
+    isin: str,
+    gestora: str,
+    useful_domains: list[str],
+) -> bool:
+    """BUG-D entry point: llamado por intl_extractor_v2._fallback_html_extract
+    cuando el fallback HTML rellena AUM/posiciones. Persiste los dominios
+    como `html_fallback_useful_domains` en la entrada de la gestora del registry,
+    para que futuros runs de la misma gestora prioricen esos dominios.
+
+    Devuelve True si escribió cambios.
+    """
+    if not gestora or not useful_domains:
+        return False
+    # Si la gestora no existe aún en el registry, usar el primer dominio como
+    # `domain` semilla (no es web oficial pero es lo más informativo que
+    # tenemos en este punto). _write_registry_entry no sobrescribirá `web` si
+    # ya existe en una entrada previa.
+    seed_domain = useful_domains[0]
+    try:
+        return _write_registry_entry(
+            isin=isin,
+            gestora=gestora,
+            domain="",  # no inventamos un web oficial — solo persistimos html_fallback_useful_domains
+            doc_count=0,
+            html_fallback_useful_domains=useful_domains,
+        )
+    except Exception as e:
+        console.log(f"[yellow]G7 html-fb persist failed: {e}")
+        return False
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# G5/G6/G8 — Discovery genérico multi-idioma (sin per-gestora hardcode)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Replica subset de readings_collector para no acoplar; mismas keys.
+ISIN_PREFIX_TO_REGION = {
+    "FR": "FR", "DE": "DE", "AT": "DE", "GB": "GB",
+    "IT": "IT", "CH": "CH", "LI": "CH",
+    "BE": "BE", "NL": "NL", "ES": "ES",
+}
+GESTORA_REGION_HINTS = {
+    "FR": ["dnca", "carmignac", "rothschild", "amiral", "comgest", "ostrum",
+           "groupama", "amundi", "bnp paribas", "natixis", "tikehau", "axiom",
+           "lazard", "edmond de rothschild"],
+    "DE": ["dws", "allianz global investors", "union investment", "dje kapital",
+           "deka", "metzler", "lupus alpha", "flossbach"],
+    "GB": ["fundsmith", "lindsell train", "troy asset", "guinness asset",
+           "evenlode", "polar capital", "baillie gifford", "schroders", "jupiter",
+           "marlborough", "liontrust", "fidelity international", "m&g", "ruffer"],
+    "IT": ["azimut", "anima", "eurizon", "mediolanum", "generali"],
+    "CH": ["pictet", "lombard odier", "vontobel", "gam ", "ubs ",
+           "credit suisse", "julius baer", "swisscanto", "banque syz"],
+}
+
+# Keywords doc tipo annual report por región — usados por G5
+REGION_AR_KEYWORDS = {
+    "FR": ["rapport annuel", "rapport semestriel", "reporting mensuel"],
+    "DE": ["Jahresbericht", "Halbjahresbericht", "Monatsbericht"],
+    "GB": ["annual report", "interim report", "factsheet"],
+    "IT": ["relazione annuale", "relazione semestrale"],
+    "ES": ["informe anual", "informe semestral"],
+    "CH": ["Jahresbericht", "annual report", "rapport annuel"],
+    "BE": ["rapport annuel", "jaarverslag"],
+    "NL": ["jaarverslag", "halfjaarverslag"],
+    "EN_GLOBAL": ["annual report", "semi-annual report", "factsheet"],
+}
+
+# TLDs probables por región — usados por G6
+REGION_TLDS = {
+    "FR": [".fr", ".com"],
+    "DE": [".de", ".com"],
+    "GB": [".co.uk", ".com"],
+    "IT": [".it", ".com"],
+    "CH": [".ch", ".com"],
+    "LU": [".lu", ".com"],
+    "IE": [".ie", ".com"],
+    "BE": [".be", ".com"],
+    "NL": [".nl", ".com"],
+    "ES": [".es", ".com"],
+    "EN_GLOBAL": [".com", ".net"],
+}
+
+
+def _detect_region_from_isin(isin: str, gestora: str = "") -> str:
+    """Replica simplificada de readings_collector._detect_region.
+    Devuelve código región FR/DE/GB/IT/CH/BE/NL/ES/EN_GLOBAL."""
+    prefix = (isin or "")[:2].upper()
+    explicit = ISIN_PREFIX_TO_REGION.get(prefix)
+    if explicit:
+        return explicit
+    g = (gestora or "").lower().strip()
+    if g:
+        for region, hints in GESTORA_REGION_HINTS.items():
+            if any(h in g for h in hints):
+                return region
+    return "EN_GLOBAL"
+
+
+def _slugify_gestora(gestora: str) -> list[str]:
+    """Genera slugs candidatos del nombre de la gestora.
+    'Amiral Gestion' → ['amiralgestion','amiral-gestion','amiral']."""
+    if not gestora:
+        return []
+    g = re.sub(r"[^a-z0-9 ]", "", gestora.lower()).strip()
+    parts = [p for p in g.split() if p]
+    if not parts:
+        return []
+    slugs: list[str] = []
+    full_concat = "".join(parts)
+    full_dash = "-".join(parts)
+    if full_concat:
+        slugs.append(full_concat)
+    if full_dash and full_dash != full_concat:
+        slugs.append(full_dash)
+    if len(parts) > 1:
+        slugs.append(parts[0])  # primer token como fallback (ej. 'amiral')
+    return list(dict.fromkeys(slugs))[:3]
+
+
+def candidate_domains(gestora: str, region: str = "EN_GLOBAL") -> list[str]:
+    """G6: genera candidatos de dominio para una gestora dada.
+    Combina slugs + TLDs probables según región. Max 10 candidates.
+    NO hace IO — sólo composición. La validación va por _probe_candidate_domains."""
+    slugs = _slugify_gestora(gestora)
+    tlds = REGION_TLDS.get(region, REGION_TLDS["EN_GLOBAL"])
+    out: list[str] = []
+    for slug in slugs:
+        for tld in tlds:
+            out.append(f"{slug}{tld}")
+    return list(dict.fromkeys(out))[:10]
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # 1. CLASIFICADOR URL-FIRST
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -770,6 +985,179 @@ class DiscoveryV2:
         report["summary"]["coverage_score"] = round(total_covered * 100 / max(1, total_target), 1)
         return report
 
+    async def _probe_candidate_domains(self, httpc, candidates: list[str], fund_name: str) -> list[str]:
+        """G6: prueba cada candidate con `site:domain "fund_name"` (1 query Google).
+        El que devuelve >0 resultados ES un dominio real. Cache en memoria por sesión.
+        Cap 5 candidates → max 5 queries Google → coste ≈ free (Serper plan).
+        """
+        if not fund_name or not candidates:
+            return []
+        if not hasattr(self, "_domain_probe_cache"):
+            self._domain_probe_cache: dict[str, bool] = {}
+        try:
+            from tools.google_search import SearchEngine
+            engine = SearchEngine(isin=self.isin)
+        except Exception as e:
+            console.log(f"[yellow]G6 SearchEngine init: {e}")
+            return []
+        confirmed: list[str] = []
+        for domain in candidates[:5]:
+            if domain in self._domain_probe_cache:
+                if self._domain_probe_cache[domain]:
+                    confirmed.append(domain)
+                continue
+            query = f'site:{domain} "{fund_name}"'
+            try:
+                results = await engine.search(query, num=3, agent="discovery_g6")
+            except Exception as e:
+                console.log(f"[yellow]G6 probe {domain}: {e}")
+                results = []
+            hit = bool(results)
+            self._domain_probe_cache[domain] = hit
+            if hit:
+                confirmed.append(domain)
+                console.log(f"[green]G6 dominio detectado: {domain} ({len(results)} hits)")
+        return confirmed
+
+    def _generate_g5_queries(self, region: str, fund_name: str, gestora: str = "") -> list[str]:
+        """G5: queries universales multi-idioma para encontrar PDFs del fondo.
+        Combina fund_name + keyword en idioma local + filetype:pdf (+ gestora opcional)."""
+        if not fund_name:
+            return []
+        keywords = REGION_AR_KEYWORDS.get(region, REGION_AR_KEYWORDS["EN_GLOBAL"])
+        queries: list[str] = []
+        for kw in keywords[:3]:
+            queries.append(f'"{fund_name}" "{kw}" filetype:pdf')
+            if gestora:
+                queries.append(f'"{fund_name}" "{kw}" "{gestora}" filetype:pdf')
+        return queries[:6]
+
+    async def _universal_doc_search(self, httpc, fund_name: str) -> list[dict]:
+        """G5: ejecuta queries multi-idioma vía Serper. Devuelve candidates
+        compatibles con harvest pipeline ({url, text, classification, source, source_page, host})."""
+        out: list[dict] = []
+        if not fund_name:
+            return out
+        gestora = self.identity.get("gestora_oficial", "") or ""
+        region = _detect_region_from_isin(self.isin, gestora)
+        try:
+            from tools.google_search import SearchEngine
+            engine = SearchEngine(isin=self.isin)
+        except Exception as e:
+            console.log(f"[yellow]G5 SearchEngine init: {e}")
+            return out
+        queries = self._generate_g5_queries(region, fund_name, gestora)
+        seen_urls: set[str] = set()
+        for q in queries:
+            try:
+                results = await engine.search(q, num=5, agent="discovery_g5")
+            except Exception as e:
+                console.log(f"[yellow]G5 query '{q[:60]}': {e}")
+                results = []
+            for r in results:
+                url = (r.get("url") or "").strip()
+                if not url or url in seen_urls:
+                    continue
+                if not url.lower().endswith(".pdf"):
+                    # Skip non-PDF — G5 sólo persigue PDFs
+                    continue
+                seen_urls.add(url)
+                cls = classify_url(url, r.get("title", "") or "")
+                if cls.get("doc_type") == "skip":
+                    continue
+                try:
+                    host = urlparse(url).netloc.lower()
+                except Exception:
+                    host = ""
+                out.append({
+                    "url": url,
+                    "text": r.get("title", "") or "",
+                    "classification": cls,
+                    "source": "g5_universal_search",
+                    "source_page": "",
+                    "host": host,
+                })
+        if out:
+            console.log(f"[green]G5 universal search ({region}): {len(out)} candidates PDF")
+        return out
+
+    def _persist_to_registry(
+        self,
+        domain: str,
+        doc_count: int,
+        html_fallback_useful_domains: list[str] | None = None,
+    ) -> None:
+        """G7: auto-aprende dominio en gestoras_registry.json tras descarga exitosa
+        (≥1 doc útil). Respeta entries con auto_learned=false (manuales).
+
+        BUG-D (2026-05-20): cuando se llama desde el HTML fallback (sin PDFs
+        descargados) se pasa `doc_count=0` pero `html_fallback_useful_domains`
+        no vacío. La entrada en registry se persiste igual con esos dominios.
+        """
+        gestora = (self.identity.get("gestora_oficial") or "").strip()
+        # BUG-D: aceptar también el caso de HTML fallback (doc_count=0 pero
+        # html_fallback_useful_domains populated).
+        useful_html_doms = list(html_fallback_useful_domains or [])
+        if not gestora:
+            return
+        if doc_count <= 0 and not useful_html_doms:
+            return
+        if doc_count <= 0 and not domain:
+            # html-fallback only path: usar el primer dominio útil como `domain`
+            domain = useful_html_doms[0]
+        try:
+            _write_registry_entry(
+                isin=self.isin,
+                gestora=gestora,
+                domain=domain,
+                doc_count=doc_count,
+                html_fallback_useful_domains=useful_html_doms,
+            )
+        except Exception as e:
+            console.log(f"[yellow]G7 persist failed: {e}")
+
+    def _load_registry_hints(self) -> dict:
+        """F3: lee data/gestoras_registry.json y devuelve hints opcionales
+        (reports_url, wayback_slug, annual_report_pattern) para self.identity.gestora_oficial.
+
+        Devuelve {} si no hay match o el fichero no existe. Match es case-insensitive
+        y tolera espacios extra. Pensado para ejecutarse en cada run() — el coste es
+        irrisorio (registry típicamente <50 entradas).
+        """
+        gestora = (self.identity.get("gestora_oficial") or "").strip()
+        if not gestora:
+            return {}
+        try:
+            registry_path = Path(__file__).resolve().parent.parent / "data" / "gestoras_registry.json"
+            if not registry_path.exists():
+                return {}
+            with registry_path.open(encoding="utf-8") as f:
+                reg = json.load(f)
+        except Exception as e:
+            console.log(f"[yellow]registry load: {e}")
+            return {}
+
+        gestoras = reg.get("gestoras", {}) or {}
+        # Match exacto primero, luego case-insensitive
+        entry = gestoras.get(gestora)
+        if entry is None:
+            g_lower = gestora.lower()
+            for k, v in gestoras.items():
+                if k.lower() == g_lower:
+                    entry = v
+                    break
+        if not entry:
+            return {}
+
+        hints = {}
+        for key in ("reports_url", "wayback_slug", "annual_report_pattern"):
+            v = entry.get(key)
+            if v:
+                hints[key] = v
+        if hints:
+            console.log(f"[green]registry hints para '{gestora}': {list(hints.keys())}")
+        return hints
+
     def _opus_suggest_sources(self, httpc, missing: list) -> list[str]:
         """Opus sugiere dominios adicionales donde buscar docs del fondo.
         1 call, ~$0.02. Util cuando los targets criticos (AR, carta) siguen faltando."""
@@ -862,6 +1250,35 @@ class DiscoveryV2:
             websites = await self._probe_websites(c, websites)
             console.log(f"[blue]websites confirmados: {websites}")
 
+            # F3: hints del registry (gestoras_registry.json) — PRIORIDAD sobre Opus.
+            # Si la gestora está registrada con reports_url o wayback_slug, los
+            # prependemos para que Phase 1 (LIVE) y Phase 2 (Wayback) los exploten
+            # antes de que Phase 2b (Opus suggest) gaste un LLM call.
+            registry_hints = self._load_registry_hints()
+            registry_wayback_slugs: list[str] = []
+            ar_pattern_from_registry: str | None = registry_hints.get("annual_report_pattern")
+            if registry_hints.get("reports_url"):
+                from urllib.parse import urlparse as _urlparse
+                reports_url = registry_hints["reports_url"]
+                # Prepend el dominio completo a websites para que harvest_website lo cubra
+                if reports_url not in websites:
+                    websites = [reports_url] + websites
+                # Y el host raíz como fallback de exploración
+                try:
+                    host = _urlparse(reports_url).netloc
+                    host_url = f"https://{host}" if host else None
+                    if host_url and host_url not in websites:
+                        websites.append(host_url)
+                except Exception:
+                    pass
+            if registry_hints.get("wayback_slug"):
+                registry_wayback_slugs.append(registry_hints["wayback_slug"])
+            if ar_pattern_from_registry:
+                console.log(
+                    f"[green]registry annual_report_pattern: {ar_pattern_from_registry} "
+                    "(disponible para filtrado downstream)"
+                )
+
             # Phase 1 — Harvest LIVE
             fund_slugs = _slugify(self.identity.get("nombre_oficial", ""))
             if self.identity.get("sicav_paraguas"):
@@ -872,6 +1289,38 @@ class DiscoveryV2:
             all_candidates: list[dict] = []
             for site in websites[:3]:
                 all_candidates += await harvest_website(state, c, site, fund_slugs)
+
+            # ── Phase 1b — G5+G6: discovery genérico (multi-idioma + auto-domain) ──
+            # Sin per-gestora hardcode. Sin LLM. Sólo Google CSE (Serper).
+            # Corre ANTES de Phase 2b Opus para evitar el LLM call si no hace falta.
+            confirmed_g6_domains: list[str] = []
+            _fund_name_for_search = self.identity.get("nombre_oficial", "") or ""
+            _g_for_region = self.identity.get("gestora_oficial", "") or ""
+            if _fund_name_for_search:
+                # G6 — candidate_domains + probe via site:domain "fund_name"
+                region = _detect_region_from_isin(self.isin, _g_for_region)
+                g6_candidates = candidate_domains(_g_for_region, region)
+                if g6_candidates:
+                    try:
+                        confirmed_g6_domains = await self._probe_candidate_domains(
+                            c, g6_candidates, _fund_name_for_search,
+                        )
+                    except Exception as e:
+                        console.log(f"[yellow]G6 probe: {e}")
+                    for d in confirmed_g6_domains:
+                        url = f"https://{d}"
+                        if url not in websites:
+                            websites.append(url)
+                            try:
+                                all_candidates += await harvest_website(state, c, url, fund_slugs)
+                            except Exception as e:
+                                console.log(f"[yellow]G6 harvest {d}: {e}")
+                # G5 — queries universales multi-idioma
+                try:
+                    g5_candidates = await self._universal_doc_search(c, _fund_name_for_search)
+                    all_candidates += g5_candidates
+                except Exception as e:
+                    console.log(f"[yellow]G5 universal: {e}")
 
             # Phase 2 — Wayback para AR/SAR que siguen faltando
             missing_years: list[int] = []
@@ -904,6 +1353,23 @@ class DiscoveryV2:
             if missing_years and websites:
                 for site in websites[:2]:
                     all_candidates += await harvest_wayback(c, site, missing_years)
+                # F3: wayback_slug del registry como hint adicional, ANTES de Opus
+                for slug in registry_wayback_slugs:
+                    try:
+                        all_candidates += await harvest_wayback(c, slug, missing_years)
+                    except Exception as e:
+                        console.log(f"[yellow]wayback registry slug {slug}: {e}")
+                # G8: Wayback iterativo sobre dominios CONFIRMADOS por G6
+                # (los que el registry no conocía pero G6 detectó vía site: probe).
+                # Cubre el caso "live 404 / 503" — Wayback rescata el listado histórico.
+                for d in confirmed_g6_domains:
+                    if any(d in w for w in websites[:2]):
+                        # Ya cubierto arriba como website principal
+                        continue
+                    try:
+                        all_candidates += await harvest_wayback(c, d, missing_years)
+                    except Exception as e:
+                        console.log(f"[yellow]G8 wayback {d}: {e}")
 
             # Phase 2b — Opus hints: si faltan AR criticos, preguntar a Opus
             # por dominios adicionales / URLs especificas (1 call, ~$0.02)
@@ -995,5 +1461,34 @@ class DiscoveryV2:
                 console.log(f"[yellow]coverage save: {e}")
         except Exception as e:
             console.log(f"[yellow]coverage report: {e}")
+
+        # ── G7 — auto-aprendizaje del registry ──────────────────────────────
+        # Si se descargaron ≥1 docs útiles desde un dominio detectado por G6
+        # (o desde cualquier host nuevo), persistir en gestoras_registry.json
+        # con auto_learned=true. Manuales (auto_learned=false) NO se tocan.
+        try:
+            confirmed = getattr(self, "_domain_probe_cache", {}) or {}
+            confirmed_hosts = {d for d, hit in confirmed.items() if hit}
+            if confirmed_hosts:
+                _UTIL_DT = {"annual_report", "semi_annual_report", "factsheet", "quarterly_letter"}
+                per_host_count: dict[str, int] = {}
+                for d in state.downloaded_docs:
+                    if d.doc_type not in _UTIL_DT:
+                        continue
+                    try:
+                        host = urlparse(d.url).netloc.lower()
+                    except Exception:
+                        host = ""
+                    # match exacto o subdomain del confirmado
+                    matched = next(
+                        (h for h in confirmed_hosts if h == host or host.endswith("." + h)),
+                        None,
+                    )
+                    if matched:
+                        per_host_count[matched] = per_host_count.get(matched, 0) + 1
+                for domain, count in per_host_count.items():
+                    self._persist_to_registry(domain, count)
+        except Exception as e:
+            console.log(f"[yellow]G7 wrap-up: {e}")
 
         return state

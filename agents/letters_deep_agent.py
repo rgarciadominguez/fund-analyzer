@@ -237,6 +237,22 @@ class LettersDeepAgent:
         """
         self._log("START", f"LettersDeepAgent -- {self.isin} ({self.fund_name})")
 
+        # Refactor L2 (2026-05-05): in cowork mode, skip API extraction. The
+        # letters-extract-cowork skill processes cartas[] without K15 fields
+        # (implicit manifest based on schema). Just leave letters_data.json
+        # as it is — letters_collector already populated cartas[].
+        from tools.api_mode import is_cowork_mode
+        if is_cowork_mode():
+            self._log("INFO",
+                "cowork mode: K15 extraction deferred to letters-extract-cowork skill "
+                "(reads letters_data.cartas[] without K15 — implicit manifest)")
+            if self.letters_path.exists():
+                try:
+                    return json.loads(self.letters_path.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+            return self._empty_result("cowork mode: skill will process letters_data")
+
         # ── Guard: API key required ──────────────────────────────────────────
         if not _has_api_key():
             self._log(

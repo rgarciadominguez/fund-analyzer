@@ -637,13 +637,15 @@ def agrupar_por_fondo(funds_dict: dict) -> tuple[list[dict], list[dict]]:
                 "num_participes": None,
                 "años_antiguedad": f.get("años_antiguedad"),
                 "fecha_creacion_fondo": None,
-                # Cualitativo (se rellena tras análisis bat)
+                # Cualitativo (se rellena tras análisis bat). Si el Excel ya
+                # trae texto (filosofia/estrategia/historia), se hereda como seed —
+                # el bat downstream sobrescribirá con la versión más rica si la genera.
                 "gestores_nombres": [],
                 "gestores_perfiles_json": None,
                 "top_holdings_json": None,
-                "filosofia": None,
-                "estrategia": None,
-                "historia": None,
+                "filosofia": f.get("filosofia") or None,
+                "estrategia": f.get("estrategia") or f.get("analisis_resumen") or None,
+                "historia": f.get("historia") or f.get("historia_y_activos") or None,
                 # Default user (heredado por clases)
                 "clasificacion_user_default": f.get("clasificacion_user") or None,
                 "opinion_user_default": f.get("opinion") or None,
@@ -673,9 +675,20 @@ def agrupar_por_fondo(funds_dict: dict) -> tuple[list[dict], list[dict]]:
                 ("issuer", "issuer"),
                 ("opinion", "opinion_user_default"),
                 ("clasificacion_user", "clasificacion_user_default"),
+                ("filosofia", "filosofia"),
             ]:
                 if not g.get(dst) and f.get(src):
                     g[dst] = f.get(src)
+            # Estrategia/historia: aceptar también keys legacy del Excel parser
+            for src_keys, dst in [
+                (("estrategia", "analisis_resumen"), "estrategia"),
+                (("historia", "historia_y_activos"), "historia"),
+            ]:
+                if not g.get(dst):
+                    for sk in src_keys:
+                        if f.get(sk):
+                            g[dst] = f.get(sk)
+                            break
             if g.get("aum_meur") is None and f.get("aum_meur") is not None:
                 g["aum_meur"] = f.get("aum_meur")
             if g.get("años_antiguedad") is None and f.get("años_antiguedad") is not None:

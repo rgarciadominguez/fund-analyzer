@@ -119,20 +119,18 @@ def test_o9_quality_loop_env():
     assert_true("QUALITY_LOOP_MAX_ITER" in src, "orchestrator lee env max_iter")
 
 
-# ── Op A: Fallback Anthropic ───────────────────────────────────────────────
+# ── Op A: Fallback Anthropic — DEPRECATED en Refactor L2 (2026-05-05) ──────
+# El fallback Anthropic se eliminó. El sistema solo corre bajo Claude Max
+# (modo cowork) o Gemini puro (modo --api-fallback). Ya no hay safety net
+# pagada en Anthropic API.
 
-def test_op_a_haiku_constants():
-    print("\n[Op A] HAIKU + GEMINI_FALLBACK_ANTHROPIC:")
+def test_op_a_no_anthropic_fallback():
+    print("\n[Op A — DEPRECATED] verificar que GEMINI_FALLBACK_ANTHROPIC ya NO existe:")
     from agents.analyst_agent import AnalystAgent
     a = AnalystAgent.__new__(AnalystAgent)
-    assert_equal(a.HAIKU_MODEL, "claude-haiku-4-5-20251001",
-                 "HAIKU_MODEL constante correcta")
-    # Default fallback ON
-    assert_true(a.GEMINI_FALLBACK_ANTHROPIC,
-                "GEMINI_FALLBACK_ANTHROPIC default True")
-    # Métodos presentes
-    assert_true(hasattr(a, "_haiku_text"), "_haiku_text definido")
-    assert_true(hasattr(a, "_haiku_call"), "_haiku_call definido")
+    # Refactor L2: el flag fue eliminado
+    assert_true(not hasattr(a, "GEMINI_FALLBACK_ANTHROPIC"),
+                "GEMINI_FALLBACK_ANTHROPIC eliminado (Refactor L2)")
 
 
 def main():
@@ -145,7 +143,7 @@ def main():
     test_o11_cost_log()
     test_o2_skip_env()
     test_o9_quality_loop_env()
-    test_op_a_haiku_constants()
+    test_op_a_no_anthropic_fallback()
     print("\n" + "=" * 60)
     if failures:
         print(f"FAIL: {len(failures)} fallos")

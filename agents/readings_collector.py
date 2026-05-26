@@ -364,7 +364,12 @@ class ReadingsCollector:
                  gestores: list[str] | None = None):
         self.isin = isin.upper().strip()
         self.fund_name = fund_name
-        self.fund_short = fund_name.split(" - ")[-1] if " - " in fund_name else fund_name
+        # G1 (2026-05-18): usar helper compartido que descarta sólo si la cola
+        # es claramente una denominación de clase ("Action F", "Class I"...).
+        # ANTES: split(" - ")[-1] devolvía "Action F" para "SEXTANT QUALITY FOCUS - Action F"
+        # → queries a 0 resultados en Moclano/Astralis.
+        from tools.fund_name_utils import extract_fund_short
+        self.fund_short = extract_fund_short(fund_name)
         self.gestora = gestora
         self.gestores = gestores or []
         root = Path(__file__).parent.parent
@@ -421,12 +426,22 @@ class ReadingsCollector:
                 name = short_name if self._is_niche_blog(domain) else full_name
                 queries.append(f'site:{domain} "{name}"')
 
-        # ── Tier 1: sources high quality — 1 query cada una ──
+        # ── Tier 1: sources high quality — 1-2 queries cada una ──
         # K17: blogs de nicho usan SHORT, medios grandes usan FULL del template.
+        # G2 (2026-05-18): para blogs nicho, query LIBRE primero (Google deduce
+        # match aunque el blog use naming coloquial), site: como fallback.
+        # Esto resuelve el caso "Sextant Quality Focus" donde el site: con nombre
+        # exacto devolvía 0 resultados pero el blog SÍ tenía un artículo.
         high_sources = [s for s in DIRECTED_SOURCES if s["quality"] == "high"]
         for src in high_sources:
             if self._is_niche_blog(src["domain"]):
-                # Blogs de nicho: usar SHORT name (más probable que coincida)
+                # Blogs de nicho: PRIMARIO query libre con label del blog
+                blog_label = self._blog_search_label(src["domain"], src.get("name", ""))
+                # Usar MEDIUM (nombre limpio sin sufijos legales) por defecto;
+                # MEDIUM cae a SHORT si no hay variante intermedia.
+                free_name = medium_name or short_name or full_name
+                queries.append(f'"{free_name}" {blog_label}')
+                # Fallback restrictivo (capta si Google indexó con nombre exacto)
                 queries.append(f'site:{src["domain"]} "{short_name}"')
                 # Si SHORT es muy corto (1 palabra), añadir MEDIUM como backup
                 if len(short_name.split()) <= 1 and medium_name != short_name:
@@ -663,6 +678,41 @@ class ReadingsCollector:
             if any(nb in d for nb in region_blogs):
                 return True
         return False
+
+    # G2 (2026-05-18): labels de blogs para queries libres (Google deduce match)
+    _BLOG_FREE_LABEL_OVERRIDES = {
+        "moclano.substack.com":         "moclano substack",
+        "saludfinanciera.substack.com": "salud financiera substack",
+        "astralisfundsacademy.com":     "astralis funds academy",
+        "astralis.es":                  "astralis",
+        "rankia.com":                   "rankia",
+        "finect.com":                   "finect",
+        "masdividendos.com":            "más dividendos",
+        "valueschool.es":               "value school",
+        "moiglobal.com":                "MOI Global",
+        "valuewalk.com":                "ValueWalk",
+        "gurufocus.com":                "GuruFocus",
+        "advisorperspectives.com":      "Advisor Perspectives",
+        "seekingalpha.com":             "Seeking Alpha",
+        "valueinvestorsclub.com":       "VIC",
+    }
+
+    def _blog_search_label(self, domain: str, src_name: str = "") -> str:
+        """Etiqueta humana del blog para queries Google libres.
+
+        Ejemplo: para `moclano.substack.com` devuelve "moclano substack",
+        que Google entiende como "buscar X en el blog de Moclano en Substack".
+        Mejor que `site:moclano.substack.com "X"` cuando el blog usa naming coloquial.
+        """
+        d = (domain or "").lower().strip()
+        if d in self._BLOG_FREE_LABEL_OVERRIDES:
+            return self._BLOG_FREE_LABEL_OVERRIDES[d]
+        # Fallback: usar src_name del DIRECTED_SOURCES si existe, sino el dominio sin TLD
+        if src_name:
+            return src_name
+        # Quitar TLD del dominio (.com/.es/...) para tener label más natural
+        base = d.split(".")[0] if d else ""
+        return base or d
 
     def _detect_region(self) -> str:
         """K22 Fase K (2026-04-29): detecta región para queries INT.

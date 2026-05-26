@@ -425,7 +425,11 @@ def run(isin: str) -> dict:
             f"neither cnmv_data.json nor intl_data.json found in {fund_dir}"
         )
 
-    # 2. manager_profile.json — copy with backup fallback
+    # 2. manager_profile.json — copy with backup fallback.
+    # P2 (2026-05-19): si no existe ni el main ni el backup, escribir uno
+    # mínimo vacío en lugar de abortar todo el pipeline. Casos típicos:
+    # manager_profiler crasheó silenciosamente (timeout web, exception async)
+    # o fondo INT sin gestores en ninguna fuente.
     mp_main = fund_dir / "manager_profile.json"
     mp_backup = fund_dir / "manager_profile.backup_pre_deep.json"
     if mp_main.exists():
@@ -435,7 +439,30 @@ def run(isin: str) -> dict:
         shutil.copy2(mp_backup, bundle_dir / "manager_profile.json")
         source_paths["manager_profile.json"] = str(mp_backup.relative_to(ROOT)).replace("\\", "/")
     else:
-        raise BundleExportError(f"manager_profile.json not found in {fund_dir}")
+        # Crear el archivo mínimo y escribirlo en disco + bundle
+        from datetime import datetime as _dt
+        fallback = {
+            "isin": isin,
+            "fund_name": "",
+            "gestora": "",
+            "generated": _dt.now().isoformat(),
+            "equipo": [],
+            "equipo_gestor": [],
+            "equipo_roles": {},
+            "fuentes_web": [],
+            "_error": "manager_profile.json missing — created by bundle_exporter fallback",
+        }
+        try:
+            mp_main.write_text(
+                json.dumps(fallback, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            shutil.copy2(mp_main, bundle_dir / "manager_profile.json")
+            source_paths["manager_profile.json"] = "bundle_exporter_fallback"
+        except Exception as exc:
+            raise BundleExportError(
+                f"manager_profile.json missing AND fallback write failed in {fund_dir}: {exc}"
+            )
 
     # 3. letters_data.json — copy
     letters_src = fund_dir / "letters_data.json"

@@ -54,7 +54,10 @@ class LettersCollector:
                  anio_creacion: int | None = None):
         self.isin = isin.upper().strip()
         self.fund_name = fund_name
-        self.fund_short = fund_name.split(" - ")[-1] if " - " in fund_name else fund_name
+        # G1 (2026-05-18): helper unificado para evitar el bug de devolver
+        # solo "Action F" / "Class I" cuando hay multi-clase.
+        from tools.fund_name_utils import extract_fund_short
+        self.fund_short = extract_fund_short(fund_name)
         self.gestora = gestora
         self.anio_creacion = anio_creacion or 2018
         self.current_year = datetime.now().year
@@ -1541,6 +1544,44 @@ class LettersCollector:
                 still_missing, patterns)
             all_cartas.extend(global_cartas)
             self._log("INFO", f"Cartas globales: {len(global_cartas)} adicionales")
+
+        # Fix-5.4: registrar commentaries auto-descubiertos en raw/discovery/
+        # (letters distintas a las que letters_collector buscó por Serper).
+        # Sin esto, los PDFs commentary que llegaron por discovery quedan sin
+        # procesar como cartas (analyst-cowork no ve K15 fields).
+        try:
+            COMMENTARY_KEYWORDS_AUTO = (
+                "commentary", "letter", "outlook", "perspect",
+                "monthly-update", "quarterly-update", "carta-trimestral",
+                "carta-mensual", "informe-mensual", "informe-trimestral",
+                "investor-letter", "letter-to-investors",
+            )
+            discovery_dir = self.fund_dir / "raw" / "discovery"
+            if discovery_dir.exists():
+                existing_archivos = {c.get("archivo") for c in all_cartas
+                                       if isinstance(c, dict)}
+                existing_archivos.discard(None)
+                existing_archivos.discard("")
+                for pdf in sorted(discovery_dir.glob("*.pdf")):
+                    name_lc = pdf.name.lower()
+                    if not any(k in name_lc for k in COMMENTARY_KEYWORDS_AUTO):
+                        continue
+                    if pdf.name in existing_archivos:
+                        continue
+                    periodo_m = re.search(r"(20[012]\d)(?:[_-]?(?:Q[1-4]|H[12]|T[1-4]))?",
+                                          name_lc)
+                    periodo = periodo_m.group(0) if periodo_m else ""
+                    all_cartas.append({
+                        "archivo": pdf.name,
+                        "ruta_local": str(pdf),
+                        "periodo": periodo,
+                        "fuente": "gestora_web (auto-discovered)",
+                        "url": "",
+                        "texto_completo": "",
+                    })
+                    existing_archivos.add(pdf.name)
+        except Exception as exc:
+            self._log("WARN", f"auto-discover commentaries fallo: {exc}")
 
         # ── Merge con existentes (NUNCA perder cartas entre runs) + dedup ──
         all_cartas = self._merge_with_existing_letters(all_cartas)

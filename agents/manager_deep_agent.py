@@ -145,6 +145,53 @@ class ManagerDeepAgent:
 
         self._log("OK", f"Equipo gestor identificado: {self.manager_names}")
 
+        # Refactor L2 (2026-05-05): in cowork mode, skip the Gemini-heavy
+        # article extraction (39 calls today). Emit an "extract_articles"
+        # task with the candidate URLs from manager_profile.fuentes_web so
+        # the manager-deep-cowork skill can process them under Claude Max.
+        from tools.api_mode import is_cowork_mode
+        if is_cowork_mode():
+            try:
+                from tools.pending_manifest import append_manager_deep_task as _emit_md
+                # Pull candidate URLs from existing manager_profile.json (manager_profiler
+                # output) so the skill knows which links to fetch.
+                candidate_urls: list[dict] = []
+                mp_path = self.fund_dir / "manager_profile.json"
+                if mp_path.exists():
+                    try:
+                        mp = json.loads(mp_path.read_text(encoding="utf-8"))
+                        candidate_urls = mp.get("fuentes_web") or []
+                    except Exception:
+                        pass
+                _emit_md(
+                    self.fund_dir, self.isin,
+                    task_type="extract_articles",
+                    fund_name=self.fund_short or "",
+                    candidate_names=list(self.manager_names),
+                    candidate_urls=candidate_urls,
+                    context=(
+                        f"Extract full text of articles about each manager in "
+                        f"{self.manager_names!r}. Filter cross-fund contamination "
+                        f"(homonyms). Populate articulos_completos[gestor] in "
+                        f"manager_profile.json. ~3000-8000 chars per article, no summaries."
+                    ),
+                )
+                self._log("INFO",
+                    f"cowork mode: extract_articles task emitted "
+                    f"({len(self.manager_names)} managers, {len(candidate_urls)} candidate URLs)")
+            except Exception as exc:
+                self._log("WARN", f"could not emit extract_articles task: {exc}")
+            # Return existing manager_profile.json content unchanged (skill
+            # will update articulos_completos via --consume-manager-deep).
+            mp_path = self.fund_dir / "manager_profile.json"
+            if mp_path.exists():
+                try:
+                    return json.loads(mp_path.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+            return {"isin": self.isin, "equipo_gestor": list(self.manager_names),
+                    "_cowork_pending": True}
+
         # ── Paso 1b: Si hay página de equipo, extraer TODOS los roles ────────
         team_detail = await self._extract_team_from_web()
         if team_detail:

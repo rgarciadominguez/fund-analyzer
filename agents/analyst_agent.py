@@ -1185,9 +1185,9 @@ class AnalystAgent:
     # ahora porque las secciones críticas lo NECESITAN para calidad validada).
     # Para forzar fallback a Flash (deshabilitar Sonnet), USE_SONNET=false.
     USE_SONNET = os.getenv("USE_SONNET", "true").lower() in ("true", "1", "yes")
-    # GEMINI_FALLBACK_ANTHROPIC: cuando Gemini falla → caer en Anthropic
-    # (Haiku para simple, Sonnet para complejo). Default ON.
-    GEMINI_FALLBACK_ANTHROPIC = os.getenv("GEMINI_FALLBACK_ANTHROPIC", "1") == "1"
+    # Refactor L2 (2026-05-05): GEMINI_FALLBACK_ANTHROPIC eliminado. Si Gemini
+    # falla en modo legacy, el análisis falla limpio. Modo cowork default no
+    # llama Gemini (todo via skills bajo Max).
 
     def _get_anthropic_client(self):
         """Get or create Anthropic client for Sonnet/Haiku calls.
@@ -1495,10 +1495,7 @@ class AnalystAgent:
             from google.genai import types
             client = self._get_gemini_client()
         except Exception as exc:
-            # Cost-Opt Fallback A: Gemini init failed (no key, billing block)
-            if self.GEMINI_FALLBACK_ANTHROPIC:
-                self._log("WARN", f"Gemini init failed ({exc}) — fallback Haiku 4.5 JSON")
-                return self._haiku_call(prompt, max_tokens=max_tokens)
+            # Refactor L2: NO fallback Anthropic. Fail loud.
             self._log("ERROR", f"Gemini init failed: {exc}")
             return None
 
@@ -1527,13 +1524,10 @@ class AnalystAgent:
                     raise
             except Exception as exc:
                 exc_str = str(exc)
-                # Cost-Opt Fallback A: PERMISSION_DENIED → Haiku inmediato
+                # Refactor L2: PERMISSION_DENIED → fail (no fallback Anthropic)
                 if any(k in exc_str for k in ("PERMISSION_DENIED", "403",
                                               "denied access", "401", "Unauthorized")):
-                    if self.GEMINI_FALLBACK_ANTHROPIC:
-                        self._log("WARN",
-                            f"Gemini denied — fallback Haiku 4.5 JSON: {exc_str[:100]}")
-                        return self._haiku_call(prompt, max_tokens=max_tokens)
+                    self._log("ERROR", f"Gemini denied: {exc_str[:200]}")
                     return None
                 if "429" in exc_str or "ResourceExhausted" in exc_str:
                     wait = 45 * (attempt + 1)
@@ -1543,10 +1537,6 @@ class AnalystAgent:
                     self._log("WARN", f"Gemini error (intento {attempt+1}): {exc}")
                     time.sleep(5)
                 else:
-                    if self.GEMINI_FALLBACK_ANTHROPIC:
-                        self._log("WARN",
-                            f"Gemini JSON falló tras {retries+1} intentos — fallback Haiku 4.5")
-                        return self._haiku_call(prompt, max_tokens=max_tokens)
                     self._log("ERROR", f"Gemini falló tras {retries+1} intentos: {exc}")
                     return None
         return None
@@ -1573,11 +1563,7 @@ class AnalystAgent:
             from google.genai import types
             client = self._get_gemini_client()
         except Exception as exc:
-            # Cost-Opt Fallback A (2026-05-02): si Gemini no inicializa
-            # (no API key, billing bloqueado), caer en Haiku.
-            if self.GEMINI_FALLBACK_ANTHROPIC:
-                self._log("WARN", f"Gemini init failed ({exc}) — fallback Haiku 4.5")
-                return self._haiku_text(prompt, max_tokens=max_tokens)
+            # Refactor L2: NO fallback Anthropic. Fail loud.
             self._log("ERROR", f"Gemini init failed: {exc}")
             return ""
 
@@ -1603,14 +1589,9 @@ class AnalystAgent:
                 return text
             except Exception as exc:
                 exc_str = str(exc)
-                # Cost-Opt Fallback A: si PERMISSION_DENIED (billing bloqueado),
-                # 403, 401, project denied → fallback inmediato a Haiku, no retry.
+                # Refactor L2: PERMISSION_DENIED → fail (no fallback Anthropic)
                 if any(k in exc_str for k in ("PERMISSION_DENIED", "403",
                                               "denied access", "401", "Unauthorized")):
-                    if self.GEMINI_FALLBACK_ANTHROPIC:
-                        self._log("WARN",
-                            f"Gemini denied/unauthorized — fallback Haiku 4.5: {exc_str[:100]}")
-                        return self._haiku_text(prompt, max_tokens=max_tokens)
                     self._log("ERROR", f"Gemini denied: {exc_str[:200]}")
                     return ""
                 if "429" in exc_str or "ResourceExhausted" in exc_str:
@@ -1621,11 +1602,6 @@ class AnalystAgent:
                     self._log("WARN", f"Gemini text error (intento {attempt+1}): {exc}")
                     time.sleep(5)
                 else:
-                    # Cost-Opt: tras agotar retries, último intento = Haiku fallback
-                    if self.GEMINI_FALLBACK_ANTHROPIC:
-                        self._log("WARN",
-                            f"Gemini text falló tras {retries+1} intentos — fallback Haiku 4.5")
-                        return self._haiku_text(prompt, max_tokens=max_tokens)
                     self._log("ERROR", f"Gemini text falló tras {retries+1} intentos: {exc}")
                     return ""
         return ""
@@ -3593,20 +3569,7 @@ class AnalystAgent:
                 if txt:
                     return txt
         except Exception as e:
-            exc_str = str(e)
-            if self.GEMINI_FALLBACK_ANTHROPIC and any(
-                k in exc_str for k in ("PERMISSION_DENIED", "403", "denied access",
-                                       "401", "Unauthorized")
-            ):
-                # Cost-Opt Fase 2 (2026-05-02): _gemini_section es para texto
-                # narrativo COMPLEJO (INT secciones). Fallback Sonnet (no Haiku)
-                # — calidad validada en AZ Valor + Magallanes requiere Sonnet.
-                self._log("WARN", f"Gemini section denied — fallback Sonnet 4.6")
-                return self._sonnet_text(
-                    "Eres un analista senior. Escribe texto denso, completo, "
-                    "con datos concretos. Solo datos del input, no inventar.",
-                    prompt[:max_chars],
-                )
+            # Refactor L2: NO fallback Anthropic. Fail loud.
             self._log("WARN", f"Gemini section failed: {e}")
         return ""
 
@@ -3636,30 +3599,7 @@ class AnalystAgent:
             if isinstance(result, dict) and result:
                 return self._strip_filler(result)
         except Exception as e:
-            exc_str = str(e)
-            if self.GEMINI_FALLBACK_ANTHROPIC and any(
-                k in exc_str for k in ("PERMISSION_DENIED", "403", "denied access",
-                                       "401", "Unauthorized")
-            ):
-                # Cost-Opt Fase 2 (2026-05-02): _gemini_section_json es para JSON
-                # COMPLEJO (INT _int_pro). Fallback Sonnet (no Haiku) — calidad
-                # validada requiere Sonnet para INT críticos.
-                self._log("WARN", f"Gemini section_json denied — fallback Sonnet 4.6")
-                schema_str = json.dumps(schema, ensure_ascii=False, indent=2)
-                full_prompt = (
-                    f"{prompt[:max_chars]}\n\n"
-                    f"Devuelve JSON con esta estructura EXACTA:\n{schema_str}\n\n"
-                    f"REGLAS: si no hay dato real → null o '' (vacío). "
-                    f"NUNCA escribir 'no disponible' / 'no se menciona' / 'datos pendientes'. "
-                    f"Solo datos del input, no inventar."
-                )
-                sn = self._sonnet_call(
-                    "Eres analista senior. Devuelve SOLO JSON válido sin markdown.",
-                    full_prompt,
-                )
-                if isinstance(sn, dict):
-                    return self._strip_filler(sn)
-                return {}
+            # Refactor L2: NO fallback Anthropic. Fail loud.
             self._log("WARN", f"Gemini JSON failed: {e}")
         return {}
 

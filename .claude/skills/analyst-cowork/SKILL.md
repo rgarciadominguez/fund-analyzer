@@ -114,6 +114,33 @@ Esto deja en `data/funds/{ISIN}/bundle/`:
 
 Si falta cualquiera de los 5 inputs, ABORTA y pide a Rafa que ejecute la prep antes.
 
+## Inputs cualitativos del bundle (CRÍTICOS para narrativa)
+
+`fund_data.json` (renombrado de cnmv_data.json para fondos ES, intl_data.json para INT) contiene un campo `cualitativo` con texto pre-extraído de los PDFs semestrales CNMV o annual reports INT. **DEBES leer y USAR estos campos** para enriquecer las secciones narrativas. Si no los usas, las secciones saldrán pobres y genéricas.
+
+Campos planos (texto del último periodo disponible):
+
+- `fund_data.cualitativo.contexto_mercado` (string ~150-250 palabras): visión de la gestora sobre el entorno macro y mercado durante el último periodo. **Usar en**: `resumen.texto`, `evolucion.texto`, `estrategia.texto` para anclar el análisis al contexto real.
+- `fund_data.cualitativo.decisiones_tomadas` (string ~100-300 palabras): decisiones de inversión del último periodo (compras, ventas, ajustes), con nombres de activos. **Usar en**: `cartera.texto` (narrativa de movimientos recientes), `estrategia.texto` (cómo se ejecuta la tesis).
+- `fund_data.cualitativo.tesis_gestora` (string ~100-200 palabras, opcional): tesis o filosofía expresada en este periodo. **Usar en**: `resumen.filosofia_inversion`, `estrategia.texto`.
+- `fund_data.cualitativo.perspectivas` (string ~100-200 palabras, opcional): outlook expresado para el próximo periodo. **Usar en**: `evolucion.texto` (cierre prospectivo), `estrategia.texto` (visión a futuro).
+
+Campo histórico (todos los periodos):
+
+- `fund_data.cualitativo._historico` (dict por periodo: `{"2024_H2": {contexto_mercado: ..., decisiones_tomadas: ..., ...}, "2023_H2": {...}, ...}`). **Usar en**:
+  - `historia.texto`: narrar la evolución del fondo periodo a periodo, citando contexto y decisiones de cada año (esto es lo que da riqueza a la cronología).
+  - `historia.hitos[]`: cada periodo con cambios significativos puede ser un hito (`{anio, titulo, evento, tipo: "contexto_mercado"}` o `tipo: "cambio_estrategia"`).
+  - `evolucion.texto`: hilar la evolución de AUM/posiciones con el contexto de cada periodo.
+
+### Reglas de uso
+
+1. **Cita del periodo**: cuando uses datos del histórico, indica el periodo entre paréntesis: `"En 2024 H2 la gestora destacó (...)" `.
+2. **No inventar**: si un campo es null, NO inventes. Si todo el histórico está vacío, di explícitamente que no hay datos cualitativos disponibles.
+3. **Prioridad reciente**: para `resumen` y `estrategia` (visión actual), usa los campos planos (último periodo). Para `historia` y `evolucion` usa `_historico` (todos).
+4. **Diferenciación ES vs INT**:
+   - ES: estos campos vienen de PDFs semestrales CNMV (sección 9, sección 10 perspectivas).
+   - INT: estos campos pueden venir de annual reports / factsheets / commentaries del sub-fondo. Mismo schema, distinta procedencia.
+
 ## Schema EXACTO del output (no inventes nombres de campos)
 
 Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.json`

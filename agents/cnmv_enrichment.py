@@ -118,6 +118,41 @@ class CNMVEnricher:
         if not sin_sector:
             return False
 
+        # Refactor L2 (2026-05-05): in cowork mode, defer sector inference to
+        # extract-pdfs-cowork skill. We emit a "sectors" task that lists the
+        # positions needing classification + the controlled vocabulary, and
+        # leave the positions with empty sector — the skill fills them and
+        # --consume-extracted merges back.
+        from tools.api_mode import is_cowork_mode
+        if is_cowork_mode():
+            try:
+                from pathlib import Path as _Path
+                from tools.pending_manifest import append_extraction_task as _emit
+                fund_dir = _Path("data/funds") / self.isin
+                fund_dir.mkdir(parents=True, exist_ok=True)
+                _emit(
+                    fund_dir, self.isin,
+                    task_id="cnmv_enrichment_sectores",
+                    agent="cnmv_enrichment",
+                    pdf_path="(no_pdf — classification task)",
+                    schema={
+                        "positions_with_sector": "list[{nombre, sector}]"
+                    },
+                    context=(
+                        f"Classify each position into ONE of: {', '.join(SECTORES_VALIDOS)}. "
+                        f"Rules: corporate bonds → sector of issuer; sovereign → Government; "
+                        f"supranational → Supranational; equity → GICS sector; IIC/Fund/ETF → Other; "
+                        f"cash/repo/deposit → Cash. Positions to classify follow."
+                    ),
+                    extra={"positions": sin_sector, "vocabulary": SECTORES_VALIDOS},
+                )
+                _log(self.isin, "INFO",
+                     f"cowork mode: deferred {len(sin_sector)} sector classifications "
+                     f"to pending_extraction.json (task=cnmv_enrichment_sectores)")
+            except Exception as exc:
+                _log(self.isin, "WARN", f"could not emit sectors task: {exc}")
+            return False  # no in-place change; consume integrates the result
+
         # Skip si Gemini no disponible
         gemini_key = os.environ.get("GOOGLE_API_KEY")
         if not gemini_key:

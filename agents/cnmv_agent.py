@@ -1278,6 +1278,60 @@ class CNMVAgent:
                 "inversion_minima": inv_min if inv_min >= 1 else 0,
                 "dividendos": dividendos.upper() == "SI",
             }
+
+        # ── ISIN por clase (fix bug "todas las filas con mismo ISIN") ─────────
+        # Hasta ahora clases_info no capturaba ISIN por clase, así que la tabla
+        # del dashboard caía siempre al ISIN principal. Aproximación heurística
+        # en 2 fases: (1) match same-line CLASE+ISIN (cuando el PDF lista la
+        # tabla "Clases comercializadas" con ISIN en la misma fila); (2)
+        # fallback global ordenado por aparición para clases sin asignar.
+        # Excluye SIEMPRE el ISIN principal del fondo (self.isin).
+        if clases_info:
+            isin_by_clase: dict = {}
+
+            # Fase 1: same-line proximity (CLASE X ... ISIN dentro de ~400 chars
+            # sin saltos de línea — match típico en tablas planas extraídas)
+            same_line = re.findall(
+                r'CLASE\s+(\w+)[^\n]{0,400}?\b(ES\d{10})\b',
+                text, re.IGNORECASE,
+            )
+            for cls, isn in same_line:
+                if isn == self.isin:
+                    continue
+                cls_key = cls
+                # Match insensible a mayúsculas: las claves de clases_info
+                # vienen tal cual del PDF (mayúsculas habitualmente)
+                if cls_key not in clases_info:
+                    # Buscar match insensitive
+                    for existing in clases_info.keys():
+                        if existing.lower() == cls_key.lower():
+                            cls_key = existing
+                            break
+                if cls_key in clases_info and cls_key not in isin_by_clase:
+                    isin_by_clase[cls_key] = isn
+
+            # Fase 2: fallback global. Clases sin ISIN asignado reciben los
+            # ISINs no-principales restantes, en orden de aparición en el texto.
+            classes_pending = [c for c in clases_info.keys() if c not in isin_by_clase]
+            if classes_pending:
+                seen_isins: set = set()
+                ordered_isins: list = []
+                for m in re.finditer(r'\bES\d{10}\b', text):
+                    isn = m.group(0)
+                    if isn == self.isin or isn in seen_isins:
+                        continue
+                    seen_isins.add(isn)
+                    if isn in isin_by_clase.values():
+                        continue
+                    ordered_isins.append(isn)
+                for cls, isn in zip(classes_pending, ordered_isins):
+                    isin_by_clase[cls] = isn
+
+            # Aplicar a clases_info
+            for cls, info in clases_info.items():
+                if cls in isin_by_clase:
+                    info["isin"] = isin_by_clase[cls]
+
         if clases_info:
             result["clases_info"] = clases_info
 
@@ -1969,7 +2023,48 @@ class CNMVAgent:
                 "Si se mencionan contribuidores/detractores al rendimiento, incluirlos. "
                 "NUNCA devolver null si hay texto en estas secciones — siempre hay decisiones."
             ),
+            # NUEVO (Fix MEDIO #3): tesis_gestora — opcional, si el periodo lo expresa
+            "tesis_gestora": (
+                "Resumen 100-200 palabras de la tesis o filosofía de inversión expresada "
+                "EN ESTE PERIODO. Si no hay mención explícita de tesis (a veces los "
+                "semestrales solo tienen contexto + decisiones), devolver null. "
+                "NO inventar tesis genérica."
+            ),
+            # NUEVO (Fix MEDIO #3): perspectivas — opcional, si el periodo lo expresa
+            "perspectivas": (
+                "Resumen 100-200 palabras de las perspectivas / outlook expresado "
+                "EN ESTE PERIODO. Sección típica '10. PERSPECTIVAS DE MERCADO' del "
+                "informe semestral. Si no aparece, devolver null."
+            ),
         }
+        # Refactor L2 (2026-05-05): in cowork mode defer the Claude call to
+        # extract-pdfs-cowork. Emit a task carrying the raw section-9 text +
+        # the schema; the skill will fill it back via --consume-extracted.
+        from tools.api_mode import is_cowork_mode
+        if is_cowork_mode():
+            try:
+                from pathlib import Path as _Path
+                from tools.pending_manifest import append_extraction_task as _emit
+                fund_dir = _Path("data/funds") / self.isin
+                fund_dir.mkdir(parents=True, exist_ok=True)
+                _emit(
+                    fund_dir, self.isin,
+                    task_id=f"cnmv_cualitativo_{year}_H2" if year else "cnmv_cualitativo",
+                    agent="cnmv_agent",
+                    pdf_path="(text already segmented in manifest extra.text)",
+                    schema=schema,
+                    context=(
+                        f"Informe semestral CNMV {year}, fondo {self.isin}. "
+                        "Subsecciones etiquetadas del Anexo explicativo (sección 9). "
+                        "Extraer visión del mercado y decisiones de cartera. CRÍTICO."
+                    ),
+                    extra={"text": text[:7000]},
+                    tipo="ES",
+                )
+                console.log(f"[cyan]cowork mode: cnmv_cualitativo_{year} deferred to skill")
+            except Exception as exc:
+                console.log(f"[yellow]cowork emit failed: {exc}")
+            return {}
         try:
             result = extract_structured_data(
                 text[:7000],

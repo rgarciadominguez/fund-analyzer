@@ -109,6 +109,160 @@ KNOWN_FUND_METADATA: dict[str, dict] = {
 }
 
 
+# ── F6: fund_group shared cache (manager_profile, intl_discovery, readings) ─
+# Para clases hermanas (mismo nombre_base + gestora), evitar re-correr Opus
+# en manager_profiler/discovery/readings. Cache local en data/fund_groups_cache/.
+# Desactivable con DISABLE_FUND_GROUP_CACHE=1.
+
+import uuid as _uuid_mod
+import re as _re_mod
+import shutil as _shutil_mod
+
+FUND_GROUP_CACHE_DIR = ROOT / "data" / "fund_groups_cache"
+FUND_GROUP_CACHE_TTL_DAYS = 30
+FUND_GROUP_CACHE_FILES = (
+    "manager_profile.json",
+    "intl_discovery_data.json",
+    "readings_data.json",
+    # F6 extension: intl_data.json (output del extractor INT, también caro en LLM).
+    # ES no lo genera — para fondos ES esta entrada simplemente no copia nada.
+    "intl_data.json",
+)
+
+
+def _fg_normalize_nombre_base(nombre: str) -> str:
+    """Replica simplificada de tools.import_taxonomy.normalize_nombre_base
+    para el cache. Mantenido local para evitar import-cycle con tools/."""
+    if not nombre:
+        return ""
+    s = str(nombre).strip()
+    s = _re_mod.sub(r"\((acc|dist|inc|usd|eur|chf|gbp|jpy|hedged|hedge)\)", " ", s, flags=_re_mod.I)
+    s = _re_mod.sub(r"\b(EUR|USD|CHF|GBP|JPY|CAD)\s+(HEDGED|HEDGE)\b", " ", s, flags=_re_mod.I)
+    s = _re_mod.sub(r"\s+", " ", s).strip()
+    noise = {"EUR","USD","CHF","GBP","JPY","CAD","AUD","SEK","NOK","DKK","HKD","SGD",
+             "ACC","DIST","ACUMULACION","ACUMULACIÓN","DISTRIBUCION","DISTRIBUCIÓN","INC",
+             "HEDGED","HEDGE","UNHEDGED","FI","FIL","FCP","SICAV","PLC","LTD","SA",
+             "RETAIL","INSTITUTIONAL","INST","CORPORATE","CLASE","CLASS","CL"}
+    cls_letter = _re_mod.compile(r"^[A-Z]{1,3}\d?$")
+    tokens = s.split(" ")
+    if len(tokens) >= 2 and _re_mod.match(r"^(CLASE|CLASS|CL)\b", tokens[-2], _re_mod.I):
+        tokens = tokens[:-2]
+    elif tokens and _re_mod.match(r"^(CLASE|CLASS|CL)\b", tokens[-1], _re_mod.I):
+        tokens = tokens[:-1]
+    changed = True
+    while changed and tokens:
+        changed = False
+        last = tokens[-1].upper().rstrip(",.;:")
+        if last in noise:
+            tokens.pop(); changed = True; continue
+        if cls_letter.match(last) and len(tokens) > 1:
+            tokens.pop(); changed = True; continue
+    return _re_mod.sub(r"\s+", " ", " ".join(tokens)).strip()
+
+
+def _fg_compute_id(nombre_base: str, gestora: str) -> str:
+    """uuid5(NAMESPACE_OID, 'gestora::nombre_base') — clave del cache F6.
+    Distinta del fund_group_id de Supabase (que usa namespace custom)."""
+    key = f"{(gestora or '').strip().lower()}::{(nombre_base or '').strip().lower()}"
+    return str(_uuid_mod.uuid5(_uuid_mod.NAMESPACE_OID, key))
+
+
+def _fg_resolve_identity(fund_dir: Path, fallback_isin: str) -> dict:
+    """Lee nombre_oficial + gestora_oficial desde regulator file o cnmv_data
+    según haya. Si no encuentra nada usable, devuelve {}."""
+    candidates = [
+        "cssf_data.json", "cbi_data.json", "amf_data.json",
+        "bundesanzeiger_data.json", "cnmv_data.json",
+    ]
+    for fname in candidates:
+        fp = fund_dir / fname
+        if not fp.exists():
+            continue
+        try:
+            data = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        identity = data.get("identity") or data
+        nombre = identity.get("nombre_oficial") or data.get("nombre") or ""
+        gestora = identity.get("gestora_oficial") or data.get("gestora") or ""
+        if nombre and gestora:
+            return {"nombre": nombre, "gestora": gestora}
+    return {}
+
+
+def _fg_apply_cache(isin: str, fund_dir: Path, identity: dict, log) -> set:
+    """Si existe cache válido (<30d) para este fund_group_id, copia los 3 JSONs
+    desde el ISIN pointer al fund_dir actual. Devuelve set de archivos copiados.
+    DISABLE_FUND_GROUP_CACHE=1 lo desactiva."""
+    if os.environ.get("DISABLE_FUND_GROUP_CACHE") == "1":
+        return set()
+    if not identity.get("nombre") or not identity.get("gestora"):
+        return set()
+    nombre_base = _fg_normalize_nombre_base(identity["nombre"])
+    fund_group_id = _fg_compute_id(nombre_base, identity["gestora"])
+    cache_file = FUND_GROUP_CACHE_DIR / f"{fund_group_id}.json"
+    if not cache_file.exists():
+        return set()
+    age_days = (time.time() - cache_file.stat().st_mtime) / 86400.0
+    if age_days > FUND_GROUP_CACHE_TTL_DAYS:
+        log("FUND_GROUP_CACHE", "INFO", f"cache expirado ({age_days:.1f}d > {FUND_GROUP_CACHE_TTL_DAYS}d)")
+        return set()
+    try:
+        meta = json.loads(cache_file.read_text(encoding="utf-8"))
+    except Exception as e:
+        log("FUND_GROUP_CACHE", "WARN", f"cache ilegible: {e}")
+        return set()
+    pointer_isin = meta.get("pointer_isin")
+    if not pointer_isin or pointer_isin == isin:
+        return set()
+    pointer_dir = ROOT / "data" / "funds" / pointer_isin
+    if not pointer_dir.exists():
+        log("FUND_GROUP_CACHE", "WARN", f"pointer dir no existe: {pointer_isin}")
+        return set()
+    copied = set()
+    fund_dir.mkdir(parents=True, exist_ok=True)
+    for fname in FUND_GROUP_CACHE_FILES:
+        src = pointer_dir / fname
+        if not src.exists():
+            continue
+        dst = fund_dir / fname
+        try:
+            _shutil_mod.copy2(src, dst)
+            copied.add(fname)
+        except Exception as e:
+            log("FUND_GROUP_CACHE", "WARN", f"copy {fname}: {e}")
+    if copied:
+        log("FUND_GROUP_CACHE", "OK",
+            f"hit fund_group={fund_group_id[:8]}.. pointer={pointer_isin} "
+            f"copiados={sorted(copied)} (age={age_days:.1f}d)")
+    return copied
+
+
+def _fg_save_cache(isin: str, identity: dict, log) -> None:
+    """Tras run exitoso, escribir cache pointer→isin para que clases hermanas
+    de futuros runs lo reutilicen."""
+    if os.environ.get("DISABLE_FUND_GROUP_CACHE") == "1":
+        return
+    if not identity.get("nombre") or not identity.get("gestora"):
+        return
+    nombre_base = _fg_normalize_nombre_base(identity["nombre"])
+    fund_group_id = _fg_compute_id(nombre_base, identity["gestora"])
+    FUND_GROUP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_file = FUND_GROUP_CACHE_DIR / f"{fund_group_id}.json"
+    payload = {
+        "fund_group_id": fund_group_id,
+        "nombre_base": nombre_base,
+        "gestora": identity["gestora"],
+        "pointer_isin": isin,
+        "saved_at": datetime.now().isoformat(),
+    }
+    try:
+        cache_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        log("FUND_GROUP_CACHE", "OK", f"saved pointer {isin} para fund_group={fund_group_id[:8]}..")
+    except Exception as e:
+        log("FUND_GROUP_CACHE", "WARN", f"save failed: {e}")
+
+
 def _ts() -> str:
     return datetime.now().strftime("%H:%M:%S")
 
@@ -203,6 +357,20 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
     def log(agent, level, msg):
         _log(agent, level, msg, log_path)
 
+    # Refactor L2 P1 (2026-05-05): in prep-only mode, wipe stale pending_*.json
+    # before agents start emitting tasks. Manifests are overwritten per run,
+    # not concatenated, to avoid stale entries from a previous failed prep.
+    if prep_only:
+        from tools.api_mode import is_cowork_mode
+        if is_cowork_mode():
+            from tools.pending_manifest import clean_pending_manifests
+            fund_dir_for_clean = ROOT / "data" / "funds" / isin
+            fund_dir_for_clean.mkdir(parents=True, exist_ok=True)
+            removed = clean_pending_manifests(fund_dir_for_clean)
+            if removed:
+                log("ORCHESTRATOR", "INFO",
+                    f"--prep-only cowork: limpiados {len(removed)} manifests stale: {removed}")
+
     # Obtener config
     config = get_config(isin, auto)
     log("ORCHESTRATOR", "OK", f"Config: {config}")
@@ -274,6 +442,20 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
                 log("REGULATOR", "TRACE", traceback.format_exc()[:300])
             progress.advance(main_task)
 
+        # ── F6: fund_group shared cache lookup ───────────────────────────────
+        # Tras regulator (INT) o pre-CNMV (ES), si conocemos nombre+gestora
+        # vía identity, comprobar si otro ISIN del mismo fund_group ya tiene
+        # manager_profile / intl_discovery / readings cacheados (<30d).
+        # discovery skipea solo cuando intl_discovery_data.json ya tiene >=3 docs.
+        # manager/readings: respetamos el cache hit más abajo con flags.
+        fg_cache_hits: set = set()
+        try:
+            _fg_identity = _fg_resolve_identity(fund_dir, isin)
+            if _fg_identity:
+                fg_cache_hits = _fg_apply_cache(isin, fund_dir, _fg_identity, log)
+        except Exception as exc:
+            log("FUND_GROUP_CACHE", "WARN", f"lookup falló (no bloquea pipeline): {exc}")
+
         # ── Paso 1a (INT): Discovery v2 — descargar PDFs de web gestora ─────
         if not is_es:
             progress.update(main_task, description="Discovery v2: buscando documentos del fondo")
@@ -332,14 +514,44 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
                 results["cnmv"] = await agent.run()
                 log("CNMV", "OK", f"cnmv_data.json generado")
             else:
-                from agents.intl_extractor_v2 import IntlExtractor
-                agent = IntlExtractor(isin, config)
-                results["intl"] = await agent.run()
-                log("INTL", "OK", f"intl_data.json generado (extractor v3 concept-first)")
+                # F6 extension: si fund_group cache copió intl_data.json, reutilizar.
+                if "intl_data.json" in fg_cache_hits:
+                    try:
+                        results["intl"] = json.loads(
+                            (fund_dir / "intl_data.json").read_text(encoding="utf-8")
+                        )
+                        log("INTL", "OK", "reutilizado de fund_group cache (skip extractor)")
+                    except Exception as exc:
+                        log("INTL", "WARN", f"cache F6 ilegible, corriendo extractor: {exc}")
+                        results["intl"] = None
+                else:
+                    results["intl"] = None
+                if results.get("intl") is None:
+                    from agents.intl_extractor_v2 import IntlExtractor
+                    agent = IntlExtractor(isin, config)
+                    results["intl"] = await agent.run()
+                    log("INTL", "OK", f"intl_data.json generado (extractor v3 concept-first)")
         except Exception as exc:
             log("ORCHESTRATOR", "ERROR", f"Paso 1b falló: {exc}")
             import traceback
             log("ORCHESTRATOR", "TRACE", traceback.format_exc()[:300])
+
+        # ── Refactor L2 fix (2026-05-05): emit ES qualitative tasks ──
+        # cnmv_agent has the function _parse_seccion_cualitativo to emit
+        # tasks but it's orphan (never called). And fondos like HOROS
+        # publish only on their own web (raw/discovery/_web_*.pdf), not
+        # CNMV. Centralize the emission here so every ES fund — with or
+        # without CNMV semestrales — gets a populated pending_extraction.
+        if is_es:
+            try:
+                from tools.api_mode import is_cowork_mode
+                from tools.pending_manifest import emit_es_qualitative_tasks
+                if is_cowork_mode():
+                    n = emit_es_qualitative_tasks(fund_dir, isin)
+                    log("CNMV_QUAL_EMIT", "INFO",
+                        f"emitidas {n} tasks cualitativas a pending_extraction.json")
+            except Exception as exc:
+                log("CNMV_QUAL_EMIT", "WARN", f"no se pudo emitir tasks: {exc}")
 
         progress.advance(main_task)
 
@@ -423,7 +635,7 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
             from agents.sources_agent import SourcesAgent
             sources = SourcesAgent(
                 isin, fund_name=fund_name_hint,
-                gestora=gestora_hint, gestor_principal=gestores_hint[0] if gestores_hint else "",
+                gestora=gestora_hint, gestores=gestores_hint,
             )
             results["sources"] = await sources.run()
             n_sources = len(results["sources"].get("sources", []))
@@ -464,6 +676,15 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
                 return {}
 
         async def _run_manager_deep():
+            # F6: si el cache F6 copió manager_profile.json, no re-correr profiler
+            if "manager_profile.json" in fg_cache_hits:
+                mp_path = fund_dir / "manager_profile.json"
+                try:
+                    cached = json.loads(mp_path.read_text(encoding="utf-8"))
+                    log("MANAGER", "OK", "reutilizado de fund_group cache (skip profiler)")
+                    return cached
+                except Exception as exc:
+                    log("MANAGER", "WARN", f"cache F6 ilegible, corriendo profiler: {exc}")
             try:
                 from agents.manager_profiler import ManagerProfiler
                 manager = ManagerProfiler(
@@ -533,16 +754,28 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
             f"Gestores curados para readings: {curated_gestores}")
 
         # readings con gestores curados (puede usar entrevistas, análisis por gestor)
-        try:
-            from agents.readings_collector import ReadingsCollector
-            readings = ReadingsCollector(
-                isin, fund_name=fund_name_hint,
-                gestora=gestora_hint, gestores=curated_gestores,
-            )
-            readings_result = await readings.run()
-        except Exception as exc:
-            log("READINGS", "ERROR", f"Readings falló: {exc}")
-            readings_result = {}
+        # F6: si el cache F6 copió readings_data.json, reutilizar sin re-correr
+        readings_result = None
+        if "readings_data.json" in fg_cache_hits:
+            try:
+                readings_result = json.loads(
+                    (fund_dir / "readings_data.json").read_text(encoding="utf-8")
+                )
+                log("READINGS", "OK", "reutilizado de fund_group cache (skip collector)")
+            except Exception as exc:
+                log("READINGS", "WARN", f"cache F6 ilegible, corriendo collector: {exc}")
+                readings_result = None
+        if readings_result is None:
+            try:
+                from agents.readings_collector import ReadingsCollector
+                readings = ReadingsCollector(
+                    isin, fund_name=fund_name_hint,
+                    gestora=gestora_hint, gestores=curated_gestores,
+                )
+                readings_result = await readings.run()
+            except Exception as exc:
+                log("READINGS", "ERROR", f"Readings falló: {exc}")
+                readings_result = {}
         results["readings"] = readings_result
 
         n_cartas = len(letters_result.get("cartas", []))
@@ -842,6 +1075,22 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
     # ── PASO A: Verificar que el fondo está listo para el dashboard ───────────
     from agents.meta_agent import _fund_ready_for_dashboard
     dashboard_ready, blockers = _fund_ready_for_dashboard(output)
+
+    # F6: si el run es exitoso (dashboard_ready), persistir cache pointer
+    # para que clases hermanas del mismo fund_group reusen estos outputs.
+    if dashboard_ready:
+        try:
+            _fg_identity_final = _fg_resolve_identity(fund_dir, isin)
+            # Fallback: si los regulator/cnmv files no tienen nombre+gestora,
+            # tomar de output.json (que ya ha pasado el merge_prep).
+            if not _fg_identity_final.get("nombre") or not _fg_identity_final.get("gestora"):
+                _fg_identity_final = {
+                    "nombre": output.get("nombre") or "",
+                    "gestora": output.get("gestora") or "",
+                }
+            _fg_save_cache(isin, _fg_identity_final, log)
+        except Exception as exc:
+            log("FUND_GROUP_CACHE", "WARN", f"save final falló (no bloquea): {exc}")
 
     if not dashboard_ready:
         console.print(Panel(
@@ -1568,7 +1817,7 @@ async def consume_cowork_pipeline(isin: str, log_path: Path) -> dict:
         gen_path = ROOT / "dashboard" / "generate_dashboard.py"
         result = subprocess.run(
             ["python", str(gen_path), isin],
-            cwd=str(ROOT), capture_output=True, text=True, timeout=120,
+            cwd=str(ROOT), capture_output=True, text=True, timeout=300,
         )
         if result.returncode == 0:
             log("DASHBOARD", "OK", f"dashboard/fund-{isin}.html regenerado")
@@ -1588,81 +1837,926 @@ async def consume_cowork_pipeline(isin: str, log_path: Path) -> dict:
     return {"isin": isin, "consume_cowork": True, **integration}
 
 
-# ── CLI ───────────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# Refactor L2 (2026-05-05) — consumes for the 3 cowork prep skills
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _merge_prep_into_output(isin: str, fund_dir: Path, log) -> dict:
+    """Merge top-level fields from prep file (cnmv_data.json o intl_data.json)
+    into output.json, respetando _manual_edits.
+
+    Razón: en flujos legacy (analyze_fund, consume_cowork_pipeline) este merge
+    lo hacía AnalystAgent.run() capa 2 (consolidación deterministic, NO LLM).
+    En cowork flow eliminamos el quality_loop+analyst legacy (Fix 1), por lo
+    que el merge debe hacerse explícitamente al inicio de consume_all_cowork.
+    Sin esto, output.json queda sin KPIs, posiciones, nombre, gestora, etc.
+
+    Idempotente: re-ejecutar con el mismo input produce el mismo output.
+
+    Returns: dict con {merged: bool, fields: list[str], source: str|None}
+    """
+    from tools.output_merger import (
+        load_output, save_output, merge_preserving_manual_edits,
+    )
+
+    # Campos TOP-LEVEL que se copian del prep al output. Lista deliberadamente
+    # exhaustiva para cubrir tanto fondos ES (cnmv_data) como INT (intl_data).
+    # Si un campo no existe en el source, simplemente se ignora.
+    TOP_LEVEL_FROM_PREP = (
+        # Identidad
+        "nombre", "gestora", "isin", "tipo", "ultima_actualizacion",
+        # Cuantitativo / KPIs / posiciones
+        "kpis", "cuantitativo", "posiciones",
+        # Cualitativo
+        "cualitativo", "comision_exito", "hechos_relevantes",
+        "anio_creacion", "analisis_consistencia",
+        # Fuentes (informes, xmls, urls)
+        "fuentes",
+        # Flags internos del prep
+        "serie_vl_corrupta",
+        # INT específicos
+        "_int_clases", "_int_gestores", "_int_cualitativo",
+        "_int_estrategia", "_int_filosofia", "_int_tipo_activos",
+        "_int_historia",
+        "economia_fondo", "clases",
+        "asset_allocation", "geographic_allocation",
+        "sector_allocation", "performance",
+    )
+
+    # 1. Cargar source: cnmv_data.json para ES, intl_data.json para INT
+    cnmv_path = fund_dir / "cnmv_data.json"
+    intl_path = fund_dir / "intl_data.json"
+    src = None
+    src_name = None
+    if cnmv_path.exists():
+        try:
+            src = json.loads(cnmv_path.read_text(encoding="utf-8"))
+            src_name = "cnmv_data.json"
+        except Exception as exc:
+            log("MERGE_PREP", "WARN", f"cnmv_data.json no parseable: {exc}")
+    if src is None and intl_path.exists():
+        try:
+            src = json.loads(intl_path.read_text(encoding="utf-8"))
+            src_name = "intl_data.json"
+        except Exception as exc:
+            log("MERGE_PREP", "WARN", f"intl_data.json no parseable: {exc}")
+    if src is None:
+        log("MERGE_PREP", "WARN",
+            "Ni cnmv_data.json ni intl_data.json existen. Skip merge.")
+        return {"merged": False, "fields": [], "source": None}
+
+    # 2. Cargar output existente (vacío si no existe)
+    existing = load_output(isin) or {}
+    if not existing:
+        existing = {"isin": isin}
+
+    # 3. Construir 'new' = existing actualizado con campos top-level del source
+    new = dict(existing)
+    fields_copied = []
+    for field in TOP_LEVEL_FROM_PREP:
+        if field not in src:
+            continue
+        v = src[field]
+        if v is None:
+            continue
+        new[field] = v
+        fields_copied.append(field)
+
+    # Asegurar isin (por si el source tenía otro o no lo tenía)
+    new["isin"] = isin
+
+    # 4. Merge respetando _manual_edits del existing
+    merged = merge_preserving_manual_edits(existing, new)
+
+    # 5. Guardar via output_merger (atomic write)
+    try:
+        save_output(isin, merged)
+        log("MERGE_PREP", "OK",
+            f"output.json mergeado desde {src_name} "
+            f"({len(fields_copied)} campos): "
+            f"{', '.join(fields_copied[:8])}"
+            f"{'...' if len(fields_copied) > 8 else ''}")
+    except Exception as exc:
+        log("MERGE_PREP", "ERROR", f"save_output falló: {exc}")
+        return {"merged": False, "fields": fields_copied, "error": str(exc)}
+
+    return {"merged": True, "fields": fields_copied, "source": src_name}
+
+
+def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
+    """Integrate outputs of extract-pdfs-cowork into cnmv_data.json or intl_data.json.
+
+    Reads `data/funds/{ISIN}/extracted/{task_id}.json` (one per task in
+    pending_extraction.json). Each output has shape
+        {"task_id", "agent", "data": {...}, "anti_invencion_notes": [...]}
+    where `data` follows the schema declared in the original task.
+
+    Routing:
+    - agent="cnmv_agent"      → merge data into cnmv_data.cualitativo (per period
+                                 if periodic, else top-level)
+    - agent="cnmv_enrichment" → merge data.positions_with_sector into
+                                 cnmv_data.posiciones.actuales matching by name
+    - agent="intl_extractor_v2" → merge data into intl_data.json (kpis,
+                                 posiciones, cualitativo, clases, economia_fondo)
+
+    Idempotent: re-running with the same outputs is a no-op.
+    """
+    from tools.output_merger import save_output, mark_manual_edit
+
+    extracted_dir = fund_dir / "extracted"
+    if not extracted_dir.exists():
+        log("CONSUME", "WARN",
+            f"No hay {extracted_dir} — skill extract-pdfs-cowork no se ha ejecutado")
+        return {"isin": isin, "n_integrated": 0, "n_failed": 0}
+
+    task_files = sorted(extracted_dir.glob("*.json"))
+    # Filter completion manifest (not a task)
+    task_files = [p for p in task_files if p.name != "extraction_complete.json"]
+    if not task_files:
+        log("CONSUME", "WARN", f"{extracted_dir} vacío (0 tasks)")
+        return {"isin": isin, "n_integrated": 0, "n_failed": 0}
+
+    # Load both data files (only the relevant one is touched per task)
+    cnmv_path = fund_dir / "cnmv_data.json"
+    intl_path = fund_dir / "intl_data.json"
+
+    def _load(p: Path) -> dict | None:
+        if not p.exists():
+            return None
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+
+    def _save(p: Path, d: dict) -> None:
+        p.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    cnmv_data = _load(cnmv_path)
+    intl_data = _load(intl_path)
+    n_ok = 0
+    n_fail = 0
+    integrated_paths: list[str] = []
+
+    for tf in task_files:
+        try:
+            task = json.loads(tf.read_text(encoding="utf-8"))
+        except Exception as exc:
+            log("CONSUME", "WARN", f"task {tf.name}: parse fallido: {exc}")
+            n_fail += 1
+            continue
+
+        agent_name = task.get("agent", "")
+        data = task.get("data") or {}
+        if not isinstance(data, dict):
+            log("CONSUME", "WARN", f"task {tf.name}: 'data' no es dict, skip")
+            n_fail += 1
+            continue
+
+        if agent_name == "cnmv_agent" and cnmv_data is not None:
+            # Fix-3: estructurar cualitativo en campos canónicos planos +
+            # histórico por periodo. El render del dashboard y la skill
+            # analyst-cowork esperan cualitativo.{contexto_mercado,
+            # decisiones_tomadas, tesis_gestora, perspectivas} (strings).
+            # Antes: metíamos `data` bajo cualitativo[task_id] y nadie lo leía.
+            import re as _re
+            cual = cnmv_data.setdefault("cualitativo", {})
+            tid = task.get("task_id") or task.get("id") or tf.stem
+
+            # Periodo desde task_id (formato esperado: "..._YYYY_HX" o "..._YYYY")
+            m = _re.search(r"(\d{4})(?:[_-]?H[12])?", tid)
+            periodo = m.group(0) if m else "current"
+
+            # Histórico por periodo (preserva todos)
+            histo = cual.setdefault("_historico", {})
+            histo[periodo] = data
+
+            # Colapsar a campos planos canónicos: walk de más antiguo a más
+            # reciente; cada periodo overrides los campos que tiene. Resultado:
+            # el más reciente gana para fields que tiene; periodos previos
+            # rellenan los huecos (order-independent).
+            # Filtrar a periodos parseables (YYYY o YYYY_HX) antes del sort para
+            # evitar bug "None" > "2025" lexicográfico.
+            valid_periods = [p for p in histo.keys()
+                              if _re.match(r"^\d{4}([_-]?H[12])?$", str(p))]
+            if not valid_periods:
+                valid_periods = list(histo.keys())
+            valid_periods.sort()  # ascendente: oldest first
+            for per in valid_periods:
+                snap = histo.get(per)
+                if not isinstance(snap, dict):
+                    continue
+                for canonical_field in ("contexto_mercado", "decisiones_tomadas",
+                                          "tesis_gestora", "perspectivas"):
+                    v = snap.get(canonical_field)
+                    if v:
+                        cual[canonical_field] = v
+
+            integrated_paths.append(f"cnmv_data.cualitativo.{tid}")
+            n_ok += 1
+
+        elif agent_name == "cnmv_enrichment" and cnmv_data is not None:
+            # Merge sector classifications into cnmv_data.posiciones.actuales
+            classified = data.get("positions_with_sector") or []
+            if not isinstance(classified, list):
+                log("CONSUME", "WARN", f"task {tf.name}: positions_with_sector no es lista")
+                n_fail += 1
+                continue
+            actuales = (cnmv_data.get("posiciones") or {}).get("actuales") or []
+            by_name = {(p.get("nombre") or "").strip().lower(): p for p in actuales if isinstance(p, dict)}
+            for entry in classified:
+                if not isinstance(entry, dict):
+                    continue
+                name = (entry.get("nombre") or "").strip().lower()
+                sector = (entry.get("sector") or "").strip()
+                if name and sector and name in by_name:
+                    by_name[name]["sector"] = sector
+            integrated_paths.append(f"cnmv_data.posiciones.actuales (sectores)")
+            n_ok += 1
+
+        elif agent_name == "intl_extractor_v2" and intl_data is not None:
+            # Fix-5.5: merge granular. Antes hacíamos un assign indiscriminado
+            # que sobrescribía posiciones cada vez. Ahora:
+            # - kpis: merge campo a campo, last-write-wins (factsheets más
+            #   recientes ganan sobre AR antiguos)
+            # - posiciones: la lista más larga gana (factsheet típicamente
+            #   solo trae top 10, AR trae todas)
+            # - allocations / performance: last-write-wins
+            # - cualitativo / commentary: update merge
+
+            new_kpis = data.get("kpis") or {}
+            if isinstance(new_kpis, dict) and new_kpis:
+                existing_kpis = intl_data.setdefault("kpis", {})
+                for k, v in new_kpis.items():
+                    if v is None or v == "":
+                        continue
+                    existing_kpis[k] = v
+
+            new_pos = (data.get("posiciones_actuales")
+                        or (data.get("posiciones") if isinstance(data.get("posiciones"), list)
+                             else (data.get("posiciones") or {}).get("actuales") if isinstance(data.get("posiciones"), dict)
+                             else None))
+            if isinstance(new_pos, list) and new_pos:
+                existing_pos_root = intl_data.setdefault("posiciones", {})
+                if isinstance(existing_pos_root, list):
+                    # legacy: era lista directa
+                    existing_pos_root = {"actuales": existing_pos_root}
+                    intl_data["posiciones"] = existing_pos_root
+                existing_pos = existing_pos_root.get("actuales") or []
+
+                # Fix-5.5-bis (2026-05-06): priorizar por TIPO de task, no por
+                # longitud de lista. Riesgo previo: AR corporate (paraguas, 100
+                # holdings) gana sobre factsheet del sub-fondo (10 holdings
+                # reales). Ahora: factsheet > annual_subfund > otros.
+                tid = (task.get("task_id") or task.get("id") or "").lower()
+                _PRIO = {  # mayor número = mayor prioridad
+                    "factsheet": 100,
+                    "annual_subfund": 60,
+                    "semi_annual_subfund": 60,
+                    "web_fund_page": 90,  # live data
+                    "manager_letter": 30,
+                    "kid": 20,
+                    "prospectus": 20,
+                    "generic_pdf": 10,
+                }
+                new_prio = 50  # default si no detecta tipo
+                for ttype, pri in _PRIO.items():
+                    if ttype in tid:
+                        new_prio = pri
+                        break
+                # Detectar prio del existente (guardado en _meta si lo hay)
+                existing_prio = intl_data.get("_posiciones_prio", 0)
+                if not existing_pos or new_prio >= existing_prio:
+                    existing_pos_root["actuales"] = new_pos
+                    intl_data["_posiciones_prio"] = new_prio
+
+            for key in ("asset_allocation", "geographic_allocation",
+                          "sector_allocation", "performance"):
+                v = data.get(key)
+                if v:
+                    intl_data[key] = v
+
+            cual = data.get("cualitativo") or {}
+            if isinstance(cual, dict) and cual:
+                intl_data.setdefault("cualitativo", {}).update(cual)
+
+            com = data.get("comentario_gestor")
+            if com:
+                intl_data.setdefault("cualitativo", {})["comentario_factsheet"] = com
+
+            # KID-only fields
+            for key in ("perfil_riesgo_srri", "objetivo_inversion",
+                          "politica_inversion", "comisiones"):
+                v = data.get(key)
+                if v:
+                    intl_data[key] = v
+
+            # Schema fields que solo aparecen en AR sub-fund
+            for key in ("_int_clases", "_int_gestores", "_int_cualitativo",
+                          "economia_fondo", "clases"):
+                v = data.get(key)
+                if v:
+                    intl_data[key] = v
+
+            integrated_paths.append(f"intl_data.{tf.stem}")
+            n_ok += 1
+        else:
+            log("CONSUME", "WARN",
+                f"task {tf.name}: agent='{agent_name}' no reconocido o data file ausente")
+            n_fail += 1
+
+    # Persist updated data files
+    if cnmv_data is not None and any(p.startswith("cnmv_data") for p in integrated_paths):
+        _save(cnmv_path, cnmv_data)
+        log("CONSUME", "OK", f"cnmv_data.json actualizado")
+    if intl_data is not None and any(p.startswith("intl_data") for p in integrated_paths):
+        _save(intl_path, intl_data)
+        log("CONSUME", "OK", f"intl_data.json actualizado")
+
+    # Mark integrated paths as manual edits in output.json so future runs preserve them
+    output_path = fund_dir / "output.json"
+    if output_path.exists():
+        try:
+            output_data = json.loads(output_path.read_text(encoding="utf-8"))
+            for p in integrated_paths:
+                # Translate cnmv_data.X -> top-level cualitativo.X for the manual edit guard
+                if p.startswith("cnmv_data.cualitativo."):
+                    mark_manual_edit(output_data, p.replace("cnmv_data.", ""))
+            save_output(isin, output_data)
+        except Exception as exc:
+            log("CONSUME", "WARN", f"no se pudo marcar manual_edits: {exc}")
+
+    log("CONSUME_EXTRACTED", "OK", f"integradas {n_ok} tasks, {n_fail} fallaron")
+    return {"isin": isin, "n_integrated": n_ok, "n_failed": n_fail,
+            "paths": integrated_paths}
+
+
+def _consume_manager_deep(isin: str, fund_dir: Path, log) -> dict:
+    """Integrate outputs of manager-deep-cowork into manager_profile.json.
+
+    Reads `data/funds/{ISIN}/manager_deep_complete.json` (or per-task files
+    under `manager_deep_outputs/`). The skill writes:
+    - identify_lead_co result: {"equipo_gestor": [...], "equipo_roles": {...},
+      "_opus_lead_confidence": "..."}
+    - extract_articles result: {"articulos_completos": {gestor: [...]}}
+
+    Merge strategy mirrors the K1 fix in CLAUDE.md: the skill's data is added
+    to manager_profile.json WITHOUT overwriting fields the profiler already
+    set. Only adds missing keys.
+    """
+    profile_path = fund_dir / "manager_profile.json"
+    if not profile_path.exists():
+        log("CONSUME_MGR_DEEP", "WARN", "manager_profile.json no existe — saltando")
+        return {"isin": isin, "n_integrated": 0}
+
+    try:
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        log("CONSUME_MGR_DEEP", "ERROR", f"no se pudo cargar profile: {exc}")
+        return {"isin": isin, "n_integrated": 0, "error": str(exc)}
+
+    n = 0
+
+    # Try aggregated complete file first
+    complete_path = fund_dir / "manager_deep_complete.json"
+    outputs_dir = fund_dir / "manager_deep_outputs"
+
+    payloads: list[dict] = []
+    if complete_path.exists():
+        try:
+            payloads.append(json.loads(complete_path.read_text(encoding="utf-8")))
+        except Exception as exc:
+            log("CONSUME_MGR_DEEP", "WARN", f"complete parse: {exc}")
+    if outputs_dir.exists():
+        for tf in sorted(outputs_dir.glob("*.json")):
+            try:
+                payloads.append(json.loads(tf.read_text(encoding="utf-8")))
+            except Exception:
+                pass
+
+    if not payloads:
+        log("CONSUME_MGR_DEEP", "WARN",
+            f"No hay outputs (ni {complete_path.name} ni {outputs_dir.name}/) — skill no ejecutada")
+        return {"isin": isin, "n_integrated": 0}
+
+    # Backup pre-merge (K1 anti-regression)
+    backup = fund_dir / "manager_profile.backup_pre_deep.json"
+    try:
+        backup.write_text(json.dumps(profile, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+    for payload in payloads:
+        if not isinstance(payload, dict):
+            continue
+
+        # identify_lead_co outputs
+        if payload.get("type") == "identify_lead_co" or payload.get("task_id", "").startswith("identify"):
+            data = payload.get("data") or payload
+            new_team = data.get("equipo_gestor") or []
+            new_roles = data.get("equipo_roles") or {}
+            confidence = data.get("_opus_lead_confidence") or data.get("confidence")
+            # Only set if profile doesn't already have them populated
+            if new_team and not profile.get("equipo_gestor"):
+                profile["equipo_gestor"] = new_team
+                n += 1
+            if new_roles and not profile.get("equipo_roles"):
+                profile["equipo_roles"] = new_roles
+                n += 1
+            if confidence and not profile.get("_opus_lead_confidence"):
+                profile["_opus_lead_confidence"] = confidence
+
+        # extract_articles outputs
+        if payload.get("type") == "extract_articles" or "articulos_completos" in (payload.get("data") or {}):
+            data = payload.get("data") or payload
+            articulos = data.get("articulos_completos") or {}
+            if articulos:
+                existing = profile.setdefault("articulos_completos", {})
+                for gestor, arts in articulos.items():
+                    if not isinstance(arts, list):
+                        continue
+                    existing.setdefault(gestor, [])
+                    existing[gestor].extend(a for a in arts if isinstance(a, dict))
+                n += len(articulos)
+
+        # Optional metadata: _known_public_undersourced (K10 conditional)
+        kpu = (payload.get("data") or {}).get("_known_public_undersourced") or []
+        if kpu and "_known_public_undersourced" not in profile:
+            profile["_known_public_undersourced"] = kpu
+
+    profile_path.write_text(json.dumps(profile, ensure_ascii=False, indent=2), encoding="utf-8")
+    log("CONSUME_MGR_DEEP", "OK", f"manager_profile.json mergeado ({n} campos añadidos)")
+
+    # Mirror equipo_gestor + equipo_roles into output.json under gestores
+    # Fix-4: además, propagar `profile.equipo[]` (perfiles RICOS con cargo,
+    # biografia_inicial, trayectoria, fuentes...) a `output.gestores.perfiles[]`
+    # en el formato que el dashboard renderer y analyst-cowork esperan.
+    # Antes: profile.equipo tenía los 8 perfiles ricos pero nunca llegaban a
+    # output.gestores.perfiles (quedaba en 0).
+    output_path = fund_dir / "output.json"
+    if output_path.exists():
+        try:
+            from tools.output_merger import save_output, mark_manual_edit
+            output_data = json.loads(output_path.read_text(encoding="utf-8"))
+            gestores = output_data.setdefault("gestores", {})
+
+            equipo_gestor = profile.get("equipo_gestor") or []
+            if equipo_gestor:
+                gestores["equipo"] = equipo_gestor
+                mark_manual_edit(output_data, "gestores.equipo")
+
+            # Propagar perfiles ricos
+            equipo_rich = profile.get("equipo") or []
+            if equipo_rich and isinstance(equipo_rich, list):
+                lead_set = set((equipo_gestor or [])[:1])
+                co_set = set((equipo_gestor or [])[1:])
+                perfiles_out = []
+                for entry in equipo_rich:
+                    if not isinstance(entry, dict):
+                        continue
+                    nombre = (entry.get("nombre") or "").strip()
+                    if not nombre:
+                        continue
+                    bio_init = entry.get("biografia_inicial") or entry.get("biografia") or ""
+                    trayectoria = (entry.get("trayectoria")
+                                    or entry.get("background")
+                                    or bio_init)
+                    p = {
+                        "nombre": nombre,
+                        "cargo": entry.get("cargo") or "",
+                        "biografia": bio_init,
+                        "trayectoria": trayectoria,
+                        "filosofia": (entry.get("filosofia")
+                                       or entry.get("filosofia_inversion") or ""),
+                        "decisiones_clave": entry.get("decisiones_clave") or [],
+                        "cv_bullets": entry.get("cv_bullets") or [],
+                        "is_lead": nombre in lead_set,
+                        "is_co": nombre in co_set,
+                        "fuentes": entry.get("fuentes") or [],
+                    }
+                    perfiles_out.append(p)
+                if perfiles_out:
+                    gestores["perfiles"] = perfiles_out
+                    mark_manual_edit(output_data, "gestores.perfiles")
+                    # Fix-4-bis (2026-05-06): el dashboard renderer lee de
+                    # analyst_synthesis.gestores.perfiles[] (línea 1363 de
+                    # generate_dashboard.py), NO de output.gestores.perfiles[].
+                    # Propagamos a ambos paths para que los perfiles ricos
+                    # aparezcan tanto en accessor como en dashboard.
+                    asyn = output_data.setdefault("analyst_synthesis", {})
+                    asyn_gest = asyn.setdefault("gestores", {})
+                    # Solo escribir si la skill analyst-cowork no escribió
+                    # perfiles propios (no sobrescribir su trabajo).
+                    if not asyn_gest.get("perfiles"):
+                        asyn_gest["perfiles"] = perfiles_out
+                        mark_manual_edit(output_data, "analyst_synthesis.gestores.perfiles")
+
+            if profile.get("articulos_completos"):
+                output_data.setdefault("_meta", {})["articulos_completos_per_gestor"] = {
+                    g: len(arts) for g, arts in profile["articulos_completos"].items()
+                }
+            save_output(isin, output_data)
+        except Exception as exc:
+            log("CONSUME_MGR_DEEP", "WARN", f"mirror a output.json falló: {exc}")
+
+    return {"isin": isin, "n_integrated": n}
+
+
+def _consume_letters_extract(isin: str, fund_dir: Path, log) -> dict:
+    """Integrate K15 outputs of letters-extract-cowork into letters_data.cartas[].
+
+    The skill writes K15 fields back to each carta entry: tesis_gestora,
+    decisiones_tomadas, contexto_mercado, citas_textuales, posiciones_destacadas,
+    outlook. Looks for them in `letters_data.cartas` (in-place edit by skill)
+    or in a separate `letters_extract_complete.json`.
+    """
+    letters_path = fund_dir / "letters_data.json"
+    if not letters_path.exists():
+        log("CONSUME_LETTERS", "WARN", "letters_data.json no existe — saltando")
+        return {"isin": isin, "n_integrated": 0}
+
+    try:
+        letters_data = json.loads(letters_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        log("CONSUME_LETTERS", "ERROR", f"parse letters_data.json: {exc}")
+        return {"isin": isin, "n_integrated": 0, "error": str(exc)}
+
+    cartas = letters_data.get("cartas") or []
+    if not cartas:
+        log("CONSUME_LETTERS", "WARN", "letters_data.json no tiene cartas")
+        return {"isin": isin, "n_integrated": 0}
+
+    K15_FIELDS = (
+        "tesis_gestora", "decisiones_tomadas", "contexto_mercado",
+        "citas_textuales", "posiciones_destacadas", "outlook",
+    )
+
+    # If skill wrote to a separate complete file, merge that into cartas first
+    complete_path = fund_dir / "letters_extract_complete.json"
+    if complete_path.exists():
+        try:
+            complete = json.loads(complete_path.read_text(encoding="utf-8"))
+            ext_cartas = complete.get("cartas") if isinstance(complete, dict) else complete
+            if isinstance(ext_cartas, list):
+                # Index by archivo or url for matching
+                idx_existing = {}
+                for i, c in enumerate(cartas):
+                    if not isinstance(c, dict):
+                        continue
+                    key = c.get("archivo") or c.get("url")
+                    if key:
+                        idx_existing[key] = i
+                for ec in ext_cartas:
+                    if not isinstance(ec, dict):
+                        continue
+                    key = ec.get("archivo") or ec.get("url")
+                    if not key or key not in idx_existing:
+                        continue
+                    target = cartas[idx_existing[key]]
+                    for f in K15_FIELDS:
+                        if ec.get(f) and not target.get(f):
+                            target[f] = ec[f]
+        except Exception as exc:
+            log("CONSUME_LETTERS", "WARN", f"merge complete fallo: {exc}")
+
+    # Count cartas with K15 populated
+    n_with_k15 = sum(
+        1 for c in cartas
+        if isinstance(c, dict) and any(c.get(f) for f in K15_FIELDS)
+    )
+
+    letters_path.write_text(
+        json.dumps(letters_data, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    log("CONSUME_LETTERS", "OK",
+        f"letters_data.json: {n_with_k15}/{len(cartas)} cartas con K15")
+
+    return {"isin": isin, "n_integrated": n_with_k15, "n_total": len(cartas)}
+
+
+async def _consume_html_fallback(isin: str, fund_dir: Path, log) -> dict:
+    """B6 (2026-05-19): tras consume-extracted, si intl_data.json sigue sin
+    AUM ni posiciones (típico cuando la gestora INT no publica PDFs descargables),
+    dispara _fallback_html_extract para extraer cuanti desde páginas HTML
+    harvested. Solo aplica a tipo INT.
+
+    Coste: ~1 call Gemini Flash = $0.02-0.05.
+    No-op si ya hay datos o si no hay URLs harvested.
+    """
+    intl_path = fund_dir / "intl_data.json"
+    if not intl_path.exists():
+        return {"skipped": True, "reason": "no intl_data.json (fondo ES o pipeline INT no corrió)"}
+    try:
+        intl = json.loads(intl_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        log("HTML_FALLBACK", "WARN", f"intl_data.json no parseable: {exc}")
+        return {"skipped": True, "reason": "intl_data.json corrupto"}
+
+    if intl.get("tipo") != "INT":
+        return {"skipped": True, "reason": "no es fondo INT"}
+
+    kpis = intl.get("kpis") or {}
+    posiciones = (intl.get("posiciones") or {}).get("actuales") or []
+    needs = (kpis.get("aum_actual_meur") is None) and (len(posiciones) == 0)
+    if not needs:
+        return {"skipped": True, "reason": "ya hay AUM o posiciones tras consume-extracted"}
+
+    # Disparar fallback HTML
+    from agents.intl_extractor_v2 import IntlExtractor
+    extractor = IntlExtractor(
+        isin=isin,
+        config={
+            "nombre": intl.get("nombre", ""),
+            "gestora": intl.get("gestora", ""),
+        },
+    )
+    log("HTML_FALLBACK", "START", f"disparando fallback HTML para {isin}")
+    try:
+        triggered = await extractor._fallback_html_extract(intl)
+    except Exception as exc:
+        log("HTML_FALLBACK", "ERROR", f"_fallback_html_extract crashed: {exc}")
+        return {"triggered": False, "error": str(exc)}
+
+    if not triggered:
+        log("HTML_FALLBACK", "OK", "sin cambios (sin URLs útiles o sin datos extraíbles)")
+        return {"triggered": False}
+
+    # Guardar intl_data.json con los nuevos campos
+    intl_path.write_text(
+        json.dumps(intl, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+    # Re-mergear a output.json para que el resto del pipeline lo vea
+    try:
+        _merge_prep_into_output(isin, fund_dir, log)
+    except Exception as exc:
+        log("HTML_FALLBACK", "WARN", f"merge tras fallback falló: {exc}")
+
+    new_aum = intl.get("kpis", {}).get("aum_actual_meur")
+    new_posic = len((intl.get("posiciones") or {}).get("actuales", []))
+    log("HTML_FALLBACK", "OK",
+        f"fallback aplicado: AUM={new_aum}, posiciones={new_posic}")
+    return {
+        "triggered": True,
+        "aum_actual_meur": new_aum,
+        "n_posiciones": new_posic,
+    }
+
+
+async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
+    """Orchestrate the 4 cowork consumes in order, then run validation +
+    meta + quality + dashboard. Used by the bat after all skills complete.
+    """
+    isin = isin.strip().upper()
+    os.environ["CURRENT_FUND_ISIN"] = isin
+    fund_dir = ROOT / "data" / "funds" / isin
+
+    def log(agent, level, msg):
+        _log(agent, level, msg, log_path)
+
+    log("ORCHESTRATOR", "START", f"--consume-all-cowork pipeline {isin}")
+
+    summary: dict[str, Any] = {"isin": isin}
+
+    # CRÍTICO Fix-MERGE-PREP (2026-05-06): mergear cnmv_data/intl_data → output.json
+    # ANTES de cualquier consume. Sin esto, output.json no tendría kpis,
+    # posiciones, nombre, gestora, cualitativo, etc. (el merge lo hacía el
+    # quality_loop+analyst legacy que eliminamos en Fix 1, por lo que hay que
+    # hacerlo explícitamente aquí). Idempotente. Cero coste API.
+    try:
+        summary["merge_prep"] = _merge_prep_into_output(isin, fund_dir, log)
+    except Exception as exc:
+        log("MERGE_PREP", "ERROR", f"falló inesperadamente: {exc}")
+        summary["merge_prep"] = {"error": str(exc)}
+
+    # 1. Consume extract-pdfs-cowork outputs
+    try:
+        summary["extracted"] = _consume_extracted(isin, fund_dir, log)
+    except Exception as exc:
+        log("CONSUME_EXTRACTED", "ERROR", f"falló: {exc}")
+        summary["extracted"] = {"error": str(exc)}
+
+    # 1b. Fallback HTML (B6 2026-05-19): si tras consume-extracted aún falta
+    # AUM/posiciones (típico INT sin PDFs públicos), extraer desde páginas HTML
+    # harvested usando Gemini Flash. Coste ~$0.02-0.05.
+    try:
+        summary["html_fallback"] = await _consume_html_fallback(isin, fund_dir, log)
+    except Exception as exc:
+        log("HTML_FALLBACK", "ERROR", f"falló: {exc}")
+        summary["html_fallback"] = {"error": str(exc)}
+
+    # 2. Consume manager-deep-cowork
+    try:
+        summary["manager_deep"] = _consume_manager_deep(isin, fund_dir, log)
+    except Exception as exc:
+        log("CONSUME_MGR_DEEP", "ERROR", f"falló: {exc}")
+        summary["manager_deep"] = {"error": str(exc)}
+
+    # 3. Consume letters-extract-cowork
+    try:
+        summary["letters_extract"] = _consume_letters_extract(isin, fund_dir, log)
+    except Exception as exc:
+        log("CONSUME_LETTERS", "ERROR", f"falló: {exc}")
+        summary["letters_extract"] = {"error": str(exc)}
+
+    # 4. Consume analyst-cowork (existing)
+    try:
+        summary["analyst"] = _consume_cowork_analyst(isin, fund_dir, log)
+    except Exception as exc:
+        log("COWORK", "ERROR", f"analyst consume falló: {exc}")
+        summary["analyst"] = {"error": str(exc)}
+
+    # 5. Validation + meta + quality + calendar + dashboard (same as consume_cowork_pipeline)
+    config_path = fund_dir / "config.json"
+    if config_path.exists():
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+    else:
+        config = {"objetivo": "1", "horizonte_historico": "1",
+                  "fuentes": "1", "clase_accion": "todas", "contexto_adicional": ""}
+
+    output_path = fund_dir / "output.json"
+    fund_name_hint = ""
+    gestora_hint = ""
+    anio_creacion_hint = None
+    gestores_hint: list[str] = []
+    if output_path.exists():
+        try:
+            output_data = json.loads(output_path.read_text(encoding="utf-8"))
+            fund_name_hint = output_data.get("nombre", "") or ""
+            gestora_hint = output_data.get("gestora", "") or ""
+            anio_creacion_hint = (output_data.get("kpis") or {}).get("anio_creacion")
+            mp_path = fund_dir / "manager_profile.json"
+            if mp_path.exists():
+                mp = json.loads(mp_path.read_text(encoding="utf-8"))
+                gestores_hint = list(mp.get("equipo_gestor") or [])[:3]
+        except Exception:
+            pass
+
+    try:
+        from agents.validation_agent import ValidationAgent
+        validator = ValidationAgent(isin, fund_dir=fund_dir, config=config)
+        await validator.run()
+        log("VALIDATION", "OK", "Validation post-consume-all-cowork")
+    except Exception as exc:
+        log("VALIDATION", "ERROR", f"falló: {exc}")
+
+    try:
+        from agents.meta_agent import MetaAgent
+        meta = MetaAgent(isin, fund_dir=fund_dir, config=config)
+        await meta.run()
+        log("META", "OK", "Meta post-consume-all-cowork")
+    except Exception as exc:
+        log("META", "ERROR", f"falló: {exc}")
+
+    # NOTE (Fix-1): NO quality_loop en consume_all_cowork_pipeline.
+    # El quality_loop existe para iterar el analyst_agent legacy (Gemini/Sonnet).
+    # En modo cowork la calidad la garantiza la skill analyst-cowork con su
+    # propio audit_pass; re-disparar el legacy aquí provoca llamadas a Gemini
+    # que pueden estar bloqueadas (sin créditos) y escribir
+    # `analyst_synthesis.{section} = {"error": "Gemini no generó resultado"}`,
+    # corrompiendo output.json. Para el flujo cowork basta con dashboard_quality
+    # (ya generado por meta y reflejado en quality_report.json).
+    try:
+        from agents.dashboard_quality_agent import DashboardQualityAgent
+        dq = DashboardQualityAgent(isin)
+        dq_report = dq.run()
+        if isinstance(dq_report, dict):
+            score = dq_report.get("score", 0)
+            n_fallos = len(dq_report.get("fallos") or [])
+            log("QUALITY", "OK",
+                f"Dashboard quality (sin loop): score={score}/103, fallos={n_fallos}")
+            try:
+                (fund_dir / "quality_report.json").write_text(
+                    json.dumps(dq_report, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+            except Exception:
+                pass
+    except Exception as exc:
+        log("QUALITY", "WARN", f"Dashboard quality (single pass) falló: {exc}")
+
+    try:
+        from tools.publication_calendar import update_output_with_calendar
+        if update_output_with_calendar(isin):
+            log("CALENDAR", "OK", "publication_calendar actualizado")
+    except Exception as exc:
+        log("CALENDAR", "WARN", f"calendar: {exc}")
+
+    try:
+        import subprocess
+        gen_path = ROOT / "dashboard" / "generate_dashboard.py"
+        result = subprocess.run(
+            ["python", str(gen_path), isin],
+            cwd=str(ROOT), capture_output=True, text=True, timeout=300,
+        )
+        if result.returncode == 0:
+            log("DASHBOARD", "OK", f"dashboard/fund-{isin}.html regenerado")
+        else:
+            log("DASHBOARD", "WARN",
+                f"generate_dashboard rc={result.returncode}: {result.stderr[:200]}")
+    except Exception as exc:
+        log("DASHBOARD", "ERROR", f"falló: {exc}")
+
+    console.print(Panel(
+        f"[bold green]Consume-all-cowork OK para {isin}[/bold green]\n"
+        f"extract-pdfs: {summary.get('extracted', {}).get('n_integrated', '?')} tasks\n"
+        f"manager-deep: {summary.get('manager_deep', {}).get('n_integrated', '?')} campos\n"
+        f"letters-extract: {summary.get('letters_extract', {}).get('n_integrated', '?')} cartas con K15\n"
+        f"analyst: {len((summary.get('analyst') or {}).get('sections', []))} secciones\n"
+        f"Dashboard: dashboard/fund-{isin}.html",
+        title="--consume-all-cowork",
+        border_style="green",
+    ))
+    return summary
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CLI
+# ══════════════════════════════════════════════════════════════════════════════
 
 def main():
-    parser = argparse.ArgumentParser(description="Fund Analyzer Orchestrator")
-    parser.add_argument("--isin", required=True, help="ISIN del fondo (ej. ES0112231008)")
+    parser = argparse.ArgumentParser(
+        description="Orquestador del pipeline fund-analyzer (refactor cowork v2)"
+    )
+    parser.add_argument("--isin", required=True, help="ISIN del fondo (ej. ES0146309002)")
     parser.add_argument("--auto", action="store_true",
-                        help="Usar valores por defecto sin preguntar")
+                        help="No preguntar parámetros (usar config.json o defaults)")
+
     parser.add_argument("--prep-only", action="store_true",
-                        help="Ejecuta toda la prep determinista (CNMV o INT, manager, "
-                             "letters, readings, sources) pero salta analyst_agent. "
-                             "Deja JSONs listos para que la skill 'analyst-cowork' los "
-                             "consuma desde Claude Max.")
+                        help="Fase 1 cowork: ejecuta solo prep determinista (CNMV bulkdata + "
+                             "PDFs + Serper) y emite los manifests pending_*.json. NO llama "
+                             "LLM en agentes refactorizados.")
+
+    parser.add_argument("--api-fallback", action="store_true",
+                        help="Activa modo legacy: agentes refactorizados (cnmv_agent cualitativo, "
+                             "cnmv_enrichment sectores, intl_extractor_v2, manager_profiler, "
+                             "manager_deep_agent, letters_deep_agent) vuelven a llamar Gemini "
+                             "directamente. SIN este flag (default), modo cowork: emiten "
+                             "manifests para que las skills procesen bajo Claude Max.")
+
+    # Consume flags (run after the cowork skills finish)
     parser.add_argument("--consume-cowork", action="store_true",
-                        help="Salta toda la prep. Lee data/funds/{ISIN}/analyst_synthesis_cowork.json "
-                             "(producido por la skill), lo integra en output.json marcando "
-                             "los paths como _manual_edits, y corre validation + quality + dashboard.")
-    parser.add_argument("--clean", action="store_true",
-                        help="Borra data/funds/{ISIN}/ COMPLETO antes de ejecutar (force fresh re-download).")
-    parser.add_argument("--clean-cnmv", action="store_true",
-                        help="Borra solo cnmv_data.json + pdf_cache.json (re-extrae datos cuantitativos pero mantiene XMLs/PDFs descargados).")
-    parser.add_argument("--clean-positions", action="store_true",
-                        help="Borra solo posiciones.actuales del output (fuerza re-extracción sec10 vía enrichment).")
-    parser.add_argument("--clean-synthesis", action="store_true",
-                        help="Borra solo analyst_synthesis del output (fuerza re-síntesis del LLM, mantiene datos crudos).")
+                        help="Integra analyst_synthesis_cowork.json en output.json + valida + "
+                             "meta + quality + dashboard. Asume que las skills ya corrieron.")
+    parser.add_argument("--consume-extracted", action="store_true",
+                        help="Integra outputs de extract-pdfs-cowork (extracted/*.json) en "
+                             "cnmv_data.json o intl_data.json.")
+    parser.add_argument("--consume-manager-deep", action="store_true",
+                        help="Integra outputs de manager-deep-cowork en manager_profile.json.")
+    parser.add_argument("--consume-letters-extract", action="store_true",
+                        help="Integra K15 de letters-extract-cowork en letters_data.cartas[].")
+    parser.add_argument("--consume-all-cowork", action="store_true",
+                        help="Encadena los 4 consumes (extract, manager-deep, letters-extract, "
+                             "analyst) + validation + meta + quality + dashboard. Lo usa el bat "
+                             "después de las 4 skills.")
+
     args = parser.parse_args()
 
-    from dotenv import load_dotenv
-    load_dotenv(ROOT / ".env")
+    # Set FUND_ANALYZER_MODE BEFORE any agent import (lazy import order matters
+    # for the `is_cowork_mode()` gating in agents/*.py).
+    if args.api_fallback:
+        os.environ["FUND_ANALYZER_MODE"] = "api"
+    # else: leave default (cowork)
 
-    isin_clean = args.isin.strip().upper()
-    fund_dir = ROOT / "data" / "funds" / isin_clean
+    # Mutual exclusion: --prep-only and --consume-* are exclusive
+    consume_flags = [
+        args.consume_cowork, args.consume_extracted, args.consume_manager_deep,
+        args.consume_letters_extract, args.consume_all_cowork,
+    ]
+    n_consume = sum(1 for f in consume_flags if f)
 
-    if args.clean:
-        import shutil
-        if fund_dir.exists():
-            console.print(f"[yellow][--clean] Borrando {fund_dir} COMPLETO[/yellow]")
-            shutil.rmtree(fund_dir)
-            console.print(f"[yellow][--clean] OK[/yellow]")
-    if args.clean_cnmv:
-        for f in [fund_dir / "cnmv_data.json", fund_dir / "pdf_cache.json"]:
-            if f.exists():
-                f.unlink()
-                console.print(f"[yellow][--clean-cnmv] Borrado {f.name}[/yellow]")
-    if args.clean_positions:
-        out_p = fund_dir / "output.json"
-        if out_p.exists():
-            out = json.loads(out_p.read_text(encoding="utf-8"))
-            out.setdefault("posiciones", {})["actuales"] = []
-            out_p.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
-            console.print(f"[yellow][--clean-positions] posiciones.actuales vaciadas en output[/yellow]")
-    if args.clean_synthesis:
-        out_p = fund_dir / "output.json"
-        if out_p.exists():
-            out = json.loads(out_p.read_text(encoding="utf-8"))
-            out["analyst_synthesis"] = {}
-            out_p.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
-            console.print(f"[yellow][--clean-synthesis] analyst_synthesis vaciado[/yellow]")
+    if args.prep_only and any(consume_flags):
+        console.print("[red]ERROR: --prep-only y los flags --consume-* son mutuamente exclusivos.[/red]")
+        sys.exit(1)
+    if n_consume > 1:
+        console.print("[red]ERROR: usa solo UN flag --consume-* a la vez (o --consume-all-cowork).[/red]")
+        sys.exit(1)
 
-    # Cowork-skill flags — incompatibility check
-    if args.prep_only and args.consume_cowork:
-        console.print("[red]ERROR: --prep-only y --consume-cowork son mutuamente exclusivos.[/red]")
-        sys.exit(2)
-
-    # Lock por fondo: aborta si ya hay otro orchestrator/extractor/analyst
-    # corriendo para este ISIN. Evita race conditions cuando el bash background
-    # de Claude Code en Windows lanza pythons duplicados que se pisan.
-    from tools.process_lock import acquire_or_die
-    acquire_or_die("orchestrator", args.isin)
-
-    if args.consume_cowork:
-        # Standalone pipeline: NO pasamos por analyze_fund (sin upstream).
+    # Route to the right pipeline
+    if args.consume_all_cowork:
+        log_path = ROOT / "progress.log"
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(f"\n{'='*60}\n[{_ts()}] [ORCHESTRATOR] [START] consume-all-cowork {args.isin}\n{'='*60}\n")
+        asyncio.run(consume_all_cowork_pipeline(args.isin, log_path))
+    elif args.consume_cowork:
         log_path = ROOT / "progress.log"
         with open(log_path, "a", encoding="utf-8") as f:
             f.write(f"\n{'='*60}\n[{_ts()}] [ORCHESTRATOR] [START] consume-cowork {args.isin}\n{'='*60}\n")
         asyncio.run(consume_cowork_pipeline(args.isin, log_path))
+    elif args.consume_extracted:
+        log_path = ROOT / "progress.log"
+        fund_dir = ROOT / "data" / "funds" / args.isin.strip().upper()
+        def _log_simple(a, l, m): _log(a, l, m, log_path)
+        _consume_extracted(args.isin.strip().upper(), fund_dir, _log_simple)
+    elif args.consume_manager_deep:
+        log_path = ROOT / "progress.log"
+        fund_dir = ROOT / "data" / "funds" / args.isin.strip().upper()
+        def _log_simple(a, l, m): _log(a, l, m, log_path)
+        _consume_manager_deep(args.isin.strip().upper(), fund_dir, _log_simple)
+    elif args.consume_letters_extract:
+        log_path = ROOT / "progress.log"
+        fund_dir = ROOT / "data" / "funds" / args.isin.strip().upper()
+        def _log_simple(a, l, m): _log(a, l, m, log_path)
+        _consume_letters_extract(args.isin.strip().upper(), fund_dir, _log_simple)
     else:
         asyncio.run(analyze_fund(args.isin, auto=args.auto, prep_only=args.prep_only))
 

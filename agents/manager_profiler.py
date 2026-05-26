@@ -215,7 +215,9 @@ class ManagerProfiler:
 
         # Queries inteligentes: buscar la pagina del fondo en distribuidores
         # y plataformas que SIEMPRE listan los portfolio managers
-        fund_short = self.fund_name.split(" - ")[-1] if " - " in self.fund_name else self.fund_name
+        # G1 (2026-05-18): helper unificado, antes [-1] devolvía "Action F" inútil
+        from tools.fund_name_utils import extract_fund_short
+        fund_short = extract_fund_short(self.fund_name)
         queries = [
             f'"{fund_short}" "portfolio manager" OR "fund manager" site:im.natixis.com OR site:morningstar.co.uk OR site:citywire.com',
             f'"{self.fund_name}" fund manager name',
@@ -562,9 +564,47 @@ class ManagerProfiler:
                 # (b) identificar lead/co/confidence con conocimiento del mundo.
                 # Coste extra ~$0.02 por fondo, eliminando la heurística frágil
                 # _rank_lead_first.
+                # Refactor L2 (2026-05-05): in cowork mode, defer this Anthropic
+                # call to the manager-deep-cowork skill (its step 2 absorbs
+                # _enrich_with_opus). Emit a "identify_lead_co" task carrying
+                # the candidate names + URLs so the skill has the same context.
                 equipo = result.get("equipo", [])
                 if equipo:
-                    result = self._enrich_with_opus(result)
+                    from tools.api_mode import is_cowork_mode
+                    if is_cowork_mode():
+                        try:
+                            from pathlib import Path as _Path
+                            from tools.pending_manifest import append_manager_deep_task as _emit_md
+                            fund_dir = _Path("data/funds") / self.isin
+                            fund_dir.mkdir(parents=True, exist_ok=True)
+                            candidate_names = [
+                                (g.get("nombre") if isinstance(g, dict) else str(g))
+                                for g in equipo
+                                if (g.get("nombre") if isinstance(g, dict) else g)
+                            ]
+                            candidate_urls = result.get("fuentes_web") or []
+                            _emit_md(
+                                fund_dir, self.isin,
+                                task_type="identify_lead_co",
+                                fund_name=self.fund_name or "",
+                                gestora=getattr(self, "gestora", "") or "",
+                                candidate_names=candidate_names,
+                                candidate_urls=candidate_urls,
+                                context=(
+                                    f"Identify the canonical lead and co manager of "
+                                    f"{self.fund_name or self.isin}. Use the candidate "
+                                    f"names below + URL evidence. Apply dedup acentual + "
+                                    f"cross-fund check. If ambiguous, mark all as peers "
+                                    f"with confidence=low (do NOT invent lead arbitrarily)."
+                                ),
+                            )
+                            self._log("INFO",
+                                "cowork mode: identify_lead_co task emitted to "
+                                "pending_manager_deep.json (skill: manager-deep-cowork)")
+                        except Exception as exc:
+                            self._log("WARN", f"could not emit identify_lead_co task: {exc}")
+                    else:
+                        result = self._enrich_with_opus(result)
                 return result
         except Exception as e:
             self._log("WARN", f"Compile failed: {e}")
@@ -753,7 +793,46 @@ class ManagerProfiler:
     # RUN
     # ══════════════════════════════════════════════════════════════════════
 
+    def _empty_profile(self, error_msg: str = "") -> dict:
+        """P2 (2026-05-19): perfil mínimo válido cuando todo falla.
+        bundle_exporter exige que manager_profile.json exista — esto garantiza
+        que SIEMPRE haya un archivo escribible, aunque manager_profiler no
+        encontrara gestores ni pudiera completar su pipeline.
+        """
+        return {
+            "isin": self.isin,
+            "fund_name": self.fund_name,
+            "gestora": self.gestora,
+            "generated": datetime.now().isoformat(),
+            "equipo": [],
+            "equipo_gestor": [],
+            "equipo_roles": {},
+            "fuentes_web": [],
+            **({"_error": error_msg} if error_msg else {}),
+        }
+
     async def run(self) -> dict:
+        """Public entrypoint. P2 (2026-05-19): wrap en try/except para
+        garantizar que SIEMPRE se escribe manager_profile.json incluso si
+        algo internal crashea. bundle_exporter depende de ese archivo."""
+        try:
+            result = await self._run_inner()
+            # Defensa extra: si _run_inner retornó algo raro, escribir vacío
+            if not isinstance(result, dict):
+                self._log("WARN", f"_run_inner returned non-dict ({type(result)}), saving empty profile")
+                return self._save(self._empty_profile(error_msg="non_dict_return"))
+            return result
+        except Exception as e:
+            import traceback
+            tb = traceback.format_exc()
+            self._log("ERROR", f"run() crashed: {e}")
+            # Asegurar archivo on-disk para que bundle_exporter no aborte
+            profile = self._empty_profile(error_msg=str(e)[:500])
+            profile["_traceback"] = tb[:2000]
+            return self._save(profile)
+
+    async def _run_inner(self) -> dict:
+        """Lógica original del pipeline. Wrapped por run() arriba."""
         self._log("START", f"ManagerProfiler {self.isin} — {self.fund_name}")
 
         # 1. Obtener nombres
