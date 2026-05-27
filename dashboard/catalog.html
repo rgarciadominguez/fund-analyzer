@@ -1883,9 +1883,22 @@ function showHowToLaunchServerModal() {
 
   $('#modal-body').innerHTML = `
     ${localBanner}
+    <div style="background:var(--navy-pale);border:1px solid var(--accent);padding:12px;margin-bottom:14px;border-radius:3px;text-align:center;">
+      <div style="font-size:13px;color:var(--ink);margin-bottom:8px;font-weight:600;">
+        ¿Server registrado en tu PC? Arráncalo con 1 click:
+      </div>
+      <button class="btn" id="btn-launch-protocol" type="button"
+              style="background:var(--accent);font-size:14px;padding:8px 20px;">
+        🚀 Arrancar server local
+      </button>
+      <div style="font-size:10px;color:var(--ink-3);margin-top:6px;">
+        Requiere haber ejecutado <code>registrar_protocolo.ps1</code> una vez.
+        El navegador preguntará si permites abrir "Fund Analyzer".
+      </div>
+    </div>
     <div style="margin-bottom:14px;color:var(--ink-2);font-size:13px;line-height:1.5;">
-      ${inPages ? 'Si NO tienes el server arrancado todavía,' : 'Esta acción requiere el server local corriendo en tu PC.'}<br>
-      Sigue estos pasos:
+      ${inPages ? 'Si el botón de arriba no funciona (protocolo no registrado),' : 'Si prefieres arrancarlo manualmente,'}<br>
+      sigue estos pasos:
     </div>
     <ol style="font-size:13px;line-height:1.7;padding-left:20px;color:var(--ink);">
       <li><strong>Abre PowerShell</strong>: tecla <kbd>Win</kbd> → escribe "powershell" → Enter.</li>
@@ -1934,6 +1947,33 @@ function showHowToLaunchServerModal() {
         }
       });
     }
+    // W17: botón "🚀 Arrancar server local" — lanza el protocolo fundanalyzer://
+    const btnLaunch = $('#btn-launch-protocol');
+    if (btnLaunch) {
+      btnLaunch.addEventListener('click', () => {
+        // Dispara el protocolo custom (lanza iniciar.bat en el PC)
+        window.location.href = 'fundanalyzer://start';
+        // Feedback + auto-comprobación: el server+túnel tardan ~30-40s en arrancar
+        const status = $('#server-recheck-status') || $('#apibase-status');
+        if (status) {
+          status.innerHTML = '<span style="color:var(--accent);">⏳ Arrancando server + túnel… (~40s). Comprobando conexión automáticamente.</span>';
+        }
+        let intentos = 0;
+        const timer = setInterval(async () => {
+          intentos++;
+          await autoDetectTunnel();      // re-lee la URL del túnel de Supabase
+          const ok = await checkServer();
+          if (ok) {
+            clearInterval(timer);
+            if (status) status.innerHTML = '<span style="color:var(--pos);font-weight:600;">✓ Conectado. Ya puedes usar las acciones. Cierra este popup.</span>';
+          } else if (intentos >= 20) {  // 20 × 5s = 100s
+            clearInterval(timer);
+            if (status) status.innerHTML = '<span style="color:var(--neg);">No se conectó tras 100s. Verifica que el protocolo está registrado (registrar_protocolo.ps1) y que iniciar.bat arrancó.</span>';
+          }
+        }, 5000);
+      });
+    }
+
     // W15: botón "Conectar" — guarda la URL del túnel y verifica conexión
     const btnApi = $('#btn-save-apibase');
     if (btnApi) {
