@@ -1398,6 +1398,37 @@ def make_app(cold_start: bool = True) -> Flask:
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+    @app.route("/api/fund/<isin>", methods=["DELETE"])
+    def api_delete_fund(isin: str):
+        """W12 (2026-05-26): elimina un fondo de Supabase (DB + Storage).
+
+        Wrapper sobre tools.cleanup_supabase_isins.cleanup_isin para que se
+        pueda hacer desde el catalog vía botón 🗑 sin abrir PowerShell.
+
+        NO toca data/funds/<ISIN>/ local. Solo Supabase.
+        """
+        isin = (isin or "").strip().upper()
+        if not ISIN_REGEX.match(isin):
+            return jsonify({"error": f"ISIN inválido: {isin}"}), 400
+        try:
+            from tools.cleanup_supabase_isins import cleanup_isin
+            from tools.supabase_client import get_client
+            client = get_client()
+        except Exception as e:
+            return jsonify({"error": f"Supabase no disponible: {e}"}), 503
+        try:
+            stats = cleanup_isin(client, isin)
+        except Exception as e:
+            return jsonify({"error": f"cleanup falló: {e}"}), 500
+        return jsonify({
+            "ok": True,
+            "isin": isin,
+            "fund_row_action": stats.get("fund_row_action"),
+            "fund_group_action": stats.get("fund_group_action"),
+            "storage_deleted": stats.get("storage_deleted", []),
+            "storage_errors": stats.get("storage_errors", []),
+        })
+
     @app.route("/api/update-fund/<isin>", methods=["POST"])
     def api_update_fund(isin: str):
         """Actualiza campos editables de un fondo en Supabase (tabla `funds`).
@@ -1407,9 +1438,9 @@ def make_app(cold_start: bool = True) -> Flask:
           - opinion_user         (str)
           - encaje_texto         (str)
           - notas_internas       (str)
+          - broker_disponible    (list[str]: MyInvestor, Renta4, Mapfre, ...)  [W13]
 
-        Solo se envían a Supabase los campos presentes en el body (no se
-        sobreescriben los demás con null).
+        Solo se envían a Supabase los campos presentes en el body.
         """
         isin = (isin or "").strip().upper()
         if not ISIN_REGEX.match(isin):
@@ -1424,6 +1455,7 @@ def make_app(cold_start: bool = True) -> Flask:
             "opinion_user",
             "encaje_texto",
             "notas_internas",
+            "broker_disponible",  # W13: lista de brokers donde está el ISIN
         }
         ALLOWED_CLASIF = {"Top", "Bueno", "Medio", "Clase_similar", "Clase_sucia", None}
 
@@ -1431,7 +1463,14 @@ def make_app(cold_start: bool = True) -> Flask:
         for k, v in body.items():
             if k not in ALLOWED_FIELDS:
                 continue
-            if isinstance(v, str):
+            if k == "broker_disponible":
+                # Validar que sea lista de strings
+                if v is None:
+                    v = []
+                if not isinstance(v, list):
+                    return jsonify({"error": "broker_disponible debe ser lista"}), 400
+                v = [str(b).strip() for b in v if str(b).strip()]
+            elif isinstance(v, str):
                 v = v.strip() or None  # "" → None
             if k == "clasificacion_user" and v not in ALLOWED_CLASIF:
                 return jsonify({

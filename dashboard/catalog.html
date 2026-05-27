@@ -317,6 +317,34 @@
     background: var(--neg);
     color: white;
   }
+  .btn-delete {
+    display: inline-block;
+    background: var(--paper-2);
+    border: 1px solid var(--ink-3);
+    color: var(--ink-2);
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 12px;
+    line-height: 1.4;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-delete:hover {
+    background: var(--neg);
+    color: white;
+    border-color: var(--neg);
+  }
+  .badge-atencion {
+    display: inline-block;
+    background: #b8860b;
+    color: white;
+    padding: 1px 5px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: help;
+    margin: 0 1px;
+  }
   /* Form de edición dentro del modal */
   .edit-form label {
     display: block;
@@ -1056,34 +1084,68 @@ function badgeClasificacion(f) {
   return '<span style="color:var(--ink-3);font-size:11px;">—</span>';
 }
 
+// W12 (2026-05-26): detectar fondos con errores reales que el backend marca
+// como 100% completos pero claramente tienen problemas (nombre==ISIN, sin AUM,
+// sin posiciones). Devuelve array de strings con los issues detectados, o []
+// si todo OK.
+function detectFundIssues(f) {
+  if (!f.has_qualitative_analysis) return [];
+  const issues = [];
+  const nombre = String(f.nombre || '').trim();
+  const gestora = String(f.gestora || '').trim();
+  if (!nombre || nombre.toUpperCase() === f.isin.toUpperCase()) {
+    issues.push('Sin nombre real (placeholder = ISIN)');
+  }
+  if (!gestora || gestora.toUpperCase() === f.isin.toUpperCase()) {
+    issues.push('Sin gestora');
+  }
+  if (f.aum_meur == null || f.aum_meur === 0) {
+    issues.push('Sin AUM');
+  }
+  // Para INT, también algunos campos clave faltantes son sospechosos
+  if (f.tipo === 'INT' && !f.tipo_activo) {
+    issues.push('Sin tipo activo');
+  }
+  return issues;
+}
+
 function badgeAnalisis(f) {
+  // W12: detectar problemas reales
+  const issues = detectFundIssues(f);
+  const hasIssues = issues.length > 0;
+
   let cualitativo = '';
   if (f.has_qualitative_analysis && f.has_dashboard) {
     cualitativo = `<a href="${getDashboardUrl(f.isin)}" target="_blank" rel="noopener" class="badge has-cualit" style="text-decoration:none;display:inline-block;padding:2px 8px;" title="Ver análisis cualitativo">✓ ver</a>`;
   } else if (f.has_qualitative_analysis) {
     cualitativo = '<span class="badge has-cualit" title="Análisis cualitativo disponible">✓</span>';
   } else {
-    // W8: botón siempre visible. Si server OFF, click muestra modal instrucciones.
     cualitativo = `<button class="btn-analyze" data-isin="${f.isin}" type="button" title="Lanzar análisis cualitativo${SERVER.available ? '' : ' (requiere server local)'}">▶ Analizar</button>`;
   }
 
-  // Botón 📊 cuantitativo: cross-link a fund-dashboard con ?action=fund&isins=X
-  const cuanti = `<a href="${FUND_DASHBOARD_URL}?action=fund&isins=${encodeURIComponent(f.isin)}" target="_blank" rel="noopener" class="btn-cuanti" title="Ver análisis cuantitativo en fund-dashboard (Morningstar). Espera ~45s a que cargue.">📊</a>`;
-
-  // W8: botones SIEMPRE se renderizan. Si server OFF, click muestra modal instrucciones.
-  // Botón ✏ editar categorización
-  const editar = `<button class="btn-edit" data-edit-isin="${f.isin}" type="button" title="Editar clasificación, opinión, encaje, notas${SERVER.available ? '' : ' (requiere server local)'}">✏</button>`;
-
-  // Botón 🔄 regenerar: solo si HAY análisis pero está incompleto.
-  const completitud = (typeof f.completitud_pct === 'number') ? f.completitud_pct : null;
-  const incompleto = f.has_qualitative_analysis && (
-    (completitud !== null && completitud < 60) || !f.has_dashboard
-  );
-  const regenerar = incompleto
-    ? `<button class="btn-regen" data-regen-isin="${f.isin}" type="button" title="Re-ejecutar análisis (cold-start). Completitud: ${completitud||'?'}%${SERVER.available ? '' : ' (requiere server local)'}">🔄</button>`
+  // W12: badge de atención si hay issues detectados
+  const atencion = hasIssues
+    ? `<span class="badge-atencion" title="Problemas detectados:&#10;• ${issues.join('&#10;• ')}&#10;&#10;Pulsa 🔄 para re-analizar">⚠</span>`
     : '';
 
-  return `<div class="action-cell">${cualitativo}${cuanti}${editar}${regenerar}</div>`;
+  const cuanti = `<a href="${FUND_DASHBOARD_URL}?action=fund&isins=${encodeURIComponent(f.isin)}" target="_blank" rel="noopener" class="btn-cuanti" title="Ver análisis cuantitativo en fund-dashboard (Morningstar). Espera ~45s a que cargue.">📊</a>`;
+  const editar = `<button class="btn-edit" data-edit-isin="${f.isin}" type="button" title="Editar clasificación, opinión, encaje, notas${SERVER.available ? '' : ' (requiere server local)'}">✏</button>`;
+
+  // W12: 🔄 ahora se muestra también si hay issues (no solo si completitud<60)
+  const completitud = (typeof f.completitud_pct === 'number') ? f.completitud_pct : null;
+  const incompleto = f.has_qualitative_analysis && (
+    (completitud !== null && completitud < 60) || !f.has_dashboard || hasIssues
+  );
+  const regenerar = incompleto
+    ? `<button class="btn-regen" data-regen-isin="${f.isin}" type="button" title="Re-ejecutar análisis (cold-start).${hasIssues ? ' Issues: '+issues.join(', ') : ' Completitud: '+(completitud||'?')+'%'}${SERVER.available ? '' : ' (requiere server local)'}">🔄</button>`
+    : '';
+
+  // Botón 🗑 borrar fondo: solo si hay análisis problemático
+  const borrar = hasIssues && SERVER.available
+    ? `<button class="btn-delete" data-delete-isin="${f.isin}" type="button" title="Eliminar este fondo de Supabase (DB + Storage). El ISIN volverá a estado 'sin análisis'. Útil si está mal y prefieres limpiarlo antes de relanzar.">🗑</button>`
+    : '';
+
+  return `<div class="action-cell">${cualitativo}${atencion}${cuanti}${editar}${regenerar}${borrar}</div>`;
 }
 
 // Brokers como chips de colores
@@ -1191,11 +1253,13 @@ function applyFilters() {
     if (f.analyzed === 'no' && fund.has_qualitative_analysis) return false;
     if (f.analyzed === '__top_pending' && !(fund.es_top && !fund.has_qualitative_analysis)) return false;
     if (f.analyzed === '__bueno_pending' && !(fund.es_bueno && !fund.has_qualitative_analysis)) return false;
-    // M3 (2026-05-19): filtro "necesita revisión" = analizado pero baja completitud
+    // M3+W12 (2026-05-26): filtro "necesita revisión" = analizado pero
+    // (baja completitud O issues detectados como nombre==isin/sin AUM/etc.)
     if (f.analyzed === '__needs_review') {
       if (!fund.has_qualitative_analysis) return false;
       const compl = (typeof fund.completitud_pct === 'number') ? fund.completitud_pct : 100;
-      if (compl >= 60) return false;
+      const issues = (typeof detectFundIssues === 'function') ? detectFundIssues(fund) : [];
+      if (compl >= 60 && issues.length === 0) return false;
     }
 
     // Filtro universo curado vs huérfanos backfill
@@ -1309,6 +1373,44 @@ function bindRowClicks() {
       window.openEditFund(isin);
     });
   });
+  // Botón "🗑" eliminar fondo (Supabase + Storage) — W12
+  $$('button.btn-delete').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!requireServerOrShowModal()) return;
+      const isin = btn.dataset.deleteIsin;
+      const fund = (STATE.catalog?.funds || []).find(f => f.isin === isin);
+      const issues = fund ? detectFundIssues(fund) : [];
+      const ok = confirm(
+        `Eliminar fondo ${isin} de Supabase (DB + Storage)?\n\n` +
+        `Issues detectados:\n${issues.length ? '  • ' + issues.join('\n  • ') : '  (ninguno)'}\n\n` +
+        `Esto NO toca tu disco local (data/funds/${isin}/).\n` +
+        `El ISIN volverá a aparecer como "sin análisis" en el catálogo.\n` +
+        `Después puedes pulsar "▶ Analizar" para re-lanzarlo limpio.\n\n` +
+        `¿Continuar?`
+      );
+      if (!ok) return;
+      btn.disabled = true;
+      btn.textContent = '…';
+      try {
+        const res = await fetch(`/api/fund/${encodeURIComponent(isin)}`, { method: 'DELETE' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          alert(`Error eliminando ${isin}: ${data.error || res.status}`);
+          btn.disabled = false;
+          btn.textContent = '🗑';
+          return;
+        }
+        // Refrescar catalog
+        await refreshCatalog();
+      } catch (err) {
+        alert('Error de red: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '🗑';
+      }
+    });
+  });
+
   // Botón "🔄" regenerar análisis (cold-start) — W8: intercepta si server OFF
   $$('button.btn-regen').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
@@ -2134,6 +2236,21 @@ function showEditFundForm(fund) {
     o => `<option value="${o.value}"${o.value === currentClasif ? ' selected' : ''}>${escapeHtml(o.label)}</option>`
   ).join('');
 
+  // W13 (2026-05-26): brokers disponibles como checkboxes
+  const ALL_BROKERS = [
+    'MyInvestor', 'Renta4', 'Mapfre', 'BBVA', 'Caixa',
+    'ABANCA', 'Santander', 'CJRS', 'Ironia', 'EBN',
+  ];
+  const currentBrokers = new Set(
+    Array.isArray(fund.broker_disponible) ? fund.broker_disponible : []
+  );
+  const brokersCheckboxes = ALL_BROKERS.map(b => `
+    <label style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;font-size:12px;cursor:pointer;font-weight:normal;text-transform:none;letter-spacing:0;color:var(--ink);">
+      <input type="checkbox" class="edit-broker" value="${b}"${currentBrokers.has(b) ? ' checked' : ''} style="margin:0;">
+      <span style="background:${BROKER_COLORS[b] || '#888'};color:white;padding:1px 5px;font-size:10px;border-radius:2px;font-family:'Source Code Pro',monospace;">${b}</span>
+    </label>
+  `).join('');
+
   $('#modal-body').innerHTML = `
     <div class="edit-form">
       <div style="font-size:12px;color:var(--ink-2);margin-bottom:10px;">
@@ -2149,6 +2266,11 @@ function showEditFundForm(fund) {
 
       <label for="edit-encaje">Encaje (perfil cliente)</label>
       <textarea id="edit-encaje" rows="2" placeholder="Tipo de cliente al que encaja">${escapeHtml(fund.encaje_texto || fund.encaje || '')}</textarea>
+
+      <label>Brokers disponibles</label>
+      <div id="edit-brokers" style="padding:6px;background:var(--paper-2);border:1px solid var(--border);border-radius:2px;">
+        ${brokersCheckboxes}
+      </div>
 
       <label for="edit-notas">Notas internas</label>
       <textarea id="edit-notas" rows="2" placeholder="Notas privadas (no se publican)">${escapeHtml(fund.notas_internas || '')}</textarea>
@@ -2172,6 +2294,9 @@ async function submitEditFund(isin) {
   const opinion = ($('#edit-opinion')?.value || '').trim();
   const encaje = ($('#edit-encaje')?.value || '').trim();
   const notas = ($('#edit-notas')?.value || '').trim();
+  // W13: brokers desde checkboxes
+  const brokers = Array.from(document.querySelectorAll('#edit-brokers .edit-broker:checked'))
+    .map(cb => cb.value);
 
   // F (checkpoint): si pone Top o Bueno, advertir
   if (clasif === 'Top' || clasif === 'Bueno') {
@@ -2188,6 +2313,7 @@ async function submitEditFund(isin) {
     opinion_user: opinion || null,
     encaje_texto: encaje || null,
     notas_internas: notas || null,
+    broker_disponible: brokers,  // W13
   };
 
   $('#modal-action').disabled = true;
@@ -2214,6 +2340,7 @@ async function submitEditFund(isin) {
       encaje_texto: encaje || null,
       encaje: encaje || null,
       notas_internas: notas || null,
+      broker_disponible: brokers,  // W13
     });
     closeModal();
   } catch (e) {
