@@ -1,0 +1,18 @@
+{
+  // Configuración para desplegar el catálogo de fondos como sitio estático
+  // en Cloudflare Workers (modelo "Static Assets", 2024+).
+  //
+  // Sirve el contenido de ./dashboard/ (catalog.html + fund-*.html).
+  // URL resultante: https://fund-analyzer.<subdominio>.workers.dev/catalog.html
+  //
+  // Deploy automático: cada push al branch conectado en Cloudflare.
+  "name": "fund-analyzer",
+  "compatibility_date": "2025-05-01",
+  "assets": {
+    "directory": "./dashboard",
+    // html_handling: sirve /catalog -> catalog.html, y maneja rutas limpias
+    "html_handling": "auto-trailing-slash",
+    // not_found_handling: si no existe el archivo, devuelve 404 simple
+    "not_found_handling": "404-page"
+  }
+}
