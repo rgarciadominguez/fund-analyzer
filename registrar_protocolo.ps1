@@ -1,4 +1,4 @@
-# registrar_protocolo.ps1 — Registra el protocolo "fundanalyzer://" en Windows.
+﻿# registrar_protocolo.ps1 — Registra el protocolo "fundanalyzer://" en Windows.
 #
 # Tras ejecutarlo UNA VEZ, el botón "🚀 Arrancar server" del catalog web
 # (que abre fundanalyzer://start) lanzará iniciar.bat automáticamente.

@@ -1,4 +1,4 @@
-# iniciar.ps1 — Arranca TODO el fund-analyzer con un solo comando.
+﻿# iniciar.ps1 — Arranca TODO el fund-analyzer con un solo comando.
 #
 # Hace:
 #   1. Lanza el web_server (Flask) en una ventana minimizada
