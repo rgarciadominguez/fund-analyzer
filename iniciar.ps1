@@ -20,6 +20,35 @@ $tunnelLog = Join-Path $repo "tunnel_out.log"
 
 Set-Location $repo
 
+# Resolver `python` por si el PATH heredado del contexto del protocolo
+# fundanalyzer:// no incluye Python (el shim de WindowsApps abre MS Store y
+# rompe `-m tools.register_tunnel`). Cubre PATH normal + ubicaciones típicas.
+function Resolve-PythonExe {
+    $cmd = Get-Command python -ErrorAction SilentlyContinue
+    if ($cmd -and $cmd.Source -notlike '*WindowsApps*') { return $cmd.Source }
+    $candidates = @(
+        "$env:LOCALAPPDATA\Programs\Python\Python31?\python.exe",
+        "$env:LOCALAPPDATA\Programs\Python\Python3??\python.exe",
+        "$env:ProgramFiles\Python31?\python.exe",
+        "$env:ProgramFiles\Python3??\python.exe",
+        "${env:ProgramFiles(x86)}\Python31?\python.exe"
+    )
+    foreach ($c in $candidates) {
+        $resolved = Get-Item $c -ErrorAction SilentlyContinue |
+                    Sort-Object FullName -Descending |
+                    Select-Object -First 1
+        if ($resolved) { return $resolved.FullName }
+    }
+    return $null
+}
+$python = Resolve-PythonExe
+if (-not $python) {
+    Write-Host "  [WARN] No se encuentra python.exe (se intentara con 'python' del PATH)." -ForegroundColor Yellow
+    $python = "python"
+} else {
+    Write-Host "  python: $python"
+}
+
 Write-Host "================================================================" -ForegroundColor Cyan
 Write-Host "  Iniciando Fund Analyzer (server + tunel + auto-conexion)" -ForegroundColor Cyan
 Write-Host "================================================================" -ForegroundColor Cyan
@@ -34,7 +63,7 @@ Get-Process | Where-Object {
 Write-Host "[2/5] Arrancando web_server (Flask)..."
 Start-Process powershell -ArgumentList @(
     "-NoExit", "-Command",
-    "Set-Location '$repo'; python -m tools.web_server"
+    "Set-Location '$repo'; & '$python' -m tools.web_server"
 ) -WindowStyle Minimized
 
 Start-Sleep -Seconds 4
@@ -42,7 +71,33 @@ Start-Sleep -Seconds 4
 # ── 3. Arrancar cloudflared, capturando su salida a un log ────────────
 Write-Host "[3/5] Arrancando tunel Cloudflare..."
 if (Test-Path $tunnelLog) { Remove-Item $tunnelLog -Force -ErrorAction SilentlyContinue }
-Start-Process cloudflared -ArgumentList @(
+
+# Resolver la ruta de cloudflared (el PATH no siempre está disponible cuando
+# el script se lanza vía el protocolo fundanalyzer://). Busca en PATH + winget.
+$cloudflared = $null
+$cmd = Get-Command cloudflared -ErrorAction SilentlyContinue
+if ($cmd) { $cloudflared = $cmd.Source }
+if (-not $cloudflared) {
+    $candidates = @(
+        "$env:LOCALAPPDATA\Microsoft\WinGet\Links\cloudflared.exe",
+        "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\Cloudflare.cloudflared_*\cloudflared.exe",
+        "$env:ProgramFiles\cloudflared\cloudflared.exe",
+        "${env:ProgramFiles(x86)}\cloudflared\cloudflared.exe",
+        "$env:USERPROFILE\.cloudflared\cloudflared.exe"
+    )
+    foreach ($c in $candidates) {
+        $resolved = Get-Item $c -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($resolved) { $cloudflared = $resolved.FullName; break }
+    }
+}
+if (-not $cloudflared) {
+    Write-Host "  [ERROR] No se encuentra cloudflared.exe." -ForegroundColor Red
+    Write-Host "  Instalalo con: winget install --id Cloudflare.cloudflared" -ForegroundColor Yellow
+    Read-Host "Pulsa Enter para salir"
+    exit 1
+}
+Write-Host "  cloudflared: $cloudflared"
+Start-Process $cloudflared -ArgumentList @(
     "tunnel", "--url", "http://localhost:5000"
 ) -RedirectStandardError $tunnelLog -WindowStyle Minimized
 
@@ -70,7 +125,7 @@ Write-Host "  [OK] Tunel: $tunnelUrl" -ForegroundColor Green
 
 # ── 5. Registrar la URL en Supabase (el catalog la auto-detecta) ──────
 Write-Host "[5/5] Registrando URL en Supabase..."
-python -m tools.register_tunnel $tunnelUrl
+& $python -m tools.register_tunnel $tunnelUrl
 if ($LASTEXITCODE -ne 0) {
     Write-Host "  [WARN] No se pudo registrar en Supabase. La web no auto-conectara." -ForegroundColor Yellow
     Write-Host "  URL del tunel (pegala manualmente si hace falta): $tunnelUrl" -ForegroundColor Yellow
@@ -100,5 +155,5 @@ Get-Process | Where-Object {
     $_.ProcessName -eq 'python' -and $_.CommandLine -like '*web_server*'
 } | Stop-Process -Force -ErrorAction SilentlyContinue
 # Limpiar URL en Supabase (modo offline)
-python -m tools.register_tunnel --clear 2>$null
+& $python -m tools.register_tunnel --clear 2>$null
 Write-Host "Detenido. Hasta la proxima."
