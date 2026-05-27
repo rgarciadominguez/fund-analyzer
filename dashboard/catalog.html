@@ -1356,8 +1356,13 @@ function bindRowClicks() {
     });
   });
   // Botón "Analizar" en filas sin análisis — W8: intercepta si server OFF
-  // T2c (2026-05-27): si hay un run activo (running/queued) para este ISIN,
-  // abre el modal de progreso directamente; sino, abre el form de encolado.
+  // T2c (2026-05-27): toggle según estado del ISIN:
+  //   1) si by-isin devuelve un run (cualquier estado: running/done/failed/...)
+  //      → abre showProgress directo. Permite re-abrir el log de un run
+  //      recién terminado sin relanzar.
+  //   2) si NO hay run pero está en cola (encolado, worker aún no arrancó)
+  //      → showProgressForIsin polea by-isin hasta 30s y abre progress.
+  //   3) si nada → form normal para encolar nuevo.
   $$('button.btn-analyze').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -1370,12 +1375,20 @@ function bindRowClicks() {
         );
         if (r.ok) {
           const run = await r.json();
-          if (run && run.run_id && (run.status === 'running' || run.status === 'queued')) {
+          if (run && run.run_id) {
             showProgress(run.run_id, isin);
             return;
           }
         }
-      } catch (err) { /* sin run o error → form normal */ }
+      } catch (err) { /* ignore */ }
+      // Sin run en RUNS → comprobar si está en cola sin arrancar aún
+      const inQueue = (LAST_QUEUE_KNOWN || []).some(it =>
+        it.isin === isin && (it.status === 'queued' || it.status === 'running')
+      );
+      if (inQueue) {
+        showProgressForIsin(isin);
+        return;
+      }
       showAnalyzeForm(isin);
     });
   });
@@ -1463,6 +1476,11 @@ function bindRowClicks() {
         refreshQueue();
         if (!QUEUE_POLL_INTERVAL) startQueuePolling();
         // T2c (2026-05-27): tras encolar regenerado, abrir progreso automáticamente
+        // y RESTAURAR el botón para que el usuario pueda re-abrir el modal
+        // cerrándolo y volviendo a hacer click. Sin esto el btn queda en '…'
+        // disabled y no se puede re-abrir el progreso.
+        btn.disabled = false;
+        btn.textContent = '🔄';
         showProgressForIsin(isin);
       } catch (err) {
         alert('Error de red: ' + err.message);
