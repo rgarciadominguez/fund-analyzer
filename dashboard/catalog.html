@@ -1393,7 +1393,7 @@ function bindRowClicks() {
       btn.disabled = true;
       btn.textContent = '…';
       try {
-        const res = await fetch(`/api/fund/${encodeURIComponent(isin)}`, { method: 'DELETE' });
+        const res = await apiFetch(`/api/fund/${encodeURIComponent(isin)}`, { method: 'DELETE' });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.ok) {
           alert(`Error eliminando ${isin}: ${data.error || res.status}`);
@@ -1430,7 +1430,7 @@ function bindRowClicks() {
       btn.disabled = true;
       btn.textContent = '…';
       try {
-        const res = await fetch('/api/analyze-batch', {
+        const res = await apiFetch('/api/analyze-batch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ isins: [isin], cold_start: true }),
@@ -1779,12 +1779,33 @@ const SERVER = {
   pollInterval: null,
 };
 
+// W15 (2026-05-27): API_BASE configurable para resolver Mixed Content.
+// - Vacío ('') → llamadas relativas (modo local: http://127.0.0.1:5000)
+// - URL del túnel Cloudflare → acciones funcionan desde la URL pública HTTPS
+//   (ej. https://xxx.trycloudflare.com)
+// Se guarda en localStorage para no reconfigurar cada vez.
+let API_BASE = localStorage.getItem('fa_api_base') || '';
+
+function apiFetch(path, opts) {
+  // Si hay API_BASE configurada, prepéndela; sino, ruta relativa.
+  return fetch(API_BASE + path, opts);
+}
+
+function setApiBase(url) {
+  API_BASE = (url || '').trim().replace(/\/+$/, '');  // quita trailing slash
+  if (API_BASE) {
+    localStorage.setItem('fa_api_base', API_BASE);
+  } else {
+    localStorage.removeItem('fa_api_base');
+  }
+}
+
 async function checkServer() {
   try {
     // W8 (2026-05-21): timeout 2s para no bloquear UI si server lento
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 2000);
-    const res = await fetch('/api/health', { cache: 'no-cache', signal: ctrl.signal });
+    const res = await apiFetch('/api/health', { cache: 'no-cache', signal: ctrl.signal });
     clearTimeout(timer);
     if (res.ok) {
       SERVER.available = true;
@@ -1812,9 +1833,32 @@ async function checkServer() {
 function showHowToLaunchServerModal() {
   openModal('Lanzar server local');
   const cmd = `cd "C:\\Users\\RafaelGarcía\\OneDrive - Nazca\\Escritorio\\fund-analyzer"\npython -m tools.web_server`;
+  // W14 (2026-05-26): si el user está en Pages (HTTPS), añadir aviso de
+  // Mixed Content + atajo para abrir el catalog en localhost (HTTP) donde
+  // los botones SÍ funcionan.
+  const inPages = isHostedMode();
+  const localBanner = inPages ? `
+    <div style="background:rgba(196,144,38,0.10);border-left:3px solid var(--accent);padding:10px 12px;margin-bottom:14px;border-radius:2px;">
+      <strong>Conectar con tu server local vía túnel HTTPS</strong><br>
+      <span style="font-size:12px;color:var(--ink-2);">
+        Para usar las acciones desde esta web pública, arranca el túnel Cloudflare
+        en tu PC y pega aquí la URL HTTPS que te da (ej. https://xxx.trycloudflare.com):
+      </span>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <input id="api-base-input" type="text" placeholder="https://xxx.trycloudflare.com"
+               value="${API_BASE || ''}"
+               style="flex:1;padding:6px 8px;border:1px solid var(--border);font-family:'Source Code Pro',monospace;font-size:12px;">
+        <button class="btn" id="btn-save-apibase" type="button" style="font-size:11px;white-space:nowrap;">Conectar</button>
+      </div>
+      <div id="apibase-status" style="font-size:11px;color:var(--ink-3);margin-top:5px;">
+        ${API_BASE ? 'Configurado: ' + API_BASE : 'Sin configurar (modo lectura)'}
+      </div>
+    </div>` : '';
+
   $('#modal-body').innerHTML = `
+    ${localBanner}
     <div style="margin-bottom:14px;color:var(--ink-2);font-size:13px;line-height:1.5;">
-      Esta acción requiere el server local corriendo en tu PC.<br>
+      ${inPages ? 'Si NO tienes el server arrancado todavía,' : 'Esta acción requiere el server local corriendo en tu PC.'}<br>
       Sigue estos pasos:
     </div>
     <ol style="font-size:13px;line-height:1.7;padding-left:20px;color:var(--ink);">
@@ -1861,6 +1905,27 @@ function showHowToLaunchServerModal() {
           setTimeout(() => { btnCopy.textContent = '📋 Copiar comando'; }, 2000);
         } catch (e) {
           alert('No se pudo copiar. Selecciona el texto manualmente.');
+        }
+      });
+    }
+    // W15: botón "Conectar" — guarda la URL del túnel y verifica conexión
+    const btnApi = $('#btn-save-apibase');
+    if (btnApi) {
+      btnApi.addEventListener('click', async () => {
+        const input = $('#api-base-input');
+        const status = $('#apibase-status');
+        const url = (input?.value || '').trim();
+        setApiBase(url);
+        if (!url) {
+          status.textContent = 'Borrado. Modo lectura (sin server).';
+          return;
+        }
+        status.textContent = 'Verificando conexión…';
+        const ok = await checkServer();
+        if (ok) {
+          status.innerHTML = `<span style="color:var(--pos);font-weight:600;">✓ Conectado a ${url}. Ya puedes usar las acciones.</span>`;
+        } else {
+          status.innerHTML = `<span style="color:var(--neg);">✗ No responde. Verifica que el túnel + server están corriendo y la URL es correcta.</span>`;
         }
       });
     }
@@ -1947,7 +2012,7 @@ async function submitAnalyzeBatch() {
   $('#modal-action').disabled = true;
   $('#modal-action').textContent = 'Encolando…';
   try {
-    const res = await fetch('/api/analyze-batch', {
+    const res = await apiFetch('/api/analyze-batch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isins }),
@@ -1991,7 +2056,7 @@ async function submitAnalyzeBatch() {
         btn.addEventListener('click', async () => {
           // Esperar a que el primer ISIN tenga run_id (máx 30s)
           for (let i = 0; i < 15; i++) {
-            const r = await fetch('/api/queue', { cache: 'no-cache' });
+            const r = await apiFetch('/api/queue', { cache: 'no-cache' });
             if (r.ok) {
               const qd = await r.json();
               const first = (qd.items || []).find(it => it.status === 'running' && it.run_id);
@@ -2024,7 +2089,7 @@ let LAST_QUEUE_KNOWN = []; // para detectar transiciones queued→running→done
 
 async function refreshQueue() {
   try {
-    const res = await fetch('/api/queue', { cache: 'no-cache' });
+    const res = await apiFetch('/api/queue', { cache: 'no-cache' });
     if (!res.ok) return;
     const data = await res.json();
     renderQueueBanner(data);
@@ -2166,7 +2231,7 @@ function renderQueueBanner(data) {
       e.stopPropagation();
       const isin = el.dataset.rmIsin;
       try {
-        await fetch(`/api/queue/${encodeURIComponent(isin)}`, { method: 'DELETE' });
+        await apiFetch(`/api/queue/${encodeURIComponent(isin)}`, { method: 'DELETE' });
         refreshQueue();
       } catch (err) { console.warn(err); }
     });
@@ -2177,7 +2242,7 @@ function renderQueueBanner(data) {
       e.stopPropagation();
       const isin = el.dataset.resumeIsin;
       try {
-        const res = await fetch(`/api/queue/${encodeURIComponent(isin)}/resume`, {
+        const res = await apiFetch(`/api/queue/${encodeURIComponent(isin)}/resume`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ cold_start: false }),
@@ -2319,7 +2384,7 @@ async function submitEditFund(isin) {
   $('#modal-action').disabled = true;
   $('#modal-action').textContent = 'Guardando…';
   try {
-    const res = await fetch(`/api/update-fund/${encodeURIComponent(isin)}`, {
+    const res = await apiFetch(`/api/update-fund/${encodeURIComponent(isin)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -2417,7 +2482,7 @@ async function updateQueueContextStrip() {
   const strip = $('#queue-context-strip');
   if (!strip) return;
   try {
-    const res = await fetch('/api/queue', { cache: 'no-cache' });
+    const res = await apiFetch('/api/queue', { cache: 'no-cache' });
     if (!res.ok) return;
     const data = await res.json();
     const items = data.items || [];
@@ -2451,7 +2516,7 @@ async function updateQueueContextStrip() {
 // Saltar al siguiente run activo de la cola (si lo hay)
 async function jumpToNextQueueRun() {
   try {
-    const res = await fetch('/api/queue', { cache: 'no-cache' });
+    const res = await apiFetch('/api/queue', { cache: 'no-cache' });
     if (!res.ok) return false;
     const data = await res.json();
     const items = data.items || [];
@@ -2481,7 +2546,7 @@ async function pollProgress(runId) {
     // nuevo. Sin esto, el modal se queda atascado en el run viejo.
     if (SERVER.currentIsin) {
       try {
-        const qres = await fetch('/api/queue', { cache: 'no-cache' });
+        const qres = await apiFetch('/api/queue', { cache: 'no-cache' });
         if (qres.ok) {
           const qd = await qres.json();
           const itemForCurrentIsin = (qd.items || []).find(it => it.isin === SERVER.currentIsin);
@@ -2501,7 +2566,7 @@ async function pollProgress(runId) {
       } catch (e) { /* ignore */ }
     }
 
-    const res = await fetch(`/api/runs/${runId}`, { cache: 'no-cache' });
+    const res = await apiFetch(`/api/runs/${runId}`, { cache: 'no-cache' });
     if (!res.ok) return;
     const r = await res.json();
 
@@ -2576,7 +2641,7 @@ async function pollProgress(runId) {
           });
         }
         // Si hay otro run activo en la cola, mostrar botón "Siguiente"
-        fetch('/api/queue', { cache: 'no-cache' }).then(r2 => r2.json()).then(qd => {
+        apiFetch('/api/queue', { cache: 'no-cache' }).then(r2 => r2.json()).then(qd => {
           const next = (qd.items || []).find(it =>
             it.status === 'running' && it.run_id && it.run_id !== runId
           );
@@ -2607,7 +2672,7 @@ async function pollProgress(runId) {
 
 async function refreshCatalog() {
   try {
-    await fetch('/api/regenerate-catalog', { method: 'POST' });
+    await apiFetch('/api/regenerate-catalog', { method: 'POST' });
     // Recargar catalog en memoria
     await loadCatalog();
   } catch (e) {
@@ -2619,7 +2684,7 @@ async function regenerateCatalogManual() {
   $('#btn-regen-catalog').disabled = true;
   $('#btn-regen-catalog').textContent = 'Regenerando…';
   try {
-    const res = await fetch('/api/regenerate-catalog', { method: 'POST' });
+    const res = await apiFetch('/api/regenerate-catalog', { method: 'POST' });
     const data = await res.json();
     if (data.ok) {
       await loadCatalog();
@@ -2648,7 +2713,7 @@ function bindModal() {
   $('#btn-queue-refresh')?.addEventListener('click', refreshQueue);
   $('#btn-queue-clear')?.addEventListener('click', async () => {
     try {
-      await fetch('/api/queue/clear-finished', { method: 'POST' });
+      await apiFetch('/api/queue/clear-finished', { method: 'POST' });
       refreshQueue();
     } catch (e) { console.warn(e); }
   });
@@ -2661,7 +2726,7 @@ function bindModal() {
     // Mirar qué estados hay en cola para decidir target
     let states = ['interrupted', 'paused_waiting_tokens'];
     try {
-      const qres = await fetch('/api/queue', { cache: 'no-cache' });
+      const qres = await apiFetch('/api/queue', { cache: 'no-cache' });
       const qdata = await qres.json();
       const items = qdata.items || [];
       const nFailed = items.filter(i => i.status === 'failed').length;
@@ -2690,7 +2755,7 @@ function bindModal() {
     }
 
     try {
-      const res = await fetch('/api/queue/resume-all', {
+      const res = await apiFetch('/api/queue/resume-all', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cold_start: coldStart, include_states: states }),
@@ -2714,7 +2779,7 @@ function bindModal() {
     btn.disabled = true;
     btn.textContent = 'Verificando…';
     try {
-      const res = await fetch('/api/queue/check-tokens', { method: 'POST' });
+      const res = await apiFetch('/api/queue/check-tokens', { method: 'POST' });
       const data = await res.json();
       if (data.available) {
         alert(`✓ Tokens disponibles. ${data.n_resumed} items reanudados.`);
@@ -2758,7 +2823,7 @@ async function refreshStatus() {
   const mon = document.getElementById('status-monitor');
   if (!mon) return;
   try {
-    const res = await fetch('/api/status', { cache: 'no-cache' });
+    const res = await apiFetch('/api/status', { cache: 'no-cache' });
     if (!res.ok) {
       mon.className = 'status-monitor status-off';
       document.getElementById('sm-label').textContent = '● Server local OFF';
