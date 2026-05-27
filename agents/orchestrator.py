@@ -2565,6 +2565,27 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
         log("COWORK", "ERROR", f"analyst consume falló: {exc}")
         summary["analyst"] = {"error": str(exc)}
 
+    # 4.5. Name recovery (T2.5 2026-05-27): si el campo `nombre` quedó como el
+    # ISIN o vacío (típico cuando CBI/AMF no resolvió la identity card), pero
+    # el analyst_synthesis ya menciona el nombre real → recuperarlo con
+    # regex local + fallback Haiku. Marca `_manual_edits["nombre"]` para que
+    # próximas regeneraciones no lo sobrescriban.
+    try:
+        output_path_nr = fund_dir / "output.json"
+        if output_path_nr.exists():
+            from tools.name_recovery import recover_name_if_needed
+            output_data_nr = json.loads(output_path_nr.read_text(encoding="utf-8"))
+            result = recover_name_if_needed(output_data_nr, isin, log_fn=log)
+            summary["name_recovery"] = result
+            if result.get("applied"):
+                output_path_nr.write_text(
+                    json.dumps(output_data_nr, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+    except Exception as exc:
+        log("NAME_RECOVERY", "ERROR", f"falló inesperadamente: {exc}")
+        summary["name_recovery"] = {"applied": False, "error": str(exc)}
+
     # 5. Validation + meta + quality + calendar + dashboard (same as consume_cowork_pipeline)
     config_path = fund_dir / "config.json"
     if config_path.exists():
