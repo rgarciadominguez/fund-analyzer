@@ -185,6 +185,13 @@ def sync_fund(isin: str, dry_run: bool = False, verbose: bool = True) -> dict:
         "manager_profile_storage_path": storage_paths["manager"] if uploaded.get("manager") else None,
     }
 
+    # T2.6 (2026-05-28): sync nombre_clase si output.json tiene un nombre real
+    # (no el ISIN crudo). Sin esto, fund_groups quedaba con nombre_base=ISIN
+    # aunque output.json ya tuviera el nombre correcto tras name_recovery.
+    nombre_out = (output_data.get("nombre") or "").strip()
+    if nombre_out and nombre_out.upper() != isin.upper():
+        funds_update["nombre_clase"] = nombre_out
+
     # KPIs específicos de clase desde output.json (CNMV)
     kpis = output_data.get("kpis", {}) or {}
     if kpis.get("ter_pct") is not None:
@@ -256,7 +263,22 @@ def sync_fund(isin: str, dry_run: bool = False, verbose: bool = True) -> dict:
         "fecha_ultimo_analisis": datetime.now(timezone.utc).isoformat(),
     }
     if isinstance(output_data, dict) and output_data.get("gestora"):
-        fund_groups_update["gestora"] = str(output_data["gestora"]).strip()
+        gestora_val = str(output_data["gestora"]).strip()
+        # No sobreescribir con el ISIN (caso INT identity card vacía)
+        if gestora_val and gestora_val.upper() != isin.upper():
+            fund_groups_update["gestora"] = gestora_val
+
+    # T2.6 (2026-05-28): sync nombre_base si output.json tiene un nombre real.
+    # Sin esto, el catalog mostraba el ISIN aunque output.json ya tuviera
+    # nombre correcto (gracias a regulator_router, intl_extractor, o
+    # name_recovery). Usa normalize_nombre_base para extraer la parte
+    # sin clase comercial ("X - Action A" → "X").
+    if nombre_out and nombre_out.upper() != isin.upper():
+        try:
+            from tools.import_taxonomy import normalize_nombre_base
+            fund_groups_update["nombre_base"] = normalize_nombre_base(nombre_out)
+        except Exception:
+            fund_groups_update["nombre_base"] = nombre_out
 
     if dry_run:
         log(f"[SYNC] [DRY-RUN] Sample funds update: {list(funds_update.keys())}")

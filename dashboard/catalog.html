@@ -1440,11 +1440,38 @@ function bindRowClicks() {
   });
 
   // Botón "🔄" regenerar análisis (cold-start) — W8: intercepta si server OFF
+  // T2c+ (2026-05-28): si ya hay un run activo (running/queued) o en cola
+  // sin run_id, abrir el modal de progreso DIRECTAMENTE sin pedir confirm
+  // ni reintentar encolar. Evita el "no se pudo encolar: ya en cola" + alert
+  // que dejaba al usuario sin forma de re-abrir el modal.
   $$('button.btn-regen').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!requireServerOrShowModal()) return;
       const isin = btn.dataset.regenIsin;
+      // 0) ¿Run activo? → abrir progress directo
+      try {
+        const r = await apiFetch(
+          `/api/runs/by-isin/${encodeURIComponent(isin)}`,
+          { cache: 'no-cache' }
+        );
+        if (r.ok) {
+          const run = await r.json();
+          if (run && run.run_id && (run.status === 'running' || run.status === 'queued')) {
+            showProgress(run.run_id, isin);
+            return;
+          }
+        }
+      } catch (err) { /* fall through */ }
+      // 1) ¿En la cola sin run_id aún? → showProgressForIsin (polling)
+      const inQueue = (LAST_QUEUE_KNOWN || []).some(it =>
+        it.isin === isin && (it.status === 'queued' || it.status === 'running')
+      );
+      if (inQueue) {
+        showProgressForIsin(isin);
+        return;
+      }
+      // 2) Sin run activo → flujo normal: confirm + encolar
       const fund = (STATE.catalog?.funds || []).find(f => f.isin === isin);
       const completitud = fund?.completitud_pct;
       const ok = confirm(
@@ -1465,12 +1492,18 @@ function bindRowClicks() {
         });
         const data = await res.json();
         if (!res.ok || (data.queued === 0 && (data.skipped || []).length > 0)) {
-          const reason = data.error
-            || (data.skipped && data.skipped[0]?.reason)
-            || 'error desconocido';
-          alert('No se pudo encolar: ' + reason);
+          const reason = (data.skipped && data.skipped[0]?.reason) || data.error || '';
+          // Si la razón es "ya en cola/corriendo", no es un error real —
+          // abrir el modal de progreso del run existente y restaurar el botón.
           btn.disabled = false;
           btn.textContent = '🔄';
+          const reasonLc = reason.toLowerCase();
+          if (reasonLc.includes('cola') || reasonLc.includes('queue') ||
+              reasonLc.includes('corriendo') || reasonLc.includes('running')) {
+            showProgressForIsin(isin);
+          } else {
+            alert('No se pudo encolar: ' + (reason || 'error desconocido'));
+          }
           return;
         }
         refreshQueue();
