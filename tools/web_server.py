@@ -1315,12 +1315,41 @@ def make_app(cold_start: bool = True) -> Flask:
         # Limitar a últimos 50
         return jsonify(runs[:50])
 
+    @app.route("/api/runs/by-isin/<isin>")
+    def api_run_by_isin(isin: str):
+        """T2a (2026-05-27): devuelve el run más reciente para un ISIN.
+
+        Usado por el botón 'Ver progreso' del catalog para encontrar el run_id
+        activo de un fondo sin que el frontend tenga que recordarlo.
+        Devuelve 404 si no hay runs para ese ISIN.
+        """
+        isin = (isin or "").strip().upper()
+        if not isin:
+            return jsonify({"error": "isin required"}), 400
+        matching = [r for r in RUNS.values() if r.get("isin", "").upper() == isin]
+        if not matching:
+            return jsonify({"error": "no runs for isin"}), 404
+        # El más reciente por start_time
+        latest = max(matching, key=lambda r: r.get("start_time", ""))
+        safe = {k: v for k, v in latest.items() if not k.startswith("_")}
+        return jsonify(safe)
+
     @app.route("/api/runs/<run_id>")
     def api_run_detail(run_id: str):
-        """Detalle del run + tail del log + checkpoints de progreso."""
+        """Detalle del run + tail del log + checkpoints de progreso.
+
+        Query params (T2a 2026-05-27):
+          - tail=N: nº de líneas del log a devolver (default 60, max 500)
+        """
         r = RUNS.get(run_id)
         if not r:
             return jsonify({"error": "run not found"}), 404
+
+        try:
+            tail_n = int(request.args.get("tail", 60))
+        except (TypeError, ValueError):
+            tail_n = 60
+        tail_n = max(1, min(tail_n, 500))
 
         safe = {k: v for k, v in r.items() if not k.startswith("_")}
 
@@ -1333,7 +1362,7 @@ def make_app(cold_start: bool = True) -> Flask:
                 log_size = log_path.stat().st_size
                 with log_path.open("r", encoding="utf-8", errors="replace") as f:
                     lines = f.readlines()
-                    tail_lines = lines[-60:]
+                    tail_lines = lines[-tail_n:]
             except Exception as e:
                 tail_lines = [f"[error reading log: {e}]"]
         safe["log_tail"] = "".join(tail_lines)

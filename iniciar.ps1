@@ -142,8 +142,11 @@ Write-Host "================================================================" -F
 Write-Host "`n  IMPORTANTE: deja ESTA ventana y las 2 minimizadas ABIERTAS." -ForegroundColor Yellow
 Write-Host "  Para parar todo: cierra las 3 ventanas o ejecuta parar.ps1`n" -ForegroundColor Yellow
 
-Start-Sleep -Seconds 3
-Start-Process $catalogUrl
+# NO abrimos pestaña nueva del catalog. El catalog que ya tienes abierto se
+# auto-detecta cuando vuelves a la pestaña (visibilitychange listener añadido
+# en T1b, 2026-05-27). Si lo abriste hace mucho y no tiene el listener,
+# basta con F5 manual.
+Write-Host "Vuelve a la pestaña del catalog que ya tenías abierta — se conectará sola."
 
 Write-Host "Sistema en marcha. Esta ventana puede minimizarse (no cerrar)."
 Read-Host "Pulsa Enter para DETENER todo (server + tunel)"

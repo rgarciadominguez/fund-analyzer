@@ -1356,11 +1356,26 @@ function bindRowClicks() {
     });
   });
   // Botón "Analizar" en filas sin análisis — W8: intercepta si server OFF
+  // T2c (2026-05-27): si hay un run activo (running/queued) para este ISIN,
+  // abre el modal de progreso directamente; sino, abre el form de encolado.
   $$('button.btn-analyze').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!requireServerOrShowModal()) return;
       const isin = btn.dataset.isin;
+      try {
+        const r = await apiFetch(
+          `/api/runs/by-isin/${encodeURIComponent(isin)}`,
+          { cache: 'no-cache' }
+        );
+        if (r.ok) {
+          const run = await r.json();
+          if (run && run.run_id && (run.status === 'running' || run.status === 'queued')) {
+            showProgress(run.run_id, isin);
+            return;
+          }
+        }
+      } catch (err) { /* sin run o error → form normal */ }
       showAnalyzeForm(isin);
     });
   });
@@ -1447,6 +1462,8 @@ function bindRowClicks() {
         }
         refreshQueue();
         if (!QUEUE_POLL_INTERVAL) startQueuePolling();
+        // T2c (2026-05-27): tras encolar regenerado, abrir progreso automáticamente
+        showProgressForIsin(isin);
       } catch (err) {
         alert('Error de red: ' + err.message);
         btn.disabled = false;
@@ -2505,6 +2522,56 @@ window.openEditFund = function (isin) {
   showEditFundForm(fund);
 };
 
+// T2b (2026-05-27): wrapper que encuentra el run_id activo de un ISIN y abre
+// el modal showProgress. Si no hay run aún (recién encolado), polea
+// /api/runs/by-isin cada 2s hasta 30s. Útil tras "Analizar" o "🔄" cuando
+// el worker tarda unos segundos en arrancar el subprocess.
+async function showProgressForIsin(isin, maxWaitSec = 30) {
+  if (!isin) return false;
+  const start = Date.now();
+  let attempt = 0;
+  while ((Date.now() - start) / 1000 < maxWaitSec) {
+    attempt++;
+    try {
+      const r = await apiFetch(
+        `/api/runs/by-isin/${encodeURIComponent(isin)}`,
+        { cache: 'no-cache' }
+      );
+      if (r.ok) {
+        const run = await r.json();
+        if (run && run.run_id) {
+          showProgress(run.run_id, isin);
+          return true;
+        }
+      }
+    } catch (e) { /* sigue intentando */ }
+    // Si todavía no hay run, mostrar un modal de espera la primera vez
+    if (attempt === 1) {
+      openModal(`Esperando arranque: ${isin}`);
+      $('#modal-action').style.display = 'none';
+      $('#modal-cancel').textContent = 'Cerrar';
+      $('#modal-body').innerHTML = `
+        <div style="padding:30px;text-align:center;color:var(--ink-2);">
+          <div style="font-size:32px;margin-bottom:10px;">⏳</div>
+          <div>Esperando que el worker arranque el run para ${isin}…</div>
+          <div style="font-size:11px;color:var(--ink-3);margin-top:10px;">
+            (típicamente 5-15s tras encolar)
+          </div>
+        </div>
+      `;
+    }
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  // Timeout: dejar el modal abierto con un mensaje
+  $('#modal-body').innerHTML += `
+    <div style="color:var(--neg);text-align:center;margin-top:14px;font-size:12px;">
+      No se encontró run para ${isin} tras ${maxWaitSec}s.
+      Comprueba la cola con "Cola" o revisa logs/.
+    </div>
+  `;
+  return false;
+}
+
 function showProgress(runId, isin) {
   openModal(`Análisis en curso: ${isin}`);
   $('#modal-action').style.display = 'none';
@@ -2886,6 +2953,19 @@ autoDetectTunnel().then(() => {
   refreshQueue().then(() => {
     if ((LAST_QUEUE_KNOWN || []).length > 0) startQueuePolling();
   });
+});
+
+// T1b (2026-05-27): tras pulsar 🚀 ARRANCAR, iniciar.ps1 NO abre pestaña nueva
+// del catalog. El usuario alt-tab vuelve a esta pestaña y aquí re-detectamos
+// inmediatamente el túnel + estado del server, sin esperar al setInterval 30s.
+let _lastVisibilityCheck = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  // throttle: como mucho una vez cada 3s (evita ráfagas si haces alt-tab rápido)
+  const now = Date.now();
+  if (now - _lastVisibilityCheck < 3000) return;
+  _lastVisibilityCheck = now;
+  autoDetectTunnel().then(checkServer);
 });
 
 // W7 (2026-05-21): mini-monitor permanente. Auto-refresh cada 10s.
