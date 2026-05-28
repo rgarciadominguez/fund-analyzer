@@ -325,6 +325,38 @@ if errorlevel 1 (
 echo.
 
 REM ----------------------------------------------------------------------
+REM Paso 7.5/7: Auto-commit + push del HTML regenerado para que Cloudflare
+REM lo sirva al catalog publico. Sin esto el dashboard del catalog publico
+REM queda desactualizado tras un run (Cloudflare sirve desde git, no de
+REM Supabase Storage que sirve text/plain inalterable).
+REM No bloqueante si falla — el analisis local sigue OK.
+echo === Paso 7.5/7: Auto-commit + push del dashboard regenerado ===
+if exist "dashboard\fund-%ISIN%.html" (
+    git add "dashboard\fund-%ISIN%.html" >nul 2>&1
+    git diff --cached --quiet "dashboard\fund-%ISIN%.html"
+    if errorlevel 1 (
+        git commit -m "auto: regen dashboard %ISIN%" >nul 2>&1
+        if errorlevel 1 (
+            echo [WARN] auto-commit fallo - revisa git status manualmente
+            set FAILED_STEPS=!FAILED_STEPS! auto-git-commit
+        ) else (
+            git push origin v2-cowork >nul 2>&1
+            if errorlevel 1 (
+                echo [WARN] auto-push fallo - hazlo manual: git push origin v2-cowork
+                set FAILED_STEPS=!FAILED_STEPS! auto-git-push
+            ) else (
+                echo [OK] dashboard/fund-%ISIN%.html commiteado y pusheado
+            )
+        )
+    ) else (
+        echo [SKIP] dashboard sin cambios desde ultimo commit
+    )
+) else (
+    echo [SKIP] dashboard\fund-%ISIN%.html no existe
+)
+echo.
+
+REM ----------------------------------------------------------------------
 REM G12 (2026-05-19, branch v2-cowork): clasificar exit code en 3 niveles para
 REM que web_server.py pueda distinguir done / completed_with_warnings / failed.
 REM

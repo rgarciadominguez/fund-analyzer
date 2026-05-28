@@ -110,34 +110,41 @@ def _safe_read_json(path: Path) -> dict | None:
 
 
 def _upload_file_to_storage(client, bucket: str, dest_path: str, local_path: Path, content_type: str = None) -> str | None:
-    """Sube un archivo local a Supabase Storage. Devuelve dest_path o None."""
+    """Sube un archivo local a Supabase Storage. Devuelve dest_path o None.
+
+    Fix 2026-05-28: usar API REST directa con header HTTP `Content-Type`
+    correcto. El SDK Python (file_options.contentType) no actualizaba el
+    Content-Type al hacer upsert sobre archivos existentes, así que
+    Supabase servía todo como text/plain y los dashboards HTML salían
+    como código fuente en lugar de renderizarse.
+    """
     if not local_path.exists():
         print(f"[SYNC] [SKIP] No existe: {local_path}")
         return None
     try:
-        with local_path.open("rb") as f:
-            file_bytes = f.read()
-        options = {"upsert": "true"}
-        if content_type:
-            options["content-type"] = content_type
-        client.storage.from_(bucket).upload(
-            path=dest_path,
-            file=file_bytes,
-            file_options=options,
+        import os, urllib.request
+        body = local_path.read_bytes()
+        # Construir URL REST: <base>/storage/v1/object/<bucket>/<path>
+        base = os.environ.get("SUPABASE_URL", "").rstrip("/")
+        key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+        if not base or not key:
+            raise RuntimeError("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY no en env")
+        url = f"{base}/storage/v1/object/{bucket}/{dest_path}"
+        ct = content_type or "application/octet-stream"
+        req = urllib.request.Request(
+            url, data=body, method="PUT",
+            headers={
+                "Authorization": f"Bearer {key}",
+                "apikey": key,
+                "Content-Type": ct,
+                "x-upsert": "true",
+            },
         )
+        urllib.request.urlopen(req, timeout=60)
         return dest_path
     except Exception as e:
-        # Si ya existe, intenta update
-        try:
-            client.storage.from_(bucket).update(
-                path=dest_path,
-                file=file_bytes,
-                file_options=options,
-            )
-            return dest_path
-        except Exception as e2:
-            print(f"[SYNC] [ERROR] Subiendo {dest_path}: {e2}")
-            return None
+        print(f"[SYNC] [ERROR] Subiendo {dest_path}: {e}")
+        return None
 
 
 def sync_fund(

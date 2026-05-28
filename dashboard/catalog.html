@@ -1768,18 +1768,12 @@ function isHostedMode() {
 }
 
 function getDashboardUrl(isin, version = '') {
-  // Cache-bust: ?v=<ts> evita HTML obsoleto cuando un re-run regenera datos.
+  // Path relativo — Cloudflare sirve los HTML desde el repo git. El bat
+  // auto-commitea + pushea el dashboard regenerado tras cada run para que
+  // se actualice automáticamente sin intervención manual.
+  // (Probé Supabase Storage directo 2026-05-28 pero el bucket sirve TODO
+  // como text/plain ignorando la metadata content_type — Edge no renderiza.)
   const v = version ? `?v=${encodeURIComponent(version)}` : '';
-  // Fix 2026-05-28: en modo hosted (Cloudflare), apuntar DIRECTAMENTE a
-  // Supabase Storage (la "fuente de verdad" tras cada `sync_to_supabase`).
-  // Antes leíamos de Cloudflare → repo git → siempre desactualizado salvo
-  // commit manual. Ahora cada run sube el HTML a Storage y el catalog lo
-  // sirve fresh sin necesidad de tocar git.
-  if (isHostedMode() && typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL && !SUPABASE_URL.startsWith('__')) {
-    const base = SUPABASE_URL.replace(/\/$/, '');
-    return `${base}/storage/v1/object/public/funds-data/dashboards/fund-${isin}.html${v}`;
-  }
-  // Modo local (Flask) o sin Supabase configurada: path relativo
   return `fund-${isin}.html${v}`;
 }
 
