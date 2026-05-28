@@ -317,6 +317,26 @@
     background: var(--neg);
     color: white;
   }
+  .btn-improve {
+    display: inline-block;
+    background: var(--paper-2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 12px;
+    line-height: 1.4;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-improve:hover {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-improve:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
   .btn-delete {
     display: inline-block;
     background: var(--paper-2);
@@ -1137,7 +1157,14 @@ function badgeAnalisis(f) {
     (completitud !== null && completitud < 60) || !f.has_dashboard || hasIssues
   );
   const regenerar = incompleto
-    ? `<button class="btn-regen" data-regen-isin="${f.isin}" type="button" title="Re-ejecutar análisis (cold-start).${hasIssues ? ' Issues: '+issues.join(', ') : ' Completitud: '+(completitud||'?')+'%'}${SERVER.available ? '' : ' (requiere server local)'}">🔄</button>`
+    ? `<button class="btn-regen" data-regen-isin="${f.isin}" type="button" title="Re-ejecutar análisis COLD-START: borra carpeta y re-hace TODO desde cero (35-50 min, ~$0.10-0.30).${hasIssues ? ' Issues: '+issues.join(', ') : ' Completitud: '+(completitud||'?')+'%'}${SERVER.available ? '' : ' (requiere server local)'}">🔄</button>`
+    : '';
+
+  // T3.4 (2026-05-28): ♺ Mejorar — resume mode + aplica feedback humano pendiente.
+  // Aparece siempre que el fondo tiene análisis (no cold-start sirve para
+  // mejorar incrementalmente sin perder lo bueno).
+  const mejorar = f.has_qualitative_analysis
+    ? `<button class="btn-improve" data-improve-isin="${f.isin}" type="button" title="Mejorar análisis: re-corre en modo resume (5-15 min, ~$0.01-0.05). Aplica feedback humano pendiente si hay. NO borra datos previos.${SERVER.available ? '' : ' (requiere server local)'}">♺</button>`
     : '';
 
   // Botón 🗑 borrar fondo: solo si hay análisis problemático
@@ -1145,7 +1172,7 @@ function badgeAnalisis(f) {
     ? `<button class="btn-delete" data-delete-isin="${f.isin}" type="button" title="Eliminar este fondo de Supabase (DB + Storage). El ISIN volverá a estado 'sin análisis'. Útil si está mal y prefieres limpiarlo antes de relanzar.">🗑</button>`
     : '';
 
-  return `<div class="action-cell">${cualitativo}${atencion}${cuanti}${editar}${regenerar}${borrar}</div>`;
+  return `<div class="action-cell">${cualitativo}${atencion}${cuanti}${editar}${mejorar}${regenerar}${borrar}</div>`;
 }
 
 // Brokers como chips de colores
@@ -1519,6 +1546,100 @@ function bindRowClicks() {
         alert('Error de red: ' + err.message);
         btn.disabled = false;
         btn.textContent = '🔄';
+      }
+    });
+  });
+
+  // T3.4 (2026-05-28): Botón "♺ Mejorar" — resume mode + apply_feedback=true.
+  // Si hay run activo del ISIN, abre showProgress directo. Sino, encola con
+  // cold_start=false + apply_feedback=true → bat lanza con --resume --apply-feedback.
+  $$('button.btn-improve').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!requireServerOrShowModal()) return;
+      const isin = btn.dataset.improveIsin;
+      // 0) Si run activo → abrir progress
+      try {
+        const r = await apiFetch(
+          `/api/runs/by-isin/${encodeURIComponent(isin)}`,
+          { cache: 'no-cache' }
+        );
+        if (r.ok) {
+          const run = await r.json();
+          if (run && run.run_id && (run.status === 'running' || run.status === 'queued')) {
+            showProgress(run.run_id, isin);
+            return;
+          }
+        }
+      } catch (err) { /* fall through */ }
+      // 1) ¿En cola sin run_id? → showProgressForIsin
+      const inQueue = (LAST_QUEUE_KNOWN || []).some(it =>
+        it.isin === isin && (it.status === 'queued' || it.status === 'running')
+      );
+      if (inQueue) {
+        showProgressForIsin(isin);
+        return;
+      }
+      // 2) Sin run activo → encolar improvement
+      const fund = (STATE.catalog?.funds || []).find(f => f.isin === isin);
+      // Saber si hay feedback pending para informar al user
+      let nPending = 0;
+      try {
+        const rfb = await apiFetch(
+          `/api/feedback/${encodeURIComponent(isin)}`,
+          { cache: 'no-cache' }
+        );
+        if (rfb.ok) {
+          const fdata = await rfb.json();
+          nPending = (fdata.feedbacks || []).filter(f => f.estado === 'pending').length;
+        }
+      } catch (err) { /* sin feedback API → 0 */ }
+      const fbHint = nPending > 0
+        ? `\n\n📝 Hay ${nPending} feedback(s) pendiente(s) que se aplicarán.`
+        : '\n\n(No hay feedback humano pending — re-correrá normal en resume mode.)';
+      const ok = confirm(
+        `Mejorar análisis de ${isin}${fund?.nombre ? ' ('+fund.nombre+')' : ''}?\n\n` +
+        `Resume mode: NO borra fund_dir, re-corre solo los pasos sin output válido.\n` +
+        `Duración estimada: 5-15 min. Coste estimado: ~$0.01-0.05 (cache LLM).` +
+        fbHint +
+        `\n\n¿Continuar?`
+      );
+      if (!ok) return;
+      btn.disabled = true;
+      btn.textContent = '…';
+      try {
+        const res = await apiFetch('/api/analyze-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isins: [isin],
+            cold_start: false,
+            apply_feedback: true,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || (data.queued === 0 && (data.skipped || []).length > 0)) {
+          const reason = (data.skipped && data.skipped[0]?.reason) || data.error || '';
+          btn.disabled = false;
+          btn.textContent = '♺';
+          const rlc = reason.toLowerCase();
+          if (rlc.includes('cola') || rlc.includes('queue') ||
+              rlc.includes('corriendo') || rlc.includes('running')) {
+            showProgressForIsin(isin);
+          } else {
+            alert('No se pudo encolar: ' + (reason || 'error desconocido'));
+          }
+          return;
+        }
+        refreshQueue();
+        if (!QUEUE_POLL_INTERVAL) startQueuePolling();
+        btn.disabled = false;
+        btn.textContent = '♺';
+        showProgressForIsin(isin);
+      } catch (err) {
+        alert('Error de red: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '♺';
       }
     });
   });
