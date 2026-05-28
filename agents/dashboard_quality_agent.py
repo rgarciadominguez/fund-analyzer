@@ -1387,6 +1387,30 @@ class DashboardQualityAgent:
         if fallos_scarcity > 0:
             score_display += f" ({fallos_scarcity} pendientes de datos)"
 
+        # T3.13 (2026-05-28): añadir feedback humano pending al report como
+        # "fallos pendientes" (revisión humana sin aplicar). No cuentan para
+        # el score automático, pero sí para que el usuario los vea.
+        human_feedback_pending = []
+        try:
+            from tools import feedback_store as _fs
+            pending = _fs.get_pending(self.isin)
+            for fb in pending:
+                for idx, item in enumerate(fb.get("structured_items", [])):
+                    if idx in (fb.get("resolved_items") or []):
+                        continue
+                    human_feedback_pending.append({
+                        "feedback_id": fb.get("id"),
+                        "item_idx": idx,
+                        "created_at": fb.get("created_at"),
+                        "target_path": item.get("target_path"),
+                        "target_section": item.get("target_section"),
+                        "action": item.get("action"),
+                        "rationale": item.get("rationale", "")[:200],
+                        "confidence": item.get("confidence"),
+                    })
+        except Exception:
+            pass
+
         report = {
             "fund": self.isin,
             "nombre": data.get("nombre", ""),
@@ -1399,6 +1423,8 @@ class DashboardQualityAgent:
             "score_display": score_display,
             "secciones_evaluadas": self.rules.get("sections", []),
             "evaluado_at": datetime.now().isoformat(),
+            "human_feedback_pending": human_feedback_pending,
+            "n_human_feedback_pending": len(human_feedback_pending),
         }
 
         # Persistir y mostrar

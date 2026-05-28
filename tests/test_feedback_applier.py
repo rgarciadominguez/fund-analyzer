@@ -234,6 +234,45 @@ def test_verify_consultar_fuente_resolved_when_url_in_fuentes(fund_setup):
     assert verify["n_resolved"] == 1
 
 
+def test_verify_t312_registers_useful_url_hosts(fund_setup, monkeypatch):
+    """T3.12: tras un item consultar_fuente resolved, los hosts deben ser
+    pasados a persist_html_fallback_to_registry (mocked)."""
+    isin, fund_dir = fund_setup
+    # gestora válida (no == ISIN) requerida para que T3.12 dispare
+    output = json.loads((fund_dir / "output.json").read_text(encoding="utf-8"))
+    output["gestora"] = "Test Gestora"
+    (fund_dir / "output.json").write_text(json.dumps(output), encoding="utf-8")
+
+    fs.append_feedback(
+        isin, "ver esta URL",
+        raw_urls=["https://morningstar.fr/x", "https://quantalys.com/y"],
+        structured_items=[
+            _item(action="consultar_fuente",
+                  urls=["https://morningstar.fr/x", "https://quantalys.com/y"]),
+        ],
+    )
+    apply_res = fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+
+    # Mock persist_html_fallback_to_registry
+    captured = {}
+    def fake_persist(isin, gestora, useful_domains):
+        captured["isin"] = isin
+        captured["gestora"] = gestora
+        captured["domains"] = useful_domains
+        return True
+    import agents.discovery_v2 as dv2
+    monkeypatch.setattr(dv2, "persist_html_fallback_to_registry", fake_persist)
+
+    verify = fa.verify_resolved_after_run(
+        isin, fund_dir, apply_res["snapshots_pre"]
+    )
+    assert verify["n_resolved"] == 1
+    assert captured.get("gestora") == "Test Gestora"
+    hosts = captured.get("domains", [])
+    assert "morningstar.fr" in hosts
+    assert "quantalys.com" in hosts
+
+
 def test_verify_revisar_with_section_resolved_if_texto_non_empty(fund_setup):
     isin, fund_dir = fund_setup
     # resumen ya tenía texto "texto previo" — la heurística mira len > 100

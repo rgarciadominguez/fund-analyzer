@@ -361,8 +361,9 @@ def verify_resolved_after_run(
         if is_resolved:
             resolved_per_fb.setdefault(fb_id, []).append(idx)
 
-    # Aplicar mark_items_resolved
+    # Aplicar mark_items_resolved + T3.12 auto-apply URLs útiles a registry
     total_resolved = 0
+    useful_urls_for_registry: list[str] = []
     for fb_id, idxs in resolved_per_fb.items():
         try:
             fs.mark_items_resolved(isin, fb_id, idxs)
@@ -370,6 +371,41 @@ def verify_resolved_after_run(
         except Exception as e:
             if log_fn:
                 log_fn("FEEDBACK", "WARN", f"mark_items_resolved({fb_id}) falló: {e}")
+        # T3.12: recopilar URLs útiles (de items resolved con source_urls)
+        fb = fs.get_feedback_by_id(isin, fb_id)
+        if fb:
+            for idx in idxs:
+                items = fb.get("structured_items") or []
+                if 0 <= idx < len(items):
+                    urls = items[idx].get("source_urls") or []
+                    useful_urls_for_registry.extend(urls)
+
+    # T3.12 (2026-05-28): tras resolver feedback con URLs útiles, auto-añadir
+    # los hosts a gestoras_registry[gestora].html_fallback_useful_domains
+    # para que futuros runs de la MISMA gestora prioricen esos dominios.
+    if useful_urls_for_registry:
+        try:
+            from urllib.parse import urlparse
+            useful_hosts = list({
+                urlparse(u).netloc.lower()
+                for u in useful_urls_for_registry
+                if u
+            })
+            useful_hosts = [h for h in useful_hosts if h]
+            # Necesitamos saber la gestora
+            gestora = (output_data.get("gestora") or "").strip()
+            if useful_hosts and gestora and gestora.upper() != isin.upper():
+                from agents.discovery_v2 import persist_html_fallback_to_registry
+                persist_html_fallback_to_registry(
+                    isin=isin, gestora=gestora, useful_domains=useful_hosts,
+                )
+                if log_fn:
+                    log_fn("FEEDBACK", "OK",
+                           f"T3.12: +{len(useful_hosts)} hosts útiles a registry para «{gestora}»: "
+                           f"{', '.join(useful_hosts[:3])}{'…' if len(useful_hosts) > 3 else ''}")
+        except Exception as e:
+            if log_fn:
+                log_fn("FEEDBACK", "WARN", f"T3.12 persist_to_registry falló: {e}")
 
     if log_fn:
         log_fn("FEEDBACK", "INFO",
@@ -378,6 +414,7 @@ def verify_resolved_after_run(
         "verified": True,
         "n_resolved": total_resolved,
         "feedbacks_touched": list(resolved_per_fb.keys()),
+        "useful_hosts_registered": len(useful_urls_for_registry),
     }
 
 
