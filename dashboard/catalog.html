@@ -1768,11 +1768,18 @@ function isHostedMode() {
 }
 
 function getDashboardUrl(isin, version = '') {
-  // Path relativo — funciona en local (Flask sirve) y en Pages (sirve archivos del repo).
-  // T2.8 (2026-05-28): añadir ?v=<ts> cuando se sabe la fecha del último
-  // análisis. Cache-bust para que el navegador no sirva HTML obsoleto tras
-  // un re-run (típico cuando name_recovery actualizaba el nombre).
+  // Cache-bust: ?v=<ts> evita HTML obsoleto cuando un re-run regenera datos.
   const v = version ? `?v=${encodeURIComponent(version)}` : '';
+  // Fix 2026-05-28: en modo hosted (Cloudflare), apuntar DIRECTAMENTE a
+  // Supabase Storage (la "fuente de verdad" tras cada `sync_to_supabase`).
+  // Antes leíamos de Cloudflare → repo git → siempre desactualizado salvo
+  // commit manual. Ahora cada run sube el HTML a Storage y el catalog lo
+  // sirve fresh sin necesidad de tocar git.
+  if (isHostedMode() && typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL && !SUPABASE_URL.startsWith('__')) {
+    const base = SUPABASE_URL.replace(/\/$/, '');
+    return `${base}/storage/v1/object/public/funds-data/dashboards/fund-${isin}.html${v}`;
+  }
+  // Modo local (Flask) o sin Supabase configurada: path relativo
   return `fund-${isin}.html${v}`;
 }
 
