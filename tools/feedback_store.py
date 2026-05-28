@@ -308,8 +308,66 @@ def mark_items_resolved(
     return None
 
 
+def set_item_results(
+    isin: str, feedback_id: str, per_item_results: list[dict],
+) -> bool:
+    """T3.X (2026-05-28): persiste el resultado de APLICAR cada item del
+    feedback. `per_item_results` es lista de
+    {idx, applied: bool, reason: str, resolved: bool|None, verify_reason: str|None}.
+
+    El widget del dashboard lee este campo para mostrar al usuario por qué
+    un item no se aplicó (o no se resolvió tras aplicarlo).
+    """
+    data = _load(isin)
+    for fb in data.get("feedbacks", []):
+        if fb.get("id") != feedback_id:
+            continue
+        fb["item_results"] = list(per_item_results)
+        _save(isin, data)
+        return True
+    return False
+
+
+def update_verify_results(
+    isin: str, feedback_id: str, verify_per_idx: dict,
+) -> bool:
+    """Actualiza el resultado del VERIFY (resolved + verify_reason) por idx
+    sobre `item_results` previamente seteado. `verify_per_idx` es
+    {idx: (resolved: bool, verify_reason: str)}.
+
+    Si no existe item_results todavía, lo crea con apply=None.
+    """
+    data = _load(isin)
+    for fb in data.get("feedbacks", []):
+        if fb.get("id") != feedback_id:
+            continue
+        items_count = len(fb.get("structured_items") or [])
+        existing = fb.get("item_results") or []
+        # Map por idx
+        by_idx = {r.get("idx"): r for r in existing if isinstance(r, dict)}
+        for idx, (resolved, reason) in (verify_per_idx or {}).items():
+            r = by_idx.get(idx) or {
+                "idx": idx, "applied": None, "reason": "",
+            }
+            r["resolved"] = bool(resolved)
+            r["verify_reason"] = str(reason or "")
+            by_idx[idx] = r
+        # Ordenar por idx y rellenar huecos
+        merged: list[dict] = []
+        for i in range(items_count):
+            merged.append(by_idx.get(i) or {
+                "idx": i, "applied": None, "reason": "",
+                "resolved": None, "verify_reason": None,
+            })
+        fb["item_results"] = merged
+        _save(isin, data)
+        return True
+    return False
+
+
 __all__ = [
     "list_feedback", "get_pending", "get_feedback_by_id",
     "append_feedback", "delete_feedback",
     "mark_applied", "mark_items_resolved",
+    "set_item_results", "update_verify_results",
 ]

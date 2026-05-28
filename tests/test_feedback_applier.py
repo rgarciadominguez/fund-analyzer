@@ -273,6 +273,53 @@ def test_verify_t312_registers_useful_url_hosts(fund_setup, monkeypatch):
     assert "quantalys.com" in hosts
 
 
+def test_apply_persists_item_results_with_reasons(fund_setup):
+    """T3.X: tras aplicar, cada item del feedback debe tener `item_results`
+    con applied=bool + reason explicativa."""
+    isin, fund_dir = fund_setup
+    fs.append_feedback(isin, "varios items", structured_items=[
+        _item(path="nombre", action="set", value="Nuevo Nombre"),
+        # gestora ya es "" en el fixture → set gestora="" no debe aplicar
+        _item(path="gestora", action="set", value=""),
+        _item(action="consultar_fuente", urls=["https://example.com"]),
+    ])
+    fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+    fbs = fs.list_feedback(isin)
+    fb = fbs[0]
+    item_results = fb.get("item_results")
+    assert isinstance(item_results, list)
+    assert len(item_results) == 3
+    # Item 0: set nombre → aplicado
+    assert item_results[0]["applied"] is True
+    assert "actualizado" in item_results[0]["reason"]
+    # Item 1: set gestora = valor previo (vacío) → NO aplicado, razón explica el por qué
+    assert item_results[1]["applied"] is False
+    assert "ya era" in item_results[1]["reason"]
+    # Item 2: consultar_fuente nuevo → aplicado
+    assert item_results[2]["applied"] is True
+
+
+def test_verify_persists_verify_reasons(fund_setup):
+    """Tras verify, item_results tiene resolved + verify_reason."""
+    isin, fund_dir = fund_setup
+    # Paths distintos para evitar interferencia entre items
+    fs.append_feedback(isin, "test", structured_items=[
+        _item(path="nombre", action="set", value="Cambio Real"),  # sí cambia
+        _item(path="gestora", action="set", value=""),  # ya era "" → no cambia
+    ])
+    apply_res = fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+    fa.verify_resolved_after_run(isin, fund_dir, apply_res["snapshots_pre"])
+    fbs = fs.list_feedback(isin)
+    item_results = fbs[0].get("item_results") or []
+    assert len(item_results) == 2
+    # Item 0: resolved (nombre cambió)
+    assert item_results[0]["resolved"] is True
+    assert "cambió" in item_results[0]["verify_reason"]
+    # Item 1: NO resolved (gestora sigue ""), razón explica
+    assert item_results[1]["resolved"] is False
+    assert "no cambió" in item_results[1]["verify_reason"]
+
+
 def test_verify_revisar_with_section_resolved_if_texto_non_empty(fund_setup):
     isin, fund_dir = fund_setup
     # resumen ya tenía texto "texto previo" — la heurística mira len > 100

@@ -6255,9 +6255,37 @@ def build_feedback_widget(data):
       if (feedbacks.length === 0) {{ historySection.style.display = 'none'; return; }}
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {{
-        const items = (fb.structured_items || []).map(it => {{
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {{
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${{it.action}}</code> <strong>${{target}}</strong>${{it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}}</div>`;
+          const result = itemResults[idx] || {{}};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {{
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${{result.verify_reason}}</div>`;
+          }} else if (result.applied === false) {{
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${{result.reason || 'sin razón registrada'}}</div>`;
+          }} else if (result.applied === true && result.resolved === false) {{
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${{result.reason}}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${{result.verify_reason}}</div>` : '';
+            detail = r1 + r2;
+          }} else if (result.applied === true) {{
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${{result.reason}}</div>`;
+          }}
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${{it.action}}</code> <strong>${{target}}</strong>${{it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}}</div>
+            <div style="margin-top:3px;">${{badge}}</div>
+            ${{detail}}
+          </div>`;
         }}).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';

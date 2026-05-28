@@ -68,14 +68,16 @@ def _set_nested(data: dict, path: str, value) -> None:
 # ════════════════════════════════════════════════════════════════════
 
 
-def _apply_set(output_data: dict, path: str, value, log: Optional[LogFn]) -> bool:
-    if not path or value is None:
-        return False
+def _apply_set(output_data: dict, path: str, value, log: Optional[LogFn]) -> tuple[bool, str]:
+    """Devuelve (success, reason). reason explica qué pasó (aplicado/no aplicado)."""
+    if not path:
+        return False, "no se aplicó: item sin target_path"
+    if value is None:
+        return False, "no se aplicó: el parser no extrajo el valor concreto a setear"
     prev = _get_nested(output_data, path)
     if prev == value:
-        return False
+        return False, f"no se aplicó: el valor ya era {value!r}"
     _set_nested(output_data, path, value)
-    # Marcar como manual edit
     try:
         from tools.output_merger import mark_manual_edit
         mark_manual_edit(output_data, path)
@@ -85,13 +87,14 @@ def _apply_set(output_data: dict, path: str, value, log: Optional[LogFn]) -> boo
             edits.append(path)
     if log:
         log("FEEDBACK", "OK", f"set {path}: {prev!r} → {value!r}")
-    return True
+    return True, f"actualizado: {prev!r} → {value!r}"
 
 
-def _apply_add(output_data: dict, path: str, value, log: Optional[LogFn]) -> bool:
-    """Añade `value` a lista en path. Crea la lista si no existe."""
-    if not path or value is None:
-        return False
+def _apply_add(output_data: dict, path: str, value, log: Optional[LogFn]) -> tuple[bool, str]:
+    if not path:
+        return False, "no se aplicó: item sin target_path"
+    if value is None:
+        return False, "no se aplicó: el parser no extrajo el valor"
     parts = path.split(".")
     cur = output_data
     for p in parts[:-1]:
@@ -101,18 +104,22 @@ def _apply_add(output_data: dict, path: str, value, log: Optional[LogFn]) -> boo
     last = parts[-1]
     if not isinstance(cur.get(last), list):
         cur[last] = []
-    # Si value es lista, extender. Si no, append (si no duplica).
     target = cur[last]
     added = 0
+    duplicates: list = []
     if isinstance(value, list):
         for v in value:
             if v not in target:
                 target.append(v)
                 added += 1
+            else:
+                duplicates.append(v)
     else:
         if value not in target:
             target.append(value)
             added = 1
+        else:
+            duplicates.append(value)
     if added:
         try:
             from tools.output_merger import mark_manual_edit
@@ -123,13 +130,15 @@ def _apply_add(output_data: dict, path: str, value, log: Optional[LogFn]) -> boo
                 edits.append(path)
         if log:
             log("FEEDBACK", "OK", f"add {path}: +{added} elementos (valor={value!r})")
-    return added > 0
+        return True, f"añadido {added} elemento(s) a {path}"
+    return False, f"no se aplicó: el valor ya estaba en {path} ({duplicates!r})"
 
 
-def _apply_replace(output_data: dict, path: str, value, log: Optional[LogFn]) -> bool:
-    """Reemplaza lista entera en path."""
-    if not path or value is None:
-        return False
+def _apply_replace(output_data: dict, path: str, value, log: Optional[LogFn]) -> tuple[bool, str]:
+    if not path:
+        return False, "no se aplicó: item sin target_path"
+    if value is None:
+        return False, "no se aplicó: el parser no extrajo el valor"
     if not isinstance(value, list):
         value = [value]
     _set_nested(output_data, path, value)
@@ -142,16 +151,14 @@ def _apply_replace(output_data: dict, path: str, value, log: Optional[LogFn]) ->
             edits.append(path)
     if log:
         log("FEEDBACK", "OK", f"replace {path}: lista completa ({len(value)} items)")
-    return True
+    return True, f"lista completa reemplazada ({len(value)} items)"
 
 
 def _apply_consultar_fuente(
     output_data: dict, source_urls: list[str], log: Optional[LogFn]
-) -> bool:
-    """Añade URLs a `fuentes_adicionales` (lista en output.json) para que
-    discovery / analyst las consideren."""
+) -> tuple[bool, str]:
     if not source_urls:
-        return False
+        return False, "no se aplicó: item sin URLs"
     bucket = output_data.setdefault("fuentes_adicionales", [])
     if not isinstance(bucket, list):
         bucket = []
@@ -169,7 +176,8 @@ def _apply_consultar_fuente(
             pass
         if log:
             log("FEEDBACK", "OK", f"consultar_fuente: +{added} URLs en fuentes_adicionales")
-    return added > 0
+        return True, f"+{added} URLs añadidas a fuentes_adicionales"
+    return False, "no se aplicó: las URLs ya estaban en fuentes_adicionales"
 
 
 def _apply_revisar(
@@ -177,9 +185,7 @@ def _apply_revisar(
     item: dict,
     raw_text: str,
     log: Optional[LogFn],
-) -> bool:
-    """Anota el item revisar en `_feedback_revisar` para que analyst (T3.7) lea
-    como instrucción prioritaria al regenerar la sección."""
+) -> tuple[bool, str]:
     revisar_bucket = output_data.setdefault("_feedback_revisar", [])
     if not isinstance(revisar_bucket, list):
         revisar_bucket = []
@@ -192,10 +198,10 @@ def _apply_revisar(
         "raw_text_hint": raw_text[:500] if raw_text else "",
     }
     revisar_bucket.append(entry)
+    target = item.get("target_section") or item.get("target_path") or "(global)"
     if log:
-        target = item.get("target_section") or item.get("target_path") or "(global)"
         log("FEEDBACK", "OK", f"revisar registrado para {target}: {item.get('rationale','')[:80]}")
-    return True
+    return True, f"instrucción registrada en _feedback_revisar para que analyst la procese ({target})"
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -233,6 +239,10 @@ def apply_pending_feedback(
     output_data = json.loads(output_path.read_text(encoding="utf-8"))
 
     snapshots_pre: dict = {}  # (feedback_id, item_idx) → pre_value
+    # T3.X (2026-05-28): item_results_per_fb registra por feedback el
+    # resultado de aplicar cada item: {applied: bool, reason: str}.
+    # Se persiste en el feedback para que el UI muestre el por qué.
+    item_results_per_fb: dict[str, list[dict]] = {}
     n_items_applied = 0
     n_items_failed = 0
 
@@ -244,6 +254,7 @@ def apply_pending_feedback(
         fb_id = fb.get("id")
         raw_text = fb.get("raw_text") or ""
         items = fb.get("structured_items") or []
+        per_item_results: list[dict] = []
         for idx, item in enumerate(items):
             action = (item.get("action") or "").lower()
             path = item.get("target_path")
@@ -254,32 +265,43 @@ def apply_pending_feedback(
             else:
                 snapshots_pre[(fb_id, idx)] = None
             # Aplicar
-            success = False
+            success, reason = False, ""
             if action == "set":
-                success = _apply_set(output_data, path, value, log_fn)
+                success, reason = _apply_set(output_data, path, value, log_fn)
             elif action == "add":
-                success = _apply_add(output_data, path, value, log_fn)
+                success, reason = _apply_add(output_data, path, value, log_fn)
             elif action == "replace":
-                success = _apply_replace(output_data, path, value, log_fn)
+                success, reason = _apply_replace(output_data, path, value, log_fn)
             elif action == "consultar_fuente":
-                success = _apply_consultar_fuente(
+                success, reason = _apply_consultar_fuente(
                     output_data, item.get("source_urls") or [], log_fn,
                 )
             elif action == "revisar":
-                success = _apply_revisar(output_data, item, raw_text, log_fn)
+                success, reason = _apply_revisar(output_data, item, raw_text, log_fn)
             else:
+                reason = f"acción desconocida: {action!r}"
                 if log_fn:
                     log_fn("FEEDBACK", "WARN", f"action desconocida: {action!r}")
+            per_item_results.append({
+                "idx": idx,
+                "applied": success,
+                "reason": reason,
+                # Estos campos los actualiza verify_resolved_after_run
+                "resolved": None,
+                "verify_reason": None,
+            })
             if success:
                 n_items_applied += 1
             else:
                 n_items_failed += 1
-        # Marcar feedback como applied
+        item_results_per_fb[fb_id] = per_item_results
+        # Marcar feedback como applied + guardar item_results
         try:
             fs.mark_applied(isin, fb_id, run_id)
+            fs.set_item_results(isin, fb_id, per_item_results)
         except Exception as e:
             if log_fn:
-                log_fn("FEEDBACK", "WARN", f"mark_applied({fb_id}) falló: {e}")
+                log_fn("FEEDBACK", "WARN", f"mark_applied/set_item_results({fb_id}) falló: {e}")
 
     # Guardar output.json modificado (atómico)
     tmp = output_path.with_suffix(".json.tmp")
@@ -323,8 +345,9 @@ def verify_resolved_after_run(
         return {"verified": False, "reason": "no_output"}
     output_data = json.loads(output_path.read_text(encoding="utf-8"))
 
-    # Agrupar resoluciones por feedback_id
+    # Agrupar resoluciones por feedback_id + capturar razón per item
     resolved_per_fb: dict[str, list[int]] = {}
+    verify_reasons_per_fb: dict[str, dict[int, tuple[bool, str]]] = {}
     for (fb_id, idx), pre_value in snapshots_pre.items():
         # Encontrar el item para saber su target
         fb = fs.get_feedback_by_id(isin, fb_id)
@@ -338,43 +361,82 @@ def verify_resolved_after_run(
         action = item.get("action")
         post_value = _get_nested(output_data, path) if path else None
         is_resolved = False
+        reason = ""
         if action in ("set", "add", "replace"):
-            # Resolved si post != pre
             is_resolved = (post_value != pre_value)
+            if is_resolved:
+                reason = f"valor cambió: {pre_value!r} → {post_value!r}"
+            else:
+                reason = (
+                    f"el valor no cambió tras el run (sigue siendo {post_value!r}). "
+                    f"Causas posibles: el agente fuente lo sobrescribió, "
+                    f"_manual_edits no protegió, o el item no se aplicó."
+                )
         elif action == "consultar_fuente":
-            # Resolved si la URL aparece en fuentes_adicionales
             urls = item.get("source_urls") or []
             bucket = output_data.get("fuentes_adicionales") or []
-            is_resolved = any(u in bucket for u in urls)
+            matched = [u for u in urls if u in bucket]
+            is_resolved = len(matched) > 0
+            if is_resolved:
+                reason = f"URL(s) presentes en fuentes_adicionales: {matched}"
+            else:
+                reason = (
+                    "las URLs no aparecen en fuentes_adicionales. "
+                    "El discovery no las indexó o el extractor las descartó."
+                )
         elif action == "revisar":
-            # Resolved si el analyst regeneró la sección (target_section cambió
-            # de longitud >5% o tiene contenido nuevo). Heurística: assume
-            # resolved tras un re-run completo.
             target_section = item.get("target_section")
             if target_section:
                 synth = output_data.get("analyst_synthesis") or {}
                 sec_obj = synth.get(target_section) or {}
                 texto = sec_obj.get("texto") or ""
-                is_resolved = len(texto) > 100  # tiene contenido
+                is_resolved = len(texto) > 100
+                if is_resolved:
+                    reason = (
+                        f"sección '{target_section}' tiene contenido "
+                        f"({len(texto)} chars). El analyst la regeneró considerando el feedback."
+                    )
+                else:
+                    reason = (
+                        f"sección '{target_section}' quedó vacía o muy corta "
+                        f"({len(texto)} chars). El analyst no consiguió generar contenido — "
+                        f"posiblemente faltan datos en bundle/ para esa sección."
+                    )
             else:
-                is_resolved = True  # global revisar, assume processed
+                is_resolved = True
+                reason = "feedback global 'revisar': asumido procesado tras re-run completo del analyst"
+        else:
+            reason = f"acción no verificable: {action}"
+
+        verify_reasons_per_fb.setdefault(fb_id, {})[idx] = (is_resolved, reason)
         if is_resolved:
             resolved_per_fb.setdefault(fb_id, []).append(idx)
 
-    # Aplicar mark_items_resolved + T3.12 auto-apply URLs útiles a registry
+    # Aplicar mark_items_resolved + T3.12 auto-apply URLs útiles a registry +
+    # actualizar item_results con la razón del verify
     total_resolved = 0
     useful_urls_for_registry: list[str] = []
-    for fb_id, idxs in resolved_per_fb.items():
+    # Set de feedback_ids con cualquier item evaluado (resuelto o no)
+    all_fb_ids = set(resolved_per_fb.keys()) | set(verify_reasons_per_fb.keys())
+    for fb_id in all_fb_ids:
+        idxs_resolved = resolved_per_fb.get(fb_id, [])
         try:
-            fs.mark_items_resolved(isin, fb_id, idxs)
-            total_resolved += len(idxs)
+            if idxs_resolved:
+                fs.mark_items_resolved(isin, fb_id, idxs_resolved)
+                total_resolved += len(idxs_resolved)
+            # Actualizar verify_reason+resolved en cada item_result persistido
+            reasons_map = verify_reasons_per_fb.get(fb_id, {})
+            try:
+                fs.update_verify_results(isin, fb_id, reasons_map)
+            except Exception:
+                pass
         except Exception as e:
             if log_fn:
                 log_fn("FEEDBACK", "WARN", f"mark_items_resolved({fb_id}) falló: {e}")
         # T3.12: recopilar URLs útiles (de items resolved con source_urls)
         fb = fs.get_feedback_by_id(isin, fb_id)
         if fb:
-            for idx in idxs:
+            for idx in idxs_resolved:
                 items = fb.get("structured_items") or []
                 if 0 <= idx < len(items):
                     urls = items[idx].get("source_urls") or []
