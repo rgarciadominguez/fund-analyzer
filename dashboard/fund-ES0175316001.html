@@ -27,6 +27,12 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
 .lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
 .lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
 .srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
 .srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
 .theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
@@ -41,7 +47,13 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
 .pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
 .sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
 .col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 .mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
 hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
@@ -158,11 +170,12 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
       <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0175316001</strong> <span style='opacity:.55;font-size:10.5px;'>· Dunas Valor Flexible I FI</span></div>
     </div>
 
-    <!-- ZONA 2: AUM + Riesgo UCITS (SRRI solo si es real) -->
-    <div style="display:flex;align-items:center;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€546M</div>
+        <div class="lh-aum-v">€552M</div>
         <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
         <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
@@ -247,13 +260,13 @@ El fondo exhibe una <strong>alta rotación de cartera</strong>, del <strong>153.
   <div class="sr">Clases disponibles</div>
   <table class="rt mb20">
     <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
-    <tbody><tr><td><strong>Clase D</strong></td><td>ES0175316001</td><td>0,7%</td><td>0,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2019</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase G</strong></td><td>ES0175316001</td><td>0,3%</td><td>0,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2025</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase I</strong></td><td>ES0175316001</td><td>0,7%</td><td>0,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2017</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase R</strong></td><td>ES0175316001</td><td>—</td><td>0,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2017</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr style="opacity:0.5;"><td><strong>Clase A</strong></td><td>ES0175316001</td><td>1,0%</td><td>—</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2012</td><td><span style="color:var(--ink-4);font-size:10px;">Cerrada</span></td></tr><tr style="opacity:0.5;"><td><strong>Clase B</strong></td><td>ES0175316001</td><td>0,0%</td><td>—</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2013</td><td><span style="color:var(--ink-4);font-size:10px;">Cerrada</span></td></tr></tbody>
+    <tbody><tr><td><strong>Clase D</strong></td><td>—</td><td>0,7%</td><td>0,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2019</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase G</strong></td><td>—</td><td>0,3%</td><td>0,4%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2025</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase I</strong></td><td>—</td><td>0,7%</td><td>0,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2017</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Clase R</strong></td><td>—</td><td>1,4%</td><td>1,5%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2017</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr style="opacity:0.5;"><td><strong>Clase A</strong></td><td>ES0175316001</td><td>1,0%</td><td>—</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2012</td><td><span style="color:var(--ink-4);font-size:10px;">Cerrada</span></td></tr><tr style="opacity:0.5;"><td><strong>Clase B</strong></td><td>—</td><td>0,0%</td><td>—</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2013</td><td><span style="color:var(--ink-4);font-size:10px;">Cerrada</span></td></tr></tbody>
   </table>
   
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores que buscan preservar capital y obtener rentabilidades razonables sin asumir riesgos excesivos, especialmente en un entorno de mercado con activos caros. El horizonte de inversión debe ser medio-largo plazo, y el inversor debe tener una tolerancia al riesgo baja-moderada. No se debe esperar una alta volatilidad ni un potencial de revalorización explosivo.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Por lo tanto, no se puede evaluar el alineamiento de intereses a través de esta métrica.</p></div></div>
 
-  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="D" selected>D</option><option value="G">G</option><option value="I">I</option><option value="R">R</option><option value="A">A (cerrada)</option><option value="B">B (cerrada)</option></select></span></div>
+  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="R" selected>R (TER 1,4%)</option><option value="D">D (TER 0,71%)</option><option value="G">G (TER 0,33%)</option><option value="I">I (TER 0,7%)</option><option value="A">A (cerrada)</option><option value="B">B (cerrada)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
   </div>
@@ -276,7 +289,7 @@ El fondo exhibe una <strong>alta rotación de cartera</strong>, del <strong>153.
   <div class="col2 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div><div class="ch-b"><div class="ch-l">Partícipes</div><div class="ch-h"><canvas id="c-part"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 546.2;
+  window.__HIST_AUM_HEADER__ = 551.623;
   </script>
   
   <div class="sr">Cronología de eventos relevantes</div>
@@ -373,12 +386,13 @@ El fondo exhibe una <strong>alta rotación de cartera</strong>, del <strong>153.
       <div class="tl-desc">Se prevé una modificación de la política de inversión, la introducción de comisiones sobre resultados para las Clases R y RD, y la creación de la Clase G. El patrimonio proyectado supera los 551.623 M€, con 2.386 partícipes, y se anuncian pagos de dividendos para las Clases D y RD.</div>
     </div>
   </div>
+  
 </section>
 
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  <div class="mb24"><p class="pr">El equipo de gestión de inversiones de Dunas Capital Asset Management, responsable del DUNAS VALOR FLEXIBLE FI, se compone de nueve profesionales. Un director de gestión de activos lidera la estrategia global, apoyado por directores y gestores especializados en renta fija y renta variable, incluyendo perfiles junior. Esta estructura denota una clara especialización por clase de activo, esencial para un fondo flexible, permitiendo una cobertura profunda.</p><p class="pr">La estabilidad histórica del equipo no puede evaluarse con la información disponible. No obstante, la configuración actual muestra perfiles complementarios, con experiencia senior y gestores especializados en ambas clases de activos, facilitando una filosofía de inversión orientada al valor. La fortaleza reside en esta profundidad de experiencia, aunque la dependencia del director de gestión de activos para la cohesión estratégica es un riesgo. Es crucial asegurar una integración robusta entre las decisiones de renta fija y variable para optimizar el rendimiento del mandato flexible.</p><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);margin-top:20px;">Introducción</div></div>
+  <div class="mb24"><p class="pr">El equipo de gestión de inversiones de Dunas Capital Asset Management, responsable del DUNAS VALOR FLEXIBLE FI, se compone de nueve profesionales. Un director de gestión de activos lidera la estrategia global, apoyado por directores y gestores especializados en renta fija y renta variable, incluyendo perfiles junior. Esta estructura denota una clara especialización por clase de activo, esencial para un fondo flexible, permitiendo una cobertura profunda.</p><p class="pr">La estabilidad histórica del equipo no puede evaluarse con la información disponible. No obstante, la configuración actual muestra perfiles complementarios, con experiencia senior y gestores especializados en ambas clases de activos, facilitando una filosofía de inversión orientada al valor. La fortaleza reside en esta profundidad de experiencia, aunque la dependencia del director de gestión de activos para la cohesión estratégica es un riesgo. Es crucial asegurar una integración robusta entre las decisiones de renta fija y variable para optimizar el rendimiento del mandato flexible.</p><p class="subsec">Introducción</p></div>
 
   
     <div class="mgr">
@@ -555,9 +569,9 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <div class="mb24">
     
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">información sobre el país o la región de origen de los activos. Esta carencia es significativa, ya que impide realizar un análisis de la diversificación geográfica del fondo, identificar posibles concentraciones en mercados específicos o evaluar si existen apuestas regionales diferenciadas respecto a la categoría de fondos flexibles. Sin esta información, resulta imposible determinar si el fondo mantiene una inclinación hacia mercados desarrollados, emergentes o una combinación de ambos, así como la evolución de dicha exposición a lo largo del tiempo, un factor crítico para entender la gestión del riesgo país y las oportunidades de crecimiento global que el gestor busca capitalizar.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">De manera similar, la información sectorial de las posiciones no ha sido facilitada, lo que imposibilita un análisis profundo de la distribución de la cartera por sectores económicos. No podemos identificar los sectores principales en los que el fondo invierte, ni determinar si existen sobreponderaciones o infraponderaciones significativas en comparación con un benchmark relevante. Esta limitación impide evaluar la tesis sectorial del gestor, su visión sobre las tendencias macroeconómicas y microeconómicas, o los cambios estratégicos en la asignación sectorial que se hayan podido implementar en periodos recientes. La falta de este detalle sectorial es un obstáculo para comprender la calidad de la diversificación y los motores de rentabilidad subyacentes a nivel industrial.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">un claro predominio de bonos corporativos y deuda soberana en el top. La posición de mayor convicción es el bono de <strong>MORGAN STANLEY</strong>, representando un <strong>2.27%</strong> del total, seguido de cerca por el bono de <strong>BARCLAYS</strong> con un <strong>2.14%</strong>. Otros bonos corporativos relevantes incluyen <strong>LEASYS</strong> (<strong>1.93%</strong>), <strong>NAT. BUILDING SOC.</strong> (<strong>1.73%</strong>), <strong>US BANCORP</strong> (<strong>1.69%</strong>), <strong>CITIGROUP</strong> (<strong>1.51%</strong>), <strong>CREDIT AGRICOLE</strong> (<strong>1.48%</strong>), y <strong>CANADIAN I. BANK C.</strong> (<strong>1.48%</strong>), lo que subraya una fuerte exposición al sector financiero a través de deuda. La deuda soberana está presente con el <strong>ESTADO: ITALIA</strong> (<strong>1.82%</strong>). En el lado de la renta variable, las principales apuestas incluyen <strong>E.ON</strong> (<strong>2.01%</strong>), <strong>ANHEUSER-BUSCH INBEV</strong> (<strong>1.61%</strong>), <strong>VINCI</strong> (<strong>1.53%</strong>), <strong>SAP</strong> (<strong>1.51%</strong>), <strong>ORANGE</strong> (<strong>1.51%</strong>), <strong>NN GROUP</strong> (<strong>1.48%</strong>), <strong>CAPGEMINI</strong> (<strong>1.44%</strong>), <strong>CAF</strong> (<strong>1.38%</strong>) y <strong>REDEIA</strong> (<strong>1.33%</strong>), mostrando una diversificación en sectores como utilities, consumo, infraestructuras, tecnología y telecomunicaciones. La tesis específica del gestor para estas posiciones de mayor convicción, más allá de su inclusión en la cartera, no ha sido proporcionada.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En cuanto a la concentración de la cartera, los datos a 2025 revelan que el <strong>top 5%</strong> de las posiciones representa el <strong>10.2%</strong> del patrimonio, el <strong>top 10%</strong> el <strong>18.5%</strong>, y el <strong>top 15%</strong> el <strong>26.0%</strong>. Al comparar estos niveles con la media histórica, se observa una tendencia clara hacia una menor concentración en los últimos años. Por ejemplo, en 2021, el top 5% representaba el <strong>21.3%</strong>, el top 10% el <strong>34.5%</strong>, y el top 15% el <strong>45.0%</strong>. Esta evolución indica que el gestor ha optado por una estrategia de mayor diversificación en el periodo reciente, reduciendo el peso de las posiciones de mayor convicción en el conjunto de la cartera. Los niveles actuales de concentración son significativamente inferiores a los observados en la mayoría de los años desde 2012, donde el top 5% solía superar el <strong>15%</strong> y en ocasiones el <strong>20%</strong>. Esta tendencia a la desconcentración podría interpretarse como una gestión más prudente del riesgo idiosincrático o una mayor dificultad para encontrar oportunidades de inversión con alta convicción que justifiquen grandes pesos.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">están denominadas en <strong>EUR</strong>, lo que sugiere una exposición limitada al riesgo divisa para los inversores de la Eurozona, al menos en la parte más relevante de la cartera. Sin embargo, la ausencia de datos sobre la duración media de la cartera de renta fija impide evaluar el riesgo de tipo de interés, un factor crítico en el entorno actual. Tampoco se dispone de información sobre la calidad crediticia de los bonos, lo que es fundamental para analizar el riesgo de impago. La falta de datos sectoriales y geográficos, como se mencionó anteriormente, impide una evaluación completa de la concentración de riesgos en estas dimensiones. Finalmente, la liquidez de las posiciones individuales y del conjunto de la cartera no ha sido detallada, lo que es un elemento clave para la gestión de reembolsos y la capacidad de ajuste de la cartera en condiciones de mercado adversas.</p></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En cuanto a la exposición geográfica, los datos proporcionados para las principales posiciones de la cartera no incluyen información sobre el país o la región de origen de los activos. Esta carencia es significativa, ya que impide realizar un análisis de la diversificación geográfica del fondo, identificar posibles concentraciones en mercados específicos o evaluar si existen apuestas regionales diferenciadas respecto a la categoría de fondos flexibles. Sin esta información, resulta imposible determinar si el fondo mantiene una inclinación hacia mercados desarrollados, emergentes o una combinación de ambos, así como la evolución de dicha exposición a lo largo del tiempo, un factor crítico para entender la gestión del riesgo país y las oportunidades de crecimiento global que el gestor busca capitalizar.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">De manera similar, la información sectorial de las posiciones no ha sido facilitada, lo que imposibilita un análisis profundo de la distribución de la cartera por sectores económicos. No podemos identificar los sectores principales en los que el fondo invierte, ni determinar si existen sobreponderaciones o infraponderaciones significativas en comparación con un benchmark relevante. Esta limitación impide evaluar la tesis sectorial del gestor, su visión sobre las tendencias macroeconómicas y microeconómicas, o los cambios estratégicos en la asignación sectorial que se hayan podido implementar en periodos recientes. La falta de este detalle sectorial es un obstáculo para comprender la calidad de la diversificación y los motores de rentabilidad subyacentes a nivel industrial.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Analizando las principales posiciones de la cartera, se observa una distribución entre renta fija y renta variable, con un claro predominio de bonos corporativos y deuda soberana en el top. La posición de mayor convicción es el bono de <strong>MORGAN STANLEY</strong>, representando un <strong>2.27%</strong> del total, seguido de cerca por el bono de <strong>BARCLAYS</strong> con un <strong>2.14%</strong>. Otros bonos corporativos relevantes incluyen <strong>LEASYS</strong> (<strong>1.93%</strong>), <strong>NAT. BUILDING SOC.</strong> (<strong>1.73%</strong>), <strong>US BANCORP</strong> (<strong>1.69%</strong>), <strong>CITIGROUP</strong> (<strong>1.51%</strong>), <strong>CREDIT AGRICOLE</strong> (<strong>1.48%</strong>), y <strong>CANADIAN I. BANK C.</strong> (<strong>1.48%</strong>), lo que subraya una fuerte exposición al sector financiero a través de deuda. La deuda soberana está presente con el <strong>ESTADO: ITALIA</strong> (<strong>1.82%</strong>). En el lado de la renta variable, las principales apuestas incluyen <strong>E.ON</strong> (<strong>2.01%</strong>), <strong>ANHEUSER-BUSCH INBEV</strong> (<strong>1.61%</strong>), <strong>VINCI</strong> (<strong>1.53%</strong>), <strong>SAP</strong> (<strong>1.51%</strong>), <strong>ORANGE</strong> (<strong>1.51%</strong>), <strong>NN GROUP</strong> (<strong>1.48%</strong>), <strong>CAPGEMINI</strong> (<strong>1.44%</strong>), <strong>CAF</strong> (<strong>1.38%</strong>) y <strong>REDEIA</strong> (<strong>1.33%</strong>), mostrando una diversificación en sectores como utilities, consumo, infraestructuras, tecnología y telecomunicaciones. La tesis específica del gestor para estas posiciones de mayor convicción, más allá de su inclusión en la cartera, no ha sido proporcionada.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En cuanto a la concentración de la cartera, los datos a 2025 revelan que el <strong>top 5%</strong> de las posiciones representa el <strong>10.2%</strong> del patrimonio, el <strong>top 10%</strong> el <strong>18.5%</strong>, y el <strong>top 15%</strong> el <strong>26.0%</strong>. Al comparar estos niveles con la media histórica, se observa una tendencia clara hacia una menor concentración en los últimos años. Por ejemplo, en 2021, el top 5% representaba el <strong>21.3%</strong>, el top 10% el <strong>34.5%</strong>, y el top 15% el <strong>45.0%</strong>. Esta evolución indica que el gestor ha optado por una estrategia de mayor diversificación en el periodo reciente, reduciendo el peso de las posiciones de mayor convicción en el conjunto de la cartera. Los niveles actuales de concentración son significativamente inferiores a los observados en la mayoría de los años desde 2012, donde el top 5% solía superar el <strong>15%</strong> y en ocasiones el <strong>20%</strong>. Esta tendencia a la desconcentración podría interpretarse como una gestión más prudente del riesgo idiosincrático o una mayor dificultad para encontrar oportunidades de inversión con alta convicción que justifiquen grandes pesos.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Respecto a los riesgos inherentes a la cartera, la información disponible permite inferir que las principales posiciones están denominadas en <strong>EUR</strong>, lo que sugiere una exposición limitada al riesgo divisa para los inversores de la Eurozona, al menos en la parte más relevante de la cartera. Sin embargo, la ausencia de datos sobre la duración media de la cartera de renta fija impide evaluar el riesgo de tipo de interés, un factor crítico en el entorno actual. Tampoco se dispone de información sobre la calidad crediticia de los bonos, lo que es fundamental para analizar el riesgo de impago. La falta de datos sectoriales y geográficos, como se mencionó anteriormente, impide una evaluación completa de la concentración de riesgos en estas dimensiones. Finalmente, la liquidez de las posiciones individuales y del conjunto de la cartera no ha sido detallada, lo que es un elemento clave para la gestión de reembolsos y la capacidad de ajuste de la cartera en condiciones de mercado adversas.</p></div>
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Decisiones / cambios recientes</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">as o salidas notables de posiciones en los últimos periodos, ni sobre rebalanceos relevantes que el gestor haya podido realizar. Esta ausencia de datos impide analizar la actividad reciente del gestor, identificar nuevas apuestas o desinversiones estratégicas, y comprender cómo la cartera se ha adaptado a los movimientos del mercado o a cambios en la tesis de inversión. Para un análisis ejecutivo completo, sería fundamental disponer de un desglose de las transacciones más relevantes, ya sea a través de informes trimestrales o cartas del gestor, para evaluar la agilidad y la proactividad en la gestión del fondo.</p></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En lo que respecta a los cambios recientes significativos en la cartera, no se ha proporcionado información sobre entradas o salidas notables de posiciones en los últimos periodos, ni sobre rebalanceos relevantes que el gestor haya podido realizar. Esta ausencia de datos impide analizar la actividad reciente del gestor, identificar nuevas apuestas o desinversiones estratégicas, y comprender cómo la cartera se ha adaptado a los movimientos del mercado o a cambios en la tesis de inversión. Para un análisis ejecutivo completo, sería fundamental disponer de un desglose de las transacciones más relevantes, ya sea a través de informes trimestrales o cartas del gestor, para evaluar la agilidad y la proactividad en la gestión del fondo.</p></div>
   </div>
 
   
@@ -1393,9 +1407,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 
 <section class="pane" id="p6">
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
-
-  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
   
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#e85d26;">RK</div>
@@ -1408,6 +1421,19 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
       <div class="exp-body open">Este análisis de Rankia detalla la rentabilidad, ratios y cartera del fondo Dunas Valor Flexible R FI. Se menciona la estrategia de inversión, que busca una rentabilidad anual ligada al Euribor 12m más un diferencial, adaptándose a las condiciones actuales del mercado.</div>
       <a href="https://www.rankia.com/fondos-de-inversion/dunas-valor-flexible-r-fi-dunas-capital" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date"> </span>
+      </div>
+      <div class="src-t">Puntuación y opiniones sobre Dunas Valor Flexible FI - Finect</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Finect recopila puntuaciones y opiniones de usuarios sobre el Dunas Valor Flexible FI. Se destaca la presencia de análisis profesionales, como el de Francisco Manuel Ortega Bellido, consultor financiero, quien lo describe como un fondo experimentado y correcto.</div>
+      <a href="https://www.finect.com/fondos-inversion/ES0175316019-Dunas_valor_flexible_r_fi/reviews" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
       <div class="src-head">
@@ -1435,8 +1461,6 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
       <div class="exp-body open">En este foro de Más Dividendos se discute la fusión de fondos de Dunas, incluyendo el Dunas Valor Prudente, y el posible aumento de comisiones. Se menciona que algunos fondos conservadores están subiendo comisiones ante tipos de interés más altos.</div>
       <a href="https://foro.masdividendos.com/t/el-metodo-cartesio/1544?page=8" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
-
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#1a8c5a;">FN</div>
@@ -1445,11 +1469,12 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
         </div>
         <span class="src-date"> </span>
       </div>
-      <div class="src-t">Puntuación y opiniones sobre Dunas Valor Flexible FI - Finect</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Finect recopila puntuaciones y opiniones de usuarios sobre el Dunas Valor Flexible FI. Se destaca la presencia de análisis profesionales, como el de Francisco Manuel Ortega Bellido, consultor financiero, quien lo describe como un fondo experimentado y correcto.</div>
-      <a href="https://www.finect.com/fondos-inversion/ES0175316019-Dunas_valor_flexible_r_fi/reviews" class="src-lnk" target="_blank">Ver análisis completo →</a>
+      <div class="src-t">ES0175316019 - Dunas Valor Flexible FI - Finect</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Finect presenta la ficha del fondo Dunas Valor Flexible FI (Clase R), mostrando su valor liquidativo y fecha de actualización. Invita a los usuarios a consultar con expertos financieros y comparar fondos.</div>
+      <a href="https://www.finect.com/fondos-inversion/ES0175316019-Dunas_valor_flexible_r_fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#555;">CN</div>
@@ -1491,7 +1516,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
     </div>
     <div class="src-card">
       <div class="src-head">
-        <div class="src-logo" style="background:#555;">MA</div>
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
         <div class="src-info">
           <div class="src-o">markets.ft.com</div>
         </div>
@@ -1530,7 +1555,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
     </div>
     <div class="src-card">
       <div class="src-head">
-        <div class="src-logo" style="background:#555;">QU</div>
+        <div class="src-logo" style="background:#3d5a80;">QN</div>
         <div class="src-info">
           <div class="src-o">quefondos.com</div>
         </div>
@@ -1541,32 +1566,19 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
       <div class="exp-body">Quefondos.com proporciona una ficha informativa del Dunas Valor Flexible FI R, detallando su ISIN, gestora y permitiendo acceder a informes del fondo. Es una fuente útil para obtener datos técnicos y de rendimiento.</div>
       <a href="https://www.quefondos.com/es/fondos/ficha/index.html?isin=ES0175316019" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#1a8c5a;">FN</div>
-        <div class="src-info">
-          <div class="src-o">Finect</div>
-        </div>
-        <span class="src-date"> </span>
-      </div>
-      <div class="src-t">ES0175316019 - Dunas Valor Flexible FI - Finect</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Finect presenta la ficha del fondo Dunas Valor Flexible FI (Clase R), mostrando su valor liquidativo y fecha de actualización. Invita a los usuarios a consultar con expertos financieros y comparar fondos.</div>
-      <a href="https://www.finect.com/fondos-inversion/ES0175316019-Dunas_valor_flexible_r_fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
 </section>
 
 <section class="pane" id="p7">
   <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">80 fuentes consultadas</span></div>
 
   <div class="doc-grp">Informes semestrales CNMV (14)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2012_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2013_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2014_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2015_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2016_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2017_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2018_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2019_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2020_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2021_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2022_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2023_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 2 archivos más</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2012_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2012_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2013_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2013_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2014_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2014_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2015_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2015_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2016_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2016_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2017_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2017_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2018_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2018_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2019_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2019_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2020_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2021_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2021_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2022_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2022_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175316001_2023_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/reports/CNMV_ES0175316001_2023_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 2 archivos más</div>
 
   <div class="doc-grp">Cartas del gestor (1)</div>
   <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">inversis.com — N5232 inf trimestral.pdf</span><a href="https://www.inversis.com/ppensiones/contenidos/inf_trimestral/N5232_inf_trimestral.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
 
   <div class="doc-grp">XMLs CNMV (42)</div>
-  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_202504.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_202504.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_202508.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_202508.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 36 archivos más</div>
+  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_202504.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/xml/Abril_FONDMENS_202504.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_202504.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/xml/Abril_FONDREGISTRO_202504.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_202508.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/xml/Agosto_FONDMENS_202508.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_202508.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/xml/Agosto_FONDREGISTRO_202508.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/xml/Diciembre_FONDCART_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175316001/raw/xml/Diciembre_FONDDERI_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 36 archivos más</div>
 
   <div class="doc-grp">Fuentes externas (23)</div>
   <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fondosyplanes.cincodias.elpais.com — DUNAS VALOR FLEXIBLE R ES0175316019</span><a href="http://fondosyplanes.cincodias.elpais.com/fondo-inversion/DUNAS-VALOR-FLEXIBLE-R-ES0175316019" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">dunascapital.com — fondos de inversion.php</span><a href="https://dunascapital.com/fondos_de_inversion.php" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">es-us.finanzas.yahoo.com — F00000OEIT.BC</span><a href="https://es-us.finanzas.yahoo.com/quote/F00000OEIT.BC/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">es.finance.yahoo.com — profile</span><a href="https://es.finance.yahoo.com/quote/F00000OEIT.BC/profile/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">es.slideshare.net — dunas capital quines somos</span><a href="https://es.slideshare.net/slideshow/dunas-capital-quines-somos/229735600" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">masdividendos.com — el metodo cartesio</span><a href="https://foro.masdividendos.com/t/el-metodo-cartesio/1544?page=8" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=ES0175316019:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">myisin.com — ES0175316019</span><a href="https://myisin.com/instrumentos/ES0175316019" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">cnmv.es — fondo</span><a href="https://www.cnmv.es/portal/consultas/iic/fondo?nif=V86494960&lang=es" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">cnmv.es</span><a href="https://www.cnmv.es/webservices/verdocumento/ver?e=5lKZUZvkjkgYMTsFak89bpyI%2Fvkn5S066%2B2WMNUZOF58eLqdAGL8lVchX%2FJXlmhb" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 13 archivos más</div>
@@ -1654,8 +1666,9 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <div class="chat-container">
     <div class="chat-header">
       <h1>Chat con los documentos del fondo</h1>
-      <p>Pregunta sobre DUNAS VALOR FLEXIBLE FI (ES0175316001). El chat tiene acceso a todos los informes CNMV,
-         cartas del gestor, fuentes externas y el analisis completo.</p>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         DUNAS VALOR FLEXIBLE FI (ES0175316001): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
       <div class="chat-status">
         <div class="dot" id="chatDot"></div>
         <span id="chatStatusText">Conectando...</span>
@@ -1808,6 +1821,369 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </section>
 </main>
 
+<!-- T3 feedback widget (2026-05-28) -->
+<style>
+  .fb-fab {
+    position: fixed; top: 76px; right: 20px; z-index: 1000;
+    background: #c5a25a; color: white; border: none;
+    padding: 10px 16px; border-radius: 24px;
+    font-family: 'Source Sans 3', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  }
+  .fb-fab:hover { background: #a87b1f; transform: translateY(-1px); }
+  .fb-fab .fb-badge {
+    display: inline-block; background: white; color: #c5a25a;
+    border-radius: 10px; padding: 1px 7px; font-size: 11px;
+    margin-left: 6px; font-weight: 700;
+  }
+  .fb-modal-bg {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(0,0,0,0.5);
+    align-items: center; justify-content: center;
+  }
+  .fb-modal-bg.show { display: flex; }
+  .fb-modal {
+    background: white; max-width: 720px; width: 92%; max-height: 88vh;
+    overflow-y: auto; border-radius: 4px; padding: 24px;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-modal h2 {
+    font-family: 'EB Garamond', serif; font-size: 22px;
+    margin: 0 0 4px 0; color: #222;
+  }
+  .fb-modal .fb-sub { font-size: 12px; color: #666; margin-bottom: 16px; }
+  .fb-modal label {
+    display: block; text-transform: uppercase; letter-spacing: 1px;
+    font-size: 10px; color: #888; font-weight: 600; margin: 12px 0 6px 0;
+  }
+  .fb-modal textarea, .fb-modal input[type="text"] {
+    width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px;
+    font-family: inherit; font-size: 13px; box-sizing: border-box;
+  }
+  .fb-modal textarea { min-height: 140px; resize: vertical; }
+  .fb-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .fb-btn {
+    padding: 9px 16px; border: 1px solid #ccc; background: white; color: #333;
+    border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 13px;
+  }
+  .fb-btn:hover { background: #f5f5f5; }
+  .fb-btn-primary { background: #c5a25a; color: white; border-color: #c5a25a; }
+  .fb-btn-primary:hover { background: #a87b1f; }
+  .fb-btn-secondary { background: #2a3d57; color: white; border-color: #2a3d57; }
+  .fb-btn-secondary:hover { background: #1a2d47; }
+  .fb-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fb-preview {
+    background: #fafafa; border: 1px solid #eee; border-radius: 3px;
+    padding: 12px; margin-top: 14px; font-size: 12px; color: #444;
+  }
+  .fb-preview-item {
+    padding: 8px; border-bottom: 1px dashed #ddd; display: flex; gap: 8px;
+    align-items: flex-start;
+  }
+  .fb-preview-item:last-child { border-bottom: none; }
+  .fb-preview-action {
+    background: #2a3d57; color: white; padding: 2px 8px; border-radius: 3px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .fb-preview-conf-high { color: #1b8c3b; }
+  .fb-preview-conf-medium { color: #b8860b; }
+  .fb-preview-conf-low { color: #cc0033; }
+  .fb-error { color: #cc0033; font-size: 12px; margin-top: 8px; }
+  .fb-info { color: #1b8c3b; font-size: 12px; margin-top: 8px; }
+  .fb-history-section {
+    margin: 60px 20px 40px 20px; padding: 20px; background: #fafafa;
+    border-radius: 4px; font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-history-section h3 {
+    font-family: 'EB Garamond', serif; font-size: 20px; margin: 0 0 10px 0;
+    color: #222; cursor: pointer; user-select: none;
+  }
+  .fb-history-section h3::after { content: ' ▾'; color: #999; font-size: 14px; }
+  .fb-history-section.collapsed h3::after { content: ' ▸'; }
+  .fb-history-section.collapsed .fb-history-body { display: none; }
+  .fb-history-item {
+    padding: 12px; border-left: 3px solid #ccc; background: white;
+    margin: 10px 0; border-radius: 0 3px 3px 0;
+  }
+  .fb-history-item.estado-pending { border-left-color: #b8860b; }
+  .fb-history-item.estado-applied { border-left-color: #2a3d57; }
+  .fb-history-item.estado-resolved { border-left-color: #1b8c3b; }
+  .fb-history-item.estado-partially_resolved { border-left-color: #c5a25a; }
+  .fb-history-meta { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .fb-history-text { font-size: 13px; color: #333; margin: 6px 0; }
+  .fb-history-items {
+    font-size: 11px; color: #666; margin-top: 6px;
+    background: #f5f5f5; padding: 8px; border-radius: 3px;
+  }
+  .fb-history-delete {
+    float: right; background: none; border: 1px solid #ccc; color: #888;
+    padding: 1px 7px; cursor: pointer; font-size: 11px; border-radius: 3px;
+  }
+  .fb-history-delete:hover { background: #cc0033; color: white; border-color: #cc0033; }
+</style>
+
+<button id="fb-fab" class="fb-fab" type="button" title="Aportar feedback sobre este análisis">📝 Mejorar este análisis<span id="fb-fab-badge" class="fb-badge" style="display:none;">0</span></button>
+
+<div id="fb-modal-bg" class="fb-modal-bg">
+  <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
+    <h2 id="fb-modal-title">📝 Mejorar análisis: DUNAS VALOR FLEXIBLE FI</h2>
+    <div class="fb-sub">ISIN: <code>ES0175316001</code> · DUNAS CAPITAL ASSET MANAGEMENT S.G.I.I.C., S.A.</div>
+
+    <label for="fb-text">¿Qué hay que mejorar?</label>
+    <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
+
+    <label for="fb-urls">URLs/fuentes adicionales (opcional, una por línea)</label>
+    <textarea id="fb-urls" style="min-height:60px;" placeholder="https://ejemplo.com/articulo&#10;https://otrafuente.com/pdf"></textarea>
+
+    <div id="fb-error" class="fb-error" style="display:none;"></div>
+    <div id="fb-info" class="fb-info" style="display:none;"></div>
+
+    <div id="fb-preview-block" style="display:none;">
+      <div style="font-size:11px;color:#666;margin-top:14px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Items que se van a guardar (puedes editar antes):</div>
+      <div id="fb-preview" class="fb-preview"></div>
+    </div>
+
+    <div class="fb-actions">
+      <button id="fb-btn-cancel" class="fb-btn" type="button">Cancelar</button>
+      <button id="fb-btn-preview" class="fb-btn fb-btn-primary" type="button">Analizar texto →</button>
+      <button id="fb-btn-save" class="fb-btn fb-btn-primary" type="button" style="display:none;">Solo guardar</button>
+      <button id="fb-btn-save-improve" class="fb-btn fb-btn-secondary" type="button" style="display:none;">Guardar + Mejorar ahora</button>
+    </div>
+  </div>
+</div>
+
+<div id="fb-history" class="fb-history-section collapsed" style="display:none;">
+  <h3 id="fb-history-title">Histórico de feedback (0)</h3>
+  <div class="fb-history-body" id="fb-history-body"></div>
+</div>
+
+<script>
+(function() {
+  const ISIN = 'ES0175316001';
+  const FUND_NAME = 'DUNAS VALOR FLEXIBLE FI';
+  const GESTORA = 'DUNAS CAPITAL ASSET MANAGEMENT S.G.I.I.C., S.A.';
+  // API_BASE: localStorage o relativo. Igual que catalog.html.
+  let API_BASE = localStorage.getItem('fa_api_base') || '';
+  function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
+
+  const fab = document.getElementById('fb-fab');
+  const modalBg = document.getElementById('fb-modal-bg');
+  const txt = document.getElementById('fb-text');
+  const urlsInput = document.getElementById('fb-urls');
+  const errEl = document.getElementById('fb-error');
+  const infoEl = document.getElementById('fb-info');
+  const prevBlock = document.getElementById('fb-preview-block');
+  const prevEl = document.getElementById('fb-preview');
+  const btnPreview = document.getElementById('fb-btn-preview');
+  const btnSave = document.getElementById('fb-btn-save');
+  const btnSaveImprove = document.getElementById('fb-btn-save-improve');
+  const btnCancel = document.getElementById('fb-btn-cancel');
+  const historySection = document.getElementById('fb-history');
+  const historyTitle = document.getElementById('fb-history-title');
+  const historyBody = document.getElementById('fb-history-body');
+  const fabBadge = document.getElementById('fb-fab-badge');
+
+  let currentItems = null;  // items estructurados tras /parse
+
+  fab.addEventListener('click', () => {
+    if (!API_BASE) {
+      alert('No hay server local conectado. Arranca iniciar.bat y refresca el catalog primero.');
+      return;
+    }
+    resetModal();
+    modalBg.classList.add('show');
+    setTimeout(() => txt.focus(), 50);
+  });
+  btnCancel.addEventListener('click', () => modalBg.classList.remove('show'));
+  modalBg.addEventListener('click', (e) => { if (e.target === modalBg) modalBg.classList.remove('show'); });
+
+  function resetModal() {
+    txt.value = ''; urlsInput.value = '';
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    prevBlock.style.display = 'none';
+    btnPreview.style.display = 'inline-block';
+    btnSave.style.display = 'none';
+    btnSaveImprove.style.display = 'none';
+    currentItems = null;
+  }
+
+  function showError(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  function showInfo(msg) { infoEl.textContent = msg; infoEl.style.display = 'block'; }
+
+  function parseUrlsLines(s) {
+    return (s || '').split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
+  }
+
+  function renderPreview(items) {
+    if (!items || !items.length) {
+      prevEl.innerHTML = '<div style="padding:10px;color:#888;">(El parser no extrajo items. Comprueba el texto o guarda como feedback "genérico".)</div>';
+      return;
+    }
+    prevEl.innerHTML = items.map((it, idx) => {
+      const target = it.target_path || (it.target_section ? 'sección: ' + it.target_section : '(global)');
+      const valStr = it.value === null || it.value === undefined ? '' :
+                     (typeof it.value === 'object' ? JSON.stringify(it.value) : String(it.value));
+      const urls = (it.source_urls || []).join(', ');
+      return `<div class="fb-preview-item" data-idx="${idx}">
+        <span class="fb-preview-action">${it.action}</span>
+        <div style="flex:1;">
+          <div><strong>${target}</strong>${valStr ? ' → <code>' + valStr.substring(0,80) + '</code>' : ''}</div>
+          <div style="font-size:11px;color:#777;margin-top:3px;">${it.rationale || ''}</div>
+          ${urls ? `<div style="font-size:10px;color:#999;margin-top:2px;">${urls}</div>` : ''}
+          <div style="font-size:10px;margin-top:2px;" class="fb-preview-conf-${it.confidence||'medium'}">Confianza: ${it.confidence||'medium'}</div>
+        </div>
+        <button type="button" class="fb-btn" style="padding:2px 8px;font-size:11px;" data-rm-preview="${idx}" title="Quitar este item">✕</button>
+      </div>`;
+    }).join('');
+    // bind remove
+    prevEl.querySelectorAll('button[data-rm-preview]').forEach(b => {
+      b.addEventListener('click', () => {
+        const i = parseInt(b.dataset.rmPreview);
+        currentItems.splice(i, 1);
+        renderPreview(currentItems);
+        if (currentItems.length === 0) {
+          btnSave.style.display = 'none';
+          btnSaveImprove.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  btnPreview.addEventListener('click', async () => {
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    const rawText = txt.value.trim();
+    const rawUrls = parseUrlsLines(urlsInput.value);
+    if (!rawText && rawUrls.length === 0) {
+      showError('Escribe algo o pega URLs.');
+      return;
+    }
+    btnPreview.disabled = true;
+    btnPreview.textContent = 'Analizando…';
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/parse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: rawText, raw_urls: rawUrls,
+          fund_name: FUND_NAME, gestora: GESTORA,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showError(data.error || 'Error en parse'); return; }
+      currentItems = data.structured_items || [];
+      renderPreview(currentItems);
+      prevBlock.style.display = 'block';
+      const method = data.parse_meta?.method || 'unknown';
+      const note = method === 'haiku' ? ' (Haiku)' : method === 'fallback' ? ' (parser básico — Haiku no disponible)' : '';
+      showInfo(`${currentItems.length} item(s) extraído(s)${note}. Revisa, elimina los que no quieras y guarda.`);
+      btnPreview.style.display = 'none';
+      btnSave.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+      btnSaveImprove.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnPreview.disabled = false;
+      btnPreview.textContent = 'Analizar texto →';
+    }
+  });
+
+  async function saveAndMaybeImprove(triggerImprove) {
+    if (!currentItems || currentItems.length === 0) {
+      showError('No hay items que guardar.');
+      return;
+    }
+    btnSave.disabled = true; btnSaveImprove.disabled = true;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: txt.value.trim(),
+          raw_urls: parseUrlsLines(urlsInput.value),
+          structured_items: currentItems,
+          fund_name: FUND_NAME,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) { showError(data.error || 'Error guardando'); return; }
+      showInfo(`✓ Feedback guardado.${triggerImprove ? ' Lanzando re-run…' : ''}`);
+      if (triggerImprove) {
+        const res2 = await fbFetch('/api/analyze-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isins: [ISIN], cold_start: false, apply_feedback: true,
+          }),
+        });
+        const d2 = await res2.json();
+        if (!res2.ok) { showError('Encolado falló: ' + (d2.error || res2.status)); return; }
+        showInfo(`✓ Feedback guardado. Re-run encolado. Cierra el modal y verás el progreso en la cola del catalog.`);
+      }
+      // Tras 1.5s cerrar
+      setTimeout(() => { modalBg.classList.remove('show'); loadHistory(); }, 1500);
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnSave.disabled = false; btnSaveImprove.disabled = false;
+    }
+  }
+  btnSave.addEventListener('click', () => saveAndMaybeImprove(false));
+  btnSaveImprove.addEventListener('click', () => saveAndMaybeImprove(true));
+
+  // ───────── Histórico ─────────
+  async function loadHistory() {
+    if (!API_BASE) return;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const data = await res.json();
+      const feedbacks = data.feedbacks || [];
+      const nPending = feedbacks.filter(f => f.estado === 'pending').length;
+      if (nPending > 0) {
+        fabBadge.textContent = nPending;
+        fabBadge.style.display = 'inline-block';
+      } else {
+        fabBadge.style.display = 'none';
+      }
+      historyTitle.textContent = `Histórico de feedback (${feedbacks.length})`;
+      if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
+      historySection.style.display = 'block';
+      historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
+        const items = (fb.structured_items || []).map(it => {
+          const target = it.target_path || it.target_section || '(global)';
+          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+        }).join('');
+        const ts = new Date(fb.created_at).toLocaleString('es-ES');
+        const canDelete = fb.estado === 'pending';
+        return `<div class="fb-history-item estado-${fb.estado}">
+          ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
+          <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
+          <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          <div class="fb-history-items">${items}</div>
+        </div>`;
+      }).join('');
+      historyBody.querySelectorAll('button[data-del-fb]').forEach(b => {
+        b.addEventListener('click', async () => {
+          if (!confirm('Borrar este feedback? Solo se borran los pending.')) return;
+          const fbId = b.dataset.delFb;
+          const r = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/${encodeURIComponent(fbId)}`, { method: 'DELETE' });
+          if (r.ok) loadHistory();
+        });
+      });
+    } catch (e) { /* sin server, silencioso */ }
+  }
+
+  historyTitle.addEventListener('click', () => historySection.classList.toggle('collapsed'));
+
+  // Cargar al inicio si hay API_BASE
+  if (API_BASE) loadHistory();
+})();
+</script>
+
+
 <script>
 function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
 function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
@@ -1889,7 +2265,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[3.133, 8.544, 9.987, 10.598, 8.756, 9.684, 26.248, 52.617, 52.485, 62.237, 81.568, 218.272, 323.884, 546.2],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[3.133, 8.544, 9.987, 10.598, 8.756, 9.684, 26.248, 52.617, 52.485, 62.237, 81.568, 218.272, 323.884, 551.623],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[102, 103, 104, 102, 100, 103, 148, 317, 403, 274, 403, 760, 1281, 2386],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){
@@ -1925,9 +2301,9 @@ function buildCharts(){
     {label:'Top 15',data:[44.6, 36.3, 35.0, 47.3, 50.5, 48.6, 49.5, 43.5, 39.3, 45.0, 35.2, 27.8, 28.7, 26.0],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
   ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
 }
-const COM_DATA={"A": [null, 0.53, 1.0, 1.0, 1.0, 1.0, null, null, null, null, null, null, null, null, null], "B": [null, null, 0.0, 0.0, 0.0, 0.0, null, null, null, null, null, null, null, null, null], "D": [null, null, null, null, null, null, null, null, 0.41, 0.7, 0.7, 0.7, 0.73, 0.75, 0.71], "G": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.33], "I": [null, null, null, null, null, null, 0.94, 0.7, 0.7, 0.7, 0.7, 0.7, 0.73, 0.75, 0.7], "R": [null, null, null, null, null, null, 0.0, 1.32, 1.45, 1.45, 1.45, 1.45, 1.49, 1.5, 1.4]};
-const TER_DATA={"A": [null, 0.73, null, null, null, null, null, null, null, null, null, null, null, null, null], "B": [null, null, 1.24, 1.2, 1.2, 1.2, null, null, null, null, null, null, null, null, null], "D": [null, null, null, null, null, null, null, null, 0.61, 0.91, 0.88, 0.87, 0.87, 0.88, 0.81], "G": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.38], "I": [null, null, null, null, null, null, null, 0.83, 0.88, 0.9, 0.88, 0.86, 0.87, 0.88, 0.79], "R": [null, null, null, null, null, null, 1.15, 1.63, 1.65, 1.65, 1.63, 1.62, 1.63, 1.62, 1.49]};
-const TER_EFECTIVO=[null, 0.73, null, null, null, null, null, null, null, null, null, null, null, null, null];
+const COM_DATA={"R": [null, null, null, null, null, null, 0.0, 1.32, 1.45, 1.45, 1.45, 1.45, 1.49, 1.5, 1.4], "A": [null, 0.53, 1.0, 1.0, 1.0, 1.0, null, null, null, null, null, null, null, null, null], "B": [null, null, 0.0, 0.0, 0.0, 0.0, null, null, null, null, null, null, null, null, null], "D": [null, null, null, null, null, null, null, null, 0.41, 0.7, 0.7, 0.7, 0.73, 0.75, 0.71], "G": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.33], "I": [null, null, null, null, null, null, 0.94, 0.7, 0.7, 0.7, 0.7, 0.7, 0.73, 0.75, 0.7]};
+const TER_DATA={"R": [null, null, null, null, null, null, 1.15, 1.63, 1.65, 1.65, 1.63, 1.62, 1.63, 1.62, 1.49], "A": [null, 0.73, null, null, null, null, null, null, null, null, null, null, null, null, null], "B": [null, null, 1.24, 1.2, 1.2, 1.2, null, null, null, null, null, null, null, null, null], "D": [null, null, null, null, null, null, null, null, 0.61, 0.91, 0.88, 0.87, 0.87, 0.88, 0.81], "G": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.38], "I": [null, null, null, null, null, null, null, 0.83, 0.88, 0.9, 0.88, 0.86, 0.87, 0.88, 0.79]};
+const TER_EFECTIVO=[null, null, null, null, null, null, 1.15, 1.63, 1.65, 1.65, 1.63, 1.62, 1.63, 1.62, 1.49];
 const CY=["11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25"];
 const HAS_EXITO=false;
 const EXITO_REAL=[null, null, null, null, null, null, null, null, null, null, null, null, null, null, null];

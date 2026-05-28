@@ -27,6 +27,12 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
 .lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
 .lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
 .srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
 .srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
 .theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
@@ -41,7 +47,13 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
 .pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
 .sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
 .col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 .mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
 hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
@@ -158,11 +170,12 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
       <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0156572002</strong> <span style='opacity:.55;font-size:10.5px;'>· Myinvestor Cartera Permanente FI</span></div>
     </div>
 
-    <!-- ZONA 2: AUM + Riesgo UCITS (SRRI solo si es real) -->
-    <div style="display:flex;align-items:center;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
         <div class="lh-aum-v">€93M</div>
         <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-09</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2025-12 (Carta)</span></div></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
         <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
@@ -253,7 +266,7 @@ El horizonte de inversión es <strong>largo plazo</strong>, con el objetivo de u
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores que buscan una estrategia de inversión diversificada y estable, diseñada para resistir diferentes ciclos económicos. Es ideal para perfiles con una tolerancia al riesgo moderada y un horizonte de inversión a largo plazo, que priorizan la preservación del capital y la reducción de la volatilidad por encima de la búsqueda de altas rentabilidades en periodos cortos. No es para inversores que esperan ganancias rápidas o que buscan maximizar el rendimiento en mercados alcistas.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Se indica que es un 'fondo de autor' y que se combinaron las mejores ideas de gestores tras la fusión, sugiriendo un fuerte compromiso con la estrategia, pero sin datos cuantitativos sobre alineamiento de intereses a través de inversión personal.</p></div></div>
 
-  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A</option></select></span></div>
+  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,5%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
   </div>
@@ -345,6 +358,7 @@ El horizonte de inversión es <strong>largo plazo</strong>, con el objetivo de u
       <div class="tl-desc">Las proyecciones para 2025 apuntan a un crecimiento aún más ambicioso, con el objetivo de superar los 90.000 M€ de patrimonio y duplicar la base de partícipes hasta los 6.087. Este objetivo se basa en la expectativa de un entorno de mercado favorable y la consolidación de la estrategia de inversión del fondo, que busca ofrecer rentabilidad y preservación de capital a largo plazo.</div>
     </div>
   </div>
+  
 </section>
 
 <section class="pane" id="p2">
@@ -506,9 +520,9 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
   <div class="mb24">
     
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">ón a divisa es significativa, ya que el fondo invierte en bonos gubernamentales y ETFs de renta variable denominados en monedas distintas al euro, como la libra esterlina (GBP), el franco suizo (CHF), la corona sueca (SEK), el dólar australiano (AUD), el dólar canadiense (CAD) y el yen japonés (JPY), lo que introduce un riesgo de tipo de cambio. En renta fija, la estrategia de cartera permanente suele implicar bonos de largo plazo para la protección contra la deflación, lo que conlleva un riesgo de duración considerable ante movimientos al alza en los tipos de interés, aunque no se dispone de datos específicos sobre la duración media de la cartera. La calidad crediticia de la renta fija es predominantemente alta, al tratarse de bonos soberanos de países desarrollados. La concentración sectorial es baja dentro de la renta variable, pero la concentración en clases de activos como el oro y los bonos gubernamentales es una característica fundamental de la estrategia. La liquidez de las posiciones, compuestas principalmente por ETFs, ETCs y bonos gubernamentales, se considera generalmente elevada, aunque no se dispone de un análisis específico de la liquidez de cada activo.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">ficación global centrada en mercados desarrollados, complementada con una asignación a mercados emergentes. En renta fija, el fondo invierte en bonos gubernamentales de <strong>Reino Unido</strong> (<strong>2.81%</strong>), <strong>Suiza</strong> (<strong>2.79%</strong>), <strong>Suecia</strong> (<strong>2.74%</strong>), <strong>Australia</strong> (<strong>2.69%</strong>), <strong>Canadá</strong> (<strong>2.63%</strong>) y <strong>Alemania</strong> (<strong>2.19%</strong>). En renta variable, se observan exposiciones a <strong>Canadá</strong> (<strong>2.88%</strong>), <strong>Suecia</strong> (<strong>2.85%</strong>), <strong>Mercados Emergentes</strong> (<strong>2.8%</strong>), <strong>Japón</strong> (<strong>5.26%</strong> sumando dos ETFs), <strong>Estados Unidos</strong> (<strong>2.69%</strong>), <strong>Australia</strong> (<strong>2.4%</strong>) y <strong>Suiza</strong> (<strong>2.14%</strong>). Esta distribución geográfica, que totaliza una exposición combinada a Suiza del <strong>4.93%</strong>, a Suecia del <strong>5.59%</strong>, a Canadá del <strong>5.51%</strong>, a Japón del <strong>5.26%</strong> y a Australia del <strong>5.09%</strong>, refleja una estrategia de diversificación amplia sin concentraciones excesivas en una única región, más allá de la naturaleza global de los ETFs de oro y la posición en liquidez. La ausencia de datos históricos específicos sobre la evolución de la exposición geográfica impide identificar apuestas regionales diferenciales o cambios significativos en la estrategia a lo largo del tiempo.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En cuanto a la exposición sectorial, el fondo adopta un enfoque de diversificación intrínseco a su estrategia de cartera permanente. La inversión en ETFs de renta variable de índices amplios, como <strong>Xtrackers MSCI Canad</strong>, <strong>iShares OMX Stockhol</strong>, <strong>iShares Core MSCI EM</strong>, <strong>Xtrackers II Japan G</strong>, <strong>Invesco MSCI USA UCI</strong>, <strong>Xtrackers Nikkei 225</strong>, <strong>iShares MSCI Austral</strong> y <strong>ETF UBS ETF MSCI SWI</strong>, implica una exposición sectorial muy diversificada dentro de la componente de renta variable, sin realizar apuestas sectoriales específicas. Los "sectores" principales del fondo son, de hecho, las clases de activos: oro físico, bonos gubernamentales de largo plazo y renta variable global. Esta estructura conlleva una sobreponderación inherente en oro y bonos gubernamentales en comparación con un fondo de renta variable o mixto tradicional, lo cual es una característica fundamental de la estrategia de cartera permanente. No se dispone de un benchmark específico para evaluar sobre o infraponderaciones sectoriales detalladas, ni de información sobre cambios sectoriales recientes más allá de los rebalanceos propios de la estrategia.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">implementación de la estrategia de cartera permanente. La mayor posición es <strong>BANCO INVERSIS, S.A.</strong> (REPO) con un <strong>9.67%</strong>, actuando como componente de liquidez y estabilidad. Le siguen las exposiciones al oro físico a través de <strong>ETF WT PHYSICAL SWIS</strong> (<strong>6.2%</strong>), <strong>ETC Source Physic GP</strong> (<strong>5.92%</strong>), <strong>ETC Ish Phys GoldE</strong> (<strong>3.3%</strong>) y <strong>ETC Xetra Gold</strong> (<strong>3.11%</strong>), que en conjunto suman una parte sustancial de la cartera, buscando proteger contra la inflación y la devaluación de la moneda. La renta variable se diversifica globalmente con ETFs como <strong>Xtrackers MSCI Canad</strong> (<strong>2.88%</strong>), <strong>iShares OMX Stockhol</strong> (<strong>2.85%</strong>), <strong>iShares Core MSCI EM</strong> (<strong>2.8%</strong>), <strong>Xtrackers II Japan G</strong> (<strong>2.71%</strong>) e <strong>Invesco MSCI USA UCI</strong> (<strong>2.69%</strong>), que buscan capturar el crecimiento económico. Finalmente, la renta fija está representada por bonos gubernamentales de diversos países como <strong>UNITED KINGDOM GILT</strong> (<strong>2.81%</strong>), <strong>SWITZERLAND</strong> (<strong>2.79%</strong>), <strong>SWEDISH GOVERNMENT</strong> (<strong>2.74%</strong>) y <strong>AUSTRALIAN GOVERNMEN</strong> (<strong>2.69%</strong>), todos ellos bonos soberanos y no corporativos, cuya tesis es la protección contra la deflación y las recesiones.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En cuanto a la concentración de la cartera, a fecha de 2025, el <strong>top 5%</strong> de las posiciones representa el <strong>28.2%</strong> del patrimonio, el <strong>top 10%</strong> el <strong>42.3%</strong> y el <strong>top 15%</strong> el <strong>55.8%</strong>. Al comparar estos datos con la evolución histórica, se observa una fluctuación en el grado de concentración. Por ejemplo, la concentración actual es menor que la registrada en 2024 (top 5% en <strong>35.3%</strong>, top 10% en <strong>50.8%</strong>, top 15% en <strong>65.5%</strong>) y significativamente inferior a los niveles de 2021 (top 5% en <strong>44.7%</strong>) o 2020 (top 5% en <strong>54.8%</strong>). Sin embargo, es ligeramente superior a la de 2023 (top 5% en <strong>26.5%</strong>). Esta tendencia sugiere que, si bien la cartera mantiene un número total de <strong>40 posiciones</strong>, la distribución del peso entre ellas ha variado, indicando una gestión activa en la asignación de capital dentro de las principales clases de activos. La ausencia de datos sobre la concentración media de la categoría impide una comparación directa con sus pares.</p></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Los riesgos inherentes a la cartera son multifacéticos, derivados de su estructura de asignación de activos. La exposición a divisa es significativa, ya que el fondo invierte en bonos gubernamentales y ETFs de renta variable denominados en monedas distintas al euro, como la libra esterlina (GBP), el franco suizo (CHF), la corona sueca (SEK), el dólar australiano (AUD), el dólar canadiense (CAD) y el yen japonés (JPY), lo que introduce un riesgo de tipo de cambio. En renta fija, la estrategia de cartera permanente suele implicar bonos de largo plazo para la protección contra la deflación, lo que conlleva un riesgo de duración considerable ante movimientos al alza en los tipos de interés, aunque no se dispone de datos específicos sobre la duración media de la cartera. La calidad crediticia de la renta fija es predominantemente alta, al tratarse de bonos soberanos de países desarrollados. La concentración sectorial es baja dentro de la renta variable, pero la concentración en clases de activos como el oro y los bonos gubernamentales es una característica fundamental de la estrategia. La liquidez de las posiciones, compuestas principalmente por ETFs, ETCs y bonos gubernamentales, se considera generalmente elevada, aunque no se dispone de un análisis específico de la liquidez de cada activo.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La exposición geográfica del fondo, a través de sus principales posiciones en renta fija y variable, muestra una diversificación global centrada en mercados desarrollados, complementada con una asignación a mercados emergentes. En renta fija, el fondo invierte en bonos gubernamentales de <strong>Reino Unido</strong> (<strong>2.81%</strong>), <strong>Suiza</strong> (<strong>2.79%</strong>), <strong>Suecia</strong> (<strong>2.74%</strong>), <strong>Australia</strong> (<strong>2.69%</strong>), <strong>Canadá</strong> (<strong>2.63%</strong>) y <strong>Alemania</strong> (<strong>2.19%</strong>). En renta variable, se observan exposiciones a <strong>Canadá</strong> (<strong>2.88%</strong>), <strong>Suecia</strong> (<strong>2.85%</strong>), <strong>Mercados Emergentes</strong> (<strong>2.8%</strong>), <strong>Japón</strong> (<strong>5.26%</strong> sumando dos ETFs), <strong>Estados Unidos</strong> (<strong>2.69%</strong>), <strong>Australia</strong> (<strong>2.4%</strong>) y <strong>Suiza</strong> (<strong>2.14%</strong>). Esta distribución geográfica, que totaliza una exposición combinada a Suiza del <strong>4.93%</strong>, a Suecia del <strong>5.59%</strong>, a Canadá del <strong>5.51%</strong>, a Japón del <strong>5.26%</strong> y a Australia del <strong>5.09%</strong>, refleja una estrategia de diversificación amplia sin concentraciones excesivas en una única región, más allá de la naturaleza global de los ETFs de oro y la posición en liquidez. La ausencia de datos históricos específicos sobre la evolución de la exposición geográfica impide identificar apuestas regionales diferenciales o cambios significativos en la estrategia a lo largo del tiempo.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En cuanto a la exposición sectorial, el fondo adopta un enfoque de diversificación intrínseco a su estrategia de cartera permanente. La inversión en ETFs de renta variable de índices amplios, como <strong>Xtrackers MSCI Canad</strong>, <strong>iShares OMX Stockhol</strong>, <strong>iShares Core MSCI EM</strong>, <strong>Xtrackers II Japan G</strong>, <strong>Invesco MSCI USA UCI</strong>, <strong>Xtrackers Nikkei 225</strong>, <strong>iShares MSCI Austral</strong> y <strong>ETF UBS ETF MSCI SWI</strong>, implica una exposición sectorial muy diversificada dentro de la componente de renta variable, sin realizar apuestas sectoriales específicas. Los "sectores" principales del fondo son, de hecho, las clases de activos: oro físico, bonos gubernamentales de largo plazo y renta variable global. Esta estructura conlleva una sobreponderación inherente en oro y bonos gubernamentales en comparación con un fondo de renta variable o mixto tradicional, lo cual es una característica fundamental de la estrategia de cartera permanente. No se dispone de un benchmark específico para evaluar sobre o infraponderaciones sectoriales detalladas, ni de información sobre cambios sectoriales recientes más allá de los rebalanceos propios de la estrategia.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Las quince principales posiciones actuales del fondo, que representan un <strong>55.8%</strong> de la cartera, ilustran claramente la implementación de la estrategia de cartera permanente. La mayor posición es <strong>BANCO INVERSIS, S.A.</strong> (REPO) con un <strong>9.67%</strong>, actuando como componente de liquidez y estabilidad. Le siguen las exposiciones al oro físico a través de <strong>ETF WT PHYSICAL SWIS</strong> (<strong>6.2%</strong>), <strong>ETC Source Physic GP</strong> (<strong>5.92%</strong>), <strong>ETC Ish Phys GoldE</strong> (<strong>3.3%</strong>) y <strong>ETC Xetra Gold</strong> (<strong>3.11%</strong>), que en conjunto suman una parte sustancial de la cartera, buscando proteger contra la inflación y la devaluación de la moneda. La renta variable se diversifica globalmente con ETFs como <strong>Xtrackers MSCI Canad</strong> (<strong>2.88%</strong>), <strong>iShares OMX Stockhol</strong> (<strong>2.85%</strong>), <strong>iShares Core MSCI EM</strong> (<strong>2.8%</strong>), <strong>Xtrackers II Japan G</strong> (<strong>2.71%</strong>) e <strong>Invesco MSCI USA UCI</strong> (<strong>2.69%</strong>), que buscan capturar el crecimiento económico. Finalmente, la renta fija está representada por bonos gubernamentales de diversos países como <strong>UNITED KINGDOM GILT</strong> (<strong>2.81%</strong>), <strong>SWITZERLAND</strong> (<strong>2.79%</strong>), <strong>SWEDISH GOVERNMENT</strong> (<strong>2.74%</strong>) y <strong>AUSTRALIAN GOVERNMEN</strong> (<strong>2.69%</strong>), todos ellos bonos soberanos y no corporativos, cuya tesis es la protección contra la deflación y las recesiones.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En cuanto a la concentración de la cartera, a fecha de 2025, el <strong>top 5%</strong> de las posiciones representa el <strong>28.2%</strong> del patrimonio, el <strong>top 10%</strong> el <strong>42.3%</strong> y el <strong>top 15%</strong> el <strong>55.8%</strong>. Al comparar estos datos con la evolución histórica, se observa una fluctuación en el grado de concentración. Por ejemplo, la concentración actual es menor que la registrada en 2024 (top 5% en <strong>35.3%</strong>, top 10% en <strong>50.8%</strong>, top 15% en <strong>65.5%</strong>) y significativamente inferior a los niveles de 2021 (top 5% en <strong>44.7%</strong>) o 2020 (top 5% en <strong>54.8%</strong>). Sin embargo, es ligeramente superior a la de 2023 (top 5% en <strong>26.5%</strong>). Esta tendencia sugiere que, si bien la cartera mantiene un número total de <strong>40 posiciones</strong>, la distribución del peso entre ellas ha variado, indicando una gestión activa en la asignación de capital dentro de las principales clases de activos. La ausencia de datos sobre la concentración media de la categoría impide una comparación directa con sus pares.</p></div>
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Decisiones / cambios recientes</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">tradas o salidas notables de posiciones en los últimos periodos, ni sobre rebalanceos específicos más allá de lo que la propia estrategia de cartera permanente implicaría. La filosofía de este tipo de cartera se basa en un rebalanceo periódico para mantener las proporciones objetivo de cada clase de activo (típicamente 25% en acciones, 25% en bonos de largo plazo, 25% en oro y 25% en liquidez), lo que constituye un ajuste estructural y no necesariamente una reacción discrecional a las condiciones del mercado. Sin datos concretos de los XMLs trimestrales o cartas del gestor, no es posible identificar movimientos tácticos o cambios de convicción específicos que se hayan implementado recientemente en la composición del fondo.</p></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Respecto a los cambios recientes significativos en la cartera, la información proporcionada no incluye detalles sobre entradas o salidas notables de posiciones en los últimos periodos, ni sobre rebalanceos específicos más allá de lo que la propia estrategia de cartera permanente implicaría. La filosofía de este tipo de cartera se basa en un rebalanceo periódico para mantener las proporciones objetivo de cada clase de activo (típicamente 25% en acciones, 25% en bonos de largo plazo, 25% en oro y 25% en liquidez), lo que constituye un ajuste estructural y no necesariamente una reacción discrecional a las condiciones del mercado. Sin datos concretos de los XMLs trimestrales o cartas del gestor, no es posible identificar movimientos tácticos o cambios de convicción específicos que se hayan implementado recientemente en la composición del fondo.</p></div>
   </div>
 
   
@@ -856,9 +870,8 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 
 <section class="pane" id="p6">
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
-
-  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
   
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#ff6719;">SF</div>
@@ -897,6 +910,19 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
       <div class="exp-body open">Este análisis detalla el lanzamiento del fondo MyInvestor Cartera Permanente en enero de 2022, gestionado por Rafael Ortega, seguidor de Harry Browne. El fondo invierte en acciones, bonos, oro y efectivo.</div>
       <a href="https://www.rankia.com/blog/analisis-de-fondos-de-inversion/5465473-analisis-myinvestor-cartera-permanente" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date"></span>
+      </div>
+      <div class="src-t">ES0156572002 - Myinvestor Cartera Permanente FI - Finect</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Finect proporciona información detallada sobre el fondo MyInvestor Cartera Permanente FI, incluyendo su valor liquidativo y la posibilidad de ver opiniones. También ofrece la opción de comparar fondos.</div>
+      <a href="https://www.finect.com/fondos-inversion/ES0156572002-Myinvestor_cartera_permanente_fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
       <div class="src-head">
@@ -950,8 +976,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
       <div class="exp-body open">En esta discusión del foro Más Dividendos, se aborda la naturaleza cíclica de las carteras de inversión, incluyendo la cartera permanente. Se reflexiona sobre la composición óptima de activos en diferentes periodos económicos.</div>
       <a href="https://foro.masdividendos.com/t/cartera-permanente-inversion-para-cualquier-estadio-economico/12433?page=14" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
-
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos</div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#555;">RI</div>
@@ -980,20 +1005,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
     </div>
     <div class="src-card">
       <div class="src-head">
-        <div class="src-logo" style="background:#1a8c5a;">FN</div>
-        <div class="src-info">
-          <div class="src-o">Finect</div>
-        </div>
-        <span class="src-date"></span>
-      </div>
-      <div class="src-t">ES0156572002 - Myinvestor Cartera Permanente FI - Finect</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Finect proporciona información detallada sobre el fondo MyInvestor Cartera Permanente FI, incluyendo su valor liquidativo y la posibilidad de ver opiniones. También ofrece la opción de comparar fondos.</div>
-      <a href="https://www.finect.com/fondos-inversion/ES0156572002-Myinvestor_cartera_permanente_fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#c04040;">▶</div>
+        <div class="src-logo" style="background:#c04040;">YT</div>
         <div class="src-info">
           <div class="src-o">youtube.com</div>
         </div>
@@ -1006,7 +1018,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
     </div>
     <div class="src-card">
       <div class="src-head">
-        <div class="src-logo" style="background:#c04040;">▶</div>
+        <div class="src-logo" style="background:#c04040;">YT</div>
         <div class="src-info">
           <div class="src-o">youtube.com</div>
         </div>
@@ -1023,13 +1035,13 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
   <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">85 fuentes consultadas</span></div>
 
   <div class="doc-grp">Informes semestrales CNMV (9)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2017_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2018_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2019_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2020_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2021_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2022_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2023_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2024_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2025_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2017_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2017_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2018_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2018_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2019_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2019_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2020_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2021_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2021_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2022_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2022_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2023_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2023_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2024_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2024_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0156572002_2025_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/reports/CNMV_ES0156572002_2025_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
 
   <div class="doc-grp">Cartas del gestor (6)</div>
   <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">riverpatrimonio.com — river patrimonio obtiene 5 estrellas morningstar y myinvestor car</span><a href="https://www.riverpatrimonio.com/post/river-patrimonio-obtiene-5-estrellas-morningstar-y-myinvestor-cartera-permanente-y-river-global-cont" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">riverpatrimonio.com — river patrimonio fi ajustes y perspectiva para 2025</span><a href="https://www.riverpatrimonio.com/post/river-patrimonio-fi-ajustes-y-perspectiva-para-2025" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">riverpatrimonio.com — myinvestor cartera permanente vs permanent portfolio quien es qui</span><a href="https://www.riverpatrimonio.com/post/myinvestor-cartera-permanente-vs-permanent-portfolio-quien-es-quien" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">riverpatrimonio.com — gran arranque del año en river patrimonio informe de resultados e</span><a href="https://www.riverpatrimonio.com/post/gran-arranque-del-año-en-river-patrimonio-informe-de-resultados-enero-de-2024" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">riverpatrimonio.com — carta de los gestores enero 2023 myinvestor cartera permanente</span><a href="https://www.riverpatrimonio.com/post/carta-de-los-gestores-enero-2023-myinvestor-cartera-permanente" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">riverpatrimonio.com — carta 1s 2025 myinvestor cartera permanente fi</span><a href="https://www.riverpatrimonio.com/post/carta-1s-2025-myinvestor-cartera-permanente-fi" target="_blank" class="doc-a">↗ Abrir</a></div>
 
   <div class="doc-grp">XMLs CNMV (42)</div>
-  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_202504.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_202504.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_202508.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_202508.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201712.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201712.xml</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 36 archivos más</div>
+  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_202504.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/xml/Abril_FONDMENS_202504.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_202504.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/xml/Abril_FONDREGISTRO_202504.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_202508.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/xml/Agosto_FONDMENS_202508.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_202508.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/xml/Agosto_FONDREGISTRO_202508.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201712.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/xml/Diciembre_FONDCART_201712.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201712.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0156572002/raw/xml/Diciembre_FONDDERI_201712.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 36 archivos más</div>
 
   <div class="doc-grp">Fuentes externas (28)</div>
   <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">carlosgalan.net — myinvestor</span><a href="https://carlosgalan.net/myinvestor/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">es-us.finanzas.yahoo.com — profile</span><a href="https://es-us.finanzas.yahoo.com/quote/0P0001ONA4.F/profile/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">balio.app — sobre la independencia financiera no es oro todo lo que reluce</span><a href="https://foro.balio.app/t/sobre-la-independencia-financiera-no-es-oro-todo-lo-que-reluce/14203?page=2" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">masdividendos.com — cartera permanente inversion para cualquier estadio economico</span><a href="https://foro.masdividendos.com/t/cartera-permanente-inversion-para-cualquier-estadio-economico/12433?page=14" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">masdividendos.com — opiniones sobre myinvestor</span><a href="https://foro.masdividendos.com/t/opiniones-sobre-myinvestor/3045?page=78" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">masdividendos.com — q4DgjpWVMzizO8yHeZVfnFx9er7.pdf</span><a href="https://foro.masdividendos.com/uploads/short-url/q4DgjpWVMzizO8yHeZVfnFx9er7.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=ES0156572002:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">moclano.substack.com — proteccion frente a la incertidumbre</span><a href="https://moclano.substack.com/p/proteccion-frente-a-la-incertidumbre" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">myinvestor.es — fondos inversion</span><a href="https://myinvestor.es/inversion/fondos-inversion/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">myinvestor.es — myinvestor cartera permanente</span><a href="https://myinvestor.es/inversion/fondos-inversion/myinvestor-cartera-permanente/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 18 archivos más</div>
@@ -1117,8 +1129,9 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
   <div class="chat-container">
     <div class="chat-header">
       <h1>Chat con los documentos del fondo</h1>
-      <p>Pregunta sobre MYINVESTOR CARTERA PERMANENTE, FI (ES0156572002). El chat tiene acceso a todos los informes CNMV,
-         cartas del gestor, fuentes externas y el analisis completo.</p>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         MYINVESTOR CARTERA PERMANENTE, FI (ES0156572002): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
       <div class="chat-status">
         <div class="dot" id="chatDot"></div>
         <span id="chatStatusText">Conectando...</span>
@@ -1270,6 +1283,369 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
   </script>
 </section>
 </main>
+
+<!-- T3 feedback widget (2026-05-28) -->
+<style>
+  .fb-fab {
+    position: fixed; top: 76px; right: 20px; z-index: 1000;
+    background: #c5a25a; color: white; border: none;
+    padding: 10px 16px; border-radius: 24px;
+    font-family: 'Source Sans 3', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  }
+  .fb-fab:hover { background: #a87b1f; transform: translateY(-1px); }
+  .fb-fab .fb-badge {
+    display: inline-block; background: white; color: #c5a25a;
+    border-radius: 10px; padding: 1px 7px; font-size: 11px;
+    margin-left: 6px; font-weight: 700;
+  }
+  .fb-modal-bg {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(0,0,0,0.5);
+    align-items: center; justify-content: center;
+  }
+  .fb-modal-bg.show { display: flex; }
+  .fb-modal {
+    background: white; max-width: 720px; width: 92%; max-height: 88vh;
+    overflow-y: auto; border-radius: 4px; padding: 24px;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-modal h2 {
+    font-family: 'EB Garamond', serif; font-size: 22px;
+    margin: 0 0 4px 0; color: #222;
+  }
+  .fb-modal .fb-sub { font-size: 12px; color: #666; margin-bottom: 16px; }
+  .fb-modal label {
+    display: block; text-transform: uppercase; letter-spacing: 1px;
+    font-size: 10px; color: #888; font-weight: 600; margin: 12px 0 6px 0;
+  }
+  .fb-modal textarea, .fb-modal input[type="text"] {
+    width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px;
+    font-family: inherit; font-size: 13px; box-sizing: border-box;
+  }
+  .fb-modal textarea { min-height: 140px; resize: vertical; }
+  .fb-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .fb-btn {
+    padding: 9px 16px; border: 1px solid #ccc; background: white; color: #333;
+    border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 13px;
+  }
+  .fb-btn:hover { background: #f5f5f5; }
+  .fb-btn-primary { background: #c5a25a; color: white; border-color: #c5a25a; }
+  .fb-btn-primary:hover { background: #a87b1f; }
+  .fb-btn-secondary { background: #2a3d57; color: white; border-color: #2a3d57; }
+  .fb-btn-secondary:hover { background: #1a2d47; }
+  .fb-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fb-preview {
+    background: #fafafa; border: 1px solid #eee; border-radius: 3px;
+    padding: 12px; margin-top: 14px; font-size: 12px; color: #444;
+  }
+  .fb-preview-item {
+    padding: 8px; border-bottom: 1px dashed #ddd; display: flex; gap: 8px;
+    align-items: flex-start;
+  }
+  .fb-preview-item:last-child { border-bottom: none; }
+  .fb-preview-action {
+    background: #2a3d57; color: white; padding: 2px 8px; border-radius: 3px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .fb-preview-conf-high { color: #1b8c3b; }
+  .fb-preview-conf-medium { color: #b8860b; }
+  .fb-preview-conf-low { color: #cc0033; }
+  .fb-error { color: #cc0033; font-size: 12px; margin-top: 8px; }
+  .fb-info { color: #1b8c3b; font-size: 12px; margin-top: 8px; }
+  .fb-history-section {
+    margin: 60px 20px 40px 20px; padding: 20px; background: #fafafa;
+    border-radius: 4px; font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-history-section h3 {
+    font-family: 'EB Garamond', serif; font-size: 20px; margin: 0 0 10px 0;
+    color: #222; cursor: pointer; user-select: none;
+  }
+  .fb-history-section h3::after { content: ' ▾'; color: #999; font-size: 14px; }
+  .fb-history-section.collapsed h3::after { content: ' ▸'; }
+  .fb-history-section.collapsed .fb-history-body { display: none; }
+  .fb-history-item {
+    padding: 12px; border-left: 3px solid #ccc; background: white;
+    margin: 10px 0; border-radius: 0 3px 3px 0;
+  }
+  .fb-history-item.estado-pending { border-left-color: #b8860b; }
+  .fb-history-item.estado-applied { border-left-color: #2a3d57; }
+  .fb-history-item.estado-resolved { border-left-color: #1b8c3b; }
+  .fb-history-item.estado-partially_resolved { border-left-color: #c5a25a; }
+  .fb-history-meta { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .fb-history-text { font-size: 13px; color: #333; margin: 6px 0; }
+  .fb-history-items {
+    font-size: 11px; color: #666; margin-top: 6px;
+    background: #f5f5f5; padding: 8px; border-radius: 3px;
+  }
+  .fb-history-delete {
+    float: right; background: none; border: 1px solid #ccc; color: #888;
+    padding: 1px 7px; cursor: pointer; font-size: 11px; border-radius: 3px;
+  }
+  .fb-history-delete:hover { background: #cc0033; color: white; border-color: #cc0033; }
+</style>
+
+<button id="fb-fab" class="fb-fab" type="button" title="Aportar feedback sobre este análisis">📝 Mejorar este análisis<span id="fb-fab-badge" class="fb-badge" style="display:none;">0</span></button>
+
+<div id="fb-modal-bg" class="fb-modal-bg">
+  <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
+    <h2 id="fb-modal-title">📝 Mejorar análisis: MYINVESTOR CARTERA PERMANENTE, FI</h2>
+    <div class="fb-sub">ISIN: <code>ES0156572002</code> · ANDBANK WEALTH MANAGEMENT, SGIIC, S.A.</div>
+
+    <label for="fb-text">¿Qué hay que mejorar?</label>
+    <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
+
+    <label for="fb-urls">URLs/fuentes adicionales (opcional, una por línea)</label>
+    <textarea id="fb-urls" style="min-height:60px;" placeholder="https://ejemplo.com/articulo&#10;https://otrafuente.com/pdf"></textarea>
+
+    <div id="fb-error" class="fb-error" style="display:none;"></div>
+    <div id="fb-info" class="fb-info" style="display:none;"></div>
+
+    <div id="fb-preview-block" style="display:none;">
+      <div style="font-size:11px;color:#666;margin-top:14px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Items que se van a guardar (puedes editar antes):</div>
+      <div id="fb-preview" class="fb-preview"></div>
+    </div>
+
+    <div class="fb-actions">
+      <button id="fb-btn-cancel" class="fb-btn" type="button">Cancelar</button>
+      <button id="fb-btn-preview" class="fb-btn fb-btn-primary" type="button">Analizar texto →</button>
+      <button id="fb-btn-save" class="fb-btn fb-btn-primary" type="button" style="display:none;">Solo guardar</button>
+      <button id="fb-btn-save-improve" class="fb-btn fb-btn-secondary" type="button" style="display:none;">Guardar + Mejorar ahora</button>
+    </div>
+  </div>
+</div>
+
+<div id="fb-history" class="fb-history-section collapsed" style="display:none;">
+  <h3 id="fb-history-title">Histórico de feedback (0)</h3>
+  <div class="fb-history-body" id="fb-history-body"></div>
+</div>
+
+<script>
+(function() {
+  const ISIN = 'ES0156572002';
+  const FUND_NAME = 'MYINVESTOR CARTERA PERMANENTE, FI';
+  const GESTORA = 'ANDBANK WEALTH MANAGEMENT, SGIIC, S.A.';
+  // API_BASE: localStorage o relativo. Igual que catalog.html.
+  let API_BASE = localStorage.getItem('fa_api_base') || '';
+  function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
+
+  const fab = document.getElementById('fb-fab');
+  const modalBg = document.getElementById('fb-modal-bg');
+  const txt = document.getElementById('fb-text');
+  const urlsInput = document.getElementById('fb-urls');
+  const errEl = document.getElementById('fb-error');
+  const infoEl = document.getElementById('fb-info');
+  const prevBlock = document.getElementById('fb-preview-block');
+  const prevEl = document.getElementById('fb-preview');
+  const btnPreview = document.getElementById('fb-btn-preview');
+  const btnSave = document.getElementById('fb-btn-save');
+  const btnSaveImprove = document.getElementById('fb-btn-save-improve');
+  const btnCancel = document.getElementById('fb-btn-cancel');
+  const historySection = document.getElementById('fb-history');
+  const historyTitle = document.getElementById('fb-history-title');
+  const historyBody = document.getElementById('fb-history-body');
+  const fabBadge = document.getElementById('fb-fab-badge');
+
+  let currentItems = null;  // items estructurados tras /parse
+
+  fab.addEventListener('click', () => {
+    if (!API_BASE) {
+      alert('No hay server local conectado. Arranca iniciar.bat y refresca el catalog primero.');
+      return;
+    }
+    resetModal();
+    modalBg.classList.add('show');
+    setTimeout(() => txt.focus(), 50);
+  });
+  btnCancel.addEventListener('click', () => modalBg.classList.remove('show'));
+  modalBg.addEventListener('click', (e) => { if (e.target === modalBg) modalBg.classList.remove('show'); });
+
+  function resetModal() {
+    txt.value = ''; urlsInput.value = '';
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    prevBlock.style.display = 'none';
+    btnPreview.style.display = 'inline-block';
+    btnSave.style.display = 'none';
+    btnSaveImprove.style.display = 'none';
+    currentItems = null;
+  }
+
+  function showError(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  function showInfo(msg) { infoEl.textContent = msg; infoEl.style.display = 'block'; }
+
+  function parseUrlsLines(s) {
+    return (s || '').split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
+  }
+
+  function renderPreview(items) {
+    if (!items || !items.length) {
+      prevEl.innerHTML = '<div style="padding:10px;color:#888;">(El parser no extrajo items. Comprueba el texto o guarda como feedback "genérico".)</div>';
+      return;
+    }
+    prevEl.innerHTML = items.map((it, idx) => {
+      const target = it.target_path || (it.target_section ? 'sección: ' + it.target_section : '(global)');
+      const valStr = it.value === null || it.value === undefined ? '' :
+                     (typeof it.value === 'object' ? JSON.stringify(it.value) : String(it.value));
+      const urls = (it.source_urls || []).join(', ');
+      return `<div class="fb-preview-item" data-idx="${idx}">
+        <span class="fb-preview-action">${it.action}</span>
+        <div style="flex:1;">
+          <div><strong>${target}</strong>${valStr ? ' → <code>' + valStr.substring(0,80) + '</code>' : ''}</div>
+          <div style="font-size:11px;color:#777;margin-top:3px;">${it.rationale || ''}</div>
+          ${urls ? `<div style="font-size:10px;color:#999;margin-top:2px;">${urls}</div>` : ''}
+          <div style="font-size:10px;margin-top:2px;" class="fb-preview-conf-${it.confidence||'medium'}">Confianza: ${it.confidence||'medium'}</div>
+        </div>
+        <button type="button" class="fb-btn" style="padding:2px 8px;font-size:11px;" data-rm-preview="${idx}" title="Quitar este item">✕</button>
+      </div>`;
+    }).join('');
+    // bind remove
+    prevEl.querySelectorAll('button[data-rm-preview]').forEach(b => {
+      b.addEventListener('click', () => {
+        const i = parseInt(b.dataset.rmPreview);
+        currentItems.splice(i, 1);
+        renderPreview(currentItems);
+        if (currentItems.length === 0) {
+          btnSave.style.display = 'none';
+          btnSaveImprove.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  btnPreview.addEventListener('click', async () => {
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    const rawText = txt.value.trim();
+    const rawUrls = parseUrlsLines(urlsInput.value);
+    if (!rawText && rawUrls.length === 0) {
+      showError('Escribe algo o pega URLs.');
+      return;
+    }
+    btnPreview.disabled = true;
+    btnPreview.textContent = 'Analizando…';
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/parse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: rawText, raw_urls: rawUrls,
+          fund_name: FUND_NAME, gestora: GESTORA,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showError(data.error || 'Error en parse'); return; }
+      currentItems = data.structured_items || [];
+      renderPreview(currentItems);
+      prevBlock.style.display = 'block';
+      const method = data.parse_meta?.method || 'unknown';
+      const note = method === 'haiku' ? ' (Haiku)' : method === 'fallback' ? ' (parser básico — Haiku no disponible)' : '';
+      showInfo(`${currentItems.length} item(s) extraído(s)${note}. Revisa, elimina los que no quieras y guarda.`);
+      btnPreview.style.display = 'none';
+      btnSave.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+      btnSaveImprove.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnPreview.disabled = false;
+      btnPreview.textContent = 'Analizar texto →';
+    }
+  });
+
+  async function saveAndMaybeImprove(triggerImprove) {
+    if (!currentItems || currentItems.length === 0) {
+      showError('No hay items que guardar.');
+      return;
+    }
+    btnSave.disabled = true; btnSaveImprove.disabled = true;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: txt.value.trim(),
+          raw_urls: parseUrlsLines(urlsInput.value),
+          structured_items: currentItems,
+          fund_name: FUND_NAME,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) { showError(data.error || 'Error guardando'); return; }
+      showInfo(`✓ Feedback guardado.${triggerImprove ? ' Lanzando re-run…' : ''}`);
+      if (triggerImprove) {
+        const res2 = await fbFetch('/api/analyze-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isins: [ISIN], cold_start: false, apply_feedback: true,
+          }),
+        });
+        const d2 = await res2.json();
+        if (!res2.ok) { showError('Encolado falló: ' + (d2.error || res2.status)); return; }
+        showInfo(`✓ Feedback guardado. Re-run encolado. Cierra el modal y verás el progreso en la cola del catalog.`);
+      }
+      // Tras 1.5s cerrar
+      setTimeout(() => { modalBg.classList.remove('show'); loadHistory(); }, 1500);
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnSave.disabled = false; btnSaveImprove.disabled = false;
+    }
+  }
+  btnSave.addEventListener('click', () => saveAndMaybeImprove(false));
+  btnSaveImprove.addEventListener('click', () => saveAndMaybeImprove(true));
+
+  // ───────── Histórico ─────────
+  async function loadHistory() {
+    if (!API_BASE) return;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const data = await res.json();
+      const feedbacks = data.feedbacks || [];
+      const nPending = feedbacks.filter(f => f.estado === 'pending').length;
+      if (nPending > 0) {
+        fabBadge.textContent = nPending;
+        fabBadge.style.display = 'inline-block';
+      } else {
+        fabBadge.style.display = 'none';
+      }
+      historyTitle.textContent = `Histórico de feedback (${feedbacks.length})`;
+      if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
+      historySection.style.display = 'block';
+      historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
+        const items = (fb.structured_items || []).map(it => {
+          const target = it.target_path || it.target_section || '(global)';
+          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+        }).join('');
+        const ts = new Date(fb.created_at).toLocaleString('es-ES');
+        const canDelete = fb.estado === 'pending';
+        return `<div class="fb-history-item estado-${fb.estado}">
+          ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
+          <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
+          <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          <div class="fb-history-items">${items}</div>
+        </div>`;
+      }).join('');
+      historyBody.querySelectorAll('button[data-del-fb]').forEach(b => {
+        b.addEventListener('click', async () => {
+          if (!confirm('Borrar este feedback? Solo se borran los pending.')) return;
+          const fbId = b.dataset.delFb;
+          const r = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/${encodeURIComponent(fbId)}`, { method: 'DELETE' });
+          if (r.ok) loadHistory();
+        });
+      });
+    } catch (e) { /* sin server, silencioso */ }
+  }
+
+  historyTitle.addEventListener('click', () => historySection.classList.toggle('collapsed'));
+
+  // Cargar al inicio si hay API_BASE
+  if (API_BASE) loadHistory();
+})();
+</script>
+
 
 <script>
 function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}

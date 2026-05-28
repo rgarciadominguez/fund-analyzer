@@ -27,6 +27,12 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
 .lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
 .lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
 .srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
 .srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
 .theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
@@ -41,7 +47,13 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
 .pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
 .sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
 .col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 .mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
 hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
@@ -158,11 +170,12 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
       <div class='lh-meta-line'>ISIN limpia EUR: <strong>ES0116567035</strong> <span style='opacity:.55;font-size:10.5px;'>· Cartesio X FI</span></div>
     </div>
 
-    <!-- ZONA 2: AUM + Riesgo UCITS (SRRI solo si es real) -->
-    <div style="display:flex;align-items:center;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€492M</div>
+        <div class="lh-aum-v">€464M</div>
         <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-06</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2025-12 (Carta)</span></div></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
         <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
@@ -253,7 +266,7 @@ El universo de inversión es global, con un sesgo hacia el "value", validado por
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores con una tolerancia al riesgo moderada que buscan una inversión diversificada en renta variable y crédito, con un horizonte temporal a medio-largo plazo. El inversor ideal valora la estabilidad y prefiere un enfoque de inversión en valor, sin esperar rentabilidades extraordinarias ni estar excesivamente preocupado por las fluctuaciones a corto plazo del mercado.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Por lo tanto, no es posible evaluar el alineamiento de intereses a través de este mecanismo.</p></div></div>
 
-  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A</option></select></span></div>
+  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,65%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
   </div>
@@ -276,7 +289,7 @@ El universo de inversión es global, con un sesgo hacia el "value", validado por
   <div class="col2 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div><div class="ch-b"><div class="ch-l">Partícipes</div><div class="ch-h"><canvas id="c-part"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 491.9;
+  window.__HIST_AUM_HEADER__ = 464.061;
   </script>
   
   <div class="sr">Cronología de eventos relevantes</div>
@@ -345,6 +358,7 @@ El universo de inversión es global, con un sesgo hacia el "value", validado por
       <div class="tl-desc">El año 2024 ha mostrado un fuerte impulso en el patrimonio del fondo, alcanzando los 320,38 M€ y consolidando la tendencia alcista iniciada en 2023. El valor liquidativo ha subido a 2,0. Los mercados han mostrado signos de estabilización y la estrategia del fondo ha continuado atrayendo inversores.</div>
     </div>
   </div>
+  
 </section>
 
 <section class="pane" id="p2">
@@ -532,9 +546,9 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
   <div class="mb24">
     
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">lidad en el mercado de deuda. Las mayores convicciones del gestor se manifiestan en bonos como <strong>ENEL SPA</strong> con un <strong>1.74%</strong> del patrimonio, <strong>ABERTIS INFRAESTRUCTURAS</strong> con un <strong>1.71%</strong>, <strong>STELLANTIS NV</strong> con un <strong>1.68%</strong>, <strong>REPSOL INTL FINANCE</strong> con un <strong>1.62%</strong>, <strong>BANCO SANTANDER SA</strong> con un <strong>1.60%</strong>, <strong>BANCO BILBAO VIZCAYA</strong> con un <strong>1.59%</strong>, <strong>UNIBAIL-RODAMCO-WESTFIELD</strong> con un <strong>1.54%</strong>, <strong>LAGARDERE SCA</strong> con un <strong>1.48%</strong>, <strong>ELECTRICITE DE FRANCE</strong> con un <strong>1.45%</strong>, <strong>PRYSMIAN SPA</strong> con un <strong>1.44%</strong>, <strong>VOLKSWAGEN INTL FIN</strong> con un <strong>1.42%</strong>, <strong>DEUTSCHE EUROSHOP</strong> con un <strong>1.39%</strong>, <strong>AUTOSTRADE PER L'ITALIA</strong> con un <strong>1.37%</strong>, <strong>CREDIT AGRICOLE SA</strong> (emisión 3.125%) con un <strong>1.35%</strong> y <strong>BANCO DE SABADELL SA</strong> con un <strong>1.35%</strong>. La tesis subyacente para estas posiciones de alta convicción parece centrarse en la identificación de emisores con perfiles de crédito sólidos y atractivos diferenciales de rendimiento, a menudo con vencimientos a largo plazo, como se observa en bonos con vencimientos en <strong>2049</strong> o <strong>2055</strong>, buscando capturar *carry* y potencial de revalorización en un entorno de tipos de interés.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La concentración de la cartera ha experimentado una evolución notable. A fecha actual de <strong>2025</strong>, el <strong>top 5%</strong> de las posiciones representa el <strong>8.3%</strong> del patrimonio, el <strong>top 10%</strong> el <strong>15.8%</strong> y el <strong>top 15%</strong> el <strong>22.7%</strong>. Esta métrica contrasta significativamente con los niveles históricos, donde en <strong>2019</strong> el <strong>top 5%</strong> alcanzaba el <strong>55.1%</strong>, el <strong>top 10%</strong> el <strong>61.3%</strong> y el <strong>top 15%</strong> el <strong>66.0%</strong>. Esta tendencia de <strong>desconcentración</strong> ha sido constante y pronunciada desde <strong>2019</strong>, indicando un cambio estratégico hacia una mayor diversificación del riesgo idiosincrático. El número total de <strong>116 posiciones</strong> en la cartera actual refuerza esta observación, sugiriendo que el gestor ha optado por distribuir el capital en un mayor número de activos, reduciendo el peso individual de las mayores apuestas. La comparación con la media de la categoría no es posible con los datos disponibles, pero la trayectoria interna del fondo es clara hacia una menor concentración.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">denominadas en <strong>EUR</strong>, mitigando el riesgo cambiario para inversores en euros. Sin embargo, la presencia de bonos con vencimientos tan lejanos como <strong>2049</strong> o <strong>2055</strong> implica una <strong>duración elevada</strong>, lo que expone la cartera a una sensibilidad considerable ante movimientos al alza en los tipos de interés. La calidad crediticia de las posiciones, aunque no se especifica con *ratings* concretos, se infiere de emisores corporativos europeos de gran tamaño y reputación, sugiriendo un enfoque en el segmento de *investment grade*, aunque algunas posiciones podrían ser de alto rendimiento. La concentración sectorial en banca, utilities e infraestructuras, junto con la fuerte exposición regional a la <strong>Eurozona</strong>, introduce un riesgo específico a la evolución económica y regulatoria de estas áreas. Finalmente, la liquidez de algunas emisiones de bonos corporativos a largo plazo, especialmente en condiciones de mercado adversas, podría ser un factor a considerar, aunque los emisores son generalmente grandes y con deuda líquida.</p></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Las principales posiciones de la cartera, todas ellas bonos corporativos, reflejan una estrategia de búsqueda de rentabilidad en el mercado de deuda. Las mayores convicciones del gestor se manifiestan en bonos como <strong>ENEL SPA</strong> con un <strong>1.74%</strong> del patrimonio, <strong>ABERTIS INFRAESTRUCTURAS</strong> con un <strong>1.71%</strong>, <strong>STELLANTIS NV</strong> con un <strong>1.68%</strong>, <strong>REPSOL INTL FINANCE</strong> con un <strong>1.62%</strong>, <strong>BANCO SANTANDER SA</strong> con un <strong>1.60%</strong>, <strong>BANCO BILBAO VIZCAYA</strong> con un <strong>1.59%</strong>, <strong>UNIBAIL-RODAMCO-WESTFIELD</strong> con un <strong>1.54%</strong>, <strong>LAGARDERE SCA</strong> con un <strong>1.48%</strong>, <strong>ELECTRICITE DE FRANCE</strong> con un <strong>1.45%</strong>, <strong>PRYSMIAN SPA</strong> con un <strong>1.44%</strong>, <strong>VOLKSWAGEN INTL FIN</strong> con un <strong>1.42%</strong>, <strong>DEUTSCHE EUROSHOP</strong> con un <strong>1.39%</strong>, <strong>AUTOSTRADE PER L'ITALIA</strong> con un <strong>1.37%</strong>, <strong>CREDIT AGRICOLE SA</strong> (emisión 3.125%) con un <strong>1.35%</strong> y <strong>BANCO DE SABADELL SA</strong> con un <strong>1.35%</strong>. La tesis subyacente para estas posiciones de alta convicción parece centrarse en la identificación de emisores con perfiles de crédito sólidos y atractivos diferenciales de rendimiento, a menudo con vencimientos a largo plazo, como se observa en bonos con vencimientos en <strong>2049</strong> o <strong>2055</strong>, buscando capturar *carry* y potencial de revalorización en un entorno de tipos de interés.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La concentración de la cartera ha experimentado una evolución notable. A fecha actual de <strong>2025</strong>, el <strong>top 5%</strong> de las posiciones representa el <strong>8.3%</strong> del patrimonio, el <strong>top 10%</strong> el <strong>15.8%</strong> y el <strong>top 15%</strong> el <strong>22.7%</strong>. Esta métrica contrasta significativamente con los niveles históricos, donde en <strong>2019</strong> el <strong>top 5%</strong> alcanzaba el <strong>55.1%</strong>, el <strong>top 10%</strong> el <strong>61.3%</strong> y el <strong>top 15%</strong> el <strong>66.0%</strong>. Esta tendencia de <strong>desconcentración</strong> ha sido constante y pronunciada desde <strong>2019</strong>, indicando un cambio estratégico hacia una mayor diversificación del riesgo idiosincrático. El número total de <strong>116 posiciones</strong> en la cartera actual refuerza esta observación, sugiriendo que el gestor ha optado por distribuir el capital en un mayor número de activos, reduciendo el peso individual de las mayores apuestas. La comparación con la media de la categoría no es posible con los datos disponibles, pero la trayectoria interna del fondo es clara hacia una menor concentración.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En cuanto a los riesgos de la cartera, la exposición a divisa es limitada, ya que todas las posiciones principales están denominadas en <strong>EUR</strong>, mitigando el riesgo cambiario para inversores en euros. Sin embargo, la presencia de bonos con vencimientos tan lejanos como <strong>2049</strong> o <strong>2055</strong> implica una <strong>duración elevada</strong>, lo que expone la cartera a una sensibilidad considerable ante movimientos al alza en los tipos de interés. La calidad crediticia de las posiciones, aunque no se especifica con *ratings* concretos, se infiere de emisores corporativos europeos de gran tamaño y reputación, sugiriendo un enfoque en el segmento de *investment grade*, aunque algunas posiciones podrían ser de alto rendimiento. La concentración sectorial en banca, utilities e infraestructuras, junto con la fuerte exposición regional a la <strong>Eurozona</strong>, introduce un riesgo específico a la evolución económica y regulatoria de estas áreas. Finalmente, la liquidez de algunas emisiones de bonos corporativos a largo plazo, especialmente en condiciones de mercado adversas, podría ser un factor a considerar, aunque los emisores son generalmente grandes y con deuda líquida.</p></div>
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Decisiones / cambios recientes</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">iciones en los últimos trimestres, pueden inferirse de la marcada <strong>desconcentración</strong> observada en los últimos años. Este proceso implica rebalanceos sustanciales y una estrategia activa para reducir el peso de las mayores posiciones y aumentar el número total de activos. La disminución progresiva de la concentración del <strong>top 15%</strong> desde el <strong>66.0%</strong> en <strong>2019</strong> hasta el <strong>22.7%</strong> en <strong>2025</strong> es el cambio más relevante y visible, sugiriendo una gestión dinámica orientada a una mayor diversificación del riesgo. La ausencia de información sobre transacciones específicas impide un análisis más granular de las decisiones de compra y venta recientes, pero la tendencia general apunta a una reestructuración deliberada hacia un perfil de cartera más distribuido.</p></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Los cambios recientes significativos en la cartera, aunque no se detallan mediante entradas o salidas específicas de posiciones en los últimos trimestres, pueden inferirse de la marcada <strong>desconcentración</strong> observada en los últimos años. Este proceso implica rebalanceos sustanciales y una estrategia activa para reducir el peso de las mayores posiciones y aumentar el número total de activos. La disminución progresiva de la concentración del <strong>top 15%</strong> desde el <strong>66.0%</strong> en <strong>2019</strong> hasta el <strong>22.7%</strong> en <strong>2025</strong> es el cambio más relevante y visible, sugiriendo una gestión dinámica orientada a una mayor diversificación del riesgo. La ausencia de información sobre transacciones específicas impide un análisis más granular de las decisiones de compra y venta recientes, pero la tendencia general apunta a una reestructuración deliberada hacia un perfil de cartera más distribuido.</p></div>
   </div>
 
   
@@ -1490,9 +1504,8 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 
 <section class="pane" id="p6">
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
-
-  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
   
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#ff6719;">SF</div>
@@ -1518,6 +1531,19 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
       <div class="exp-body open">El autor recopila y actualiza anualmente las cartas de fondos de inversión que considera interesantes o que sigue de cerca. El objetivo es ofrecer un recurso útil para la comunidad, agrupando análisis y perspectivas de diferentes gestoras.</div>
       <a href="https://saludfinanciera.substack.com/p/cartas-anuales-fondos" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date"></span>
+      </div>
+      <div class="src-t">"Fondo flexible y prudente para preservar capital primero y crecer después"</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Este artículo describe un fondo de inversión con un enfoque flexible y prudente, priorizando la preservación del capital antes que el crecimiento. Se resalta la importancia de estar preparado ante la volatilidad del mercado.</div>
+      <a href="https://www.finect.com/usuario/__Finect/articulos/fondo-flexible-y-prudente-para-preservar-capital-primero-y-crecer-despues" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
       <div class="src-head">
@@ -1560,6 +1586,19 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
     </div>
     <div class="src-card">
       <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date"></span>
+      </div>
+      <div class="src-t">Analizamos: así es la cartera y evolución del Cartesio X - Finect</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Este análisis de Finect examina la cartera y la evolución del fondo Cartesio X, ofreciendo una visión detallada de su composición y rendimiento. Se presenta como una herramienta para que los inversores comprendan mejor el comportamiento del fondo.</div>
+      <a href="https://www.finect.com/usuario/carlosalosete/articulos/analizamos-asi-cartera-evolucion-cartesio" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
         <div class="src-logo" style="background:#e85d26;">RK</div>
         <div class="src-info">
           <div class="src-o">Rankia</div>
@@ -1571,21 +1610,20 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
       <div class="exp-body open">Aunque clasificado como 'video' en la fuente original, este enlace de Rankia lleva a un foro sobre la gestora Cartesio, donde se discuten sus fondos, incluyendo comparaciones y opiniones sobre el Cartesio X y Y. Se mencionan aspectos como la cartera y el enfoque defensivo.</div>
       <a href="https://www.rankia.com/gestoras/cartesio/foro" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
-
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#1a8c5a;">FN</div>
         <div class="src-info">
           <div class="src-o">Finect</div>
         </div>
-        <span class="src-date"></span>
+        <span class="src-date">2015</span>
       </div>
-      <div class="src-t">"Fondo flexible y prudente para preservar capital primero y crecer después"</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Este artículo describe un fondo de inversión con un enfoque flexible y prudente, priorizando la preservación del capital antes que el crecimiento. Se resalta la importancia de estar preparado ante la volatilidad del mercado.</div>
-      <a href="https://www.finect.com/usuario/__Finect/articulos/fondo-flexible-y-prudente-para-preservar-capital-primero-y-crecer-despues" class="src-lnk" target="_blank">Ver análisis completo →</a>
+      <div class="src-t">VÍDEO - Entrevista Álvaro Martínez, Cartesio - Finect</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Esta entrevista en vídeo con Álvaro Martínez de Cartesio ofrece una perspectiva directa del gestor sobre la filosofía y estrategia de la firma. Es una fuente primaria para entender la visión de la gestora y sus fondos.</div>
+      <a href="https://www.finect.com/usuario/Kaloxa/articulos/video_-_entrevista_alvaro_martinez_cartesio" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#555;">EB</div>
@@ -1627,7 +1665,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
     </div>
     <div class="src-card">
       <div class="src-head">
-        <div class="src-logo" style="background:#555;">MA</div>
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
         <div class="src-info">
           <div class="src-o">markets.ft.com</div>
         </div>
@@ -1637,19 +1675,6 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
       <div class="exp-body">Financial Times proporciona un resumen de datos de mercado para el fondo Cartesio X FI, incluyendo su precio actual, cambios diarios y anuales, y permite añadir el fondo a listas de seguimiento o carteras.</div>
       <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=es0116567035:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#1a8c5a;">FN</div>
-        <div class="src-info">
-          <div class="src-o">Finect</div>
-        </div>
-        <span class="src-date"></span>
-      </div>
-      <div class="src-t">Analizamos: así es la cartera y evolución del Cartesio X - Finect</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Este análisis de Finect examina la cartera y la evolución del fondo Cartesio X, ofreciendo una visión detallada de su composición y rendimiento. Se presenta como una herramienta para que los inversores comprendan mejor el comportamiento del fondo.</div>
-      <a href="https://www.finect.com/usuario/carlosalosete/articulos/analizamos-asi-cartera-evolucion-cartesio" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
       <div class="src-head">
@@ -1664,32 +1689,19 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
       <div class="exp-body">Este podcast se enfoca en la inversión en bolsa a través del método 'value investing', buscando ayudar a los oyentes a rentabilizar sus ahorros. Aunque no menciona directamente a Cartesio X, el enfoque en estrategias de inversión a largo plazo y análisis de valor es relevante para entender la filosofía de gestoras como Cartesio.</div>
       <a href="https://www.spreaker.com/show/6157458/episodes/feed" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#1a8c5a;">FN</div>
-        <div class="src-info">
-          <div class="src-o">Finect</div>
-        </div>
-        <span class="src-date">2015</span>
-      </div>
-      <div class="src-t">VÍDEO - Entrevista Álvaro Martínez, Cartesio - Finect</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Esta entrevista en vídeo con Álvaro Martínez de Cartesio ofrece una perspectiva directa del gestor sobre la filosofía y estrategia de la firma. Es una fuente primaria para entender la visión de la gestora y sus fondos.</div>
-      <a href="https://www.finect.com/usuario/Kaloxa/articulos/video_-_entrevista_alvaro_martinez_cartesio" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
 </section>
 
 <section class="pane" id="p7">
   <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">102 fuentes consultadas</span></div>
 
   <div class="doc-grp">Informes semestrales CNMV (17)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2009_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2010_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2011_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2012_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2013_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2014_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2015_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2016_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2017_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2018_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2019_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2020_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 5 archivos más</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2009_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2009_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2010_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2010_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2011_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2011_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2012_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2012_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2013_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2013_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2014_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2014_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2015_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2015_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2016_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2016_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2017_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2017_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2018_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2018_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2019_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2019_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0116567035_2020_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/reports/CNMV_ES0116567035_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 5 archivos más</div>
 
   <div class="doc-grp">Cartas del gestor (8)</div>
   <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">expansion.com — 67b6f8e3468aebf1058b4578.html</span><a href="https://www.expansion.com/mercados/fondos/2025/02/20/67b6f8e3468aebf1058b4578.html" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">alantra.com — Summary of Corporate Action from CARTESIO FUNDS INCOME R EUR ACC </span><a href="https://www.alantra.com/wp-content/uploads/2020/09/Summary-of-Corporate-Action-from-CARTESIO-FUNDS-INCOME-R-EUR-ACC-12-03-2020.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">masdividendos.com — cartesio x o pareturn cartesio income i</span><a href="https://foro.masdividendos.com/t/cartesio-x-o-pareturn-cartesio-income-i/3128" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">cartesio.com — Entrevista a Juan A Bertran en la revista Inversion.pdf</span><a href="https://cartesio.com/wp-content/uploads/2025/05/Entrevista-a-Juan-A-Bertran-en-la-revista-Inversion.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">cartesio.com — CARTESIO Y FI 122025.pdf</span><a href="https://cartesio.com/wp-content/uploads/2025/05/CARTESIO-Y-FI-122025.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">cartesio.com — CARTESIO Y FI 062025 Reducido Cuadernillo.pdf</span><a href="https://cartesio.com/wp-content/uploads/2025/05/CARTESIO-Y-FI-062025-Reducido-Cuadernillo.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">cartesio.com — anual cartesio x.pdf</span><a href="https://cartesio.com/wp-content/uploads/2025/04/anual_cartesio_x.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">cartesio.com — Cartesio X Mornignstar Junio 2025.pdf</span><a href="https://cartesio.com/wp-content/uploads/2025/04/Cartesio-X-Mornignstar-Junio-2025.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
 
   <div class="doc-grp">XMLs CNMV (60)</div>
-  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201204.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201204.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201208.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201208.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
+  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/xml/Abril_FONDMENS_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/xml/Abril_FONDREGISTRO_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/xml/Agosto_FONDMENS_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/xml/Agosto_FONDREGISTRO_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/xml/Diciembre_FONDCART_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0116567035/raw/xml/Diciembre_FONDDERI_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
 
   <div class="doc-grp">Fuentes externas (17)</div>
   <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">cartesio.com — cartesiox fund details</span><a href="https://cartesio.com/en/cartesiox-fund-details/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">cartesio.com — Cartesio X Mornignstar Junio 2025.pdf</span><a href="https://cartesio.com/wp-content/uploads/2025/04/Cartesio-X-Mornignstar-Junio-2025.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">masdividendos.com — eliminamos los fondos mixtos de la cartera</span><a href="https://foro.masdividendos.com/t/eliminamos-los-fondos-mixtos-de-la-cartera/1556" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">forocoches.com — showthread.php</span><a href="https://forocoches.com/foro//showthread.php?p=483919738" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=es0116567035:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">saludfinanciera.substack.com — cartas anuales fondos</span><a href="https://saludfinanciera.substack.com/p/cartas-anuales-fondos" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">saludfinanciera.substack.com — fdv 41</span><a href="https://saludfinanciera.substack.com/p/fdv-41" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">ebnbanco.com — cartesio x fi es0116567035</span><a href="https://www.ebnbanco.com/fondos-inversion/cartesio-x-fi-es0116567035/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">finect.com — ES0116567035 Cartesio x fi</span><a href="https://www.finect.com/fondos-inversion/ES0116567035-Cartesio_x_fi" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">finect.com — 000fe42e684013caf83ff00fe42e684013caf83ff00</span><a href="https://www.finect.com/image/000fe42e684013caf83ff00fe42e684013caf83ff00" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 7 archivos más</div>
@@ -1777,8 +1789,9 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
   <div class="chat-container">
     <div class="chat-header">
       <h1>Chat con los documentos del fondo</h1>
-      <p>Pregunta sobre CARTESIO X, FI (ES0116567035). El chat tiene acceso a todos los informes CNMV,
-         cartas del gestor, fuentes externas y el analisis completo.</p>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         CARTESIO X, FI (ES0116567035): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
       <div class="chat-status">
         <div class="dot" id="chatDot"></div>
         <span id="chatStatusText">Conectando...</span>
@@ -1931,6 +1944,369 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </section>
 </main>
 
+<!-- T3 feedback widget (2026-05-28) -->
+<style>
+  .fb-fab {
+    position: fixed; top: 76px; right: 20px; z-index: 1000;
+    background: #c5a25a; color: white; border: none;
+    padding: 10px 16px; border-radius: 24px;
+    font-family: 'Source Sans 3', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  }
+  .fb-fab:hover { background: #a87b1f; transform: translateY(-1px); }
+  .fb-fab .fb-badge {
+    display: inline-block; background: white; color: #c5a25a;
+    border-radius: 10px; padding: 1px 7px; font-size: 11px;
+    margin-left: 6px; font-weight: 700;
+  }
+  .fb-modal-bg {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(0,0,0,0.5);
+    align-items: center; justify-content: center;
+  }
+  .fb-modal-bg.show { display: flex; }
+  .fb-modal {
+    background: white; max-width: 720px; width: 92%; max-height: 88vh;
+    overflow-y: auto; border-radius: 4px; padding: 24px;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-modal h2 {
+    font-family: 'EB Garamond', serif; font-size: 22px;
+    margin: 0 0 4px 0; color: #222;
+  }
+  .fb-modal .fb-sub { font-size: 12px; color: #666; margin-bottom: 16px; }
+  .fb-modal label {
+    display: block; text-transform: uppercase; letter-spacing: 1px;
+    font-size: 10px; color: #888; font-weight: 600; margin: 12px 0 6px 0;
+  }
+  .fb-modal textarea, .fb-modal input[type="text"] {
+    width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px;
+    font-family: inherit; font-size: 13px; box-sizing: border-box;
+  }
+  .fb-modal textarea { min-height: 140px; resize: vertical; }
+  .fb-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .fb-btn {
+    padding: 9px 16px; border: 1px solid #ccc; background: white; color: #333;
+    border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 13px;
+  }
+  .fb-btn:hover { background: #f5f5f5; }
+  .fb-btn-primary { background: #c5a25a; color: white; border-color: #c5a25a; }
+  .fb-btn-primary:hover { background: #a87b1f; }
+  .fb-btn-secondary { background: #2a3d57; color: white; border-color: #2a3d57; }
+  .fb-btn-secondary:hover { background: #1a2d47; }
+  .fb-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fb-preview {
+    background: #fafafa; border: 1px solid #eee; border-radius: 3px;
+    padding: 12px; margin-top: 14px; font-size: 12px; color: #444;
+  }
+  .fb-preview-item {
+    padding: 8px; border-bottom: 1px dashed #ddd; display: flex; gap: 8px;
+    align-items: flex-start;
+  }
+  .fb-preview-item:last-child { border-bottom: none; }
+  .fb-preview-action {
+    background: #2a3d57; color: white; padding: 2px 8px; border-radius: 3px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .fb-preview-conf-high { color: #1b8c3b; }
+  .fb-preview-conf-medium { color: #b8860b; }
+  .fb-preview-conf-low { color: #cc0033; }
+  .fb-error { color: #cc0033; font-size: 12px; margin-top: 8px; }
+  .fb-info { color: #1b8c3b; font-size: 12px; margin-top: 8px; }
+  .fb-history-section {
+    margin: 60px 20px 40px 20px; padding: 20px; background: #fafafa;
+    border-radius: 4px; font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-history-section h3 {
+    font-family: 'EB Garamond', serif; font-size: 20px; margin: 0 0 10px 0;
+    color: #222; cursor: pointer; user-select: none;
+  }
+  .fb-history-section h3::after { content: ' ▾'; color: #999; font-size: 14px; }
+  .fb-history-section.collapsed h3::after { content: ' ▸'; }
+  .fb-history-section.collapsed .fb-history-body { display: none; }
+  .fb-history-item {
+    padding: 12px; border-left: 3px solid #ccc; background: white;
+    margin: 10px 0; border-radius: 0 3px 3px 0;
+  }
+  .fb-history-item.estado-pending { border-left-color: #b8860b; }
+  .fb-history-item.estado-applied { border-left-color: #2a3d57; }
+  .fb-history-item.estado-resolved { border-left-color: #1b8c3b; }
+  .fb-history-item.estado-partially_resolved { border-left-color: #c5a25a; }
+  .fb-history-meta { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .fb-history-text { font-size: 13px; color: #333; margin: 6px 0; }
+  .fb-history-items {
+    font-size: 11px; color: #666; margin-top: 6px;
+    background: #f5f5f5; padding: 8px; border-radius: 3px;
+  }
+  .fb-history-delete {
+    float: right; background: none; border: 1px solid #ccc; color: #888;
+    padding: 1px 7px; cursor: pointer; font-size: 11px; border-radius: 3px;
+  }
+  .fb-history-delete:hover { background: #cc0033; color: white; border-color: #cc0033; }
+</style>
+
+<button id="fb-fab" class="fb-fab" type="button" title="Aportar feedback sobre este análisis">📝 Mejorar este análisis<span id="fb-fab-badge" class="fb-badge" style="display:none;">0</span></button>
+
+<div id="fb-modal-bg" class="fb-modal-bg">
+  <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
+    <h2 id="fb-modal-title">📝 Mejorar análisis: CARTESIO X, FI</h2>
+    <div class="fb-sub">ISIN: <code>ES0116567035</code> · CARTESIO INVERSIONES, SGIIC, S.A.</div>
+
+    <label for="fb-text">¿Qué hay que mejorar?</label>
+    <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
+
+    <label for="fb-urls">URLs/fuentes adicionales (opcional, una por línea)</label>
+    <textarea id="fb-urls" style="min-height:60px;" placeholder="https://ejemplo.com/articulo&#10;https://otrafuente.com/pdf"></textarea>
+
+    <div id="fb-error" class="fb-error" style="display:none;"></div>
+    <div id="fb-info" class="fb-info" style="display:none;"></div>
+
+    <div id="fb-preview-block" style="display:none;">
+      <div style="font-size:11px;color:#666;margin-top:14px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Items que se van a guardar (puedes editar antes):</div>
+      <div id="fb-preview" class="fb-preview"></div>
+    </div>
+
+    <div class="fb-actions">
+      <button id="fb-btn-cancel" class="fb-btn" type="button">Cancelar</button>
+      <button id="fb-btn-preview" class="fb-btn fb-btn-primary" type="button">Analizar texto →</button>
+      <button id="fb-btn-save" class="fb-btn fb-btn-primary" type="button" style="display:none;">Solo guardar</button>
+      <button id="fb-btn-save-improve" class="fb-btn fb-btn-secondary" type="button" style="display:none;">Guardar + Mejorar ahora</button>
+    </div>
+  </div>
+</div>
+
+<div id="fb-history" class="fb-history-section collapsed" style="display:none;">
+  <h3 id="fb-history-title">Histórico de feedback (0)</h3>
+  <div class="fb-history-body" id="fb-history-body"></div>
+</div>
+
+<script>
+(function() {
+  const ISIN = 'ES0116567035';
+  const FUND_NAME = 'CARTESIO X, FI';
+  const GESTORA = 'CARTESIO INVERSIONES, SGIIC, S.A.';
+  // API_BASE: localStorage o relativo. Igual que catalog.html.
+  let API_BASE = localStorage.getItem('fa_api_base') || '';
+  function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
+
+  const fab = document.getElementById('fb-fab');
+  const modalBg = document.getElementById('fb-modal-bg');
+  const txt = document.getElementById('fb-text');
+  const urlsInput = document.getElementById('fb-urls');
+  const errEl = document.getElementById('fb-error');
+  const infoEl = document.getElementById('fb-info');
+  const prevBlock = document.getElementById('fb-preview-block');
+  const prevEl = document.getElementById('fb-preview');
+  const btnPreview = document.getElementById('fb-btn-preview');
+  const btnSave = document.getElementById('fb-btn-save');
+  const btnSaveImprove = document.getElementById('fb-btn-save-improve');
+  const btnCancel = document.getElementById('fb-btn-cancel');
+  const historySection = document.getElementById('fb-history');
+  const historyTitle = document.getElementById('fb-history-title');
+  const historyBody = document.getElementById('fb-history-body');
+  const fabBadge = document.getElementById('fb-fab-badge');
+
+  let currentItems = null;  // items estructurados tras /parse
+
+  fab.addEventListener('click', () => {
+    if (!API_BASE) {
+      alert('No hay server local conectado. Arranca iniciar.bat y refresca el catalog primero.');
+      return;
+    }
+    resetModal();
+    modalBg.classList.add('show');
+    setTimeout(() => txt.focus(), 50);
+  });
+  btnCancel.addEventListener('click', () => modalBg.classList.remove('show'));
+  modalBg.addEventListener('click', (e) => { if (e.target === modalBg) modalBg.classList.remove('show'); });
+
+  function resetModal() {
+    txt.value = ''; urlsInput.value = '';
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    prevBlock.style.display = 'none';
+    btnPreview.style.display = 'inline-block';
+    btnSave.style.display = 'none';
+    btnSaveImprove.style.display = 'none';
+    currentItems = null;
+  }
+
+  function showError(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  function showInfo(msg) { infoEl.textContent = msg; infoEl.style.display = 'block'; }
+
+  function parseUrlsLines(s) {
+    return (s || '').split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
+  }
+
+  function renderPreview(items) {
+    if (!items || !items.length) {
+      prevEl.innerHTML = '<div style="padding:10px;color:#888;">(El parser no extrajo items. Comprueba el texto o guarda como feedback "genérico".)</div>';
+      return;
+    }
+    prevEl.innerHTML = items.map((it, idx) => {
+      const target = it.target_path || (it.target_section ? 'sección: ' + it.target_section : '(global)');
+      const valStr = it.value === null || it.value === undefined ? '' :
+                     (typeof it.value === 'object' ? JSON.stringify(it.value) : String(it.value));
+      const urls = (it.source_urls || []).join(', ');
+      return `<div class="fb-preview-item" data-idx="${idx}">
+        <span class="fb-preview-action">${it.action}</span>
+        <div style="flex:1;">
+          <div><strong>${target}</strong>${valStr ? ' → <code>' + valStr.substring(0,80) + '</code>' : ''}</div>
+          <div style="font-size:11px;color:#777;margin-top:3px;">${it.rationale || ''}</div>
+          ${urls ? `<div style="font-size:10px;color:#999;margin-top:2px;">${urls}</div>` : ''}
+          <div style="font-size:10px;margin-top:2px;" class="fb-preview-conf-${it.confidence||'medium'}">Confianza: ${it.confidence||'medium'}</div>
+        </div>
+        <button type="button" class="fb-btn" style="padding:2px 8px;font-size:11px;" data-rm-preview="${idx}" title="Quitar este item">✕</button>
+      </div>`;
+    }).join('');
+    // bind remove
+    prevEl.querySelectorAll('button[data-rm-preview]').forEach(b => {
+      b.addEventListener('click', () => {
+        const i = parseInt(b.dataset.rmPreview);
+        currentItems.splice(i, 1);
+        renderPreview(currentItems);
+        if (currentItems.length === 0) {
+          btnSave.style.display = 'none';
+          btnSaveImprove.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  btnPreview.addEventListener('click', async () => {
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    const rawText = txt.value.trim();
+    const rawUrls = parseUrlsLines(urlsInput.value);
+    if (!rawText && rawUrls.length === 0) {
+      showError('Escribe algo o pega URLs.');
+      return;
+    }
+    btnPreview.disabled = true;
+    btnPreview.textContent = 'Analizando…';
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/parse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: rawText, raw_urls: rawUrls,
+          fund_name: FUND_NAME, gestora: GESTORA,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showError(data.error || 'Error en parse'); return; }
+      currentItems = data.structured_items || [];
+      renderPreview(currentItems);
+      prevBlock.style.display = 'block';
+      const method = data.parse_meta?.method || 'unknown';
+      const note = method === 'haiku' ? ' (Haiku)' : method === 'fallback' ? ' (parser básico — Haiku no disponible)' : '';
+      showInfo(`${currentItems.length} item(s) extraído(s)${note}. Revisa, elimina los que no quieras y guarda.`);
+      btnPreview.style.display = 'none';
+      btnSave.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+      btnSaveImprove.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnPreview.disabled = false;
+      btnPreview.textContent = 'Analizar texto →';
+    }
+  });
+
+  async function saveAndMaybeImprove(triggerImprove) {
+    if (!currentItems || currentItems.length === 0) {
+      showError('No hay items que guardar.');
+      return;
+    }
+    btnSave.disabled = true; btnSaveImprove.disabled = true;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: txt.value.trim(),
+          raw_urls: parseUrlsLines(urlsInput.value),
+          structured_items: currentItems,
+          fund_name: FUND_NAME,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) { showError(data.error || 'Error guardando'); return; }
+      showInfo(`✓ Feedback guardado.${triggerImprove ? ' Lanzando re-run…' : ''}`);
+      if (triggerImprove) {
+        const res2 = await fbFetch('/api/analyze-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isins: [ISIN], cold_start: false, apply_feedback: true,
+          }),
+        });
+        const d2 = await res2.json();
+        if (!res2.ok) { showError('Encolado falló: ' + (d2.error || res2.status)); return; }
+        showInfo(`✓ Feedback guardado. Re-run encolado. Cierra el modal y verás el progreso en la cola del catalog.`);
+      }
+      // Tras 1.5s cerrar
+      setTimeout(() => { modalBg.classList.remove('show'); loadHistory(); }, 1500);
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnSave.disabled = false; btnSaveImprove.disabled = false;
+    }
+  }
+  btnSave.addEventListener('click', () => saveAndMaybeImprove(false));
+  btnSaveImprove.addEventListener('click', () => saveAndMaybeImprove(true));
+
+  // ───────── Histórico ─────────
+  async function loadHistory() {
+    if (!API_BASE) return;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const data = await res.json();
+      const feedbacks = data.feedbacks || [];
+      const nPending = feedbacks.filter(f => f.estado === 'pending').length;
+      if (nPending > 0) {
+        fabBadge.textContent = nPending;
+        fabBadge.style.display = 'inline-block';
+      } else {
+        fabBadge.style.display = 'none';
+      }
+      historyTitle.textContent = `Histórico de feedback (${feedbacks.length})`;
+      if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
+      historySection.style.display = 'block';
+      historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
+        const items = (fb.structured_items || []).map(it => {
+          const target = it.target_path || it.target_section || '(global)';
+          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+        }).join('');
+        const ts = new Date(fb.created_at).toLocaleString('es-ES');
+        const canDelete = fb.estado === 'pending';
+        return `<div class="fb-history-item estado-${fb.estado}">
+          ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
+          <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
+          <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          <div class="fb-history-items">${items}</div>
+        </div>`;
+      }).join('');
+      historyBody.querySelectorAll('button[data-del-fb]').forEach(b => {
+        b.addEventListener('click', async () => {
+          if (!confirm('Borrar este feedback? Solo se borran los pending.')) return;
+          const fbId = b.dataset.delFb;
+          const r = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/${encodeURIComponent(fbId)}`, { method: 'DELETE' });
+          if (r.ok) loadHistory();
+        });
+      });
+    } catch (e) { /* sin server, silencioso */ }
+  }
+
+  historyTitle.addEventListener('click', () => historySection.classList.toggle('collapsed'));
+
+  // Cargar al inicio si hay API_BASE
+  if (API_BASE) loadHistory();
+})();
+</script>
+
+
 <script>
 function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
 function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
@@ -2012,7 +2388,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[133.283, 154.844, 155.222, 143.229, 228.715, 324.66, 421.059, 417.129, 478.519, 461.999, 427.84, 221.62, 197.173, 205.234, 245.394, 320.383, 491.9],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[133.283, 154.844, 155.222, 143.229, 228.715, 324.66, 421.059, 417.129, 478.519, 461.999, 427.84, 221.62, 197.173, 205.234, 245.394, 320.383, 464.061],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[1187, 1153, 1265, 1130, 2177, 3219, 4225, 3837, 4408, 4610, 4073, 2670, 2337, 2472, 2674, 3268, 4689],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){

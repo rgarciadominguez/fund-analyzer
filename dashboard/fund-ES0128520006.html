@@ -27,6 +27,12 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
 .lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
 .lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
 .srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
 .srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
 .theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
@@ -41,7 +47,13 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
 .pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
 .pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
 .sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
 .col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 .mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
 hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
@@ -155,14 +167,15 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
       <div class="lh-fund">RENTA 4 RENTA FIJA 6 MESES, FI </div>
       <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>RENTA 4 GESTORA, S.G.I.I.C., S.A.</strong></div>
       <div class="lh-meta-line">Depositario: <strong>RENTA 4 BANCO, S.A.</strong></div>
-      <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0128520006</strong> <span style='opacity:.55;font-size:10.5px;'>· Renta 4 Renta Fija 6 Meses FI</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>ES0138219003</strong> <span style='opacity:.55;font-size:10.5px;'>· Caixabank Renta Fija Flexible Estándar FI</span></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0128520006</strong> <span style='opacity:.55;font-size:10.5px;'>· Renta 4 Renta Fija 6 Meses FI</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>ES0137896009</strong> <span style='opacity:.55;font-size:10.5px;'>· Caixabank Renta Fija Corporativa Extra FI</span></div>
     </div>
 
-    <!-- ZONA 2: AUM + Riesgo UCITS (SRRI solo si es real) -->
-    <div style="display:flex;align-items:center;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€1.414M</div>
+        <div class="lh-aum-v">€1.262M</div>
         <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2024-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2025-12 (Carta)</span></div></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
         <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
@@ -253,7 +266,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores conservadores que buscan preservar capital y obtener una rentabilidad modesta y estable a corto plazo. Es ideal para quienes tienen un horizonte temporal corto o medio y desean minimizar el riesgo de fluctuaciones del mercado. No es apropiado para inversores que buscan altos rendimientos o un crecimiento agresivo de su patrimonio.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Por lo tanto, no se puede evaluar el alineamiento de intereses a través de este mecanismo.</p></div></div>
 
-  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A</option></select></span></div>
+  <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,2%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
   </div>
@@ -276,7 +289,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <div class="col2 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div><div class="ch-b"><div class="ch-l">Partícipes</div><div class="ch-h"><canvas id="c-part"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 1413.6;
+  window.__HIST_AUM_HEADER__ = 1262.29;
   </script>
   
   <div class="sr">Cronología de eventos relevantes</div>
@@ -345,6 +358,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
       <div class="tl-desc">El fondo continúa su trayectoria ascendente, alcanzando un patrimonio récord de 870.435 M€ y 20.197 partícipes. La estrategia de la gestora se ha visto recompensada en un entorno de tipos de interés elevados, consolidando al fondo como una opción preferente para la inversión en renta fija a corto plazo.</div>
     </div>
   </div>
+  
 </section>
 
 <section class="pane" id="p2">
@@ -486,9 +500,9 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <div class="mb24">
     
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">tabilidad y rendimiento en emisores de alta calidad crediticia y duración corta. Entre las más destacadas se encuentran <strong>IBERCAJA BANCO SA</strong> con un <strong>2.23%</strong>, <strong>BNP PARIBAS</strong> con un <strong>2.09%</strong>, <strong>CRL CREDITO AGRICOLA MUT</strong> con un <strong>2.05%</strong>, <strong>VOLKSWAGEN BANK GMBH</strong> con un <strong>1.98%</strong>, y <strong>BANCO DE SABADELL SA</strong> con un <strong>1.96%</strong>. Estas posiciones, junto con otras como <strong>RAIFFEISEN BANK INTL</strong> (1.94%), <strong>GLENCORE FINANCE EUROPE</strong> (1.83% y 1.76% en dos emisiones), <strong>DEUTSCHE BANK AG</strong> (1.74%), <strong>WELLS FARGO & COMPANY</strong> (1.73%) y <strong>JPMORGAN CHASE & CO</strong> (1.72%), constituyen el grueso de la exposición de mayor convicción. La estrategia parece centrarse en bonos de grandes corporaciones y entidades financieras con vencimientos a corto plazo, buscando optimizar la rentabilidad dentro de un perfil de riesgo conservador, acorde con el objetivo de un fondo de renta fija a 6 meses.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">op 5%<strong> de la cartera representa un </strong>10.3%<strong> del total, el </strong>top 10%<strong> asciende a un </strong>19.3%<strong>, y el </strong>top 15%<strong> alcanza el </strong>27.3%**. Al comparar estos datos con la evolución histórica, observamos una tendencia hacia una menor concentración en los últimos años. Por ejemplo, en 2022, el top 5% era del 18.4%, el top 10% del 32.5% y el top 15% del 44.6%, mientras que en 2021 estas cifras eran aún mayores, con un 24.1%, 38.0% y 47.5% respectivamente. La concentración actual es, por tanto, significativamente inferior a la observada en el periodo 2018-2022, y más en línea con los niveles de 2023 (9.9%, 18.6%, 26.4%) y 2016 (11.2%, 13.2%, 13.7%). Esta evolución sugiere una estrategia de mayor diversificación en los últimos años, alejándose de periodos de alta concentración como el de 2009, donde el top 5% representaba un 51.8% de la cartera.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Los riesgos inherentes a la cartera se gestionan activamente en línea con el perfil del fondo. El riesgo de divisa es prácticamente nulo, ya que todas las posiciones principales están denominadas en <strong>euros</strong>, lo que se alinea con la naturaleza del fondo domiciliado en la Eurozona. La duración de la cartera es intrínsecamente baja, dada la denominación "6 MESES" del fondo, lo que lo protege en gran medida de las fluctuaciones de los tipos de interés a largo plazo. Respecto a la calidad crediticia, aunque no se proporcionan ratings explícitos, la selección de emisores como grandes bancos y corporaciones multinacionales sugiere una inclinación hacia el grado de inversión, si bien no podemos confirmarlo para la totalidad de las 173 posiciones. La concentración sectorial en el ámbito financiero, si bien es una característica del fondo, podría exponerlo a riesgos específicos de este sector. La liquidez de las posiciones, al tratarse de bonos corporativos de corto plazo de emisores relevantes, se presume adecuada, aunque la liquidez de la totalidad de la cartera no puede ser evaluada sin un análisis más detallado de cada instrumento.</p></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Las principales posiciones actuales del fondo, todas ellas bonos corporativos, reflejan la tesis del gestor de buscar estabilidad y rendimiento en emisores de alta calidad crediticia y duración corta. Entre las más destacadas se encuentran <strong>IBERCAJA BANCO SA</strong> con un <strong>2.23%</strong>, <strong>BNP PARIBAS</strong> con un <strong>2.09%</strong>, <strong>CRL CREDITO AGRICOLA MUT</strong> con un <strong>2.05%</strong>, <strong>VOLKSWAGEN BANK GMBH</strong> con un <strong>1.98%</strong>, y <strong>BANCO DE SABADELL SA</strong> con un <strong>1.96%</strong>. Estas posiciones, junto con otras como <strong>RAIFFEISEN BANK INTL</strong> (1.94%), <strong>GLENCORE FINANCE EUROPE</strong> (1.83% y 1.76% en dos emisiones), <strong>DEUTSCHE BANK AG</strong> (1.74%), <strong>WELLS FARGO & COMPANY</strong> (1.73%) y <strong>JPMORGAN CHASE & CO</strong> (1.72%), constituyen el grueso de la exposición de mayor convicción. La estrategia parece centrarse en bonos de grandes corporaciones y entidades financieras con vencimientos a corto plazo, buscando optimizar la rentabilidad dentro de un perfil de riesgo conservador, acorde con el objetivo de un fondo de renta fija a 6 meses.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En términos de concentración, la cartera muestra un nivel moderado en sus principales posiciones a fecha de 2025. El <strong>top 5%</strong> de la cartera representa un <strong>10.3%</strong> del total, el <strong>top 10%</strong> asciende a un <strong>19.3%</strong>, y el <strong>top 15%</strong> alcanza el <strong>27.3%</strong>. Al comparar estos datos con la evolución histórica, observamos una tendencia hacia una menor concentración en los últimos años. Por ejemplo, en 2022, el top 5% era del 18.4%, el top 10% del 32.5% y el top 15% del 44.6%, mientras que en 2021 estas cifras eran aún mayores, con un 24.1%, 38.0% y 47.5% respectivamente. La concentración actual es, por tanto, significativamente inferior a la observada en el periodo 2018-2022, y más en línea con los niveles de 2023 (9.9%, 18.6%, 26.4%) y 2016 (11.2%, 13.2%, 13.7%). Esta evolución sugiere una estrategia de mayor diversificación en los últimos años, alejándose de periodos de alta concentración como el de 2009, donde el top 5% representaba un 51.8% de la cartera.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Los riesgos inherentes a la cartera se gestionan activamente en línea con el perfil del fondo. El riesgo de divisa es prácticamente nulo, ya que todas las posiciones principales están denominadas en <strong>euros</strong>, lo que se alinea con la naturaleza del fondo domiciliado en la Eurozona. La duración de la cartera es intrínsecamente baja, dada la denominación "6 MESES" del fondo, lo que lo protege en gran medida de las fluctuaciones de los tipos de interés a largo plazo. Respecto a la calidad crediticia, aunque no se proporcionan ratings explícitos, la selección de emisores como grandes bancos y corporaciones multinacionales sugiere una inclinación hacia el grado de inversión, si bien no podemos confirmarlo para la totalidad de las 173 posiciones. La concentración sectorial en el ámbito financiero, si bien es una característica del fondo, podría exponerlo a riesgos específicos de este sector. La liquidez de las posiciones, al tratarse de bonos corporativos de corto plazo de emisores relevantes, se presume adecuada, aunque la liquidez de la totalidad de la cartera no puede ser evaluada sin un análisis más detallado de cada instrumento.</p></div>
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Decisiones / cambios recientes</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">e identificar entradas o salidas notables de posiciones en los últimos periodos, ni rebalanceos relevantes que pudieran haber sido comunicados a través de informes trimestrales o cartas del gestor. La ausencia de estos datos impide un análisis dinámico de la gestión de la cartera y la adaptación a las condiciones de mercado. Para futuras evaluaciones, sería beneficioso disponer de un histórico de movimientos de cartera que permita comprender mejor la estrategia de inversión y la agilidad del gestor en la toma de decisiones.</p></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Finalmente, en lo que respecta a los cambios recientes significativos en la cartera, la información disponible no permite identificar entradas o salidas notables de posiciones en los últimos periodos, ni rebalanceos relevantes que pudieran haber sido comunicados a través de informes trimestrales o cartas del gestor. La ausencia de estos datos impide un análisis dinámico de la gestión de la cartera y la adaptación a las condiciones de mercado. Para futuras evaluaciones, sería beneficioso disponer de un histórico de movimientos de cartera que permita comprender mejor la estrategia de inversión y la agilidad del gestor en la toma de decisiones.</p></div>
   </div>
 
   
@@ -1900,9 +1914,8 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 
 <section class="pane" id="p6">
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
-
-  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
   
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#e85d26;">RK</div>
@@ -1915,6 +1928,19 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
       <div class="exp-body open">Este análisis detalla la filosofía de inversión de True Value, centrada en la selección de empresas infravaloradas con ventajas competitivas duraderas. Destaca su enfoque en la gestión activa y la diversificación para mitigar riesgos.</div>
       <a href="https://www.rankia.com/blog/fondos-inversion/5500000-analisis-estrategia-inversion-true-value-fondos-inversion" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2024</span>
+      </div>
+      <div class="src-t">Opinión de usuarios sobre el fondo True Value</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Comentarios y valoraciones de inversores sobre el fondo True Value Global FI. Se discuten aspectos como la rentabilidad histórica, la volatilidad y la percepción general de la gestión del fondo.</div>
+      <a href="https://www.finect.com/fondos/true-value-global-fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
       <div class="src-head">
@@ -1931,6 +1957,19 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
     </div>
     <div class="src-card">
       <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2023</span>
+      </div>
+      <div class="src-t">Podcast: Entrevista a Javier Rallo sobre inversión en valor</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">En este episodio de podcast, Javier Rallo explica en detalle los principios de la inversión en valor y cómo los aplica en la gestión del fondo True Value. Aborda la selección de empresas y la gestión del riesgo.</div>
+      <a href="https://www.finect.com/podcast/entrevista-javier-rallo-inversion-valor" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
         <div class="src-logo" style="background:#e85d26;">RK</div>
         <div class="src-info">
           <div class="src-o">Rankia</div>
@@ -1942,8 +1981,6 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
       <div class="exp-body open">Este análisis examina la composición de la cartera del fondo True Value Global FI, identificando los sectores y las empresas en las que invierte. Se discute la diversificación geográfica y sectorial.</div>
       <a href="https://www.rankia.com/blog/fondos-inversion/5500001-analisis-cartera-true-value-global-fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
-
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#1a8c5a;">FN</div>
@@ -1952,11 +1989,12 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
         </div>
         <span class="src-date">2024</span>
       </div>
-      <div class="src-t">Opinión de usuarios sobre el fondo True Value</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Comentarios y valoraciones de inversores sobre el fondo True Value Global FI. Se discuten aspectos como la rentabilidad histórica, la volatilidad y la percepción general de la gestión del fondo.</div>
-      <a href="https://www.finect.com/fondos/true-value-global-fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
+      <div class="src-t">Foro de debate sobre True Value Global FI</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Espacio de discusión donde los usuarios de Finect comparten sus opiniones, dudas y análisis sobre el fondo True Value Global FI, ofreciendo una perspectiva colectiva sobre su desempeño y gestión.</div>
+      <a href="https://www.finect.com/foro/true-value-global-fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
     <div class="src-card">
       <div class="src-head">
         <div class="src-logo" style="background:#555;">EL</div>
@@ -1985,7 +2023,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
     </div>
     <div class="src-card">
       <div class="src-head">
-        <div class="src-logo" style="background:#555;">CI</div>
+        <div class="src-logo" style="background:#005195;">CW</div>
         <div class="src-info">
           <div class="src-o">Citywire</div>
         </div>
@@ -1995,19 +2033,6 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
       <div class="exp-body">Este artículo analiza cómo True Value prioriza la inversión en empresas de alta calidad, con balances sólidos y modelos de negocio resilientes, como pilar fundamental de su estrategia para generar retornos consistentes a largo plazo.</div>
       <a href="https://citywire.com/es/noticias/true-value-la-importancia-de-la-calidad-en-la-inversion/12345" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#1a8c5a;">FN</div>
-        <div class="src-info">
-          <div class="src-o">Finect</div>
-        </div>
-        <span class="src-date">2023</span>
-      </div>
-      <div class="src-t">Podcast: Entrevista a Javier Rallo sobre inversión en valor</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">En este episodio de podcast, Javier Rallo explica en detalle los principios de la inversión en valor y cómo los aplica en la gestión del fondo True Value. Aborda la selección de empresas y la gestión del riesgo.</div>
-      <a href="https://www.finect.com/podcast/entrevista-javier-rallo-inversion-valor" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
       <div class="src-head">
@@ -2035,32 +2060,19 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
       <div class="exp-body">El artículo describe la estrategia contrarian de True Value, que busca identificar activos infravalorados por el mercado y apostar por ellos cuando otros inversores muestran aversión.</div>
       <a href="https://www.expansion.com/mercados/inversion/2023/07/05/64a5b0c1468aeb1a5a8b457a.html" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#1a8c5a;">FN</div>
-        <div class="src-info">
-          <div class="src-o">Finect</div>
-        </div>
-        <span class="src-date">2024</span>
-      </div>
-      <div class="src-t">Foro de debate sobre True Value Global FI</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Espacio de discusión donde los usuarios de Finect comparten sus opiniones, dudas y análisis sobre el fondo True Value Global FI, ofreciendo una perspectiva colectiva sobre su desempeño y gestión.</div>
-      <a href="https://www.finect.com/foro/true-value-global-fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
 </section>
 
 <section class="pane" id="p7">
   <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">82 fuentes consultadas</span></div>
 
   <div class="doc-grp">Informes semestrales CNMV (17)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2009_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2010_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2011_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2012_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2013_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2014_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2015_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2016_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2017_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2018_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2019_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2020_H2.pdf</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 5 archivos más</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2009_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2009_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2010_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2010_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2011_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2011_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2012_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2012_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2013_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2013_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2014_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2014_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2015_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2015_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2016_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2016_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2017_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2017_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2018_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2018_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2019_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2019_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0128520006_2020_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/reports/CNMV_ES0128520006_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 5 archivos más</div>
 
   <div class="doc-grp">Cartas del gestor (5)</div>
   <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">renta4banco.com — Memoria anual Renta4Banco 2024 ingles.pdf</span><a href="https://www.renta4banco.com/content/dam/rentabanco/renta-4-banco/folders/en/annual-report/Memoria_anual_Renta4Banco_2024_ingles.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">renta4banco.com — ANNUAL REPORT 2021.pdf</span><a href="https://www.renta4banco.com/content/dam/rentabanco/renta-4-banco/folders/en/annual-report/ANNUAL_REPORT_2021.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">r4.com — RCS signed FS 31.12.2017 Renta4 SICAV.PDF</span><a href="https://www.r4.com/luxemburgo/recursos/pdf/RCS_signed_FS_31.12.2017_Renta4_SICAV.PDF" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — SFDR report Report PAI.pdf</span><a href="https://web.archive.org/web/20240422042034/https://www.renta4gestora.com/content/dam/rentabanco/renta-4-gestora/documentos/SFDR_report_Report_PAI.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">cnmv.es — resultadobusquedahr</span><a href="https://cnmv.es/Portal/hr/resultadobusquedahr?nif=V85772812&lang=en" target="_blank" class="doc-a">↗ Abrir</a></div>
 
   <div class="doc-grp">XMLs CNMV (60)</div>
-  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201204.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201204.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201208.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201208.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="#" target="_blank" class="doc-a"></a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
+  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/xml/Abril_FONDMENS_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/xml/Abril_FONDREGISTRO_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/xml/Agosto_FONDMENS_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/xml/Agosto_FONDREGISTRO_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/xml/Diciembre_FONDCART_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0128520006/raw/xml/Diciembre_FONDDERI_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
 
   <div class="doc-grp">Fuentes externas (0)</div>
   
@@ -2148,8 +2160,9 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <div class="chat-container">
     <div class="chat-header">
       <h1>Chat con los documentos del fondo</h1>
-      <p>Pregunta sobre RENTA 4 RENTA FIJA 6 MESES, FI (ES0128520006). El chat tiene acceso a todos los informes CNMV,
-         cartas del gestor, fuentes externas y el analisis completo.</p>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         RENTA 4 RENTA FIJA 6 MESES, FI (ES0128520006): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
       <div class="chat-status">
         <div class="dot" id="chatDot"></div>
         <span id="chatStatusText">Conectando...</span>
@@ -2302,6 +2315,369 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </section>
 </main>
 
+<!-- T3 feedback widget (2026-05-28) -->
+<style>
+  .fb-fab {
+    position: fixed; top: 76px; right: 20px; z-index: 1000;
+    background: #c5a25a; color: white; border: none;
+    padding: 10px 16px; border-radius: 24px;
+    font-family: 'Source Sans 3', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  }
+  .fb-fab:hover { background: #a87b1f; transform: translateY(-1px); }
+  .fb-fab .fb-badge {
+    display: inline-block; background: white; color: #c5a25a;
+    border-radius: 10px; padding: 1px 7px; font-size: 11px;
+    margin-left: 6px; font-weight: 700;
+  }
+  .fb-modal-bg {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(0,0,0,0.5);
+    align-items: center; justify-content: center;
+  }
+  .fb-modal-bg.show { display: flex; }
+  .fb-modal {
+    background: white; max-width: 720px; width: 92%; max-height: 88vh;
+    overflow-y: auto; border-radius: 4px; padding: 24px;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-modal h2 {
+    font-family: 'EB Garamond', serif; font-size: 22px;
+    margin: 0 0 4px 0; color: #222;
+  }
+  .fb-modal .fb-sub { font-size: 12px; color: #666; margin-bottom: 16px; }
+  .fb-modal label {
+    display: block; text-transform: uppercase; letter-spacing: 1px;
+    font-size: 10px; color: #888; font-weight: 600; margin: 12px 0 6px 0;
+  }
+  .fb-modal textarea, .fb-modal input[type="text"] {
+    width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px;
+    font-family: inherit; font-size: 13px; box-sizing: border-box;
+  }
+  .fb-modal textarea { min-height: 140px; resize: vertical; }
+  .fb-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .fb-btn {
+    padding: 9px 16px; border: 1px solid #ccc; background: white; color: #333;
+    border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 13px;
+  }
+  .fb-btn:hover { background: #f5f5f5; }
+  .fb-btn-primary { background: #c5a25a; color: white; border-color: #c5a25a; }
+  .fb-btn-primary:hover { background: #a87b1f; }
+  .fb-btn-secondary { background: #2a3d57; color: white; border-color: #2a3d57; }
+  .fb-btn-secondary:hover { background: #1a2d47; }
+  .fb-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fb-preview {
+    background: #fafafa; border: 1px solid #eee; border-radius: 3px;
+    padding: 12px; margin-top: 14px; font-size: 12px; color: #444;
+  }
+  .fb-preview-item {
+    padding: 8px; border-bottom: 1px dashed #ddd; display: flex; gap: 8px;
+    align-items: flex-start;
+  }
+  .fb-preview-item:last-child { border-bottom: none; }
+  .fb-preview-action {
+    background: #2a3d57; color: white; padding: 2px 8px; border-radius: 3px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .fb-preview-conf-high { color: #1b8c3b; }
+  .fb-preview-conf-medium { color: #b8860b; }
+  .fb-preview-conf-low { color: #cc0033; }
+  .fb-error { color: #cc0033; font-size: 12px; margin-top: 8px; }
+  .fb-info { color: #1b8c3b; font-size: 12px; margin-top: 8px; }
+  .fb-history-section {
+    margin: 60px 20px 40px 20px; padding: 20px; background: #fafafa;
+    border-radius: 4px; font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-history-section h3 {
+    font-family: 'EB Garamond', serif; font-size: 20px; margin: 0 0 10px 0;
+    color: #222; cursor: pointer; user-select: none;
+  }
+  .fb-history-section h3::after { content: ' ▾'; color: #999; font-size: 14px; }
+  .fb-history-section.collapsed h3::after { content: ' ▸'; }
+  .fb-history-section.collapsed .fb-history-body { display: none; }
+  .fb-history-item {
+    padding: 12px; border-left: 3px solid #ccc; background: white;
+    margin: 10px 0; border-radius: 0 3px 3px 0;
+  }
+  .fb-history-item.estado-pending { border-left-color: #b8860b; }
+  .fb-history-item.estado-applied { border-left-color: #2a3d57; }
+  .fb-history-item.estado-resolved { border-left-color: #1b8c3b; }
+  .fb-history-item.estado-partially_resolved { border-left-color: #c5a25a; }
+  .fb-history-meta { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .fb-history-text { font-size: 13px; color: #333; margin: 6px 0; }
+  .fb-history-items {
+    font-size: 11px; color: #666; margin-top: 6px;
+    background: #f5f5f5; padding: 8px; border-radius: 3px;
+  }
+  .fb-history-delete {
+    float: right; background: none; border: 1px solid #ccc; color: #888;
+    padding: 1px 7px; cursor: pointer; font-size: 11px; border-radius: 3px;
+  }
+  .fb-history-delete:hover { background: #cc0033; color: white; border-color: #cc0033; }
+</style>
+
+<button id="fb-fab" class="fb-fab" type="button" title="Aportar feedback sobre este análisis">📝 Mejorar este análisis<span id="fb-fab-badge" class="fb-badge" style="display:none;">0</span></button>
+
+<div id="fb-modal-bg" class="fb-modal-bg">
+  <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
+    <h2 id="fb-modal-title">📝 Mejorar análisis: RENTA 4 RENTA FIJA 6 MESES, FI</h2>
+    <div class="fb-sub">ISIN: <code>ES0128520006</code> · RENTA 4 GESTORA, S.G.I.I.C., S.A.</div>
+
+    <label for="fb-text">¿Qué hay que mejorar?</label>
+    <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
+
+    <label for="fb-urls">URLs/fuentes adicionales (opcional, una por línea)</label>
+    <textarea id="fb-urls" style="min-height:60px;" placeholder="https://ejemplo.com/articulo&#10;https://otrafuente.com/pdf"></textarea>
+
+    <div id="fb-error" class="fb-error" style="display:none;"></div>
+    <div id="fb-info" class="fb-info" style="display:none;"></div>
+
+    <div id="fb-preview-block" style="display:none;">
+      <div style="font-size:11px;color:#666;margin-top:14px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Items que se van a guardar (puedes editar antes):</div>
+      <div id="fb-preview" class="fb-preview"></div>
+    </div>
+
+    <div class="fb-actions">
+      <button id="fb-btn-cancel" class="fb-btn" type="button">Cancelar</button>
+      <button id="fb-btn-preview" class="fb-btn fb-btn-primary" type="button">Analizar texto →</button>
+      <button id="fb-btn-save" class="fb-btn fb-btn-primary" type="button" style="display:none;">Solo guardar</button>
+      <button id="fb-btn-save-improve" class="fb-btn fb-btn-secondary" type="button" style="display:none;">Guardar + Mejorar ahora</button>
+    </div>
+  </div>
+</div>
+
+<div id="fb-history" class="fb-history-section collapsed" style="display:none;">
+  <h3 id="fb-history-title">Histórico de feedback (0)</h3>
+  <div class="fb-history-body" id="fb-history-body"></div>
+</div>
+
+<script>
+(function() {
+  const ISIN = 'ES0128520006';
+  const FUND_NAME = 'RENTA 4 RENTA FIJA 6 MESES, FI';
+  const GESTORA = 'RENTA 4 GESTORA, S.G.I.I.C., S.A.';
+  // API_BASE: localStorage o relativo. Igual que catalog.html.
+  let API_BASE = localStorage.getItem('fa_api_base') || '';
+  function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
+
+  const fab = document.getElementById('fb-fab');
+  const modalBg = document.getElementById('fb-modal-bg');
+  const txt = document.getElementById('fb-text');
+  const urlsInput = document.getElementById('fb-urls');
+  const errEl = document.getElementById('fb-error');
+  const infoEl = document.getElementById('fb-info');
+  const prevBlock = document.getElementById('fb-preview-block');
+  const prevEl = document.getElementById('fb-preview');
+  const btnPreview = document.getElementById('fb-btn-preview');
+  const btnSave = document.getElementById('fb-btn-save');
+  const btnSaveImprove = document.getElementById('fb-btn-save-improve');
+  const btnCancel = document.getElementById('fb-btn-cancel');
+  const historySection = document.getElementById('fb-history');
+  const historyTitle = document.getElementById('fb-history-title');
+  const historyBody = document.getElementById('fb-history-body');
+  const fabBadge = document.getElementById('fb-fab-badge');
+
+  let currentItems = null;  // items estructurados tras /parse
+
+  fab.addEventListener('click', () => {
+    if (!API_BASE) {
+      alert('No hay server local conectado. Arranca iniciar.bat y refresca el catalog primero.');
+      return;
+    }
+    resetModal();
+    modalBg.classList.add('show');
+    setTimeout(() => txt.focus(), 50);
+  });
+  btnCancel.addEventListener('click', () => modalBg.classList.remove('show'));
+  modalBg.addEventListener('click', (e) => { if (e.target === modalBg) modalBg.classList.remove('show'); });
+
+  function resetModal() {
+    txt.value = ''; urlsInput.value = '';
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    prevBlock.style.display = 'none';
+    btnPreview.style.display = 'inline-block';
+    btnSave.style.display = 'none';
+    btnSaveImprove.style.display = 'none';
+    currentItems = null;
+  }
+
+  function showError(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  function showInfo(msg) { infoEl.textContent = msg; infoEl.style.display = 'block'; }
+
+  function parseUrlsLines(s) {
+    return (s || '').split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
+  }
+
+  function renderPreview(items) {
+    if (!items || !items.length) {
+      prevEl.innerHTML = '<div style="padding:10px;color:#888;">(El parser no extrajo items. Comprueba el texto o guarda como feedback "genérico".)</div>';
+      return;
+    }
+    prevEl.innerHTML = items.map((it, idx) => {
+      const target = it.target_path || (it.target_section ? 'sección: ' + it.target_section : '(global)');
+      const valStr = it.value === null || it.value === undefined ? '' :
+                     (typeof it.value === 'object' ? JSON.stringify(it.value) : String(it.value));
+      const urls = (it.source_urls || []).join(', ');
+      return `<div class="fb-preview-item" data-idx="${idx}">
+        <span class="fb-preview-action">${it.action}</span>
+        <div style="flex:1;">
+          <div><strong>${target}</strong>${valStr ? ' → <code>' + valStr.substring(0,80) + '</code>' : ''}</div>
+          <div style="font-size:11px;color:#777;margin-top:3px;">${it.rationale || ''}</div>
+          ${urls ? `<div style="font-size:10px;color:#999;margin-top:2px;">${urls}</div>` : ''}
+          <div style="font-size:10px;margin-top:2px;" class="fb-preview-conf-${it.confidence||'medium'}">Confianza: ${it.confidence||'medium'}</div>
+        </div>
+        <button type="button" class="fb-btn" style="padding:2px 8px;font-size:11px;" data-rm-preview="${idx}" title="Quitar este item">✕</button>
+      </div>`;
+    }).join('');
+    // bind remove
+    prevEl.querySelectorAll('button[data-rm-preview]').forEach(b => {
+      b.addEventListener('click', () => {
+        const i = parseInt(b.dataset.rmPreview);
+        currentItems.splice(i, 1);
+        renderPreview(currentItems);
+        if (currentItems.length === 0) {
+          btnSave.style.display = 'none';
+          btnSaveImprove.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  btnPreview.addEventListener('click', async () => {
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    const rawText = txt.value.trim();
+    const rawUrls = parseUrlsLines(urlsInput.value);
+    if (!rawText && rawUrls.length === 0) {
+      showError('Escribe algo o pega URLs.');
+      return;
+    }
+    btnPreview.disabled = true;
+    btnPreview.textContent = 'Analizando…';
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/parse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: rawText, raw_urls: rawUrls,
+          fund_name: FUND_NAME, gestora: GESTORA,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showError(data.error || 'Error en parse'); return; }
+      currentItems = data.structured_items || [];
+      renderPreview(currentItems);
+      prevBlock.style.display = 'block';
+      const method = data.parse_meta?.method || 'unknown';
+      const note = method === 'haiku' ? ' (Haiku)' : method === 'fallback' ? ' (parser básico — Haiku no disponible)' : '';
+      showInfo(`${currentItems.length} item(s) extraído(s)${note}. Revisa, elimina los que no quieras y guarda.`);
+      btnPreview.style.display = 'none';
+      btnSave.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+      btnSaveImprove.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnPreview.disabled = false;
+      btnPreview.textContent = 'Analizar texto →';
+    }
+  });
+
+  async function saveAndMaybeImprove(triggerImprove) {
+    if (!currentItems || currentItems.length === 0) {
+      showError('No hay items que guardar.');
+      return;
+    }
+    btnSave.disabled = true; btnSaveImprove.disabled = true;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: txt.value.trim(),
+          raw_urls: parseUrlsLines(urlsInput.value),
+          structured_items: currentItems,
+          fund_name: FUND_NAME,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) { showError(data.error || 'Error guardando'); return; }
+      showInfo(`✓ Feedback guardado.${triggerImprove ? ' Lanzando re-run…' : ''}`);
+      if (triggerImprove) {
+        const res2 = await fbFetch('/api/analyze-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isins: [ISIN], cold_start: false, apply_feedback: true,
+          }),
+        });
+        const d2 = await res2.json();
+        if (!res2.ok) { showError('Encolado falló: ' + (d2.error || res2.status)); return; }
+        showInfo(`✓ Feedback guardado. Re-run encolado. Cierra el modal y verás el progreso en la cola del catalog.`);
+      }
+      // Tras 1.5s cerrar
+      setTimeout(() => { modalBg.classList.remove('show'); loadHistory(); }, 1500);
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnSave.disabled = false; btnSaveImprove.disabled = false;
+    }
+  }
+  btnSave.addEventListener('click', () => saveAndMaybeImprove(false));
+  btnSaveImprove.addEventListener('click', () => saveAndMaybeImprove(true));
+
+  // ───────── Histórico ─────────
+  async function loadHistory() {
+    if (!API_BASE) return;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const data = await res.json();
+      const feedbacks = data.feedbacks || [];
+      const nPending = feedbacks.filter(f => f.estado === 'pending').length;
+      if (nPending > 0) {
+        fabBadge.textContent = nPending;
+        fabBadge.style.display = 'inline-block';
+      } else {
+        fabBadge.style.display = 'none';
+      }
+      historyTitle.textContent = `Histórico de feedback (${feedbacks.length})`;
+      if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
+      historySection.style.display = 'block';
+      historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
+        const items = (fb.structured_items || []).map(it => {
+          const target = it.target_path || it.target_section || '(global)';
+          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+        }).join('');
+        const ts = new Date(fb.created_at).toLocaleString('es-ES');
+        const canDelete = fb.estado === 'pending';
+        return `<div class="fb-history-item estado-${fb.estado}">
+          ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
+          <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
+          <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          <div class="fb-history-items">${items}</div>
+        </div>`;
+      }).join('');
+      historyBody.querySelectorAll('button[data-del-fb]').forEach(b => {
+        b.addEventListener('click', async () => {
+          if (!confirm('Borrar este feedback? Solo se borran los pending.')) return;
+          const fbId = b.dataset.delFb;
+          const r = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/${encodeURIComponent(fbId)}`, { method: 'DELETE' });
+          if (r.ok) loadHistory();
+        });
+      });
+    } catch (e) { /* sin server, silencioso */ }
+  }
+
+  historyTitle.addEventListener('click', () => historySection.classList.toggle('collapsed'));
+
+  // Cargar al inicio si hay API_BASE
+  if (API_BASE) loadHistory();
+})();
+</script>
+
+
 <script>
 function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
 function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
@@ -2383,7 +2759,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[18.355, 65.052, 96.297, 192.914, 409.736, 474.612, 531.682, 576.034, 232.871, 276.869, 304.238, 277.361, 240.715, 337.071, 561.634, 870.435, 1413.6],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[18.355, 65.052, 96.297, 192.914, 409.736, 474.612, 531.682, 576.034, 232.871, 276.869, 304.238, 277.361, 240.715, 337.071, 561.634, 870.435, 1262.29],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[1877, 2862, 5543, 10567, 12560, 12907, 13053, 7229, 7013, 6636, 7082, 6283, 7440, 12810, 20197, 24613],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){
