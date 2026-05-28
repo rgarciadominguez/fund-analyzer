@@ -2949,13 +2949,18 @@ async function pollProgress(runId) {
       }
       const result = $('#run-result');
       result.style.display = 'block';
-      if (r.status === 'done' && r.dashboard_url) {
+      if (r.status === 'done' && (r.dashboard_url || r.isin)) {
         const runIsin = r.isin || '';
+        // Fix 2026-05-28: NO usar r.dashboard_url del backend (podía traer
+        // /dashboard/fund-X.html con prefijo que da 404 en Cloudflare).
+        // Construimos la URL con getDashboardUrl que ya devuelve relativo
+        // + cache-bust. Funciona idéntico en local (Flask) y en Cloudflare.
+        const dashHref = runIsin ? getDashboardUrl(runIsin, Date.now()) : (r.dashboard_url || '');
         result.innerHTML = `
           <div style="background:var(--navy-pale);padding:12px;border-left:3px solid var(--pos);">
             <strong style="color:var(--pos);">✓ Completado</strong> en ${r.duration_seconds}s.
             <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-              <a href="${r.dashboard_url}" target="_blank" rel="noopener" class="btn" style="text-decoration:none;">Abrir dashboard →</a>
+              <a href="${dashHref}" target="_blank" rel="noopener" class="btn" style="text-decoration:none;">Abrir dashboard →</a>
               ${runIsin ? `<button class="btn" id="btn-categorize-now" type="button" style="background:var(--accent);">✏ Categorizar →</button>` : ''}
               <button class="btn btn-secondary" id="btn-jump-next" type="button" style="display:none;">→ Siguiente run de cola</button>
             </div>
