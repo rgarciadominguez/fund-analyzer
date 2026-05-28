@@ -1513,9 +1513,19 @@ def make_app(cold_start: bool = True) -> Flask:
             sum(1 for v in progress.values() if v) / len(progress) * 100
         )
 
-        # Si terminó, incluir referencia al dashboard generado
+        # Si terminó, incluir referencia al dashboard generado.
+        # Bug fix 2026-05-28: usar URL relativa `fund-<ISIN>.html?v=<mtime>`
+        # (igual que getDashboardUrl en catalog.html). El path absoluto
+        # `/dashboard/...` daba 404 en el catalog público de Cloudflare
+        # Workers porque ahí los HTML se sirven sin prefijo `/dashboard/`.
         if r.get("status") in ("done", "failed") and dashboard_html.exists():
-            safe["dashboard_url"] = f"/dashboard/fund-{isin}.html"
+            try:
+                mtime = int(dashboard_html.stat().st_mtime)
+            except Exception:
+                mtime = ""
+            safe["dashboard_url"] = (
+                f"fund-{isin}.html?v={mtime}" if mtime else f"fund-{isin}.html"
+            )
 
         return jsonify(safe)
 
