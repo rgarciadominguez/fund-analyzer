@@ -58,6 +58,44 @@ DASHBOARD_DIR = ROOT / "dashboard"
 
 BUCKET_NAME = "funds-data"
 ISIN_REGEX = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}\d$")
+ISIN_FULL_REGEX = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
+
+
+def _validate_before_sync(output_data: dict, isin: str) -> tuple[bool, list[str]]:
+    """T2.9 (2026-05-28): comprueba que output.json no tiene fallos críticos
+    antes de subir a Supabase.
+
+    Criterios bloqueantes (cualquier de ellos aborta el sync):
+      - nombre vacío
+      - nombre == ISIN
+      - nombre parece otro ISIN (regex)
+      - nombre < 5 caracteres
+      - gestora vacía
+      - gestora == ISIN
+
+    Devuelve (ok, reasons). Si `ok` es False, el sync NO debe ejecutarse
+    (a menos que el usuario pase `--force` para bypass).
+    """
+    reasons: list[str] = []
+    nombre = (output_data.get("nombre") or "").strip()
+    gestora = (output_data.get("gestora") or "").strip()
+    isin_upper = isin.upper()
+
+    if not nombre:
+        reasons.append("nombre vacío")
+    elif nombre.upper() == isin_upper:
+        reasons.append(f"nombre == ISIN ({isin})")
+    elif ISIN_FULL_REGEX.match(nombre.upper()):
+        reasons.append(f"nombre parece otro ISIN: {nombre!r}")
+    elif len(nombre) < 5:
+        reasons.append(f"nombre muy corto: {nombre!r}")
+
+    if not gestora:
+        reasons.append("gestora vacía")
+    elif gestora.upper() == isin_upper:
+        reasons.append("gestora == ISIN")
+
+    return (len(reasons) == 0, reasons)
 
 
 def _safe_read_json(path: Path) -> dict | None:
@@ -102,8 +140,17 @@ def _upload_file_to_storage(client, bucket: str, dest_path: str, local_path: Pat
             return None
 
 
-def sync_fund(isin: str, dry_run: bool = False, verbose: bool = True) -> dict:
-    """Sync completo de un fondo a Supabase. Devuelve resumen."""
+def sync_fund(
+    isin: str,
+    dry_run: bool = False,
+    verbose: bool = True,
+    force: bool = False,
+) -> dict:
+    """Sync completo de un fondo a Supabase. Devuelve resumen.
+
+    T2.9 (2026-05-28): bloquea por defecto si output.json tiene fallos críticos
+    (nombre==ISIN/vacío, gestora==ISIN/vacía). Pasa `force=True` para bypass.
+    """
 
     def log(msg):
         if verbose:
@@ -122,6 +169,32 @@ def sync_fund(isin: str, dry_run: bool = False, verbose: bool = True) -> dict:
         raise FileNotFoundError(f"No existe {output_json_path}")
 
     output_data = _safe_read_json(output_json_path) or {}
+
+    # T2.9: guard pre-sync — bloquea si datos críticos están corruptos
+    ok, reasons = _validate_before_sync(output_data, isin)
+    if not ok and not force:
+        log("=" * 60)
+        log(f"[SYNC] [ABORT] {isin} NO se sincroniza — fallos críticos en output.json:")
+        for r in reasons:
+            log(f"  ✗ {r}")
+        log("")
+        log("Arregla manualmente (botón ✏ en el catalog) o re-ejecuta el")
+        log(f"análisis (🔄). Para forzar sync con los datos actuales:")
+        log(f"  python -m tools.sync_to_supabase {isin} --force")
+        log("=" * 60)
+        return {
+            "isin": isin,
+            "aborted": True,
+            "reasons": reasons,
+            "uploaded": {},
+            "funds_updated": 0,
+            "fund_groups_updated": False,
+        }
+    elif not ok and force:
+        log(f"[SYNC] [WARN] --force activo — subiendo aunque hay {len(reasons)} fallo(s):")
+        for r in reasons:
+            log(f"  ⚠ {r}")
+
     cnmv_data = _safe_read_json(fund_dir / "cnmv_data.json") or {}
     letters_data = _safe_read_json(fund_dir / "letters_data.json") or {}
     manager_profile = _safe_read_json(fund_dir / "manager_profile.json") or {}
@@ -344,9 +417,16 @@ def main():
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Bypass validación pre-sync (sube aunque nombre==ISIN, gestora==ISIN, etc.). "
+             "Solo para emergencias.",
+    )
+    parser.add_argument(
         "--backfill-all",
         action="store_true",
-        help="Sube todos los fondos con output.json existente (no acepta ISIN)",
+        help="Sube todos los fondos con output.json existente (no acepta ISIN). "
+             "Los abortados por validación cuentan como skip, no como error.",
     )
     args = parser.parse_args()
 
@@ -356,7 +436,8 @@ def main():
         if not FUNDS_DIR.exists():
             print(f"[ERROR] No existe {FUNDS_DIR}")
             return 1
-        n_ok, n_err = 0, 0
+        n_ok, n_err, n_aborted = 0, 0, 0
+        aborted_list = []
         for fund_dir in sorted(FUNDS_DIR.iterdir()):
             if not fund_dir.is_dir():
                 continue
@@ -366,19 +447,31 @@ def main():
             if not (fund_dir / "output.json").exists():
                 continue
             try:
-                sync_fund(isin, dry_run=args.dry_run, verbose=verbose)
-                n_ok += 1
+                res = sync_fund(isin, dry_run=args.dry_run,
+                                verbose=verbose, force=args.force)
+                if res.get("aborted"):
+                    n_aborted += 1
+                    aborted_list.append(isin)
+                else:
+                    n_ok += 1
             except Exception as e:
                 print(f"[ERROR] {isin}: {e}", file=sys.stderr)
                 n_err += 1
-        print(f"\n[BACKFILL] OK: {n_ok}, errores: {n_err}")
+        print(f"\n[BACKFILL] OK: {n_ok}, errores: {n_err}, abortados: {n_aborted}")
+        if aborted_list:
+            print(f"[BACKFILL] Abortados (datos críticos malos): {', '.join(aborted_list)}")
+            print(f"[BACKFILL] Re-ejecuta esos análisis o usa --force para forzar.")
         return 0 if n_err == 0 else 1
 
     if not args.isin:
         parser.error("isin requerido (o usa --backfill-all)")
 
     try:
-        sync_fund(args.isin, dry_run=args.dry_run, verbose=verbose)
+        res = sync_fund(args.isin, dry_run=args.dry_run,
+                       verbose=verbose, force=args.force)
+        if res.get("aborted"):
+            # Exit 2: bloqueado por validación (distinto de 1 = error técnico)
+            return 2
         return 0
     except Exception as e:
         print(f"[ERROR] {e}", file=sys.stderr)

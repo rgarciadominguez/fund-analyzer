@@ -1116,7 +1116,7 @@ function badgeAnalisis(f) {
 
   let cualitativo = '';
   if (f.has_qualitative_analysis && f.has_dashboard) {
-    cualitativo = `<a href="${getDashboardUrl(f.isin)}" target="_blank" rel="noopener" class="badge has-cualit" style="text-decoration:none;display:inline-block;padding:2px 8px;" title="Ver análisis cualitativo">✓ ver</a>`;
+    cualitativo = `<a href="${getDashboardUrl(f.isin, f.ultima_actualizacion)}" target="_blank" rel="noopener" class="badge has-cualit" style="text-decoration:none;display:inline-block;padding:2px 8px;" title="Ver análisis cualitativo">✓ ver</a>`;
   } else if (f.has_qualitative_analysis) {
     cualitativo = '<span class="badge has-cualit" title="Análisis cualitativo disponible">✓</span>';
   } else {
@@ -1173,7 +1173,7 @@ function renderBrokerChips(brokers) {
 }
 
 function renderRow(fund) {
-  const dashboardLink = fund.has_dashboard ? getDashboardUrl(fund.isin) : null;
+  const dashboardLink = fund.has_dashboard ? getDashboardUrl(fund.isin, fund.ultima_actualizacion) : null;
   const nombreCell = dashboardLink
     ? `<a href="${dashboardLink}" target="_blank" rel="noopener">${escapeHtml(fund.nombre || fund.isin)}</a>`
     : escapeHtml(fund.nombre || fund.isin);
@@ -1646,9 +1646,13 @@ function isHostedMode() {
          (!h.startsWith('localhost') && !h.startsWith('127.0.0.1') && h !== '');
 }
 
-function getDashboardUrl(isin) {
-  // Path relativo — funciona en local (Flask sirve) y en Pages (sirve archivos del repo)
-  return `fund-${isin}.html`;
+function getDashboardUrl(isin, version = '') {
+  // Path relativo — funciona en local (Flask sirve) y en Pages (sirve archivos del repo).
+  // T2.8 (2026-05-28): añadir ?v=<ts> cuando se sabe la fecha del último
+  // análisis. Cache-bust para que el navegador no sirva HTML obsoleto tras
+  // un re-run (típico cuando name_recovery actualizaba el nombre).
+  const v = version ? `?v=${encodeURIComponent(version)}` : '';
+  return `fund-${isin}.html${v}`;
 }
 
 function supabaseConfigured() {
@@ -2355,10 +2359,33 @@ function renderQueueBanner(data) {
       }
     }
     const baseTitle = chipTitles[cls] || '';
-    const fullTitle = baseTitle + extraTitle;
+    // T2.7 (2026-05-28): chip clickable abre modal de progreso si tiene run_id
+    // o si está running/queued (showProgressForIsin polea).
+    const isClickable = it.run_id || cls === 'running' || cls === 'queued';
+    const clickTitle = isClickable ? ' · clic para ver progreso' : '';
+    const cursorStyle = isClickable ? 'cursor:pointer;' : '';
+    const fullTitle = baseTitle + extraTitle + clickTitle;
     const title = fullTitle ? ` title="${fullTitle.replace(/"/g, '&quot;')}"` : '';
-    return `<span class="queue-item ${cls}"${title}>${it.isin}${staleTag}${resumable}${removable}</span>`;
+    const dataRunId = it.run_id ? ` data-run-id="${it.run_id}"` : '';
+    const dataIsinAttr = ` data-qi-isin="${it.isin}"`;
+    return `<span class="queue-item ${cls}" style="${cursorStyle}"${title}${dataIsinAttr}${dataRunId}>${it.isin}${staleTag}${resumable}${removable}</span>`;
   }).join('');
+  // T2.7: bind click sobre el chip entero (abre progress modal)
+  $$('#queue-items .queue-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      // Si el target es uno de los iconos de acción, su propio handler ya
+      // hizo stopPropagation; no llegamos aquí. Pero por defensa, ignorar:
+      if (e.target.closest('.qi-x') || e.target.closest('.qi-resume')) return;
+      const isin = el.dataset.qiIsin;
+      const runId = el.dataset.runId;
+      if (runId) {
+        showProgress(runId, isin);
+      } else if (el.classList.contains('running') || el.classList.contains('queued')) {
+        showProgressForIsin(isin);
+      }
+      // Para estados terminados sin run_id no hacemos nada
+    });
+  });
   // Bind X
   $$('#queue-items .qi-x').forEach(el => {
     el.addEventListener('click', async (e) => {
