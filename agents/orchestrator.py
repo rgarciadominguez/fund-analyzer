@@ -2517,6 +2517,21 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
 
     summary: dict[str, Any] = {"isin": isin}
 
+    # T3.6 (2026-05-28): aplicar feedback PENDING ANTES de los consumes,
+    # para que las acciones de set/add/replace sobre output.json se
+    # propaguen a manager_profile/letters/analyst en este mismo run.
+    feedback_snapshots = None
+    if os.environ.get("FUND_APPLY_FEEDBACK") == "1":
+        try:
+            from tools.feedback_applier import apply_pending_feedback
+            run_id_now = os.environ.get("CURRENT_RUN_ID", "") or f"{isin}_consume_all"
+            fb_res = apply_pending_feedback(isin, fund_dir, run_id=run_id_now, log_fn=log)
+            summary["feedback_applied"] = fb_res
+            feedback_snapshots = fb_res.get("snapshots_pre")
+        except Exception as exc:
+            log("FEEDBACK", "ERROR", f"falló pre-apply: {exc}")
+            summary["feedback_applied"] = {"applied": False, "error": str(exc)}
+
     # CRÍTICO Fix-MERGE-PREP (2026-05-06): mergear cnmv_data/intl_data → output.json
     # ANTES de cualquier consume. Sin esto, output.json no tendría kpis,
     # posiciones, nombre, gestora, cualitativo, etc. (el merge lo hacía el
@@ -2677,12 +2692,28 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
     except Exception as exc:
         log("DASHBOARD", "ERROR", f"falló: {exc}")
 
+    # T3.8 (2026-05-28): verificar qué items del feedback quedaron resolved
+    # tras todo el pipeline (post-name_recovery + post-validation + post-meta
+    # + post-dashboard regen). Mark resolved_items en human_feedback.json.
+    if feedback_snapshots:
+        try:
+            from tools.feedback_applier import verify_resolved_after_run
+            verify_res = verify_resolved_after_run(
+                isin, fund_dir, feedback_snapshots, log_fn=log,
+            )
+            summary["feedback_verified"] = verify_res
+        except Exception as exc:
+            log("FEEDBACK", "WARN", f"verify_resolved falló: {exc}")
+            summary["feedback_verified"] = {"verified": False, "error": str(exc)}
+
     console.print(Panel(
         f"[bold green]Consume-all-cowork OK para {isin}[/bold green]\n"
         f"extract-pdfs: {summary.get('extracted', {}).get('n_integrated', '?')} tasks\n"
         f"manager-deep: {summary.get('manager_deep', {}).get('n_integrated', '?')} campos\n"
         f"letters-extract: {summary.get('letters_extract', {}).get('n_integrated', '?')} cartas con K15\n"
         f"analyst: {len((summary.get('analyst') or {}).get('sections', []))} secciones\n"
+        f"feedback: {summary.get('feedback_applied', {}).get('n_items_applied', 0)} items aplicados, "
+        f"{summary.get('feedback_verified', {}).get('n_resolved', 0)} resolved\n"
         f"Dashboard: dashboard/fund-{isin}.html",
         title="--consume-all-cowork",
         border_style="green",
@@ -2729,6 +2760,10 @@ def main():
                         help="Encadena los 4 consumes (extract, manager-deep, letters-extract, "
                              "analyst) + validation + meta + quality + dashboard. Lo usa el bat "
                              "después de las 4 skills.")
+    parser.add_argument("--apply-feedback", action="store_true",
+                        help="T3.6 (2026-05-28): aplica feedbacks pending de "
+                             "data/funds/<ISIN>/human_feedback.json al output.json "
+                             "ANTES de validation/meta. Solo válido con --consume-all-cowork.")
 
     args = parser.parse_args()
 
@@ -2756,7 +2791,11 @@ def main():
     if args.consume_all_cowork:
         log_path = ROOT / "progress.log"
         with open(log_path, "a", encoding="utf-8") as f:
-            f.write(f"\n{'='*60}\n[{_ts()}] [ORCHESTRATOR] [START] consume-all-cowork {args.isin}\n{'='*60}\n")
+            tag = " --apply-feedback" if args.apply_feedback else ""
+            f.write(f"\n{'='*60}\n[{_ts()}] [ORCHESTRATOR] [START] consume-all-cowork{tag} {args.isin}\n{'='*60}\n")
+        # T3.6: env var lo lee consume_all_cowork_pipeline para aplicar feedback
+        if args.apply_feedback:
+            os.environ["FUND_APPLY_FEEDBACK"] = "1"
         asyncio.run(consume_all_cowork_pipeline(args.isin, log_path))
     elif args.consume_cowork:
         log_path = ROOT / "progress.log"

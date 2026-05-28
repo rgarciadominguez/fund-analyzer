@@ -489,6 +489,43 @@ def run(isin: str) -> dict:
     _write_json(bundle_dir / "sources.json", sources)
     source_paths["sources.json"] = "synthesized"
 
+    # 5b. T3.7 (2026-05-28): human_feedback.json — copia los items APPLIED
+    # (con sus rationales) para que la skill analyst-cowork los lea y los
+    # respete como instrucción prioritaria al regenerar las secciones.
+    hf_src = fund_dir / "human_feedback.json"
+    if hf_src.exists():
+        try:
+            hf_data = _read_json(hf_src) or {}
+            # Filtrar a items relevantes para el analyst:
+            # - feedbacks applied (no resolved aún, no pending)
+            # - items con target_section o action=revisar (afectan al narrative)
+            relevant_items: list[dict] = []
+            for fb in hf_data.get("feedbacks", []):
+                if fb.get("estado") not in ("applied", "partially_resolved"):
+                    continue
+                for idx, item in enumerate(fb.get("structured_items", [])):
+                    # Skip items ya resolved
+                    if idx in (fb.get("resolved_items") or []):
+                        continue
+                    # Solo interesa lo que afecta secciones narrativas o es revisar
+                    if item.get("target_section") or item.get("action") == "revisar":
+                        relevant_items.append({
+                            "feedback_id": fb.get("id"),
+                            "item_idx": idx,
+                            "raw_text_hint": (fb.get("raw_text") or "")[:300],
+                            **item,
+                        })
+            bundle_hf = {
+                "isin": isin,
+                "n_relevant_items": len(relevant_items),
+                "items": relevant_items,
+            }
+            _write_json(bundle_dir / "human_feedback.json", bundle_hf)
+            source_paths["human_feedback.json"] = str(hf_src.relative_to(ROOT)).replace("\\", "/")
+        except Exception:
+            # Best-effort: si falla, no abortar el bundle
+            pass
+
     # 6. manifest with hashes + stats
     stats = _build_stats(fund_data, manager_profile, letters_data, readings)
     manifest = _build_manifest(bundle_dir, isin, fund_data, source_paths, stats)

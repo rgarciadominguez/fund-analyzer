@@ -33,9 +33,10 @@ set ISIN=%1
 set ALLOW_FALLBACK=
 set FAILED_STEPS=
 set RESUME_MODE=
+set APPLY_FEEDBACK=
 
 if "%ISIN%"=="" (
-    echo Uso: analizar_fondo.bat ^<ISIN^> [--allow-api-fallback] [--resume]
+    echo Uso: analizar_fondo.bat ^<ISIN^> [--allow-api-fallback] [--resume] [--apply-feedback]
     echo Ejemplo: analizar_fondo.bat ES0112231008
     exit /b 1
 )
@@ -44,6 +45,10 @@ REM Parse flags (position-independent across args 2-4)
 if "%2"=="--resume" set RESUME_MODE=1
 if "%3"=="--resume" set RESUME_MODE=1
 if "%4"=="--resume" set RESUME_MODE=1
+REM T3.5 (2026-05-28): --apply-feedback se pasa al consume-all-cowork del paso 6
+if "%2"=="--apply-feedback" set APPLY_FEEDBACK=--apply-feedback
+if "%3"=="--apply-feedback" set APPLY_FEEDBACK=--apply-feedback
+if "%4"=="--apply-feedback" set APPLY_FEEDBACK=--apply-feedback
 
 REM ====================================================================
 REM Fix coste: vaciar ANTHROPIC_API_KEY del env del bat para que las 4
@@ -299,7 +304,7 @@ if exist "data\funds\%ISIN%\output.json" (
     echo [BACKUP] data\funds\%ISIN%\output.json.pre_consume_bak creado
 )
 
-call python -m agents.orchestrator --isin %ISIN% --consume-all-cowork %ALLOW_FALLBACK%
+call python -m agents.orchestrator --isin %ISIN% --consume-all-cowork %ALLOW_FALLBACK% %APPLY_FEEDBACK%
 if errorlevel 1 (
     echo [WARN] Consume-all-cowork fallo. Si output.json esta corrupto, recupera con:
     echo   copy data\funds\%ISIN%\output.json.pre_consume_bak data\funds\%ISIN%\output.json

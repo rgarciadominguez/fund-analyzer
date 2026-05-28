@@ -111,8 +111,41 @@ Esto deja en `data/funds/{ISIN}/bundle/`:
 - `readings.json`
 - `sources.json`
 - `bundle_manifest.json`
+- `human_feedback.json` **(opcional, T3.7)** — feedback humano APPLIED del usuario sobre el análisis anterior
 
-Si falta cualquiera de los 5 inputs, ABORTA y pide a Rafa que ejecute la prep antes.
+Si falta cualquiera de los 5 inputs **obligatorios**, ABORTA y pide a Rafa que ejecute la prep antes. `human_feedback.json` es opcional — solo aparece si el usuario ha guardado feedback con `📝 Mejorar este análisis` y lanzado un re-run con `♺` o `--apply-feedback`.
+
+## Human feedback (T3.7, 2026-05-28) — INSTRUCCIÓN PRIORITARIA
+
+Si existe `bundle/human_feedback.json`, **léelo antes de generar cada sección**. Estructura:
+
+```json
+{
+  "isin": "...",
+  "n_relevant_items": 3,
+  "items": [
+    {
+      "feedback_id": "fb_xxx",
+      "item_idx": 0,
+      "raw_text_hint": "El resumen no menciona la estrategia value...",
+      "target_path": null,
+      "target_section": "resumen",
+      "action": "revisar",
+      "value": null,
+      "confidence": "high",
+      "source_urls": ["https://..."],
+      "rationale": "usuario dice que falta tratamiento de value en el resumen"
+    }
+  ]
+}
+```
+
+Reglas:
+1. **Por cada item con `target_section`**, al generar ESA sección, considera el `rationale` y `raw_text_hint` como instrucción del usuario que PRIORIZA sobre la generación automática previa. Tienes que reflejar el feedback.
+2. **Por cada item con `source_urls`** que apliquen a una sección, intenta incorporar la información de esas URLs en `analyst_synthesis.fuentes_externas.texto` o como referencia en la sección target.
+3. **Items con `action=revisar` y sin `target_section`** (global): aplica el feedback al contexto general de TODAS las secciones (suele ser feedback de calidad/tono).
+4. **No te limites al feedback**: sigue generando todas las secciones normalmente. El feedback es ADITIVO, prioriza pero no reemplaza.
+5. **Confianza humana > automática**: si el usuario contradice algo que el analyst anterior dijo, el usuario gana.
 
 ## Inputs cualitativos del bundle (CRÍTICOS para narrativa)
 

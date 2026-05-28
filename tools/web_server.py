@@ -232,11 +232,18 @@ def make_app(cold_start: bool = True) -> Flask:
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 500
 
-    def _start_analysis_for_isin(isin: str, force_cold: bool) -> tuple[dict, int]:
+    def _start_analysis_for_isin(
+        isin: str, force_cold: bool, apply_feedback: bool = False
+    ) -> tuple[dict, int]:
         """Helper compartido por /api/analyze (single) y el worker de la cola.
 
         Devuelve (payload, http_status). Si status != 200/201, payload contiene "error".
         Si OK, payload contiene run_id, isin, status='running', pid, log_relative, start_time.
+
+        T3.5 (2026-05-28): apply_feedback=True añade `--apply-feedback` a argv del
+        bat. Implica resume mode (cold_start=False) — aplicar feedback sobre
+        outputs vacíos no tiene sentido. Si force_cold=True y apply_feedback=True,
+        gana force_cold y se ignora apply_feedback (con un warning).
         """
         if not ISIN_REGEX.match(isin):
             return {"error": f"ISIN inválido: '{isin}'"}, 400
@@ -280,6 +287,9 @@ def make_app(cold_start: bool = True) -> Flask:
         bat_argv = [str(bat_path), isin]
         if not force_cold:
             bat_argv.append("--resume")
+            # T3.5: añadir --apply-feedback si el caller lo pidió
+            if apply_feedback:
+                bat_argv.append("--apply-feedback")
             # Verificar pre-condiciones del resume: si no hay fund_dir o no hay
             # ningún data file, el bat fallará exit 3. Avisamos antes.
             cnmv_p = fund_dir / "cnmv_data.json"
@@ -288,6 +298,8 @@ def make_app(cold_start: bool = True) -> Flask:
                 # No hay datos parciales → degradar a cold-start automático
                 print(f"[ANALYZE {isin}] resume requested but no partial data — fallback to cold-start")
                 bat_argv = [str(bat_path), isin]
+                if apply_feedback:
+                    print(f"[ANALYZE {isin}] apply_feedback ignorado (fallback cold-start sin outputs previos)")
                 # Cold-start manual: mover fund_dir a .bak si existe (sin reusar)
                 if fund_dir.exists():
                     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -296,6 +308,10 @@ def make_app(cold_start: bool = True) -> Flask:
                         fund_dir.rename(backup)
                     except Exception:
                         pass
+        elif apply_feedback:
+            # cold_start + apply_feedback no tiene sentido: apply_feedback
+            # opera sobre outputs existentes que cold_start acaba de borrar.
+            print(f"[ANALYZE {isin}] [WARN] cold_start=True ignora apply_feedback=True")
 
         try:
             log_file = log_path.open("w", encoding="utf-8")
@@ -345,11 +361,17 @@ def make_app(cold_start: bool = True) -> Flask:
 
     @app.route("/api/analyze", methods=["POST"])
     def api_analyze():
-        """Lanza analizar_fondo.bat para un ISIN único. Devuelve run_id."""
+        """Lanza analizar_fondo.bat para un ISIN único. Devuelve run_id.
+
+        Body opcional: {cold_start: bool, apply_feedback: bool}.
+        """
         data = request.get_json(silent=True) or {}
         isin = (data.get("isin") or "").strip().upper()
         force_cold = data.get("cold_start", app.config["FUND_COLD_START"])
-        payload, status = _start_analysis_for_isin(isin, bool(force_cold))
+        apply_feedback = bool(data.get("apply_feedback", False))
+        payload, status = _start_analysis_for_isin(
+            isin, bool(force_cold), apply_feedback=apply_feedback,
+        )
         return jsonify(payload), status
 
     # ─────────────────────────────────────────────────────────────────────
@@ -850,7 +872,10 @@ def make_app(cold_start: bool = True) -> Flask:
 
                 isin = next_item["isin"]
                 force_cold = next_item.get("cold_start", True)
-                payload, status = _start_analysis_for_isin(isin, force_cold)
+                apply_feedback = bool(next_item.get("apply_feedback", False))
+                payload, status = _start_analysis_for_isin(
+                    isin, force_cold, apply_feedback=apply_feedback,
+                )
                 if status != 200:
                     next_item["status"] = "failed"
                     next_item["error"] = payload.get("error", "unknown")
@@ -951,6 +976,8 @@ def make_app(cold_start: bool = True) -> Flask:
         if not isinstance(raw, list):
             return jsonify({"error": "body debe contener 'isins' como lista"}), 400
         force_cold = bool(data.get("cold_start", app.config["FUND_COLD_START"]))
+        # T3.5: apply_feedback en el batch (carry-through al worker)
+        apply_feedback = bool(data.get("apply_feedback", False))
 
         # Normalizar + deduplicar + validar
         seen = set()
@@ -1000,6 +1027,7 @@ def make_app(cold_start: bool = True) -> Flask:
                     "queued_at": now_iso,
                     "status": "queued",
                     "cold_start": force_cold,
+                    "apply_feedback": apply_feedback,
                 }
                 QUEUE.append(item)
                 added.append(item)
@@ -1304,6 +1332,87 @@ def make_app(cold_start: bool = True) -> Flask:
             "cold_start": cold_start,
             "target_states": list(target_states),
         })
+
+    # ─────────────────────────────────────────────────────────────────────
+    # T3.5 (2026-05-28): endpoints de human feedback
+    # ─────────────────────────────────────────────────────────────────────
+
+    @app.route("/api/feedback/<isin>", methods=["GET"])
+    def api_feedback_list(isin: str):
+        """Lista todos los feedbacks (cualquier estado) de un fondo."""
+        from tools import feedback_store as fs
+        isin = (isin or "").strip().upper()
+        if not ISIN_REGEX.match(isin):
+            return jsonify({"error": "ISIN inválido"}), 400
+        return jsonify({"isin": isin, "feedbacks": fs.list_feedback(isin)})
+
+    @app.route("/api/feedback/<isin>/parse", methods=["POST"])
+    def api_feedback_parse(isin: str):
+        """Llama a Haiku para estructurar el texto libre del usuario.
+        NO guarda — solo devuelve preview editable para que el user confirme.
+
+        Body: {raw_text: str, raw_urls?: [str], fund_name?: str, gestora?: str}
+        Devuelve: {structured_items: [...], parse_meta: {method, n_items, error?}}
+        """
+        from tools.feedback_parser import parse_feedback
+        isin = (isin or "").strip().upper()
+        if not ISIN_REGEX.match(isin):
+            return jsonify({"error": "ISIN inválido"}), 400
+        data = request.get_json(silent=True) or {}
+        raw_text = (data.get("raw_text") or "").strip()
+        raw_urls = data.get("raw_urls") or []
+        fund_name = (data.get("fund_name") or "").strip()
+        gestora = (data.get("gestora") or "").strip()
+        if not raw_text and not raw_urls:
+            return jsonify({"error": "raw_text o raw_urls requerido"}), 400
+        result = parse_feedback(
+            raw_text=raw_text, raw_urls=raw_urls,
+            isin=isin, fund_name=fund_name, gestora=gestora,
+        )
+        return jsonify(result)
+
+    @app.route("/api/feedback/<isin>", methods=["POST"])
+    def api_feedback_save(isin: str):
+        """Guarda un feedback estructurado (potencialmente editado por el user
+        tras el preview de /parse).
+
+        Body: {raw_text, raw_urls, structured_items, fund_name?}
+        Devuelve el feedback creado.
+        """
+        from tools import feedback_store as fs
+        isin = (isin or "").strip().upper()
+        if not ISIN_REGEX.match(isin):
+            return jsonify({"error": "ISIN inválido"}), 400
+        data = request.get_json(silent=True) or {}
+        raw_text = (data.get("raw_text") or "").strip()
+        raw_urls = data.get("raw_urls") or []
+        items = data.get("structured_items") or []
+        fund_name = (data.get("fund_name") or "").strip()
+        if not items:
+            return jsonify({"error": "structured_items vacío — nada que guardar"}), 400
+        try:
+            fb = fs.append_feedback(
+                isin=isin, raw_text=raw_text, raw_urls=raw_urls,
+                structured_items=items, fund_name=fund_name,
+            )
+            return jsonify({"ok": True, "feedback": fb})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route("/api/feedback/<isin>/<feedback_id>", methods=["DELETE"])
+    def api_feedback_delete(isin: str, feedback_id: str):
+        """Borra un feedback pending (los applied/resolved son histórico inmutable)."""
+        from tools import feedback_store as fs
+        isin = (isin or "").strip().upper()
+        if not ISIN_REGEX.match(isin):
+            return jsonify({"error": "ISIN inválido"}), 400
+        ok = fs.delete_feedback(isin, feedback_id)
+        if not ok:
+            return jsonify({
+                "ok": False,
+                "error": "feedback no existe o no es pending (no se puede borrar applied/resolved)",
+            }), 404
+        return jsonify({"ok": True})
 
     @app.route("/api/runs")
     def api_runs():
