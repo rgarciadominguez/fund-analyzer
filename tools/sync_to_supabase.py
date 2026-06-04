@@ -72,6 +72,8 @@ def _validate_before_sync(output_data: dict, isin: str) -> tuple[bool, list[str]
       - nombre < 5 caracteres
       - gestora vacía
       - gestora == ISIN
+      - análisis cualitativo roto (vacío, todas las secciones vacías o
+        contenido fabricado/ilustrativo) — ver tools/analysis_quality.py
 
     Devuelve (ok, reasons). Si `ok` es False, el sync NO debe ejecutarse
     (a menos que el usuario pase `--force` para bypass).
@@ -94,6 +96,12 @@ def _validate_before_sync(output_data: dict, isin: str) -> tuple[bool, list[str]
         reasons.append("gestora vacía")
     elif gestora.upper() == isin_upper:
         reasons.append("gestora == ISIN")
+
+    # B1/B2/B3 (2026-06-04): no publicar análisis roto como has_qualitative_analysis=true.
+    from tools.analysis_quality import assess_analysis_quality
+    quality = assess_analysis_quality(output_data)
+    for b in quality["blockers"]:
+        reasons.append(f"análisis: {b}")
 
     return (len(reasons) == 0, reasons)
 
