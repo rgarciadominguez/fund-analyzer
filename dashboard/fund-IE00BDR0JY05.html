@@ -165,7 +165,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
       <div class="lh-fund">Ashoka WhiteOak India Opportunities Fund <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★☆</span></div>
-      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Ashoka WhiteOak Capital Pte. Ltd.</strong></div>
+      
       
       <div class='lh-meta-line'>ISIN retail EUR: <strong>IE00BDR0JY05</strong> <span style='opacity:.55;font-size:10.5px;'>· Class D EUR</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>IE000B2DCR25</strong> <span style='opacity:.55;font-size:10.5px;'>· Class I EUR Accumulation</span></div>
     </div>
@@ -173,7 +173,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
     <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€1.670M</div>
+        <div class="lh-aum-v">€1.436M</div>
         <div class="lh-aum-l">AUM</div>
         <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
       </div>
@@ -208,7 +208,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-05-28</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-04</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin IE00BDR0JY05 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -314,7 +314,7 @@ La filosofía es coherente con la trayectoria personal de Khemka: durante 11 añ
   <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 1670.0;
+  window.__HIST_AUM_HEADER__ = 1436.4;
   </script>
   
   <div class="sr">Cronología de eventos relevantes</div>
@@ -1161,9 +1161,37 @@ Aparece habitualmente como portavoz del fondo en formato vídeo y entrevista. Ha
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
