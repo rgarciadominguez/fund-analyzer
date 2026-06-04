@@ -971,6 +971,35 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
     except Exception as exc:
         log("CALENDAR", "ERROR", f"publication_calendar falló: {exc}")
 
+    # ── Paso 7b: broker_disponible_auto (2026-06-03) ──────────────────────────
+    # Auto-detección de disponibilidad por broker (alta confianza, sin login).
+    # Escribe en `broker_disponible_auto` SIN tocar `broker_disponible` (manual).
+    # Ironia/Mapfre (arquitectura abierta Allfunds) + Renta4 (fondos R4 Gestora).
+    # MyInvestor queda manual (sin fuente pública sin login).
+    try:
+        from tools.broker_availability import (
+            apply_to_output as _brokers_auto,
+            sync_auto_to_supabase as _brokers_sync,
+        )
+        binfo = _brokers_auto(isin)
+        det = binfo.get("detected") or []
+        log("BROKERS", "OK", f"auto-detectados: {', '.join(det) if det else '(ninguno)'}")
+        # Pre-rellena broker_disponible en Supabase SOLO si está vacío (no pisa
+        # marcado manual). Best-effort: si Supabase no está disponible, se ignora.
+        try:
+            action = _brokers_sync(isin, detected=det)
+            if action == "filled":
+                log("BROKERS", "OK", f"Supabase pre-rellenado: {', '.join(det)}")
+            elif action == "skip_manual":
+                log("BROKERS", "INFO", "Supabase ya tiene marcado manual → no se toca")
+        except Exception as exc:
+            log("BROKERS", "INFO", f"sync Supabase omitido: {exc}")
+        out_path = fund_dir / "output.json"
+        if out_path.exists():
+            results["output"] = json.loads(out_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        log("BROKERS", "ERROR", f"broker_disponible_auto falló: {exc}")
+
     # ── Paso 8: _meta block (Bug E Fase G 2026-04-28) ─────────────────────────
     # Persiste metadata del pipeline para auditoría: versión, modelos, sources_attempted
     try:

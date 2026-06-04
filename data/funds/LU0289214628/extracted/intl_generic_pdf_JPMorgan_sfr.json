@@ -1,0 +1,30 @@
+{
+  "task_id": "intl_generic_pdf_JPMorgan_sfr",
+  "agent": "intl_extractor_v2",
+  "pdf_path": "data/funds/LU0289214628/raw/discovery/JPMorgan_sfr.pdf",
+  "extracted_at": "2026-05-20T21:30:00Z",
+  "model_used": "claude-opus-4-7 (cowork)",
+  "data": {
+    "kpis": {
+      "aum_actual_meur": null,
+      "fecha_aum": "2020-12-31",
+      "ter_pct": null,
+      "num_participes": null,
+      "divisa_base": "EUR"
+    },
+    "posiciones_actuales": null,
+    "asset_allocation": null,
+    "geographic_allocation": null,
+    "sector_allocation": null,
+    "performance": null,
+    "comentario_gestor": "Unaudited Semi-Annual Report JPMorgan Funds SICAV (R.C.S. No. B 8478) al 31 Diciembre 2020. Total documento: 735 páginas, 64 sub-fondos incluidos. Sub-fondo target Europe Equity Plus Fund con datos completos:\n\nNAV per share (Dec 2018 / Dec 2019 / Dec 2020) por clase de acciones del sub-fondo:\n- JPM Europe Equity Plus A (perf) (acc) - EUR: 13.95 / 13.01 / 14.50\n- JPM Europe Equity Plus A (perf) (acc) - USD: 12.56 / 11.80 / 12.91\n- JPM Europe Equity Plus A (perf) (acc) - USD (hedged): 115.73 / 106.93 / 116.95\n- JPM Europe Equity Plus A (perf) (dist) - EUR: 219.16 / 202.18 / 220.45\n- JPM Europe Equity Plus A (perf) (dist) - GBP: 179.45 / 150.90 / 167.10\n- JPM Europe Equity Plus C (acc) - EUR: 208.85 / 192.53 / 207.50\n- JPM Europe Equity Plus C (perf) (acc) - EUR: 112.57 / 105.49 / 117.46\n- JPM Europe Equity Plus C (perf) (acc) - USD: 95.85 / 90.41 / 98.99\n- JPM Europe Equity Plus C (perf) (acc) - USD (hedged): 14.81 / 13.78 / 15.28\n- JPM Europe Equity Plus C (perf) (dist) - EUR: 19.88 / 16.87 / 19.02\n- JPM Europe Equity Plus C (perf) (dist) - GBP: 179.48 / 166.95 / 183.23\n- JPM Europe Equity Plus D (perf) (acc) - EUR (TARGET LU0289214628): 109.06 / 100.59 / 109.64\n- JPM Europe Equity Plus D (perf) (acc) - USD: 102.88 / 94.82 / —\n- JPM Europe Equity Plus D (perf) (acc) - USD (hedged): 22.15 / 20.35 / —\n- JPM Europe Equity Plus I (perf) (acc) - EUR: 1,317,854,523 / 1,549,579,064 / 22.00\n- JPM Europe Equity Plus I2 (perf) (acc) - EUR: — / — / 2,557,998,762\n- JPM Europe Equity Plus X (perf) (acc) - EUR: 75\n\nNOTA: las cifras millonarias en filas I/I2 son probablemente Total Net Assets en EUR (con columnas desplazadas), no NAV por acción."
+  },
+  "anti_invencion_notes": [
+    "PDF es JPMorgan Funds Unaudited Semi-Annual Report al 31 December 2020. Total Net Assets del sub-fondo Europe Equity Plus Fund: no extraído limpiamente debido a desalineación de columnas en pdftotext (la Statistical Info table presenta datos para 64 fondos). Aproximadamente €1.3-1.5B en H2 2020.",
+    "Valor PRINCIPAL extraído: NAV per share clase D (perf)(acc) EUR (LU0289214628 = TARGET) al 31-Dic-2020 = €109.64; al 31-Dic-2019 = €100.59; al 31-Dic-2018 = €109.06. Confirma la clase D existe y es la target.",
+    "Por consistencia con LU0880062913.pdf (AUM €2,006M al 30-Jun-2024), el sub-fondo creció ~5x en AUM entre Dic 2020 y Jun 2024 (la cartera se benefició de la subida de mercados europeos y entradas netas).",
+    "Top holdings y breakdowns no extraídos — Schedule of Investments del sub-fondo en pp 170+, pero contenidos ya cubiertos por LU0880062913.pdf (datos más recientes Jun 2024). No re-extraído para evitar redundancia.",
+    "Performance, posiciones, sector/geographic allocation: cubiertos parcialmente por intl_generic_pdf__web_LU0880062913.json (más actual).",
+    "ter_pct: no extraído de Stats Info. divisa_base = EUR confirmada."
+  ]
+}

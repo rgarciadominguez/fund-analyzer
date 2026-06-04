@@ -71,6 +71,11 @@ class ManagerDeepAgent:
 
     def _get_gemini_client(self):
         """Get or create Gemini client (new google-genai SDK)."""
+        # Kill switch (2026-05-28): si GEMINI_DISABLED=1, lanzar RuntimeError.
+        # Los 4 callsites tienen try/except que degradan a "skip" elegantemente.
+        from tools.gemini_killswitch import is_gemini_disabled
+        if is_gemini_disabled():
+            raise RuntimeError("GEMINI_DISABLED=1 — manager_deep_agent skip")
         if not hasattr(self, '_gemini_client'):
             from google import genai
             self._gemini_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY", ""))

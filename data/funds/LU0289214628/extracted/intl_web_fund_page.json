@@ -1,0 +1,24 @@
+{
+  "task_id": "intl_web_fund_page",
+  "agent": "intl_extractor_v2",
+  "pdf_path": "https://www.servicios.deutsche-bank.es/documentacionfondos/getDocumento?codDoc=LU0289214628&idioma=ES&codSus=KIID&codCont=NA",
+  "extracted_at": "2026-05-20T21:30:00Z",
+  "model_used": "claude-opus-4-7 (cowork) — WebFetch FAILED",
+  "data": {
+    "kpis": null,
+    "posiciones_actuales": null,
+    "asset_allocation": null,
+    "geographic_allocation": null,
+    "sector_allocation": null,
+    "performance": null,
+    "comentario_gestor": null
+  },
+  "anti_invencion_notes": [
+    "WebFetch BLOQUEADO: la herramienta WebFetch no ha sido aprobada por el usuario en este turno. No se pudo acceder a la URL https://www.servicios.deutsche-bank.es/documentacionfondos/getDocumento?codDoc=LU0289214628&idioma=ES&codSus=KIID&codCont=NA",
+    "Observación: la URL apunta a 'getDocumento' con codSus=KIID — probablemente devuelve un PDF (no HTML), por lo que incluso con permiso, WebFetch podría no ser capaz de extraer datos estructurados (devuelve markdown de HTML).",
+    "Tarea marcada como FAILED. Para completarla: descargar manualmente el PDF al sistema de ficheros y procesarlo como task adicional, o aprobar WebFetch y re-intentar.",
+    "Nota: el KID definitivo de la clase target ya está cubierto por intl_kid_kid_latest.json (LU0289214628, 27/04/2026)."
+  ],
+  "status": "failed",
+  "failure_reason": "WebFetch permission not granted"
+}

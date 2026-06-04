@@ -1490,6 +1490,12 @@ class AnalystAgent:
 
     def _gemini_call(self, prompt: str, max_tokens: int = 8000, retries: int = 2, tier: str = "standard") -> dict | None:
         """Call Gemini with JSON response. tier='lite' uses Flash-lite (T3), 'standard' uses Flash (T2)."""
+        # Kill switch (2026-05-28): si GEMINI_DISABLED=1, redirigir a Claude Haiku.
+        from tools.gemini_killswitch import is_gemini_disabled, claude_json_fallback
+        if is_gemini_disabled():
+            self._log("KILLSWITCH", f"Gemini call OFF → Haiku fallback (tier={tier})")
+            return claude_json_fallback(prompt, max_tokens=max_tokens, retries=retries)
+
         model = self.GEMINI_LITE if tier == "lite" else self.GEMINI_FLASH
         try:
             from google.genai import types
@@ -1547,6 +1553,12 @@ class AnalystAgent:
         O1 Cost-Opt (2026-05-02): cache local hash(model+prompt). Si hit → return
         instantáneo sin llamada LLM (FREE). TTL 24h. Disable con env LLM_CACHE_DISABLED=1.
         """
+        # Kill switch (2026-05-28): si GEMINI_DISABLED=1, redirigir a Claude Haiku.
+        from tools.gemini_killswitch import is_gemini_disabled, claude_text_fallback
+        if is_gemini_disabled():
+            self._log("KILLSWITCH", f"Gemini text OFF → Haiku fallback (tier={tier})")
+            return claude_text_fallback(prompt, max_tokens=max_tokens, retries=retries)
+
         model = self.GEMINI_LITE if tier == "lite" else self.GEMINI_FLASH
 
         # O1: cache hit check

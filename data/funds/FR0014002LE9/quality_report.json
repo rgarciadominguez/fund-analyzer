@@ -1,0 +1,223 @@
+{
+  "fund": "FR0014002LE9",
+  "nombre": "OSTRUM SRI CREDIT ULTRA SHORT PLUS - N1(C)",
+  "fallos": [
+    {
+      "regla_id": "resumen_mentions_fund_name",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen no menciona el nombre del fondo 'OSTRUM SRI CREDIT ULTRA SHORT PLUS - N1(C)' — posible texto genérico",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar: el texto debe ser específico de este fondo, no genérico."
+    },
+    {
+      "regla_id": "resumen_has_cifras",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen con pocas cifras concretas (0 encontradas, mínimo 5). Parece genérico.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
+    },
+    {
+      "regla_id": "resumen_min_fortalezas",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 0 fortalezas (mínimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con al menos 4 fortalezas específicas del fondo."
+    },
+    {
+      "regla_id": "resumen_min_riesgos",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 0 riesgos (mínimo 3)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con al menos 3 riesgos específicos del fondo."
+    },
+    {
+      "regla_id": "resumen_has_para_quien",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Resumen sin campo 'para_quien_es' — falta perfil del inversor adecuado",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo el perfil de inversor para el que el fondo es adecuado."
+    },
+    {
+      "regla_id": "resumen_has_signal",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Resumen sin campo 'signal' (POSITIVO/NEUTRAL/NEGATIVO)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo signal de evaluación."
+    },
+    {
+      "regla_id": "historia_has_cifras",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia con pocas cifras concretas (0). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo cifras concretas: AUM, partícipes, rentabilidad anual, fechas."
+    },
+    {
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "gestores_lead_has_filosofia",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal '' sin filosofía de inversión.",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
+    },
+    {
+      "regla_id": "gestores_lead_has_decisiones",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal sin decisiones_clave documentadas.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
+    },
+    {
+      "regla_id": "estrategia_min_hitos",
+      "seccion": "estrategia",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 hitos estratégicos (mínimo 3).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia con hitos por periodo. Usar datos de timeline + mix_activos."
+    },
+    {
+      "regla_id": "estrategia_has_cifras",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia con pocas cifras (0). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
+    },
+    {
+      "regla_id": "cartera_min_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 posiciones actuales (mínimo 15).",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones de sección 10 del PDF semestral."
+    },
+    {
+      "regla_id": "cartera_has_hist_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Sin posiciones históricas para análisis de evolución de cartera.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones históricas de PDFs semestrales antiguos."
+    },
+    {
+      "regla_id": "fuentes_min_opiniones",
+      "seccion": "fuentes_externas",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 opiniones externas (mínimo 8).",
+      "agente_responsable": "readings_agent",
+      "accion": "Re-ejecutar readings_agent con más queries y fuentes."
+    },
+    {
+      "regla_id": "resumen_has_filosofia",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Resumen sin campo filosofia_inversion",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con filosofia_inversion como campo separado (2-3 parrafos)."
+    },
+    {
+      "regla_id": "resumen_has_criterios",
+      "seccion": "resumen",
+      "fail_type": "estructura",
+      "problema": "Solo 0 criterios de inversion (minimo 3 numerados)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con 3 criterios de inversion numerados (titulo + descripcion)."
+    },
+    {
+      "regla_id": "historia_min_hitos_7",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Solo 0 hitos en cronologia (minimo 7)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con minimo 7 hitos con anio, titulo, evento, tipo."
+    },
+    {
+      "regla_id": "historia_hitos_have_titulo",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Solo 0 hitos con titulo (minimo 5)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Cada hito debe tener campo titulo descriptivo."
+    },
+    {
+      "regla_id": "gestores_lead_cv_bullets",
+      "seccion": "gestores",
+      "fail_type": "estructura",
+      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
+    },
+    {
+      "regla_id": "estrategia_has_quotes",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia sin quotes del gestor (0 encontradas)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con 2-3 citas/frases representativas del gestor."
+    },
+    {
+      "regla_id": "estrategia_matrix_4col",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Solo 0 hitos con columnas completas (minimo 3)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar hitos con campos: periodo, contexto_mercado, decisiones, resultado."
+    },
+    {
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta todo (perfil_riesgo no existe).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    }
+  ],
+  "fallos_estructura": 17,
+  "fallos_scarcity": 6,
+  "total_reglas": 87,
+  "reglas_ok": 62,
+  "aceptable": false,
+  "score_display": "62/87 reglas OK (6 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-05-08T13:06:34.620036"
+}

@@ -1077,6 +1077,14 @@ class IntlExtractor:
             console.log("[yellow][HTML-FB] ninguna URL devolvió texto utilizable")
             return False
 
+        # Kill switch (2026-05-28): si GEMINI_DISABLED=1, skip HTML fallback.
+        # Es un fallback secundario para INT cuando no se han podido descargar
+        # PDFs. Degradación funcional aceptable (el pipeline continúa).
+        from tools.gemini_killswitch import is_gemini_disabled
+        if is_gemini_disabled():
+            console.log("[cyan][HTML-FB] Gemini OFF (killswitch) — skip HTML fallback")
+            return False
+
         gemini_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
         if not gemini_key:
             console.log("[yellow][HTML-FB] sin GOOGLE_API_KEY/GEMINI_API_KEY, skip")

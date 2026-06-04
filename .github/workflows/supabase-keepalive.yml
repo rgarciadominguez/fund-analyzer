@@ -1,0 +1,35 @@
+name: Supabase Keepalive
+
+# Evita que Supabase (free tier) auto-pause el proyecto fund-dashboard por
+# inactividad >7 días. Corre a diario EN LA NUBE (independiente de que el PC
+# esté encendido) → la capa de protección a prueba de balas.
+#
+# REQUISITOS para que funcione:
+#   1. Este fichero debe estar en la RAMA POR DEFECTO del repo (main). Los cron
+#      de GitHub Actions solo se disparan desde la default branch. Si trabajas en
+#      v2-cowork, haz merge/cherry-pick de este workflow a main.
+#   2. Añadir 2 secrets en el repo (Settings → Secrets and variables → Actions):
+#        - SUPABASE_URL
+#        - SUPABASE_SERVICE_ROLE_KEY
+#      (mismos valores que tu .env local).
+
+on:
+  schedule:
+    - cron: "0 8 * * *"      # cada día a las 08:00 UTC
+  workflow_dispatch: {}        # permite lanzarlo a mano desde la pestaña Actions
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install supabase python-dotenv
+      - name: Supabase keep-alive
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python -m tools.supabase_maintenance --keepalive

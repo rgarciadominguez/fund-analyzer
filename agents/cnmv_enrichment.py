@@ -153,6 +153,14 @@ class CNMVEnricher:
                 _log(self.isin, "WARN", f"could not emit sectors task: {exc}")
             return False  # no in-place change; consume integrates the result
 
+        # Kill switch (2026-05-28): si GEMINI_DISABLED=1, skip sector inference.
+        # Es enrichment opcional — las posiciones quedan sin sector pero el
+        # pipeline continúa. TODO: migrar a Claude Haiku en una fase futura.
+        from tools.gemini_killswitch import is_gemini_disabled
+        if is_gemini_disabled():
+            _log(self.isin, "KILLSWITCH", "Gemini OFF — sector inference skip (no fallback aún)")
+            return False
+
         # Skip si Gemini no disponible
         gemini_key = os.environ.get("GOOGLE_API_KEY")
         if not gemini_key:

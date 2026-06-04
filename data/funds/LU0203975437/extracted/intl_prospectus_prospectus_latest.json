@@ -1,0 +1,47 @@
+{
+  "task_id": "intl_prospectus_prospectus_latest",
+  "agent": "intl_extractor_v2",
+  "pdf_path": "data/funds/LU0203975437/raw/discovery/prospectus_latest.pdf",
+  "extracted_at": "2026-05-08T10:30:00Z",
+  "model_used": "claude-opus-4-7 (cowork)",
+  "two_stage": true,
+  "stage_1_mapper": {
+    "doc_type_detected": "fund_selection_list (NOT a prospectus)",
+    "publisher": "AC Gestión - Central de Compras Grupo Allianz Corporativa - Fondos Internacionales",
+    "doc_date": "2014-08-29",
+    "n_pages": 3,
+    "content_summary": "Tabla de selección/recomendación de fondos clasificados por categoría Morningstar (Monetarios, RF, Mixtos, RV, Sectorial, etc.) con métricas Rent. YTD/1A/3A, Volatilidad y Estrellas MS. Instrucciones de construcción de carteras simuladas (5-10 fondos, agresivos vs conservadores).",
+    "isin_target_appearances": [
+      {
+        "page": 3,
+        "section": "Renta Variable - Global",
+        "row_data": "LU0203975437 | Robeco BP Global Premium Equities D EUR | Divisa EUR | Categoría MS: RV Global Cap. Grande Blend | Rent. YTD: 10.3 | Rent. 1A: 23.6 | Rent. 3A: 83.1 | Volat./Cuartil/Estrellas: vacíos"
+      }
+    ],
+    "schema_field_coverage": {
+      "objetivo_inversion": "NOT FOUND — el PDF no contiene objetivo de inversión del sub-fondo",
+      "politica_inversion": "NOT FOUND",
+      "comisiones": "NOT FOUND",
+      "clases": "NOT FOUND — solo aparece la share class D EUR como una fila en tabla de selección, sin metadata estructurada"
+    }
+  },
+  "data": {
+    "objetivo_inversion": null,
+    "politica_inversion": null,
+    "comisiones": {
+      "gestion_max_pct": null,
+      "deposito_max_pct": null,
+      "exito_pct": null
+    },
+    "clases": []
+  },
+  "anti_invencion_notes": [
+    "DOC TYPE MISMATCH: el archivo `prospectus_latest.pdf` NO es el prospectus de Robeco BP Global Premium Equities. Es un documento corporate de AC Gestión (Allianz Compras) titulado 'Selección AC' con fecha 29-08-2014 que lista decenas de fondos por categoría con datos Morningstar (Rent. YTD/1A/3A, Volatilidad, Cuartil, Estrellas).",
+    "ISIN target LU0203975437 SÍ aparece en el PDF (página 3, sección 'Renta Variable - Global'), pero solo como una fila en tabla de selección con métricas básicas: Rent. YTD 10.3, Rent. 1A 23.6, Rent. 3A 83.1, Cat. MS 'RV Global Cap. Grande Blend'. Volatilidad/Cuartil/Estrellas vienen vacíos.",
+    "objetivo_inversion: null — no se incluye descripción del objetivo del fondo en el PDF.",
+    "politica_inversion: null — no se incluye política de inversión.",
+    "comisiones.{gestion_max_pct, deposito_max_pct, exito_pct}: null — el PDF no contiene comisiones del fondo. Para esto debería consultarse el verdadero prospectus de Robeco Capital Growth Funds SICAV (no descargado).",
+    "clases: [] — solo se ve la share class 'D EUR' citada como fila, sin estructura de clases del sub-fondo (P/I/M/Z/Hedged/etc.).",
+    "ACCIÓN RECOMENDADA: la prep determinista debería re-descargar el verdadero prospectus de Robeco Capital Growth Funds (URL típica: robeco.com → Funds → Robeco BP Global Premium Equities → Documents → Prospectus). El KID (LU0203975437 D EUR) sí se procesó correctamente en task `intl_kid_cgf_glv_d-prip-202505-profchen`."
+  ]
+}

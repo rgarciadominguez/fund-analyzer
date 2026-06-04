@@ -1,0 +1,40 @@
+{
+  "task_id": "intl_web_fund_page",
+  "agent": "intl_extractor_v2",
+  "pdf_path": "https://adepa.com/priip-files/KIDDOC-LU0168736675-CH.pdf",
+  "extracted_at": "2026-05-20T16:25:00Z",
+  "model_used": "claude-opus-4-7 (cowork)",
+  "data": {
+    "kpis": {
+      "aum_actual_meur": null,
+      "fecha_aum": null,
+      "ter_pct": 1.8,
+      "num_participes": null,
+      "divisa_base": "EUR"
+    },
+    "posiciones_actuales": [],
+    "asset_allocation": {
+      "equity_pct": null,
+      "bonds_pct": null,
+      "cash_pct": null,
+      "otros_pct": null
+    },
+    "geographic_allocation": [],
+    "sector_allocation": [],
+    "performance": {
+      "ytd_pct": null,
+      "y1_pct": null,
+      "y3_anual_pct": null,
+      "y5_anual_pct": null,
+      "since_inception_anual_pct": null
+    },
+    "comentario_gestor": null
+  },
+  "anti_invencion_notes": [
+    "WebFetch DENEGADO por el usuario (permiso no concedido). No se pudo hacer fetch en vivo de https://adepa.com/priip-files/KIDDOC-LU0168736675-CH.pdf.",
+    "Sin embargo, esta URL apunta al MISMO PDF KID que ya está descargado localmente en data/funds/LU0168736675/raw/discovery/KIDDOC-LU0168736675-CH.pdf y procesado en task 'intl_kid_KIDDOC-LU0168736675-CH'. El contenido es idéntico al de la task 1.",
+    "El KID por su naturaleza regulatoria NO contiene la mayoría de campos del schema de esta task (AUM total, num_participes, top holdings, asset allocation, geographic allocation, sector allocation, performance histórica, comentario_gestor). El KID sólo da objetivo de inversión, SRRI, scenarios de performance hipotética, estructura de costes, perfil de inversor target. Los campos null reflejan ausencia real en la fuente, no invención evitada.",
+    "Datos sí presentes en el KID y replicados de task 1: divisa_base=EUR, ter_pct=1.8% (mgmt 1.7% + transaction 0.1%). ISIN LU0168736675 verificado como Identifier en la página 1 del KID, nombre oficial 'SIFTER FUND - Global PA', manufacturer Adepa Asset Management S.A.",
+    "Recomendación al pipeline: para los campos faltantes en esta task usar prioritariamente la task 'intl_factsheet_sifter-fund-factsheet-december-2025' que sí tiene holdings, allocations y performance del fondo (cut-off 31.12.2025)."
+  ]
+}

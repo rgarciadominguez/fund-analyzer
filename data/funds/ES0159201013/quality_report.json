@@ -1,0 +1,127 @@
+{
+  "fund": "ES0159201013",
+  "nombre": "MAGALLANES IBERIAN EQUITY FI",
+  "fallos": [
+    {
+      "regla_id": "gestores_min_perfiles",
+      "seccion": "gestores",
+      "fail_type": "scarcity",
+      "problema": "Solo 1 perfiles de gestores (mínimo 2)",
+      "agente_responsable": "manager_deep_agent",
+      "accion": "Re-ejecutar manager_deep_agent con más búsquedas."
+    },
+    {
+      "regla_id": "historia_no_headers",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Historia tiene 5 subsecciones — debe ser 3-5 parrafos fluidos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia como narrativa pura sin headers."
+    },
+    {
+      "regla_id": "estrategia_no_headers",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia tiene 6 subsecciones — debe ser parrafos evaluativos sin headers",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia como narrativa evaluativa pura."
+    },
+    {
+      "regla_id": "cuant_serie_vl_valid",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "Serie VL corrupta (cagr_irreal): CAGR=95.7% en 11 años. No refleja VLs reales del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar extraccion de VL en cnmv_agent. Puede estar leyendo AUM, numero de participes u otro campo como VL."
+    },
+    {
+      "regla_id": "resumen_returns_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2025: texto dice 182.25%, real 46.3%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes."
+    },
+    {
+      "regla_id": "resumen_kpis_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen tiene cifras de partícipes/AUM que no cuadran con KPIs reales (cifras_kpi_no_coinciden): texto dice 2365 partícipes, KPI real 3110 (24% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen usando SOLO data.kpis para num_participes y aum_actual_meur. Nunca tomar cifras del texto del PDF (gestores a veces escriben mal)."
+    },
+    {
+      "regla_id": "historia_kpis_match_data",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 758 partícipes, KPI real 3110 (76% drift); texto dice 127.8 M€ AUM, KPI real 306.184 (58% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
+    },
+    {
+      "regla_id": "aum_jump_alert",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Salto AUM >50% año a año detectado (saltos_aum_>50%): 2015→2016: 74→128 M€ (+74%); 2024→2025: 163→306 M€ (+88%). Posible bug extracción cnmv_agent o cambio real de mercado.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/29 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "cuant_serie_clases_info_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_clases_info vacia: no se identifican las clases del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+    },
+    {
+      "regla_id": "hitos_historia_percentages_verifiable",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2018: hito dice 9.21%, real -8.1% | 2020: hito dice 12.92%, real -11.8% | 2025: hito dice 140.0%, real 46.3%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta escenarios_adversos, protecciones, liquidez_estructura.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    }
+  ],
+  "fallos_estructura": 7,
+  "fallos_scarcity": 4,
+  "total_reglas": 103,
+  "reglas_ok": 90,
+  "aceptable": false,
+  "score_display": "90/103 reglas OK (4 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-05-07T22:26:06.990016"
+}

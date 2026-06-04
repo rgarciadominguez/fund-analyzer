@@ -1,0 +1,95 @@
+{
+  "fund": "ES0119199000",
+  "nombre": "COBAS INTERNACIONAL, FI",
+  "fallos": [
+    {
+      "regla_id": "fuentes_min_opiniones",
+      "seccion": "fuentes_externas",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 opiniones externas (mínimo 8).",
+      "agente_responsable": "readings_agent",
+      "accion": "Re-ejecutar readings_agent con más queries y fuentes."
+    },
+    {
+      "regla_id": "historia_no_headers",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Historia tiene 8 subsecciones — debe ser 3-5 parrafos fluidos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia como narrativa pura sin headers."
+    },
+    {
+      "regla_id": "estrategia_no_headers",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia tiene 10 subsecciones — debe ser parrafos evaluativos sin headers",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia como narrativa evaluativa pura."
+    },
+    {
+      "regla_id": "resumen_kpis_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen tiene cifras de partícipes/AUM que no cuadran con KPIs reales (cifras_kpi_no_coinciden): texto dice 5791 partícipes, KPI real 10032 (42% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen usando SOLO data.kpis para num_participes y aum_actual_meur. Nunca tomar cifras del texto del PDF (gestores a veces escriben mal)."
+    },
+    {
+      "regla_id": "historia_kpis_match_data",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 5791 partícipes, KPI real 10032 (42% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/25 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "hitos_historia_percentages_verifiable",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2018: hito dice 23.5%, real -31.4%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta escenarios_adversos, protecciones, liquidez_estructura.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    }
+  ],
+  "fallos_estructura": 5,
+  "fallos_scarcity": 2,
+  "total_reglas": 103,
+  "reglas_ok": 94,
+  "aceptable": false,
+  "score_display": "94/103 reglas OK (2 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-05-07T20:39:48.606449"
+}

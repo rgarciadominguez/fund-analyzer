@@ -271,6 +271,15 @@ CONTEXTO DISPONIBLE: {len(sections)} bloques cargados (output.json + cnmv_data +
 CACHED_CONTEXT = None  # Stores the cache reference
 
 def get_gemini_client():
+    # Kill switch (2026-05-28): si GEMINI_DISABLED=1, abortar el chat.
+    # El chat conversacional usa context caching de Gemini que no tiene
+    # equivalente directo en Anthropic — desactivado hasta migración futura.
+    from tools.gemini_killswitch import is_gemini_disabled
+    if is_gemini_disabled():
+        raise RuntimeError(
+            "Chat conversacional desactivado: Gemini está OFF (GEMINI_DISABLED=1). "
+            "Para reactivar, edita .env. El resto del pipeline usa Anthropic."
+        )
     from google import genai
     return genai.Client(api_key=os.getenv("GOOGLE_API_KEY", ""))
 

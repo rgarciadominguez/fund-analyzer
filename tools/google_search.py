@@ -45,6 +45,107 @@ _HEADERS_WEB = {
 _RATE_LIMIT_SECONDS = 1.0
 _last_search_time = 0.0
 
+# ── Guardrail de coste Serper (2026-06-03) ───────────────────────────────────
+# Serper.dev cobra más allá del plan gratuito (~2500 búsquedas). Discovery hace
+# ~86 búsquedas/fondo y NO había tope → con 170 fondos se dispara el coste.
+# Este chokepoint (todas las búsquedas pasan por SearchEngine.search) impone:
+#   - SERPER_DISABLED=1            → corta TODA búsqueda (coste 0).
+#   - SERPER_MONTHLY_CAP (def 2000) → tope mensual duro; al alcanzarlo, search()
+#     devuelve [] y degrada (discovery encuentra menos, pero no gasta).
+# Solo cuentan las llamadas REALES a la API (los cache hits NO cuentan).
+import threading
+
+_USAGE_PATH = Path(__file__).parent.parent / "data" / "serper_usage.json"
+_usage_lock = threading.Lock()
+_logged_once: set = set()
+
+
+def _log_once(msg: str) -> None:
+    if msg not in _logged_once:
+        _logged_once.add(msg)
+        print(f"[SERPER-GUARD] {msg}")
+
+
+def _month_key() -> str:
+    return datetime.now().strftime("%Y-%m")
+
+
+def _serper_cap() -> int:
+    try:
+        return int(os.getenv("SERPER_MONTHLY_CAP", "2000"))
+    except (TypeError, ValueError):
+        return 2000
+
+
+def _serper_disabled() -> bool:
+    return os.getenv("SERPER_DISABLED", "0").lower() in ("1", "true", "yes", "on")
+
+
+def _load_usage() -> dict:
+    try:
+        return json.loads(_USAGE_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _usage_this_month() -> int:
+    return int(_load_usage().get(_month_key(), 0))
+
+
+def _reserve_usage(n: int = 1) -> int:
+    """Incrementa (reserva) el contador del mes de forma atómica. Se llama ANTES
+    del POST para garantizar que nunca se superan `cap` llamadas reales."""
+    with _usage_lock:
+        u = _load_usage()
+        mk = _month_key()
+        u[mk] = int(u.get(mk, 0)) + n
+        # Poda meses viejos (deja últimos 12).
+        if len(u) > 12:
+            for k in sorted(u)[:-12]:
+                u.pop(k, None)
+        try:
+            _USAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            tmp = _USAGE_PATH.with_suffix(".tmp")
+            tmp.write_text(json.dumps(u, ensure_ascii=False, indent=2), encoding="utf-8")
+            tmp.replace(_USAGE_PATH)
+        except Exception:
+            pass
+        return u[mk]
+
+
+def serper_allowed_and_reserve() -> bool:
+    """Guardrail para callsites que llaman a Serper DIRECTAMENTE (no vía SearchEngine).
+
+    Devuelve True y reserva 1 crédito del tope mensual si la búsqueda se permite;
+    False si está bloqueada (SERPER_DISABLED o tope alcanzado). Los callsites deben
+    chequear esto ANTES de su POST a serper.dev y, si False, degradar (DDG / []).
+    """
+    if _serper_disabled():
+        _log_once("SERPER_DISABLED=1 — búsqueda directa omitida (coste 0)")
+        return False
+    if _usage_this_month() >= _serper_cap():
+        _log_once(
+            f"Tope mensual Serper alcanzado ({_serper_cap()}, {_month_key()}) "
+            f"— búsqueda directa omitida (coste 0)"
+        )
+        return False
+    _reserve_usage(1)
+    return True
+
+
+def serper_usage_status() -> dict:
+    """Estado del guardrail Serper: mes, usadas, tope, restantes, disabled."""
+    used = _usage_this_month()
+    cap = _serper_cap()
+    return {
+        "month": _month_key(),
+        "used": used,
+        "cap": cap,
+        "remaining": max(0, cap - used),
+        "disabled": _serper_disabled(),
+        "blocked": _serper_disabled() or used >= cap,
+    }
+
 # Keywords que indican relevancia para cada agente
 _AGENT_KEYWORDS = {
     "manager_deep": ["gestor", "manager", "equipo", "citywire", "trustnet", "morningstar equipo",
@@ -130,14 +231,28 @@ class SearchEngine:
         Search Google. Returns cached results if query already done.
         Returns: [{"title": str, "url": str, "snippet": str}]
         """
-        # Check cache first
+        # Check cache first (los cache hits NO cuentan para el tope)
         if self._is_cached(query):
             return self._get_cached(query)
+
+        # ── Guardrail de coste Serper ─────────────────────────────────────────
+        if _serper_disabled():
+            _log_once("SERPER_DISABLED=1 — búsquedas Google desactivadas (coste 0)")
+            return []
+        if _usage_this_month() >= _serper_cap():
+            _log_once(
+                f"Tope mensual Serper alcanzado ({_serper_cap()} búsquedas, {_month_key()}) "
+                f"— búsquedas omitidas hasta el mes que viene (coste 0)"
+            )
+            return []
 
         global _last_search_time
         key = _get_serper_key()
         if not key:
             return []
+
+        # Reserva 1 crédito ANTES de la llamada → nunca se supera el tope.
+        _reserve_usage(1)
 
         # Rate limit
         now = asyncio.get_event_loop().time()
@@ -443,6 +558,12 @@ async def search_fetch_multiple(
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv(Path(__file__).parent.parent / ".env")
+
+    if "--usage" in sys.argv[1:]:
+        st = serper_usage_status()
+        print(f"Serper {st['month']}: {st['used']}/{st['cap']} usadas "
+              f"| restantes {st['remaining']} | disabled={st['disabled']} | blocked={st['blocked']}")
+        sys.exit(0)
 
     query = sys.argv[1] if len(sys.argv) > 1 else "avantage fund morningstar"
 

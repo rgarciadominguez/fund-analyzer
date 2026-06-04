@@ -73,6 +73,12 @@ def extract_fast(
     Returns:
         dict o list según el schema. ValueError si JSON inválido.
     """
+    # Kill switch (2026-05-28): si GEMINI_DISABLED=1, redirigir a Claude Haiku.
+    from tools.gemini_killswitch import is_gemini_disabled, claude_json_fallback_with_schema
+    if is_gemini_disabled():
+        console.log(f"[cyan][KillSwitch] Gemini OFF → Claude Haiku ({context[:40]}...)")
+        return claude_json_fallback_with_schema(text, schema, context=context, max_tokens=32768)
+
     client = _get_client()
 
     if custom_prompt is not None:

@@ -1,0 +1,452 @@
+{
+  "isin": "LU0289214628",
+  "tipo": "INT",
+  "generated_at": "2026-05-21T11:30:58Z",
+  "tasks": [
+    {
+      "id": "intl_factsheet_1317-Factsheet-Alpha-_LUX_-Global-Balanced-FoF_EN",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/1317-Factsheet-Alpha-_LUX_-Global-Balanced-FoF_EN.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=factsheet. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_kid_31-31-jpmf_europe_equity_plus_fund_kiid",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/31-31-jpmf_europe_equity_plus_fund_kiid.pdf",
+      "schema": {
+        "kpis": {
+          "divisa_base": "string",
+          "ter_pct": "float"
+        },
+        "perfil_riesgo_srri": "int 1-7",
+        "objetivo_inversion": "string"
+      },
+      "context": "PDF tipo=kid. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_14-responsible-investment-policy",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_14-responsible-investment-policy.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_Annual_Financial_Report_2015_en",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_Annual_Financial_Report_2015_en.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_Extending_the_Fundamental_Law_of_Investment_M",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_Extending_the_Fundamental_Law_of_Investment_Manage.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_manager_letter__web_jpm-europe-equity-plus-fund-commentary-ce-en",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_jpm-europe-equity-plus-fund-commentary-ce-en.pdf",
+      "schema": {
+        "periodo": "string '2024_T3' o 'monthly_2025_03'",
+        "tesis_gestora": "string 200-400 palabras",
+        "decisiones_tomadas": "string 100-300 palabras con nombres concretos",
+        "contexto_mercado": "string 100-200 palabras",
+        "citas_textuales": "list[{cita, contexto}] 2-5",
+        "outlook": "string",
+        "posiciones_destacadas": "list[{nombre, accion, motivo}]"
+      },
+      "context": "PDF tipo=manager_letter. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_jpmf-europe-equity-plus-fund-commentaries-es",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_jpmf-europe-equity-plus-fund-commentaries-es.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_jpmf-europe-equity-plus-fund-story-ce-en",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_jpmf-europe-equity-plus-fund-story-ce-en.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_kid__web_jpmf_europe_equity_plus_fund_kiid",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_jpmf_europe_equity_plus_fund_kiid.pdf",
+      "schema": {
+        "kpis": {
+          "divisa_base": "string",
+          "ter_pct": "float"
+        },
+        "perfil_riesgo_srri": "int 1-7",
+        "objetivo_inversion": "string"
+      },
+      "context": "PDF tipo=kid. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_jpmlf-esg-changes-ch-fr",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_jpmlf-esg-changes-ch-fr.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_jpmorgan-funds-equity-plus-fund-esg-fund-repo",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_jpmorgan-funds-equity-plus-fund-esg-fund-report.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_jpmorgan-funds-europe-equity-plus-fund-esg-fu",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_jpmorgan-funds-europe-equity-plus-fund-esg-fund-re.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_LU0880062913",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_LU0880062913.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_SEC_202a-7_20Money_20Market_20Fund_20Web_20Di",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_SEC%202a-7%20Money%20Market%20Fund%20Web%20Disclos.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_sicav_relazione_semestrale_fr",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_sicav_relazione_semestrale_fr.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_Weekly-Strategy-Report_020116",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_Weekly-Strategy-Report_020116.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf_europe-equity-plus-fund-a-perf-acc-hedged-usd",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/europe-equity-plus-fund-a-perf-acc-hedged-usd.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_manager_letter_jpm-europe-equity-plus-fund-commentary-ce-en",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/jpm-europe-equity-plus-fund-commentary-ce-en.pdf",
+      "schema": {
+        "periodo": "string '2024_T3' o 'monthly_2025_03'",
+        "tesis_gestora": "string 200-400 palabras",
+        "decisiones_tomadas": "string 100-300 palabras con nombres concretos",
+        "contexto_mercado": "string 100-200 palabras",
+        "citas_textuales": "list[{cita, contexto}] 2-5",
+        "outlook": "string",
+        "posiciones_destacadas": "list[{nombre, accion, motivo}]"
+      },
+      "context": "PDF tipo=manager_letter. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf_jpmf-europe-equity-plus-fund-story-ce-en",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/jpmf-europe-equity-plus-fund-story-ce-en.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf_JPMorgan_sfr",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/JPMorgan_sfr.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_kid_kid_latest",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/kid_latest.pdf",
+      "schema": {
+        "kpis": {
+          "divisa_base": "string",
+          "ter_pct": "float"
+        },
+        "perfil_riesgo_srri": "int 1-7",
+        "objetivo_inversion": "string"
+      },
+      "context": "PDF tipo=kid. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_prospectus_prospectus_latest",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0289214628/raw/discovery/prospectus_latest.pdf",
+      "schema": {
+        "objetivo_inversion": "string completo",
+        "politica_inversion": "string",
+        "comisiones": "{gestion_max_pct, deposito_max_pct, exito_pct}",
+        "clases": "list[{isin, nombre_clase, divisa, comision_gestion_pct}]"
+      },
+      "context": "PDF tipo=prospectus. ISIN target: LU0289214628 (JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note.",
+      "two_stage": true
+    },
+    {
+      "id": "intl_web_fund_page",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "https://www.servicios.deutsche-bank.es/documentacionfondos/getDocumento?codDoc=LU0289214628&idioma=ES&codSus=KIID&codCont=NA",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "NO es PDF. Es URL: https://www.servicios.deutsche-bank.es/documentacionfondos/getDocumento?codDoc=LU0289214628&idioma=ES&codSus=KIID&codCont=NA. Hacer WebFetch. Extraer datos LIVE del sub-fondo target (LU0289214628): AUM, NAV, top holdings, asset allocation, performance. VERIFICAR que el ISIN aparece en la página antes de extraer. Si no aparece, devuelve null + anti_invencion_note.",
+      "is_web_fetch": true,
+      "url": "https://www.servicios.deutsche-bank.es/documentacionfondos/getDocumento?codDoc=LU0289214628&idioma=ES&codSus=KIID&codCont=NA"
+    }
+  ],
+  "updated_at": "2026-05-21T11:31:03Z"
+}

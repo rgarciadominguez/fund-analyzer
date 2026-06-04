@@ -1,0 +1,835 @@
+{
+  "_meta": {
+    "isin": "ES0119199000",
+    "generated": "2026-05-07T09:04:00Z",
+    "generator": "skill:analyst-cowork",
+    "skill_version": "2.4.0",
+    "main_model": "opus",
+    "audit_model": "sonnet",
+    "sections_generated": [
+      "resumen",
+      "historia",
+      "gestores",
+      "evolucion",
+      "estrategia",
+      "cartera",
+      "fuentes_externas",
+      "documentos"
+    ],
+    "audit_pass_done": true,
+    "audit_iterations": 1,
+    "anti_invencion_flagged": [
+      "fuentes_externas: readings vacío en el bundle — sección dejada honestamente sin opiniones_clave en lugar de inventar"
+    ],
+    "input_files_hash": {
+      "fund_data.json": "sha256:1ca8bf7aa088d2f180bad6b7a363fbfa72f8ee0901cc77af8c85072a2c76f0cc",
+      "manager_profile.json": "sha256:e9abf8713b986a3ddb3d9d561968c8dc82d5fa72c958f0565886837a90c8d494",
+      "letters_data.json": "sha256:299fef7eea9e758692f0655c1f51b59f9b0ff46fb8776c57bc8e986da6eda254",
+      "readings.json": "sha256:e41a89c92e69113799b341f0fd35ef8a44a8b922a943237d36881663dccb8065",
+      "sources.json": "sha256:faf2b0d34a1e860a7446795af315541464a48b60c191247cea942f7cf5a4fb59"
+    }
+  },
+  "analyst_synthesis": {
+    "resumen": {
+      "texto": "Cobas Internacional, FI (ISIN ES0119199000) es el vehículo de renta variable global de Cobas Asset Management SGIIC, gestora fundada por Francisco García Paramés en septiembre de 2016 y autorizada por la CNMV en febrero de 2017 (CNMV anexo semestral 2025). El fondo arrancó en marzo de 2017 con €422M de patrimonio y 5.791 partícipes y a cierre de 2025 alcanza €926,95M y 10.032 partícipes, tras un año excepcional en el que la cartera se revalorizó +26,4% frente al +19,7% del índice de referencia BBG Developed Markets (carta semestral 2S2025).\n\nEl mandato es claro: invertir al menos un 80% en renta variable global de cualquier capitalización y sector de la OCDE excluyendo España y Portugal — la exposición ibérica se cubre en el fondo hermano Cobas Iberia FI — con posibilidad de hasta un 40% en emergentes y duración media de la pata de renta fija inferior a 18 meses (folleto CNMV sección 1). El fondo opera prácticamente al límite legal del 99% invertido (97,05% RV + 2,19% RF + 0,31% liquidez en 2025) y vehicula la filosofía value investing fundacional de Paramés: comprar compañías infravaloradas, normalmente fuera del radar consensual, con horizonte plurianual y sin coberturas de divisa activas.\n\nLa cartera 2025 cotiza con un PER ajustado a equity de 6,9x y un ROCE del 27% (anexo CNMV S2-2025), con un potencial de revalorización autocalculado del 106% sobre valor objetivo. El fondo se ofrece en cuatro clases — A, B, C y D — con TER que van del 0,96% (clase A institucional) al 1,81% (clase D), todas sin comisión sobre resultados. La volatilidad anualizada en 2025 es del 14,58% y el perfil de riesgo CNMV es 5/7.",
+      "filosofia_inversion": "La filosofía de inversión es una traslación íntegra del value investing clásico al ecosistema español: selección bottom-up de compañías individuales infravaloradas por el mercado, con foco en negocios comprensibles, calidad y estabilidad de los flujos de caja y disciplina estricta en la valoración de entrada. Paramés combina este corpus (Graham, Buffett, Lynch) con la teoría austriaca del ciclo económico, marco que utiliza explícitamente para entender los excesos monetarios y las distorsiones de precios relativos (carta inaugural 2017, Wikipedia).\n\nEl proceso descansa sobre cuatro pilares operativos: (1) preferencia por compañías familiares o con un único accionista de control — en el lanzamiento ~80% de la cartera respondía a este criterio —; (2) tolerancia explícita a la volatilidad como generadora de valor (\"welcome volatility\", carta 2017); (3) rechazo estructural a la renta fija y al mercado monetario por el riesgo de depreciación de las divisas en un contexto de manipulación monetaria — el fondo invierte casi siempre cerca del 99%; y (4) regla dura de no pagar más de doce años de beneficios (PER 12x) por una compañía. La salida de una posición se justifica únicamente cuando aparece una oportunidad mejor o cuando la cotización converge a la valoración interna.",
+      "criterios_inversion": [
+        {
+          "titulo": "Compañías infravaloradas con margen de seguridad",
+          "descripcion": "Selección de empresas que cotizan por debajo de su valor intrínseco estimado, con PER de entrada típicamente por debajo de 12x y, a cierre de 2025, una cartera media a PER ajustado a equity de 6,9x — la mitad del múltiplo del mercado."
+        },
+        {
+          "titulo": "Negocios de calidad y comprensibles",
+          "descripcion": "ROCE alto y sostenible (27% en la cartera 2025; 32% si se excluyen materias primas) como filtro de calidad. Preferencia por modelos sencillos, evitando explícitamente burbujas tecnológicas (Paramés esquivó el dot-com 2000 y la banca/inmobiliario español 2007 desde Bestinver)."
+        },
+        {
+          "titulo": "Empresas familiares y con accionista de control",
+          "descripcion": "En la carta inaugural Paramés cifra en torno al 80% el peso de empresas familiares o con un solo accionista de control, perfil que entiende como alineamiento natural con accionistas minoritarios y horizonte de gestión más largo."
+        },
+        {
+          "titulo": "Mercados conocidos y diligencia in situ",
+          "descripcion": "Foco principal en Europa por familiaridad cultural y de información, con posiciones menores en EE. UU. y Asia. Equipo viaja para validar tesis: a finales de 2025, viaje a Brasil para reforzar la convicción en Brava Energía y Petroreconcavo."
+        },
+        {
+          "titulo": "Disciplina de venta cuando se estrecha el descuento",
+          "descripcion": "Salidas totales o parciales cuando la cotización se acerca al valor objetivo o cuando aparece una oportunidad mejor. En 2025 se vendieron 11 valores (peso agregado >7%) y se entró en 7 nuevos (~6%) tras revalorizaciones de triple dígito."
+        }
+      ],
+      "fortalezas": [
+        "Lead Manager con uno de los mejores track records del value investing europeo: Paramés multiplicó por más de 7x al MSCI World en Bestinver Internacional (1998-2007) y esquivó la burbuja tecnológica del 2000 y la crisis financiera de 2008.",
+        "Skin in the game extremo y público: la familia Paramés invierte la totalidad de sus ahorros disponibles en los fondos de Cobas (carta inaugural 2017), creando una alineación de incentivos estructural y verificable.",
+        "Cartera con métricas de valoración muy atractivas: PER ajustado a equity 6,9x y ROCE 27% en 2025 — la mitad del múltiplo del mercado y un retorno del capital significativamente superior al promedio.",
+        "Equipo de inversión estable y experimentado: el núcleo gestor procede mayoritariamente de Bestinver y trabaja con Paramés desde antes de 2014, con incorporaciones internacionales (perfiles británicos, peruano, taiwanés y americano) que aportan diversidad geográfica.",
+        "Track record reciente sólido tras superar el cementerio histórico: +11% en 2022 (vs MSCI Euro -9,5%), +11,6% en 2023, +23,4% en 2024 (vs +9% benchmark) y +26,4% en 2025 (vs +19,7%).",
+        "Estructura de comisiones competitiva en clase A (TER 1,06%, gestión 1,0% sin comisión de éxito) frente a la media de fondos de gestión activa española."
+      ],
+      "riesgos": [
+        "Volatilidad alta y drawdowns severos históricos: el fondo perdió un 27,5% acumulado a cierre de 2018 desde su lanzamiento en marzo 2017 (CNMV anexo 2018), tras concentraciones desafortunadas en Aryzta, transporte marítimo de crudo y Teekay.",
+        "Concentración elevada por construcción: el top 5 representa el 19,15% de la cartera y el top 15 cerca del 43%, con apuestas idiosincráticas (energía marítima, materias primas, holdings europeos cíclicos) que pueden generar dispersión fuerte respecto a índices.",
+        "Sin cobertura de divisa: la exposición a USD, NOK, GBP, BRL y otras divisas no se cubre activamente, lo que añade un componente FX a la volatilidad — visible especialmente en 2017 con el impacto negativo del 4% del euro al lanzamiento.",
+        "Sesgo estructural anti-megacaps tecnológicas: el value puro de Paramés evita las Siete Magníficas y compañías de crecimiento puro, lo que en ciclos de dominio tecnológico (2018-2020, 2023) genera underperformance significativa frente a S&P 500 e índices globales.",
+        "Riesgo de comportamiento del partícipe en drawdowns largos: el partícipe que entró en 2017 y vendió en 2020 con VL en 63,6 cristalizó pérdidas relevantes; la propuesta exige horizonte mínimo de 5-10 años y tolerancia explícita a periodos de underperformance."
+      ],
+      "para_quien_es": "Inversor con horizonte de muy largo plazo (mínimo 7-10 años, idealmente más), perfil de riesgo medio-alto y tolerancia explícita a drawdowns severos en el corto plazo. Adecuado para quien busca exposición pura al value investing europeo y global con sesgo anti-consenso (fuera de megacaps tecnológicas), ya entiende la filosofía de Paramés y la teoría austriaca del ciclo, y está preparado para soportar tres o cuatro años seguidos de underperformance frente a índices globales sin entrar en pánico vendedor. No apto como única exposición de cartera ni para perfiles que prioricen estabilidad a corto plazo.",
+      "compromiso_gestor": "Compromiso explícito y verificable: \"My family and I already invest all our available savings in the funds managed by Cobas Asset Management SGIIC SA and we will always continue to do so\" (carta inaugural Paramés, marzo 2017). Adicionalmente, los empleados de Cobas AM tienen los fondos como vehículo principal de ahorro. La política de capacidad establecida en 2017 (cierre de Cobas Selección al alcanzar €2.000M, estrategia global tope €4.000-€5.000M) refleja una orientación a la rentabilidad por partícipe sobre la maximización del AUM.",
+      "signal": "POSITIVO",
+      "signal_rationale": "Track record reciente sólido (cuatro años consecutivos de outperformance 2022-2025), métricas de cartera muy atractivas (PER 6,9x, ROCE 27%), equipo estable, lead manager con uno de los mejores históricos del value europeo y skin in the game extremo. El historial de drawdown 2017-2020 es un riesgo conocido y ya superado por la cartera actual."
+    },
+    "historia": {
+      "texto": "**Origen del proyecto Cobas (2014-2016)**\n\nLa historia de Cobas Internacional FI no se entiende sin el episodio previo de Bestinver. Francisco García Paramés se incorporó a Bestinver Asset Management en 1989, donde durante 25 años construyó uno de los track records value más reconocidos de Europa: sus fondos de renta variable española triplicaron al índice de referencia entre 1993 y 2007, y los internacionales multiplicaron por siete al MSCI World entre 1998 y 2007 (Wikipedia). Esquivó la burbuja tecnológica del 2000 y la exposición a banca e inmobiliario antes de la crisis financiera de 2008. En septiembre de 2014 dimitió de Bestinver por desacuerdos con la matriz Acciona y, tras un periodo legal de no-competencia de dos años, fundó Cobas Asset Management en septiembre de 2016 declinando la oferta de unirse a sus antiguos colegas en azValor.\n\n**Autorización CNMV y lanzamiento de los fondos (febrero-marzo 2017)**\n\nEl 3 de febrero de 2017 la CNMV inscribió a Cobas AM en el Registro Administrativo de SGIIC. El 17 de febrero recibió autorización para transferir el fondo Cobas Selección FI a la nueva gestora y el 3 de marzo se aprobó la gestión de los primeros cuatro fondos, comercializados desde el miércoles 8 de marzo de 2017. La estructura inaugural fue: Cobas Selección (90% global + 10% ibérica), Cobas Internacional (global), Cobas Iberia, Cobas Grandes Compañías (global, capitalizaciones >€4.000M) y Cobas Renta (renta fija corto plazo + 10% RV) (carta inaugural Paramés 7-mar-2017). Cobas Internacional FI inició actividad inversora a mediados de marzo con valor liquidativo base de 100€ y €422,3M de patrimonio.\n\n**Año 1 (2017): arranque con perfil defensivo y exposición a commodities**\n\nLa cartera inaugural incluyó 62 valores: 23 ya conocidos por el equipo (incluidas las 9 ibéricas) y 29 nuevos. El sector de materias primas y commodities pesaba cerca del 20% (10 valores), justificado por la manipulación monetaria de bancos centrales y los ajustes de precio tras el exceso de inversión 2008-2014. Compañías con caja neta representaban un 38% de la cartera y en cuatro empresas (6% del portfolio) la caja neta excedía el valor bursátil. Aryzta era ya una posición destacada. El fondo cerró 2017 con +5,75% YTD desde marzo (vs +6,47% del MSCI Europe Total Return Net), VL de 105,75€/participación y 5.791 partícipes (anexo CNMV 2017 H2).\n\n**El cementerio (2018): primera gran prueba con drawdown del -32%**\n\nEl cuarto trimestre de 2018 fue catastrófico para los fondos value europeos. La cartera internacional cayó un 23,5% en Q4-2018 (vs -11,3% del MSCI Europe TR) y acumulaba un -27,5% desde el lanzamiento en marzo 2017 frente al -4,8% del benchmark (CNMV anexo 2018). Aryzta y Teekay fueron los principales detractores con impactos individuales del -3,3% y -2,6% respectivamente sobre la rentabilidad. El VL cerró el año en 72,53€ — una caída del 31,4% frente al cierre 2017. A pesar del castigo, el equipo mantuvo la convicción: el valor objetivo se elevó a 173€/participación con un potencial del 138% y la cartera cotizaba a PER 7,2x con ROCE 26%.\n\n**Recuperación parcial y rotación de tesis (2019-2020)**\n\nEn 2019 el fondo recuperó terreno hasta VL 82,23€ y cristalizó la tesis del transporte marítimo de crudo: las nuevas regulaciones de emisiones (IMO 2020) y el agotamiento de la ola de construcción de petroleros llevaron las tasas de flete a niveles récord, permitiendo al equipo reducir significativamente esta exposición. La crisis del COVID en 2020 castigó duramente al fondo (VL cerró el año en 63,6€), pero el rally value de Q4-2020 desde el anuncio de las vacunas generó una fuerte recuperación: Cobas Internacional +26,9% en el trimestre frente al +10,8% del benchmark.\n\n**Cambio de ciclo (2021-2022): vuelta del value y comportamiento defensivo**\n\nEl año 2021 trajo el regreso de la inflación y un cambio de régimen monetario al que el fondo estaba estructuralmente bien posicionado por su exposición a energía y materias primas. En 2022, mientras los principales índices europeos cayeron cerca del 10% y el S&P 500 perdió un 18%, Cobas Internacional cerró el año con +11% (frente a -9,49% del MSCI Euro), con la cartera cotizando a PER 5,5x y precio objetivo en máximos desde el inicio (anexo CNMV 2022). El AUM creció hasta €536M y los partícipes a 8.395.\n\n**Consolidación del retorno (2023-2024)**\n\nEn 2023, año dominado por las \"Siete Magníficas\" tecnológicas que aportaron ~80% de los rendimientos del S&P 500, Cobas Internacional obtuvo +11,6% frente al +15,8% de su benchmark — una underperformance esperable dado el sesgo value puro de la cartera. El ROCE medio se mantuvo en el 32% y el endeudamiento medio en 0,3x deuda neta/EBITDA. 2024 marcó un punto de inflexión: la cartera se revalorizó +23,4%, superando ampliamente al BBG Europe Developed Markets (+9%), gracias a Teva (+110%), Golar (+88%), Currys (+86%) y Babcock (+27%), más la OPA recibida sobre TI Fluid Systems con +29% en el año.\n\n**Año excepcional (2025) y reposicionamiento de la cartera**\n\n2025 cerró con una revalorización del +26,4% frente al +19,7% del BBG Developed Markets (carta semestral 2S2025). Los principales contribuidores en cartera internacional fueron Avio (+156%), BW Energy (+100%), Danieli (+94%) y Bayer (+93%); en la cartera ibérica Técnicas Reunidas (+146%), Atalaya (+128%), Almirall (+59%) y Repsol (+47%). Tras varios años de rentabilidades muy elevadas, el equipo realizó numerosas ventas parciales o totales y reinvirtió en valores de perfil de riesgo moderado a buenos precios: ventas totales de Avio (semi-monopolio en motores de cohetes europeos), Samsung C&T (presente desde 2016 con descuento del 50-60%) y Elecnor (presente desde el inicio de Cobas AM). Compras y aumentos en TGS, Borr Drilling y Wizz Air; refuerzo de Brava Energía y nueva posición en Petroreconcavo (productoras de petróleo y gas en Brasil) tras viaje del equipo al país. El AUM cerró en €926,95M y los partícipes en 10.032 — máximos históricos para el fondo. El valor objetivo se elevó a 338€/participación clase C, con un potencial del 106%.",
+      "hitos": [
+        {
+          "anio": "2014",
+          "titulo": "Salida de Paramés de Bestinver",
+          "evento": "Francisco García Paramés dimite de Bestinver Asset Management el 23 de septiembre de 2014 por desacuerdos con la matriz Acciona, tras 25 años de track record value europeo (Wikipedia).",
+          "tipo": "cambio_owner"
+        },
+        {
+          "anio": "2016",
+          "titulo": "Fundación de Cobas AM",
+          "evento": "Tras un periodo legal de no-competencia de dos años, Paramés funda Cobas Asset Management en septiembre de 2016, declinando unirse a sus antiguos colegas en azValor.",
+          "tipo": "lanzamiento"
+        },
+        {
+          "anio": "2017",
+          "titulo": "Autorización CNMV y lanzamiento del fondo",
+          "evento": "El 3 de febrero de 2017 la CNMV inscribe Cobas AM en el Registro de SGIIC. El 8 de marzo arrancan los cinco fondos iniciales, entre ellos Cobas Internacional FI con €422M y 5.791 partícipes.",
+          "tipo": "lanzamiento"
+        },
+        {
+          "anio": "2018",
+          "titulo": "Drawdown histórico del Q4",
+          "evento": "Caída del 23,5% en el cuarto trimestre y -27,5% acumulado desde el lanzamiento. Aryzta y Teekay actúan como principales detractores. VL cierra en 72,53€ con potencial de revalorización del 138% sobre valor objetivo.",
+          "tipo": "hecho_relevante"
+        },
+        {
+          "anio": "2019",
+          "titulo": "Cristalización de la tesis shipping",
+          "evento": "Tras varios años de exposición al transporte marítimo de crudo, las nuevas regulaciones IMO 2020 y el agotamiento de la oferta llevan las tasas de flete a máximos, permitiendo reducir la posición. AUM €451M.",
+          "tipo": "cambio_estrategia"
+        },
+        {
+          "anio": "2020",
+          "titulo": "COVID y rotación a value en Q4",
+          "evento": "Caída a VL 63,6€ en mínimos COVID y rally del +26,9% en Q4 desde el anuncio de las vacunas, frente al +10,8% del benchmark. Confirmación del cambio de ciclo a favor del value.",
+          "tipo": "contexto_mercado"
+        },
+        {
+          "anio": "2020",
+          "titulo": "Reestructuración de clases comerciales",
+          "evento": "Lanzamiento de las clases B (institucional medio), C (retail) y D (premium) sobre la base existente, ampliando el rango de TER del 1,0% al 1,79% según clase.",
+          "tipo": "cambio_estrategia"
+        },
+        {
+          "anio": "2022",
+          "titulo": "Año bisagra: outperformance defensivo",
+          "evento": "Cobas Internacional +11% frente al -9,49% del MSCI Euro y -10% promedio de los principales índices europeos. Cartera cotizando a PER 5,5x y precio objetivo en máximos desde el inicio.",
+          "tipo": "hecho_relevante"
+        },
+        {
+          "anio": "2024",
+          "titulo": "Outperformance amplia y OPA sobre TI Fluid Systems",
+          "evento": "Revalorización del +23,4% (vs +9% benchmark) liderada por Teva (+110%), Golar (+88%) y Currys (+86%). OPA sobre TI Fluid Systems con +29% en el año. AUM cierra en €704M.",
+          "tipo": "hecho_relevante"
+        },
+        {
+          "anio": "2025",
+          "titulo": "Año récord y reposicionamiento defensivo",
+          "evento": "Revalorización del +26,4% (vs +19,7% benchmark). Avio +156%, BW Energy +100%, Danieli +94% y Bayer +93%. Ventas totales de 11 valores con peso >7% y entrada en 7 valores nuevos. AUM €926,95M y 10.032 partícipes — máximos históricos.",
+          "tipo": "hecho_relevante"
+        },
+        {
+          "anio": "2025",
+          "titulo": "Viaje del equipo a Brasil",
+          "evento": "A finales de 2025 el equipo viaja a Brasil para validar in situ las tesis de Brava Energía y Petroreconcavo (productoras de petróleo y gas con accionistas de control alineados), reforzando la convicción en ambas posiciones.",
+          "tipo": "contexto_mercado"
+        }
+      ]
+    },
+    "gestores": {
+      "texto": "Cobas Asset Management opera con un modelo *team-managed* bajo la dirección unipersonal de Francisco García Paramés como CIO, quien firma las cartas estratégicas y representa públicamente al equipo. La página oficial de Cobas (cobasam.com/equipo) y la propia carta inaugural de marzo de 2017 confirman este modelo: Paramés figura como Presidente y CIO, y el equipo de inversión adicional incluye a Carmen Pérez Baguena, Iván Chvedine Santa María, Juan Cantus Pastor, Juan Huerta de Soto Huarte, Mingkun Chan, Vicente Martín Brogeras y Carla Villarmín Martínez, sin asignación nominal individual por fondo en las fuentes públicas.\n\n**Francisco García Paramés — el referente value europeo**\n\nParamés es, sin discusión, una de las figuras más relevantes del value investing en Europa continental. Nacido en Ferrol (Galicia) el 22 de diciembre de 1963, licenciado en Económicas por la Universidad Complutense de Madrid y MBA por IESE Business School, su trayectoria profesional en Bestinver Asset Management entre 1989 y septiembre de 2014 le valió el apodo de *\"Spanish Warren Buffett\"* en la prensa financiera anglosajona. En 25 años en Bestinver, sus fondos de renta variable española triplicaron al índice de referencia entre 1993 y 2007, y sus fondos internacionales multiplicaron por siete al MSCI World entre 1998 y 2007 (Wikipedia EN). Esquivó la burbuja tecnológica del 2000 y la exposición a banca e inmobiliario antes de la crisis financiera de 2008 — dos llamadas top-down documentadas que cimentaron su reputación.\n\nSu salida de Bestinver el 23 de septiembre de 2014 se debió a desacuerdos con la matriz Acciona. Tras el periodo legal de no-competencia de dos años, fundó Cobas Asset Management en septiembre de 2016 declinando explícitamente la opción de unirse a sus antiguos colegas en azValor — una decisión que marca su preferencia por liderar un proyecto propio sobre incorporarse a uno ya en marcha. La autorización CNMV llegó el 3 de febrero de 2017 y los fondos comenzaron a comercializarse el 8 de marzo de ese año.\n\n**Filosofía y marco intelectual**\n\nParamés combina los principios clásicos del value investing (Benjamin Graham, Warren Buffett, Peter Lynch) con la teoría austriaca del ciclo económico — una combinación poco habitual entre gestores españoles que le aporta un marco macro coherente para entender los excesos monetarios y las distorsiones de precios relativos. En 2016 publicó *Invirtiendo a largo plazo*, libro de referencia que sintetiza este enfoque y que se ha convertido en lectura habitual en las escuelas de negocios españolas. Recibió el doctorado *honoris causa* por la Universidad Francisco Marroquín de Guatemala el 7 de mayo de 2016 — la misma universidad que ha distinguido a referentes austriacos como Henry Hazlitt o Peter Boettke.\n\n**Skin in the game extremo y verificable**\n\nEl compromiso financiero personal de Paramés con sus propios fondos es uno de los más transparentes y elevados del sector. En la carta inaugural de marzo de 2017 declara literalmente: *\"My family and I already invest all our available savings in the funds managed by Cobas Asset Management SGIIC SA and we will always continue to do so\"*. Este compromiso público, mantenido año tras año en cartas posteriores, supone una alineación de incentivos estructural y verificable que pocos gestores ofrecen al mercado retail español.\n\n**Episodio personal: el accidente aéreo de 2006**\n\nEl 7 de marzo de 2006 Paramés sobrevivió a un accidente de avioneta privada en el que fallecieron el piloto y el director financiero de Bestinver. El episodio, recogido en Wikipedia, no afectó al funcionamiento de los fondos pero forma parte de la biografía pública del gestor y se cita ocasionalmente como inflexión personal. Paramés volvió a la actividad profesional tras la recuperación.\n\n**Decisiones clave documentadas en Cobas**\n\nDesde la fundación de Cobas, varias decisiones de cartera ilustran la consistencia del marco de Paramés. En diciembre de 2015, ya planificando el regreso, identificó Anglo American a 270 peniques en un Investor Day extremadamente negativo en la City de Londres como *\"the greatest opportunity in financial markets since 2000 or perhaps 2009\"*. Cuando escribe la carta inaugural en marzo de 2017, la acción cotiza a 1.400 peniques — una multiplicación por cinco. La exposición temprana al transporte marítimo de crudo (Teekay, International Seaways), aunque costosa en 2018, cristalizó en 2019 con la regulación IMO 2020. El no entrar en megacaps tecnológicas (incluso durante el rally 2020-2023) y mantener exposición estructural a energía y materias primas reflejan la convicción fundamentada en la teoría austriaca sobre las distorsiones monetarias.\n\n**El equipo histórico procedente de Bestinver**\n\nLa carta inaugural de Paramés identifica explícitamente al núcleo del equipo de inversión que se trasladó con él desde Bestinver: Iván Chvedine Santa María, Carmen Pérez Baguena, Mingkun Chan, Juan Huerta de Soto Huarte y Juan Cantus Pastor. Este grupo había trabajado previamente con Paramés y, según sus palabras en la carta, *\"all of them have had difficult decisions to make over the past two years\"* — una referencia a la decisión personal de seguir a Paramés tras un periodo de desempleo voluntario impuesto por la cláusula de no-competencia. Mayte Juárez, responsable de trading, también forma parte de este núcleo histórico.\n\nLos siete miembros del equipo (excluyendo a Paramés) figuran en las fuentes públicas como *equipo de inversión integrado* sin asignación nominal por fondo. La política de comunicación de la gestora es deliberadamente colectiva: las cartas trimestrales y semestrales se firman en nombre del equipo o por Paramés como representante. Las biografías individuales detalladas no aparecen en cobasam.com/equipo y, durante el ejercicio de enriquecimiento web realizado en mayo de 2026, no se localizaron entrevistas dedicadas o perfiles públicos extensos para la mayoría de los miembros del equipo de inversión.\n\n**Fichajes adicionales en el lanzamiento (2017)**\n\nA ese núcleo histórico se sumaron en el lanzamiento de Cobas cuatro fichajes adicionales con una media de 20 años de experiencia: John Barden, Vicente Martín Brogeras, Andrés Allende y Peter Smith. La carta inaugural describe el resultado como un *\"culturally-diverse team with a wealth of experience, featuring no less than five different nationalities: Peruvian, Taiwanese, North American, English and Spanish\"*. Esta diversidad geográfica era novedosa en el panorama de gestoras value españolas y se ha mantenido como rasgo identitario del equipo. De estos cuatro fichajes, Vicente Martín Brogeras continúa listado en la página oficial actual del equipo.\n\n**Incorporaciones posteriores**\n\nCarla Villarmín Martínez aparece en la página oficial actual de cobasam.com/equipo como miembro del equipo de inversión, sin biografía detallada y con incorporación posterior a 2017. La rotación del equipo en los nueve años de vida de Cobas ha sido moderada — algo esperable dado el alineamiento de incentivos vía propiedad y la estructura compacta de la gestora — pero las fuentes públicas no permiten reconstruir con detalle las altas y bajas individuales más allá del núcleo confirmado en marzo 2017.\n\n**Modelo de gobernanza y decisiones de cartera**\n\nCobas opera, según las fuentes oficiales y las cartas firmadas por Paramés, bajo un modelo *team-managed con CIO único*: el equipo cubre el universo de análisis y propone tesis, y las decisiones finales de tamaño y timing se toman colectivamente bajo la dirección de Paramés como CIO. Este modelo es coherente con la cultura value europea (similar a la que Paramés mantenía en Bestinver) y reduce la dependencia individual sobre cualquier miembro del equipo distinto del propio CIO. Los viajes de validación in situ — el más reciente documentado a Brasil a finales de 2025 para confirmar las tesis sobre Brava Energía y Petroreconcavo — ilustran el enfoque colaborativo de due diligence.\n\n**El track record en Bestinver: el tamaño real de la outperformance**\n\nLas cifras del periodo Bestinver merecen detalle por su magnitud. Entre 1993 y 2007, los fondos de renta variable española gestionados por Paramés triplicaron al índice de referencia — una outperformance compuesta que, en el largo plazo, sitúa el track record en el cuartil superior de los gestores europeos de la era. En el segmento internacional, el período 1998-2007 fue todavía más excepcional: los fondos Bestinver Internacional obtuvieron retornos siete veces superiores al MSCI World, posicionando a Bestinver como una referencia europea del value investing reconocida más allá del ámbito ibérico (Wikipedia EN). Las dos llamadas top-down más documentadas — la salida del sector tecnológico durante 1998-2000 y el rechazo a la exposición a banca e inmobiliario en el ciclo 2005-2007 — son el patrón mental que Paramés ha seguido aplicando en Cobas con la exclusión estructural de las megacaps tecnológicas.\n\n**Disputa con Acciona y salida de Bestinver (2014)**\n\nLa salida de Paramés de Bestinver el 23 de septiembre de 2014 se enmarca en un periodo de tensiones con la matriz Acciona, que controlaba el 100% de la gestora. Las fuentes públicas (Wikipedia EN/ES) señalan diferencias sobre la dirección estratégica como motivo principal. La cláusula de no-competencia firmada implicó dos años fuera de la actividad de gestión profesional — un coste de oportunidad significativo. Durante ese periodo, exemplares de su libro *Invirtiendo a largo plazo* (publicado en 2016) y diversas intervenciones públicas mantuvieron viva su voz como referente value. La decisión de fundar un proyecto propio en lugar de unirse a azValor — gestora creada por sus antiguos colegas Álvaro Guzmán de Lázaro y Fernando Bernad tras su propia salida de Bestinver — refleja una preferencia explícita por liderar antes que coliderar.\n\n**Comunicación con partícipes y conferencias anuales**\n\nCobas organiza desde 2017 una **Conferencia Anual de Inversores** en la que Paramés y el equipo presentan resultados, perspectivas y tesis principales del año. Las conferencias están disponibles en YouTube (canal oficial Cobas Asset Management, playlist *Conferencias Anuales de Inversores*) y constituyen una de las pocas vías de comunicación visual con los partícipes. Las cartas semestrales — que en el ámbito CNMV se sintetizan en los anexos del informe periódico — se publican también en formato extendido en cobasam.com como *Comentario Primer/Segundo Semestre*. La gestora mantiene además newsletters mensuales (*Comentario Carteras*) firmadas habitualmente por el equipo. Esta cadencia de comunicación (mensual + semestral + anual) está por encima del promedio del sector y es coherente con la cultura de transparencia value heredada de Bestinver.\n\n**Fundación FAES y compromisos paralelos**\n\nMás allá de Cobas, Paramés es una figura activa en el debate público sobre política monetaria y libertad económica. Es ponente habitual en universidades y think tanks alineados con la Escuela Austriaca y mantiene relación con la Universidad Francisco Marroquín (Guatemala) que le otorgó el doctorado *honoris causa* en 2016. Su libro *Invirtiendo a largo plazo* es lectura recomendada en escuelas de negocio y círculos value, y se actualiza ocasionalmente con prólogos para ediciones internacionales. La presencia mediática es selectiva — pocas entrevistas en prensa generalista, mayor presencia en podcasts especializados (Value Investing FM, Tu Dinero Nunca Duerme).\n\n**Sucesión y profundidad del equipo**\n\nUna pregunta legítima sobre cualquier proyecto value liderado por una figura única es la sucesión. Cobas todavía no ha hecho públicos planes formales de transición, y la firma del CIO sigue siendo Paramés. La estructura *team-managed* mitiga parcialmente este riesgo — el equipo procedente de Bestinver trabaja con Paramés desde antes de 2014 y conoce el proceso íntimamente — pero la marca y la tracción comercial de los fondos están claramente atadas al perfil personal del CIO. Este es un riesgo que el partícipe debe internalizar al asignar capital al fondo en horizonte multi-década.",
+      "perfiles": [
+        {
+          "nombre": "Francisco García Paramés",
+          "cargo": "Presidente y CIO (Lead Portfolio Manager)",
+          "trayectoria": "**Formación y primeros años**\n\nNacido el 22 de diciembre de 1963 en Ferrol (Galicia, España). Licenciado en Económicas por la Universidad Complutense de Madrid y MBA por IESE Business School (Universidad de Navarra). Doctor *honoris causa* por la Universidad Francisco Marroquín de Guatemala (7 de mayo de 2016), distinción otorgada habitualmente a referentes de la Escuela Austriaca de Economía.\n\n**Bestinver Asset Management (1989-2014)**\n\nSe incorporó a Bestinver en 1989 y permaneció en la gestora durante 25 años, convirtiéndose en su director de inversiones y figura pública de referencia. La prensa financiera anglosajona le bautizó como *\"the Spanish Warren Buffett\"* por su track record value de largo plazo. Sus fondos de renta variable española **triplicaron al índice de referencia entre 1993 y 2007** y sus fondos internacionales **multiplicaron por siete al MSCI World entre 1998 y 2007**, convirtiendo a Bestinver en una referencia europea del value investing. Esquivó la burbuja tecnológica del 2000 y la exposición a banca e inmobiliario antes de la crisis financiera de 2008 — dos llamadas top-down documentadas que cimentaron su reputación de disciplina metodológica.\n\nSobrevivió el 7 de marzo de 2006 a un accidente de avioneta privada en el que fallecieron el piloto y el director financiero de Bestinver. El episodio forma parte de su biografía pública y aparece recogido en Wikipedia.\n\n**Salida de Bestinver y fundación de Cobas (2014-2017)**\n\nDimitió de Bestinver el 23 de septiembre de 2014 por desacuerdos con la matriz Acciona. Tras un periodo legal de no-competencia de dos años, fundó **Cobas Asset Management** en septiembre de 2016 declinando explícitamente la opción de incorporarse a sus antiguos colegas en azValor — una decisión que marca su preferencia por liderar un proyecto propio. La autorización CNMV llegó el 3 de febrero de 2017 y los primeros cinco fondos comenzaron a comercializarse el 8 de marzo de 2017.\n\n**Producción intelectual**\n\nAutor del libro *Invirtiendo a largo plazo* (Investing in the Long Term), publicado en 2016, que sintetiza su enfoque combinando value investing clásico (Graham, Buffett, Lynch) con la teoría austriaca del ciclo económico. El libro se ha convertido en lectura habitual en escuelas de negocios españolas y círculos value europeos. Es ponente habitual en conferencias del sector y mantiene comunicación regular con sus partícipes a través de las cartas trimestrales y la conferencia anual de inversores de Cobas.\n\n**Track record en Cobas (2017-2025)**\n\nTras un arranque difícil en Cobas Internacional FI — drawdown del -27,5% acumulado a cierre de 2018 desde el lanzamiento en marzo 2017 — la cartera ha encadenado cuatro años consecutivos de outperformance: **+11% en 2022** (vs MSCI Euro -9,5%), **+11,6% en 2023**, **+23,4% en 2024** (vs +9% benchmark) y **+26,4% en 2025** (vs +19,7%). El AUM ha crecido de los €422M iniciales a €926,95M en 2025 y los partícipes de 5.791 a 10.032.",
+          "filosofia": "Combina los principios clásicos del value investing (Graham, Buffett, Lynch) con la teoría austriaca del ciclo económico — una combinación poco habitual entre gestores españoles que le aporta un marco macro coherente. Reglas operativas explícitas: no pagar más de 12 años de beneficios (PER 12x), preferencia por empresas familiares o con accionista de control (~80% de la cartera), inversión casi siempre cerca del límite legal del 99%, rechazo estructural de la renta fija y los mercados monetarios por riesgo de depreciación de divisas, y bienvenida explícita a la volatilidad como generadora de valor. La disciplina de venta es binaria: se vende cuando aparece una oportunidad mejor o cuando la cotización converge a la valoración interna.",
+          "cv_bullets": [
+            "Presidente y CIO de Cobas Asset Management SGIIC desde su fundación en 2016",
+            "Director de inversiones de Bestinver Asset Management durante 25 años (1989-2014)",
+            "Track record en Bestinver: 7x MSCI World (fondos internacionales 1998-2007), 3x índice de renta variable española (1993-2007)",
+            "MBA por IESE Business School, licenciado en Económicas por la Universidad Complutense de Madrid",
+            "Doctor honoris causa por la Universidad Francisco Marroquín (Guatemala, 2016)",
+            "Autor del libro 'Invirtiendo a largo plazo' (2016), referencia value en castellano",
+            "Esquivó la burbuja dot-com del 2000 y la crisis financiera de 2008 desde Bestinver",
+            "Skin in the game extremo: la familia Paramés invierte la totalidad de sus ahorros en fondos de Cobas"
+          ],
+          "decisiones_clave": [
+            "Identificación de Anglo American en diciembre de 2015 a 270 peniques en un Investor Day extremadamente negativo en la City de Londres. Calificada como 'la mayor oportunidad en mercados financieros desde 2000 o quizás 2009'. Cuando escribe la carta inaugural en marzo 2017, la acción cotiza a 1.400 peniques — multiplicación por 5x.",
+            "Mantener convicción en Aryzta y Teekay durante el drawdown del Q4-2018 a pesar del impacto individual del -3,3% y -2,6% respectivamente sobre la cartera. La tesis del transporte marítimo cristalizó en 2019 con la regulación IMO 2020 que llevó las tasas de flete a máximos.",
+            "Rechazo estructural a las megacaps tecnológicas durante todo el ciclo 2018-2025. Aunque generó underperformance frente al S&P 500 en 2018-2020 y 2023, validó la disciplina value y permitió capturar la rotación a value de 2022 (+11% vs -9,5% MSCI Euro).",
+            "Decisión en 2025 de realizar ventas totales de Avio (+156%), Samsung C&T (presente desde 2016 con descuento del 50-60%) y Elecnor (presente desde el inicio de Cobas, multiplicación por casi 4x) tras revalorizaciones de triple dígito, reinvirtiendo en valores de perfil de riesgo moderado a buenos precios.",
+            "Viaje del equipo a Brasil a finales de 2025 para validar in situ las tesis de Brava Energía y Petroreconcavo. La diligencia presencial reforzó la convicción en ambas posiciones, ilustrando el enfoque colaborativo de due diligence del equipo bajo su dirección."
+          ],
+          "rasgos_diferenciales": "Combina tres rasgos poco habituales entre gestores españoles: (1) track record value de 36 años continuados desde 1989, con periodos largos documentados de outperformance multi-índice; (2) marco intelectual que une value investing clásico con teoría austriaca del ciclo, dándole coherencia top-down; y (3) skin in the game extremo y público con la familia invirtiendo la totalidad de sus ahorros en los fondos. La comunicación con partícipes es franca y didáctica, sin esquivar las fases de drawdown.",
+          "fuente": "manager_deep_agent"
+        },
+        {
+          "nombre": "Carmen Pérez Baguena",
+          "cargo": "Gestora / Analista (Equipo de Inversión)",
+          "trayectoria": "Miembro del equipo gestor de Cobas AM desde su fundación en marzo de 2017. Mencionada explícitamente por Francisco García Paramés en la carta inaugural como parte del núcleo histórico de profesionales que ya habían trabajado con él en Bestinver durante años. Forma parte del equipo de análisis e inversión que cubre la cartera internacional. Su biografía individual no figura detallada en las fuentes públicas oficiales (cobasam.com/equipo); las cartas y comunicaciones de la gestora se firman colectivamente por el equipo o por Paramés como CIO, sin asignación nominal por fondo.",
+          "filosofia": "",
+          "cv_bullets": [
+            "Miembro del equipo de inversión de Cobas AM desde la fundación (marzo 2017)",
+            "Procedente del equipo histórico de Bestinver bajo Paramés",
+            "Mencionada en la carta inaugural de Paramés (2017) como núcleo del equipo"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Continuidad con el equipo histórico de Bestinver y conocimiento profundo del proceso value de Paramés.",
+          "fuente": "manager_profiler"
+        },
+        {
+          "nombre": "Iván Chvedine Santa María",
+          "cargo": "Gestor / Analista (Equipo de Inversión)",
+          "trayectoria": "Miembro del equipo gestor de Cobas AM desde la fundación en 2017. Mencionado en la carta inaugural de Paramés (marzo 2017) como parte del núcleo histórico de profesionales procedente de Bestinver. Forma parte del equipo de análisis e inversión integrado de Cobas. Sin biografía individual pública detallada.",
+          "filosofia": "",
+          "cv_bullets": [
+            "Miembro del equipo de inversión de Cobas AM desde la fundación (2017)",
+            "Procedente del equipo histórico de Bestinver bajo Paramés"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Continuidad con el equipo Bestinver bajo Paramés.",
+          "fuente": "manager_profiler"
+        },
+        {
+          "nombre": "Juan Cantus Pastor",
+          "cargo": "Gestor / Analista (Equipo de Inversión)",
+          "trayectoria": "Miembro del equipo de inversión de Cobas AM desde su fundación en 2017. Mencionado en la carta inaugural de Paramés como parte del núcleo histórico procedente de Bestinver. Sin biografía individual pública detallada.",
+          "filosofia": "",
+          "cv_bullets": [
+            "Miembro del equipo de inversión de Cobas AM desde la fundación (2017)",
+            "Procedente del equipo histórico de Bestinver"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Continuidad con el equipo Bestinver bajo Paramés.",
+          "fuente": "manager_profiler"
+        },
+        {
+          "nombre": "Juan Huerta de Soto Huarte",
+          "cargo": "Gestor / Analista (Equipo de Inversión)",
+          "trayectoria": "Miembro del equipo de inversión de Cobas AM desde su fundación en 2017. Mencionado en la carta inaugural de Paramés como parte del núcleo histórico procedente de Bestinver. Sin biografía individual pública detallada en las fuentes oficiales de la gestora.",
+          "filosofia": "",
+          "cv_bullets": [
+            "Miembro del equipo de inversión de Cobas AM desde la fundación (2017)",
+            "Procedente del equipo histórico de Bestinver"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Continuidad con el equipo Bestinver bajo Paramés.",
+          "fuente": "manager_profiler"
+        },
+        {
+          "nombre": "Mingkun Chan",
+          "cargo": "Gestor / Analista (Equipo de Inversión)",
+          "trayectoria": "Miembro del equipo de inversión de Cobas AM desde la fundación en 2017. Mencionado en la carta inaugural de Paramés como parte del núcleo histórico procedente de Bestinver. Aporta diversidad cultural al equipo (origen taiwanés según la propia carta de Paramés, que cita explícitamente la composición multicultural del equipo). Sin biografía individual pública detallada.",
+          "filosofia": "",
+          "cv_bullets": [
+            "Miembro del equipo de inversión de Cobas AM desde la fundación (2017)",
+            "Procedente del equipo histórico de Bestinver",
+            "Origen taiwanés (referencia explícita en la carta inaugural de Paramés)"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Continuidad con el equipo Bestinver y aportación de diversidad cultural al equipo de inversión.",
+          "fuente": "manager_profiler"
+        },
+        {
+          "nombre": "Vicente Martín Brogeras",
+          "cargo": "Gestor / Analista (Equipo de Inversión)",
+          "trayectoria": "Incorporado al equipo de Cobas AM en su fundación en 2017. Según la carta inaugural de Paramés, forma parte del grupo de cuatro fichajes adicionales — junto a John Barden, Andrés Allende y Peter Smith — con una media de 20 años de experiencia que se sumaron al núcleo histórico procedente de Bestinver. Continúa listado en la página oficial actual del equipo (cobasam.com/equipo). Sin biografía individual pública detallada.",
+          "filosofia": "",
+          "cv_bullets": [
+            "Miembro del equipo de inversión de Cobas AM desde la fundación (2017)",
+            "Fichaje externo al núcleo Bestinver, con +20 años de experiencia",
+            "Listado en la página oficial actual del equipo de Cobas"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Aporte de experiencia externa al núcleo Bestinver al equipo de Cobas.",
+          "fuente": "manager_profiler"
+        },
+        {
+          "nombre": "Carla Villarmín Martínez",
+          "cargo": "Gestora / Analista (Equipo de Inversión)",
+          "trayectoria": "Miembro actual del equipo de inversión de Cobas AM, listada en la página oficial del equipo (cobasam.com/equipo). Su incorporación es posterior a 2017 (no aparece en la carta inaugural de Paramés). Sin biografía individual pública detallada en las fuentes oficiales de la gestora.",
+          "filosofia": "",
+          "cv_bullets": [
+            "Miembro actual del equipo de inversión de Cobas AM",
+            "Incorporación posterior a 2017"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Incorporación posterior al lanzamiento, parte de la evolución natural del equipo.",
+          "fuente": "manager_profiler"
+        }
+      ]
+    },
+    "evolucion": {
+      "texto": "**Evolución de patrimonio (AUM)**\n\nEl fondo arrancó en marzo de 2017 con un patrimonio de **€422,3M** y a cierre de 2025 alcanza **€926,95M** — un crecimiento del 119,5% en nueve años a pesar del fuerte drawdown de los primeros años. La trayectoria refleja con nitidez los ciclos de rentabilidad y los flujos de partícipes: caída a €377M en 2018 tras el desplome del Q4, recuperación parcial en 2019 (€451M) y nueva caída a €347M en el COVID 2020. A partir de 2021 el AUM crece de forma sostenida — €468M en 2021, €536M en 2022, €560M en 2023, €704M en 2024 — hasta cerrar 2025 cerca de €927M.\n\n**Evolución del valor liquidativo**\n\nEl VL refleja con mayor precisión la rentabilidad subyacente del fondo, aislada de los flujos. Partiendo de la base 100€ al lanzamiento (clase A), el VL cerró el primer año ejercicio en **105,75€** (+5,75% YTD desde marzo 2017). El Q4-2018 hundió el VL hasta **72,53€** (-31,4% en el año, -27,5% desde el lanzamiento). 2019 recuperó parcialmente hasta **82,23€** (+13,4%), pero el COVID 2020 castigó de nuevo el fondo a **63,6€** (-22,7%). Desde ese mínimo, el rebote ha sido consistente: la cartera ha encadenado cinco años de rentabilidad positiva (con la excepción de un 2023 ligeramente por debajo del benchmark) y el VL cierra 2025 en **158,7€** — un 49,8% sobre el VL de lanzamiento y, lo que es más relevante, un 149,5% sobre el mínimo COVID de 2020.\n\n**Rentabilidades anuales documentadas en los anexos CNMV**\n\n**2017** (desde marzo): +5,75% vs +6,47% del MSCI Europe Total Return Net. Arranque moderado con impacto negativo del 4% por la apreciación del euro frente al dólar.\n\n**2018**: -27,5% acumulado a cierre desde el lanzamiento; el Q4-2018 cayó -23,5% (vs -11,3% del benchmark). Aryzta y Teekay como principales detractores.\n\n**2019**: recuperación parcial; cristalización de la tesis del transporte marítimo de crudo (IMO 2020).\n\n**2020**: año marcado por el COVID; rally del +26,9% en Q4 desde el anuncio de las vacunas (vs +10,8% del benchmark) que limitó la pérdida anual.\n\n**2021**: año del retorno de la inflación; cartera estructuralmente bien posicionada por exposición a energía y materias primas.\n\n**2022**: **+11%** vs **-9,49%** del MSCI Euro y -10% promedio de los principales índices europeos. Año bisagra con la cartera cotizando a PER 5,5x y precio objetivo en máximos.\n\n**2023**: **+11,6%** vs **+15,8%** del BBG Europe Developed Markets. Underperformance esperable dado el dominio tecnológico (las Siete Magníficas aportaron ~80% del retorno del S&P 500). ROCE medio cartera 32%.\n\n**2024**: **+23,4%** vs **+9%** del benchmark. Teva (+110%), Golar (+88%), Currys (+86%), Babcock (+27%) y la OPA sobre TI Fluid Systems (+29% en el año) como motores principales.\n\n**2025**: **+26,4%** vs **+19,7%** del BBG Developed Markets. Avio (+156%), BW Energy (+100%), Danieli (+94%) y Bayer (+93%) lideraron en cartera internacional; Técnicas Reunidas (+146%), Atalaya (+128%), Almirall (+59%) y Repsol (+47%) en la ibérica.\n\n**Evolución de partícipes**\n\nEl número de partícipes ha crecido desde **5.791** en 2017 hasta **10.032** en 2025 (+73%), con un patrón interesante: el partícipe creció rápidamente en 2018 (de 5.791 a 7.849, +35%) a pesar del drawdown — señal de que el deterioro del Q4 generó entradas de value contrarian — y se mantuvo estable entre 2018 y 2023 (8.000-8.400 partícipes), con salidas pequeñas en 2021 y 2023. La fuerte revalorización de 2024-2025 ha disparado la captación: de 8.224 partícipes en 2023 a 10.032 en 2025, un crecimiento del 22% en dos años.\n\n**Mix de activos histórico**\n\nEl fondo ha mantenido una exposición a renta variable cercana al máximo legal del 99% durante toda su historia, con valores entre 96,1% y 97,7%. La pata de renta fija y liquidez nunca ha superado el 4% agregado y se compone esencialmente de cesiones temporales de tesorería (REPOs) y depósitos a corto. En 2025 la composición es: **RV 97,05%**, **RF 2,19%** (REPO BNP Paribas con vencimiento enero 2026), **liquidez 0,31%**.\n\n**Evolución de la rotación de cartera**\n\nLa rotación anual ha oscilado significativamente y refleja los cambios de ciclo y las decisiones de cartera: **30%** en 2017 (cartera de lanzamiento, baja rotación), **85%** en 2018 (gestión activa durante el drawdown), **66%** en 2019, **42%** en 2020 (mantener convicción durante el COVID), **82%** en 2021 y **80%** en 2022 (rotación significativa tras el cambio de ciclo de inflación), **48%** en 2023 (mayor convicción en cartera), **77%** en 2024 y **113%** en 2025 — máximo histórico, coherente con el mensaje del equipo de realizar numerosas ventas parciales o totales tras los rallies de triple dígito y reinvertir en valores de perfil de riesgo moderado.\n\n**Evolución del TER**\n\nLa estructura de comisiones ha pasado por tres fases: (1) clase única A entre 2017 y 2019 con TER del **1,49% al 1,78%** y comisión de gestión del 1,75%; (2) lanzamiento de las clases B, C y D en 2020 con un TER que oscila entre el 1,0% (clase A institucional, luego rebautizada) y el 1,79% (clase D); y (3) consolidación posterior con TER de la clase A en torno al **0,96%-1,06%** en 2024-2025. El fondo no aplica comisión de éxito en ninguna clase.\n\n**Concentración de la cartera en el tiempo**\n\nLa concentración del top 5 (excluyendo el agregado 'Resto Renta Variable Exterior' que engloba decenas de posiciones pequeñas) ha sido alta y volátil: **31,8%** en 2019 con Aryzta y Golar como apuestas concentradas; **27,3%** en 2020; **28,0%** en 2021; **22,2%** en 2022 (mayor diversificación); **25,2%** en 2023; **21,8%** en 2024; y **19,2%** en 2025 — el nivel más bajo de la serie. La tendencia indica una diversificación gradual a medida que la cartera ha crecido y se han realizado las tesis más concentradas (Aryzta, Teekay).",
+      "datos_graficos": {
+        "concentracion_historica": [
+          {
+            "periodo": "2025",
+            "top5_pct": 19.15,
+            "top10_pct": 32.2,
+            "top15_pct": 42.98
+          },
+          {
+            "periodo": "2024",
+            "top5_pct": 21.84,
+            "top10_pct": 32.93
+          },
+          {
+            "periodo": "2023",
+            "top5_pct": 25.21,
+            "top10_pct": 36.87
+          },
+          {
+            "periodo": "2022",
+            "top5_pct": 22.24,
+            "top10_pct": 36.61
+          },
+          {
+            "periodo": "2021",
+            "top5_pct": 28.02,
+            "top10_pct": 46.13
+          },
+          {
+            "periodo": "2020",
+            "top5_pct": 27.31,
+            "top10_pct": 44.19
+          },
+          {
+            "periodo": "2019",
+            "top5_pct": 31.81,
+            "top10_pct": 50.09
+          }
+        ],
+        "drawdown": [
+          {
+            "periodo": "2018",
+            "drawdown_pct": -27.5,
+            "nota": "Acumulado desde lanzamiento marzo 2017 a cierre 2018, vs -4,8% benchmark"
+          },
+          {
+            "periodo": "2018-Q4",
+            "drawdown_pct": -23.5,
+            "nota": "Trimestre puntual; benchmark -11,3%"
+          },
+          {
+            "periodo": "2020",
+            "drawdown_pct": -22.7,
+            "nota": "Caída interanual VL 82,23 → 63,6 (mínimo COVID)"
+          }
+        ],
+        "exposicion_geografica": [],
+        "num_posiciones_por_anio": [],
+        "rentabilidades_anuales": [
+          {
+            "anio": "2017",
+            "fondo_pct": 5.75,
+            "benchmark_pct": 6.47,
+            "nota": "Desde marzo 2017"
+          },
+          {
+            "anio": "2018",
+            "fondo_pct": -31.4,
+            "benchmark_pct": null,
+            "nota": "Q4-2018: -23,5% vs -11,3%"
+          },
+          {
+            "anio": "2022",
+            "fondo_pct": 11.0,
+            "benchmark_pct": -9.49,
+            "nota": "Benchmark MSCI Euro"
+          },
+          {
+            "anio": "2023",
+            "fondo_pct": 11.6,
+            "benchmark_pct": 15.8,
+            "nota": "Benchmark BBG Europe Developed Markets"
+          },
+          {
+            "anio": "2024",
+            "fondo_pct": 23.4,
+            "benchmark_pct": 9.0,
+            "nota": "Benchmark BBG Europe Developed Markets"
+          },
+          {
+            "anio": "2025",
+            "fondo_pct": 26.4,
+            "benchmark_pct": 19.7,
+            "nota": "Benchmark BBG Developed Markets"
+          }
+        ]
+      }
+    },
+    "estrategia": {
+      "texto": "**Política de inversión (folleto CNMV)**\n\nEl folleto registrado en la CNMV define el mandato con precisión: al menos un 80% de la exposición total se invierte en renta variable de cualquier capitalización y sector, en emisores y mercados de la OCDE excluyendo España y Portugal — la pata ibérica se cubre en el fondo hermano Cobas Iberia FI. Hasta un 40% puede invertirse en emisores y mercados de países emergentes. La pata residual de renta fija debe tener calidad crediticia mínima BBB- (o la del Reino de España si fuera inferior), duración media inferior a 18 meses y se compone esencialmente de instrumentos de mercado monetario y depósitos. El riesgo divisa puede oscilar del 0% al 100% de la exposición — Cobas no realiza coberturas activas. El perfil de riesgo regulatorio CNMV es **5/7**.\n\n**Filosofía operativa: value investing + escuela austriaca**\n\nLa estrategia traslada con fidelidad los principios value clásicos: selección bottom-up de compañías individuales infravaloradas por el mercado, con preferencia por negocios comprensibles, calidad y estabilidad de los flujos de caja, y disciplina estricta de valoración. La regla operativa más explícita en la carta inaugural de Paramés es **no pagar más de 12 años de beneficios (PER 12x)** por una compañía. La cartera 2025 cotiza muy por debajo de ese umbral: **PER ajustado a equity de 6,9x** y un **ROCE del 27%** — la mitad del múltiplo del mercado y un retorno del capital significativamente superior al promedio (anexo CNMV S2-2025).\n\n**Cuatro principios operativos heredados de Bestinver**\n\n- **Preferencia por empresas familiares o con accionista de control**: en el lanzamiento de Cobas, ~80% de la cartera respondía a este criterio. Paramés argumenta que estas estructuras alinean naturalmente al gestor con los accionistas minoritarios y aportan horizonte de gestión más largo.\n- **Tolerancia explícita a la volatilidad**: la carta inaugural lo enmarca con claridad: *\"we welcome volatility (which helps generate value) and market dips and collapses since they push down the prices of the assets that interest us\"*.\n- **Rechazo estructural a la renta fija y al mercado monetario**: justificado por el riesgo de depreciación de las divisas en un contexto de manipulación monetaria. El fondo invierte casi siempre cerca del **99%** del patrimonio.\n- **Disciplina de venta binaria**: se vende cuando aparece una oportunidad mejor o cuando la cotización converge a la valoración interna. *\"When asked the question 'When do you sell a security?', we always offer the same response: when a better opportunity presents itself\"*.\n\n**Universo geográfico y sectorial**\n\nFoco principal en Europa por familiaridad cultural y de información, con posiciones menores en EE. UU. y Asia. El equipo viaja para validar tesis presencialmente — el viaje más reciente documentado a Brasil a finales de 2025 para confirmar las tesis sobre Brava Energía y Petroreconcavo. La cartera 2025 está fuertemente sesgada a Europa cíclica y energía/materias primas: nombres como Atalaya Mining (Cyprus), Golar LNG (Bermudas), BW Offshore (Bermudas), BW Energy (Bermudas), TGS ASA (Noruega), Danieli (Italia), Bayer (Alemania), Wizz Air (Jersey/Hungría), Saipem (Italia) y Borr Drilling (Bermudas) componen el grueso del top 15. La presencia de US es relativamente baja (Viatris, Teva, GIIIApp).\n\n**Resumen de la estrategia actual**\n\nCartera de 25+ posiciones individuales más un agregado de \"Resto Renta Variable Exterior\" del 30% que representa decenas de posiciones pequeñas (cartera diversificada *long tail*). La concentración del top 5 está en el nivel más bajo de la serie histórica (19,15%), reflejando la rotación significativa realizada en 2025. El equipo ha utilizado el rally para realizar 11 ventas totales (peso agregado >7%) y abrir 7 nuevas posiciones (~6%), reposicionando la cartera hacia perfiles de riesgo moderado. La filosofía y la disciplina permanecen idénticas a las del lanzamiento.\n\n**El marco austriaco aplicado a la asignación sectorial**\n\nLa teoría austriaca del ciclo económico (Mises, Hayek, Rothbard) que Paramés invoca explícitamente desde su libro *Invirtiendo a largo plazo* tiene consecuencias prácticas directas en la asignación sectorial del fondo. La hipótesis austriaca de que las políticas monetarias expansivas crean malas inversiones (*malinvestment*) en sectores de capital intensivo y de duración larga implica, por contraste, que los precios de las materias primas y los activos *real-economy* son típicamente reprimidos por las distorsiones monetarias y se convierten en oportunidades una vez se inicia la normalización monetaria. Esta lógica explica la persistencia de la exposición a energía y materias primas en la cartera de Cobas — exposición que en 2017 representaba ~20% en commodities, en 2018-2020 se cebó duramente en periodos de petróleo bajo, y en 2022 se convirtió en el principal driver de la outperformance cuando la inflación volvió.\n\n**Construcción de cartera y posición sizing**\n\nAunque las fuentes públicas no detallan la fórmula exacta de *position sizing* utilizada por el equipo, la observación empírica de la cartera muestra patrones consistentes: las posiciones nuevas suelen entrar con pesos del 1-2% y se incrementan progresivamente conforme se confirman las tesis y aparecen ventanas de precios atractivas; las posiciones de máxima convicción rara vez exceden el 8-9% del patrimonio (Aryzta llegó al 8,01% en 2019, Golar al 8,25% en 2021); y las salidas se realizan típicamente de forma escalonada (reducciones parciales seguidas de ventas totales) cuando el descuento sobre valor objetivo se estrecha. La regla operativa explícita de la carta inaugural — *\"If a new opportunity presents itself while we are already at full investment capacity, we will sell off our least attractive existing company in the portfolio\"* — implica una comparación constante de las tesis de cartera entre sí: cada nueva idea desplaza a la más débil del momento.\n\n**Uso de derivados y coberturas**\n\nLa política de la gestora es explícita en este punto: en H2-2025 *\"el fondo no ha realizado operaciones en derivados en el periodo\"* — y este patrón es consistente con la filosofía declarada de no cobertura de divisa y no apalancamiento estructural. La exposición FX (USD, GBP, NOK, BRL principalmente) se asume como parte intrínseca de la tesis de cada compañía y de su realidad de negocio. La excepción ocasional son los REPOs de tesorería, que en 2025 incluyen un único contrato con BNP Paribas por €20,3M (peso 2,19%) con vencimiento 2 de enero de 2026 y cupón 1,6% — instrumento de gestión de liquidez de muy corto plazo, no estrategia.\n\n**Diversificación entre fondos hermanos: el rol de Cobas Internacional dentro de la suite**\n\nCobas AM gestiona varios vehículos value bajo la misma filosofía pero con mandatos diferenciados: **Cobas Selección FI** (90% global + 10% ibérica, vehículo histórico de Paramés con cap de €2.000M de capacidad), **Cobas Internacional FI** (objeto de este análisis, 100% global ex-ES/PT), **Cobas Iberia FI** (100% ibérica, capacidad €750M-€1.000M), **Cobas Grandes Compañías FI** (global con capitalización >€4.000M) y **Cobas Renta FI** (90% renta fija corto plazo + 10% RV). Cobas Internacional es, dentro de la suite, el vehículo de mayor capacidad declarada (€4.000-€5.000M según la carta inaugural) y el que ofrece la exposición más pura a la cartera value global del equipo. Para un partícipe que quiere también exposición ibérica, la combinación natural es Internacional + Iberia (alternativa más barata vs Cobas Selección que duplica los gastos del fondo subyacente).\n\n**Estructura de comisiones por clase**\n\nEl fondo se ofrece en cuatro clases con TER muy distinto en 2024-2025: **clase A** (TER 0,96%-1,06%, comisión gestión 0,91%-1,0% — clase más barata, típicamente para institucionales o saldos elevados), **clase B** (TER 1,28%-1,31%, gestión 1,25%), **clase C** (TER 1,54%-1,56%, gestión 1,50% — clase retail estándar) y **clase D** (TER 1,79%-1,81%, gestión 1,75% — clase retail clásica). Ninguna clase aplica comisión sobre resultados (comision_exito.existe = false desde lanzamiento). Esta estructura es competitiva en el contexto de gestoras value españolas y ha mejorado para la clase A respecto a los TER iniciales de 2017-2019 (1,49%-1,78%).",
+      "estrategia_actual_resumen": "Cartera global value de ~25 posiciones identificables más una cola larga (\"Resto Renta Variable Exterior\" 30%), invertida al 97,05% en RV con sesgo Europa cíclica + energía. PER ajustado a equity 6,9x, ROCE 27%. Sin coberturas FX. Rotación 113% en 2025 tras rallies de triple dígito; 11 ventas totales y 7 entradas nuevas en el ejercicio.",
+      "fortalezas": [
+        "Lead Manager con uno de los mejores track records del value investing europeo: Paramés multiplicó por más de 7x al MSCI World en Bestinver Internacional (1998-2007) y esquivó la burbuja tecnológica del 2000 y la crisis financiera de 2008.",
+        "Skin in the game extremo y público: la familia Paramés invierte la totalidad de sus ahorros disponibles en los fondos de Cobas (carta inaugural 2017), creando una alineación de incentivos estructural y verificable.",
+        "Cartera con métricas de valoración muy atractivas: PER ajustado a equity 6,9x y ROCE 27% en 2025 — la mitad del múltiplo del mercado y un retorno del capital significativamente superior al promedio.",
+        "Equipo de inversión estable y experimentado: el núcleo gestor procede mayoritariamente de Bestinver y trabaja con Paramés desde antes de 2014, con incorporaciones internacionales (perfiles británicos, peruano, taiwanés y americano) que aportan diversidad geográfica.",
+        "Track record reciente sólido tras superar el cementerio histórico: +11% en 2022 (vs MSCI Euro -9,5%), +11,6% en 2023, +23,4% en 2024 (vs +9% benchmark) y +26,4% en 2025 (vs +19,7%).",
+        "Estructura de comisiones competitiva en clase A (TER 1,06%, gestión 1,0% sin comisión de éxito) frente a la media de fondos de gestión activa española."
+      ],
+      "riesgos": [
+        "Volatilidad alta y drawdowns severos históricos: el fondo perdió un 27,5% acumulado a cierre de 2018 desde su lanzamiento en marzo 2017 (CNMV anexo 2018), tras concentraciones desafortunadas en Aryzta, transporte marítimo de crudo y Teekay.",
+        "Concentración elevada por construcción: el top 5 representa el 19,15% de la cartera y el top 15 cerca del 43%, con apuestas idiosincráticas (energía marítima, materias primas, holdings europeos cíclicos) que pueden generar dispersión fuerte respecto a índices.",
+        "Sin cobertura de divisa: la exposición a USD, NOK, GBP, BRL y otras divisas no se cubre activamente, lo que añade un componente FX a la volatilidad — visible especialmente en 2017 con el impacto negativo del 4% del euro al lanzamiento.",
+        "Sesgo estructural anti-megacaps tecnológicas: el value puro de Paramés evita las Siete Magníficas y compañías de crecimiento puro, lo que en ciclos de dominio tecnológico (2018-2020, 2023) genera underperformance significativa frente a S&P 500 e índices globales.",
+        "Riesgo de comportamiento del partícipe en drawdowns largos: el partícipe que entró en 2017 y vendió en 2020 con VL en 63,6 cristalizó pérdidas relevantes; la propuesta exige horizonte mínimo de 5-10 años y tolerancia explícita a periodos de underperformance."
+      ],
+      "perfil_riesgo": {
+        "tipo_activo_principal": "Renta Variable Internacional (Global Value Equity, ex-España/Portugal)",
+        "riesgos_especificos": [
+          "Concentración sectorial en energía y materias primas (Golar, BW Energy, BW Offshore, TGS, Borr Drilling, Atalaya Mining), con exposición agregada significativa a precio del petróleo, gas natural y materias primas.",
+          "Riesgo divisa no cubierto (USD, GBP, NOK, BRL principalmente), que puede añadir volatilidad significativa a la rentabilidad en euros.",
+          "Sesgo estructural anti-megacaps tecnológicas, que genera underperformance en ciclos de dominio tecnológico (2018-2020, 2023) frente a índices globales.",
+          "Drawdowns severos históricos: -27,5% acumulado en los 21 primeros meses tras el lanzamiento, y -22,7% interanual en 2020 (COVID)."
+        ],
+        "desglose_exposicion": [
+          {
+            "dimension": "tipo de activo",
+            "detalle": "97,05% RV + 2,19% RF (REPO BNP Paribas, vencimiento ene-2026) + 0,31% liquidez. Cerca del máximo legal del 99% invertido en RV."
+          },
+          {
+            "dimension": "geografía",
+            "detalle": "Foco principal en Europa (familiaridad y conocimiento), con posiciones menores en EE. UU. y Asia. La pata ibérica está expresamente excluida del mandato (se cubre en Cobas Iberia FI). Exposición a Brasil vía Brava Energía y Petroreconcavo desde 2025."
+          },
+          {
+            "dimension": "sectores",
+            "detalle": "Concentración significativa en energía marítima/upstream (Golar, BW Energy, BW Offshore, TGS, Borr Drilling), materiales y mining (Atalaya, Saipem, Derichebourg), industriales europeos (Danieli, SAF-Holland, Saipem), consumo discrecional (Currys, FNAC, Wizz Air, Renault), pharma (Bayer, Teva, Viatris)."
+          },
+          {
+            "dimension": "tamaño",
+            "detalle": "Sin restricción de capitalización (small/mid/large cap), aunque el sesgo histórico es a mid y small caps europeas con descuento sobre comparables."
+          }
+        ]
+      },
+      "hitos_estrategia": [
+        {
+          "periodo": "2017",
+          "contexto_mercado": "Mercados con buen comportamiento en primer semestre 2015 con muchos valores en máximos históricos. Cambio brusco en verano 2015 por el malestar de la economía china que provocó el desplome del petróleo y commodities, creando 'la mayor oportunidad en mercados financieros desde 2000 o quizás 2009' según Paramés. La conferencia clave fue el Investor Day de Anglo American el 7 diciembre 2015 con ambiente extremadamente negativo en la City de Londres.",
+          "decisiones": "Cartera inaugural de 62 valores (23 conocidos + 29 nuevos). ~20% en materias primas y commodities (10 valores). Compañías con caja neta = 38% de la cartera; en 22% del portfolio la caja neta supone ~50% de la capitalización; en cuatro empresas (6%) la caja neta excede el valor bursátil. ~80% de la cartera son empresas familiares o con accionista de control único. Anglo American identificada como ejemplo concreto en diciembre 2015 (entró a 270p; en marzo 2017 cotiza a 1.400p, 5x).",
+          "resultado": "+5,75% — desde marzo 2017 hasta diciembre 2017 vs +6,47% del MSCI Europe TR. Underperformance ligero del 0,7%. VL cerró en 105,75€ y partícipes en 5.791. Impacto negativo del 4% por la apreciación del euro al lanzamiento."
+        },
+        {
+          "periodo": "2018",
+          "contexto_mercado": "Cuarto trimestre catastrófico para los fondos value europeos. Caídas globales fuertes en EuroStoxx 600 (-12,5%) y S&P 500 (-12,2%) por incertidumbres políticas y económicas: guerra comercial EEUU-China, Brexit, desaceleración de China y miedo a una recesión global. Aryzta y Teekay (transporte marítimo) sufrieron especialmente.",
+          "decisiones": "Mantenimiento de la convicción en Aryzta y Teekay a pesar del castigo. Aryzta: a niveles de cierre cotiza con descuento medio del 40% respecto a comparables, asumiendo márgenes sin mejorar; tesis: márgenes deberían mejorar al 10-15% vs 8% actual. Teekay LNG: mejora del negocio por delante de los planes propios, gracias al mercado de transporte marítimo de GNL; entrega anticipada de 4 nuevos barcos.",
+          "resultado": "-31,4% — VL cierra en 72,53€ (-31,4% en el año, -27,5% acumulado desde el lanzamiento). Q4-2018: -23,5% vs -11,3% del MSCI Europe TR. Aryzta -3,3% y Teekay -2,6% como contribuciones individuales más negativas. Valor objetivo se eleva a 173€/participación (+138%)."
+        },
+        {
+          "periodo": "2020",
+          "contexto_mercado": "Año marcado por el COVID. Verano con datos epidemiológicos negativos y escalada de tensiones EEUU-China. Bancos centrales inyectando liquidez. Mercado bifurcado entre sector manufacturero (recuperándose) y servicios (afectados). Despeje de elecciones EEUU con Biden y noticias de vacunas en noviembre impulsan rotación histórica favoreciendo sectores y compañías olvidadas.",
+          "decisiones": "Mantener convicción durante el COVID con baja rotación (42%, mínimo de la serie). Rally del Q4 desde el anuncio de las vacunas: el value vuelve a comportamiento positivo frente al growth. Lanzamiento de las clases B, C y D en 2020.",
+          "resultado": "+26,9% en Q4 — vs +10,8% del benchmark. Año cerró en VL 63,6€ (mínimo COVID). Cartera cotizando a PER 7-8x vs 17-20x del mercado. Cobas Iberia +26,5% y Cobas Grandes Compañías +34,5% en el mismo trimestre."
+        },
+        {
+          "periodo": "2022",
+          "contexto_mercado": "Confirmación por bancos centrales de actuaciones agresivas en endurecimiento monetario: subidas de tipos y, en el caso del BCE, primera subida desde 2011. Recuperación tras correcciones del Q3 por optimismo de inflación tocando máximos. Cierre de 2022 con el peor comportamiento de los principales índices europeos desde 2018; bonos occidentales con los mayores recortes de precios en décadas. Cambio de régimen monetario y de ciclo.",
+          "decisiones": "Continuidad de la evolución positiva iniciada en 2021. Cartera bien posicionada por exposición a energía y materias primas en un entorno de inflación. Convicción mantenida: PER cartera 5,5x; precio objetivo en máximos desde el inicio.",
+          "resultado": "+11% — vs MSCI Euro -9,49% e índices europeos cerca del -10% promedio. Cobas Iberia +4% vs IGBM+PSI20 +0,93%. Año bisagra que valida la cartera value tras varios años de underperformance."
+        },
+        {
+          "periodo": "2023",
+          "contexto_mercado": "Año positivo para mercados financieros, especialmente tecnología e IA. Año marcado por preocupación inicial por recesión, crisis bancaria EEUU (Silicon Valley Bank) y Europa (Credit Suisse). El último trimestre con caída de inflación y mensajes de la Fed sobre futuros recortes ayudaron. BBG Europe Developed Markets +15,8%; S&P 500 +24,2% con las 'Siete Magníficas' aportando ~80% del retorno; IBEX 35 +22%.",
+          "decisiones": "Foco en compañías con calidad y valoración: ROCE medio cartera internacional 32% e ibérica 25%; >40% compañías con caja neta en internacional (23% en ibérica); endeudamiento medio 0,3x deuda neta/EBITDA en internacional y 0,5x en ibérica. Carteras de calidad, con potencial y descorrelacionadas con el mercado.",
+          "resultado": "+11,6% — vs +15,8% del BBG Europe Developed Markets. Underperformance esperable dado el dominio tecnológico (las Siete Magníficas no formaban parte de la cartera). H2-2023: +9,4% vs +4% del benchmark."
+        },
+        {
+          "periodo": "2024",
+          "contexto_mercado": "H2 marcado por incertidumbre por desaceleración en EEUU y subida de tipos del Banco de Japón afectando el carry trade. Reserva Federal sorprende con recorte de 50pb. Victoria de Trump y mayoría republicana impulsaron mercados estadounidenses, especialmente small caps por desregulación. Renta variable europea con ligeras caídas por preocupaciones por políticas comerciales. 'Siete Magníficas' continúan dominando: representan ~1/3 del S&P 500.",
+          "decisiones": "Mantener exposición a tesis de largo plazo. Golar LNG sigue como principal posición (>3 años en el top 5). OPA recibida sobre TI Fluid Systems (peso 2%) con +53% sobre el precio del anuncio.",
+          "resultado": "+23,4% — vs +9% del BBG Europe Developed Markets. Teva (+110%), Golar (+88%), Currys (+86%), Babcock (+27%) y la OPA sobre TI Fluid Systems (+29% en el año) como motores principales. AUM cierra en €704M."
+        },
+        {
+          "periodo": "2025",
+          "contexto_mercado": "S2-2025 marcado por cambio de ritmo en mercados. Tras verano sólido, último tramo más lateral con menor impulso. S&P 500 con avances moderados (consolidación). Fed inicia recortes graduales situando el tipo en 3,50%-3,75%. BCE mantiene tipos con depo en 2,00%. EEUU representa ~70% del MSCI World y las siete grandes tecnológicas ~1/3 del S&P 500. Debilidad del dólar (-9% en 2025). Petróleo volátil; oro cerca de máximos.",
+          "decisiones": "Tras varios años de rentabilidades muy elevadas, numerosas ventas parciales o totales y reinversión en valores de perfil de riesgo moderado a buenos precios. Ventas totales: Avio (semi-monopolio motores cohetes europeos, vendido tras +156%), Samsung C&T (presente desde 2016 con descuento 50-60%, beneficiada por reforma gobierno corporativo coreano y boom IA en semiconductores) y Elecnor (presente desde inicio Cobas, multiplicación casi 4x tras venta división renovables). Ventas adicionales: Equinox (oro Canadá), AMG (gestora americana). Reducciones en Currys y Atalaya. Compras y aumentos en TGS, Borr Drilling y Wizz Air. Refuerzo de Brava Energía e incorporación de Petroreconcavo (productoras de petróleo y gas en Brasil) tras viaje del equipo al país. Total: 11 ventas totales (peso agregado >7%) y 7 entradas nuevas (peso agregado ~6%).",
+          "resultado": "+26,4% — vs +19,7% del BBG Developed Markets. Avio (+156%), BW Energy (+100%), Danieli (+94%) y Bayer (+93%) lideraron en cartera internacional. AUM cierra en €926,95M y partícipes en 10.032 — máximos históricos."
+        }
+      ],
+      "quotes": [
+        {
+          "texto": "buying undervalued assets with the ultimate aim of preserving (and if possible increasing) the purchasing power of our clients' savings with a long-term outlook",
+          "autor": "Francisco García Paramés",
+          "contexto": "Carta inaugural a inversores, marzo de 2017"
+        },
+        {
+          "texto": "When asked the question, 'When do you sell a security?', we always offer the same response: when a better opportunity presents itself. That is our permanent objective: improving our portfolio each and every day",
+          "autor": "Francisco García Paramés",
+          "contexto": "Carta inaugural a inversores, marzo de 2017"
+        },
+        {
+          "texto": "We are not prepared to assume the dangers of investing in fixed-income securities and the money markets due to the risk of our chosen currencies depreciating in value, especially while the authorities are experimenting with monetary policy",
+          "autor": "Francisco García Paramés",
+          "contexto": "Carta inaugural a inversores, marzo de 2017"
+        },
+        {
+          "texto": "It struck me as an extraordinary opportunity and the company is currently priced at around 1,400 pence, five times its initial value",
+          "autor": "Francisco García Paramés",
+          "contexto": "Carta inaugural, marzo de 2017 — sobre Anglo American identificada en el Investor Day del 7 de diciembre de 2015"
+        },
+        {
+          "texto": "My family and I already invest all our available savings in the funds managed by Cobas Asset Management SGIIC SA and we will always continue to do so",
+          "autor": "Francisco García Paramés",
+          "contexto": "Carta inaugural a inversores, marzo de 2017 — declaración explícita de skin in the game"
+        },
+        {
+          "texto": "Despite its upside potential, it remains a conservative portfolio since companies with net cash account for 38% of the portfolio",
+          "autor": "Francisco García Paramés",
+          "contexto": "Carta inaugural a inversores, marzo de 2017"
+        }
+      ]
+    },
+    "cartera": {
+      "texto": "**Composición global de la cartera**\n\nA cierre del segundo semestre de 2025 (anexo CNMV S2-2025), la cartera está invertida al **97,05% en renta variable**, con un **2,19%** en renta fija (un único REPO con BNP Paribas, vencimiento 2 de enero de 2026, cupón 1,6%) y un **0,31%** en liquidez — cerca del máximo legal del 99% en RV declarado en el folleto. La pata de RV se compone de unas **25 posiciones identificables** más un agregado denominado *\"Resto Renta Variable Exterior\"* que pesa el 30% del patrimonio y aglutina decenas de posiciones más pequeñas, configurando una cartera de tipo *long-tail*: alta convicción en las primeras posiciones y dispersión amplia en la cola.\n\n**Distribución geográfica**\n\nPor mandato del folleto, la pata ibérica (España y Portugal) está expresamente excluida — se cubre en el fondo hermano Cobas Iberia FI. La cartera identificable está dominada por valores **europeos** (Italia, Alemania, Francia, Reino Unido, Noruega, Cyprus), con exposición complementaria a **EE. UU.** (vía Viatris, Teva, GIIIApp) y un sesgo a **emisores domiciliados en Bermudas/Jersey** (Golar LNG, BW Offshore, BW Energy, Borr Drilling, Wizz Air) que reflejan la realidad de los grupos *shipping* y *aviation* internacionales. La incorporación más reciente de exposición a **Brasil** (Brava Energía y Petroreconcavo, validadas tras viaje del equipo al país) abre una nueva geografía emergente sobre la base del mandato (hasta 40% en emergentes permitido).\n\n**Distribución sectorial**\n\nEl sesgo sectorial más visible es la **exposición agregada a energía marítima y upstream**: Golar LNG (operación FLNG/transporte gas natural licuado), BW Offshore (producción offshore), BW Energy (E&P), TGS ASA (servicios sísmicos para E&P), Borr Drilling (perforadoras aguas someras), Saipem (servicios oil & gas) y Meren Energy (producción) suman varios puntos del patrimonio. A esto se añade exposición a **mining/materiales** (Atalaya Mining, Derichebourg) y a **industriales europeos cíclicos** (Danieli, SAF-Holland, Saipem). El **consumo discrecional** está representado por Currys, FNAC, Wizz Air, Renault y DOUGLAS. La **pharma con descuento** ocupa un peso significativo (Bayer, Viatris, Teva). Esta composición es coherente con el marco austriaco de Paramés: compañías cíclicas y de capital intensivo penalizadas por las distorsiones monetarias y los excesos del ciclo previo, frente a megacaps tecnológicas a las que el fondo evita estructuralmente.\n\n**Concentración**\n\nEl **top 5** representa el **19,15%** del patrimonio (Golar LNG 4,72%, Atalaya 4,09%, Danieli 3,64%, BW Offshore 3,44%, BW Energy 3,26%) — el nivel más bajo de la serie histórica desde 2019. El **top 10** alcanza el **32,20%** y el **top 15** el **42,98%**. El resto del patrimonio (~57%) se distribuye entre las posiciones 16-25 identificables y la cola larga del 30% \"Resto Renta Variable Exterior\". Esta concentración es coherente con la filosofía value de selección bottom-up con alta convicción en las primeras posiciones, aunque está más diversificada que en años previos (top 5 fue del 31,8% en 2019 con Aryzta y Golar como apuestas concentradas).\n\n**Métricas de calidad y valoración**\n\nLa cartera 2025 cotiza con un **PER ajustado a equity de 6,9x** y un **ROCE del 27%** (anexo CNMV S2-2025). La valoración es muy inferior al múltiplo de los principales índices globales (S&P 500, MSCI World), reflejando el sesgo deliberado anti-consenso del fondo. El equipo cuantifica el **potencial de revalorización en el 106%** sobre valor objetivo interno, calculado posición a posición.\n\n**Movimientos del último semestre**\n\nEl semestre H2-2025 ha sido especialmente activo en términos de rotación (rotación anual del 113%, máximo histórico): el equipo ha realizado **11 ventas totales** con un peso agregado superior al 7% y ha entrado en **7 valores nuevos** con un peso agregado del ~6%. Las salidas más relevantes — Avio, Samsung C&T y Elecnor — corresponden a posiciones que habían acumulado revalorizaciones de triple dígito, ejecutando la disciplina de venta cuando el descuento se estrecha. Las entradas se han orientado a valores con perfil de riesgo moderado y buenos precios: TGS, Borr Drilling, Wizz Air y la nueva exposición brasileña (Brava Energía, Petroreconcavo).\n\n**Riesgos estructurales de la cartera actual**\n\nLa concentración temática en energía marítima y upstream introduce sensibilidad significativa al precio del petróleo, gas natural y a las tasas diarias de flete (FLNG, tankers, jack-ups). La ausencia de coberturas de divisa añade exposición FX a USD, NOK, GBP y, ahora, BRL. El sesgo anti-megacaps tecnológicas — coherente con la filosofía — implica seguir generando dispersión en ciclos de dominio tecnológico. El partícipe debe entender que esta es una cartera *bottom-up* con alta convicción y, por construcción, puede divergir significativamente de los índices globales en el corto plazo.\n\n**Comparación con la cartera del año anterior**\n\nEl contraste entre el top 10 de 2024 y el de 2025 ilustra la rotación significativa ejecutada en el ejercicio. En 2024 las primeras posiciones eran Golar (5,02%), Currys (4,78%), Babcock (4,46%), Atalaya (4,46%), Danieli (3,12%), Academedia (3,08%), BW Offshore (3,05%), Energean (2,49%) y Bayer (2,47%). En 2025 desaparecen del top 10 Currys (reducción), Babcock (venta total tras alcanzar valoración), Academedia y Energean; entran con peso TGS (2,80%), Derichebourg (2,53%), GIIIApp (2,43%), Viatris (2,37%) y Wizz Air (2,92%). La presencia de Golar, Atalaya y Danieli como anclas multi-anuales muestra el patrón típico de la cartera: posiciones de convicción que permanecen varios años acompañadas de un *cluster* rotatorio de oportunidades cíclicas más tácticas.\n\n**El agregado 'Resto Renta Variable Exterior' (~30%)**\n\nUna particularidad reportable: aproximadamente el 30% del patrimonio aparece en los anexos CNMV bajo el epígrafe agregado *\"Resto Renta Variable Exterior\"*, sin desglose individual por posición. Este patrón es habitual en informes regulatorios — solo se detallan las posiciones más significativas — pero implica que la cartera real supera ampliamente las 25 posiciones identificables. Las cartas de la gestora y los comentarios mensuales (*Comentario Carteras*) publicados en cobasam.com permiten trazar parcialmente nombres de la cola: en 2025 aparecen mencionadas Brava Energía, Petroreconcavo, Equinox (vendida) y AMG (vendida), entre otras. Esta dispersión en la cola es coherente con un proceso *bottom-up* puro y reduce el impacto idiosincrático de cualquier posición individual fuera del top 15.",
+      "top_posiciones": [
+        {
+          "nombre": "Golar LNG LTD",
+          "peso_pct": 4.72,
+          "categoria": "Energía marítima / FLNG"
+        },
+        {
+          "nombre": "Atalaya Mining PLC",
+          "peso_pct": 4.09,
+          "categoria": "Mining / cobre (Cyprus)"
+        },
+        {
+          "nombre": "DanieCo (Danieli)",
+          "peso_pct": 3.64,
+          "categoria": "Industrial / siderurgia (Italia)"
+        },
+        {
+          "nombre": "BW Offshore LTD",
+          "peso_pct": 3.44,
+          "categoria": "Energía / FPSO offshore"
+        },
+        {
+          "nombre": "BW Energy LTD",
+          "peso_pct": 3.26,
+          "categoria": "Energía / E&P upstream"
+        },
+        {
+          "nombre": "Wizz Air Holdings",
+          "peso_pct": 2.92,
+          "categoria": "Transporte / low-cost aviation"
+        },
+        {
+          "nombre": "TGS ASA",
+          "peso_pct": 2.8,
+          "categoria": "Energía / servicios sísmicos"
+        },
+        {
+          "nombre": "Derichebourg SA",
+          "peso_pct": 2.53,
+          "categoria": "Materiales / reciclaje metales"
+        },
+        {
+          "nombre": "GIIIApp",
+          "peso_pct": 2.43,
+          "categoria": "Consumo discrecional (EE. UU.)"
+        },
+        {
+          "nombre": "Viatris INC",
+          "peso_pct": 2.37,
+          "categoria": "Pharma / genéricos (EE. UU.)"
+        }
+      ],
+      "concentracion": {
+        "top5_pct": 19.15,
+        "top10_pct": 32.2,
+        "top15_pct": 42.98
+      },
+      "concentracion_historica": [
+        {
+          "periodo": "2025",
+          "top5_pct": 19.15,
+          "top10_pct": 32.2,
+          "top15_pct": 42.98,
+          "fuente": "fund_data"
+        },
+        {
+          "periodo": "2024",
+          "top5_pct": 21.84,
+          "top10_pct": 32.93,
+          "fuente": "fund_data"
+        },
+        {
+          "periodo": "2023",
+          "top5_pct": 25.21,
+          "top10_pct": 36.87,
+          "fuente": "fund_data"
+        },
+        {
+          "periodo": "2022",
+          "top5_pct": 22.24,
+          "top10_pct": 36.61,
+          "fuente": "fund_data"
+        },
+        {
+          "periodo": "2021",
+          "top5_pct": 28.02,
+          "top10_pct": 46.13,
+          "fuente": "fund_data"
+        },
+        {
+          "periodo": "2020",
+          "top5_pct": 27.31,
+          "top10_pct": 44.19,
+          "fuente": "fund_data"
+        },
+        {
+          "periodo": "2019",
+          "top5_pct": 31.81,
+          "top10_pct": 50.09,
+          "fuente": "fund_data"
+        }
+      ],
+      "distribucion_tipo": {
+        "rv_internacional_pct": 97.05,
+        "rv_españa_pct": 0.0,
+        "rf_pct": 2.19,
+        "liquidez_pct": 0.31
+      }
+    },
+    "fuentes_externas": {
+      "texto": "**Cobertura externa recolectada en este run**\n\nEl módulo de lecturas externas no ha recolectado opiniones de terceros (substacks, blogs, prensa especializada, comunidades de inversores, podcasts) para Cobas Internacional FI en este pipeline. El fichero `readings.json` del bundle está vacío: cero entradas registradas. Este resultado contrasta con la realidad del mercado — Cobas y Francisco García Paramés son una de las gestoras y figuras más cubiertas del ecosistema financiero español, con presencia regular en prensa económica (Expansión, Cinco Días, El Confidencial), podcasts especializados (Value Investing FM, Inversión & Finanzas, Tu Dinero Nunca Duerme), comunidades online (Rankia, Substacks de inversores particulares) y conferencias del sector. La ausencia en el bundle se debe a que el agente de lecturas externas no ha sido ejecutado (o ha sido ejecutado sin éxito) durante esta corrida del pipeline.\n\n**Implicaciones para el análisis**\n\nSin un corpus externo recolectado, esta sección no puede ofrecer una síntesis de las opiniones de terceros sobre el fondo. Los datos cualitativos disponibles para el análisis se limitan a las fuentes oficiales recolectadas por la prep determinista: las nueve cartas semestrales CNMV (2017-2025), la carta inaugural de Paramés en marzo de 2017, las biografías oficiales en cobasam.com/equipo, las entradas de Wikipedia (EN/ES) sobre Paramés y los comentarios mensuales/trimestrales de la propia gestora.\n\n**Recomendación de cobertura externa relevante (no ejecutada)**\n\nPara futuras corridas, las fuentes habituales con cobertura recurrente sobre Cobas incluyen: Rankia (foros de partícipes con discusiones sobre rentabilidades y movimientos), Salud Financiera (Substack con análisis sistemáticos de fondos value españoles), Value Investing FM (podcast especializado con entrevistas regulares a Paramés), Morningstar España (rating cuantitativo y comentario), Expansión y Cinco Días (cobertura editorial de cartas y eventos), y los canales de YouTube de la propia Cobas (transcripciones de conferencias anuales de inversores). Ninguna de estas fuentes ha sido recolectada en el presente run.",
+      "opiniones_clave": []
+    },
+    "documentos": {
+      "informes_pdf": [
+        {
+          "archivo": "CNMV_ES0119199000_2017_H2.pdf"
+        },
+        {
+          "archivo": "CNMV_ES0119199000_2018_H2.pdf"
+        },
+        {
+          "archivo": "CNMV_ES0119199000_2019_H2.pdf"
+        },
+        {
+          "archivo": "CNMV_ES0119199000_2020_H2.pdf"
+        },
+        {
+          "archivo": "CNMV_ES0119199000_2021_H2.pdf"
+        },
+        {
+          "archivo": "CNMV_ES0119199000_2022_H2.pdf"
+        },
+        {
+          "archivo": "CNMV_ES0119199000_2023_H2.pdf"
+        },
+        {
+          "archivo": "CNMV_ES0119199000_2024_H2.pdf"
+        },
+        {
+          "archivo": "CNMV_ES0119199000_2025_H2.pdf"
+        }
+      ],
+      "xmls_cnmv": [
+        {
+          "archivo": "Abril_FONDMENS_201704.xml"
+        },
+        {
+          "archivo": "Abril_FONDREGISTRO_201704.xml"
+        },
+        {
+          "archivo": "Agosto_FONDMENS_201708.xml"
+        },
+        {
+          "archivo": "Agosto_FONDREGISTRO_201708.xml"
+        },
+        {
+          "archivo": "Diciembre_FONDCART_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_FONDDERI_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_FONDMENS_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_FONDPATRIMDISVAR_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_FONDREGISTRO_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_FONDTRIM_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_SOCCART_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_SOCDERI_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_SOCPATRIMDISVAR_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_SOCREGISTRO_201712.xml"
+        },
+        {
+          "archivo": "Diciembre_SOCTRIM_201712.xml"
+        },
+        {
+          "archivo": "Enero_FONDMENS_201701.XML"
+        },
+        {
+          "archivo": "Enero_FONDREGISTRO_201701.XML"
+        },
+        {
+          "archivo": "Febrero_FONDMENS_201702.XML"
+        },
+        {
+          "archivo": "Febrero_FONDREGISTRO_201702.XML"
+        },
+        {
+          "archivo": "Julio_FONDMENS.XML"
+        },
+        {
+          "archivo": "Julio_FONDREGISTRO.XML"
+        },
+        {
+          "archivo": "Junio_FONDCART.XML"
+        },
+        {
+          "archivo": "Junio_FONDDERI.XML"
+        },
+        {
+          "archivo": "Junio_FONDMENS.XML"
+        },
+        {
+          "archivo": "Junio_FONDPATRIMDISVAR.XML"
+        },
+        {
+          "archivo": "Junio_FONDREGISTRO.XML"
+        },
+        {
+          "archivo": "Junio_FONDTRIM.XML"
+        },
+        {
+          "archivo": "Junio_SOCCART.XML"
+        },
+        {
+          "archivo": "Junio_SOCDERI.XML"
+        },
+        {
+          "archivo": "Junio_SOCPATRIMDISVAR.XML"
+        },
+        {
+          "archivo": "Junio_SOCREGISTRO.XML"
+        },
+        {
+          "archivo": "Junio_SOCTRIM.XML"
+        },
+        {
+          "archivo": "Marzo_FONDCART.XML"
+        },
+        {
+          "archivo": "Marzo_FONDDERI.XML"
+        },
+        {
+          "archivo": "Marzo_FONDMENS.XML"
+        },
+        {
+          "archivo": "Marzo_FONDPATRIMDISVAR.XML"
+        },
+        {
+          "archivo": "Marzo_FONDREGISTRO.XML"
+        },
+        {
+          "archivo": "Marzo_FONDTRIM.XML"
+        },
+        {
+          "archivo": "Marzo_SOCCART.XML"
+        },
+        {
+          "archivo": "Marzo_SOCDERI.XML"
+        },
+        {
+          "archivo": "Marzo_SOCPATRIMDISVAR.XML"
+        },
+        {
+          "archivo": "Marzo_SOCREGISTRO.XML"
+        },
+        {
+          "archivo": "Marzo_SOCTRIM.XML"
+        },
+        {
+          "archivo": "Mayo_FONDMENS_201705.xml"
+        },
+        {
+          "archivo": "Mayo_FONDREGISTRO_201705.xml"
+        },
+        {
+          "archivo": "Noviembre_FONDMENS_201711.xml"
+        },
+        {
+          "archivo": "Noviembre_FONDREGISTRO_201711.xml"
+        },
+        {
+          "archivo": "Octubre_FONDMENS_201710.xml"
+        },
+        {
+          "archivo": "Octubre_FONDREGISTRO_201710.xml"
+        },
+        {
+          "archivo": "Septiembre_FONDCART.XML"
+        },
+        {
+          "archivo": "Septiembre_FONDDERI.XML"
+        },
+        {
+          "archivo": "Septiembre_FONDMENS.XML"
+        },
+        {
+          "archivo": "Septiembre_FONDPATRIMDISVAR.XML"
+        },
+        {
+          "archivo": "Septiembre_FONDREGISTRO.XML"
+        },
+        {
+          "archivo": "Septiembre_FONDTRIM.XML"
+        },
+        {
+          "archivo": "Septiembre_SOCCART.XML"
+        },
+        {
+          "archivo": "Septiembre_SOCDERI.XML"
+        },
+        {
+          "archivo": "Septiembre_SOCPATRIMDISVAR.XML"
+        },
+        {
+          "archivo": "Septiembre_SOCREGISTRO.XML"
+        },
+        {
+          "archivo": "Septiembre_SOCTRIM.XML"
+        }
+      ],
+      "cartas_urls": [
+        "https://www.cobasam.com/wp-content/uploads/Letter-to-investors-from-Francisco-Garcia-Parames.pdf"
+      ],
+      "fuentes_externas_urls": [],
+      "urls_consultadas": [
+        "https://www.cnmv.es/portal/Consultas/IIC/Fondo.aspx?isin=ES0119199000",
+        "https://www.cnmv.es/Portal/consultas/iic/fondo?nif=V87758306&vista=1",
+        "https://www.cobasam.com/equipo/",
+        "https://en.wikipedia.org/wiki/Francisco_Garc%C3%ADa_Param%C3%A9s"
+      ],
+      "total_fuentes": 74
+    }
+  }
+}

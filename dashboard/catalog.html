@@ -807,6 +807,8 @@
       <button class="btn" id="btn-analyze-new">+ Analizar nuevos ISINs</button>
       <button class="btn btn-secondary" id="btn-regen-catalog">↻ Regenerar catálogo</button>
       <span id="server-status" style="font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-3);align-self:center;">verificando server…</span>
+      <span id="supabase-status" style="font-family:'Source Code Pro',monospace;font-size:11px;align-self:center;"></span>
+      <button class="btn btn-secondary" id="btn-supabase-restore" style="display:none;background:#cc6600;color:#fff;">⚡ Reactivar Supabase</button>
     </div>
   </header>
 
@@ -3171,6 +3173,48 @@ document.addEventListener('visibilitychange', () => {
   if (now - _lastVisibilityCheck < 3000) return;
   _lastVisibilityCheck = now;
   autoDetectTunnel().then(checkServer);
+});
+
+// Supabase health (2026-06-03): muestra estado y ofrece reactivar si está pausado.
+async function refreshSupabaseStatus() {
+  const lbl = document.getElementById('supabase-status');
+  const btn = document.getElementById('btn-supabase-restore');
+  if (!lbl || !btn) return;
+  try {
+    const res = await apiFetch('/api/supabase/status', { cache: 'no-cache' });
+    if (!res.ok) { lbl.textContent = ''; btn.style.display = 'none'; return; }
+    const st = await res.json();
+    if (st.healthy) {
+      lbl.textContent = '● Supabase OK';
+      lbl.style.color = '#1b8c3b';
+      btn.style.display = 'none';
+    } else if (st.paused) {
+      lbl.textContent = '● Supabase PAUSADO';
+      lbl.style.color = '#cc0033';
+      btn.style.display = '';
+    } else {
+      // UNKNOWN (ej. sin SUPABASE_ACCESS_TOKEN): no molestar, ocultar.
+      lbl.textContent = '';
+      btn.style.display = 'none';
+    }
+  } catch (e) { lbl.textContent = ''; btn.style.display = 'none'; }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('btn-supabase-restore');
+  if (btn) btn.addEventListener('click', async () => {
+    btn.disabled = true; btn.textContent = '⚡ Reactivando…';
+    try {
+      const res = await apiFetch('/api/supabase/restore', { method: 'POST' });
+      const data = await res.json();
+      alert(data.ok === false ? ('No se pudo reactivar: ' + (data.message || '')) :
+            ('Reactivación solicitada. ' + (data.message || 'Puede tardar 1-2 min.')));
+    } catch (e) { alert('Error: ' + e); }
+    btn.disabled = false; btn.textContent = '⚡ Reactivar Supabase';
+    setTimeout(refreshSupabaseStatus, 3000);
+  });
+  refreshSupabaseStatus();
+  setInterval(refreshSupabaseStatus, 60000);
 });
 
 // W7 (2026-05-21): mini-monitor permanente. Auto-refresh cada 10s.

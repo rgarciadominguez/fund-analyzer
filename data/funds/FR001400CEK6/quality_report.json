@@ -1,0 +1,111 @@
+{
+  "fund": "FR001400CEK6",
+  "nombre": "SEXTANT QUALITY FOCUS - Action F",
+  "fallos": [
+    {
+      "regla_id": "resumen_mentions_fund_name",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen no menciona el nombre del fondo 'SEXTANT QUALITY FOCUS - Action F' — posible texto genérico",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar: el texto debe ser específico de este fondo, no genérico."
+    },
+    {
+      "regla_id": "estrategia_has_cifras",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia con pocas cifras (2). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
+    },
+    {
+      "regla_id": "cartera_min_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Solo 10 posiciones actuales (mínimo 15).",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones de sección 10 del PDF semestral."
+    },
+    {
+      "regla_id": "cartera_has_hist_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Sin posiciones históricas para análisis de evolución de cartera.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones históricas de PDFs semestrales antiguos."
+    },
+    {
+      "regla_id": "historia_no_headers",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Historia tiene 7 subsecciones — debe ser 3-5 parrafos fluidos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia como narrativa pura sin headers."
+    },
+    {
+      "regla_id": "estrategia_no_headers",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia tiene 7 subsecciones — debe ser parrafos evaluativos sin headers",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia como narrativa evaluativa pura."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/10 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta escenarios_adversos, protecciones, liquidez_estructura.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    },
+    {
+      "regla_id": "header_gestora_with_suffix",
+      "seccion": "header",
+      "fail_type": "incompletitud",
+      "problema": "Gestora 'AMIRAL GESTION' aparece sin sufijo institucional (Ltd/Plc/SA/GmbH/Management). Debe usarse el nombre oficial completo.",
+      "agente_responsable": "intl_extractor_v2",
+      "accion": "Enriquecer gestora desde PDFs (annual_report/KID/prospectus). Función _hdr_enrich_gestora_from_ar busca 'AMIRAL Fund Management Limited/Ltd/Plc'."
+    },
+    {
+      "regla_id": "tipo_activo_completo_en_cartera",
+      "seccion": "cartera",
+      "fail_type": "incompletitud",
+      "problema": "Posiciones sin tipo de activo: 10/10 (0.0%) sin clasificación. Mínimo 80% deben tener tipo (RF/RV/Oro/Cash/ETF/Deriv).",
+      "agente_responsable": "intl_extractor_v2",
+      "accion": "Post-process del extractor: inferir asset_type por nombre (treasury/bund/btp → RF; gold/oro → GOLD; future/swap → DER; sector financiero → RV; cash/deposit → CASH)."
+    }
+  ],
+  "fallos_estructura": 4,
+  "fallos_scarcity": 3,
+  "total_reglas": 87,
+  "reglas_ok": 76,
+  "aceptable": false,
+  "score_display": "76/87 reglas OK (3 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-05-20T15:48:42.959256"
+}

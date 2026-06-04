@@ -51,6 +51,11 @@ async def _serper_search(query: str, num: int = 8) -> list[dict]:
     if not api_key:
         console.log("[yellow][DISCOVERY] SERPER_API_KEY not set — falling back to DDG")
         return await _ddg_search(query, num)
+    # Guardrail de coste Serper (2026-06-03): si está bloqueado (tope/disabled),
+    # degradar a DuckDuckGo (gratis) en vez de gastar.
+    from tools.google_search import serper_allowed_and_reserve
+    if not serper_allowed_and_reserve():
+        return await _ddg_search(query, num)
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(

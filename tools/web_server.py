@@ -1164,6 +1164,27 @@ def make_app(cold_start: bool = True) -> Flask:
             "tokens_monitor_running": tokens_monitor_alive,
         })
 
+    @app.route("/api/supabase/status", methods=["GET"])
+    def api_supabase_status():
+        """Estado del proyecto Supabase (ACTIVE_HEALTHY / INACTIVE / ...).
+        Permite al catálogo mostrar si está pausado y ofrecer reactivar."""
+        try:
+            from tools.supabase_admin import get_status
+            return jsonify(get_status())
+        except Exception as e:
+            return jsonify({"status": "UNKNOWN", "healthy": False, "error": str(e)[:200]}), 200
+
+    @app.route("/api/supabase/restore", methods=["POST"])
+    def api_supabase_restore():
+        """Reactiva (un-pause) el proyecto Supabase vía Management API.
+        Requiere SUPABASE_ACCESS_TOKEN en .env."""
+        try:
+            from tools.supabase_admin import ensure_active
+            res = ensure_active()
+            return jsonify(res), (200 if res.get("ok", True) else 502)
+        except Exception as e:
+            return jsonify({"ok": False, "message": str(e)[:200]}), 500
+
     @app.route("/api/queue/check-tokens", methods=["POST"])
     def api_queue_check_tokens():
         """P4: chequeo manual de tokens. Si están OK, reanuda items paused.

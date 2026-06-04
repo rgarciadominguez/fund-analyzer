@@ -1,0 +1,66 @@
+{
+  "isin": "LU0168736675",
+  "tipo": "INT",
+  "generated_at": "2026-05-20T16:10:20Z",
+  "tasks": [
+    {
+      "id": "intl_kid_KIDDOC-LU0168736675-CH",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0168736675/raw/discovery/KIDDOC-LU0168736675-CH.pdf",
+      "schema": {
+        "kpis": {
+          "divisa_base": "string",
+          "ter_pct": "float"
+        },
+        "perfil_riesgo_srri": "int 1-7",
+        "objetivo_inversion": "string"
+      },
+      "context": "PDF tipo=kid. ISIN target: LU0168736675 (SIFTER FUND - GLOBAL / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_factsheet_sifter-fund-factsheet-december-2025",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0168736675/raw/discovery/sifter-fund-factsheet-december-2025.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=factsheet. ISIN target: LU0168736675 (SIFTER FUND - GLOBAL / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_web_fund_page",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "https://adepa.com/priip-files/KIDDOC-LU0168736675-CH.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "NO es PDF. Es URL: https://adepa.com/priip-files/KIDDOC-LU0168736675-CH.pdf. Hacer WebFetch. Extraer datos LIVE del sub-fondo target (LU0168736675): AUM, NAV, top holdings, asset allocation, performance. VERIFICAR que el ISIN aparece en la página antes de extraer. Si no aparece, devuelve null + anti_invencion_note.",
+      "is_web_fetch": true,
+      "url": "https://adepa.com/priip-files/KIDDOC-LU0168736675-CH.pdf"
+    }
+  ],
+  "updated_at": "2026-05-20T16:10:20Z"
+}

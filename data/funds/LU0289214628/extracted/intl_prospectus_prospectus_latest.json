@@ -1,0 +1,26 @@
+{
+  "task_id": "intl_prospectus_prospectus_latest",
+  "agent": "intl_extractor_v2",
+  "pdf_path": "data/funds/LU0289214628/raw/discovery/prospectus_latest.pdf",
+  "extracted_at": "2026-05-20T21:30:00Z",
+  "model_used": "claude-opus-4-7 (cowork)",
+  "data": {
+    "objetivo_inversion": null,
+    "politica_inversion": null,
+    "comisiones": null,
+    "clases": [
+      {
+        "isin": "LU0289214628",
+        "nombre_clase": "JPMorgan Europe Equity Plus D (acc) - EUR",
+        "divisa": "EUR",
+        "comision_gestion_pct": null
+      }
+    ]
+  },
+  "anti_invencion_notes": [
+    "El PDF NO es el prospectus oficial de JPMorgan Funds. Es la lista 'Selección AC' (catálogo de fondos de AC Gestión / Banco Sabadell), agosto 2014. El target LU0289214628 aparece como una de cientos de líneas con categoría Morningstar 'RV Europa Cap. Grande Blend', YTD 6,8%, 1A 20,5%, 3A 86,7%, Vol 1A 8,8%, Vol 3A 14,0%, cuartil 1.",
+    "Datos históricos de rentabilidad de 2014 (no actualizados). No hay sección objetivo/política/comisiones/clases del JPMorgan oficial.",
+    "No se extraen datos del prospectus real. Para folleto oficial JPM Europe Equity Plus, requerir descarga manual desde www.jpmorganassetmanagement.lu."
+  ],
+  "two_stage_notes": "Stage 1 (mapper): TOC inexistente — PDF de 3 páginas tipo tabla Excel exportada. Stage 2 (extractor): solo se encontró el ISIN target en una fila de la categoría 'RV Europa Cap. Grande Blend' con métricas históricas 2014."
+}

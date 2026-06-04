@@ -60,6 +60,20 @@ def get_ultima_actualizacion(output: dict) -> str:
     return _get(output, "ultima_actualizacion") or ""
 
 
+# ── Brokers (disponibilidad) ──────────────────────────────────────────────────
+def get_broker_disponible(output: dict) -> list:
+    """Brokers donde el fondo está disponible — marcado MANUAL (Excel/modal W13)."""
+    v = _get(output, "broker_disponible")
+    return v if isinstance(v, list) else []
+
+
+def get_broker_disponible_auto(output: dict) -> dict:
+    """Auto-detección de brokers (alta confianza, sin login). Escrito por
+    tools/broker_availability.py. dict con detected/per_broker/excluded/method."""
+    v = _get(output, "broker_disponible_auto")
+    return v if isinstance(v, dict) else {}
+
+
 # ── KPIS ────────────────────────────────────────────────────────────────────
 def get_kpis(output: dict) -> dict:
     """KPIs cuantitativos del fondo (AUM, TER, partícipes, etc.)."""

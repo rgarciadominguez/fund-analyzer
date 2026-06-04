@@ -66,6 +66,10 @@ def search_serper(query: str, num: int = 10) -> list:
     key = os.getenv("SERPER_API_KEY")
     if not key:
         return []
+    # Guardrail de coste Serper (2026-06-03): respeta el tope mensual / killswitch.
+    from tools.google_search import serper_allowed_and_reserve
+    if not serper_allowed_and_reserve():
+        return []
     try:
         r = httpx.post(
             "https://google.serper.dev/search",
@@ -119,6 +123,12 @@ def _validate_names_with_gemini(candidates: list[str], fund_name: str, gestora: 
            if not any(b in c.lower() for b in BRAND_BAD)]
     if not pre:
         return []
+
+    # Kill switch (2026-05-28): si GEMINI_DISABLED=1, devolver pre-filtrados
+    # heurísticos sin validación LLM (degradación funcional aceptable).
+    from tools.gemini_killswitch import is_gemini_disabled
+    if is_gemini_disabled():
+        return pre[:5]
 
     # Validar con Gemini Flash (cheap)
     key = os.environ.get("GOOGLE_API_KEY")

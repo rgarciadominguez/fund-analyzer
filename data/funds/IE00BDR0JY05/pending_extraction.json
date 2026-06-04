@@ -1,0 +1,21 @@
+{
+  "isin": "IE00BDR0JY05",
+  "tipo": "INT",
+  "generated_at": "2026-05-28T05:30:37Z",
+  "tasks": [
+    {
+      "id": "intl_prospectus_prospectus_latest",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/IE00BDR0JY05/raw/discovery/prospectus_latest.pdf",
+      "schema": {
+        "objetivo_inversion": "string completo",
+        "politica_inversion": "string",
+        "comisiones": "{gestion_max_pct, deposito_max_pct, exito_pct}",
+        "clases": "list[{isin, nombre_clase, divisa, comision_gestion_pct}]"
+      },
+      "context": "PDF tipo=prospectus. ISIN target: IE00BDR0JY05 (unknown / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note.",
+      "two_stage": true
+    }
+  ],
+  "updated_at": "2026-05-28T05:30:37Z"
+}

@@ -1,0 +1,34 @@
+{
+  "isin": "LU0203975437",
+  "nombre": "ROBECO CAPITAL GROWTH FUNDS - ROBECO BP GLOBAL PREMIUM EQUITIES",
+  "timestamp": "2026-05-08T10:50:48.828449",
+  "completeness_pct": 11.1,
+  "dashboard_ready": false,
+  "dashboard_blockers": [
+    "sin datos cuantitativos ni cualitativos mínimos (falta: AUM, mix_activos, posiciones y gestores) — el fondo aparecería vacío en el dashboard"
+  ],
+  "issues": [
+    "gestora vacía",
+    "AUM actual vacío — revisar XMLs CNMV o annual report",
+    "gestores vacíos — buscar en Citywire / Finect",
+    "sin estrategia ni filosofía de inversión — necesita PDFs cualitativos",
+    "sin posiciones actuales — revisar extracción de cartera",
+    "serie AUM muy corta (0 puntos) — añadir XMLs históricos",
+    "solo 0 periodos de consistencia — añadir más PDFs semestrales",
+    "sin cartas de gestores — ejecutar letters_agent con DuckDuckGo",
+    "sin análisis externos — ejecutar readings_agent",
+    "[patron_conocido:fondo_no_listo_para_dashboard] BLOQUEANTE: fondo no listo para dashboard — sin datos cuantitativos ni cualitativos mínimos (falta: AUM, mix_activos, posiciones y gestores) — el fondo aparecería vacío en el dashboard",
+    "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
+  ],
+  "suggestions": [
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin LU0203975437 --auto",
+    "-> Anadir más PDFs semestrales en raw/reports/"
+  ],
+  "feedback_previo": [],
+  "stats": {
+    "periodos_consistencia": 0,
+    "posiciones_actuales": 0,
+    "puntos_aum": 0,
+    "gestores": 0
+  }
+}

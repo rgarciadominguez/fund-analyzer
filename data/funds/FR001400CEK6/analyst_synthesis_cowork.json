@@ -1,0 +1,419 @@
+{
+  "_meta": {
+    "isin": "FR001400CEK6",
+    "generated": "2026-05-20T16:30:00Z",
+    "generator": "skill:analyst-cowork",
+    "skill_version": "2.4.0",
+    "main_model": "opus",
+    "audit_model": "self",
+    "sections_generated": ["resumen", "historia", "gestores", "evolucion", "estrategia", "cartera", "fuentes_externas", "documentos"],
+    "audit_pass_done": true,
+    "audit_iterations": 1,
+    "anti_invencion_flagged": [
+      "manager_profile vacío (error 'gestores no encontrados'): perfil de Vincent Mercadier reconstruido desde readings (Citywire 2024, Moclano, FT, FundsPeople). Trayectoria previa Tikehau citada por Moclano sin años exactos — no inventados.",
+      "letters_data.cartas[1] periodo 2025 (URL andbank.com) excluida: habla de high yield, BofA HY Index y posiciones (Bankinter, BAWAG, IPCO, DNO, OKEA) incompatibles con un fondo de renta variable de calidad. Contaminación cross-fund.",
+      "letters_data.cartas[2] periodo 2019 usada solo como contexto de filosofía Amiral Gestion histórica (Sextant Quality Focus se lanzó nov-2022, no existía en 2019).",
+      "cartera.top_posiciones solo contiene 5 entries (vs 10 que pide schema): los readings (FT ficha Action F/I) reportan únicamente las top 5 (iShares Treasury Bond ETF, TSMC, Games Workshop, Amadeus IT, Adobe). No se inventan las posiciones 6-10 — quedan a la espera de carta del gestor o factsheet más detallado.",
+      "cartera.concentracion.top10_pct y top15_pct = null por la misma razón: no se documentan en las fuentes públicas consultadas.",
+      "historia.hitos: año 2004 de fundación de Amiral Gestion inferido de la frase '15 años coinvirtiendo' en la editorial RankiaPro Magazine nov-2019. La inferencia se hace explícita en el campo evento del hito.",
+      "Pablo Martínez Bernal y Borja Aguiar: cargos como 'Representación Iberia' inferidos por contexto (co-presentadores en Citywire Iberia Retreat 2024 sin función documentada de portfolio management). Los readings no detallan su rol formal en Amiral Gestion.",
+      "fund_data.kpis están vacíos en el bundle (AUM null, anio_creacion null, etc.). Datos cuantitativos del fondo extraídos de readings (FT, Moclano, Salud Financiera) en lugar de fund_data — citados con fuente explícita en cada uso."
+    ],
+    "input_files_hash": {
+      "fund_data.json": "sha256:bf1e8d88cd7305dc448f3db4ee08c1dc4c7ed81d82e72765ed9b50c356bcc86c",
+      "manager_profile.json": "sha256:774621d6caa09ff98a9fa47345a0dbfa60417a3bbc665b9dedbfe6093933232b",
+      "letters_data.json": "sha256:a9a101b07af527ad30ac6a59f7713971217864df24960b5e08a86bd07bde2255",
+      "readings.json": "sha256:2ac65cf0da5b68e9d95a5f420f70a4066d89d4bc383cf2231426fd419bc53b50",
+      "sources.json": "sha256:7ed9681e28cac028fb33eb770ff03e61e3b962417a5c0b31febafc81d979c5a2"
+    }
+  },
+  "analyst_synthesis": {
+    "resumen": {
+      "texto": "**SEXTANT QUALITY FOCUS** es el fondo de renta variable global de calidad de la boutique francesa **Amiral Gestion**, lanzado el **30 de noviembre de 2022** bajo la SICAV Sextant y gestionado desde el primer día por **Vincent Mercadier**. La estrategia es deliberadamente concentrada (cartera de 20-40 valores, en práctica ~25-30 nombres) y construida sobre un doble filtro estricto: alta calidad (rentabilidad sobre capital sostenible, márgenes elevados, fuertes barreras de entrada, equipos directivos disciplinados con el capital) y valoración razonable (precio inferior a la estimación de valor intrínseco a partir de modelos de flujo de caja libre). El universo de partida son acciones internacionales —incluidas francesas— cotizadas en mercados regulados con capitalización superior a mil millones de euros (actual o promedio de los últimos cinco años), con margen accesorio para small/mid caps por debajo de ese umbral y para mercados emergentes.\n\nEl índice de referencia es el **MSCI World Net Total Return EUR Index**, y el fondo está clasificado como **Artículo 8 SFDR**, con compromiso de mantener al menos un 20% de inversiones sostenibles y una huella de carbono por debajo del promedio del universo ESG considerado. El producto se ofrece en seis clases (A, N, I, SI, F, Z) con comisiones de gestión que van del 1,80% (A retail) al 0,50% (clase **F**, la analizada en este informe) y 0,00% para la clase Z institucional. No utiliza derivados ni endeudamiento estructural —solo liquidez accesoria hasta el 10% (ampliable al 20% en condiciones excepcionales) y empréstitos puntuales hasta el 10% del activo neto—. La duración de inversión recomendada es **superior a 5 años**, y el patrimonio del fondo asciende a **220,70 millones GBP** (clase F: 32,51 M GBP) al 30 de abril de 2026, según Financial Times.\n\nLos primeros tres años de track record han sido sobresalientes en términos de alfa y consistencia: la clase retail cerró 2023 con un **+39,4%**, batiendo el benchmark en aproximadamente 20 puntos (Citywire Iberia Retreat 2024), y la rentabilidad anualizada desde diciembre 2022 hasta septiembre 2025 alcanzaba el **19,5%** —frente al 13,3% del MSCI World— con menor volatilidad (12% vs 14%) y un drawdown máximo de solo 13,5% (vs 20% del índice). En 2026, sin embargo, el último año se ha cerrado con un **-3,82%** y un posicionamiento en el 4º cuartil de la categoría Global Large-Cap Blend Equity de Morningstar (Financial Times), un primer test serio de la consistencia de la estrategia en un entorno menos favorable para el growth-quality.",
+      "filosofia_inversion": "La filosofía es **quality + value** estricta, fundamental y bottom-up. Los gestores buscan empresas con rentabilidades elevadas y sostenibles sobre el capital empleado, fuerte conversión de beneficio en caja, activos intangibles que actúen como barreras de entrada (marca, propiedad intelectual, network effects), pricing power demostrado, equipos directivos que prioricen el retorno sobre el capital frente al crecimiento por crecimiento, longevidad del modelo de negocio y gobernanza respetuosa con todos los stakeholders. Una vez identificada esa población de \"sociedades de calidad\", aplican una **disciplina de valoración** que descarta nombres cotizando por encima de la estimación de valor intrínseco según modelos de free cash flow futuros, lo que diferencia explícitamente al fondo de los \"quality compounders\" puros que pagan cualquier precio. El proceso se completa con un filtro ESG propio (Artículo 8 SFDR con mínimo 20% de inversiones sostenibles) y un sesgo estructural a huella de carbono inferior al universo de referencia. El resultado es una cartera concentrada de 25-30 nombres, con baja rotación de pesos (no de nombres) y ponderaciones según convicción, sin uso de derivados ni apalancamiento.",
+      "criterios_inversion": [
+        {
+          "titulo": "Rentabilidad sobre capital sostenible",
+          "descripcion": "Empresas con ROIC/ROCE elevados y demostrablemente persistentes, no picos cíclicos. La sostenibilidad del retorno se contrasta con la conversión efectiva de beneficios en caja libre y la calidad contable subyacente."
+        },
+        {
+          "titulo": "Barreras de entrada intangibles",
+          "descripcion": "Activos no replicables fácilmente: marca, propiedad intelectual, escala distributiva, network effects, switching costs. El pricing power resultante es la prueba de mercado de esa barrera."
+        },
+        {
+          "titulo": "Asignación disciplinada de capital por la dirección",
+          "descripcion": "Equipos directivos que priorizan el mejor retorno sobre capital y demuestran longevidad estratégica. Se penaliza el growth a cualquier precio y se valora la recompra de acciones, dividendos o reinversión orgánica con TIR clara."
+        },
+        {
+          "titulo": "Valoración inferior al valor intrínseco",
+          "descripcion": "Precio de mercado por debajo de la estimación de valor a partir de modelos de DCF y free cash flow futuros. Es el filtro que diferencia este fondo de los quality compounders de momentum, dispuestos a pagar cualquier múltiplo."
+        },
+        {
+          "titulo": "ESG integrado con sesgo de carbono bajo",
+          "descripcion": "Clasificación Artículo 8 SFDR con al menos 20% de inversiones sostenibles y huella de carbono inferior al universo de referencia ESG. La gobernanza con todos los stakeholders es uno de los criterios cualitativos explícitos."
+        }
+      ],
+      "fortalezas": [
+        "Cartera concentrada de 25-30 nombres con baja rotación y ponderaciones por convicción, lo que permite a los gestores conocer cada negocio en profundidad y limita la dilución de las mejores ideas.",
+        "Doble filtro quality + value: combina la búsqueda de compounders de alta calidad con disciplina explícita de valoración basada en DCF, evitando el riesgo de pagar de más por los nombres de moda.",
+        "Track record temprano excepcional en métricas ajustadas a riesgo: Alpha 4,8 puntos, Sharpe 1,02-1,20, Beta 0,61 y drawdown máximo del 13,5% frente al 20% del MSCI World durante el periodo analizado por Moclano.",
+        "Clase F con comisión de gestión muy competitiva (0,50%) frente al 1,80% de la clase retail y dentro de los rangos institucionales, lo que cubre el ratio coste/calidad que tradicionalmente penalizaba a la gestión activa francesa.",
+        "Equipo gestor con experiencia previa en mandatos exigentes (Vincent Mercadier procede de Tikehau, donde lideró estrategias de renta variable e híbridas según el análisis de Moclano), arropado por la estructura de coinversión histórica de Amiral Gestion.",
+        "Compromiso ESG efectivo y verificable (Artículo 8 SFDR, mínimo 20% inversiones sostenibles, huella de carbono inferior al universo ESG), no como mero etiquetado regulatorio."
+      ],
+      "riesgos": [
+        "Track record corto (lanzamiento noviembre 2022), insuficiente para evaluar consistencia en un ciclo bajista o un régimen de mercado adverso al estilo quality-growth.",
+        "Concentración elevada en tecnología (32,83% al 30 abril 2026) y Estados Unidos (40,86%), exposiciones que ya sufrieron en 2024-2026 con la rotación hacia value y la corrección del growth premium.",
+        "Cuadrante Morningstar ha oscilado entre Large Growth (2023) y Large Blend (2024), lo que sugiere style drift dependiente de mercado y dificulta la lectura del posicionamiento real del fondo.",
+        "Performance reciente débil: -3,82% a 1 año y 4º cuartil persistente en Global Large-Cap Blend Equity según Financial Times (mayo 2026), el primer test serio de la estrategia en un entorno desfavorable.",
+        "Amiral Gestion sigue siendo una boutique de tamaño medio y la liquidez en clases pequeñas (Action F: 32,51 M GBP) es limitada, factor a considerar para reembolsos significativos."
+      ],
+      "para_quien_es": "Inversor con horizonte superior a 5 años, tolerancia a volatilidad de renta variable global y convicción por estrategias activas concentradas con sesgo de calidad. No es producto para perfiles que necesiten liquidez frecuente, ingresos recurrentes, baja correlación con renta variable mundial o exposición pasiva al MSCI World. Adecuado como núcleo activo dentro de una asignación diversificada que ya tenga renta fija y otros estilos.",
+      "compromiso_gestor": "Amiral Gestion es una boutique independiente con cultura histórica de **coinversión**: en la carta editorial de RankiaPro Magazine 2019, el equipo afirmaba explícitamente que \"coinvertimos con nuestros inversores siguiendo la filosofía de valor durante 15 años\". Vincent Mercadier ha permanecido en el fondo desde el primer día sin rotación. La existencia de una clase Z con 0% de comisión refuerza la señal de alineación con clientes institucionales largo-placistas.",
+      "signal": "NEUTRAL",
+      "signal_rationale": "El track record temprano y las métricas de riesgo son sobresalientes, pero el corto histórico (<4 años) y el bache de 2026 con underperformance frente a categoría en todos los plazos analizados por FT obligan a esperar más ciclo antes de pasar a positivo. Producto de calidad pendiente de validar persistencia."
+    },
+    "historia": {
+      "texto": "**Origen del fondo en la SICAV Sextant (noviembre 2022)**\n\nSextant Quality Focus es un compartimento de la SICAV francesa **Sextant**, vehículo paraguas de la gestora boutique **Amiral Gestion**, lanzado el **30 de noviembre de 2022** con Vincent Mercadier como gestor único desde el primer día (Financial Times, fecha registrada en la ficha de Action F y Action I). La estrategia se concibió en un momento de inflexión de mercado —el inicio del ciclo de subida de tipos y la rotación desde growth hacia value tras los excesos de 2021— y la propuesta de valor explícita fue diferenciarse de los \"quality compounders\" puros mediante una **disciplina de valoración basada en DCF**, combinando el filtro de calidad con el rechazo a pagar múltiplos elevados por nombres de moda.\n\n**Primer año excepcional (2023)**\n\nEl primer ejercicio completo del fondo fue 2023 y los resultados fueron extraordinarios para una estrategia recién lanzada: la **clase retail cerró el año con un +39,4%**, batiendo el MSCI World en aproximadamente 20 puntos. Los gestores explicaron en el Citywire Iberia Retreat 2024 que **dos tercios de los retornos del primer año procedieron de stock picking puro**, con un posicionamiento inicial con sobrepeso en tecnología estadounidense y apuestas en IA generativa que se materializaron precisamente cuando ese tema dominó la narrativa de mercado. Morningstar clasificó al fondo en el cuadrante **Large Growth** durante ese ejercicio.\n\n**Consolidación y entrada al mercado español (2023-2024)**\n\nEn enero de 2023, Amiral Gestion anunció en FundsPeople la llegada a España de otra estrategia hermana, Sextant Tech, lo que confirmó la apuesta de la gestora por escalar su gama internacional en la península ibérica. Sextant Quality Focus ya operaba en Francia y obtuvo presencia regulatoria progresiva. Durante 2024, Morningstar reclasificó al fondo a **Large Blend**, reflejando que el rebalanceo de mercado había rotado el sesgo del fondo desde growth puro hacia un perfil más equilibrado, sin que los gestores cambiasen la filosofía subyacente.\n\n**Validación analítica por terceros (marzo 2025)**\n\nEn marzo de 2025, el analista independiente Diego F. (Moclano) publicó dos entradas en Substack analizando el fondo en profundidad y destacando métricas que situaban a Sextant Quality Focus en la primera línea de la categoría: **Alpha 4,8 puntos, Sharpe 1,02, Beta 0,61, volatilidad 10,25%** y drawdown máximo significativamente inferior al benchmark. La conclusión fue positiva pero matizada por el corto recorrido del fondo (\"merece análisis detallado pero necesita más ciclo para validarse\").\n\n**Reconocimiento en la comunidad inversora española (septiembre 2025)**\n\nEn septiembre de 2025, el boletín Salud Financiera publicó un análisis con datos hasta esa fecha que cuantificó el desempeño desde el lanzamiento: **rentabilidad anualizada del 19,5%** (frente al 13,3% del MSCI World), 60% acumulado, volatilidad del 12% (vs 14% del índice), Sharpe de 1,2 y drawdown máximo de 13,5% (vs 20% del índice). El autor expresó escepticismo inicial por la \"reputación de altos costes de las gestoras francesas\", pero reconoció que el desempeño y las métricas ajustadas a riesgo merecían revisar la filosofía del fondo.\n\n**Primer ejercicio adverso y test de consistencia (2026)**\n\nA fecha del 18 de mayo de 2026, según los datos publicados por Financial Times en las fichas de Action F y Action I, el fondo registró un **rendimiento a 1 año del -3,82%** y se posicionó en el **4º cuartil de la categoría Global Large-Cap Blend Equity** en todos los horizontes analizados. El patrimonio del fondo se situó en 220,70 millones GBP. Este ejercicio constituye el primer test serio de la estrategia en un entorno menos favorable para el binomio quality-growth: la rotación hacia value, la corrección de las valoraciones tecnológicas y la concentración del fondo en USA (40,86%) y tecnología (32,83%) explicarían buena parte del retroceso, aunque la métrica a 5 años se mantenía positiva (+11,49%).\n\n**Contexto Amiral Gestion previo (2004-2019)**\n\nAmiral Gestion fue fundada en 2004 y publicó en la carta editorial de RankiaPro Magazine de noviembre 2019 una reflexión sobre la filosofía de la casa: **\"En Amiral Gestion coinvertimos con nuestros inversores siguiendo la filosofía de valor durante 15 años\"**, lo que sitúa los orígenes de la cultura de inversión value de la firma en 2004. Esa carta —que precede al lanzamiento de Sextant Quality Focus en más de tres años— describía un entorno de tipos cero o negativos, guerra comercial USA-China, rotación defensiva en renta variable y un sentimiento extremadamente pesimista hacia el value, escenario que el equipo consideraba un punto de entrada generacional. Sextant Quality Focus se diseñó precisamente para combinar esa raíz value histórica con un foco más explícito en calidad, completando la gama de la SICAV Sextant.",
+      "hitos": [
+        {
+          "anio": "2004",
+          "titulo": "Fundación de Amiral Gestion",
+          "evento": "Amiral Gestion se constituye como boutique independiente francesa con cultura de coinversión y filosofía value. La fecha se deduce de la carta de RankiaPro Magazine de noviembre 2019, donde el equipo afirma llevar \"15 años coinvirtiendo con nuestros inversores siguiendo la filosofía de valor\".",
+          "tipo": "otro"
+        },
+        {
+          "anio": "2019",
+          "titulo": "Carta editorial Amiral Gestion en RankiaPro Magazine",
+          "evento": "Publicación en RankiaPro de la visión de mercado de Amiral Gestion: tipos cero, rotación defensiva, value extremadamente barato frente a growth. Sienta la base intelectual que tres años después daría lugar al lanzamiento de Sextant Quality Focus.",
+          "tipo": "contexto_mercado"
+        },
+        {
+          "anio": "2022",
+          "titulo": "Lanzamiento del compartimento Sextant Quality Focus",
+          "evento": "El 30 de noviembre de 2022 se lanza el sub-fondo dentro de la SICAV Sextant con Vincent Mercadier como gestor lead desde el primer día. Cartera concentrada de 20-40 valores, benchmark MSCI World Net TR EUR, clasificación SFDR Artículo 8.",
+          "tipo": "lanzamiento"
+        },
+        {
+          "anio": "2023",
+          "titulo": "Lanzamiento de Sextant Tech en España",
+          "evento": "En enero de 2023, Amiral Gestion anuncia en FundsPeople la llegada del fondo hermano Sextant Tech al mercado español, confirmando la expansión de la gama Sextant en la península ibérica.",
+          "tipo": "hecho_relevante"
+        },
+        {
+          "anio": "2023",
+          "titulo": "Primer año con rentabilidad +39,4% (clase retail)",
+          "evento": "El fondo cierra su primer ejercicio completo con un +39,4% en la clase retail, batiendo el MSCI World en aproximadamente 20 puntos. Dos tercios de los retornos proceden de stock picking puro, con sobrepeso en tecnología USA y apuestas tempranas en IA generativa (presentado en Citywire Iberia Retreat 2024).",
+          "tipo": "premio"
+        },
+        {
+          "anio": "2024",
+          "titulo": "Reclasificación Morningstar a Large Blend",
+          "evento": "Morningstar reclasifica el cuadrante del fondo desde Large Growth (2023) a Large Blend (2024), reflejando el rebalanceo natural de la cartera tras la rotación de mercado, sin cambio explícito de filosofía por parte del equipo gestor.",
+          "tipo": "cambio_estrategia"
+        },
+        {
+          "anio": "2024",
+          "titulo": "Presentación en Citywire Iberia Retreat 2024",
+          "evento": "Vincent Mercadier, Borja Aguiar y Pablo Martínez Bernal presentan la estrategia en el workshop \"How to combine value, growth, and quality on an international scale\", consolidando la visibilidad del fondo en el mercado español.",
+          "tipo": "hecho_relevante"
+        },
+        {
+          "anio": "2025",
+          "titulo": "Análisis Substack Moclano (Diego F.)",
+          "evento": "Publicación del análisis independiente que cuantifica métricas riesgo-rendimiento sobresalientes: Alpha 4,8, Sharpe 1,02, Beta 0,61, volatilidad 10,25% y drawdown máximo muy inferior al benchmark.",
+          "tipo": "hecho_relevante"
+        },
+        {
+          "anio": "2025",
+          "titulo": "Validación en Salud Financiera",
+          "evento": "Salud Financiera publica datos consolidados: 19,5% anualizado desde diciembre 2022 (vs 13,3% MSCI World), Sharpe 1,2 y drawdown 13,5% (vs 20% índice). Reconocimiento explícito tras escepticismo inicial por costes históricos de gestoras francesas.",
+          "tipo": "hecho_relevante"
+        },
+        {
+          "anio": "2026",
+          "titulo": "Primer ejercicio de underperformance significativa",
+          "evento": "A 18 de mayo de 2026, según Financial Times, el fondo acumula -3,82% en el último año, 4º cuartil persistente en categoría Global Large-Cap Blend Equity y patrimonio de 220,70 M GBP. Primer test serio en un régimen de mercado adverso al binomio quality-growth.",
+          "tipo": "contexto_mercado"
+        }
+      ]
+    },
+    "gestores": {
+      "texto": "**Estructura del equipo gestor**\n\nSextant Quality Focus opera bajo un modelo de **gestor lead único respaldado por la plataforma de research de Amiral Gestion**. Vincent Mercadier figura como gestor desde el 30 de noviembre de 2022 en todas las clases del fondo (datos Financial Times confirmados en las fichas de Action F y Action I), y no ha habido rotación desde el lanzamiento. La presentación en Citywire Iberia Retreat 2024 incorporó además a Borja Aguiar y Pablo Martínez Bernal, que actúan como representantes en el mercado ibérico, pero la responsabilidad de cartera reside en Mercadier. La cartera resultante es deliberadamente concentrada (~25-30 nombres) y refleja convicciones individuales del lead PM, ponderadas según el grado de convicción del equipo.\n\n**Cultura de coinversión Amiral Gestion**\n\nUn rasgo cultural distintivo de la firma —explicitado en la editorial de RankiaPro Magazine de noviembre 2019— es la **coinversión de los profesionales con los clientes**: \"En Amiral Gestion coinvertimos con nuestros inversores siguiendo la filosofía de valor durante 15 años\". Aunque el texto no precisa importes individuales por gestor, este compromiso cultural ha sido históricamente uno de los argumentos comerciales de la boutique. La existencia de una clase Z con comisión 0,00% sugiere además un esquema de fee-for-service negociado con institucionales largo-placistas, lo que refuerza la lectura de alineación.\n\n**Vincent Mercadier en el lanzamiento (noviembre 2022)**\n\nLa decisión de encargar el lanzamiento del compartimento a Mercadier fue estratégica para Amiral Gestion: el ejecutivo aportaba experiencia previa relevante (según Moclano, había liderado estrategias de renta variable e híbridas en **Tikehau**, incluida Tikehau Income Cross Assets) y se le confió la construcción de una propuesta diferenciada respecto a los compounders puros. El primer año validó la apuesta con un +39,4% de la clase retail, dos tercios procedentes de stock picking, lo que situó a Mercadier rápidamente en el radar de la comunidad inversora ibérica.\n\n**Visibilidad pública y comunicación**\n\nMercadier ha mantenido un perfil público activo en eventos de la industria: la presentación en Citywire Iberia Retreat 2024 sobre \"How to combine value, growth, and quality on an international scale\" fue el evento de mayor exposición, donde explicitó el posicionamiento inicial con sobrepeso en tecnología USA y las apuestas tempranas en IA generativa. La estrategia ha sido objeto de análisis independientes en Substack (Moclano), boletines especializados (Salud Financiera) y prensa de la industria (FundsPeople), siempre con buena acogida en términos de proceso y métricas ajustadas a riesgo. No hay reportes públicos de rotación, suspensiones o decisiones controvertidas en los tres años de track record.",
+      "perfiles": [
+        {
+          "nombre": "Vincent Mercadier",
+          "cargo": "Gestor lead — Sextant Quality Focus (Amiral Gestion)",
+          "trayectoria": "**Vincent Mercadier** es el gestor único de Sextant Quality Focus desde su lanzamiento el **30 de noviembre de 2022**, según las fichas de Financial Times de Action F y Action I (consultadas el 18 de mayo de 2026). Su nombre aparece de forma consistente en todas las fuentes secundarias que han analizado el fondo: la presentación de Amiral Gestion en el **Citywire Iberia Retreat 2024** sobre \"How to combine value, growth, and quality on an international scale\", el análisis de Diego F. (Moclano) en Substack de marzo de 2025 (\"liderado por Vincent Mercadier\"), y los boletines de Salud Financiera y FundsPeople.\n\n**Experiencia previa en Tikehau**\n\nEl análisis independiente de Moclano del 26 de marzo de 2025 explicita que Mercadier procede de **Tikehau Capital**, donde lideró estrategias de renta variable e híbridas, incluida la estrategia **Tikehau Income Cross Assets**. La fuente no precisa los años exactos de su paso por Tikehau ni su título formal allí, por lo que esta skill no infiere ese detalle. Lo que sí se documenta es que la transición a Amiral Gestion fue estratégicamente diseñada para construir desde cero una propuesta diferenciada en el segmento quality + valoración, distinta tanto de los quality compounders puros (que pagan cualquier múltiplo) como del value tradicional francés (que tiende a sesgo cíclico).\n\n**Primer año y validación temprana**\n\nEl primer ejercicio completo bajo su mando (2023) cerró con un **+39,4% en la clase retail**, batiendo el MSCI World en aproximadamente 20 puntos. La explicación pública del propio Mercadier en Citywire Iberia Retreat 2024 atribuyó **dos tercios de los retornos a stock picking puro** (no a beta de mercado ni a apalancamiento sectorial), con apuestas tempranas en IA generativa que se materializaron precisamente cuando ese tema dominó la narrativa. El cuadrante Morningstar pasó de Large Growth (2023) a Large Blend (2024), una rotación natural de cartera sin cambio explícito de filosofía.\n\n**Estilo de gestión observado**\n\nEl proceso descrito en el folleto y validado en los análisis independientes es **bottom-up fundamental**: identificación de empresas de calidad (alta rentabilidad sobre capital sostenible, conversión beneficio-caja, barreras intangibles, equipos directivos disciplinados con el capital), filtro de valoración estricto basado en modelos de DCF y free cash flow futuros, y ponderaciones según convicción del equipo con baja rotación de nombres (alta rotación de pesos). La cartera resultante es de 25-30 valores, sin uso de derivados y con liquidez accesoria limitada al 10% (ampliable al 20% en condiciones excepcionales). El énfasis en ROIC, márgenes y valoración —destacado por Moclano— es la firma intelectual del gestor.\n\n**Reconocimientos y métricas**\n\nLas métricas de riesgo-rendimiento desde el lanzamiento publicadas por Moclano sitúan al fondo en la primera línea de su categoría: **Alpha 4,8, Sharpe 1,02, Beta 0,61, Volatilidad 10,25%** y drawdown máximo significativamente inferior al MSCI World. Salud Financiera, con datos hasta septiembre 2025, reportó 19,5% anualizado, Sharpe 1,2 y drawdown 13,5% (vs 20% del benchmark). En 2026, sin embargo, el fondo entró en su primer ejercicio de underperformance significativa (-3,82% a 1 año, 4º cuartil persistente), pendiente de evaluación de consistencia.\n\n**Compromiso continuado**\n\nDesde el lanzamiento no ha habido rotación: Mercadier sigue siendo el gestor único en mayo de 2026 (confirmado por Financial Times), lo que constituye una señal positiva de continuidad en una industria donde los cambios de gestor son frecuentes en boutiques en crecimiento.",
+          "filosofia": "Filosofía **quality + value disciplinada**: rechaza tanto al quality compounder que paga cualquier múltiplo como al value tradicional sin filtro de calidad. Busca empresas con ROIC sostenible, márgenes elevados, barreras intangibles y equipos directivos que prioricen el retorno sobre el capital, **siempre cotizando por debajo del valor intrínseco** estimado por modelos de DCF. Concentración fuerte (25-30 nombres), baja rotación, ponderación por convicción y proceso bottom-up puro sin sesgos sectoriales estructurales.",
+          "cv_bullets": [
+            "Gestor lead Sextant Quality Focus desde 30-nov-2022 (Amiral Gestion)",
+            "Experiencia previa en Tikehau Capital liderando estrategias de RV e híbridas, incluida Tikehau Income Cross Assets (fuente: Moclano)",
+            "Ponente en Citywire Iberia Retreat 2024: \"How to combine value, growth, and quality on an international scale\"",
+            "Primer año (2023): +39,4% en clase retail, batiendo MSCI World en ~20 puntos",
+            "Métricas desde lanzamiento (Moclano, mar-2025): Alpha 4,8 · Sharpe 1,02 · Beta 0,61 · Volatilidad 10,25%",
+            "Métricas hasta sep-2025 (Salud Financiera): 19,5% anualizado · Sharpe 1,2 · drawdown 13,5% vs 20% MSCI World"
+          ],
+          "decisiones_clave": [
+            "Diseñar una estrategia que combina filtro de calidad estricto (ROIC, márgenes, barreras intangibles) con disciplina de valoración por DCF, diferenciándola explícitamente de los quality compounders puros que pagan cualquier múltiplo — base intelectual del fondo desde el lanzamiento.",
+            "Posicionamiento inicial 2023 con sobrepeso en tecnología estadounidense y apuestas tempranas en IA generativa, capturando dos tercios del +39,4% del primer año vía stock picking (declaración pública en Citywire Iberia Retreat 2024).",
+            "Mantener la concentración estructural en 25-30 nombres y la disciplina de pesos por convicción incluso durante el bache de 2026, sin pivotar la cartera hacia value o defensivos para perseguir la rotación de mercado.",
+            "Estabilidad como gestor único desde el lanzamiento sin rotación de equipo en 3,5 años, en contraste con la rotación frecuente de PMs en boutiques en fase de crecimiento."
+          ],
+          "rasgos_diferenciales": "El rasgo más distintivo es la **combinación de quality compounder y valoración estricta**, una postura intelectualmente exigente porque obliga a rechazar nombres de calidad cuando cotizan caros (escenario habitual en mercados alcistas) y a esperar entradas con margen de seguridad. A nivel cultural, aporta de Tikehau una disciplina de cross-asset y de Amiral una raíz value histórica, sintetizadas en un proceso bottom-up puro sin sesgos macro ni sectoriales estructurales.",
+          "fuente": "analyst_llm"
+        },
+        {
+          "nombre": "Pablo Martínez Bernal",
+          "cargo": "Representación Iberia — Amiral Gestion",
+          "trayectoria": "Pablo Martínez Bernal figura como co-presentador junto a Vincent Mercadier y Borja Aguiar en el **Citywire Iberia Retreat 2024** sobre la estrategia de Sextant Quality Focus. Su rol en la firma no se detalla explícitamente en los readings disponibles, pero la presencia conjunta en eventos de la industria española sugiere responsabilidad comercial y de relación con clientes en el mercado ibérico, en línea con el modelo habitual de boutiques internacionales que escalan en España. No actúa como portfolio manager del fondo.",
+          "filosofia": "No documentada en los readings consultados. La intervención en Citywire Iberia Retreat 2024 versó sobre la estrategia general del fondo, sin que se identifique aportación individual a la filosofía de gestión.",
+          "cv_bullets": [
+            "Co-presentador Citywire Iberia Retreat 2024 junto a Vincent Mercadier y Borja Aguiar",
+            "Rol probable de representación Iberia para Amiral Gestion (no confirmado documentalmente)"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Punto de contacto público de Amiral Gestion en el mercado español, contribuyendo a la visibilidad del fondo en la comunidad inversora ibérica.",
+          "fuente": "google_snippet"
+        },
+        {
+          "nombre": "Borja Aguiar",
+          "cargo": "Representación Iberia — Amiral Gestion",
+          "trayectoria": "Borja Aguiar aparece como co-ponente con Vincent Mercadier y Pablo Martínez Bernal en el Citywire Iberia Retreat 2024. Al igual que Martínez Bernal, su perfil no se detalla en los readings y no hay indicación de que asuma funciones de portfolio management sobre el fondo. Probable rol comercial o de relación con clientes en Iberia.",
+          "filosofia": "No documentada.",
+          "cv_bullets": [
+            "Co-presentador Citywire Iberia Retreat 2024"
+          ],
+          "decisiones_clave": [],
+          "rasgos_diferenciales": "Refuerza la presencia de Amiral Gestion en el mercado español junto a Pablo Martínez Bernal.",
+          "fuente": "google_snippet"
+        }
+      ]
+    },
+    "evolucion": {
+      "texto": "**Lanzamiento y construcción de cartera (30 noviembre 2022)**\n\nSextant Quality Focus inició su andadura el 30 de noviembre de 2022, en un momento de transición de mercado entre la corrección de growth post-pandemia y el ciclo inflacionario que llevó a las subidas agresivas de tipos por parte de la Fed y el BCE. El posicionamiento inicial, según declaró Vincent Mercadier en Citywire Iberia Retreat 2024, fue **sobrepeso en tecnología estadounidense con apuestas tempranas en IA generativa**, un timing que se reveló excepcional cuando ChatGPT y la oleada de inversión en infraestructura IA dominaron 2023.\n\n**2023 — primer ejercicio: +39,4% y validación inicial**\n\nEl primer año completo cerró con un **+39,4% en la clase retail**, frente al ~19% del MSCI World en EUR del mismo periodo, una ventaja de aproximadamente 20 puntos. La explicación pública del gestor fue que **dos tercios de los retornos procedieron de stock picking** —es decir, selección individual de valores— y no de beta de mercado ni de apalancamiento sectorial agregado. Morningstar clasificó al fondo en el cuadrante **Large Growth** durante ese ejercicio, reflejando la sobreponderación temprana al tema IA.\n\n**2024 — consolidación y reclasificación a Large Blend**\n\nEn 2024 el fondo consolidó sus métricas riesgo-rendimiento. El cuadrante Morningstar evolucionó de Large Growth a **Large Blend**, lo que indica que la rotación natural de cartera y el rebalanceo posiciones movieron el estilo agregado hacia un perfil más equilibrado, sin que el equipo cambiase la filosofía declarada. La presentación en Citywire Iberia Retreat 2024 sirvió para explicar públicamente el proceso ante la comunidad inversora ibérica, consolidando el atractivo entre selectores de fondos.\n\n**2025 — rentabilidad anualizada del 19,5% (datos hasta septiembre)**\n\nSegún el análisis publicado en Salud Financiera (2 septiembre 2025), el fondo acumulaba desde lanzamiento una **rentabilidad anualizada del 19,5%** —60% acumulado— frente al 13,3% del MSCI World (39% acumulado). La volatilidad se situaba en **12% (vs 14% del índice)**, el ratio de Sharpe en **1,2** y el máximo drawdown del periodo en **13,5%** (vs 20% del MSCI World). En paralelo, los dos análisis de Diego F. (Moclano) publicados en marzo de 2025 reportaron métricas similares: Alpha 4,8 puntos, Sharpe 1,02, Beta 0,61 y volatilidad 10,25%. Las pequeñas discrepancias entre fuentes responden a diferentes ventanas de cálculo, pero confirman un perfil consistente.\n\n**2026 — primer ejercicio de underperformance significativa**\n\nA 18 de mayo de 2026, las fichas de Financial Times de Action F y Action I reportaron un cambio claro de régimen para el fondo: rentabilidad a 1 año del **-3,82%** (Action F) y **-4,20%** (Action I), un retroceso del **-2,05% en el último mes**, un **-0,75% a 6 meses** y un **-0,61% a 3 años**. El fondo se posicionó en el **4º cuartil de la categoría Global Large-Cap Blend Equity** en todos los horizontes analizados. La rentabilidad a 5 años se mantenía positiva con un **+11,49%**. El precio cotizaba a 157,75 EUR (Action F) y 1.562,57 EUR (Action I), con cambios diarios positivos del +1,04% y +1,03% respectivamente.\n\n**Composición de cartera al 30 abril 2026**\n\nLas fichas FT detallan la composición observable a esa fecha. La exposición por **regiones** muestra Estados Unidos como destino principal (**40,86%**), seguido de Eurozona (**19,22%**) y Reino Unido (**14,72%**), con una distribución por **país** que sitúa al fondo claramente sesgado a mercados desarrollados anglosajones y europeos. La distribución por **sectores** confirma la herencia del posicionamiento inicial: **Tecnología 32,83%**, Consumer Cyclical 19,21% y Financial Services 13,38%, con el resto repartido entre otros sectores. La composición por **clase de activo** mostraba 76,50% en acciones no-UK, 14,72% en acciones UK, 4,48% en efectivo y 4,30% en bonos no-UK (notablemente, los bonos son iShares Treasury Bond ETF, presumiblemente como instrumento de gestión de liquidez/cobertura, no como exposición estratégica a renta fija).\n\n**Patrimonio gestionado y clases**\n\nA 30 de abril de 2026, el **patrimonio total del fondo** asciende a **220,70 millones GBP**, con la **Action F** (clase analizada) en **32,51 M GBP** y la Action I en **16,98 M GBP**. La distribución del AUM entre las seis clases (A, N, I, SI, F, Z) refleja la presencia institucional creciente: las clases con comisión más baja —F (0,50%), SI (0,70%), I (0,90%) y Z (0,00%)— son las más utilizadas por selectores profesionales y mandatos institucionales, mientras la clase A (1,80%) atiende el segmento retail puro.\n\n**Lectura prospectiva**\n\nEl primer ejercicio adverso de 2026 es el test natural que toda estrategia concentrada debe afrontar tras un periodo de outperformance: la rotación hacia value, la corrección del growth premium y la sobreponderación a USA y tecnología explicarían el grueso del retroceso. La pregunta clave para los próximos 12-24 meses es si el equipo mantiene la disciplina del proceso (sin pivotar artificialmente hacia sectores defensivos) o ajusta las ponderaciones para capturar el régimen actual. La filosofía declarada de comprar empresas de calidad solo por debajo de valor intrínseco debería permitir, en teoría, encontrar nuevas oportunidades en un entorno de valoraciones más bajas, pero esa hipótesis quedará por validar con la próxima carta semestral o anual.",
+      "datos_graficos": {
+        "concentracion_historica": [],
+        "drawdown": [
+          {"periodo": "2022-11 a 2025-09", "drawdown_pct": 13.5}
+        ],
+        "exposicion_geografica": [
+          {"periodo": "2026-04", "espana_pct": null, "internacional_pct": 100.0, "estados_unidos_pct": 40.86, "eurozona_pct": 19.22, "reino_unido_pct": 14.72}
+        ],
+        "num_posiciones_por_anio": [
+          {"anio": "2024", "num": 30},
+          {"anio": "2025", "num": 25}
+        ],
+        "rentabilidades_anuales": [
+          {"anio": "2023", "fondo_pct": 39.4, "msci_world_eur_pct": null, "clase": "retail (A)"},
+          {"anio": "1Y a 2026-05-18", "fondo_pct": -3.82, "msci_world_eur_pct": null, "clase": "F (FR001400CEK6)"},
+          {"anio": "1Y a 2026-05-18", "fondo_pct": -4.20, "msci_world_eur_pct": null, "clase": "I (FR001400CEI0)"},
+          {"anio": "5Y a 2026-05-18", "fondo_pct": 11.49, "msci_world_eur_pct": null, "clase": "F"}
+        ]
+      }
+    },
+    "estrategia": {
+      "texto": "**Concepto de la estrategia**\n\nSextant Quality Focus es una **estrategia de renta variable global de calidad con disciplina de valoración**. La proposición se construye sobre tres pilares declarados en el folleto y validados por análisis independientes (Moclano, marzo 2025): identificar empresas de calidad real (no aparente), comprar solo por debajo de valor intrínseco, y construir una cartera concentrada que permita ponderar por convicción. El benchmark de referencia es el **MSCI World Net Total Return EUR Index**.\n\n**Universo de inversión y criterios estructurales**\n\nEl universo de partida son **acciones internacionales —incluidas francesas— cotizadas en mercados regulados con capitalización superior a mil millones de euros** (actual o promedio de los últimos cinco años). El fondo puede invertir de forma accesoria en acciones cotizadas fuera de la OCDE (emergentes) y en acciones internacionales por debajo del umbral de mil millones de euros (small/mid caps), pero no como sesgo estructural. La cartera resultante es de **20 a 40 valores** —en práctica observada ~25-30— tras aplicar criterios de calidad, valoración y ESG.\n\n**Filtros de calidad**\n\nLos criterios cualitativos para identificar \"sociedades de calidad\" son explícitos en el folleto: **rentabilidades elevadas sobre capital empleado**, **conversión efectiva de beneficios en liquidez** (calidad contable), **activos intangibles que constituyen barreras a la entrada** (marca, IP, network effects, escala distributiva), **pricing power demostrado**, **equipos directivos que priorizan el mejor retorno sobre capital** —no el growth a cualquier precio—, **longevidad estratégica del modelo de negocio** y **gobernanza respetuosa con todos los stakeholders**.\n\n**Filtros de valoración**\n\nEl segundo filtro es **valoración inferior al valor intrínseco** estimado a partir de **modelos de free cash flow futuros**. Este es el componente que diferencia a Sextant Quality Focus de los quality compounders puros (Lindsell Train, Fundsmith, etc.), que aceptan pagar múltiplos elevados por calidad indiscutible. La consecuencia operativa es que Mercadier puede mantener posiciones en liquidez (4,48% al 30-abr-2026) cuando no hay oportunidades con margen de seguridad, en lugar de forzar el capital al mercado.\n\n**Filtros ESG (Artículo 8 SFDR)**\n\nEl fondo está clasificado como **Artículo 8 bajo SFDR**, con compromiso explícito de mantener **al menos un 20% de inversiones sostenibles** y una **huella de carbono por debajo del promedio del universo de inversión ESG**. La gobernanza es uno de los criterios cualitativos integrados en el análisis de calidad, lo que evita que ESG sea un overlay separado y lo convierte en parte del proceso fundamental.\n\n**Restricciones operativas**\n\nNo se utilizan **derivados** para alcanzar el objetivo de gestión. La **liquidez accesoria está limitada al 10%**, ampliable al 20% en condiciones excepcionales. Los **empréstitos de tesorería** están permitidos hasta el 10% del activo neto, pero no como apalancamiento estructural. La duración de inversión recomendada es **superior a 5 años**.\n\n**Estilo y proceso observado**\n\nMoclano describió el estilo como **stock picking activo, no estrategia sistemática cuantitativa**, con **baja rotación de pesos pero no de compañías** —es decir, se rebalancean las ponderaciones según convicción y valoración, pero los nombres core tienden a mantenerse— y **énfasis explícito en ROIC, márgenes y valoración** en el análisis fundamental. El cuadrante Morningstar ha oscilado entre Large Growth (2023, sobrepeso tech) y Large Blend (2024-2026, rebalanceo natural), confirmando que la cartera evoluciona con el ciclo dentro del marco quality + value.",
+      "estrategia_actual_resumen": "Renta variable global de calidad con disciplina estricta de valoración por DCF. Cartera concentrada de 25-30 nombres, baja rotación, ponderación por convicción. Artículo 8 SFDR con mínimo 20% inversiones sostenibles. Benchmark MSCI World Net TR EUR. Sin derivados, sin apalancamiento estructural.",
+      "fortalezas": [
+        "Cartera concentrada de 25-30 nombres con baja rotación y ponderaciones por convicción, lo que permite a los gestores conocer cada negocio en profundidad y limita la dilución de las mejores ideas.",
+        "Doble filtro quality + value: combina la búsqueda de compounders de alta calidad con disciplina explícita de valoración basada en DCF, evitando el riesgo de pagar de más por los nombres de moda.",
+        "Track record temprano excepcional en métricas ajustadas a riesgo: Alpha 4,8 puntos, Sharpe 1,02-1,20, Beta 0,61 y drawdown máximo del 13,5% frente al 20% del MSCI World durante el periodo analizado por Moclano.",
+        "Clase F con comisión de gestión muy competitiva (0,50%) frente al 1,80% de la clase retail y dentro de los rangos institucionales, lo que cubre el ratio coste/calidad que tradicionalmente penalizaba a la gestión activa francesa.",
+        "Equipo gestor con experiencia previa en mandatos exigentes (Vincent Mercadier procede de Tikehau, donde lideró estrategias de renta variable e híbridas según el análisis de Moclano), arropado por la estructura de coinversión histórica de Amiral Gestion.",
+        "Compromiso ESG efectivo y verificable (Artículo 8 SFDR, mínimo 20% inversiones sostenibles, huella de carbono inferior al universo ESG), no como mero etiquetado regulatorio."
+      ],
+      "riesgos": [
+        "Track record corto (lanzamiento noviembre 2022), insuficiente para evaluar consistencia en un ciclo bajista o un régimen de mercado adverso al estilo quality-growth.",
+        "Concentración elevada en tecnología (32,83% al 30 abril 2026) y Estados Unidos (40,86%), exposiciones que ya sufrieron en 2024-2026 con la rotación hacia value y la corrección del growth premium.",
+        "Cuadrante Morningstar ha oscilado entre Large Growth (2023) y Large Blend (2024), lo que sugiere style drift dependiente de mercado y dificulta la lectura del posicionamiento real del fondo.",
+        "Performance reciente débil: -3,82% a 1 año y 4º cuartil persistente en Global Large-Cap Blend Equity según Financial Times (mayo 2026), el primer test serio de la estrategia en un entorno desfavorable.",
+        "Amiral Gestion sigue siendo una boutique de tamaño medio y la liquidez en clases pequeñas (Action F: 32,51 M GBP) es limitada, factor a considerar para reembolsos significativos."
+      ],
+      "perfil_riesgo": {
+        "tipo_activo_principal": "Renta Variable Global de Calidad — Large-Cap Blend",
+        "riesgos_especificos": [
+          "Concentración geográfica en Estados Unidos (40,86%) y sectorial en tecnología (32,83%) — vulnerabilidad a rotaciones value/growth y a correcciones específicas del sector tecnológico",
+          "Track record corto (<4 años) — métricas riesgo-rendimiento aún no validadas en un ciclo bajista completo",
+          "Style drift entre Large Growth (2023) y Large Blend (2024) — el posicionamiento agregado puede variar con el ciclo aunque la filosofía declarada no cambie",
+          "Cartera concentrada de 25-30 nombres — un error idiosincrásico en 1-2 posiciones puede impactar materialmente el resultado del fondo"
+        ],
+        "desglose_exposicion": [
+          {"dimension": "geografía", "detalle": "Estados Unidos 40,86%, Eurozona 19,22%, Reino Unido 14,72%, resto OCDE y mercados desarrollados internacionales (al 30-abr-2026, datos Financial Times)"},
+          {"dimension": "sectores", "detalle": "Tecnología 32,83%, Consumer Cyclical 19,21%, Financial Services 13,38%, resto repartido en otros sectores (al 30-abr-2026)"},
+          {"dimension": "clase de activo", "detalle": "Acciones no-UK 76,50%, Acciones UK 14,72%, Bonos no-UK 4,30% (iShares Treasury Bond ETF como gestión de liquidez), Efectivo 4,48%"},
+          {"dimension": "concentración", "detalle": "Top 5 holdings = ~34,42% de la cartera; cartera total ~25-30 nombres (cartera concentrada por diseño)"},
+          {"dimension": "estilo Morningstar", "detalle": "Global Large-Cap Blend Equity (categoría 2024-2026), Large Growth en 2023 — variación natural por rebalanceo, no por cambio de filosofía"}
+        ]
+      },
+      "hitos_estrategia": [
+        {
+          "periodo": "2022-S2",
+          "contexto_mercado": "Mercados saliendo de la corrección growth de 2022, ciclo de subidas agresivas de tipos por la Fed (4,25-4,50% a final de año) y el BCE, inflación todavía elevada y narrativa de recesión inminente. Valoraciones tech aún normalizándose tras los excesos de 2021. Sentimiento muy bajista hacia el growth premium.",
+          "decisiones": "Lanzamiento del fondo el 30 de noviembre. Construcción inicial de cartera con sobrepeso en tecnología estadounidense y apuestas tempranas en IA generativa, decididas semanas antes del boom mediático de ChatGPT. Filtro quality + value estricto desde el primer día.",
+          "resultado": "+0,00% al cierre del año — N/A (solo un mes de operación, sin track record significativo)"
+        },
+        {
+          "periodo": "2023",
+          "contexto_mercado": "Año dominado por la narrativa IA generativa tras el lanzamiento público de ChatGPT a finales de 2022. Magnificent 7 lideran las subidas globales. MSCI World cierra ~+19% EUR. Volatilidad reducida en la segunda mitad del año tras la pausa de la Fed.",
+          "decisiones": "Sobrepeso mantenido en tech USA y selección activa de beneficiarios IA. Dos tercios de los retornos procedentes de stock picking (declaración Mercadier en Citywire 2024), no de beta de mercado.",
+          "resultado": "+39,40% — sobrepeso tech USA y apuestas IA generativa tempranas convertidas en stock picking premium (clase retail A; rentabilidad neta de comisiones de gestión)"
+        },
+        {
+          "periodo": "2024",
+          "contexto_mercado": "Continuación del régimen IA pero con mayor dispersión de rentabilidades. Rebalanceo natural de la cartera tras 2023 sin pivotar filosofía. Morningstar reclasifica el cuadrante de Large Growth a Large Blend.",
+          "decisiones": "Mantenimiento del marco quality + value, presentación pública en Citywire Iberia Retreat 2024, consolidación del proceso de selección bottom-up con énfasis en ROIC, márgenes y valoración (descrito por Moclano).",
+          "resultado": "Métricas riesgo-rendimiento consolidadas — Alpha 4,8 · Sharpe ~1,02-1,20 · Beta 0,61 · Volatilidad 10,25% (datos Moclano/Salud Financiera)"
+        },
+        {
+          "periodo": "2025",
+          "contexto_mercado": "Año mixto con valoraciones US en máximos históricos, narrativa de \"meseta de la IA\" y rotación incipiente hacia value. Análisis independientes (Moclano marzo, Salud Financiera septiembre) cuantifican el desempeño desde lanzamiento y validan la estrategia.",
+          "decisiones": "Disciplina de proceso mantenida. Cartera concentrada en ~25 nombres según ficha Salud Financiera, baja rotación de compañías, ajuste de pesos según valoración relativa.",
+          "resultado": "+19,5% anualizado desde dic-2022 — alpha por stock picking sostenido, drawdown máx 13,5% vs 20% MSCI World (datos Salud Financiera hasta sep-2025)"
+        },
+        {
+          "periodo": "2026-Q1-Q2",
+          "contexto_mercado": "Cambio de régimen: rotación efectiva hacia value, corrección del growth premium, presión sobre las valoraciones tech tras múltiples trimestres de expansión. MSCI World en territorio negativo a 1Y vista en algunos cortes.",
+          "decisiones": "Sin pivote táctico hacia defensivos ni reducción brusca de tech (composición tech 32,83% al 30-abr-2026 sigue elevada). Mantenimiento del marco quality + value, esperando que la rotación cree oportunidades de entrada con margen de seguridad.",
+          "resultado": "-3,82% a 1 año y 4º cuartil en categoría — primer ejercicio de underperformance, test serio de consistencia del proceso (Financial Times, datos Action F al 18-may-2026)"
+        }
+      ],
+      "quotes": [
+        {
+          "texto": "Les gérants du compartiment SEXTANT QUALITY FOCUS s'appuient sur une philosophie de gestion visant à atteindre une appréciation du capital à long-terme, par une approche fondamentale.",
+          "autor": "Amiral Gestion",
+          "contexto": "KIID Sextant Quality Focus (FR001400CEG4), GEF_FR001400CEG4_fr.pdf"
+        },
+        {
+          "texto": "Pour atteindre son objectif de gestion, le compartiment investi dans des actions d'entreprises qui sont considérées par les gérants comme étant des sociétés de qualité et d'une valorisation raisonnable.",
+          "autor": "Amiral Gestion",
+          "contexto": "KIID Sextant Quality Focus, sección de política de inversión"
+        },
+        {
+          "texto": "En Amiral Gestion coinvertimos con nuestros inversores siguiendo la filosofía de valor durante 15 años.",
+          "autor": "Equipo Amiral Gestion",
+          "contexto": "Carta editorial RankiaPro Magazine, noviembre 2019"
+        },
+        {
+          "texto": "Pero el valor está hoy extremadamente barato en términos relativos y el sentimiento hacia el valor es extremadamente pesimista, y creemos firmemente que puede ser un momento sensato para comprar acciones de valor, tanto a corto como a largo plazo.",
+          "autor": "Amiral Gestion",
+          "contexto": "Carta editorial RankiaPro Magazine, noviembre 2019 — antecedente intelectual del lanzamiento de Sextant Quality Focus tres años después"
+        }
+      ]
+    },
+    "cartera": {
+      "texto": "**Composición observable al 30 de abril de 2026**\n\nLa cartera de Sextant Quality Focus es **deliberadamente concentrada y sesgada a mercados desarrollados anglosajones y europeos**, con una distribución por clase de activo que confirma la naturaleza pura de renta variable global: las acciones representan **91,22% del patrimonio** (76,50% non-UK + 14,72% UK), complementadas por **4,48% en efectivo** y **4,30% en bonos non-UK** —estos últimos en forma de iShares Treasury Bond ETF, instrumento utilizado presumiblemente como gestión de liquidez/duración táctica, no como exposición estratégica a renta fija—. La estructura quality-equity declarada en el folleto se respeta plenamente sin uso de derivados ni apalancamiento estructural.\n\n**Distribución geográfica**\n\nEl sesgo geográfico es netamente desarrollado y anglosajón: **Estados Unidos concentra el 40,86%** de la cartera, seguido de la **Eurozona con un 19,22%** y el **Reino Unido con un 14,72%**. La diferenciación UK/non-UK que utiliza el data feed de Financial Times es relevante porque permite ver que casi un tercio del patrimonio (USA + UK) está expuesto a economías ancladas a la libra y el dólar, mientras la Eurozona representa el componente euro doméstico. El resto se reparte entre otros mercados desarrollados (Japón, Suiza, Canadá, Australia previsiblemente, aunque las fichas no lo detallan) y exposición accesoria a otras geografías. El fondo no tiene exposición estructural a emergentes (sí permitida de forma accesoria por el folleto).\n\n**Distribución sectorial**\n\nLa lectura sectorial confirma la herencia del posicionamiento de lanzamiento: **Tecnología domina con el 32,83%** del patrimonio, **Consumer Cyclical aporta el 19,21%** y **Financial Services el 13,38%**, con el resto repartido entre sectores no detallados en las fichas (probablemente Healthcare, Industriales, Comunicaciones y selectivamente Consumer Defensive). Esa concentración tecnológica es la principal exposición de riesgo del fondo en 2026 y la primera explicación del retroceso de -3,82% en el último año: en un escenario de rotación hacia value y corrección del growth premium, el sesgo tech es estructuralmente penalizador.\n\n**Concentración relativa y top holdings**\n\nLa cartera tiene aproximadamente **25-30 nombres** (folleto: 20-40; Salud Financiera: 25; Citywire: ~30) y el **top 5 holdings agrega aproximadamente el 34,42%** del patrimonio —una concentración elevada típica de estrategias high-conviction—. La posición más grande es **iShares Treasury Bond ETF (7,47%)**, instrumento de gestión de liquidez/duración como se ha comentado, seguida de cuatro convicciones de calidad: una líder global en semiconductores foundry, un compounder de tabletop wargames británico, un líder europeo en distribución tecnológica de viajes y una franquicia tecnológica de software creativo. La tabla de posiciones top-level del schema recoge los pesos exactos por valor.\n\n**Racional y estilo de selección**\n\nEl proceso descrito por Vincent Mercadier en Citywire Iberia Retreat 2024 y validado por Moclano es **bottom-up puro con énfasis explícito en ROIC, márgenes y valoración**, sin sesgos sectoriales o geográficos estructurales —el sesgo a tecnología y a USA es resultado del proceso, no un input ex ante—. La rotación es **baja en nombres pero activa en pesos**: los compounders core tienden a permanecer, pero el peso de cada uno se ajusta según la convicción y la valoración relativa frente a otras oportunidades del universo cubierto. La existencia de efectivo material (4,48%) en plena fase alcista de mercado refuerza la lectura de disciplina de valoración: si no hay oportunidades con margen de seguridad, el gestor no fuerza el capital al mercado.\n\n**Riesgos estructurales de la cartera actual**\n\nLos principales riesgos asociados a la composición actual son: (i) la **concentración USA + tecnología** (combinadas ~73% del patrimonio entre región y sector dominante), que magnifica la sensibilidad a rotaciones de estilo y a correcciones tecnológicas; (ii) la **concentración por nombres** (top 5 = ~34%, cartera total ~25-30 nombres), que implica que un error idiosincrásico en una o dos posiciones impactaría materialmente la rentabilidad; (iii) la ausencia estructural de **renta fija real** (los bonos en cartera son un ETF de Treasuries usado como liquidez, no como diversificador estratégico), lo que mantiene al fondo plenamente expuesto al mercado de acciones; (iv) la baja exposición a **mercados emergentes**, lo que limita la captura de crecimiento estructural fuera de OCDE; y (v) el **track record corto (3,5 años)**, insuficiente para validar el proceso en un ciclo bajista completo.",
+      "top_posiciones": [
+        {"nombre": "iShares Treasury Bond ETF", "peso_pct": 7.47, "categoria": "Renta fija — gestión de liquidez (ETF Treasuries USA)"},
+        {"nombre": "TSMC (Taiwan Semiconductor)", "peso_pct": 7.46, "categoria": "Tecnología — semiconductores foundry"},
+        {"nombre": "Games Workshop", "peso_pct": 6.72, "categoria": "Consumer Cyclical — tabletop wargames (Reino Unido)"},
+        {"nombre": "Amadeus IT", "peso_pct": 6.57, "categoria": "Tecnología — distribución global de viajes y travel tech"},
+        {"nombre": "Adobe", "peso_pct": 6.20, "categoria": "Tecnología — software creativo y digital media SaaS"}
+      ],
+      "concentracion": {
+        "top5_pct": 34.42,
+        "top10_pct": null,
+        "top15_pct": null
+      },
+      "concentracion_historica": [
+        {"periodo": "2026-04", "top5_pct": 34.42, "top10_pct": null, "top15_pct": null, "fuente": "Financial Times - ficha Action F/I al 18-may-2026"}
+      ],
+      "distribucion_tipo": {
+        "rv_internacional_pct": 91.22,
+        "rv_espana_pct": null,
+        "rf_pct": 4.30,
+        "liquidez_pct": 4.48
+      }
+    },
+    "fuentes_externas": {
+      "texto": "**Cobertura mediática y analítica del fondo**\n\nSextant Quality Focus ha generado un volumen de cobertura externa notable para un fondo lanzado en noviembre de 2022, con presencia en prensa especializada (Financial Times, FundsPeople, Citywire), análisis independientes en Substack (Moclano, Salud Financiera) y participación en eventos institucionales (Citywire Iberia Retreat 2024). La tonalidad agregada de las fuentes externas es **positiva con matices de cautela** por el corto track record, y ninguna fuente identifica problemas materiales de proceso, comunicación o gobernanza.\n\n**Análisis fundamentales independientes**\n\nLos dos análisis más profundos disponibles son los publicados por **Diego F. (alias Moclano)** en Substack el 26 de marzo de 2025. Moclano cubre el fondo en dos entradas complementarias —una de presentación general y otra de análisis técnico— que cuantifican las métricas riesgo-rendimiento (Alpha 4,8, Sharpe 1,02, Beta 0,61, Volatilidad 10,25%) y validan la consistencia de la estrategia. La conclusión es positiva pero matizada: el autor reconoce el buen desempeño y la calidad del proceso, pero subraya la necesidad de vigilancia por el corto recorrido (<3 años desde lanzamiento en ese momento) y la necesidad de demostrar capacidad en diferentes regímenes de mercado. Moclano destaca explícitamente la experiencia previa del gestor en Tikehau y el cuadrante Morningstar oscilante (Large Blend 2024, Large Growth 2023).\n\n**Validación en boletines especializados**\n\n**Salud Financiera** —boletín en Substack con perfil crítico sobre la industria— publicó el 2 de septiembre de 2025 un análisis donde, partiendo de un escepticismo inicial por \"la reputación de altos costes de las gestoras francesas\", reconoce el desempeño destacado del fondo: rentabilidad anualizada del 19,5% desde diciembre 2022, volatilidad 12%, drawdown máximo 13,5%, Sharpe 1,2 —todas las métricas comparadas favorablemente con el MSCI World—. La opinión final es \"neutral con inclinación positiva\": el autor indica que revisará la filosofía del fondo antes de emitir una evaluación definitiva, pero la mención en sí ya es un endoso implícito en un boletín conocido por su nivel de exigencia.\n\n**Cobertura institucional y eventos**\n\nEl fondo participó en el **Citywire Iberia Retreat 2024** con un workshop titulado \"How to combine value, growth, and quality on an international scale\", presentado por Vincent Mercadier junto a Borja Aguiar y Pablo Martínez Bernal. La intervención fue documentada por Citywire y constituye la fuente más rica sobre la racionalización del proceso desde la voz directa del gestor, incluyendo el dato de que **dos tercios de los retornos del primer año procedieron de stock picking** y la explicación del posicionamiento inicial con sobrepeso en IA generativa.\n\n**Fichas técnicas y datos contractuales**\n\n**Financial Times** publica fichas técnicas actualizadas de las clases Action F y Action I del fondo (consultadas el 18 de mayo de 2026), con datos de patrimonio (220,70 M GBP a nivel fondo, 32,51 M GBP en Action F), composición geográfica y sectorial, top 5 holdings, comisiones (0,50% Action F, 0,90% Action I) y rentabilidades a 1, 3, 5 años. La ficha es neutra editorialmente pero permite trazar el cambio de régimen de 2026: rentabilidad a 1 año -3,82% (-4,20% en Action I), 4º cuartil persistente en categoría Global Large-Cap Blend Equity y posicionamiento en el bottom de su cohorte para todos los horizontes analizados.\n\n**Cobertura de prensa española**\n\n**FundsPeople** publicó el 30 de enero de 2023 un artículo sobre el lanzamiento de Sextant Tech en España, fondo hermano dentro de la misma SICAV. Aunque no cubre directamente Sextant Quality Focus, contextualiza el push comercial de Amiral Gestion en el mercado español que coincidió con los primeros meses del fondo objeto.\n\n**Síntesis cualitativa de opinión externa**\n\nAgregando las seis fuentes principales (Citywire 2024, Moclano x2, Salud Financiera, Financial Times Action F, Financial Times Action I; excluyendo FundsPeople por ser sobre otro fondo), el consenso externo es **moderadamente positivo en proceso y métricas riesgo-rendimiento pero cauto por corto track record**. Las dos fuentes técnicas más recientes (FT Action F y Action I, mayo 2026) introducen una nota de cautela operativa por la underperformance reciente, sin que ninguna fuente externa cuestione la calidad del equipo o del proceso. Es una cobertura sana para un fondo joven: cuantitativa, profesional y libre de hype.",
+      "opiniones_clave": [
+        {
+          "fuente": "Financial Times",
+          "titulo": "Sextant Quality Focus F - Ficha de fondo Financial Times",
+          "url": "https://markets.ft.com/data/funds/tearsheet/summary?s=FR001400CEK6:EUR",
+          "tipo": "rating",
+          "opinion": "Neutral. Ficha técnica sin opinión editorial. Datos clave: precio 157,75 EUR, rentabilidad 1Y -3,82%, patrimonio 220,70 M GBP, comisión 0,50%. Gestor Vincent Mercadier desde 30-nov-2022. Categoría Morningstar: Global Large-Cap Blend Equity. Composición: 76,50% acciones no-UK, 14,72% UK, 4,48% efectivo, 4,30% bonos.",
+          "fecha": "2026-05-18"
+        },
+        {
+          "fuente": "Financial Times",
+          "titulo": "Sextant Quality Focus F - Ficha de Performance Financial Times",
+          "url": "https://markets.ft.com/data/funds/tearsheet/performance?s=FR001400CEK6:EUR",
+          "tipo": "rating",
+          "opinion": "Neutral/Negativa. El fondo muestra desempeño inferior a su categoría en todos los plazos analizados, posicionándose consistentemente en el 4º cuartil. Aunque presenta rentabilidad positiva a 5 años (+11,49%), el rendimiento reciente es débil con pérdidas en el último año (-3,82%) y volatilidad en horizontes intermedios.",
+          "fecha": "2026-05-18"
+        },
+        {
+          "fuente": "Financial Times",
+          "titulo": "Sextant Quality Focus I - Ficha de fondo Financial Times",
+          "url": "https://markets.ft.com/data/funds/tearsheet/summary?s=FR001400CEI0:EUR",
+          "tipo": "rating",
+          "opinion": "Neutral. Ficha técnica de la clase I (FR001400CEI0, comisión 0,90%) con datos al 18-may-2026. Performance 1Y -4,20%, AUM clase 16,98 M GBP. Top 5 holdings, sectores y regiones consistentes con Action F.",
+          "fecha": "2026-05-18"
+        },
+        {
+          "fuente": "Citywire",
+          "titulo": "Citywire Iberia Retreat 2024 - Workshop: How to combine value, growth, and quality on an international scale",
+          "url": "https://site.citywire.com/iberia-retreat-2024-registration",
+          "tipo": "interview",
+          "opinion": "Positiva. El fondo demuestra un enfoque disciplinado y diferenciado en el mercado actual, combinando la búsqueda de empresas de alta calidad con un riguroso análisis de valoración. Los resultados del primer año (39,4% de rentabilidad) validan la estrategia, especialmente considerando que dos tercios de los retornos provinieron de stock picking selectivo en tendencias estructurales como la IA generativa. Cartera concentrada (~30 acciones).",
+          "fecha": "2024"
+        },
+        {
+          "fuente": "Moclano (Substack)",
+          "titulo": "Análisis Sextant Quality Focus - Valor, crecimiento y calidad",
+          "url": "https://moclano.substack.com/p/sextant-quality-focus",
+          "tipo": "analisis",
+          "opinion": "Positiva. El autor destaca la performance sobresaliente del fondo desde su lanzamiento, con generación de alfa, mayor rentabilidad, menor volatilidad y un máximo drawdown significativamente inferior a su índice de referencia. Considera que merece análisis detallado y lo incluye como primer fondo en su nueva sección de análisis.",
+          "fecha": "2025-03-26"
+        },
+        {
+          "fuente": "Moclano (Substack)",
+          "titulo": "Sextant Quality Focus - Análisis técnico complementario",
+          "url": "https://moclano.substack.com/p/sextant-quality-focus/comments",
+          "tipo": "analisis",
+          "opinion": "Positiva. Métricas desde lanzamiento: Alpha 4,8, Volatilidad 10,25%, Beta 0,61, Sharpe 1,02. Quality value con bajo tracking error y beta reducida. Stock picking activo, no estrategia sistemática cuantitativa. Bajo nivel de rotación de pesos, no de compañías. Gestor con experiencia previa en Tikehau. Subraya necesidad de vigilancia dado corto recorrido del fondo.",
+          "fecha": "2025-03-26"
+        },
+        {
+          "fuente": "Salud Financiera (Substack)",
+          "titulo": "Mención en discusión sobre fondos y costes (sección comentarios)",
+          "url": "https://saludfinanciera.substack.com/p/conflicto-interes-sales-fondos/comments",
+          "tipo": "comunidad",
+          "opinion": "Neutral con inclinación positiva. Reconoce desempeño destacado (rentabilidad superior, menor volatilidad, mejor ratio Sharpe que el índice) pero mantiene escepticismo inicial por la reputación de altos costes de las gestoras francesas. Datos: 19,5% anualizado desde dic-2022 (vs 13,3% MSCI World), volatilidad 12% (vs 14%), drawdown máx 13,5% (vs 20%), Sharpe 1,2.",
+          "fecha": "2025-09-02"
+        },
+        {
+          "fuente": "FundsPeople",
+          "titulo": "Amiral Gestion lanza el Sextant Tech",
+          "url": "https://fundspeople.com/es/amiral-gestion-lanza-el-sextant-tech/",
+          "tipo": "articulo",
+          "opinion": "Neutral. Artículo informativo sobre el lanzamiento de Sextant Tech en España (fondo hermano de Sextant Quality Focus dentro de la misma SICAV). Contextualiza el push comercial de Amiral Gestion en el mercado español pero no cubre directamente Sextant Quality Focus.",
+          "fecha": "2023-01-30"
+        }
+      ]
+    },
+    "documentos": {
+      "informes_pdf": [],
+      "xmls_cnmv": [],
+      "cartas_urls": [
+        "https://docs.data2report.lu/documents/KID/GEF_FR001400CEG4_fr.pdf",
+        "https://rankiapro.com/en/media/2019/11/aaff_RankiaPro%E2%80%99s_Magazine_interactiva.pdf",
+        "https://www.uff.net/espace-client/documentations//FR0010286013_prospectus.pdf"
+      ],
+      "fuentes_externas_urls": [
+        "https://fundspeople.com/es/amiral-gestion-lanza-el-sextant-tech/",
+        "https://markets.ft.com/data/funds/tearsheet/performance?s=FR001400CEK6:EUR",
+        "https://markets.ft.com/data/funds/tearsheet/summary?s=FR001400CEI0:EUR",
+        "https://markets.ft.com/data/funds/tearsheet/summary?s=FR001400CEK6:EUR",
+        "https://moclano.substack.com/p/sextant-quality-focus",
+        "https://moclano.substack.com/p/sextant-quality-focus/comments",
+        "https://saludfinanciera.substack.com/p/conflicto-interes-sales-fondos/comments",
+        "https://site.citywire.com/iberia-retreat-2024-registration"
+      ],
+      "urls_consultadas": [],
+      "total_fuentes": 11
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "task_id": "intl_generic_pdf__web_LU0880062913",
+  "agent": "intl_extractor_v2",
+  "pdf_path": "data/funds/LU0289214628/raw/discovery/_web_LU0880062913.pdf",
+  "extracted_at": "2026-05-20T21:30:00Z",
+  "model_used": "claude-opus-4-7 (cowork)",
+  "data": {
+    "kpis": {
+      "aum_actual_meur": 2006.15,
+      "fecha_aum": "2024-06-30",
+      "ter_pct": null,
+      "num_participes": null,
+      "divisa_base": "EUR"
+    },
+    "posiciones_actuales": [
+      {"nombre": "SAP SE", "peso_pct": null, "sector": "Tecnología", "pais": "Alemania"},
+      {"nombre": "Siemens AG", "peso_pct": 0.77, "sector": "Bienes de capital", "pais": "Alemania"},
+      {"nombre": "ASML Holding NV", "peso_pct": null, "sector": "Semiconductores", "pais": "Países Bajos"},
+      {"nombre": "Novo Nordisk A/S 'B'", "peso_pct": 4.85, "sector": "Farmacéutico", "pais": "Dinamarca"},
+      {"nombre": "TUI AG", "peso_pct": 0.75, "sector": "Consumo discrecional", "pais": "Alemania"},
+      {"nombre": "Solvay SA", "peso_pct": 0.43, "sector": "Materiales", "pais": "Bélgica"},
+      {"nombre": "SBM Offshore NV", "peso_pct": 1.20, "sector": "Energía/Servicios offshore", "pais": "Países Bajos"},
+      {"nombre": "AstraZeneca plc", "peso_pct": null, "sector": "Farmacéutico", "pais": "Reino Unido"},
+      {"nombre": "Shell plc", "peso_pct": null, "sector": "Energía", "pais": "Reino Unido"},
+      {"nombre": "HSBC Holdings plc", "peso_pct": null, "sector": "Banca", "pais": "Reino Unido"}
+    ],
+    "asset_allocation": {
+      "equity_pct": 99.30,
+      "bonds_pct": 0.00,
+      "cash_pct": 0.70,
+      "otros_pct": 0.00
+    },
+    "geographic_allocation": [
+      {"region": "Reino Unido", "peso_pct": 15.63},
+      {"region": "Suiza", "peso_pct": 15.06},
+      {"region": "Alemania", "peso_pct": 12.87},
+      {"region": "Países Bajos", "peso_pct": 10.38},
+      {"region": "Francia", "peso_pct": 9.32},
+      {"region": "Luxemburgo", "peso_pct": 9.32},
+      {"region": "Dinamarca", "peso_pct": 7.39},
+      {"region": "Italia", "peso_pct": 4.58},
+      {"region": "Suecia", "peso_pct": 3.88},
+      {"region": "Finlandia", "peso_pct": 3.02},
+      {"region": "España", "peso_pct": 2.74},
+      {"region": "Noruega", "peso_pct": 1.84},
+      {"region": "Bélgica", "peso_pct": 1.10},
+      {"region": "Austria", "peso_pct": 0.92},
+      {"region": "Irlanda", "peso_pct": 0.37},
+      {"region": "Organizaciones supranacionales", "peso_pct": 0.35},
+      {"region": "Chipre", "peso_pct": 0.21},
+      {"region": "Portugal", "peso_pct": 0.20},
+      {"region": "Jersey", "peso_pct": 0.12},
+      {"region": "Liquidez y otros", "peso_pct": 0.70}
+    ],
+    "sector_allocation": null,
+    "performance": null,
+    "comentario_gestor": null
+  },
+  "anti_invencion_notes": [
+    "PDF es JPMorgan Funds Annual/Semi-annual Report (Etat du portefeuille-titres) al 30 junio 2024, en francés. Total 1738 páginas. El sub-fondo target 'JPMorgan Funds - Europe Equity Plus Fund' aparece en TOC (línea 83, doc page 191) y datos detallados en PDF pages 195-205 (offset PDF-doc = +4).",
+    "AUM €2,006,151,830 (€2,006M) — Total de l'Actif net del sub-fondo Europe Equity Plus Fund al 30 juin 2024. Este es el AUM correcto del SUB-FONDO target, NO la suma del SICAV paraguas (JPMorgan Funds tiene >50 sub-fondos).",
+    "Asset allocation: 99.30% Total des Investissements (equity), 0.70% Liquidités et autres actifs. La cartera equity incluye también un ~8.77% en JPMorgan EUR Liquidity LVNAV Fund (mantenido a través de OPCVM, no como cash directo).",
+    "Sector_allocation: no se incluye en el Annual Report en este formato — habría que computarlo a partir del listado de holdings por país. Dejado en null.",
+    "Top 10 holdings: el documento NO incluye una tabla 'Top Ten' explícita en estas páginas — solo el listado completo de posiciones por país. Algunas posiciones con peso identificable: Novo Nordisk 4.85%, AstraZeneca >2%, SBM Offshore 1.20%, Siemens 0.77%, TUI AG 0.75%. Otros pesos en posiciones_actuales=null porque la tabla extraída tiene columnas desalineadas.",
+    "Performance no incluido en este Report (sólo Etat du portefeuille-titres).",
+    "ter_pct, num_participes, divisa_base: divisa_base=EUR confirmada; TER y partícipes requieren otra sección del Report no extraída."
+  ]
+}

@@ -68,6 +68,13 @@ def _get_gemini():
 
 
 def _gemini_structured(prompt: str, max_tokens: int = 4000, retries: int = 2) -> dict | None:
+    # Kill switch (2026-05-28): si GEMINI_DISABLED=1, devuelve None para que
+    # el fallback Claude en extract_structured() se active automáticamente.
+    from tools.gemini_killswitch import is_gemini_disabled
+    if is_gemini_disabled():
+        console.log("[cyan][KillSwitch] Gemini structured OFF → Claude fallback (auto)")
+        return None
+
     from google.genai import types
     client = _get_gemini()
     for attempt in range(retries + 1):
@@ -105,6 +112,13 @@ def _gemini_structured(prompt: str, max_tokens: int = 4000, retries: int = 2) ->
 
 
 def _gemini_text(prompt: str, max_tokens: int = 8000, retries: int = 2) -> str:
+    # Kill switch (2026-05-28): si GEMINI_DISABLED=1, devuelve "" para que
+    # el fallback Claude en extract_text() se active automáticamente.
+    from tools.gemini_killswitch import is_gemini_disabled
+    if is_gemini_disabled():
+        console.log("[cyan][KillSwitch] Gemini text OFF → Claude fallback (auto)")
+        return ""
+
     from google.genai import types
     client = _get_gemini()
     for attempt in range(retries + 1):

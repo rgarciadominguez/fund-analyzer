@@ -1,0 +1,79 @@
+{
+  "task_id": "intl_generic_pdf_FR0011050863",
+  "agent": "intl_extractor_v2",
+  "pdf_path": "data/funds/FR001400CEK6/raw/discovery/FR0011050863.pdf",
+  "extracted_at": "2026-05-20T13:55:00Z",
+  "model_used": "claude-opus-4-7 (cowork)",
+  "data": {
+    "kpis": {
+      "aum_actual_meur": null,
+      "fecha_aum": null,
+      "ter_pct": null,
+      "num_participes": null,
+      "divisa_base": "EUR"
+    },
+    "posiciones_actuales": [],
+    "asset_allocation": {
+      "equity_pct": null,
+      "bonds_pct": null,
+      "cash_pct": null,
+      "otros_pct": null
+    },
+    "geographic_allocation": [],
+    "sector_allocation": [],
+    "performance": {
+      "ytd_pct": null,
+      "y1_pct": null,
+      "y3_anual_pct": null,
+      "y5_anual_pct": null,
+      "since_inception_anual_pct": null
+    },
+    "comentario_gestor": null,
+    "_extra_data_extracted": {
+      "fecha_agrement_amf": "2022-10-14",
+      "fecha_creacion_compartimento": "2022-11-30",
+      "fecha_documento": "2023-02-20",
+      "clases_confirmadas": [
+        {"isin": "FR001400CEG4", "nombre_clase": "Action A", "vl_origen_eur": 100, "min_suscripcion_eur": null, "comision_gestion_pct": 1.80},
+        {"isin": "FR001400CEH2", "nombre_clase": "Action N", "vl_origen_eur": 100, "min_suscripcion_eur": 5000, "comision_gestion_pct": 1.10},
+        {"isin": "FR001400CEI0", "nombre_clase": "Action I", "vl_origen_eur": 1000, "min_suscripcion_eur": 1000000, "comision_gestion_pct": 0.90},
+        {"isin": "FR001400CEJ8", "nombre_clase": "Action SI", "vl_origen_eur": 1000, "min_suscripcion_eur": 20000000, "comision_gestion_pct": 0.70, "_nota": "Min SI era 20M€ en 2023; reducido a 5M€ en prospectus más reciente"},
+        {"isin": "FR001400CEK6", "nombre_clase": "Action F", "vl_origen_eur": 100, "min_suscripcion_eur": 2000000, "comision_gestion_pct": 0.50, "_nota": "Period inicial de suscripción: 6 meses (en versión 2023); revisado a 13 meses en versión más reciente"},
+        {"isin": "FR001400CEL4", "nombre_clase": "Action Z", "vl_origen_eur": 100, "min_suscripcion_eur": null, "comision_gestion_pct": 0.10, "_nota": "0.1% TTC en este prospectus 2023; en versión más reciente la comisión Z es 'Néant'"}
+      ],
+      "ter_pct_maximo_por_clase": {
+        "A": 1.80, "N": 1.10, "I": 0.90, "SI": 0.70, "F": 0.50, "Z": 0.10
+      },
+      "depositario": "CACEIS BANK",
+      "sociedad_gestion": "Amiral Gestion",
+      "sicav": "SEXTANT (SICAV à compartiments de droit français)",
+      "sicav_fecha_agrement_amf": "2021-12-21",
+      "sicav_fecha_creacion": "2022-02-10",
+      "clasificacion_sfdr": "Article 8",
+      "investissement_durable_min_pct": 20,
+      "n_holdings_objetivo": "20-40",
+      "duracion_recomendada_anios_min": 5,
+      "exposicion_acciones_min_pct": 90,
+      "exposicion_acciones_max_pct": 110,
+      "exposicion_mercados_emergentes_max_pct": 10,
+      "exposicion_dineraria_max_pct": 10,
+      "benchmark": "MSCI World Net Total Return EUR Index",
+      "benchmark_ticker_bloomberg": "MSDEWIN Index",
+      "universo_investissable_esg_n_valeurs_inicio": 8200
+    }
+  },
+  "anti_invencion_notes": [
+    "TIPO DE PDF INCORRECTO PARA EL SCHEMA: El archivo FR0011050863.pdf NO es un factsheet ni un annual report. Es OTRO prospectus de Amiral Gestion SICAV SEXTANT (167 páginas, fechado 20/02/2023) — versión anterior al prospectus principal (FR0010286013_prospectus.pdf, task 1). Por tanto NO contiene los datos cuantitativos solicitados en el schema (kpis.aum_actual_meur, posiciones_actuales, asset_allocation, geographic_allocation, sector_allocation, performance, comentario_gestor).",
+    "kpis.aum_actual_meur: null — un prospectus no reporta AUM realizado del sub-fondo.",
+    "kpis.fecha_aum: null — no aplica.",
+    "kpis.ter_pct: null — el prospectus solo indica el frais de gestion máximo TEÓRICO por clase (0.50% para Action F), no el TER realizado real.",
+    "kpis.num_participes: null — un prospectus no reporta partícipes.",
+    "posiciones_actuales: [] — no aparecen holdings reales en un prospectus.",
+    "asset_allocation, geographic_allocation, sector_allocation: vacíos — un prospectus solo indica límites (90-110% acciones, max 10% emergentes), no la allocation realizada.",
+    "performance: todos null — un prospectus no reporta performance histórica.",
+    "comentario_gestor: null — no contiene comentary periódico.",
+    "Source pages: p.8 (table classes), pp.102-109 (sección X. Sextant Quality Focus en prospectus 20/02/2023).",
+    "El ISIN target FR001400CEK6 aparece en pp.8 y 102. Confirmado que es la Action F del sub-fondo SEXTANT QUALITY FOCUS de la SICAV SEXTANT gestionada por Amiral Gestion.",
+    "Para obtener KPIs/posiciones/performance reales, sería necesario descargar el factsheet mensual o el rapport annuel del sub-fondo Sextant Quality Focus de la web de Amiral Gestion (no estaban disponibles en raw/discovery cuando se generó este manifest)."
+  ]
+}

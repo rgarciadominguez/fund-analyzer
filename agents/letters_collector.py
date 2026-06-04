@@ -153,6 +153,15 @@ class LettersCollector:
 
     def _extract_pdf_with_gemini(self, pdf_path: str, max_pages: int = 15) -> str:
         """Extraer texto de PDF image-based usando Gemini multimodal."""
+        # Kill switch (2026-05-28): si GEMINI_DISABLED=1, skip OCR multimodal.
+        # Usa el SDK legacy google.generativeai (no migrado a Anthropic todavía).
+        # Degradación funcional aceptable: el PDF imagen queda sin OCR pero el
+        # pipeline de cartas continúa con el resto de documentos.
+        from tools.gemini_killswitch import is_gemini_disabled
+        if is_gemini_disabled():
+            self._log("KILLSWITCH", f"Gemini OFF — OCR PDF imagen skip: {Path(pdf_path).name}")
+            return ""
+
         def _do_ocr():
             import google.generativeai as genai
             import os

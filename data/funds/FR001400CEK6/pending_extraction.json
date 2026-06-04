@@ -1,0 +1,223 @@
+{
+  "isin": "FR001400CEK6",
+  "tipo": "INT",
+  "generated_at": "2026-05-20T13:25:39Z",
+  "tasks": [
+    {
+      "id": "intl_generic_pdf__web_aaff_RankiaPro_E2_80_99s_Magazine_interactiva",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_aaff_RankiaPro%E2%80%99s_Magazine_interactiva.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_ff_000000000002_fin_12m_en_202605051230",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_ff_000000000002_fin_12m_en_202605051230.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_prospectus__web_FR0010286013_prospectus",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_FR0010286013_prospectus.pdf",
+      "schema": {
+        "objetivo_inversion": "string completo",
+        "politica_inversion": "string",
+        "comisiones": "{gestion_max_pct, deposito_max_pct, exito_pct}",
+        "clases": "list[{isin, nombre_clase, divisa, comision_gestion_pct}]"
+      },
+      "context": "PDF tipo=prospectus. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note.",
+      "two_stage": true
+    },
+    {
+      "id": "intl_generic_pdf__web_FRR-RA-2022-UK-EP",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_FRR-RA-2022-UK-EP.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_FRR-RA2021-EN",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_FRR-RA2021-EN.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_GEF_FR001400CEG4_fr",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_GEF_FR001400CEG4_fr.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_GENSIGHT_URD_2025_ANGLAIS_completv8",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_GENSIGHT_URD_2025_ANGLAIS_completv8.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_LU0925041070_ANNUAL_REPORT_EN",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_LU0925041070_ANNUAL_REPORT_EN.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_ses-imagotag_2022_urd_en",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/_web_ses-imagotag_2022_urd_en.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_prospectus_FR0010286013_prospectus",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/FR0010286013_prospectus.pdf",
+      "schema": {
+        "objetivo_inversion": "string completo",
+        "politica_inversion": "string",
+        "comisiones": "{gestion_max_pct, deposito_max_pct, exito_pct}",
+        "clases": "list[{isin, nombre_clase, divisa, comision_gestion_pct}]"
+      },
+      "context": "PDF tipo=prospectus. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note.",
+      "two_stage": true
+    },
+    {
+      "id": "intl_generic_pdf_FR0011050863",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/FR001400CEK6/raw/discovery/FR0011050863.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: FR001400CEK6 (SEXTANT QUALITY FOCUS - Action F / AMIRAL GESTION). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    }
+  ],
+  "updated_at": "2026-05-20T13:25:39Z"
+}
