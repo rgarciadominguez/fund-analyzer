@@ -444,6 +444,38 @@ def _merge_share_classes(out: dict, v: Any, fx_table: dict | None = None) -> Non
             out["kpis"]["aum_actual_meur"] = latest.get("valor_meur")
 
 
+def sanitize_serie_aum(out: dict) -> int:
+    """B4 (2026-06-04): elimina entries de serie_aum con periodo no-año.
+
+    Defensa belt-and-suspenders contra el bug umbrella SICAV (DNCA): una entry
+    con periodo="None" (string) y valor = suma del SICAV completo (€41B) que se
+    colaba por merge incremental de outputs antiguos. Re-deriva
+    kpis.aum_actual_meur desde el último año válido. Devuelve nº de entries
+    eliminadas. Idempotente y seguro sobre cualquier output/intl_data dict.
+    """
+    import re as _re_s
+    cuant = out.get("cuantitativo")
+    if not isinstance(cuant, dict):
+        return 0
+    serie = cuant.get("serie_aum")
+    if not isinstance(serie, list) or not serie:
+        return 0
+    valid = [
+        e for e in serie
+        if isinstance(e, dict)
+        and isinstance(e.get("periodo"), str)
+        and _re_s.match(r"^\d{4}$", e["periodo"])
+    ]
+    removed = len(serie) - len(valid)
+    if removed:
+        cuant["serie_aum"] = valid
+        kpis = out.get("kpis")
+        if isinstance(kpis, dict) and valid:
+            latest = max(valid, key=lambda e: int(e["periodo"]))
+            kpis["aum_actual_meur"] = latest.get("valor_meur")
+    return removed
+
+
 def _merge_fee_structure(out: dict, v: Any, doc_year: str = "") -> None:
     if not isinstance(v, dict):
         return
@@ -1555,6 +1587,12 @@ Devuelve SOLO el JSON. Nada más."""
                 console.log("[dim]merge incremental: preservado lo mejor de existente + nuevo")
             except Exception:
                 pass
+
+        # B4 (2026-06-04): limpiar serie_aum tras el merge (el merge incremental
+        # puede reintroducir entries con periodo="None" de outputs antiguos).
+        _n_aum = sanitize_serie_aum(out)
+        if _n_aum:
+            console.log(f"[yellow]serie_aum: eliminadas {_n_aum} entries con periodo inválido")
 
         def _safe_default(o):
             """Serializer tolerante. Maneja NaT / None / pandas.Timestamp."""
