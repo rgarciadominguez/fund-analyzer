@@ -2186,6 +2186,26 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
                 if v:
                     intl_data[key] = v
 
+            # B-AUM (2026-06-04): serie_aum histórica del AR (financial
+            # statements traen 3 años). Antes se descartaba → el gráfico de
+            # evolución INT quedaba sin histórico aunque el AR lo tuviera.
+            # Upsert por periodo + sanitiza (filtra periodos no-año).
+            new_cuant = data.get("cuantitativo") or {}
+            new_serie = new_cuant.get("serie_aum") if isinstance(new_cuant, dict) else None
+            if isinstance(new_serie, list) and new_serie:
+                cuant = intl_data.setdefault("cuantitativo", {})
+                serie = cuant.setdefault("serie_aum", [])
+                by_per = {e.get("periodo"): e for e in serie if isinstance(e, dict)}
+                for e in new_serie:
+                    if isinstance(e, dict) and e.get("periodo"):
+                        by_per[e["periodo"]] = e
+                cuant["serie_aum"] = list(by_per.values())
+                try:
+                    from agents.intl_extractor_v2 import sanitize_serie_aum
+                    sanitize_serie_aum(intl_data)
+                except Exception:
+                    pass
+
             integrated_paths.append(f"intl_data.{tf.stem}")
             n_ok += 1
         else:
