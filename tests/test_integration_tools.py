@@ -27,14 +27,14 @@ def test_output_accessor():
     p = ROOT / "data" / "funds" / isin / "output.json"
     if not p.exists():
         print("  SKIP: Avantage output.json missing")
-        return True
+        return
     d = json.loads(p.read_text(encoding="utf-8"))
     assert get_nombre(d), "nombre vacío"
     assert get_kpis(d), "kpis vacío"
     assert isinstance(get_perfiles(d), list), "perfiles no es lista"
     assert isinstance(get_posiciones_actuales(d), list), "posiciones no es lista"
     print("  OK: get_nombre/kpis/perfiles/posiciones todos funcionan")
-    return True
+    return
 
 
 def test_output_merger():
@@ -47,7 +47,7 @@ def test_output_merger():
     assert merged["kpis"]["aum"] == 100, f"aum no preservado: {merged['kpis']['aum']}"
     assert merged["kpis"]["ter"] == 0.5, "ter (no manual) no actualizado"
     print("  OK: manual_edits preservados, no-marcados se actualizan")
-    return True
+    return
 
 
 def test_regression_guard():
@@ -61,7 +61,7 @@ def test_regression_guard():
     final = accept_section("resumen", new_worse, old)
     assert final == old or final.get("texto") == old["texto"], "Debe mantener antiguo"
     print("  OK: guard rechaza nueva versión peor")
-    return True
+    return
 
 
 def test_sibling_finder():
@@ -75,7 +75,7 @@ def test_sibling_finder():
     assert _name_root("DUNAS VALOR PRUDENTE FI") == "DUNAS"
     assert _name_root("CARTESIO X, FI") == "CARTESIO"
     print(f"  OK: Cartesio Y tiene {len(siblings)} hermano(s) detectados, name_root OK")
-    return True
+    return
 
 
 def test_cost_tracker():
@@ -89,7 +89,7 @@ def test_cost_tracker():
     assert summary["total_cost_usd"] > 0, "track no registró"
     reset("TEST")
     print("  OK: cost calc + track + summary funcionan")
-    return True
+    return
 
 
 if __name__ == "__main__":

@@ -15,6 +15,16 @@ if str(ROOT) not in sys.path:
 
 from tools.sync_to_supabase import _validate_before_sync
 
+# Análisis cualitativo válido para aislar la validación de metadata (nombre/
+# gestora) del gate de calidad de análisis (tools/analysis_quality.py).
+_OK_SYNTHESIS = {
+    "analyst_synthesis": {
+        "resumen": {"texto": "r" * 150},
+        "historia": {"texto": "h" * 150},
+        "estrategia": {"texto": "e" * 150},
+    }
+}
+
 
 @pytest.mark.parametrize("nombre,gestora,expected_ok,expected_in_reason", [
     # Casos OK
@@ -33,7 +43,7 @@ from tools.sync_to_supabase import _validate_before_sync
     ("IE00BDR0JY05", "IE00BDR0JY05", False, None),  # ambos malos → 2 razones
 ])
 def test_validation_cases(nombre, gestora, expected_ok, expected_in_reason):
-    data = {"nombre": nombre, "gestora": gestora}
+    data = {"nombre": nombre, "gestora": gestora, **_OK_SYNTHESIS}
     ok, reasons = _validate_before_sync(data, "IE00BDR0JY05")
     assert ok == expected_ok, f"expected ok={expected_ok}, got {ok}; reasons={reasons}"
     if expected_in_reason:
@@ -43,10 +53,10 @@ def test_validation_cases(nombre, gestora, expected_ok, expected_in_reason):
 
 
 def test_validation_multiple_failures():
-    data = {"nombre": "IE00BDR0JY05", "gestora": "IE00BDR0JY05"}
+    data = {"nombre": "IE00BDR0JY05", "gestora": "IE00BDR0JY05", **_OK_SYNTHESIS}
     ok, reasons = _validate_before_sync(data, "IE00BDR0JY05")
     assert ok is False
-    assert len(reasons) == 2  # nombre==isin Y gestora==isin
+    assert len(reasons) == 2  # nombre==isin Y gestora==isin (análisis válido)
 
 
 def test_validation_whitespace_handled():

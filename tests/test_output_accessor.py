@@ -11,6 +11,7 @@ Cobertura:
 Uso: python tests/test_output_accessor.py
 """
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -41,7 +42,14 @@ from tools.output_accessor import (
 
 
 FUNDS_DIR = ROOT / "data" / "funds"
-ALL_FUNDS = sorted([p.name for p in FUNDS_DIR.iterdir() if p.is_dir()])
+
+# Solo directorios con patrón ISIN válido: excluye backups (`*.bak_*`), dirs de
+# trabajo dotted y placeholders de test (X, ESTEST...). Antes el test escaneaba
+# esa basura local (gitignored) y reportaba falsos "ISIN mismatch"/"nombre vacío".
+_ISIN_RE = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
+ALL_FUNDS = sorted(
+    p.name for p in FUNDS_DIR.iterdir() if p.is_dir() and _ISIN_RE.match(p.name)
+)
 
 
 def _load(isin: str) -> dict:
@@ -51,6 +59,23 @@ def _load(isin: str) -> dict:
     return json.loads(p.read_text(encoding="utf-8"))
 
 
+def _is_real_analyzed_fund(d: dict) -> bool:
+    """True si el fondo tiene datos reales (no un stub fallido/pendiente).
+
+    Los análisis rotos (vacíos o fabricados) se rastrean aparte en
+    tests/test_analysis_quality.py; el baseline de metadata no debe romperse por
+    ellos, pero tampoco enmascararlos. Un fondo cuenta como "real" si tiene
+    nombre o algún dato cuantitativo."""
+    if not isinstance(d, dict):
+        return False
+    if (d.get("nombre") or "").strip():
+        return True
+    kpis = d.get("kpis") or {}
+    if isinstance(kpis, dict) and kpis.get("aum_actual_meur"):
+        return True
+    return False
+
+
 # ── TESTS ───────────────────────────────────────────────────────────────────
 def test_getters_basicos_todos_fondos():
     """Todos los fondos tienen nombre, isin, tipo válidos."""
@@ -58,6 +83,10 @@ def test_getters_basicos_todos_fondos():
     for isin in ALL_FUNDS:
         d = _load(isin)
         if d is None:
+            continue
+        # Saltar stubs de análisis fallido/pendiente (rastreados en
+        # test_analysis_quality). El baseline valida fondos con datos reales.
+        if not _is_real_analyzed_fund(d):
             continue
         # ISIN debe coincidir con directorio
         actual_isin = get_isin(d)
@@ -70,7 +99,7 @@ def test_getters_basicos_todos_fondos():
         tipo = get_tipo(d)
         if tipo and tipo not in ("ES", "INT"):
             fail.append(f"{isin}: tipo inesperado '{tipo}'")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 def test_kpis_cardinalidad():
@@ -89,7 +118,7 @@ def test_kpis_cardinalidad():
             n_with_aum += 1
     if n_with_aum < 5:  # esperamos AUM en al menos 5 fondos baseline
         fail.append(f"Solo {n_with_aum} fondos tienen AUM (esperado >=5)")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 def test_perfiles_es_lista():
@@ -102,19 +131,20 @@ def test_perfiles_es_lista():
         p = get_perfiles(d)
         if not isinstance(p, list):
             fail.append(f"{isin}: get_perfiles no es lista (es {type(p).__name__})")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 def test_strict_mode_lanza_keyerror():
     """get_perfiles_strict en output vacío lanza CanonicalPathEmpty."""
     try:
         get_perfiles_strict({})
-        return ["strict no falló en output vacío"]
+        raise AssertionError("strict no falló en output vacío")
     except CanonicalPathEmpty:
         pass
+    except AssertionError:
+        raise
     except Exception as exc:
-        return [f"strict lanzó excepción incorrecta: {type(exc).__name__}"]
-    return []
+        raise AssertionError(f"strict lanzó excepción incorrecta: {type(exc).__name__}")
 
 
 def test_series_cuantitativo_devuelven_listas():
@@ -135,7 +165,7 @@ def test_series_cuantitativo_devuelven_listas():
             v = getter(d)
             if not isinstance(v, list):
                 fail.append(f"{isin}: {name} no es lista")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 def test_secciones_analyst_son_dicts():
@@ -155,7 +185,7 @@ def test_secciones_analyst_son_dicts():
             v = getter(d)
             if not isinstance(v, dict):
                 fail.append(f"{isin}: section {name} no es dict")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 def test_textos_son_strings():
@@ -174,7 +204,7 @@ def test_textos_son_strings():
             v = getter(d)
             if not isinstance(v, str):
                 fail.append(f"{isin}: {name} no es str")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 def test_drifts_whitelist():
@@ -190,7 +220,7 @@ def test_drifts_whitelist():
             field = drift.get("field", "")
             if field not in WHITELIST_FIELDS:
                 fail.append(f"{isin}: drift inesperado en '{field}': {drift}")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 def test_audit_output_devuelve_dict_con_claves_esperadas():
@@ -206,7 +236,7 @@ def test_audit_output_devuelve_dict_con_claves_esperadas():
         missing = required_keys - set(audit.keys())
         if missing:
             fail.append(f"{isin}: audit_output missing keys {missing}")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 def test_int_specific_getters():
@@ -223,7 +253,7 @@ def test_int_specific_getters():
             fail.append(f"{isin}: get_int_gestores no es lista")
         if not isinstance(get_economia_fondo(d), dict):
             fail.append(f"{isin}: get_economia_fondo no es dict")
-    return fail
+    assert not fail, "\n".join(fail)
 
 
 # ── Runner ──────────────────────────────────────────────────────────────────
@@ -248,16 +278,17 @@ if __name__ == "__main__":
     total_failures = 0
     for name, fn in TESTS:
         print(f"\n[{name}]")
-        failures = fn()
-        if failures:
-            print(f"  FAIL ({len(failures)}):")
-            for f in failures[:5]:
+        try:
+            fn()
+            print("  OK")
+        except AssertionError as exc:
+            lines = [ln for ln in str(exc).splitlines() if ln]
+            print(f"  FAIL ({len(lines)}):")
+            for f in lines[:5]:
                 print(f"    - {f}")
-            if len(failures) > 5:
-                print(f"    ... ({len(failures) - 5} más)")
-            total_failures += len(failures)
-        else:
-            print(f"  OK")
+            if len(lines) > 5:
+                print(f"    ... ({len(lines) - 5} más)")
+            total_failures += len(lines) or 1
     print()
     print("=" * 70)
     if total_failures:

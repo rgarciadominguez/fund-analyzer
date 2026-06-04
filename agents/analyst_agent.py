@@ -1806,10 +1806,23 @@ class AnalystAgent:
         )
 
     def _run_capa3(self, data: dict) -> dict:
+        # B6 (2026-06-04): la etiqueta model debe reflejar el modelo REAL. Con el
+        # kill switch activo (GEMINI_DISABLED=1) los tiers flash corren Claude
+        # Haiku, no Gemini — etiquetarlo como "flash" falseaba la telemetría/coste.
+        try:
+            from tools.gemini_killswitch import is_gemini_disabled
+            _gemini_off = is_gemini_disabled()
+        except Exception:
+            _gemini_off = False
+        _model_label = (
+            f"multi-tier: sonnet-t1 + haiku-t2/t3 (gemini killswitch -> {self.HAIKU_MODEL})"
+            if _gemini_off
+            else "multi-tier: sonnet-t1 + flash-t2 + flash-lite-t3"
+        )
         synthesis = {
             "version": "3.1",
             "generated_at": datetime.now().isoformat(),
-            "model": "multi-tier: sonnet-t1 + flash-t2 + flash-lite-t3",
+            "model": _model_label,
             "sections_completed": 0,
         }
 
