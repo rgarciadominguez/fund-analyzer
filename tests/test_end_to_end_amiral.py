@@ -143,6 +143,8 @@ def test_amiral_sextant_end_to_end_fills_output_and_registry(tmp_path, monkeypat
     monkeypatch.setitem(sys.modules, "google", google_pkg)
     monkeypatch.setitem(sys.modules, "google.genai", fake_module)
     monkeypatch.setenv("GOOGLE_API_KEY", "dummy")
+    # Kill switch OFF en este test: verifica la ruta de Gemini con mock.
+    monkeypatch.setenv("GEMINI_DISABLED", "0")
 
     out = _empty_output(ISIN, FUND_NAME, GESTORA)
     ok = asyncio.run(extractor._fallback_html_extract(out))

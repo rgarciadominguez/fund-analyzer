@@ -205,6 +205,9 @@ def _install_fake_gemini(monkeypatch, payload: str) -> None:
     monkeypatch.setitem(sys.modules, "google", google_pkg)
     monkeypatch.setitem(sys.modules, "google.genai", fake_module)
     monkeypatch.setenv("GOOGLE_API_KEY", "dummy-key-for-test")
+    # El kill switch (GEMINI_DISABLED=1 en prod) cortaría la ruta de Gemini antes
+    # de invocar el mock. Estos tests verifican esa ruta → forzar Gemini ON aquí.
+    monkeypatch.setenv("GEMINI_DISABLED", "0")
 
 
 def test_fallback_extracts_aum_with_mocked_gemini(tmp_path, monkeypatch):
@@ -600,6 +603,7 @@ def test_prompt_includes_anti_aggregation_directive(tmp_path, monkeypatch):
     monkeypatch.setitem(sys.modules, "google", google_pkg)
     monkeypatch.setitem(sys.modules, "google.genai", fake_module)
     monkeypatch.setenv("GOOGLE_API_KEY", "dummy")
+    monkeypatch.setenv("GEMINI_DISABLED", "0")  # forzar ruta Gemini para este test
 
     out = _empty_output(FIXTURE_ISIN, FIXTURE_FUND_NAME, FIXTURE_GESTORA)
     asyncio.run(extractor._fallback_html_extract(out))
