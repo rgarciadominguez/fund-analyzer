@@ -42,22 +42,74 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+# Proyectos Supabase EXTRA a mantener vivos además del principal (.env).
+# P.ej. el proyecto del fund-dashboard (dcnvdaa...), una herramienta distinta que
+# comparte cuenta. Config en data/supabase_keepalive_targets.json:
+#   [{"name","ref","url","anon_key","table"}]
+_TARGETS_PATH = ROOT / "data" / "supabase_keepalive_targets.json"
+
+
+def _extra_targets() -> list[dict]:
+    if not _TARGETS_PATH.exists():
+        return []
+    try:
+        return json.loads(_TARGETS_PATH.read_text(encoding="utf-8")) or []
+    except Exception:
+        return []
+
+
+def _ping_rest(url: str, anon_key: str, table: str = "funds") -> dict:
+    """Ping REST directo a un proyecto Supabase (sin SDK). Sirve para proyectos
+    que no son el principal del .env."""
+    import httpx
+    t0 = datetime.now()
+    try:
+        r = httpx.get(
+            f"{url}/rest/v1/{table}?select=*&limit=1",
+            headers={"apikey": anon_key, "Authorization": f"Bearer {anon_key}"},
+            timeout=20,
+        )
+        latency = int((datetime.now() - t0).total_seconds() * 1000)
+        ok = r.status_code in (200, 206)
+        return {"ok": ok, "latency_ms": latency,
+                "error": None if ok else f"HTTP {r.status_code}"}
+    except Exception as exc:
+        latency = int((datetime.now() - t0).total_seconds() * 1000)
+        # getaddrinfo/DNS fail normalmente = proyecto PAUSADO.
+        return {"ok": False, "latency_ms": latency,
+                "error": f"{type(exc).__name__}: {str(exc)[:120]} (¿pausado?)"}
+
+
 def keepalive() -> dict:
     """Query trivial que registra actividad en Supabase (anti auto-pause).
 
-    Devuelve {"ok": bool, "latency_ms": int, "error": str|None}.
+    Pinguea el proyecto principal (.env) Y los proyectos extra configurados
+    (data/supabase_keepalive_targets.json), p.ej. el del fund-dashboard.
+
+    Devuelve {"ok", "latency_ms", "error", "targets": {name: {...}}}.
     """
     t0 = datetime.now()
+    result: dict
     try:
         from tools.supabase_client import get_client
         client = get_client()
         # SELECT mínimo: 1 fila de funds. Cuenta como actividad de DB + API.
         client.table("funds").select("isin").limit(1).execute()
         latency = int((datetime.now() - t0).total_seconds() * 1000)
-        return {"ok": True, "latency_ms": latency, "error": None}
+        result = {"ok": True, "latency_ms": latency, "error": None}
     except Exception as exc:
         latency = int((datetime.now() - t0).total_seconds() * 1000)
-        return {"ok": False, "latency_ms": latency, "error": str(exc)[:300]}
+        result = {"ok": False, "latency_ms": latency, "error": str(exc)[:300]}
+
+    # Proyectos extra (fund-dashboard, etc.)
+    targets: dict = {}
+    for t in _extra_targets():
+        name = t.get("name") or t.get("ref") or "extra"
+        if t.get("url") and t.get("anon_key"):
+            targets[name] = _ping_rest(t["url"], t["anon_key"], t.get("table") or "funds")
+    if targets:
+        result["targets"] = targets
+    return result
 
 
 def health_check() -> dict:
