@@ -808,6 +808,25 @@
 .hf-bar__back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;text-decoration:none;color:#fff;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.06);transition:background .15s,border-color .15s;white-space:nowrap;}
 .hf-bar__back:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.5);}
 @media (max-width:560px){.hf-bar{padding:9px 14px;}.hf-bar__sub{display:none;}.hf-bar__back-label{display:none;}.hf-bar__back{padding:7px 10px;}}
+
+/* ── Responsive (M1, 2026-06-04): la tabla de 14 columnas hacía scroll del
+   viewport entero y los grids de 5 columnas se aplastaban en móvil. ── */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 900px) {
+  .container { padding: 20px 16px 48px; }
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .filters { grid-template-columns: 1fr 1fr; }
+  .filters .filter-group:first-child { grid-column: 1 / -1; }
+  .header-actions { flex-wrap: wrap; }
+  /* La tabla mantiene su anchura y se desplaza dentro de .table-scroll
+     en vez de aplastar las columnas o desbordar la página. */
+  table.catalog { min-width: 860px; }
+}
+@media (max-width: 480px) {
+  .filters { grid-template-columns: 1fr; }
+  h1 { font-size: 22px; }
+  .stat-value { font-size: 18px; }
+}
 </style>
 <header class="hf-bar">
 <a class="hf-bar__brand" href="https://tool.rafagdominguez96.workers.dev/" aria-label="Horizonte Financiero - Herramientas">
@@ -973,6 +992,7 @@
 
   <div class="counter" id="counter">—</div>
 
+  <div class="table-scroll">
   <table class="catalog" id="catalog-table" style="display:none">
     <thead>
       <tr>
@@ -994,6 +1014,7 @@
     </thead>
     <tbody id="catalog-body"></tbody>
   </table>
+  </div>
 
   <div class="state" id="state-loading">Cargando catálogo…</div>
   <div class="state error" id="state-error" style="display:none"></div>
