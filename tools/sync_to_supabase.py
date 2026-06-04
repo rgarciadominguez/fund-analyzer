@@ -334,6 +334,15 @@ def sync_fund(
         elif isinstance(g, str) and g.strip():
             gestores_nombres.append(g.strip())
 
+    # B-INT (2026-06-04): para fondos INT el equipo raw (gestores.equipo) suele
+    # estar vacío y los perfiles viven en analyst_synthesis.gestores.perfiles.
+    # Fallback: derivar los nombres de ahí para no dejar gestores_nombres vacío
+    # en el catálogo cuando el análisis sí tiene equipo.
+    if not gestores_nombres and gestores_perfiles:
+        for p in gestores_perfiles:
+            if isinstance(p, dict) and p.get("nombre"):
+                gestores_nombres.append(str(p["nombre"]))
+
     # filosofia / estrategia / historia: pueden estar en analyst_synthesis.{seccion}.texto
     resumen = _safe_get_dict(analyst, "resumen")
     estrategia_dict = _safe_get_dict(analyst, "estrategia")
