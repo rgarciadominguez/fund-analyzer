@@ -119,8 +119,18 @@ _AR_KEYWORDS = (
     "informe-anual", "informe-semestral",
 )
 
+# Tokens genéricos de nombres de fondo que NO sirven para confirmar identidad
+# (aparecen en miles de fondos). El match por nombre exige tokens distintivos.
+_GENERIC_NAME_TOKENS = frozenset({
+    "fund", "funds", "fondo", "fondos", "class", "clase", "sicav", "ucits",
+    "global", "value", "equity", "equities", "bond", "bonds", "capital",
+    "invest", "investment", "investments", "investing", "sub", "fund's",
+    "growth", "income", "europe", "european", "world", "international",
+    "select", "selection", "plus", "trust", "asset", "management",
+})
 
-def _classify_pdf_for_task(pdf_path: Path, isin: str) -> tuple[str, dict] | None:
+
+def _classify_pdf_for_task(pdf_path: Path, isin: str, fund_name: str = "") -> tuple[str, dict] | None:
     """Clasifica un PDF de raw/discovery/ por nombre y devuelve (task_type, schema).
 
     Devuelve None si el PDF debe descartarse (corporate ESG/stewardship que no
@@ -158,15 +168,27 @@ def _classify_pdf_for_task(pdf_path: Path, isin: str) -> tuple[str, dict] | None
     if any(k in name_lc for k in _AR_KEYWORDS):
         try:
             from tools.pdf_extractor import extract_page_range
-            head = extract_page_range(str(pdf_path), 0, 5)[:8000]
-            if isin.lower() in head.lower():
-                if "semi" in name_lc:
-                    return ("semi_annual_subfund", AR_SUBFUND_SCHEMA)
-                return ("annual_subfund", AR_SUBFUND_SCHEMA)
-            else:
-                # Corporate AR de la gestora paraguas — descartar (no aporta
-                # datos del sub-fondo target).
-                return None
+            # B-AUM (2026-06-04): el ISIN en annual reports suele estar en notas/
+            # estadísticas (pág 40+), no en cabecera. Escaneamos 0-12 (antes 0-5)
+            # y, si el ISIN no aparece, aceptamos el AR cuando el NOMBRE del fondo
+            # coincide en cabecera (caso SICAV mono-fondo, p.ej. Sifter Fund) —
+            # antes se descartaba entero y el fondo quedaba sin AUM.
+            head_lc = extract_page_range(str(pdf_path), 0, 12)[:16000].lower()
+            _is_semi = "semi" in name_lc
+            _ttype = "semi_annual_subfund" if _is_semi else "annual_subfund"
+            if isin.lower() in head_lc:
+                return (_ttype, AR_SUBFUND_SCHEMA)
+            tokens = [
+                t for t in re.split(r"[^a-z0-9]+", (fund_name or "").lower())
+                if len(t) >= 4 and t not in _GENERIC_NAME_TOKENS
+            ]
+            if tokens and sum(1 for t in tokens if t in head_lc) >= 1:
+                # El AR menciona el nombre del fondo target → emitir tarea. El
+                # skill extract-pdfs-cowork extrae SOLO el sub-fondo (anti-
+                # invención + warnings umbrella en el contexto de la tarea).
+                return (_ttype, AR_SUBFUND_SCHEMA)
+            # Ni ISIN ni nombre del fondo → AR corporate de otra entidad. Descartar.
+            return None
         except Exception:
             return None
 
@@ -1421,7 +1443,7 @@ Devuelve SOLO el JSON. Nada más."""
             discovery_dir = self.fund_dir / "raw" / "discovery"
             pdfs = sorted(discovery_dir.glob("*.pdf")) if discovery_dir.exists() else []
             for pdf in pdfs:
-                classified = _classify_pdf_for_task(pdf, self.isin)
+                classified = _classify_pdf_for_task(pdf, self.isin, self.fund_name)
                 if classified is None:
                     n_skipped += 1
                     continue
