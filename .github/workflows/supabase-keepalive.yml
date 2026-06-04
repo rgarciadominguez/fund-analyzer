@@ -1,17 +1,15 @@
 name: Supabase Keepalive
 
-# Evita que Supabase (free tier) auto-pause el proyecto fund-dashboard por
-# inactividad >7 días. Corre a diario EN LA NUBE (independiente de que el PC
-# esté encendido) → la capa de protección a prueba de balas.
+# Evita que Supabase (free tier) auto-pause el proyecto por inactividad >7 días.
+# Corre a diario EN LA NUBE (independiente de que tu PC esté encendido).
+# Es AUTÓNOMO: solo hace un ping REST, no depende del código del repo.
 #
-# REQUISITOS para que funcione:
-#   1. Este fichero debe estar en la RAMA POR DEFECTO del repo (main). Los cron
-#      de GitHub Actions solo se disparan desde la default branch. Si trabajas en
-#      v2-cowork, haz merge/cherry-pick de este workflow a main.
-#   2. Añadir 2 secrets en el repo (Settings → Secrets and variables → Actions):
-#        - SUPABASE_URL
-#        - SUPABASE_SERVICE_ROLE_KEY
-#      (mismos valores que tu .env local).
+# REQUISITOS:
+#   1. Debe estar en la RAMA POR DEFECTO (main). Los cron de Actions solo se
+#      disparan desde la default branch.
+#   2. Añadir 2 secrets en Settings → Secrets and variables → Actions:
+#        - SUPABASE_URL        (ej. https://mfbtebngddjjuwfaelat.supabase.co)
+#        - SUPABASE_ANON_KEY   (la anon key del .env)
 
 on:
   schedule:
@@ -19,17 +17,20 @@ on:
   workflow_dispatch: {}        # permite lanzarlo a mano desde la pestaña Actions
 
 jobs:
-  keepalive:
+  ping:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install deps
-        run: pip install supabase python-dotenv
-      - name: Supabase keep-alive
+      - name: Ping Supabase REST (registra actividad)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: python -m tools.supabase_maintenance --keepalive
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "Faltan los secrets SUPABASE_URL / SUPABASE_ANON_KEY"; exit 1
+          fi
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/funds?select=isin&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "Supabase REST respondió HTTP $code"
+          test "$code" = "200"
