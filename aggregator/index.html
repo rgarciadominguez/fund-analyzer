@@ -48,9 +48,11 @@
   }
 
   .topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border-2);
+    background: #003A75;
+    background: linear-gradient(180deg, #003A75, #00305F);
+    border-bottom: 1px solid rgba(255,255,255,0.10);
   }
+  .topbar .brand-mark { height: 30px; width: auto; }
   .topbar-inner {
     max-width: 1180px;
     margin: 0 auto;
@@ -76,25 +78,29 @@
     display: block;
     flex: 0 0 auto;
   }
-  .brand-name { color: var(--text); }
-  .brand-sub { color: var(--muted); font-weight: 400; }
+  .brand-name { color: #fff; }
+  .brand-sub {
+    color: rgba(255,255,255,0.72); font-weight: 500;
+    font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+    padding-left: 12px; margin-left: 4px; border-left: 1px solid rgba(255,255,255,0.22);
+  }
   .top-cta {
-    background: var(--primary);
+    background: rgba(255,255,255,0.06);
     color: #fff;
-    border: none;
-    padding: 10px 18px;
+    border: 1px solid rgba(255,255,255,0.28);
+    padding: 9px 16px;
     border-radius: 8px;
     font-family: inherit;
     font-weight: 500;
     font-size: 14px;
     text-decoration: none;
-    transition: background 0.15s ease, transform 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
   }
-  .top-cta:hover { background: var(--primary-dark); }
-  .top-cta:focus-visible { outline: 2px solid var(--primary-dark); outline-offset: 2px; }
+  .top-cta:hover { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.5); }
+  .top-cta:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
   .hero {
     position: relative;
@@ -306,18 +312,8 @@
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="https://horizontefinancieroasesores.com/">
-      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect width="40" height="40" rx="10" fill="#0056A7"/>
-        <rect width="40" height="40" rx="10" fill="url(#hfg)" fill-opacity="0.35"/>
-        <path d="M8 26.5 L16.5 19 L22 23 L32 12.5" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="32" cy="12.5" r="2.4" fill="#FFFFFF"/>
-        <line x1="8" y1="30.5" x2="32" y2="30.5" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round"/>
-        <defs><linearGradient id="hfg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#1863DC"/><stop offset="1" stop-color="#003A75"/></linearGradient></defs>
-      </svg>
-      <span>
-        <span class="brand-name">Horizonte Financiero</span>
-        <span class="brand-sub"> · Herramientas</span>
-      </span>
+      <img class="brand-mark" src="https://horizontefinancieroasesores.com/wp-content/uploads/2025/03/Logotipo_Horizonte_Financiero-1_White-1024x259.png" alt="Horizonte Financiero">
+      <span class="brand-sub">Herramientas</span>
     </a>
     <a class="top-cta" href="https://horizontefinancieroasesores.com/" target="_blank" rel="noopener">
       Visitar web principal →
