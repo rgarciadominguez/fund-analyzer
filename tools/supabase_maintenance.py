@@ -152,6 +152,21 @@ def health_check() -> dict:
     except Exception:
         pass
 
+    # Regresión de calidad (2026-06-04): detecta análisis publicados que se
+    # hayan roto (vacíos/parciales/alucinados). Read-only — solo alarma; el
+    # arreglo es manual con `python -m tools.recheck_published_quality --apply`.
+    try:
+        broken = _quality_regressions(client)
+        metrics["published_qual_broken"] = len(broken)
+        if broken:
+            alarms.append(
+                f"{len(broken)} análisis publicados rotos: {', '.join(broken[:8])}"
+                + (" …" if len(broken) > 8 else "")
+                + " → revisar con `python -m tools.recheck_published_quality`"
+            )
+    except Exception as exc:
+        alarms.append(f"chequeo de calidad falló: {str(exc)[:120]}")
+
     # Comparar con la última métrica registrada → detectar caída brusca (>20%).
     prev = _last_metrics()
     if prev and n_funds is not None and prev.get("funds"):
@@ -162,6 +177,29 @@ def health_check() -> dict:
             pass
 
     return {"reachable": True, "alarms": alarms, "metrics": metrics}
+
+
+def _quality_regressions(client) -> list[str]:
+    """Devuelve los ISINs publicados (has_qualitative_analysis=true) cuyo
+    output.json local NO pasa el gate de calidad. Best-effort: si falta el
+    output.json local (p.ej. en CI sin checkout completo) se omite ese fondo."""
+    from tools.analysis_quality import assess_analysis_quality
+    funds_dir = ROOT / "data" / "funds"
+    rows = client.table("funds").select("isin,has_qualitative_analysis").limit(2000).execute().data or []
+    broken: list[str] = []
+    for r in rows:
+        if not r.get("has_qualitative_analysis"):
+            continue
+        p = funds_dir / r["isin"] / "output.json"
+        if not p.exists():
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not assess_analysis_quality(data)["ok"]:
+            broken.append(r["isin"])
+    return broken
 
 
 def _last_metrics() -> dict | None:
