@@ -1,36 +1,44 @@
 name: Supabase Keepalive
 
-# Evita que Supabase (free tier) auto-pause el proyecto por inactividad >7 días.
+# Evita que los proyectos Supabase (free tier) se auto-pausen por inactividad >7d.
 # Corre a diario EN LA NUBE (independiente de que tu PC esté encendido).
-# Es AUTÓNOMO: solo hace un ping REST, no depende del código del repo.
+# AUTÓNOMO: solo hace pings REST, no depende del código del repo.
+#
+# Mantiene vivos DOS proyectos:
+#   - fund-analyzer   (SUPABASE_URL    / SUPABASE_ANON_KEY)
+#   - fund-dashboard  (SUPABASE_URL_2  / SUPABASE_ANON_KEY_2)
 #
 # REQUISITOS:
-#   1. Debe estar en la RAMA POR DEFECTO (main). Los cron de Actions solo se
-#      disparan desde la default branch.
-#   2. Añadir 2 secrets en Settings → Secrets and variables → Actions:
-#        - SUPABASE_URL        (ej. https://mfbtebngddjjuwfaelat.supabase.co)
-#        - SUPABASE_ANON_KEY   (la anon key del .env)
+#   1. Debe estar en la rama por defecto (main) para que el cron se dispare.
+#   2. Secrets en Settings → Secrets and variables → Actions (ya configurados via API).
 
 on:
   schedule:
     - cron: "0 8 * * *"      # cada día a las 08:00 UTC
-  workflow_dispatch: {}        # permite lanzarlo a mano desde la pestaña Actions
+  workflow_dispatch: {}
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST (registra actividad)
+      - name: Ping proyectos Supabase (best-effort por proyecto)
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          URL1: ${{ secrets.SUPABASE_URL }}
+          KEY1: ${{ secrets.SUPABASE_ANON_KEY }}
+          URL2: ${{ secrets.SUPABASE_URL_2 }}
+          KEY2: ${{ secrets.SUPABASE_ANON_KEY_2 }}
         run: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "Faltan los secrets SUPABASE_URL / SUPABASE_ANON_KEY"; exit 1
-          fi
-          code=$(curl -s -o /dev/null -w "%{http_code}" \
-            "$SUPABASE_URL/rest/v1/funds?select=isin&limit=1" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
-          echo "Supabase REST respondió HTTP $code"
-          test "$code" = "200"
+          ping() {
+            local name="$1" url="$2" key="$3"
+            if [ -z "$url" ] || [ -z "$key" ]; then echo "[$name] sin secrets, skip"; return 0; fi
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 25 \
+              "$url/rest/v1/funds?select=isin&limit=1" \
+              -H "apikey: $key" -H "Authorization: Bearer $key" || echo "000")
+            echo "[$name] HTTP $code"
+            if [ "$code" = "200" ]; then echo "[$name] OK (activo)"; else echo "[$name] aviso: no respondió 200 (¿pausado? requiere restaurar a mano)"; fi
+          }
+          ping "fund-analyzer"  "$URL1" "$KEY1"
+          ping "fund-dashboard" "$URL2" "$KEY2"
+          # El job no falla aunque un proyecto esté pausado: un ping no puede
+          # restaurarlo, y no queremos que la Action salga en rojo por eso.
+          echo "keepalive completado"
