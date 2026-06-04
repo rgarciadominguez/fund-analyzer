@@ -797,6 +797,31 @@
 </style>
 </head>
 <body>
+<!-- HF SHARED HEADER (homogéneo, CSS aislado .hf-bar, puramente aditivo) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600&display=swap">
+<style>
+  .hf-bar{box-sizing:border-box;position:sticky;top:0;z-index:99999;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 20px;background:rgba(255,255,255,0.94);-webkit-backdrop-filter:saturate(180%) blur(8px);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid #E0E7E8;font-family:"Epilogue",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+  .hf-bar *{box-sizing:border-box;}
+  .hf-bar__brand{display:inline-flex;align-items:center;gap:11px;text-decoration:none;}
+  .hf-bar__logo{width:34px;height:34px;flex:0 0 auto;display:block;}
+  .hf-bar__name{font-size:14.5px;font-weight:600;color:#0C1726;letter-spacing:-0.01em;line-height:1.1;}
+  .hf-bar__sub{color:#5b6b7e;font-weight:400;}
+  .hf-bar__back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;text-decoration:none;color:#0056A7;padding:7px 14px;border-radius:8px;border:1px solid #E0E7E8;background:#fff;transition:background .15s,border-color .15s,color .15s;}
+  .hf-bar__back:hover{background:#0056A7;color:#fff;border-color:#0056A7;}
+  @media (max-width:560px){.hf-bar{padding:8px 14px;}.hf-bar__sub,.hf-bar__back-label{display:none;}.hf-bar__back{padding:7px 10px;}}
+</style>
+<header class="hf-bar">
+  <a class="hf-bar__brand" href="https://tool.rafagdominguez96.workers.dev/" aria-label="Horizonte Financiero — Herramientas">
+    <svg class="hf-bar__logo" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="40" height="40" rx="10" fill="#0056A7"/><rect width="40" height="40" rx="10" fill="url(#hfg)" fill-opacity="0.35"/>
+      <path d="M8 26.5 L16.5 19 L22 23 L32 12.5" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="32" cy="12.5" r="2.4" fill="#FFFFFF"/><line x1="8" y1="30.5" x2="32" y2="30.5" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round"/>
+      <defs><linearGradient id="hfg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#1863DC"/><stop offset="1" stop-color="#003A75"/></linearGradient></defs>
+    </svg>
+    <span class="hf-bar__name">Horizonte Financiero <span class="hf-bar__sub">· Herramientas</span></span>
+  </a>
+  <a class="hf-bar__back" href="https://tool.rafagdominguez96.workers.dev/"><span>←</span> <span class="hf-bar__back-label">Todas las herramientas</span></a>
+</header>
 <div class="container">
 
   <header>
