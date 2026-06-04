@@ -105,27 +105,13 @@
   .hero {
     position: relative;
     overflow: hidden;
-    background: var(--bg);
-    background-image:
-      radial-gradient(ellipse 60% 50% at 20% 10%, rgba(0, 86, 167, 0.08), transparent 60%),
-      radial-gradient(ellipse 50% 40% at 85% 0%, rgba(24, 99, 220, 0.07), transparent 55%),
-      radial-gradient(ellipse 40% 30% at 50% 100%, rgba(0, 86, 167, 0.05), transparent 60%);
-    padding: 96px 24px 140px;
+    background:
+      linear-gradient(180deg, rgba(0,40,82,0.42) 0%, rgba(0,44,90,0.52) 42%, rgba(0,48,95,0.90) 100%),
+      url('hero-sea.jpg') center 30% / cover no-repeat;
+    padding: 110px 24px 150px;
     text-align: center;
   }
-  .hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(to right, rgba(0, 86, 167, 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 86, 167, 0.04) 1px, transparent 1px);
-    background-size: 56px 56px;
-    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent 85%);
-            mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent 85%);
-    pointer-events: none;
-    opacity: 0.6;
-  }
+  .hero::before { display: none; }
   .hero-waves {
     position: absolute;
     left: 0;
@@ -143,8 +129,9 @@
     font-weight: 500;
     letter-spacing: 2.2px;
     text-transform: uppercase;
-    color: var(--primary);
-    background: rgba(0, 86, 167, 0.08);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.16);
+    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
     padding: 7px 16px;
     border-radius: 999px;
     margin-bottom: 22px;
@@ -157,15 +144,17 @@
     letter-spacing: -0.01em;
     font-weight: 500;
     margin: 0 0 18px;
-    color: var(--text);
+    color: #fff;
+    text-shadow: 0 1px 24px rgba(0, 30, 60, 0.35);
   }
-  h1 .accent { color: var(--primary); }
+  h1 .accent { color: #bcd8ff; }
   .lede {
     font-size: 16px;
     line-height: 1.9;
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.90);
     max-width: 680px;
     margin: 0 auto;
+    text-shadow: 0 1px 16px rgba(0, 30, 60, 0.30);
   }
 
   main {
