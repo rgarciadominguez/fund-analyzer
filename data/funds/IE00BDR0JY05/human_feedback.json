@@ -1,0 +1,139 @@
+{
+  "isin": "IE00BDR0JY05",
+  "feedbacks": [
+    {
+      "id": "fb_20260604_100204_f64d",
+      "created_at": "2026-06-04T10:02:04.340913+00:00",
+      "raw_text": "falta el nombre en la tabla de fondos\nhistoria => AUM no está bien el gráfico\nevolución => no aparece nada hay que rehacerlo\ncartera => no hay nada de info de cartera, hay que buscar minimo principales posiciones\nfunetes externas => hay que buscar analisis tanto nacionales como internacionales\ndocumentos => faltan documentos de la gestora y annual reports",
+      "raw_urls": [],
+      "structured_items": [
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario indica que falta el nombre del fondo en la tabla de fondos. Requiere verificación y corrección del campo nombre.",
+          "source_urls": [],
+          "target_path": "nombre",
+          "target_section": null,
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario señala que falta el nombre de la gestora en la tabla. Debe identificarse y completarse.",
+          "source_urls": [],
+          "target_path": "gestora",
+          "target_section": null,
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario indica que el gráfico de AUM en la sección historia no está bien. Requiere re-análisis y corrección de datos y visualización.",
+          "source_urls": [],
+          "target_path": "kpis.aum_actual_meur",
+          "target_section": "historia",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario reporta que la sección evolución no aparece o está vacía. Requiere rehacerla completamente con datos de desempeño del fondo.",
+          "source_urls": [],
+          "target_path": null,
+          "target_section": "evolucion",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario indica que falta información de cartera. Debe buscarse y añadirse mínimo las principales posiciones del fondo.",
+          "source_urls": [],
+          "target_path": null,
+          "target_section": "cartera",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario señala que faltan análisis tanto nacionales como internacionales en fuentes externas. Requiere búsqueda y adición de análisis de terceros.",
+          "source_urls": [],
+          "target_path": null,
+          "target_section": "fuentes_externas",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario indica que faltan documentos de la gestora y annual reports. Debe localizarse y añadirse documentación oficial del fondo y gestor.",
+          "source_urls": [],
+          "target_path": null,
+          "target_section": "documentos",
+          "value": null
+        }
+      ],
+      "estado": "partially_resolved",
+      "applied_at": "2026-06-04T10:08:46.726126+00:00",
+      "resolved_items": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "run_id_applied": "IE00BDR0JY05_consume_all",
+      "item_results": [
+        {
+          "idx": 0,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (nombre)",
+          "resolved": true,
+          "verify_reason": "feedback global 'revisar': asumido procesado tras re-run completo del analyst"
+        },
+        {
+          "idx": 1,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (gestora)",
+          "resolved": true,
+          "verify_reason": "feedback global 'revisar': asumido procesado tras re-run completo del analyst"
+        },
+        {
+          "idx": 2,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (historia)",
+          "resolved": true,
+          "verify_reason": "sección 'historia' tiene contenido (4426 chars). El analyst la regeneró considerando el feedback."
+        },
+        {
+          "idx": 3,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (evolucion)",
+          "resolved": true,
+          "verify_reason": "sección 'evolucion' tiene contenido (3435 chars). El analyst la regeneró considerando el feedback."
+        },
+        {
+          "idx": 4,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (cartera)",
+          "resolved": true,
+          "verify_reason": "sección 'cartera' tiene contenido (3860 chars). El analyst la regeneró considerando el feedback."
+        },
+        {
+          "idx": 5,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (fuentes_externas)",
+          "resolved": true,
+          "verify_reason": "sección 'fuentes_externas' tiene contenido (3100 chars). El analyst la regeneró considerando el feedback."
+        },
+        {
+          "idx": 6,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (documentos)",
+          "resolved": false,
+          "verify_reason": "sección 'documentos' quedó vacía o muy corta (0 chars). El analyst no consiguió generar contenido — posiblemente faltan datos en bundle/ para esa sección."
+        }
+      ]
+    }
+  ],
+  "fund_name_at_creation": "Ashoka WhiteOak India Opportunities Fund"
+}

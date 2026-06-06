@@ -165,7 +165,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
       <div class="lh-fund">Ashoka WhiteOak India Opportunities Fund <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★☆</span></div>
-      
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>WhiteOak Capital</strong></div>
       
       <div class='lh-meta-line'>ISIN retail EUR: <strong>IE00BDR0JY05</strong> <span style='opacity:.55;font-size:10.5px;'>· Class D EUR</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>IE000B2DCR25</strong> <span style='opacity:.55;font-size:10.5px;'>· Class I EUR Accumulation</span></div>
     </div>
@@ -173,7 +173,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
     <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€1.436M</div>
+        <div class="lh-aum-v">€1.435M</div>
         <div class="lh-aum-l">AUM</div>
         <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
       </div>
@@ -282,7 +282,7 @@ La filosofía es coherente con la trayectoria personal de Khemka: durante 11 añ
     new Chart(ctx, {
       type: 'bar',
       data: { labels: ["Class D EUR", "Class I EUR Accumulation"], datasets: [
-      {label:'TER (%)', data:[1.05, 0.05], backgroundColor:'rgba(12,35,64,0.85)'}
+      {label:'TER (%)', data:[1.06, 0.05], backgroundColor:'rgba(12,35,64,0.85)'}
     ] },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -314,7 +314,7 @@ La filosofía es coherente con la trayectoria personal de Khemka: durante 11 añ
   <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 1436.4;
+  window.__HIST_AUM_HEADER__ = 1435.0;
   </script>
   
   <div class="sr">Cronología de eventos relevantes</div>
@@ -472,7 +472,54 @@ Aparece habitualmente como portavoz del fondo en formato vídeo y entrevista. Ha
 
 <section class="pane" id="p3">
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
-  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="pane" id="p4">
@@ -939,7 +986,7 @@ Aparece habitualmente como portavoz del fondo en formato vídeo y entrevista. Ha
 <div id="fb-modal-bg" class="fb-modal-bg">
   <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
     <h2 id="fb-modal-title">📝 Mejorar análisis: Ashoka WhiteOak India Opportunities Fund</h2>
-    <div class="fb-sub">ISIN: <code>IE00BDR0JY05</code></div>
+    <div class="fb-sub">ISIN: <code>IE00BDR0JY05</code> · WhiteOak Capital</div>
 
     <label for="fb-text">¿Qué hay que mejorar?</label>
     <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
@@ -973,7 +1020,7 @@ Aparece habitualmente como portavoz del fondo en formato vídeo y entrevista. Ha
 (function() {
   const ISIN = 'IE00BDR0JY05';
   const FUND_NAME = 'Ashoka WhiteOak India Opportunities Fund';
-  const GESTORA = '';
+  const GESTORA = 'WhiteOak Capital';
   // API_BASE: localStorage o relativo. Igual que catalog.html.
   let API_BASE = localStorage.getItem('fa_api_base') || '';
   function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
@@ -1241,7 +1288,7 @@ function fmtES(v,dec){
 function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
 const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
 const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
-const Y=[];
+const Y=["26"];
 // Anti-collision label helper for area/line charts with multiple series
 function drawAreaLabels(chart,colors,dec,minGap){
   const ctx=chart.ctx;
@@ -1302,7 +1349,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[1435.0],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){

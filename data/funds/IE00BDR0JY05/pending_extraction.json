@@ -1,8 +1,85 @@
 {
   "isin": "IE00BDR0JY05",
   "tipo": "INT",
-  "generated_at": "2026-05-28T05:30:37Z",
+  "generated_at": "2026-06-04T14:43:10Z",
   "tasks": [
+    {
+      "id": "intl_generic_pdf__web_gmo-quarterly-letter_4q-2025",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/IE00BDR0JY05/raw/discovery/_web_gmo-quarterly-letter_4q-2025.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: IE00BDR0JY05 (unknown / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf__web_half-year-report-2025-fr",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/IE00BDR0JY05/raw/discovery/_web_half-year-report-2025-fr.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: IE00BDR0JY05 (unknown / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf_ar-dvy-en",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/IE00BDR0JY05/raw/discovery/ar-dvy-en.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: IE00BDR0JY05 (unknown / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_kid_CY-EN-KID",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/IE00BDR0JY05/raw/discovery/CY-EN-KID.pdf",
+      "schema": {
+        "kpis": {
+          "divisa_base": "string",
+          "ter_pct": "float"
+        },
+        "perfil_riesgo_srri": "int 1-7",
+        "objetivo_inversion": "string"
+      },
+      "context": "PDF tipo=kid. ISIN target: IE00BDR0JY05 (unknown / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
     {
       "id": "intl_prospectus_prospectus_latest",
       "agent": "intl_extractor_v2",
@@ -15,7 +92,28 @@
       },
       "context": "PDF tipo=prospectus. ISIN target: IE00BDR0JY05 (unknown / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note.",
       "two_stage": true
+    },
+    {
+      "id": "intl_generic_pdf_XS1914695009-EN",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/IE00BDR0JY05/raw/discovery/XS1914695009-EN.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: IE00BDR0JY05 (unknown / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
     }
   ],
-  "updated_at": "2026-05-28T05:30:37Z"
+  "updated_at": "2026-06-04T14:43:10Z"
 }

@@ -1,23 +1,29 @@
 {
   "isin": "IE00BDR0JY05",
   "nombre": "Ashoka WhiteOak India Opportunities Fund",
-  "gestora": "",
+  "gestora": "WhiteOak Capital",
   "tipo": "INT",
-  "ultima_actualizacion": "2026-05-28T07:30:37",
+  "ultima_actualizacion": "2026-06-04T16:43:10",
   "kpis": {
     "anio_creacion": null,
     "clasificacion": "",
-    "benchmark": "",
+    "benchmark": "MSCI India IMI",
     "rating_morningstar": null,
-    "aum_actual_meur": 1670.0,
+    "aum_actual_meur": 1435.0,
     "num_participes": null,
     "num_activos_cartera": null,
     "concentracion_top10_pct": null,
-    "ter_pct": null,
-    "coste_gestion_pct": null
+    "ter_pct": 1.06,
+    "coste_gestion_pct": null,
+    "divisa": "EUR"
   },
   "cuantitativo": {
-    "serie_aum": [],
+    "serie_aum": [
+      {
+        "periodo": "2026",
+        "valor_meur": 1435.0
+      }
+    ],
     "serie_participes": [],
     "serie_ter": [],
     "serie_rentabilidad": [],
@@ -44,10 +50,7 @@
   "fuentes": {
     "informes_descargados": [],
     "cartas_gestores": [],
-    "urls_consultadas": [
-      "https://markets.ft.com/data/funds/tearsheet/performance?s=IE00BDR0JY05:EUR",
-      "https://www.investing.com/funds/ie00bdr0jy05-commentary"
-    ],
+    "urls_consultadas": [],
     "xmls_cnmv": []
   },
   "economia_fondo": {
@@ -337,7 +340,12 @@
     "analyst_synthesis.cartera",
     "analyst_synthesis.fuentes_externas",
     "analyst_synthesis.documentos",
-    "nombre"
+    "nombre",
+    "gestora",
+    "kpis.aum_actual_meur",
+    "kpis.ter_pct",
+    "kpis.divisa",
+    "kpis.benchmark"
   ],
   "_meta": {
     "cowork_runs": [
@@ -349,6 +357,81 @@
         "audit_iterations": 1,
         "input_drift": [
           "fund_data.json: no existe ahora",
+          "letters_data.json: cambió desde la skill",
+          "readings.json: no existe ahora",
+          "sources.json: cambió desde la skill"
+        ],
+        "skill_version": "2.3.0",
+        "sections_generated": [
+          "resumen",
+          "historia",
+          "gestores",
+          "evolucion",
+          "estrategia",
+          "cartera",
+          "fuentes_externas",
+          "documentos"
+        ]
+      },
+      {
+        "ts": "2026-05-28T09:30:00Z",
+        "main_model": "opus",
+        "audit_model": "self",
+        "anti_invencion_flagged_count": 2,
+        "audit_iterations": 1,
+        "input_drift": [
+          "fund_data.json: no existe ahora",
+          "manager_profile.json: cambió desde la skill",
+          "letters_data.json: cambió desde la skill",
+          "readings.json: no existe ahora",
+          "sources.json: cambió desde la skill"
+        ],
+        "skill_version": "2.3.0",
+        "sections_generated": [
+          "resumen",
+          "historia",
+          "gestores",
+          "evolucion",
+          "estrategia",
+          "cartera",
+          "fuentes_externas",
+          "documentos"
+        ]
+      },
+      {
+        "ts": "2026-05-28T09:30:00Z",
+        "main_model": "opus",
+        "audit_model": "self",
+        "anti_invencion_flagged_count": 2,
+        "audit_iterations": 1,
+        "input_drift": [
+          "fund_data.json: no existe ahora",
+          "manager_profile.json: cambió desde la skill",
+          "letters_data.json: cambió desde la skill",
+          "readings.json: no existe ahora",
+          "sources.json: cambió desde la skill"
+        ],
+        "skill_version": "2.3.0",
+        "sections_generated": [
+          "resumen",
+          "historia",
+          "gestores",
+          "evolucion",
+          "estrategia",
+          "cartera",
+          "fuentes_externas",
+          "documentos"
+        ]
+      },
+      {
+        "ts": "2026-05-28T09:30:00Z",
+        "main_model": "opus",
+        "audit_model": "self",
+        "anti_invencion_flagged_count": 2,
+        "audit_iterations": 1,
+        "input_drift": [
+          "fund_data.json: no existe ahora",
+          "manager_profile.json: cambió desde la skill",
           "letters_data.json: cambió desde la skill",
           "readings.json: no existe ahora",
           "sources.json: cambió desde la skill"
@@ -403,5 +486,100 @@
     "method": "rules_v1_no_login",
     "generated_at": "2026-06-03T19:35:27.792098+00:00",
     "tipo": "INT"
-  }
+  },
+  "_feedback_revisar": [
+    {
+      "target_path": "nombre",
+      "target_section": null,
+      "rationale": "Usuario indica que falta el nombre del fondo en la tabla de fondos. Requiere verificación y corrección del campo nombre.",
+      "source_urls": [],
+      "raw_text_hint": "falta el nombre en la tabla de fondos\nhistoria => AUM no está bien el gráfico\nevolución => no aparece nada hay que rehacerlo\ncartera => no hay nada de info de cartera, hay que buscar minimo principales posiciones\nfunetes externas => hay que buscar analisis tanto nacionales como internacionales\ndocumentos => faltan documentos de la gestora y annual reports"
+    },
+    {
+      "target_path": "gestora",
+      "target_section": null,
+      "rationale": "Usuario señala que falta el nombre de la gestora en la tabla. Debe identificarse y completarse.",
+      "source_urls": [],
+      "raw_text_hint": "falta el nombre en la tabla de fondos\nhistoria => AUM no está bien el gráfico\nevolución => no aparece nada hay que rehacerlo\ncartera => no hay nada de info de cartera, hay que buscar minimo principales posiciones\nfunetes externas => hay que buscar analisis tanto nacionales como internacionales\ndocumentos => faltan documentos de la gestora y annual reports"
+    },
+    {
+      "target_path": "kpis.aum_actual_meur",
+      "target_section": "historia",
+      "rationale": "Usuario indica que el gráfico de AUM en la sección historia no está bien. Requiere re-análisis y corrección de datos y visualización.",
+      "source_urls": [],
+      "raw_text_hint": "falta el nombre en la tabla de fondos\nhistoria => AUM no está bien el gráfico\nevolución => no aparece nada hay que rehacerlo\ncartera => no hay nada de info de cartera, hay que buscar minimo principales posiciones\nfunetes externas => hay que buscar analisis tanto nacionales como internacionales\ndocumentos => faltan documentos de la gestora y annual reports"
+    },
+    {
+      "target_path": null,
+      "target_section": "evolucion",
+      "rationale": "Usuario reporta que la sección evolución no aparece o está vacía. Requiere rehacerla completamente con datos de desempeño del fondo.",
+      "source_urls": [],
+      "raw_text_hint": "falta el nombre en la tabla de fondos\nhistoria => AUM no está bien el gráfico\nevolución => no aparece nada hay que rehacerlo\ncartera => no hay nada de info de cartera, hay que buscar minimo principales posiciones\nfunetes externas => hay que buscar analisis tanto nacionales como internacionales\ndocumentos => faltan documentos de la gestora y annual reports"
+    },
+    {
+      "target_path": null,
+      "target_section": "cartera",
+      "rationale": "Usuario indica que falta información de cartera. Debe buscarse y añadirse mínimo las principales posiciones del fondo.",
+      "source_urls": [],
+      "raw_text_hint": "falta el nombre en la tabla de fondos\nhistoria => AUM no está bien el gráfico\nevolución => no aparece nada hay que rehacerlo\ncartera => no hay nada de info de cartera, hay que buscar minimo principales posiciones\nfunetes externas => hay que buscar analisis tanto nacionales como internacionales\ndocumentos => faltan documentos de la gestora y annual reports"
+    },
+    {
+      "target_path": null,
+      "target_section": "fuentes_externas",
+      "rationale": "Usuario señala que faltan análisis tanto nacionales como internacionales en fuentes externas. Requiere búsqueda y adición de análisis de terceros.",
+      "source_urls": [],
+      "raw_text_hint": "falta el nombre en la tabla de fondos\nhistoria => AUM no está bien el gráfico\nevolución => no aparece nada hay que rehacerlo\ncartera => no hay nada de info de cartera, hay que buscar minimo principales posiciones\nfunetes externas => hay que buscar analisis tanto nacionales como internacionales\ndocumentos => faltan documentos de la gestora y annual reports"
+    },
+    {
+      "target_path": null,
+      "target_section": "documentos",
+      "rationale": "Usuario indica que faltan documentos de la gestora y annual reports. Debe localizarse y añadirse documentación oficial del fondo y gestor.",
+      "source_urls": [],
+      "raw_text_hint": "falta el nombre en la tabla de fondos\nhistoria => AUM no está bien el gráfico\nevolución => no aparece nada hay que rehacerlo\ncartera => no hay nada de info de cartera, hay que buscar minimo principales posiciones\nfunetes externas => hay que buscar analisis tanto nacionales como internacionales\ndocumentos => faltan documentos de la gestora y annual reports"
+    }
+  ],
+  "_merge_log": [
+    {
+      "ts": "2026-06-04T12:08:46.780503",
+      "preserved_paths": [
+        "analyst_synthesis.resumen",
+        "analyst_synthesis.historia",
+        "analyst_synthesis.gestores",
+        "analyst_synthesis.evolucion",
+        "analyst_synthesis.estrategia",
+        "analyst_synthesis.cartera",
+        "analyst_synthesis.fuentes_externas",
+        "analyst_synthesis.documentos",
+        "nombre"
+      ]
+    },
+    {
+      "ts": "2026-06-04T12:50:08.270531",
+      "preserved_paths": [
+        "analyst_synthesis.resumen",
+        "analyst_synthesis.historia",
+        "analyst_synthesis.gestores",
+        "analyst_synthesis.evolucion",
+        "analyst_synthesis.estrategia",
+        "analyst_synthesis.cartera",
+        "analyst_synthesis.fuentes_externas",
+        "analyst_synthesis.documentos",
+        "nombre"
+      ]
+    },
+    {
+      "ts": "2026-06-04T16:46:42.261032",
+      "preserved_paths": [
+        "analyst_synthesis.resumen",
+        "analyst_synthesis.historia",
+        "analyst_synthesis.gestores",
+        "analyst_synthesis.evolucion",
+        "analyst_synthesis.estrategia",
+        "analyst_synthesis.cartera",
+        "analyst_synthesis.fuentes_externas",
+        "analyst_synthesis.documentos",
+        "nombre"
+      ]
+    }
+  ]
 }
