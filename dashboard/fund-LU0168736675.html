@@ -165,7 +165,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
       <div class="lh-fund">SIFTER FUND - GLOBAL <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★☆</span></div>
-      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Sifter Capital Ltd (PM delegado) / Adepa Asset Management S.A. (ManCo)</strong></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Sifter Capital</strong></div>
       <div class="lh-meta-line">Depositario: <strong>Mr. Vazil Hudak Quintet Private Bank (Europe) S.A</strong></div>
       <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0168736675</strong> <span style='opacity:.55;font-size:10.5px;'>· Global PA</span></div>
     </div>
@@ -187,7 +187,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Junio 2003</span></div>
       <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Global</span></div>
-      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Santeri Korpinen</strong> <span style='opacity:.7;'>(lead)</span> · Olli Pöyhönen <span style='opacity:.6;font-size:9px;'>(co)</span> · Alexander Järf <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Santeri Korpinen</strong> <span style='opacity:.7;'>(lead)</span> · Olli Pöyhönen <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
       <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
     </div>
 
@@ -208,7 +208,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-04</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-06</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0168736675 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -1142,7 +1142,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 <div id="fb-modal-bg" class="fb-modal-bg">
   <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
     <h2 id="fb-modal-title">📝 Mejorar análisis: SIFTER FUND - GLOBAL</h2>
-    <div class="fb-sub">ISIN: <code>LU0168736675</code></div>
+    <div class="fb-sub">ISIN: <code>LU0168736675</code> · Sifter Capital</div>
 
     <label for="fb-text">¿Qué hay que mejorar?</label>
     <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
@@ -1176,7 +1176,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 (function() {
   const ISIN = 'LU0168736675';
   const FUND_NAME = 'SIFTER FUND - GLOBAL';
-  const GESTORA = '';
+  const GESTORA = 'Sifter Capital';
   // API_BASE: localStorage o relativo. Igual que catalog.html.
   let API_BASE = localStorage.getItem('fa_api_base') || '';
   function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
