@@ -1,376 +1,61 @@
 {
   "_meta": {
     "isin": "LU0168736675",
-    "generated": "2026-06-04T18:42:31.720902",
+    "generated": "2026-06-06T15:10:00",
     "generator": "skill:analyst-cowork",
     "skill_version": "2.4.0",
     "main_model": "opus",
     "audit_model": "self",
     "sections_generated": [
-      "resumen",
-      "historia",
-      "gestores",
-      "evolucion",
-      "estrategia",
       "cartera",
-      "fuentes_externas",
-      "documentos"
+      "evolucion"
     ],
+    "selective_regen": true,
+    "selective_regen_reason": "Todos los items de human_feedback.json tienen target_section (cartera, evolucion). Se regeneran SOLO esas dos secciones; el resto (resumen, historia, gestores, evolucion previa, estrategia, fuentes_externas, documentos) se preserva verbatim por el consumidor. El usuario pidio explicitamente NO tocar gestores.",
     "audit_pass_done": true,
     "audit_iterations": 1,
     "anti_invencion_flagged": [
-      "Carta 2015-Q2 EXCLUIDA: contenido de UBS (contaminacion cross-fund), no del Sifter Fund.",
-      "TER: fuentes discrepan (factsheet 1.4-1.8%, FT ongoing charge 1.65%); reportado rango ~1.65-1.8%.",
-      "rentabilidades_anuales/concentracion_historica: no hay serie por anio fiable en el bundle -> listas vacias (no inventadas)."
+      "cartera: las fuentes publicas (FT tearsheet / factsheet del bundle) solo divulgan individualmente las 10 mayores posiciones; el fondo mantiene 25-30. NO se inventan las ~15-20 posiciones restantes (~41% del patrimonio).",
+      "cartera.concentracion.top15_pct = null: imposible de calcular con solo 10 posiciones disponibles en el bundle.",
+      "evolucion: serie_aum del bundle solo cubre 3 cierres fiscales (2023-2025) del ultimo Annual Report. NO se inventan AUM de anios anteriores al 2023 (fondo lanzado en 2003).",
+      "evolucion.rentabilidades_anuales = [] : las cartas mezclan anio fiscal (cierre agosto) y anio natural; no hay serie anual homogenea y comparable -> no se fuerza un grafico enganoso."
+    ],
+    "input_files_hash": {
+      "fund_data.json": "sha256:fec89c3fc18cde35d7765cbf46e40a4636e105d43c1d888a5e0267236b1bb31b",
+      "manager_profile.json": "sha256:f0574f74cb14faed13241068f9579db7d040514c707945c08ba99a8f8e467b42",
+      "letters_data.json": "sha256:756c3ed8c78b617c02bd47d6906dc13ccad983c0d1c5ea0727517ffc9d6f8a1a",
+      "readings.json": "sha256:f8b6212615484819058e1076e13d82028fdbdb232c1b5611515eb6b5a5dee37a",
+      "sources.json": "sha256:b43be3021a668890287c211db6a55be9b96afe95d5823a70ee2a2f4a422b47fa"
+    },
+    "feedback_outcomes": [
+      {
+        "feedback_id": "fb_20260606_123538_4a28",
+        "item_idx": 0,
+        "resolved": false,
+        "reason": "He corregido la narrativa de cartera para dejar claro que el fondo mantiene del orden de 25-30 posiciones (no 10), que las diez listadas son solo el tramo superior de la cartera (top-10 ~59% del patrimonio; top-5 ~38%) y que el ~41% restante corresponde a ~15-20 posiciones que las fuentes publicas no detallan nombre a nombre. PERO el KPI 'Posiciones totales' del dashboard se calcula con len(posiciones.actuales) sobre datos TOP-LEVEL, donde solo hay las 10 posiciones que publica el tearsheet de FT; el skill analyst-cowork solo escribe analyst_synthesis y NO puede modificar ese campo top-level. Para que el KPI muestre ~28 y la concentracion sea completa (top-15) hace falta capturar la lista integra de holdings desde el factsheet oficial (requiere fetch externo, pendiente de autorizacion) o re-ejecutar el extractor INT y reconstruir posiciones.actuales. No invento las ~18 posiciones que faltan."
+      },
+      {
+        "feedback_id": "fb_20260606_123538_4a28",
+        "item_idx": 1,
+        "resolved": false,
+        "reason": "He reescrito la narrativa de evolucion detallando los tres cierres fiscales de AUM disponibles (ago-2023: 194,67 M EUR; ago-2024: 268,45 M EUR; ago-2025: 280,75 M EUR), la estructura por clases y el recorrido de rentabilidad reconstruido de cartas e informes anuales. PERO una serie de AUM 'completa' desde el lanzamiento (2003) NO esta en el material del bundle: un Annual Report solo aporta el ejercicio en curso y los dos anteriores, asi que las fuentes solo cubren 2023-2025. Ademas, el grafico de AUM del dashboard lee de cuantitativo.serie_aum (TOP-LEVEL), que este skill no escribe. Para extender la serie haria falta descargar los informes anuales historicos de la gestora. No invento cifras de patrimonio de anios sin fuente."
+      }
     ]
   },
   "analyst_synthesis": {
-    "resumen": {
-      "texto": "SIFTER FUND - GLOBAL es un fondo de renta variable global con enfoque *quality* gestionado por la boutique finlandesa **Sifter Capital Ltd.** (gestor de inversiones delegado), bajo la sociedad gestora luxemburguesa Adepa Asset Management S.A. El fondo nació en 2003 de la mano de Hannes Kulvik, creador del modelo de inversión en calidad de raíz nórdica que da nombre a su proceso (FundsPeople; Salud Financiera). A cierre del ejercicio fiscal (31 de agosto de 2025) gestiona **280,75 millones de euros**, tras crecer de 194,7 M€ en 2023 a 268,4 M€ en 2024 (Annual Report 2025).\n\nLa propuesta del fondo es deliberadamente sencilla de enunciar y exigente de ejecutar: poseer entre 25 y 30 compañías cotizadas de máxima calidad a escala mundial, sin apalancamiento ni derivados (salvo cobertura puntual de divisa), y mantenerlas a largo plazo. El proceso *Stocksifter* parte de un universo de ~65.000 empresas y descarta sistemáticamente más del 95-99% que no superan cuatro criterios de calidad: crecimiento predecible, ventaja competitiva sostenible, solidez financiera y una valoración disciplinada (cartas del gestor; análisis Moclano y Salud Financiera).\n\nLa cartera actual está sesgada hacia tecnología (≈37%), industriales de calidad (≈24%) y salud (≈17%), con nombres como Alphabet, Safran, Microsoft y la cadena de valor de semiconductores (Lam Research, Applied Materials, TSMC, Disco). Su rentabilidad ha sido consistente —en torno a +12% anualizado a 5 años según fuentes externas (Moclano)— si bien las comisiones son elevadas (TER ≈1,65-1,8%), un punto recurrente en las críticas independientes. Desde septiembre de 2024 la estrategia se distribuye en Iberia y Latinoamérica a través de ACCI.",
-      "filosofia_inversion": "La filosofía es *quality investing* de convicción y baja rotación: invertir en negocios con ventajas competitivas fuertes, poder de fijación de precios, bajo apalancamiento financiero y equipos directivos sólidos, comprados a una valoración razonable (tesis del gestor, cartas 2024-2025). El fondo entiende la inversión no como apostar a favor o en contra de compañías, sino como ser copropietario de los mejores modelos de negocio del mundo durante años. La disciplina de venta es tan importante como la de compra: se desinvierte de una empresa cuando deja de cumplir los criterios de calidad o pierde su senda de crecimiento (ejemplos reales: salidas de Cisco y VeriSign en 2024; Sony, Disney y Autoliv en 2025). El resultado es una cartera concentrada de alta convicción, larga sólo, sin apalancamiento y con una tasa de aceptación de nuevas ideas mínima (en tres años se investigaron 77 empresas y solo entraron 7).",
-      "criterios_inversion": [
-        {
-          "titulo": "Crecimiento predecible",
-          "descripcion": "Negocios con una senda de crecimiento de beneficios visible y sostenible en el tiempo, no dependiente de un único catalizador o ciclo."
-        },
-        {
-          "titulo": "Ventaja competitiva sostenible",
-          "descripcion": "Empresas con foso defensivo claro y poder de fijación de precios; se rechazan compañías expuestas a competidores más ágiles o sin barreras (motivo de descarte de Cisco)."
-        },
-        {
-          "titulo": "Solidez financiera",
-          "descripcion": "Bajo apalancamiento y balance robusto que permita atravesar ciclos sin dilución ni estrés financiero."
-        },
-        {
-          "titulo": "Valoración disciplinada",
-          "descripcion": "Calidad a un precio razonable; la valoración es el cuarto filtro y condiciona el dimensionamiento y las adiciones contracíclicas."
-        },
-        {
-          "titulo": "Eliminación sistemática (Stocksifter)",
-          "descripcion": "Proceso de cribado que parte de ~65.000 cotizadas y descarta >95% antes del análisis fundamental bottom-up profundo."
-        }
-      ],
-      "fortalezas": [
-        "Proceso de calidad muy disciplinado y repetible (Stocksifter de seis etapas) que se traduce en una cartera concentrada de alta convicción de 25-30 valores.",
-        "Track record consistente: rentabilidad anualizada en torno a +12% a 5 años y +24% a 1 año según Financial Times/Moclano, con baja correlación al índice.",
-        "Equipo gestor estable y copartícipe (todos los gestores son Partners), con alineación de intereses explícita con los inversores.",
-        "Estructura simple y transparente: long-only, sin apalancamiento ni derivados salvo cobertura de divisa.",
-        "Sesgo a negocios de calidad global (tecnología, industriales y salud) con poder de fijación de precios, defensivos en entornos de volatilidad."
-      ],
-      "riesgos": [
-        "Comisiones elevadas: TER ≈1,65-1,8%, señalado por analistas independientes como un lastre que dificulta batir al índice de forma sostenida.",
-        "Concentración alta (25-30 valores y top-10 con peso relevante): la evolución depende de pocas posiciones y sectores (tecnología/semiconductores ≈37%).",
-        "Sesgo geográfico a Norteamérica (≈64%) y a la cadena de semiconductores, sensible al ciclo de inversión en IA y centros de datos.",
-        "Boutique pequeña y poco conocida en España; liquidez y distribución más limitadas que las grandes gestoras (mitigado parcialmente vía ACCI desde 2024)."
-      ],
-      "para_quien_es": "Inversor de largo plazo que busca exposición a renta variable global de calidad con un enfoque concentrado y de baja rotación, cómodo con la volatilidad de una cartera de 25-30 valores sesgada a tecnología, industriales y salud, y dispuesto a asumir comisiones por encima de la media a cambio de un proceso diferenciado y un track record consistente. No es adecuado para quien priorice bajo coste o amplia diversificación sectorial.",
-      "compromiso_gestor": "Todos los gestores son Partners de Sifter Capital, con alineación de intereses declarada con los inversores (manager_profile; web Our Team). El fundador del modelo, Hannes Kulvik, permanece vinculado a través del Consejo. La filosofía explícita de copropiedad a largo plazo refuerza el *skin in the game*.",
-      "signal": "NEUTRAL",
-      "signal_rationale": "Proceso de calidad sólido, equipo estable y track record consistente, pero las comisiones elevadas (≈1,7-1,8%) y la concentración sectorial en tecnología/semiconductores moderan la señal a neutral-positivo."
-    },
-    "historia": {
-      "texto": "**Origen y modelo fundacional (2003)**\n\nEl Sifter Fund nació en 2003 impulsado por Hannes Kulvik, a quien las fuentes externas atribuyen la creación del modelo de inversión en calidad de raíz nórdica que sustenta el fondo (Salud Financiera; Moclano). Desde su origen la propuesta fue la misma que mantiene hoy: una cartera global, concentrada y de alta convicción de negocios de calidad seleccionados por eliminación sistemática.\n\n**Consolidación del proceso Stocksifter**\n\nEl método madura hasta convertirse en un proceso de seis etapas que parte de ~65.000 empresas cotizadas y descarta más del 95-99% antes del análisis fundamental. En su carta de 2023 la gestora sintetizaba que en los tres años previos había investigado 77 empresas e invertido solo en siete nuevas, ilustrando la exigencia del filtro y la baja rotación estructural de la cartera.\n\n**La prueba del COVID (2020)**\n\nEl primer trimestre de 2020 puso a prueba el proceso: ante el desplome por la pandemia, la gestora reforzó posiciones en compañías de calidad a menor precio (Cisco, Oracle, Atlas Copco, Johnson & Johnson y Lam Research), bajo la convicción de que las crisis crean oportunidades para reenfocar la cartera hacia negocios de mayor calidad con flujos de caja futuros a menor coste.\n\n**Rotación disciplinada (2021-2025)**\n\nLos años siguientes muestran la disciplina de venta en acción: entradas en Sony y Nitori en 2021 por su posicionamiento en juego, música y sensores; salida de Cisco y VeriSign en 2024 por falta de ventaja competitiva sostenible y madurez del ciclo corporativo; y desinversión completa de Sony, Disney y Autoliv en 2025 al dejar de cumplir los criterios, sustituidas por nuevas ideas de mayor calidad.\n\n**Expansión a Iberia y Latinoamérica (2024)**\n\nEn septiembre de 2024 la gestora española ACCI firmó un acuerdo para distribuir la estrategia *flagship* de Sifter en los mercados de Iberia y Latinoamérica (FundsPeople), aumentando la accesibilidad del fondo para el inversor español. A cierre de agosto de 2025 el patrimonio alcanzaba 280,75 M€.",
-      "hitos": [
-        {
-          "anio": "2003",
-          "titulo": "Lanzamiento del fondo",
-          "evento": "Hannes Kulvik funda el Sifter Fund con el modelo de inversión en calidad de raíz nórdica.",
-          "tipo": "lanzamiento"
-        },
-        {
-          "anio": "2016",
-          "titulo": "Santeri Korpinen, CEO",
-          "evento": "Korpinen asume como CEO de Sifter Capital y lidera el equipo de inversión (registrado como gestor desde noviembre 2016 según FT).",
-          "tipo": "cambio_gestor"
-        },
-        {
-          "anio": "2019",
-          "titulo": "Entrada en Disco Corporation",
-          "evento": "Inicio de la posición en Disco, que se mantiene en cartera desde 2019 (LinkedIn O. Pöyhönen).",
-          "tipo": "cambio_estrategia"
-        },
-        {
-          "anio": "2020",
-          "titulo": "Refuerzo de calidad en el COVID",
-          "evento": "Aumento de Cisco, Oracle, Atlas Copco, J&J y Lam Research durante el desplome del 1T2020.",
-          "tipo": "contexto_mercado"
-        },
-        {
-          "anio": "2021",
-          "titulo": "Nuevas ideas: Sony y Nitori",
-          "evento": "Dos nuevas inversiones por posicionamiento en sectores en crecimiento.",
-          "tipo": "cambio_estrategia"
-        },
-        {
-          "anio": "2024",
-          "titulo": "Salidas de Cisco y VeriSign",
-          "evento": "Desinversión por falta de ventaja competitiva y madurez del ciclo corporativo.",
-          "tipo": "cambio_estrategia"
-        },
-        {
-          "anio": "2024",
-          "titulo": "Distribución en Iberia vía ACCI",
-          "evento": "ACCI firma acuerdo para distribuir el Sifter Fund Global en Iberia y Latinoamérica (sept. 2024).",
-          "tipo": "hecho_relevante"
-        },
-        {
-          "anio": "2025",
-          "titulo": "Rotación: salen Sony, Disney y Autoliv",
-          "evento": "Desinversión completa de tres compañías que dejaron de cumplir los criterios de calidad.",
-          "tipo": "cambio_estrategia"
-        },
-        {
-          "anio": "2025",
-          "titulo": "Patrimonio de 280,75 M€",
-          "evento": "El fondo cierra el ejercicio fiscal (ago-2025) con 280,75 M€, tras 268,4 M€ en 2024.",
-          "tipo": "hecho_relevante"
-        }
-      ]
-    },
-    "gestores": {
-      "texto": "El equipo gestor del Sifter Fund es la propia plantilla de inversión de **Sifter Capital Ltd.**, una boutique finlandesa en la que todos los gestores son Partners, lo que alinea sus intereses con los de los inversores. El liderazgo formal recae en **Santeri Korpinen**, CEO desde 2016 y registrado por Financial Times como gestor del fondo desde noviembre de ese año, apoyado por un grupo de portfolio managers de larga trayectoria —Olli Pöyhönen, Alexander Järf y Karl-Johan Lidsle— y por el comité de inversión (Pauli Kulvik). El fundador del modelo, Hannes Kulvik, permanece vinculado a través del Consejo de Administración.\n\nConviene señalar una ambigüedad estructural en el liderazgo: la web *Our Team* y el factsheet listan a Korpinen como CEO y al resto como *Portfolio Manager, Partner* sin jerarquizar la gestión, mientras que Financial Times atribuye la gestión del fondo a Korpinen. El equipo se reparte la cobertura por convicción y el proceso es colegiado a través del comité de inversión.",
-      "perfiles": [
-        {
-          "nombre": "Santeri Korpinen",
-          "cargo": "CEO y Partner — gestor líder registrado",
-          "trayectoria": "**CEO de Sifter Capital Ltd. desde 2016** y miembro del Consejo de la firma. Lidera el equipo de gestión de inversiones, dirige las relaciones con inversores y supervisa la colaboración con los socios distribuidores (web Sifter Capital — Our Team). Financial Times lo registra como gestor del Sifter Fund - Global desde noviembre de 2016. Ha sido el portavoz público del fondo en su expansión iberoamericana, en el marco del acuerdo de distribución con la gestora española ACCI anunciado en septiembre de 2024 (FundsPeople).",
-          "filosofia": "Defiende la inversión en calidad de raíz nórdica: ser copropietario a largo plazo de un grupo reducido de los mejores negocios del mundo, seleccionados por eliminación sistemática y mantenidos con baja rotación, frente a la idea de 'apostar' a favor o en contra de compañías.",
-          "cv_bullets": [
-            "CEO y Partner de Sifter Capital Ltd. (desde 2016)",
-            "Miembro del Consejo de Administración de la firma",
-            "Gestor registrado del Sifter Fund - Global desde nov. 2016 (Financial Times)",
-            "Responsable de relaciones con inversores y distribución",
-            "Portavoz del lanzamiento iberoamericano (acuerdo ACCI, 2024)"
-          ],
-          "decisiones_clave": [
-            "Refuerzo de posiciones de calidad durante el desplome del COVID en el 1T2020 (Cisco, Oracle, Atlas Copco, J&J, Lam Research).",
-            "Disciplina de venta: salidas de Cisco y VeriSign (2024) y de Sony, Disney y Autoliv (2025) al dejar de cumplir los criterios.",
-            "Impulso de la distribución internacional del fondo vía ACCI en Iberia y Latinoamérica (2024)."
-          ],
-          "rasgos_diferenciales": "Combina el rol de CEO y líder de inversión con la función de relación con inversores; es la cara pública del fondo y el responsable de articular el proceso Stocksifter ante el mercado.",
-          "fuente": "manager_deep_agent"
-        },
-        {
-          "nombre": "Olli Pöyhönen",
-          "cargo": "Portfolio Manager y Partner",
-          "trayectoria": "Portfolio Manager y Partner de Sifter, con un enfoque meticuloso y analítico para identificar negocios de alta calidad (web Sifter Capital — Our Team). Es una voz pública del proceso: en una entrevista con Inderes (febrero de 2024) explicó la tesis de Disco Corporation, compañía presente en la cartera de Sifter desde 2019, destacando su dominio de un nicho del equipamiento de semiconductores.",
-          "filosofia": "Análisis bottom-up profundo sobre negocios de nicho con liderazgo claro y ventaja competitiva durable; convicción en mantener posiciones de calidad durante años (caso Disco desde 2019).",
-          "cv_bullets": [
-            "Portfolio Manager y Partner de Sifter Capital",
-            "Cobertura de compañías de semiconductores e industriales de calidad",
-            "Tesis pública sobre Disco Corporation (entrevista Inderes, feb. 2024)"
-          ],
-          "decisiones_clave": [
-            "Seguimiento y mantenimiento de Disco Corporation en cartera desde 2019, reforzada en 4T por valoración atractiva."
-          ],
-          "rasgos_diferenciales": "Especialización analítica en la cadena de valor de semiconductores y comunicación pública de tesis concretas.",
-          "fuente": "manager_deep_agent"
-        },
-        {
-          "nombre": "Alexander Järf",
-          "cargo": "Portfolio Manager y Partner",
-          "trayectoria": "Portfolio Manager y Partner de Sifter Capital, integrante del equipo de inversión que aplica el proceso Stocksifter (web Our Team). No se dispone de biografía pública detallada más allá de su rol y condición de socio.",
-          "filosofia": "Inversión en calidad por eliminación sistemática, coherente con el proceso colegiado de la firma.",
-          "cv_bullets": [
-            "Portfolio Manager y Partner de Sifter Capital"
-          ],
-          "decisiones_clave": [],
-          "rasgos_diferenciales": "Miembro del equipo de gestión copartícipe.",
-          "fuente": "manager_profiler"
-        },
-        {
-          "nombre": "Karl-Johan Lidsle",
-          "cargo": "Portfolio Manager y Partner",
-          "trayectoria": "Portfolio Manager y Partner de Sifter Capital, integrante del equipo de inversión (web Our Team). No se dispone de biografía pública detallada más allá de su rol y condición de socio.",
-          "filosofia": "Inversión en calidad por eliminación sistemática, coherente con el proceso colegiado de la firma.",
-          "cv_bullets": [
-            "Portfolio Manager y Partner de Sifter Capital"
-          ],
-          "decisiones_clave": [],
-          "rasgos_diferenciales": "Miembro del equipo de gestión copartícipe.",
-          "fuente": "manager_profiler"
-        },
-        {
-          "nombre": "Pauli Kulvik",
-          "cargo": "Miembro del Comité de Inversión",
-          "trayectoria": "Miembro del Comité de Inversión (IC) de Sifter, órgano que sustenta el carácter colegiado de las decisiones de cartera (web Our Team).",
-          "filosofia": "",
-          "cv_bullets": [
-            "Miembro del Comité de Inversión de Sifter"
-          ],
-          "decisiones_clave": [],
-          "rasgos_diferenciales": "Aporta gobernanza colegiada al proceso de inversión.",
-          "fuente": "manager_profiler"
-        },
-        {
-          "nombre": "Hannes Kulvik",
-          "cargo": "Fundador y miembro del Consejo de Administración",
-          "trayectoria": "Fundador del Sifter Fund (2003) y, según fuentes externas (Salud Financiera, Moclano), creador del modelo de inversión en calidad de raíz nórdica que da identidad al fondo. Permanece vinculado a través del Consejo de Administración.",
-          "filosofia": "Autor intelectual del marco de calidad nórdico aplicado por el fondo.",
-          "cv_bullets": [
-            "Fundador del Sifter Fund (2003)",
-            "Creador del modelo Nordic Quality Investing",
-            "Miembro del Consejo de Administración"
-          ],
-          "decisiones_clave": [
-            "Diseño del proceso de inversión por eliminación que define al fondo desde su origen."
-          ],
-          "rasgos_diferenciales": "Figura fundacional y guardián del modelo de inversión.",
-          "fuente": "manager_deep_agent"
-        }
-      ]
-    },
-    "evolucion": {
-      "texto": "**Patrimonio en crecimiento sostenido**\n\nEl patrimonio del fondo ha crecido de forma consistente en los últimos ejercicios: 194,67 M€ en 2023, 268,45 M€ en 2024 y 280,75 M€ a cierre del ejercicio fiscal de agosto de 2025 (Annual Report 2025), un avance acumulado cercano al 44% en dos años que combina apreciación de la cartera y entradas netas. La distribución iberoamericana a través de ACCI desde finales de 2024 abre una vía adicional de captación.\n\n**Rentabilidad consistente**\n\nLas fuentes externas sitúan la rentabilidad anualizada a 5 años en torno al +12,1% con un ratio de Sharpe de 0,55 (Moclano), y Financial Times recogía una revalorización a 1 año del +24,2% (abril 2026). En 2025 el fondo acumulaba +7,1% hasta noviembre, con los semiconductores e industriales de calidad como principales impulsores del tramo final del año (review de cartera, diciembre 2025).\n\n**Estructura de clases**\n\nEl fondo cuenta con siete clases (PB/PI/PA y RA en EUR; PC/RC/RD en USD). La clase institucional PI - EUR es la de mayor patrimonio (≈115 M€), seguida de PA - EUR (≈85 M€) y PB - EUR (≈63 M€), lo que refleja una base inversora mayoritariamente institucional y en euros.\n\n**Composición y posicionamiento actual**\n\nLa cartera mantiene ≈30% en semiconductores, ≈24% en industriales de calidad y ≈14% en salud, con exposición selectiva al crecimiento de la IA y los centros de datos a través de fabricantes de equipos (Lam Research, Applied Materials, Disco). La gestora considera este posicionamiento bien preparado para 2026, en un entorno de mayor dispersión de valoraciones donde un enfoque bottom-up disciplinado debería marcar diferencias.",
-      "datos_graficos": {
-        "concentracion_historica": [],
-        "drawdown": [],
-        "exposicion_geografica": [
-          {
-            "periodo": "2025",
-            "espana_pct": 0.0,
-            "internacional_pct": 100.0
-          }
-        ],
-        "num_posiciones_por_anio": [],
-        "rentabilidades_anuales": []
-      }
-    },
-    "estrategia": {
-      "texto": "**Calidad por eliminación: el método Stocksifter**\n\nLa estrategia se articula en torno a un proceso de cribado propio que parte de un universo de ~65.000 compañías cotizadas y descarta más del 95-99% antes de pasar al análisis fundamental. Solo las empresas que superan cuatro criterios —crecimiento predecible, ventaja competitiva sostenible, solidez financiera y valoración disciplinada— llegan a la fase de investigación bottom-up. El resultado es una cartera concentrada de 25-30 valores de máxima convicción.\n\n**Disciplina de compra y venta**\n\nLa gestora combina adiciones contracíclicas (reforzar calidad cuando el mercado cae, como en 2020) con una disciplina de venta estricta: se sale de una posición cuando deja de cumplir los criterios o pierde su senda de crecimiento. Los ejemplos son concretos y verificables en las cartas: salidas de Cisco y VeriSign en 2024 y de Sony, Disney y Autoliv en 2025.\n\n**Posicionamiento actual y visión 2026**\n\nLa cartera está sesgada a tecnología (≈37%), con ≈30% en la cadena de semiconductores como vía de exposición selectiva a la IA y los centros de datos, ≈24% en industriales de calidad y ≈14% en salud. De cara a 2026 la gestora sostiene que, aunque a corto plazo manden los temas y el momentum, a largo plazo los retornos los determinan el crecimiento de beneficios, la disciplina de capital y las ventajas competitivas durables, y considera la cartera bien posicionada para ese entorno.",
-      "estrategia_actual_resumen": "Renta variable global de calidad, long-only y sin apalancamiento, con cartera concentrada de 25-30 valores seleccionados por eliminación (Stocksifter) y sesgo a tecnología/semiconductores, industriales y salud.",
-      "fortalezas": [
-        "Proceso de calidad muy disciplinado y repetible (Stocksifter de seis etapas), con cartera concentrada de alta convicción.",
-        "Track record consistente (≈+12% anualizado a 5 años, +24% a 1 año) con baja correlación al índice.",
-        "Equipo copartícipe y estable, con alineación de intereses explícita con los inversores.",
-        "Estructura simple y transparente: long-only, sin apalancamiento ni derivados salvo cobertura de divisa."
-      ],
-      "riesgos": [
-        "Comisiones elevadas (TER ≈1,65-1,8%) que erosionan el exceso de rentabilidad sobre el índice.",
-        "Concentración alta por número de valores y por sector (tecnología/semiconductores ≈37%).",
-        "Sesgo geográfico a Norteamérica (≈64%) y sensibilidad al ciclo de inversión en IA/semiconductores."
-      ],
-      "perfil_riesgo": {
-        "tipo_activo_principal": "Renta Variable Global (calidad, long-only)",
-        "riesgos_especificos": [
-          "Concentración sectorial en tecnología y cadena de semiconductores (≈37%)",
-          "Concentración geográfica en Norteamérica (≈64%)",
-          "Comisiones altas (TER ≈1,65-1,8%)",
-          "Cartera concentrada de 25-30 valores: alta dependencia de pocas posiciones"
-        ],
-        "desglose_exposicion": [
-          {
-            "dimension": "geografía",
-            "detalle": "Norteamérica 64,5%, Europa desarrollada 27,8%, Asia desarrollada 4,6%, Japón 3,1%"
-          },
-          {
-            "dimension": "sectores",
-            "detalle": "Tecnología 36,8%, Industriales 23,5%, Salud 16,9%, Comunicación 12,4%, Financieras 6,6%, Consumo defensivo 3,9%"
-          }
-        ]
-      },
-      "hitos_estrategia": [
-        {
-          "periodo": "2020-Q1",
-          "contexto_mercado": "La irrupción del coronavirus provocó un desplome bursátil súbito ('cisne negro') tras un arranque de año con buenas perspectivas de crecimiento global.",
-          "decisiones": "La gestora reforzó posiciones de calidad a menor precio: Cisco, Oracle, Atlas Copco, Johnson & Johnson y Lam Research, bajo la idea de que las crisis crean oportunidades para mejorar la calidad de la cartera.",
-          "resultado": "Reposicionamiento hacia mayor calidad — base de la recuperación posterior (cualitativo, no se reporta cifra del periodo)."
-        },
-        {
-          "periodo": "2021",
-          "contexto_mercado": "Fuerte escasez de capacidad de transporte LTL de calidad en EE. UU. y crecimiento en publicidad online y tecnología.",
-          "decisiones": "Entrada en Sony (juego, música, sensores de imagen) y Nitori (Japón) por su historial y posicionamiento en sectores en crecimiento.",
-          "resultado": "Ampliación de la cartera con nuevas ideas de calidad (sin cifra de periodo reportada)."
-        },
-        {
-          "periodo": "2024",
-          "contexto_mercado": "Buen comportamiento de la renta variable global (S&P500, Euro Stoxx 50, MSCI ACWI EUR al alza).",
-          "decisiones": "Desinversión completa de Cisco Systems y VeriSign por falta de ventaja competitiva sostenible y madurez del ciclo corporativo.",
-          "resultado": "Mejora de la calidad media de la cartera (sin cifra de periodo reportada)."
-        },
-        {
-          "periodo": "2025",
-          "contexto_mercado": "El entusiasmo por la IA impulsó numerosas acciones, en algunos casos sin justificación fundamental suficiente; el euro se apreció frente al dólar.",
-          "decisiones": "Salida completa de Sony, Disney y Autoliv al dejar de cumplir los criterios, sustituidas por nuevas ideas de mayor calidad.",
-          "resultado": "+7,1% acumulado en 2025 hasta noviembre — impulsado por semiconductores e industriales de calidad."
-        }
-      ],
-      "quotes": [
-        {
-          "texto": "A través del método Stocksifter, rechazamos más del 95% de las 65.000 empresas que analizamos.",
-          "autor": "Equipo gestor de Sifter",
-          "contexto": "Carta del gestor 2023-Q4"
-        },
-        {
-          "texto": "Seleccionar las mejores acciones del mundo es como buscar una aguja en un pajar.",
-          "autor": "Equipo gestor de Sifter",
-          "contexto": "Carta del gestor 2023-Q4"
-        },
-        {
-          "texto": "For most asset managers, investing means betting for and against companies.",
-          "autor": "Equipo gestor de Sifter",
-          "contexto": "Carta del gestor 2021"
-        },
-        {
-          "texto": "The Sub-Fund strives to invest in quality businesses with strong competitive advantages.",
-          "autor": "Equipo gestor de Sifter",
-          "contexto": "Carta del gestor 2025"
-        }
-      ]
-    },
     "cartera": {
-      "texto": "La cartera del Sifter Fund es una colección concentrada de 25-30 negocios de calidad global, larga sólo y sin apalancamiento. Por tipo de activo es prácticamente 100% renta variable internacional, sin exposición doméstica española y con uso de derivados limitado a la cobertura puntual de divisa.\n\nPor geografía domina **Norteamérica (≈64,5%)**, seguida de Europa desarrollada (≈27,8%) y una presencia menor en Asia desarrollada y Japón (≈7,7% conjunto). La lectura sectorial explica buena parte del comportamiento: **tecnología pesa ≈37%**, con la cadena de valor de semiconductores (fabricantes de equipos como Lam Research, Applied Materials, Disco y TSMC) como apuesta selectiva por el ciclo de inversión en IA y centros de datos; los **industriales de calidad** suman ≈24% y la **salud** ≈17%, aportando defensividad.\n\nLa concentración es relevante: las diez mayores posiciones representan una parte sustancial del patrimonio, con un primer escalón formado por nombres como Alphabet, Safran, Microsoft y la propia cadena de semiconductores. Esa concentración es coherente con la filosofía de alta convicción, pero implica que la evolución del fondo depende del acierto en relativamente pocas decisiones y de la salud del ciclo tecnológico-industrial. El principal riesgo estructural de la cartera es, por tanto, doble: sectorial (tecnología/semiconductores) y geográfico (Norteamérica), parcialmente compensado por la calidad y el poder de fijación de precios de los negocios subyacentes.",
+      "texto": "**Composición general**\n\nLa cartera del Sifter Fund - Global es una colección concentrada de negocios de calidad a escala mundial: larga sólo, sin apalancamiento y sin derivados salvo la cobertura puntual de divisa. El propio fondo describe su construcción como un proceso que parte de ~65.000 cotizadas y, tras el cribado *Stocksifter*, deja una cartera enfocada de **entre 25 y 30 valores** (carta del gestor, febrero 2026: «focused 25–30 quality stock portfolio»). Por tipo de activo es prácticamente 100% renta variable internacional, sin exposición doméstica española y con plena inversión a lo largo del ciclo.\n\n**Número de posiciones y concentración (matización importante)**\n\nConviene precisar el alcance de los datos públicos disponibles. Las fuentes de mercado recopiladas (Financial Times y factsheet de la gestora) divulgan individualmente solo las **diez mayores posiciones**, que a fecha de la última ficha representan en torno al **59% del patrimonio** (las cinco primeras, ≈38%). El resto de la cartera —aproximadamente **15-20 posiciones que suman en conjunto el ≈41% restante**— no se desglosa nombre a nombre en la información pública consultada. Por tanto, el fondo **no tiene diez posiciones**, sino del orden de 25-30; las diez listadas en la tabla son únicamente el tramo superior. La política de inversión fija además un **límite del 10% por emisor**, lo que acota el tamaño máximo de cada posición individual (la reducción de TSMC y el ajuste de Novo Nordisk en 2024-2025 respondieron precisamente a acercarse a ese techo).\n\n**Sesgo geográfico**\n\nPor geografía domina **Norteamérica (≈64,5%)**, seguida de Europa desarrollada (≈27,8%) y una presencia menor en Asia desarrollada (≈4,6%) y Japón (≈3,1%). No se trata de una apuesta macro: la concentración geográfica es consecuencia de dónde residen, según el proceso, los mejores modelos de negocio de calidad, no de una visión top-down (la gestora se declara explícitamente *benchmark-agnostic* y sin *macro views*).\n\n**Sesgo sectorial**\n\nLa lectura sectorial explica buena parte del comportamiento reciente. La **tecnología pesa ≈37%**, con la cadena de valor de semiconductores (fabricantes de equipos como Lam Research, Applied Materials, Disco y TSMC) como vía selectiva de exposición al ciclo de inversión en IA y centros de datos —la gestora cifra los semiconductores en torno al **30%** de la cartera—. Los **industriales de calidad** suman ≈24% (Safran, Atlas Copco, Old Dominion, Canadian National) y la **salud** ≈17% (West Pharmaceutical, Mettler-Toledo, Johnson & Johnson, IDEXX), aportando defensividad. Completan el cuadro comunicación (≈12%, esencialmente vía Alphabet), financieras (≈7%, Deutsche Börse) y consumo defensivo (≈4%, Costco, North West Company).\n\n**Racional y riesgos estructurales**\n\nLa concentración —pocas posiciones de alta convicción y un peso relevante del top-10— es coherente con la filosofía de calidad y baja rotación, pero implica que la evolución del fondo depende del acierto en relativamente pocas decisiones y de la salud del ciclo tecnológico-industrial. El riesgo estructural es, por tanto, doble: **sectorial** (tecnología/semiconductores ≈37%) y **geográfico** (Norteamérica ≈64%), parcialmente mitigado por la calidad, el poder de fijación de precios y los balances saneados de los negocios subyacentes. La **exposición mínima a software** limitó el impacto de la corrección del SaaS a comienzos de 2026, ilustrando cómo el sesgo a semiconductores, industriales y defensivos actúa de contrapeso.",
       "top_posiciones": [
-        {
-          "nombre": "Alphabet Inc Class A",
-          "peso_pct": 9.5,
-          "categoria": "Comunicación / Tecnología"
-        },
-        {
-          "nombre": "Safran SA",
-          "peso_pct": 7.8,
-          "categoria": "Industriales / Aeroespacial"
-        },
-        {
-          "nombre": "Microsoft Corp",
-          "peso_pct": 7.4,
-          "categoria": "Tecnología / Software"
-        },
-        {
-          "nombre": "Lam Research Corp",
-          "peso_pct": 7.1,
-          "categoria": "Tecnología / Semiconductores"
-        },
-        {
-          "nombre": "Applied Materials Inc",
-          "peso_pct": 6.5,
-          "categoria": "Tecnología / Semiconductores"
-        },
-        {
-          "nombre": "Taiwan Semiconductor Manufacturing Co Ltd ADR",
-          "peso_pct": 4.6,
-          "categoria": "Tecnología / Semiconductores"
-        },
-        {
-          "nombre": "West Pharmaceutical Services Inc",
-          "peso_pct": 4.4,
-          "categoria": "Salud"
-        },
-        {
-          "nombre": "Deutsche Boerse AG",
-          "peso_pct": 4.3,
-          "categoria": "Financieras / Mercados"
-        },
-        {
-          "nombre": "Mettler-Toledo International Inc",
-          "peso_pct": 3.8,
-          "categoria": "Salud / Instrumentación"
-        },
-        {
-          "nombre": "Atlas Copco AB Class B",
-          "peso_pct": 3.6,
-          "categoria": "Industriales"
-        }
+        {"nombre": "Alphabet Inc Class A", "peso_pct": 9.5, "categoria": "Comunicación / Tecnología"},
+        {"nombre": "Safran SA", "peso_pct": 7.8, "categoria": "Industriales / Aeroespacial"},
+        {"nombre": "Microsoft Corp", "peso_pct": 7.4, "categoria": "Tecnología / Software"},
+        {"nombre": "Lam Research Corp", "peso_pct": 7.1, "categoria": "Tecnología / Semiconductores"},
+        {"nombre": "Applied Materials Inc", "peso_pct": 6.5, "categoria": "Tecnología / Semiconductores"},
+        {"nombre": "Taiwan Semiconductor Manufacturing Co Ltd ADR", "peso_pct": 4.6, "categoria": "Tecnología / Semiconductores"},
+        {"nombre": "West Pharmaceutical Services Inc", "peso_pct": 4.4, "categoria": "Salud"},
+        {"nombre": "Deutsche Boerse AG", "peso_pct": 4.3, "categoria": "Financieras / Mercados"},
+        {"nombre": "Mettler-Toledo International Inc", "peso_pct": 3.8, "categoria": "Salud / Instrumentación"},
+        {"nombre": "Atlas Copco AB Class B", "peso_pct": 3.6, "categoria": "Industriales"}
       ],
       "concentracion": {
         "top5_pct": 38.3,
@@ -383,103 +68,26 @@
         "rv_españa_pct": 0.0,
         "rf_pct": 0.0,
         "liquidez_pct": 0.0
-      }
+      },
+      "_nota_datos": "El fondo mantiene 25-30 posiciones (auto-declarado). El bundle solo contiene las 10 mayores (FT tearsheet); 'posiciones.actuales' top-level y el KPI 'Posiciones totales' del dashboard quedan por tanto en 10 hasta capturar la lista completa de holdings."
     },
-    "fuentes_externas": {
-      "texto": "La cobertura externa del Sifter Fund combina datos de mercado de Financial Times y Finect con análisis cualitativos de blogs especializados españoles, además de la noticia corporativa de su distribución en Iberia.\n\n**Datos de mercado.** Financial Times publica fichas por clase (PA, PB, PI) con precio, tamaño del fondo, ongoing charge (≈1,65%) y desglose sectorial, y registra la gestión a cargo de Santeri Korpinen desde 2016. Finect replica la ficha por clases para el inversor español.\n\n**Análisis independientes.** Salud Financiera lo describe como uno de los mejores fondos de renta variable global de calidad disponibles en Europa, con una cartera de ~30 compañías de alta convicción y un proceso bottom-up por eliminación basado en cuatro criterios; matiza, sin embargo, que su TER del ~1,7% es elevado y dificulta batir al índice de forma sostenida. Moclano profundiza en el método (seis etapas, eliminación del 99% del universo, cuatro pilares de calidad) y lo incorpora en sus carteras modelo Moderado y Dinámico, citando una rentabilidad anualizada a 5 años del +12,14% y un ratio de Sharpe de 0,55, con capacidad de generar alfa.\n\n**Noticia corporativa.** FundsPeople informó en septiembre de 2024 del acuerdo de la gestora española ACCI para distribuir la estrategia flagship de Sifter en Iberia y Latinoamérica, lo que ha aumentado la visibilidad del fondo entre el inversor de habla hispana.",
-      "opiniones_clave": [
-        {
-          "fuente": "Salud Financiera",
-          "titulo": "Análisis del Sifter Global Fund",
-          "url": "https://saludfinanciera.substack.com/p/analisis-sifter-global-fund",
-          "tipo": "analisis",
-          "opinion": "Uno de los mejores fondos de RV global de calidad en Europa: ~30 compañías de alta convicción, proceso bottom-up por eliminación con cuatro criterios. Crítica: TER ~1,7% elevado que dificulta batir al índice sostenidamente.",
-          "fecha": "2025"
-        },
-        {
-          "fuente": "Moclano",
-          "titulo": "Sifter Fund Global — Nordic Quality Investing",
-          "url": "https://moclano.substack.com/p/sifter-global-fund",
-          "tipo": "analisis",
-          "opinion": "Detalle del método: 23 años aplicando eliminación sistemática del 99% del universo (65.000→25-30), proceso de seis etapas y cuatro pilares de calidad. Rentabilidad anualizada a 5 años +12,14%.",
-          "fecha": "2025"
-        },
-        {
-          "fuente": "Moclano",
-          "titulo": "Carteras modelo V.1",
-          "url": "https://moclano.substack.com/p/carteras-modelo-v1",
-          "tipo": "analisis",
-          "opinion": "Incluye al Sifter en las carteras modelo Moderado (15%) y Dinámico (12%) como boutique finlandesa de calidad concentrada; Sharpe 0,55 y capacidad de generar alfa sin alta correlación.",
-          "fecha": "2025"
-        },
-        {
-          "fuente": "Financial Times",
-          "titulo": "Sifter Fund - Global PA — Fund tearsheet",
-          "url": "https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168736675:eur",
-          "tipo": "rating",
-          "opinion": "Ficha de datos: precio, tamaño del fondo, ongoing charge ≈1,65%, revalorización a 1 año +24,17%, principales sectores (Tecnología ≈39%, Industriales). Gestión atribuida a Santeri Korpinen desde 2016.",
-          "fecha": "2026"
-        },
-        {
-          "fuente": "FundsPeople",
-          "titulo": "ACCI trae a España la gestora finlandesa Sifter",
-          "url": "https://fundspeople.com/es/acci-trae-a-espana-la-gestora-finlandesa-sifter/",
-          "tipo": "articulo",
-          "opinion": "Acuerdo (sept. 2024) para distribuir el Sifter Fund Global en Iberia y Latinoamérica, ampliando el acceso del inversor español a la estrategia flagship de la boutique.",
-          "fecha": "2024"
-        }
-      ]
-    },
-    "documentos": {
-      "informes_pdf": [
-        {
-          "archivo": "Sifter-Fund-Annual-Report-300820-SIGNED-by-STE.pdf"
-        },
-        {
-          "archivo": "_web_sifter-annual-report-31082025-signed.pdf"
-        },
-        {
-          "archivo": "sifter-fund-factsheet-december-2025.pdf"
-        },
-        {
-          "archivo": "KIDDOC-LU0168736675-CH.pdf"
-        },
-        {
-          "archivo": "_web_sifter-fund-prospectus-september-2025.pdf"
-        }
-      ],
-      "xmls_cnmv": [],
-      "cartas_urls": [
-        "https://2579063.fs1.hubspotusercontent-na1.net/hubfs/2579063/sifter-annual-report-31082025-signed.pdf",
-        "https://2579063.fs1.hubspotusercontent-na1.net/hubfs/2579063/sifter-fund-factsheet-eom-february-2026.pdf",
-        "https://sifterfund.com/en/blog/",
-        "https://sifterfund.com/en/quality-investing-generated-an-annual-return-of-34-3-to-the-sifter-fund-in-2021/",
-        "https://sifterfund.com/en/three-reasons-to-avoid-investing-in-a-company/",
-        "https://sifterfund.com/wp-content/uploads/DOCREP-O00003553-00000000-0000-2024-08-31-AR-EN-0000.pdf",
-        "https://sifterfund.com/wp-content/uploads/SifterFund-Quarterly-report-Q1-2020.pdf",
-        "https://www.rns-pdf.londonstockexchange.com/rns/8633V_-2015-8-12.pdf"
-      ],
-      "fuentes_externas_urls": [
-        "https://fundspeople.com/es/acci-trae-a-espana-la-gestora-finlandesa-sifter/",
-        "https://fundspeople.com/pt/acci-traz-para-a-peninsula-iberica-a-gestora-finlandesa-sifter/",
-        "https://markets.ft.com/data/funds/tearsheet/holdings?s=LU0168736675:EUR",
-        "https://markets.ft.com/data/funds/tearsheet/risk?s=LU0168577939:EUR",
-        "https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168577939:eur",
-        "https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168736675:eur",
-        "https://markets.ft.com/data/funds/tearsheet/summary?s=lu1194076995:eur",
-        "https://moclano.substack.com/p/carteras-modelo-v1",
-        "https://moclano.substack.com/p/sifter-global-fund",
-        "https://saludfinanciera.substack.com/p/analisis-sifter-global-fund",
-        "https://saludfinanciera.substack.com/p/analisis-sifter-global-fund/comments",
-        "https://www.finect.com/fondos-inversion/LU0168577939-Sifter_fund__global_i",
-        "https://www.finect.com/fondos-inversion/LU0168736675-Sifter_fund__global_pi",
-        "https://www.finect.com/fondos-inversion/LU2905591629-Sifter_fund__global_pi"
-      ],
-      "urls_consultadas": [
-        "https://sifterfund.com/en/our-team/",
-        "https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168736675:eur"
-      ],
-      "total_fuentes": 29
+    "evolucion": {
+      "texto": "**Patrimonio: tres cierres fiscales disponibles**\n\nEl patrimonio del fondo ha crecido de forma sostenida en los ejercicios para los que existe dato en las fuentes: **194,67 M€** a cierre fiscal de agosto de 2023, **268,45 M€** en agosto de 2024 y **280,75 M€** en agosto de 2025 (Annual Report 2025), un avance acumulado cercano al **44% en dos años** que combina apreciación de la cartera y entradas netas. Conviene advertir una limitación de fuente: el fondo se lanzó en 2003, pero el material recopilado solo aporta los tres cierres fiscales más recientes (un informe anual recoge el ejercicio en curso y los dos anteriores). La serie de patrimonio anterior a 2023 no está disponible en lo consultado; una serie completa desde el origen requeriría los informes anuales históricos de la gestora. La distribución iberoamericana a través de **ACCI** desde finales de 2024 abre una vía adicional de captación.\n\n**Estructura de clases**\n\nEl fondo cuenta con siete clases (PB —antes I—, PI y PA —antes R— y RA en EUR; PC, RC y RD en USD). La clase institucional **PI - EUR es la de mayor patrimonio (≈115 M€)**, seguida de PA - EUR (≈85 M€) y PB - EUR (≈63 M€), lo que refleja una base inversora mayoritariamente institucional y en euros; las clases en dólares son residuales (≈9 M€ en conjunto).\n\n**Rentabilidad: un recorrido desigual**\n\nLas cartas y los informes anuales permiten reconstruir el pulso de la rentabilidad, con la cautela de que la gestora reporta por **año fiscal** (cierre en agosto) mientras los factsheets ofrecen acumulados de **año natural**:\n\n**2020**: en el desplome del COVID el fondo cayó -15,7% en el primer trimestre, batiendo al MSCI ACWI (-19,5%) en 3,8 puntos, fiel a su tesis de comportarse mejor en mercados bajistas.\n\n**2021**: año excepcional con **+34,3%** en el año natural, impulsado por Old Dominion (+98%), Alphabet (+78%) y Novo Nordisk (+76%).\n\n**2022**: año difícil por inflación y tipos al alza; -16,8% en euros hasta el tercer trimestre.\n\n**Ejercicio fiscal 2024 (sep-23 a ago-24)**: **+19,0%** (clases R/I EUR), con TSMC, Costco y North West Company como mejores contribuidores.\n\n**Ejercicio fiscal 2025 (sep-24 a ago-25)**: ejercicio **negativo** —el NAV de la clase PB pasó de 752,76 a 728,46 EUR (≈-3,2%) y el resultado de operaciones fue de -9,1 M€—, en contraste con un mercado alcista; pesaron Novo Nordisk, SMC y Old Dominion, junto con un dólar débil frente al euro.\n\n**2025-2026 (año natural)**: el fondo acumulaba **+7,1%** hasta noviembre de 2025 y **+8,2%** hasta febrero de 2026 (vs +6,1% del MSCI World EUR en ese arranque), con los fabricantes de equipos de semiconductores como principal motor y la mínima exposición a software como escudo ante la corrección del SaaS.\n\nLas fuentes externas sitúan la rentabilidad **anualizada a 5 años en torno al +12,1%** con un ratio de Sharpe de 0,55 (Moclano), y Financial Times recogía una revalorización a 1 año del +24,2% (abril 2026).\n\n**Posicionamiento actual**\n\nLa cartera mantiene ≈30% en semiconductores, ≈24% en industriales de calidad y ≈14-17% en salud, con exposición selectiva al crecimiento de la IA y los centros de datos a través de fabricantes de equipos (Lam Research, Applied Materials, Disco). La gestora considera este posicionamiento bien preparado para 2026, en un entorno de mayor dispersión de valoraciones donde un enfoque bottom-up disciplinado debería marcar diferencias.",
+      "datos_graficos": {
+        "concentracion_historica": [],
+        "drawdown": [],
+        "exposicion_geografica": [
+          {"periodo": "2025", "espana_pct": 0.0, "internacional_pct": 100.0}
+        ],
+        "num_posiciones_por_anio": [],
+        "rentabilidades_anuales": [],
+        "serie_aum_disponible": [
+          {"periodo": "2023", "valor_meur": 194.67, "cierre": "fiscal ago-2023"},
+          {"periodo": "2024", "valor_meur": 268.45, "cierre": "fiscal ago-2024"},
+          {"periodo": "2025", "valor_meur": 280.75, "cierre": "fiscal ago-2025"}
+        ]
+      },
+      "_nota_datos": "Serie de AUM limitada a 2023-2025 (ultimo Annual Report). El grafico de AUM del dashboard lee de cuantitativo.serie_aum (top-level), no de esta seccion. Serie completa desde 2003 no disponible en el bundle."
     }
   }
 }

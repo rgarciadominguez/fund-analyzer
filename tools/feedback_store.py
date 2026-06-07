@@ -365,9 +365,30 @@ def update_verify_results(
     return False
 
 
+def set_skill_diagnostic(
+    isin: str, feedback_id: str, diagnostic: dict,
+) -> bool:
+    """M6 (2026-06-06): persiste un diagnóstico a nivel de feedback sobre si la
+    skill analyst-cowork COOPERÓ (emitió veredictos `feedback_outcomes`).
+
+    `diagnostic` = {status: "ok"|"partial"|"none", revisar_items: int,
+                    with_outcome: int, message: str}. El dashboard lo muestra
+    como banner para distinguir «el analyst no se pronunció / no se re-ejecutó»
+    de «el analyst no pudo mejorarlo».
+    """
+    data = _load(isin)
+    for fb in data.get("feedbacks", []):
+        if fb.get("id") != feedback_id:
+            continue
+        fb["skill_diagnostic"] = dict(diagnostic)
+        _save(isin, data)
+        return True
+    return False
+
+
 __all__ = [
     "list_feedback", "get_pending", "get_feedback_by_id",
     "append_feedback", "delete_feedback",
     "mark_applied", "mark_items_resolved",
-    "set_item_results", "update_verify_results",
+    "set_item_results", "update_verify_results", "set_skill_diagnostic",
 ]

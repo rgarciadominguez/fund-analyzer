@@ -275,6 +275,12 @@ if defined RESUME_MODE (
         if exist "data\funds\%ISIN%\analyst_synthesis_cowork.json" set SKIP_ANALYST=1
     )
 )
+REM Fix D (2026-06-06): si se pide --apply-feedback, NUNCA saltar la skill
+REM analyst-cowork aunque exista analyst_synthesis_cowork.json. El objetivo del
+REM re-run de feedback es que el LLM re-lea bundle\human_feedback.json y
+REM regenere las secciones afectadas. Sin esto, el resume re-consume una
+REM sintesis vieja y el feedback nunca se aplica a la narrativa.
+if defined APPLY_FEEDBACK set SKIP_ANALYST=
 if defined SKIP_ANALYST (
     echo === Paso 5/6: [RESUME-SKIP] analyst-cowork ya hecho ===
     echo.

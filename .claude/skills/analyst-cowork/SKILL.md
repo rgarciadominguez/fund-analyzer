@@ -144,8 +144,41 @@ Reglas:
 1. **Por cada item con `target_section`**, al generar ESA sección, considera el `rationale` y `raw_text_hint` como instrucción del usuario que PRIORIZA sobre la generación automática previa. Tienes que reflejar el feedback.
 2. **Por cada item con `source_urls`** que apliquen a una sección, intenta incorporar la información de esas URLs en `analyst_synthesis.fuentes_externas.texto` o como referencia en la sección target.
 3. **Items con `action=revisar` y sin `target_section`** (global): aplica el feedback al contexto general de TODAS las secciones (suele ser feedback de calidad/tono).
-4. **No te limites al feedback**: sigue generando todas las secciones normalmente. El feedback es ADITIVO, prioriza pero no reemplaza.
-5. **Confianza humana > automática**: si el usuario contradice algo que el analyst anterior dijo, el usuario gana.
+4. **Confianza humana > automática**: si el usuario contradice algo que el analyst anterior dijo, el usuario gana.
+
+### Regeneración selectiva (2026-06-06) — IMPORTANTE
+
+Cuando **TODOS** los items de `human_feedback.json` tienen `target_section` (es decir, el feedback apunta a secciones concretas, no es global):
+
+- **Regenera SOLO esas secciones** y emítelas en `analyst_synthesis`. NO regeneres las demás: el consumidor (`orchestrator._consume_cowork_analyst`) preservará verbatim las secciones que NO incluyas, copiándolas del análisis anterior. Esto evita empeorar pestañas que el usuario no pidió tocar (caso real: feedback sobre `cartera`/`evolucion` no debe alterar `gestores`) y ahorra tokens.
+- Si **algún** item es global (sin `target_section`), regenera TODAS las secciones como siempre.
+
+### Veredicto por item (2026-06-06) — OBLIGATORIO: `_meta.feedback_outcomes`
+
+Por **cada** item de `human_feedback.json` que proceses, añade una entrada a `_meta.feedback_outcomes` declarando HONESTAMENTE si conseguiste lo que el usuario pidió:
+
+```json
+"feedback_outcomes": [
+  {
+    "feedback_id": "fb_xxx",
+    "item_idx": 2,
+    "resolved": false,
+    "reason": "La cartera real del fondo solo reporta 8 posiciones en la última fuente disponible (informe Dic-2024), no 10. No puedo inventar 2 posiciones más. El número '10' que aparecía era un error de plantilla, ya corregido a 8 en la narrativa."
+  },
+  {
+    "feedback_id": "fb_xxx",
+    "item_idx": 0,
+    "resolved": true,
+    "reason": "Añadida la evolución completa de AUM por periodo en evolucion.datos_graficos y narrada en evolucion.texto."
+  }
+]
+```
+
+Reglas del veredicto:
+- `resolved: true` SOLO si de verdad corregiste/mejoraste lo que el usuario señaló. `reason` = qué cambiaste.
+- `resolved: false` si NO pudiste (faltan datos en el bundle, el dato pedido no existe, la fuente contradice lo pedido). `reason` = por qué no, con concreción (qué fuente, qué cifra real). **Es preferible un `false` honesto que un `true` falso**: el `false` se muestra al usuario en ámbar con tu razón, para que sepa que ese punto sigue pendiente y por qué.
+- `feedback_id` y `item_idx` deben coincidir EXACTAMENTE con los del item en `human_feedback.json` (la verificación los emparea por esos dos campos).
+- No inventes datos para poder marcar `resolved: true`. La honestidad del veredicto es el objetivo de este campo.
 
 ## Inputs cualitativos del bundle (CRÍTICOS para narrativa)
 
@@ -191,7 +224,8 @@ Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.jso
     "audit_pass_done": true,
     "audit_iterations": 1,
     "anti_invencion_flagged": [],
-    "input_files_hash": {...}
+    "input_files_hash": {...},
+    "feedback_outcomes": []
   },
   "analyst_synthesis": {
     "resumen": {...},

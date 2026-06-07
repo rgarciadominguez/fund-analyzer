@@ -6289,10 +6289,20 @@ def build_feedback_widget(data):
         }}).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {{}};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {{
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${{dc}};background:#fff8f0;font-size:11px;color:${{dc}};">⚠ ${{diag.message || 'El analyst no se pronunció sobre el feedback.'}}</div>`;
+        }}
         return `<div class="fb-history-item estado-${{fb.estado}}">
           ${{canDelete ? `<button class="fb-history-delete" data-del-fb="${{fb.id}}">🗑 borrar</button>` : ''}}
           <div class="fb-history-meta">${{ts}} · estado: <strong>${{fb.estado}}</strong>${{fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}}</div>
           <div class="fb-history-text">${{(fb.raw_text || '').substring(0,400)}}</div>
+          ${{diagBanner}}
           <div class="fb-history-items">${{items}}</div>
         </div>`;
       }}).join('');

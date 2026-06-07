@@ -320,24 +320,172 @@ def test_verify_persists_verify_reasons(fund_setup):
     assert "no cambió" in item_results[1]["verify_reason"]
 
 
-def test_verify_revisar_with_section_resolved_if_texto_non_empty(fund_setup):
+def test_verify_revisar_resolved_only_with_analyst_outcome(fund_setup):
+    """Tras el hardening, un revisar SOLO se marca resuelto si el analyst lo
+    declara en _meta.feedback_outcomes. El texto largo por sí solo no basta."""
     isin, fund_dir = fund_setup
-    # resumen ya tenía texto "texto previo" — la heurística mira len > 100
-    fs.append_feedback(isin, "el resumen está mal", structured_items=[
-        _item(section="resumen", action="revisar",
-              rationale="texto vago"),
+    fb = fs.append_feedback(isin, "el resumen está mal", structured_items=[
+        _item(section="resumen", action="revisar", rationale="texto vago"),
     ])
     apply_res = fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
-    # Simular que el analyst regeneró el resumen con contenido largo
     out = json.loads((fund_dir / "output.json").read_text(encoding="utf-8"))
     out["analyst_synthesis"]["resumen"]["texto"] = "x" * 150
-    (fund_dir / "output.json").write_text(
-        json.dumps(out), encoding="utf-8"
-    )
-    verify = fa.verify_resolved_after_run(
-        isin, fund_dir, apply_res["snapshots_pre"]
-    )
+    out.setdefault("_meta", {})["feedback_outcomes"] = [
+        {"feedback_id": fb["id"], "item_idx": 0, "resolved": True,
+         "reason": "resumen reescrito con la estrategia value"},
+    ]
+    (fund_dir / "output.json").write_text(json.dumps(out), encoding="utf-8")
+    verify = fa.verify_resolved_after_run(isin, fund_dir, apply_res["snapshots_pre"])
     assert verify["n_resolved"] == 1
+
+
+# ════════════════════════════════════════════════════════════════════
+# Fix B (2026-06-06): verify respeta el veredicto del analyst
+# ════════════════════════════════════════════════════════════════════
+
+
+def test_verify_revisar_respects_analyst_unresolved(fund_setup):
+    """Si el analyst declara en _meta.feedback_outcomes que NO pudo mejorar un
+    item, verify lo marca NO resuelto aunque la sección tenga texto largo."""
+    isin, fund_dir = fund_setup
+    fb = fs.append_feedback(isin, "la cartera no tiene 10 posiciones",
+                            structured_items=[
+        _item(section="cartera", action="revisar",
+              rationale="nº posiciones mal"),
+    ])
+    apply_res = fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+    fb_id = fb["id"]
+    # Simular analyst: sección con texto largo PERO veredicto honesto = no pude
+    out = json.loads((fund_dir / "output.json").read_text(encoding="utf-8"))
+    out.setdefault("analyst_synthesis", {})["cartera"] = {"texto": "x" * 1500}
+    out.setdefault("_meta", {})["feedback_outcomes"] = [
+        {"feedback_id": fb_id, "item_idx": 0, "resolved": False,
+         "reason": "la fuente solo reporta 8 posiciones, no 10"},
+    ]
+    (fund_dir / "output.json").write_text(json.dumps(out), encoding="utf-8")
+    verify = fa.verify_resolved_after_run(isin, fund_dir, apply_res["snapshots_pre"])
+    assert verify["n_resolved"] == 0  # NO resuelto pese a texto largo
+    item_results = fs.list_feedback(isin)[0].get("item_results") or []
+    assert item_results[0]["resolved"] is False
+    assert "NO pudo mejorar" in item_results[0]["verify_reason"]
+    assert "8 posiciones" in item_results[0]["verify_reason"]
+
+
+def test_verify_revisar_respects_analyst_resolved(fund_setup):
+    """Si el analyst declara resolved=true, verify lo respeta con su razón."""
+    isin, fund_dir = fund_setup
+    fb = fs.append_feedback(isin, "completa la evolución",
+                            structured_items=[
+        _item(section="evolucion", action="revisar", rationale="falta AUM"),
+    ])
+    apply_res = fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+    out = json.loads((fund_dir / "output.json").read_text(encoding="utf-8"))
+    out.setdefault("_meta", {})["feedback_outcomes"] = [
+        {"feedback_id": fb["id"], "item_idx": 0, "resolved": True,
+         "reason": "añadida serie AUM completa"},
+    ]
+    (fund_dir / "output.json").write_text(json.dumps(out), encoding="utf-8")
+    verify = fa.verify_resolved_after_run(isin, fund_dir, apply_res["snapshots_pre"])
+    assert verify["n_resolved"] == 1
+    item_results = fs.list_feedback(isin)[0].get("item_results") or []
+    assert item_results[0]["resolved"] is True
+    assert "serie AUM" in item_results[0]["verify_reason"]
+
+
+def test_verify_revisar_not_verifiable_without_outcome(fund_setup):
+    """Hardening: SIN _meta.feedback_outcomes → NO verificable (ámbar), nunca
+    verde, aunque la sección tenga texto largo. Antes la heurística len>100
+    producía falsos verdes (era el bug que el usuario reportó)."""
+    isin, fund_dir = fund_setup
+    fs.append_feedback(isin, "mejora el resumen", structured_items=[
+        _item(section="resumen", action="revisar", rationale="vago"),
+    ])
+    apply_res = fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+    out = json.loads((fund_dir / "output.json").read_text(encoding="utf-8"))
+    out["analyst_synthesis"]["resumen"]["texto"] = "x" * 150  # texto largo
+    (fund_dir / "output.json").write_text(json.dumps(out), encoding="utf-8")
+    verify = fa.verify_resolved_after_run(isin, fund_dir, apply_res["snapshots_pre"])
+    assert verify["n_resolved"] == 0  # NO verde pese a texto largo
+    item_results = fs.list_feedback(isin)[0].get("item_results") or []
+    assert item_results[0]["resolved"] is False
+    assert "no verificable" in item_results[0]["verify_reason"]
+
+
+def test_skill_diagnostic_none_when_no_outcomes(fund_setup):
+    """M6: feedback con revisar pero CERO veredictos del analyst → diagnóstico
+    'none' (la skill no cooperó / no se re-ejecutó)."""
+    isin, fund_dir = fund_setup
+    fs.append_feedback(isin, "revisa 2 cosas", structured_items=[
+        _item(section="cartera", action="revisar", rationale="a"),
+        _item(section="evolucion", action="revisar", rationale="b"),
+    ])
+    apply_res = fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+    fa.verify_resolved_after_run(isin, fund_dir, apply_res["snapshots_pre"])
+    diag = fs.list_feedback(isin)[0].get("skill_diagnostic") or {}
+    assert diag.get("status") == "none"
+    assert diag.get("revisar_items") == 2 and diag.get("with_outcome") == 0
+
+
+def test_skill_diagnostic_partial_when_some_outcomes(fund_setup):
+    """M6: la skill se pronuncia sobre 1 de 2 → 'partial'."""
+    isin, fund_dir = fund_setup
+    fb = fs.append_feedback(isin, "revisa 2 cosas", structured_items=[
+        _item(section="cartera", action="revisar", rationale="a"),
+        _item(section="evolucion", action="revisar", rationale="b"),
+    ])
+    apply_res = fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+    out = json.loads((fund_dir / "output.json").read_text(encoding="utf-8"))
+    out.setdefault("_meta", {})["feedback_outcomes"] = [
+        {"feedback_id": fb["id"], "item_idx": 0, "resolved": True, "reason": "ok"},
+    ]
+    (fund_dir / "output.json").write_text(json.dumps(out), encoding="utf-8")
+    fa.verify_resolved_after_run(isin, fund_dir, apply_res["snapshots_pre"])
+    diag = fs.list_feedback(isin)[0].get("skill_diagnostic") or {}
+    assert diag.get("status") == "partial"
+    assert diag.get("with_outcome") == 1 and diag.get("revisar_items") == 2
+
+
+def test_apply_resets_feedback_revisar_each_run(fund_setup):
+    """_feedback_revisar contiene solo los hints del batch actual, no acumula."""
+    isin, fund_dir = fund_setup
+    # Ronda 1
+    fs.append_feedback(isin, "revisa resumen", structured_items=[
+        _item(section="resumen", action="revisar", rationale="r1"),
+    ])
+    fa.apply_pending_feedback(isin, fund_dir, run_id="r1")
+    out = json.loads((fund_dir / "output.json").read_text(encoding="utf-8"))
+    assert len(out["_feedback_revisar"]) == 1
+    # Ronda 2: nuevo feedback. _feedback_revisar debe resetear (no acumular a 2)
+    fs.append_feedback(isin, "revisa cartera", structured_items=[
+        _item(section="cartera", action="revisar", rationale="r2"),
+    ])
+    fa.apply_pending_feedback(isin, fund_dir, run_id="r2")
+    out = json.loads((fund_dir / "output.json").read_text(encoding="utf-8"))
+    assert len(out["_feedback_revisar"]) == 1
+    assert out["_feedback_revisar"][0]["target_section"] == "cartera"
+
+
+# ════════════════════════════════════════════════════════════════════
+# Fix A (2026-06-06): _feedback_targeted_sections (regeneración selectiva)
+# ════════════════════════════════════════════════════════════════════
+
+
+def test_targeted_sections_helper():
+    from agents.orchestrator import _feedback_targeted_sections
+    # Todos con target_section → set acotado
+    od = {"_feedback_revisar": [
+        {"target_section": "cartera"}, {"target_section": "evolucion"},
+        {"target_section": "cartera"},
+    ]}
+    assert _feedback_targeted_sections(od) == {"cartera", "evolucion"}
+    # Un item global (sin target_section) → None (regenerar todo)
+    od2 = {"_feedback_revisar": [
+        {"target_section": "cartera"}, {"target_section": None},
+    ]}
+    assert _feedback_targeted_sections(od2) is None
+    # Sin _feedback_revisar → None
+    assert _feedback_targeted_sections({}) is None
+    assert _feedback_targeted_sections({"_feedback_revisar": []}) is None
 
 
 if __name__ == "__main__":

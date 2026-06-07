@@ -1,285 +1,121 @@
 {
-  "isin": "IE00BDR0JY05",
-  "timestamp": "2026-06-04T16:46:45.068026",
-  "quality_score": 7,
-  "total_issues": 55,
-  "critical_issues": 5,
-  "issues": [
+  "fund": "IE00BDR0JY05",
+  "nombre": "Ashoka WhiteOak India Opportunities Fund",
+  "fallos": [
     {
-      "type": "null_field",
-      "field": "gestora",
-      "severity": "critical"
+      "regla_id": "historia_has_cifras",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia con pocas cifras concretas (2). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo cifras concretas: AUM, partícipes, rentabilidad anual, fechas."
     },
     {
-      "type": "null_field",
-      "field": "kpis.anio_creacion",
-      "severity": "low"
+      "regla_id": "estrategia_has_cifras",
+      "seccion": "estrategia",
+      "fail_type": "content",
+      "problema": "Estrategia con pocas cifras (0). Parece genérica.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
     },
     {
-      "type": "null_field",
-      "field": "kpis.clasificacion",
-      "severity": "low"
+      "regla_id": "cartera_min_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Solo 0 posiciones actuales (mínimo 15).",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones de sección 10 del PDF semestral."
     },
     {
-      "type": "null_field",
-      "field": "kpis.benchmark",
-      "severity": "low"
+      "regla_id": "cartera_has_hist_positions",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Sin posiciones históricas para análisis de evolución de cartera.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Verificar extracción de posiciones históricas de PDFs semestrales antiguos."
     },
     {
-      "type": "null_field",
-      "field": "kpis.rating_morningstar",
-      "severity": "low"
+      "regla_id": "fuentes_min_opiniones",
+      "seccion": "fuentes_externas",
+      "fail_type": "scarcity",
+      "problema": "Solo 7 opiniones externas (mínimo 8).",
+      "agente_responsable": "readings_agent",
+      "accion": "Re-ejecutar readings_agent con más queries y fuentes."
     },
     {
-      "type": "null_field",
-      "field": "kpis.aum_actual_meur",
-      "severity": "critical"
+      "regla_id": "historia_no_headers",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Historia tiene 7 subsecciones — debe ser 3-5 parrafos fluidos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia como narrativa pura sin headers."
     },
     {
-      "type": "null_field",
-      "field": "kpis.num_participes",
-      "severity": "critical"
+      "regla_id": "estrategia_no_headers",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia tiene 7 subsecciones — debe ser parrafos evaluativos sin headers",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia como narrativa evaluativa pura."
     },
     {
-      "type": "null_field",
-      "field": "kpis.num_activos_cartera",
-      "severity": "low"
+      "regla_id": "estrategia_has_quotes",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia sin quotes del gestor (0 encontradas)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar con 2-3 citas/frases representativas del gestor."
     },
     {
-      "type": "null_field",
-      "field": "kpis.concentracion_top10_pct",
-      "severity": "low"
+      "regla_id": "evolucion_drawdown_con_fecha",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "agente_responsable": "analyst_agent",
+      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
     },
     {
-      "type": "null_field",
-      "field": "kpis.ter_pct",
-      "severity": "high"
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (3/3). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
     },
     {
-      "type": "null_field",
-      "field": "kpis.coste_gestion_pct",
-      "severity": "high"
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta escenarios_adversos, protecciones, liquidez_estructura.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
     },
     {
-      "type": "null_field",
-      "field": "cuantitativo.serie_aum",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "cuantitativo.serie_participes",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "cuantitativo.serie_ter",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "cuantitativo.serie_rentabilidad",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "cuantitativo.mix_activos_historico",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "cuantitativo.mix_geografico_historico",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "posiciones.actuales",
-      "severity": "high"
-    },
-    {
-      "type": "null_field",
-      "field": "posiciones.historicas",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "cualitativo.estrategia",
-      "severity": "critical"
-    },
-    {
-      "type": "null_field",
-      "field": "cualitativo.historia_fondo",
-      "severity": "high"
-    },
-    {
-      "type": "null_field",
-      "field": "cualitativo.gestores",
-      "severity": "critical"
-    },
-    {
-      "type": "null_field",
-      "field": "cualitativo.tipo_activos",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "cualitativo.filosofia_inversion",
-      "severity": "high"
-    },
-    {
-      "type": "null_field",
-      "field": "cualitativo.objetivos_reales",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "cualitativo.proceso_seleccion",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analisis_consistencia.periodos",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analisis_consistencia.resumen_global",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "fuentes.informes_descargados",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "fuentes.cartas_gestores",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "fuentes.urls_consultadas",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "fuentes.xmls_cnmv",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "economia_fondo.management_fees_total",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "economia_fondo.net_result",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "economia_fondo.expense_ratio_breakdown",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "economia_fondo.viabilidad_nota",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.evolucion.datos_graficos.concentracion_historica",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.evolucion.datos_graficos.drawdown",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.evolucion.datos_graficos.exposicion_geografica",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.evolucion.datos_graficos.num_posiciones_por_anio",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.evolucion.datos_graficos.rentabilidades_anuales",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.estrategia.quotes",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.top_posiciones",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.concentracion.top5_pct",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.concentracion.top10_pct",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.concentracion.top15_pct",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.concentracion_historica",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.distribucion_tipo.rv_internacional_pct",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.distribucion_tipo.rv_españa_pct",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.distribucion_tipo.rf_pct",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.cartera.distribucion_tipo.liquidez_pct",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.fuentes_externas.opiniones_clave",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.documentos.informes_pdf",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.documentos.xmls_cnmv",
-      "severity": "low"
-    },
-    {
-      "type": "null_field",
-      "field": "analyst_synthesis.documentos.cartas_urls",
-      "severity": "low"
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "corrections_made": 0
+  "fallos_estructura": 5,
+  "fallos_scarcity": 4,
+  "total_reglas": 87,
+  "reglas_ok": 75,
+  "aceptable": false,
+  "score_display": "75/87 reglas OK (4 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-06-06T08:57:46.024136",
+  "human_feedback_pending": [],
+  "n_human_feedback_pending": 0
 }

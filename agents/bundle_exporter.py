@@ -397,6 +397,39 @@ def _build_manifest(bundle_dir: Path, isin: str, fund_data: dict,
 # Main entry
 # -----------------------------------------------------------------------------
 
+def build_bundle_feedback(hf_data: dict, isin: str) -> dict:
+    """Construye el `bundle/human_feedback.json` que lee la skill analyst-cowork.
+
+    Selecciona, de `human_feedback.json` del fondo, los items que el analyst debe
+    accionar al regenerar la narrativa:
+      - feedbacks en estado `pending`, `applied` o `partially_resolved`
+        (Fix C 2026-06-06: `pending` incluido — en un re-run de feedback el item
+        aún no está `applied` cuando se exporta el bundle; sin esto la skill
+        recibiría un bundle vacío y nunca accionaría el feedback).
+      - dentro de cada feedback, items NO resueltos (`resolved_items`) que
+        afecten a la narrativa (`target_section` o `action == "revisar"`).
+    """
+    relevant_items: list[dict] = []
+    for fb in (hf_data or {}).get("feedbacks", []):
+        if fb.get("estado") not in ("pending", "applied", "partially_resolved"):
+            continue
+        for idx, item in enumerate(fb.get("structured_items", [])):
+            if idx in (fb.get("resolved_items") or []):
+                continue
+            if item.get("target_section") or item.get("action") == "revisar":
+                relevant_items.append({
+                    "feedback_id": fb.get("id"),
+                    "item_idx": idx,
+                    "raw_text_hint": (fb.get("raw_text") or "")[:300],
+                    **item,
+                })
+    return {
+        "isin": isin,
+        "n_relevant_items": len(relevant_items),
+        "items": relevant_items,
+    }
+
+
 def run(isin: str) -> dict:
     """Assemble the bundle for `isin` and return the manifest dict.
 
@@ -496,30 +529,9 @@ def run(isin: str) -> dict:
     if hf_src.exists():
         try:
             hf_data = _read_json(hf_src) or {}
-            # Filtrar a items relevantes para el analyst:
-            # - feedbacks applied (no resolved aún, no pending)
-            # - items con target_section o action=revisar (afectan al narrative)
-            relevant_items: list[dict] = []
-            for fb in hf_data.get("feedbacks", []):
-                if fb.get("estado") not in ("applied", "partially_resolved"):
-                    continue
-                for idx, item in enumerate(fb.get("structured_items", [])):
-                    # Skip items ya resolved
-                    if idx in (fb.get("resolved_items") or []):
-                        continue
-                    # Solo interesa lo que afecta secciones narrativas o es revisar
-                    if item.get("target_section") or item.get("action") == "revisar":
-                        relevant_items.append({
-                            "feedback_id": fb.get("id"),
-                            "item_idx": idx,
-                            "raw_text_hint": (fb.get("raw_text") or "")[:300],
-                            **item,
-                        })
-            bundle_hf = {
-                "isin": isin,
-                "n_relevant_items": len(relevant_items),
-                "items": relevant_items,
-            }
+            # Fix C (2026-06-06): selección de items vía helper testeable.
+            # Incluye feedback `pending` (clave para el re-run de feedback ♺).
+            bundle_hf = build_bundle_feedback(hf_data, isin)
             _write_json(bundle_dir / "human_feedback.json", bundle_hf)
             source_paths["human_feedback.json"] = str(hf_src.relative_to(ROOT)).replace("\\", "/")
         except Exception:

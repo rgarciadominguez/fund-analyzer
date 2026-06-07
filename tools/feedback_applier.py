@@ -63,6 +63,27 @@ def _set_nested(data: dict, path: str, value) -> None:
     cur[parts[-1]] = value
 
 
+def _find_analyst_outcome(output_data: dict, fb_id: str, idx: int) -> Optional[dict]:
+    """Fix B (2026-06-06): busca el veredicto explícito que el analyst-cowork
+    escribió por item de feedback en `_meta.feedback_outcomes`.
+
+    Cada outcome es {feedback_id, item_idx, resolved: bool, reason: str}. El
+    analyst lo emite cuando procesa cada item: dice si realmente lo mejoró o si
+    NO pudo (p.ej. la fuente solo tiene 8 posiciones, no 10). Esto sustituye a
+    la heurística ciega «la sección tiene texto → resuelto». Devuelve None si
+    el analyst no se pronunció sobre este item (skill antigua o item global).
+    """
+    outcomes = ((output_data.get("_meta") or {}).get("feedback_outcomes")) or []
+    if not isinstance(outcomes, list):
+        return None
+    for o in outcomes:
+        if not isinstance(o, dict):
+            continue
+        if o.get("feedback_id") == fb_id and o.get("item_idx") == idx:
+            return o
+    return None
+
+
 # ════════════════════════════════════════════════════════════════════
 # Aplicación de items
 # ════════════════════════════════════════════════════════════════════
@@ -238,6 +259,14 @@ def apply_pending_feedback(
 
     output_data = json.loads(output_path.read_text(encoding="utf-8"))
 
+    # Fix A (2026-06-06): los hints `revisar` de ESTE run se acumulan en
+    # `_feedback_revisar`. Reseteamos al inicio para que solo contenga los
+    # targets del batch actual — `_consume_cowork_analyst` los usa para
+    # regenerar SOLO las secciones que el usuario pidió tocar (y los limpia
+    # tras consumirlos). Sin reset, hints de rondas anteriores contaminarían
+    # la decisión de qué secciones preservar.
+    output_data["_feedback_revisar"] = []
+
     snapshots_pre: dict = {}  # (feedback_id, item_idx) → pre_value
     # T3.X (2026-05-28): item_results_per_fb registra por feedback el
     # resultado de aplicar cada item: {applied: bool, reason: str}.
@@ -348,6 +377,10 @@ def verify_resolved_after_run(
     # Agrupar resoluciones por feedback_id + capturar razón per item
     resolved_per_fb: dict[str, list[int]] = {}
     verify_reasons_per_fb: dict[str, dict[int, tuple[bool, str]]] = {}
+    # M6 (2026-06-06): cobertura del autoinforme del analyst por feedback:
+    # cuántos items `revisar` tenían veredicto explícito. Sirve para distinguir
+    # «la skill no cooperó / no se re-ejecutó» de «no se pudo mejorar».
+    coverage_per_fb: dict[str, dict[str, int]] = {}
     for (fb_id, idx), pre_value in snapshots_pre.items():
         # Encontrar el item para saber su target
         fb = fs.get_feedback_by_id(isin, fb_id)
@@ -385,26 +418,45 @@ def verify_resolved_after_run(
                     "El discovery no las indexó o el extractor las descartó."
                 )
         elif action == "revisar":
-            target_section = item.get("target_section")
-            if target_section:
-                synth = output_data.get("analyst_synthesis") or {}
-                sec_obj = synth.get(target_section) or {}
-                texto = sec_obj.get("texto") or ""
-                is_resolved = len(texto) > 100
+            # Fix B (2026-06-06): preferir el veredicto explícito del analyst
+            # (escrito por la skill en `_meta.feedback_outcomes`) sobre la
+            # heurística de longitud de texto. El analyst SABE si pudo mejorar
+            # lo que se le pidió; la longitud del texto no lo refleja.
+            outcome = _find_analyst_outcome(output_data, fb_id, idx)
+            cov = coverage_per_fb.setdefault(fb_id, {"revisar_items": 0, "with_outcome": 0})
+            cov["revisar_items"] += 1
+            if outcome is not None:
+                cov["with_outcome"] += 1
+            if outcome is not None:
+                is_resolved = bool(outcome.get("resolved"))
+                analyst_reason = (outcome.get("reason") or "").strip()
                 if is_resolved:
-                    reason = (
-                        f"sección '{target_section}' tiene contenido "
-                        f"({len(texto)} chars). El analyst la regeneró considerando el feedback."
-                    )
+                    reason = analyst_reason or "el analyst marcó este punto como resuelto."
                 else:
                     reason = (
-                        f"sección '{target_section}' quedó vacía o muy corta "
-                        f"({len(texto)} chars). El analyst no consiguió generar contenido — "
-                        f"posiblemente faltan datos en bundle/ para esa sección."
+                        "el analyst NO pudo mejorar esto: "
+                        + (analyst_reason
+                           or "no hay datos suficientes en las fuentes para corregirlo.")
                     )
             else:
-                is_resolved = True
-                reason = "feedback global 'revisar': asumido procesado tras re-run completo del analyst"
+                # Hardening (2026-06-06): SIN veredicto explícito del analyst NO
+                # podemos afirmar honestamente que el feedback se accionó. Antes
+                # se usaba `len(texto)>100` → falsos verdes (la sección tenía
+                # texto previo y se marcaba «resuelto» sin que nadie lo mejorara).
+                # Ahora: NO verificable (ámbar), nunca verde. La ausencia de
+                # outcome casi siempre significa que la skill analyst-cowork no
+                # se re-ejecutó o no procesó el feedback en este run.
+                is_resolved = False
+                target_section = item.get("target_section") or "(global)"
+                synth = output_data.get("analyst_synthesis") or {}
+                sec_obj = synth.get(target_section) or {} if target_section != "(global)" else {}
+                texto = (sec_obj or {}).get("texto") or ""
+                reason = (
+                    f"no verificable: el analyst no emitió veredicto para este item "
+                    f"(sección '{target_section}'). Probablemente la skill analyst-cowork "
+                    f"no se re-ejecutó o no procesó el feedback en este run. No se confirma "
+                    f"la mejora aunque la sección tenga texto ({len(texto)} chars)."
+                )
         else:
             reason = f"acción no verificable: {action}"
 
@@ -433,6 +485,38 @@ def verify_resolved_after_run(
         except Exception as e:
             if log_fn:
                 log_fn("FEEDBACK", "WARN", f"mark_items_resolved({fb_id}) falló: {e}")
+        # M6 (2026-06-06): diagnóstico de cooperación de la skill por feedback.
+        cov = coverage_per_fb.get(fb_id)
+        if cov and cov["revisar_items"] > 0:
+            rev_n, with_n = cov["revisar_items"], cov["with_outcome"]
+            if with_n == 0:
+                status = "none"
+                message = (
+                    f"La skill analyst-cowork no emitió ningún veredicto sobre este "
+                    f"feedback ({rev_n} punto(s) de revisión). Casi seguro NO se "
+                    f"re-ejecutó o no leyó el feedback en este run. Los puntos figuran "
+                    f"como «no verificable», NO como resueltos. Re-lanza el re-análisis."
+                )
+            elif with_n < rev_n:
+                status = "partial"
+                message = (
+                    f"La skill solo se pronunció sobre {with_n}/{rev_n} puntos de "
+                    f"revisión. Los restantes quedan «no verificable»."
+                )
+            else:
+                status = "ok"
+                message = f"El analyst se pronunció sobre los {rev_n} puntos de revisión."
+            try:
+                fs.set_skill_diagnostic(isin, fb_id, {
+                    "status": status, "revisar_items": rev_n,
+                    "with_outcome": with_n, "message": message,
+                })
+            except Exception:
+                pass
+            if log_fn and status != "ok":
+                log_fn("FEEDBACK", "WARN",
+                       f"autoinforme analyst {status}: {with_n}/{rev_n} veredictos "
+                       f"({fb_id})")
         # T3.12: recopilar URLs útiles (de items resolved con source_urls)
         fb = fs.get_feedback_by_id(isin, fb_id)
         if fb:

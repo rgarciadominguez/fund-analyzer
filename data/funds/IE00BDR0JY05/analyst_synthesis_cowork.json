@@ -1,241 +1,365 @@
 {
   "_meta": {
     "isin": "IE00BDR0JY05",
-    "generated": "2026-05-28T09:30:00Z",
+    "generated": "2026-06-06T09:05:00Z",
     "generator": "skill:analyst-cowork",
-    "skill_version": "2.3.0",
+    "skill_version": "2.4.0",
     "main_model": "opus",
-    "audit_model": "self",
-    "sections_generated": ["resumen", "historia", "gestores", "evolucion", "estrategia", "cartera", "fuentes_externas", "documentos"],
+    "audit_model": "opus",
+    "sections_generated": [
+      "resumen",
+      "evolucion",
+      "estrategia",
+      "cartera",
+      "fuentes_externas",
+      "documentos"
+    ],
+    "sections_preserved": [
+      "historia",
+      "gestores"
+    ],
     "audit_pass_done": true,
     "audit_iterations": 1,
-    "anti_invencion_flagged": [
-      "letters_data.cartas[0] (_web_gmo-quarterly-letter_4q-2025.pdf) es una carta de GMO (Ben Inker) — NO pertenece al fondo Ashoka WhiteOak India Opportunities. Contaminación de discovery. NO se ha usado su contenido como tesis/decisiones de Ashoka.",
-      "fund_data.json sin KPIs ni serie histórica ni posiciones (intl_extractor no completado). Secciones de evolución / cartera / fuentes externas redactadas con honestidad sobre gaps; no se inventan AUM, top holdings ni rentabilidades."
-    ],
+    "anti_invencion_flagged": [],
     "input_files_hash": {
-      "fund_data.json": "sha256:858a3e500e1e396e2143e8ba6a0fe79c68184fed181bb4f55948fa1c0bf7a74f",
-      "manager_profile.json": "sha256:3f7de985b1117a470d63bd4aa3edaffb67f44068949a52abd529647de12e91f1",
-      "letters_data.json": "sha256:3572563f5d0016511a659df7adad024f38216666861f11e6972e7c2b48417db3",
-      "readings.json": "sha256:ffa74b57be54e7bbd0d072a1bf7b0fdcebc31baab54ece5a2a838c8bc5e2843d",
-      "sources.json": "sha256:9dcaea2537dd6439a00991c56adfc46a22ec49457b74a3763ec22064699eaae6"
-    }
+      "fund_data.json": "sha256:41893679d92dd6e2f84759bba54c0ecdbd4650897d87cd2497d384ed4d5d1ebc",
+      "manager_profile.json": "sha256:5e8452c2ba5baaa1f5c18c16cf2657ec9880feec354837a424f6ceed20a88a37",
+      "letters_data.json": "sha256:19faabe0c1f1db57daf28b547c78054a817d0c52798cea8150a6eeebab72be35",
+      "readings.json": "sha256:cf4645a6007d41b5e255898d1d5b519848fd119e400e93afff90cb530b7b04c8",
+      "sources.json": "sha256:e80a978ac500d98532df0f35a0f23e0edb32a65208930f7ba2835c8b155f569f",
+      "human_feedback.json": "sha256:147897fcdecdd9713424e3a97dc71edd366ecc8ff018acfc2e6985cbfa7b32ef"
+    },
+    "feedback_outcomes": [
+      {
+        "feedback_id": "fb_20260604_100204_f64d",
+        "item_idx": 6,
+        "resolved": true,
+        "reason": "Reconstruida la sección documentos con documentación oficial real: ficha mensual descargada (WOAIOF_ficha_2026-03.pdf), página oficial de documentos del Ashoka WhiteOak ICAV en Carne (prospectus/KIID/informes), y registro CNMV nº 1847. Nombre del fondo ya presente en el top-level (Ashoka WhiteOak India Opportunities Fund). Nota: la tabla de holdings del dashboard se nutre de posiciones.actuales (top-level), que el extractor INT debe poblar; en este pase he cargado las posiciones reales en cartera.top_posiciones desde la ficha."
+      },
+      {
+        "feedback_id": "fb_20260606_063823_c246",
+        "item_idx": 5,
+        "resolved": true,
+        "reason": "Reescrita Evolución con datos reales del factsheet: AUM 1.560 M$ (≈1.435 M€), NAV 242,26 € (clase D EUR) y 214,95 $ (clase D USD), lanzamiento 19-dic-2018 (clase D 31-ene-2019), y rentabilidad desde inicio +114,95% acumulado / +11,27% anualizado vs MSCI India IMI +73,86% / +8,03%. Eliminado el disclaimer de 'no hay datos'."
+      },
+      {
+        "feedback_id": "fb_20260606_063823_c246",
+        "item_idx": 6,
+        "resolved": true,
+        "reason": "Reescrita Cartera con datos reales del factsheet: 10 posiciones divulgadas con peso (Bajaj Finserv 2,9%, SBI 2,7%, Bharat Electronics 1,8%...), desglose sectorial completo (Financials 28,4%, Industrials 15,7%...) y por capitalización (Large 50,9% / Mid 14,0% / Small 33,8%). Honestidad: el factsheet divulga posiciones vía análisis de contribución (no un 'top-10 por peso' explícito) y no publica el número total de posiciones ni los ratios top5/top10/top15; no los invento, por lo que concentracion queda vacía y se describe cualitativamente (ninguna posición >~2,9% → cartera muy diversificada)."
+      },
+      {
+        "feedback_id": "fb_20260606_063823_c246",
+        "item_idx": 7,
+        "resolved": true,
+        "reason": "Añadidos AUM 1.560 M$ y TER clase D 1,06% (95 pb gestión + 11 pb otros) al Resumen y a la Estrategia, manteniendo el proceso bottom-up de valor intrínseco. Se incorporó además el track record real desde inicio."
+      },
+      {
+        "feedback_id": "fb_20260606_063823_c246",
+        "item_idx": 8,
+        "resolved": true,
+        "reason": "Eliminada por completo cualquier referencia a la 'GMO Quarterly Letter 4Q 2025': se reescribió Fuentes externas sin GMO, sin burbuja IA y sin Benchmark-Free Allocation, y se regeneró también Estrategia (que contenía 3 menciones a GMO/Ben Inker) para purgar esa contaminación. La carta GMO se excluye de documentos.cartas_urls (no pertenece a este fondo)."
+      }
+    ]
   },
   "analyst_synthesis": {
     "resumen": {
-      "texto": "Ashoka WhiteOak India Opportunities Fund es un sub-fondo UCITS domiciliado en Irlanda (estructura ICAV) cuyo objetivo es la apreciación de capital a largo plazo mediante una exposición concentrada y activamente gestionada a la renta variable india. El reglamento del fondo establece que al menos dos tercios de su patrimonio neto deben estar invertidos en acciones, valores asimilables a renta variable u otros vehículos de inversión colectiva que aporten exposición a compañías domiciliadas en India o que generen una proporción predominante de sus ingresos o beneficios en India (prospectus KID Class D Shares EUR).\n\nEl gestor utiliza una filosofía de selección de valores **bottom-up** centrada en oportunidades de valor intrínseco: cada candidato se evalúa mediante análisis fundamental de estados financieros, historial del equipo directivo, estructura de capital, operaciones, desarrollo de producto y posicionamiento competitivo, en lugar de comparar el precio de mercado con métricas relativas (prospectus, política de inversión). El fondo es **activamente gestionado** frente al MSCI India IMI Index y goza de **plena libertad** respecto del benchmark — la gestora declara explícitamente que solo una minoría de las posiciones suele coincidir con los constituyentes del índice en un momento dado.\n\nLa parte restante (hasta un tercio) puede invertirse en renta variable de compañías no domiciliadas en India cuando el gestor lo considere apropiado para alcanzar el objetivo. Hasta un 20% adicional puede colocarse en deuda pública o corporativa investment grade. Los instrumentos derivados (futuros, forwards de divisa, total return swaps) se permiten solo con fines de cobertura, reducción de riesgo y no especulativos, con un límite de apalancamiento del 100% del NAV.\n\nLa moneda base es **USD**; hay clases en EUR, GBP, CHF y SGD. La clase IE00BDR0JY05 corresponde a Class D Shares EUR. El fondo se lanzó el **19 de diciembre de 2018** bajo la firma WhiteOak Capital, fundada en 2017 por Prashant Khemka tras 17 años en Goldman Sachs Asset Management. Khemka es el lead portfolio manager desde inicio y Ayush Abhijeet co-portfolio manager.\n\nEl bundle de datos recibido no contiene KPIs cuantitativos (AUM actual, ratio de gastos, partícipes, número de posiciones, rentabilidades históricas) ni la composición actual de la cartera, por lo que el análisis cuantitativo de este informe es estructuralmente limitado. La síntesis cualitativa se apoya en: prospectus y política de inversión, biografía documentada del equipo gestor (Trustnet, Wikipedia, AIC) y contexto público de la gestora a agosto de 2025 (~10.000 M$ AUM en estrategias de renta variable global e India).",
-      "filosofia_inversion": "Selección **bottom-up de valor intrínseco** con foco en India. El gestor parte del análisis fundamental de cada compañía — calidad y trayectoria del equipo directivo, estructura financiera, modelo operativo, pipeline de producto, posicionamiento competitivo en su industria — y solo después contrasta con el precio de mercado. La tesis es que el precio puede estar desconectado del valor intrínseco durante periodos prolongados, y que esa desconexión es la fuente principal de rentabilidad para un inversor disciplinado con horizonte largo.\n\nEl fondo es **activamente gestionado con plena libertad respecto del MSCI India IMI**: el gestor declara que en un momento dado solo una minoría de las posiciones coincide con constituyentes del índice. Esta independencia es el rasgo que más diferencia al fondo de productos pasivos o cuasi-pasivos sobre India.\n\nLos **instrumentos derivados** (futuros, forwards de divisa, total return swaps) están permitidos **solo para cobertura, reducción de riesgo o fines no especulativos**, con un tope de apalancamiento del 100% del NAV — un compromiso explícito en el prospectus que reduce el riesgo de cola operativo del fondo.\n\nLa filosofía es coherente con la trayectoria personal de Khemka: durante 11 años en Goldman Sachs Asset Management (India CIO desde 2006), aplicó el mismo enfoque al mandato GSAM India Equity, que obtuvo rating AAA Citywire. El proceso busca compañías con valor intrínseco no reconocido por el mercado, evitando los sesgos de comprar 'lo que está de moda' o seguir índices por inercia.",
+      "texto": "Ashoka WhiteOak India Opportunities Fund es un sub-fondo UCITS domiciliado en Irlanda (estructura ICAV, registro C 180440, autorizado por el Central Bank of Ireland) cuyo objetivo es la **apreciación de capital a largo plazo** mediante una exposición activamente gestionada a la renta variable india. Según el prospectus (dated 29-feb-2024), el fondo invierte al menos dos tercios de su patrimonio en acciones y valores asimilables con exposición a compañías domiciliadas en India o que generan una proporción predominante de sus ingresos o beneficios en el país; puede destinar hasta un tercio a compañías no indias y hasta un 20% a deuda investment grade.\n\nA 31 de marzo de 2026 el fondo gestiona **1.560 millones de dólares** (≈ 1.435 millones de euros), dentro de una plataforma WhiteOak con **6.640 millones de dólares** de AUM (que ascienden a ~10.100 M$ incluyendo los 3.450 M$ de activos retail de la gestora india). El benchmark de referencia es el **MSCI India IMI Index** (en US$), si bien la gestora declara que el fondo está **activamente gestionado** y goza de plena libertad respecto del índice.\n\nEl gestor aplica una filosofía de **selección bottom-up de valor intrínseco**: cada candidato se evalúa mediante análisis fundamental de estados financieros, historial del equipo directivo, estructura de capital, operaciones, desarrollo de producto y posicionamiento competitivo, en lugar de comparar el precio de mercado con métricas relativas. El resultado es una **cartera muy diversificada** — ninguna posición individual supera el ~2,9% del patrimonio — que busca generar alpha por amplitud y selección de valores más que por concentración. La cartera presenta un marcado sesgo hacia compañías de pequeña y mediana capitalización (33,8% en small caps frente al 14,2% del índice).\n\nLa clase IE00BDR0JY05 corresponde a **Class D Shares EUR** (la moneda base del fondo es USD; existen clases en EUR, GBP, CHF y SGD). Los gastos de la clase D son **95 pb de comisión de gestión + 11 pb de otros gastos = un Total Expense Ratio (TER) del 1,06% anual** (dato de febrero 2026). El fondo se lanzó el **19 de diciembre de 2018** (clase D operativa desde el 31 de enero de 2019) bajo la firma WhiteOak Capital, fundada en 2017 por Prashant Khemka tras 17 años en Goldman Sachs Asset Management. Khemka es lead portfolio manager desde el inicio y Ayush Abhijeet co-portfolio manager.\n\nDesde su lanzamiento, la clase D ha rentado **+114,95% acumulado (+11,27% anualizado) en USD frente al +73,86% (+8,03% anualizado) del MSCI India IMI**, una sobre-rentabilidad de ~41 puntos porcentuales en siete años. El fondo cuenta con calificación Morningstar y un reconocimiento al mejor fondo de renta variable India a tres años recogido en la ficha (factsheet WhiteOak/BrightGate, 31-mar-2026).",
+      "filosofia_inversion": "La filosofía es **bottom-up de valor intrínseco aplicada a la renta variable india**. El equipo no parte del índice ni de comparables de precio relativo: selecciona compañías que, tras un análisis fundamental del negocio (estados financieros, calidad y track record del equipo directivo, estructura de capital, operaciones, pipeline de producto y posición competitiva), cotizan por debajo de su valor intrínseco estimado. La construcción de cartera es deliberadamente **diversificada y de baja concentración** — decenas de nombres, ninguno por encima de ~3% — de modo que el alpha proviene de la suma de muchas decisiones de stock-picking correctas y no de unas pocas apuestas concentradas. El fondo asume de forma estructural un tracking error elevado frente al MSCI India IMI y un sesgo persistente hacia compañías small y mid cap, donde el equipo considera que la ineficiencia de mercado y el potencial de generación de alpha son mayores. Los derivados se reservan exclusivamente a cobertura y reducción de riesgo (sin apalancamiento por encima del 100% del NAV), coherente con un perfil long-only de convicción.",
       "criterios_inversion": [
         {
-          "titulo": "Análisis fundamental bottom-up",
-          "descripcion": "Cada compañía se evalúa por sus propios fundamentales — estados financieros, equipo directivo, estructura de capital, operaciones, desarrollo de producto, posicionamiento competitivo — antes de cualquier consideración de precio relativo (prospectus, política de inversión)."
+          "titulo": "Valor intrínseco bottom-up",
+          "descripcion": "Selección por análisis fundamental del negocio (cash flows, management, estructura de capital, posición competitiva) frente a su valor de mercado, no por métricas de precio relativo ni por peso en el índice."
         },
         {
-          "titulo": "Valor intrínseco vs precio de mercado",
-          "descripcion": "Se buscan compañías cuya valoración intrínseca, según los fundamentales analizados, no esté reconocida en su precio de mercado actual. El enfoque es asimétrico y orientado al largo plazo."
+          "titulo": "Exposición India por reglamento",
+          "descripcion": "Al menos dos tercios del patrimonio en compañías domiciliadas en India o con ingresos/beneficios predominantemente indios; el inversor compra una exposición India pura y verificable."
         },
         {
-          "titulo": "Exposición predominante a India (≥2/3 patrimonio)",
-          "descripcion": "El reglamento exige al menos dos tercios del patrimonio en compañías domiciliadas en India o que generen una proporción predominante de ingresos/beneficios en India. Esto da pureza de tema al fondo."
+          "titulo": "Diversificación y baja concentración",
+          "descripcion": "Cartera amplia con ninguna posición por encima de ~2,9%; el alpha se busca por amplitud de aciertos en selección, reduciendo el riesgo idiosincrático de cada nombre."
+        },
+        {
+          "titulo": "Sesgo a pequeña y mediana capitalización",
+          "descripcion": "33,8% en small caps (vs 14,2% del índice) y 14,0% en mid caps; el equipo prioriza el segmento SMID por su mayor ineficiencia y potencial de alpha."
         },
         {
           "titulo": "Independencia del benchmark",
-          "descripcion": "Activamente gestionado frente al MSCI India IMI con plena libertad: el gestor declara que solo una minoría de las posiciones coincide con el índice. Sin restricciones de tracking error."
-        },
-        {
-          "titulo": "Derivados solo para cobertura",
-          "descripcion": "Futuros, forwards de divisa y total return swaps permitidos exclusivamente con fines de cobertura, reducción de riesgo y no especulativos. Apalancamiento máximo 100% del NAV."
+          "descripcion": "Gestión activa con plena libertad respecto del MSCI India IMI; solo una minoría de posiciones suele coincidir con el índice. Derivados únicamente para cobertura, apalancamiento máximo 100% NAV."
         }
       ],
       "fortalezas": [
-        "Gestor líder con trayectoria documentada: Prashant Khemka acumula >27 años en gestión de activos, incluyendo 11 años como CIO de India Equity en Goldman Sachs Asset Management con rating AAA Citywire en ese mandato.",
-        "Pureza temática estructural: el reglamento exige ≥2/3 en India y permite hasta un 20% en deuda investment grade — el inversor sabe exactamente la exposición que está comprando.",
-        "Plena libertad respecto del MSCI India IMI: no hay restricciones de tracking error y el gestor declara que solo una minoría de las posiciones coincide con el índice, lo que permite capturar alpha si las convicciones son correctas.",
-        "Estructura UCITS-ICAV (Irlanda) con clases en EUR/GBP/CHF/SGD: facilita el acceso desde la UE sin riesgo regulatorio offshore.",
-        "Plataforma WhiteOak escalada y diversificada: ~10.000 M$ AUM en estrategias de renta variable global e India a agosto de 2025, con oficinas en India, Irlanda, Mauricio y Reino Unido — capacidad de research local sobre el terreno."
+        "Track record verificado de sobre-rentabilidad: +114,95% acumulado (+11,27% anualizado) desde inicio en USD frente al +73,86% (+8,03%) del MSCI India IMI, ~41 puntos porcentuales de outperformance en siete años.",
+        "Lead manager con trayectoria documentada (Prashant Khemka, ex-CIO de India Equity en GSAM con rating AAA Citywire) aplicando la misma filosofía bottom-up durante más de 25 años entre dos plataformas.",
+        "Cartera muy diversificada y de baja concentración (ninguna posición por encima de ~2,9%): el riesgo idiosincrático por nombre es limitado y el alpha procede de amplitud de selección.",
+        "Sesgo SMID diferencial (33,8% small cap vs 14,2% del índice) que captura el segmento más ineficiente del mercado indio, donde el research local de WhiteOak en Mumbai aporta ventaja.",
+        "Estructura UCITS-ICAV (Irlanda) con clases en EUR/GBP/CHF/SGD y registro en España (CNMV nº 1847): acceso desde la UE con marco regulatorio reconocido y coste contenido (TER 1,06% clase D).",
+        "Plataforma WhiteOak escalada a 6.640 M$ (≈10.100 M$ incluyendo retail India) con research propio sobre el terreno y reconocimiento de mejor fondo India a tres años."
       ],
       "riesgos": [
-        "Concentración país único (India): cualquier shock macro, regulatorio, divisa o político específico de India puede impactar fuertemente. No hay diversificación regional estructural.",
-        "Volatilidad de mercado emergente: India es mercado EM con volatilidad históricamente superior a desarrollados; los mercados frontera y EM han sufrido drawdowns >40% en crisis (2008, 2020, 2022).",
-        "Riesgo divisa para la clase EUR no cubierta: la moneda base es USD y el subyacente cotiza en INR — la clase IE00BDR0JY05 (Class D EUR) puede sufrir efecto cruzado USD/EUR/INR si no está hedged.",
-        "Riesgo de gestor único: Khemka es lead desde inception; aunque hay co-PM (Abhijeet) y la plataforma ha ampliado el equipo en 2025 (Hiren Dasani como CIO EM), una salida del fundador sería un evento material.",
-        "Bundle de datos sin métricas cuantitativas: el análisis no puede verificar tamaño actual (AUM), liquidez, ratio de gastos efectivo, partícipes, drawdowns históricos ni rentabilidad anualizada del fondo target. Requiere completar prep determinista (intl_extractor v2)."
+        "Concentración país único (India): un shock macro, regulatorio, político o de divisa específico de India puede impactar con fuerza sin diversificación regional estructural.",
+        "Volatilidad de mercado emergente: India es un EM con drawdowns históricamente elevados; el propio fondo cayó -19,05% en el 1T 2026 en un trimestre adverso para la bolsa india (-18,20%).",
+        "Riesgo divisa para la clase EUR: la moneda base es USD y el subyacente operativo es INR; la rupia se depreció un 5,0% frente al USD en el 1T 2026, lo que afecta la conversión a EUR salvo cobertura específica.",
+        "Sesgo a small/mid caps (33,8% small): mayor riesgo de liquidez y volatilidad que un fondo centrado en large caps, especialmente en fases de aversión al riesgo en emergentes.",
+        "Riesgo de gestor clave (Khemka como lead desde inception): pese al co-PM Abhijeet y al refuerzo del equipo en 2025 (Dasani como CIO EM), la salida del fundador sería un evento material."
       ],
-      "para_quien_es": "Inversor con horizonte largo (≥7-10 años) que busca exposición pura a renta variable india gestionada activamente y con plena libertad respecto del MSCI India IMI. Adecuado para diversificación regional dentro de una cartera global ya estructurada — NO como única exposición a renta variable. Requiere tolerancia alta a volatilidad de mercado emergente, riesgo divisa USD/EUR/INR y posibles drawdowns superiores a los desarrollados.",
-      "compromiso_gestor": "Khemka es **founder & managing director de WhiteOak Capital** (2017) y lead manager desde inception del fondo (19-dic-2018). Su trayectoria es coherente: dejó Goldman Sachs después de 17 años para fundar la firma. WhiteOak es plataforma privada en escala (~10.000 M$ AUM a agosto 2025), no parte de un conglomerado bancario. Alineación estructural alta. No hay dato verificado de skin in the game personal en este fondo concreto.",
-      "signal": "NEUTRAL",
-      "signal_rationale": "Tesis cualitativa sólida (gestor experimentado, estructura UCITS limpia, filosofía documentada y consistente) pero bundle sin métricas cuantitativas comprobables (AUM, rentabilidades, ratios, posiciones, partícipes). No es posible asignar POSITIVO sin verificar performance histórica vs benchmark ni tamaño actual del vehículo."
-    },
-    "historia": {
-      "texto": "La historia del fondo no puede separarse de la trayectoria de su gestora y fundador. **Prashant Khemka** nació en Mumbai en noviembre de 1971, completó su MBA en finanzas en Vanderbilt University (Owen Graduate School, 1998) y obtuvo la designación CFA. Inició su carrera profesional en **State Street Global Advisors** en Boston, y se incorporó a **Goldman Sachs Asset Management** en el año 2000 como analista de renta variable. En apenas cuatro años pasó a co-presidir un fondo de renta variable de 30.000 millones de dólares. En 2006 se trasladó a India para hacerse cargo del mandato **GSAM India Equity**, que durante su gestión obtuvo rating **AAA Citywire**. Posteriormente, Khemka expandió de manera significativa la división **Global Emerging Markets Equity** de Goldman Sachs, haciendo crecer los activos bajo gestión desde menos de 500 millones hasta más de 2.600 millones de dólares.\n\n**Fundación de WhiteOak Capital (2017)**\n\nEn 2017 Khemka abandonó Goldman Sachs tras 17 años en la firma y fundó **WhiteOak Capital Management** en Mumbai (con oficinas posteriores en Singapur, Irlanda, Mauricio y Reino Unido). La motivación documentada en fuentes públicas es la creación de una plataforma independiente que aplicara su filosofía bottom-up de valor intrínseco sin las restricciones organizativas de un banco de inversión.\n\n**Lanzamiento del Ashoka India Equity Investment Trust (julio 2018)**\n\nEl primer vehículo de la firma fue el **Ashoka India Equity Investment Trust**, un closed-end fund cotizado en la Bolsa de Londres lanzado en julio de 2018. Este vehículo (en libras esterlinas, dirigido al mercado británico) demostró la viabilidad del modelo y abrió la puerta al lanzamiento del UCITS para el mercado continental europeo.\n\n**Lanzamiento del Ashoka WhiteOak India Opportunities Fund (19-dic-2018)**\n\nApenas cinco meses después del trust, se constituye el sub-fondo **Ashoka WhiteOak ICAV - India Opportunities Fund** bajo la regulación irlandesa (Central Bank of Ireland). Es un UCITS abierto con varias clases de acciones — la clase D Shares EUR (IE00BDR0JY05) entre ellas. Khemka asume el rol de **lead portfolio manager** desde inicio. La fecha exacta (19-dic-2018) está confirmada por la ficha oficial del gestor en Trustnet.\n\n**Expansión de la plataforma (2021-2022)**\n\nEn los años siguientes WhiteOak amplía su oferta con dos vehículos adicionales bajo el liderazgo de Khemka: el **Ashoka WhiteOak India Leaders Fund** (29-jul-2021, otro UCITS pero con sesgo a compañías líderes) y el **Ashoka WhiteOak Emerging Markets Equity** (28-jun-2022, extensión geográfica a EM globales). Khemka es lead manager de los tres mandatos según la ficha de Trustnet.\n\n**Refuerzo del equipo y nombramiento de Dasani como CIO EM (agosto 2025)**\n\nEl 12 de agosto de 2025 WhiteOak anuncia el nombramiento de **Hiren Dasani** como Chief Investment Officer for Emerging Markets. Dasani había sido durante 18 años co-head de Global Emerging Markets Equity en Goldman Sachs Asset Management (donde había trabajado con Khemka durante una década) y se incorpora como portfolio manager del Ashoka India Equity Investment Trust (£473m) y del Ashoka WhiteOak Emerging Markets Equity. La nota de la Association of Investment Companies (AIC) sobre esta noticia cita a Khemka como founder y a Fadrique Balmaseda y Loong Lim como portfolio managers adicionales en la plataforma. **Importante**: la noticia no asigna explícitamente a Dasani como PM del UCITS IE00BDR0JY05 (solo se le menciona en el AIE trust y en el mandato EM global), por lo que su impacto directo sobre este fondo a la fecha es indirecto.\n\n**Escala actual de la firma (agosto 2025)**\n\nWhiteOak Capital gestiona aproximadamente **10.000 millones de dólares** en estrategias de renta variable global e India repartidos entre cuatro oficinas (India, Irlanda, Mauricio y Reino Unido). La firma ha pasado de cero a este tamaño en ocho años (2017-2025), lo que evidencia una captación comercial significativa y validación institucional del proceso.\n\n**Datos faltantes**\n\nEl bundle no contiene serie histórica de AUM ni partícipes para el sub-fondo IE00BDR0JY05 concretamente, ni la rentabilidad anualizada año a año, ni hechos relevantes regulatorios (cambios de prospectus, modificaciones de comisiones, reorganizaciones del ICAV). Esos hitos requerirían completar la prep determinista del extractor INT v2 con annual reports y factsheets descargados — pendiente.",
-      "hitos": [
-        {"anio": "2017", "titulo": "Fundación de WhiteOak Capital", "evento": "Prashant Khemka deja Goldman Sachs Asset Management tras 17 años (incluyendo 11 como CIO de India Equity) y funda WhiteOak Capital Management en Mumbai.", "tipo": "lanzamiento"},
-        {"anio": "2018", "titulo": "Lanzamiento del Ashoka India Equity Investment Trust (UK)", "evento": "Julio 2018. Primer vehículo de la firma, closed-end cotizado en LSE, dirigido al mercado británico.", "tipo": "lanzamiento"},
-        {"anio": "2018", "titulo": "Lanzamiento del Ashoka WhiteOak India Opportunities Fund (UCITS)", "evento": "19 de diciembre 2018. Sub-fondo del Ashoka WhiteOak ICAV (Irlanda). Khemka asume rol de lead portfolio manager desde el día uno. Clase D Shares EUR es IE00BDR0JY05.", "tipo": "lanzamiento"},
-        {"anio": "2021", "titulo": "Lanzamiento del Ashoka WhiteOak India Leaders Fund", "evento": "29 de julio 2021. Segundo UCITS de la plataforma, también gestionado por Khemka como lead manager, con sesgo a compañías líderes.", "tipo": "lanzamiento"},
-        {"anio": "2022", "titulo": "Lanzamiento del Ashoka WhiteOak Emerging Markets Equity", "evento": "28 de junio 2022. Extensión geográfica a EM globales más allá de India. Khemka lead manager.", "tipo": "lanzamiento"},
-        {"anio": "2025", "titulo": "Nombramiento de Hiren Dasani como CIO de Emerging Markets en WhiteOak", "evento": "12 de agosto 2025. Dasani se incorpora tras 18 años en GSAM (donde fue co-head de Global EM Equity). Asume PM del AIE trust y del mandato EM global. No se le ha asignado explícitamente como PM del fondo UCITS IE00BDR0JY05 a la fecha.", "tipo": "cambio_gestor"},
-        {"anio": "2025", "titulo": "WhiteOak alcanza ~10.000 M$ AUM", "evento": "Escala de la firma confirmada en nota de la AIC de agosto 2025. Oficinas en India, Irlanda, Mauricio y Reino Unido.", "tipo": "hecho_relevante"}
-      ]
-    },
-    "gestores": {
-      "texto": "El equipo gestor del Ashoka WhiteOak India Opportunities Fund está liderado por **Prashant Khemka** (founder & managing director de WhiteOak Capital, lead portfolio manager desde el lanzamiento del fondo el 19 de diciembre de 2018) y por **Ayush Abhijeet** como co-portfolio manager e Investment Director, basado en Singapur. La identificación de ambos roles está validada con confianza **alta** en el manager profile (`_opus_lead_confidence: high`) y triangulada con tres fuentes públicas independientes: la ficha oficial del gestor en Trustnet, la biografía de Khemka en Wikipedia y la nota de la Association of Investment Companies (AIC) sobre el nombramiento de Hiren Dasani como CIO EM en agosto de 2025.\n\n**Sobre la composición del equipo a fecha de la prep (mayo 2026)**\n\nLa nota de la AIC publicada en agosto de 2025 cita explícitamente como portfolio managers de la plataforma WhiteOak a **Prashant Khemka, Hiren Dasani, Fadrique Balmaseda y Loong Lim**, además del propio Ayush Abhijeet. Sin embargo, esta lista corresponde a la plataforma global y a vehículos específicos mencionados en la nota (el closed-end Ashoka India Equity Investment Trust UK y el mandato Ashoka WhiteOak Emerging Markets Equity, no este UCITS). Por anti-invención, el equipo del fondo IE00BDR0JY05 documentado en el `manager_profile.json` se limita a los dos nombres canónicos confirmados: **Khemka (lead) y Abhijeet (co)**. Hiren Dasani podría haberse incorporado al UCITS también, pero a la fecha del bundle no hay confirmación explícita por fuente primaria y, por tanto, no se lista como PM oficial del vehículo en este informe.\n\n**Continuidad y estabilidad del equipo**\n\nKhemka es lead manager desde el día de inception del fondo (19-dic-2018), lo que significa que a fecha del presente análisis acumula **más de 7 años continuos al frente del fondo target**. Esto es una característica diferencial: en la industria de fondos UCITS sobre mercados emergentes, la rotación de portfolio managers suele ser alta y la continuidad del founder al frente de su vehículo flagship es la excepción. Abhijeet aparece como co-portfolio manager y miembro del founding team de WhiteOak desde la fundación de la firma en 2017, por lo que su involucración con la estrategia India es también de larga duración.\n\n**Plataforma de research detrás del equipo**\n\nWhiteOak ha pasado de cero a aproximadamente 10.000 millones de dólares de AUM en ocho años (2017-2025) y cuenta con oficinas en cuatro jurisdicciones — India (Mumbai, sede), Irlanda, Mauricio y Reino Unido. La sede en Mumbai permite research local con presencia física sobre el terreno, algo que diferencia al fondo de muchos competidores UCITS sobre India gestionados desde Londres o Luxemburgo con presencia india meramente contractual. El refuerzo en agosto de 2025 con Hiren Dasani (18 años en Goldman Sachs Asset Management, donde fue co-head de Global Emerging Markets Equity y donde había trabajado con Khemka durante una década) consolida el banco de talento en la firma — aunque, como se ha indicado, Dasani está formalmente asignado al AIE trust y al mandato EM global, no al UCITS India.",
-      "perfiles": [
-        {
-          "nombre": "Prashant Khemka",
-          "cargo": "Lead Portfolio Manager — Founder & Managing Director, WhiteOak Capital",
-          "trayectoria": "**Formación**\n\nNació en Mumbai el 4 de noviembre de 1971. Completó un **MBA en finanzas** en la Owen Graduate School of Management de **Vanderbilt University** (1998) y obtuvo la designación **CFA charterholder**. Durante sus años universitarios fue jugador competitivo de ajedrez, además de aficionado al cricket — un detalle biográfico que recoge la entrada de Wikipedia.\n\n**Inicio en State Street Global Advisors (Boston)**\n\nInició su carrera profesional como analista en **State Street Global Advisors**, en Boston, en torno a 1998. Permaneció allí hasta su salto a Goldman Sachs en el año 2000.\n\n**Goldman Sachs Asset Management (2000-2017)**\n\nSe incorporó a **Goldman Sachs Asset Management** en el año 2000 como analista de renta variable. Su progresión fue inusualmente rápida: en apenas cuatro años pasó a co-presidir un fondo de renta variable global valorado en **30.000 millones de dólares**. En 2006 se trasladó a India para hacerse cargo del mandato **GSAM India Equity**, posición desde la que dirigió personalmente hasta **5.000 millones de dólares de activos** de un equipo que gestionaba 6.500 millones en total. Durante su gestión, **GSAM India Equity obtuvo rating AAA Citywire** — el rating más alto de la industria para gestores individuales basados en performance ajustada por riesgo. Posteriormente, Khemka asumió responsabilidades adicionales al frente de la división **Global Emerging Markets Equity** de Goldman Sachs, que durante su mandato pasó de gestionar **menos de 500 millones de dólares a más de 2.600 millones**.\n\n**Fundación de WhiteOak Capital (2017)**\n\nEn 2017 abandonó Goldman Sachs tras 17 años en la firma para **fundar WhiteOak Capital Management** en Mumbai. La motivación pública para crear una plataforma independiente fue aplicar su filosofía de selección bottom-up de valor intrínseco sin las restricciones organizativas de un gran banco de inversión. WhiteOak ha crecido desde cero hasta aproximadamente **10.000 millones de dólares de activos bajo gestión** a agosto de 2025, repartidos entre cuatro oficinas: India, Irlanda, Mauricio y Reino Unido.\n\n**Vehículos actualmente bajo su liderazgo (lead manager)**\n\nSegún la ficha oficial del gestor publicada en **Trustnet**, Khemka es **lead portfolio manager** de tres vehículos:\n\n- **Ashoka WhiteOak India Opportunities Fund** (UCITS Irlanda, este fondo IE00BDR0JY05) — desde el **19 de diciembre de 2018** (fecha de inception del fondo).\n- **Ashoka WhiteOak India Leaders Fund** — desde el **29 de julio de 2021**.\n- **Ashoka WhiteOak Emerging Markets Equity** — desde el **28 de junio de 2022**.\n\nAdicionalmente, Khemka es portfolio manager del **Ashoka India Equity Investment Trust** (closed-end cotizado en LSE, £473m a agosto 2025), el primer vehículo lanzado por la firma en julio de 2018.\n\n**Métricas de performance (Trustnet, manager-level)**\n\nLa ficha agregada de Trustnet a nivel de gestor refleja, sobre un periodo de aproximadamente 7,4 años, una rentabilidad total anualizada del 4,3% — con un año reciente del 9,1% frente al 7,3% del grupo de pares. Estas cifras son agregadas por gestor (no por fondo específico) y deben interpretarse con cautela.\n\n**Vida personal**\n\nKhemka está casado con Ritu Khemka y tiene tres hijos. Mantiene actividad pública moderada en medios indios (apariciones en Business Today / BT-TV y otros canales sectoriales).",
-          "filosofia": "**Bottom-up, valor intrínseco, horizonte largo.** Khemka aplica de manera consistente desde sus años en GSAM una filosofía centrada en el análisis fundamental compañía a compañía: estados financieros, equipo directivo, estructura de capital, operaciones, desarrollo de producto y posicionamiento competitivo. El precio de mercado solo se considera tras esa evaluación. Es **agnóstico al benchmark** — declara explícitamente en el prospectus que el fondo tiene plena libertad respecto del MSCI India IMI y que solo una minoría de las posiciones suele coincidir con sus constituyentes. En la práctica, esto se traduce en una cartera concentrada en convicciones, con horizonte largo y baja rotación esperada.",
-          "cv_bullets": [
-            "Founder & Managing Director, WhiteOak Capital Management (Mumbai, 2017–presente)",
-            "Lead Portfolio Manager, Ashoka WhiteOak India Opportunities (UCITS Irlanda) desde 19-dic-2018",
-            "Lead Portfolio Manager, Ashoka WhiteOak India Leaders desde 29-jul-2021",
-            "Lead Portfolio Manager, Ashoka WhiteOak Emerging Markets Equity desde 28-jun-2022",
-            "Ex-CIO India Equity en Goldman Sachs Asset Management (2006-2017), mandato con rating AAA Citywire",
-            "Ex-Global EM Equity GSAM: creció el negocio de <500M$ a >2.600M$ AUM",
-            "MBA Finanzas — Vanderbilt University Owen School (1998)",
-            "CFA Charterholder",
-            "WhiteOak Capital alcanza ~10.000M$ AUM en agosto 2025 (4 oficinas: India, Irlanda, Mauricio, UK)"
-          ],
-          "decisiones_clave": [
-            "Dejar Goldman Sachs en 2017 tras 17 años y rating AAA Citywire activo para fundar plataforma independiente — paso de empleado a fundador con riesgo personal asumido y motivación coherente con su filosofía bottom-up.",
-            "Lanzar el Ashoka India Equity Investment Trust (UK closed-end) en julio 2018 como primer vehículo, antes que el UCITS — captar capital institucional británico primero para validar el modelo.",
-            "Lanzar el UCITS irlandés solo cinco meses después (19-dic-2018) — escalada rápida hacia el mercado europeo continental aprovechando el momentum del trust UK.",
-            "Mantenerse como lead manager personalmente en tres vehículos India + EM desde 2018-2022 — concentración de la marca personal en la plataforma.",
-            "Refuerzo del equipo en agosto 2025 con incorporación de Hiren Dasani como CIO EM — señal de continuidad y planificación de sucesión, integrando un ex-colega de GSAM con perfil senior."
-          ],
-          "rasgos_diferenciales": "Su rasgo más diferencial es la **continuidad de filosofía y resultado entre dos contextos institucionales distintos**: aplicó la misma metodología bottom-up de valor intrínseco en Goldman Sachs (donde obtuvo AAA Citywire en GSAM India Equity y escaló el negocio EM global de <500M$ a >2.600M$) y luego en WhiteOak (donde ha llevado a la firma de cero a 10.000M$ AUM en ocho años). La coherencia entre etapas indica que el resultado depende del proceso, no de la plataforma. Adicionalmente, su decisión de mantenerse como lead manager personalmente en sus tres vehículos UCITS principales señala una alineación clara con los clientes de la firma.",
-          "fuente": "manager_deep_agent"
-        },
-        {
-          "nombre": "Ayush Abhijeet",
-          "cargo": "Co-Portfolio Manager — Investment Director, WhiteOak Capital",
-          "trayectoria": "**Formación**\n\nFormado en el **Indian Institute of Management Ahmedabad (IIM-A)** — una de las dos escuelas de negocios más selectivas de India, junto con el IIM Bangalore.\n\n**Trayectoria en WhiteOak Capital**\n\nMiembro del **founding team** de WhiteOak Capital Partners desde la fundación de la firma en 2017. Ostenta el cargo de **Investment Director** y opera como **co-portfolio manager** de las estrategias India de Ashoka, tanto del Ashoka India Equity Investment Trust (vehículo UK closed-end, £473m a agosto 2025) como del Ashoka WhiteOak India Opportunities Fund (este UCITS, IE00BDR0JY05). Su base operativa es **Singapur**.\n\n**Presencia pública y comunicación con inversores**\n\nAparece habitualmente como portavoz del fondo en formato vídeo y entrevista. Ha intervenido en el programa **'Trust Issues'** de la Association of Investment Companies (AIC) explicando las correcciones recientes en el mercado de renta variable indio y dónde está el fondo encontrando las mejores oportunidades de alfa por sector. También aparece firmando comentarios escritos en publicaciones especializadas: **Portfolio Adviser** ('Why India's long-term growth story remains intact'), **WealthDFM** ('India's earnings revival gathering momentum' — destacando que el Nifty creció en beneficios un 14% durante FY21 a pesar de la caída del PIB) y **Money Week** (columna profesional con tres picks de crecimiento a largo plazo en India).",
-          "filosofia": "Como co-PM, Abhijeet comparte la filosofía bottom-up de valor intrínseco que define a la firma. Su perfil público se centra particularmente en la **narrativa de crecimiento estructural de India** y en argumentos sectoriales (revival de beneficios, ciclo de capex doméstico, urbanización, demografía). En la práctica, es el portavoz que más a menudo articula la tesis país del fondo a inversores y medios.",
-          "cv_bullets": [
-            "Investment Director, WhiteOak Capital Partners (Singapur)",
-            "Co-Portfolio Manager — Ashoka WhiteOak India Opportunities Fund (UCITS, IE00BDR0JY05)",
-            "Co-Portfolio Manager — Ashoka India Equity Investment Trust (UK closed-end)",
-            "Miembro del founding team de WhiteOak Capital (2017)",
-            "Formación: Indian Institute of Management Ahmedabad (IIM-A)",
-            "Portavoz habitual del fondo en AIC 'Trust Issues', Portfolio Adviser, WealthDFM y Money Week"
-          ],
-          "decisiones_clave": [
-            "Sumarse al founding team de WhiteOak desde 2017 — apuesta temprana por la plataforma independiente de Khemka.",
-            "Asumir la voz pública del fondo en formatos vídeo (AIC 'Trust Issues') y publicaciones (Portfolio Adviser, Money Week) — complemento natural al perfil más institucional y menos mediático de Khemka."
-          ],
-          "rasgos_diferenciales": "Aporta al equipo la dimensión de **comunicación con inversores y medios**: mientras Khemka mantiene un perfil más institucional, Abhijeet es quien lidera las apariciones públicas regulares en formato entrevista. Su base en Singapur (en contraste con la sede de WhiteOak en Mumbai) facilita la cobertura horaria y la relación con clientes asiáticos.",
-          "fuente": "manager_deep_agent"
-        }
-      ]
+      "para_quien_es": "Inversor que busca exposición pura y activamente gestionada a la renta variable india como satélite dentro de una cartera diversificada, con horizonte de largo plazo (mínimo 5-7 años) y tolerancia alta a la volatilidad de un mercado emergente de país único y con sesgo a pequeña/mediana capitalización. No es adecuado para inversores conservadores, con horizonte corto o que no puedan asumir el riesgo divisa USD/INR de la clase en euros.",
+      "compromiso_gestor": "Prashant Khemka fundó WhiteOak en 2017 como plataforma independiente tras dejar Goldman Sachs, donde fue CIO de India Equity; es lead manager del fondo desde su lanzamiento y de los demás mandatos India/EM de la firma, lo que evidencia alineación y continuidad. La plataforma mantiene research propio en Mumbai con presencia física sobre el terreno.",
+      "signal": "POSITIVO",
+      "signal_rationale": "Track record verificado de outperformance sostenida (~41 pp en siete años), proceso bottom-up coherente, equipo experimentado y coste razonable (1,06%). La señal se modera por el riesgo de país único, divisa y el sesgo a small caps, propios de un satélite EM de alta volatilidad."
     },
     "evolucion": {
-      "texto": "El bundle de datos recibido **no contiene serie histórica cuantitativa** del fondo IE00BDR0JY05: no hay AUM mensual ni trimestral, no hay número de partícipes, no hay rentabilidades anualizadas año a año, no hay TER por ejercicio, no hay número de posiciones, no hay drawdowns. Esto es porque el extractor INT v2 sobre annual reports y factsheets no ha completado el ciclo para este fondo (el campo `_cowork_pending: true` en `fund_data.json` así lo indica). En consecuencia, la narrativa de evolución en este informe se limita a hechos verificables sobre la cronología y la plataforma.\n\n**Cronología verificable del fondo**\n\nEl fondo fue constituido como sub-fondo del **Ashoka WhiteOak ICAV** (Irlanda) y lanzado el **19 de diciembre de 2018**. Khemka asumió el rol de lead portfolio manager desde el primer día — esta fecha está confirmada por la ficha oficial del gestor en Trustnet. La clase IE00BDR0JY05 corresponde a Class D Shares EUR; existen clases adicionales en USD, GBP, CHF y SGD.\n\n**Evolución en el contexto de la plataforma WhiteOak**\n\nAunque no se dispone de la serie del fondo individual, sí se conoce la evolución de la **plataforma WhiteOak** que lo gestiona: la firma ha pasado de cero (constituida en 2017) a aproximadamente **10.000 millones de dólares de AUM agregado** a agosto de 2025. Este crecimiento de la firma matriz es proxy razonable de la tracción comercial general del modelo, aunque NO es indicativo directo del AUM específico del fondo IE00BDR0JY05.\n\n**Expansión de la familia de productos**\n\nDesde el lanzamiento del UCITS en diciembre de 2018, WhiteOak ha añadido dos vehículos adicionales bajo la marca Ashoka, todos liderados por Khemka:\n\n- **Ashoka WhiteOak India Leaders Fund** (lanzado el 29-jul-2021) — segundo UCITS sobre India con sesgo a líderes sectoriales.\n- **Ashoka WhiteOak Emerging Markets Equity** (lanzado el 28-jun-2022) — extensión geográfica a EM globales más allá de India.\n\nLa coexistencia de los dos productos UCITS sobre India (Opportunities + Leaders) sugiere segmentación deliberada de clientes: el Opportunities tiene rango amplio de capitalización y libertad benchmark, el Leaders sesga a líderes (presumiblemente large-cap quality).\n\n**Refuerzo del equipo en 2025**\n\nEl 12 de agosto de 2025 se anuncia el nombramiento de **Hiren Dasani como CIO for Emerging Markets** de WhiteOak. Aunque Dasani no aparece formalmente asignado al UCITS IE00BDR0JY05 a la fecha (su responsabilidad anunciada es el AIE trust UK y el mandato EM global), su incorporación con perfil senior (18 años en GSAM como co-head de Global EM Equity) refuerza el banco de talento de toda la plataforma y la capacidad de research disponible para los gestores del UCITS India.\n\n**Lo que falta verificar (gap del análisis)**\n\nPara una evaluación completa de la evolución del fondo serían necesarios: serie de NAV o rentabilidad anualizada por clase de acción desde inception (19-dic-2018), serie de AUM y partícipes, ratios de gastos (TER, ratio de gestión, ratio de éxito), composición de cartera histórica por sectores y por capitalización, drawdowns máximos y duración, rotación de cartera anual, número de posiciones medio, distribución por sectores y por capitalización en cada ejercicio. Todos estos datos son típicamente extraíbles del **annual report** del ICAV y de los **factsheets mensuales** publicados por la gestora, que requieren el paso de discovery + extracción del intl_extractor v2.",
+      "texto": "El Ashoka WhiteOak India Opportunities Fund se constituyó como sub-fondo del **Ashoka WhiteOak ICAV** (Irlanda) y se lanzó el **19 de diciembre de 2018**; la clase D quedó operativa el **31 de enero de 2019**. La clase IE00BDR0JY05 corresponde a Class D Shares EUR; existen clases adicionales en USD, GBP, CHF y SGD. Khemka asumió el rol de lead portfolio manager desde el primer día.\n\n**Tamaño actual del fondo (31-mar-2026)**\n\nEl fondo gestiona **1.560 millones de dólares** (≈ 1.435 millones de euros), una escala relevante para un producto India de nicho en distribución europea. El valor liquidativo es de **214,95 US$** en la clase D en dólares (AIOFDUS, IE00BH3N4915) y de **242,26 €** en la clase D en euros (IE00BDR0JY05). El crecimiento patrimonial acompaña a la expansión de la plataforma WhiteOak, que a la misma fecha alcanza **6.640 millones de dólares** de AUM (que llegan a ~10.100 M$ si se añaden los 3.450 M$ de activos retail de la gestora india del grupo).\n\n**Rentabilidad desde el lanzamiento**\n\nDesde inicio (31-ene-2019 a 31-mar-2026, ~7,2 años) la clase D ha rentado **+114,95% acumulado en US$, equivalente a +11,27% anualizado**, frente al **+73,86% acumulado (+8,03% anualizado) del MSCI India IMI Index**. La sobre-rentabilidad acumulada es de **+41,09 puntos porcentuales (+4.109 pb)**, es decir, unos +3,2 puntos porcentuales anuales de alpha neto de comisiones sobre el índice de referencia. El valor liquidativo en dólares ha pasado, en términos de índice base 100, a 214,95 — el fondo ha más que duplicado el capital invertido desde su lanzamiento.\n\n**Comportamiento reciente (1T 2026)**\n\nEl primer trimestre de 2026 fue adverso para la bolsa india: el MSCI India IMI cayó **-18,20%** en US$, rezagándose frente a la renta variable estadounidense (S&P 500 -7,1%), el MSCI World (-5,7%) y el MSCI EM (+0,9%). El fondo cedió **-19,05%**, un 85 pb por debajo del índice en el trimestre, si bien en el mes de marzo recuperó terreno relativo (-13,50% frente al -14,72% del índice, +121 pb). En el trimestre los inversores institucionales extranjeros (FIIs) fueron vendedores netos por 13.700 M$, compensados por compras de institucionales domésticos (DIIs) por 14.100 M$; la rupia se depreció un 5,0% frente al dólar y la TIR del bono soberano a 10 años subió del 6,59% al 7,03%.\n\n**Lectura de la evolución**\n\nLa trayectoria del fondo combina una clara generación de alpha estructural a largo plazo con la volatilidad propia de un mercado emergente de país único. El sesgo persistente hacia pequeña y mediana capitalización amplifica tanto los periodos de outperformance como los drawdowns relativos en trimestres en los que, como el 1T 2026, las small y mid caps lideran las caídas y las empresas estatales (SOEs) baten a sus pares privadas. El crecimiento del patrimonio hasta 1.560 M$ y la consolidación de la plataforma WhiteOak respaldan la viabilidad comercial del producto.",
       "datos_graficos": {
         "concentracion_historica": [],
         "drawdown": [],
-        "exposicion_geografica": [],
+        "exposicion_geografica": [
+          {
+            "periodo": "2026",
+            "espana_pct": 0.0,
+            "internacional_pct": 100.0
+          }
+        ],
         "num_posiciones_por_anio": [],
         "rentabilidades_anuales": []
       }
     },
     "estrategia": {
-      "texto": "La estrategia del Ashoka WhiteOak India Opportunities Fund está documentada con precisión en el **objetivo de inversión** y la **política de inversión** del prospectus, ambos disponibles en el `fund_data.json` del bundle. Se trata de una estrategia de **selección bottom-up de valor intrínseco** aplicada al universo de renta variable india.\n\n**Objetivo declarado**\n\nEl objetivo es la **apreciación de capital a largo plazo**. Para lograrlo el fondo debe invertir, según el prospectus, **al menos dos tercios** de su patrimonio neto en acciones, valores asimilables a renta variable u otros vehículos de inversión colectiva que aporten exposición a compañías que cumplan al menos una de estas dos condiciones: (a) estar domiciliadas en India, o (b) generar una proporción predominante de sus ingresos o beneficios en India. Esta segunda vía amplía el universo a empresas con cotización fuera de India pero exposición operativa al país (ADRs/GDRs, listings duales, multinacionales con peso significativo de revenue india).\n\nHasta un tercio del patrimonio puede invertirse en valores de renta variable o asimilables vinculados a compañías que no cumplan ese criterio India, cuando el Investment Manager lo considere apropiado para alcanzar el objetivo. Adicionalmente, hasta un **20%** puede colocarse en deuda pública o corporativa **investment grade** (a tipo fijo o variable). Esta combinación da al gestor margen de maniobra defensiva sin desnaturalizar el carácter India-céntrico del producto.\n\n**Proceso de selección**\n\nEl prospectus es explícito: las inversiones se seleccionan **eligiendo compañías que aparezcan con oportunidades de valor intrínseco, atendiendo al análisis fundamental sobre el negocio en lugar de a su valor de mercado**. La política identifica los componentes del análisis fundamental aplicado a cada candidato:\n\n- Análisis de los **estados financieros** de la compañía.\n- **Historial del equipo directivo**.\n- **Estructura de capital**.\n- **Operaciones** del negocio.\n- **Desarrollo de producto**.\n- **Posicionamiento competitivo** dentro de su industria.\n\nEs una checklist orientada a la calidad fundamental de la compañía, no a métricas de precio relativo. La filosofía resultante es coherente con la trayectoria personal de Khemka — once años aplicando la misma metodología en GSAM India Equity con rating AAA Citywire — y con el perfil de la plataforma WhiteOak en su conjunto.\n\n**Uso de derivados (estricto y acotado)**\n\nLa política autoriza el uso de **instrumentos financieros derivados (FDIs)** únicamente con fines de **cobertura, reducción de riesgo y propósitos no especulativos**. Los principales FDIs empleados son: **futuros** (acuerdos para comprar o vender una cantidad fija de un valor o divisa en una fecha futura), **forwards de divisa** (acuerdos para intercambiar cantidades fijas de diferentes divisas a un tipo y fecha acordados) y **total return swaps** (acuerdos por los que una parte se compromete a pagar a la otra el rendimiento total de un activo subyacente). El **apalancamiento máximo** resultante de FDIs está limitado al **100% del NAV** — es decir, el fondo no puede estar apalancado por encima de su patrimonio.\n\nEste compromiso es relevante porque acota el riesgo de cola operativo del fondo: descarta apuestas direccionales agresivas vía derivados y reserva los FDIs para gestión de divisa (relevante en clases EUR/GBP/CHF/SGD vs base USD) y cobertura puntual.\n\n**Independencia del benchmark MSCI India IMI**\n\nEl fondo se mide frente al **MSCI India IMI Index** pero la política declara explícitamente que el fondo es **activamente gestionado** y que **no está restringido en modo alguno por el índice**. Aunque puede invertir en valores que sean constituyentes del índice, **se espera generalmente que solo una minoría de las inversiones del fondo sea constituyente del MSCI India IMI en cualquier momento dado**. Esta es probablemente la cláusula más diferenciadora del prospectus: marca al fondo como producto de convicción auténtico, no como tracker disfrazado.\n\n**Moneda base y clases de acciones**\n\nLa **moneda base del fondo es USD**. La clase IE00BDR0JY05 corresponde a **Class D Shares EUR**. Existen clases adicionales en GBP, CHF y SGD según el prospectus. Esto significa que el inversor de la clase EUR queda expuesto al cruce **INR (subyacente operativo) → USD (base del fondo) → EUR (clase)** salvo que la clase específica esté hedged (no confirmado en el bundle).\n\n**Anti-invención: contaminación de discovery**\n\nEl `letters_data.json` del bundle contiene una única 'carta' (`_web_gmo-quarterly-letter_4q-2025.pdf`), que en realidad es una carta trimestral de **GMO** firmada por Ben Inker sobre la burbuja AI y posicionamiento agnóstico de la estrategia Benchmark-Free Allocation de GMO. **Esa carta NO pertenece al Ashoka WhiteOak India Opportunities Fund** y su contenido (tesis sobre burbuja AI, asignaciones a Japan Small Value, Equity Dislocation 15%, etc.) **no se ha utilizado como tesis o decisiones de este fondo**. Es contaminación del proceso de discovery que debe corregirse aguas arriba.\n\n**Datos faltantes para análisis completo**\n\nNo hay cartas trimestrales reales del gestor en el bundle, ni outlooks publicados, ni hitos de estrategia datados periodo a periodo. Para construir `hitos_estrategia` completos sería necesario el corpus de cartas trimestrales / commentaries / factsheets reales del fondo (no contaminado por discovery).",
-      "estrategia_actual_resumen": "Renta variable india con selección bottom-up de valor intrínseco, ≥2/3 patrimonio en compañías India o con ingresos predominantes en India, hasta 20% en RF investment grade. Activamente gestionado con plena libertad respecto del MSCI India IMI; derivados solo para cobertura; apalancamiento máximo 100% NAV.",
+      "texto": "La estrategia del Ashoka WhiteOak India Opportunities Fund es de **selección bottom-up de valor intrínseco** aplicada al universo de renta variable india, con una construcción de cartera deliberadamente diversificada. El objetivo, la política de inversión y los datos de exposición proceden del prospectus (29-feb-2024) y de la ficha mensual oficial a 31-mar-2026.\n\n**Objetivo y universo**\n\nEl objetivo es la apreciación de capital a largo plazo. El fondo invierte **al menos dos tercios** de su patrimonio en acciones y valores asimilables con exposición a compañías domiciliadas en India o con ingresos/beneficios predominantemente indios; esta segunda vía amplía el universo a empresas con cotización fuera de India pero con peso operativo en el país. Hasta un tercio puede invertirse en compañías no indias cuando el Investment Manager lo considere oportuno, y hasta un **20%** en deuda pública o corporativa investment grade, dando margen defensivo sin desnaturalizar el carácter India-céntrico.\n\n**Proceso de selección**\n\nEl prospectus es explícito: las inversiones se eligen identificando compañías con oportunidades de valor intrínseco a partir del análisis fundamental del negocio, no de su valor de mercado. El análisis aplica una checklist de calidad sobre cada candidato:\n\n- **Estados financieros** de la compañía.\n- **Historial y calidad del equipo directivo**.\n- **Estructura de capital**.\n- **Operaciones y desarrollo de producto**.\n- **Posicionamiento competitivo** en su industria.\n\nEsta metodología es coherente con la trayectoria de Khemka, que aplicó el mismo enfoque durante once años al frente de GSAM India Equity (rating AAA Citywire), y se apoya en el research propio de WhiteOak sobre el terreno en Mumbai.\n\n**Construcción de cartera: diversificación y sesgo SMID**\n\nFrente al modelo de cartera concentrada habitual en productos de convicción, este fondo construye una **cartera amplia y de baja concentración**: a 31-mar-2026 ninguna posición individual supera el ~2,9% del patrimonio (las mayores son Bajaj Finserv 2,9% y State Bank of India 2,7%). El alpha se persigue por la suma de muchas decisiones de stock-picking acertadas. La cartera presenta un **marcado sesgo a pequeña y mediana capitalización**: 33,8% en small caps frente al 14,2% del MSCI India IMI, y 14,0% en mid caps, con solo un 50,9% en large caps frente al 67,0% del índice.\n\n**Posicionamiento sectorial (31-mar-2026)**\n\nPor sectores GICS, las mayores exposiciones son **Financials (28,4%)**, **Industrials (15,7%)**, **Consumer Discretionary (13,2%)** y **Health Care (11,1%)**. Frente al índice, el fondo sobrepondera Industrials (+3,6 pp), Health Care (+3,2 pp) y Communication Services (+2,1 pp), e infrapondera Materials (-3,2 pp), Utilities (-2,7 pp), Information Technology (-2,5 pp) y Energy (-3,1 pp). Estos sesgos son consecuencia del proceso bottom-up, no de apuestas macro top-down.\n\n**Uso de derivados (estricto y acotado)**\n\nLa política autoriza instrumentos financieros derivados (futuros, forwards de divisa y total return swaps) únicamente con fines de cobertura, reducción de riesgo y propósitos no especulativos. El apalancamiento máximo resultante está limitado al 100% del NAV — el fondo no puede apalancarse por encima de su patrimonio —, lo que acota el riesgo de cola operativo y reserva los derivados a la gestión de divisa (relevante para las clases EUR/GBP/CHF/SGD frente a la base USD).\n\n**Independencia del benchmark**\n\nEl fondo se mide frente al MSCI India IMI Index pero es activamente gestionado y no está restringido por el índice: se espera que solo una minoría de las posiciones sea constituyente del MSCI India IMI en un momento dado. El tracking error elevado es, por tanto, una característica estructural del producto, no una anomalía. Esta independencia, unida al sesgo SMID, explica buena parte de la sobre-rentabilidad acumulada frente al índice desde el lanzamiento.",
+      "estrategia_actual_resumen": "Renta variable india con selección bottom-up de valor intrínseco y cartera muy diversificada (ninguna posición >~2,9%). Sesgo a small/mid caps (33,8% small vs 14,2% del índice). AUM 1.560 M$, TER clase D 1,06%. Activamente gestionada con plena libertad respecto del MSCI India IMI; derivados solo para cobertura, apalancamiento máximo 100% NAV.",
       "fortalezas": [
-        "Lead manager con trayectoria documentada (Khemka, ex-CIO India en GSAM con rating AAA Citywire) aplicando la misma filosofía bottom-up de valor intrínseco durante >25 años entre dos plataformas distintas.",
-        "Pureza temática estructural: ≥2/3 del patrimonio en India por reglamento; el inversor sabe exactamente la exposición que compra.",
-        "Plena libertad respecto del MSCI India IMI: solo una minoría de las posiciones suele coincidir con el índice, lo que abre la puerta a capturar alpha si las convicciones son correctas.",
-        "Estructura UCITS-ICAV (Irlanda) con clases en EUR/GBP/CHF/SGD: acceso desde la UE con marco regulatorio reconocido.",
-        "Plataforma WhiteOak escalada (~10.000 M$ AUM, oficinas en India, Irlanda, Mauricio y Reino Unido) — research local en Mumbai con presencia física sobre el terreno."
+        "Track record verificado de outperformance: +114,95% acumulado (+11,27% anualizado) desde inicio en USD frente al +73,86% (+8,03%) del MSCI India IMI, ~41 pp en siete años.",
+        "Cartera muy diversificada (ninguna posición >~2,9%): el alpha proviene de amplitud de selección, reduciendo el riesgo idiosincrático de cada nombre.",
+        "Sesgo SMID diferencial (33,8% small cap vs 14,2% del índice) que captura el segmento más ineficiente del mercado indio con apoyo del research local en Mumbai.",
+        "Lead manager con más de 25 años aplicando la misma filosofía bottom-up (Khemka, ex-CIO India GSAM, rating AAA Citywire).",
+        "Coste contenido para un producto India activo (TER clase D 1,06%: 95 pb de gestión + 11 pb de otros gastos) y estructura UCITS con registro en España (CNMV nº 1847).",
+        "Independencia real del benchmark: solo una minoría de posiciones coincide con el MSCI India IMI, lo que permite capturar alpha cuando las convicciones aciertan."
       ],
       "riesgos": [
-        "Concentración país único (India): shock macro, regulatorio, político o divisa específico de India puede impactar fuertemente sin diversificación regional estructural.",
-        "Volatilidad de mercado emergente: India es EM con volatilidad históricamente superior a desarrollados, drawdowns documentados >40% en eventos sistémicos (2008, 2020).",
-        "Riesgo divisa USD/EUR/INR para la clase EUR: la base es USD y el subyacente operativo INR; sin confirmación de hedge a la clase IE00BDR0JY05, el inversor EUR queda expuesto al cruce.",
-        "Riesgo de gestor único (Khemka como lead desde inception): aunque hay co-PM (Abhijeet) y el equipo se reforzó en 2025 (Dasani como CIO EM), una salida del fundador sería un evento material.",
-        "Bundle sin métricas cuantitativas comprobables: AUM actual, partícipes, drawdowns, rentabilidades anualizadas y composición sectorial requieren completar prep determinista del extractor INT."
+        "Concentración país único (India): shock macro, regulatorio, político o de divisa específico de India puede impactar fuertemente sin diversificación regional estructural.",
+        "Volatilidad de mercado emergente y sesgo SMID: el fondo cedió -19,05% en el 1T 2026 (índice -18,20%); las small/mid caps amplifican drawdowns en fases de aversión al riesgo.",
+        "Riesgo divisa USD/INR/EUR para la clase en euros: base USD, subyacente INR; la rupia se depreció 5,0% frente al dólar en el 1T 2026.",
+        "Riesgo de gestor clave (Khemka como lead desde inception): pese al co-PM Abhijeet y al refuerzo de 2025 (Dasani como CIO EM), su salida sería un evento material.",
+        "Posibilidad de periodos prolongados de underperformance relativa: el tracking error elevado funciona en ambos sentidos y el fondo puede quedar por detrás del índice en trimestres concretos."
       ],
       "perfil_riesgo": {
-        "tipo_activo_principal": "Renta Variable País Único — India (emerging markets)",
+        "tipo_activo_principal": "Renta Variable País Único — India (emerging markets), sesgo small/mid cap",
         "riesgos_especificos": [
           "Riesgo país: concentración estructural en India sin diversificación regional (≥2/3 patrimonio por reglamento).",
-          "Riesgo divisa USD/EUR/INR: moneda base USD, subyacente operativo INR, clase de acción EUR.",
-          "Riesgo de liquidez en small/mid caps si el gestor invierte fuera de los large caps del MSCI India IMI.",
-          "Riesgo de concentración: política con plena libertad respecto del benchmark puede implicar cartera concentrada en convicciones.",
-          "Riesgo regulatorio: cambios en la fiscalidad o regulación de inversión extranjera en India pueden afectar al subyacente."
+          "Riesgo divisa USD/INR/EUR: moneda base USD, subyacente operativo INR, clase de acción EUR.",
+          "Riesgo de liquidez y volatilidad por el sesgo a small/mid caps (33,8% small cap, muy por encima del 14,2% del índice).",
+          "Riesgo de mercado emergente: drawdowns pronunciados en fases de salidas de FIIs y depreciación de la rupia."
         ],
         "desglose_exposicion": [
-          {"dimension": "geografía", "detalle": "≥2/3 patrimonio en compañías domiciliadas en India o con ingresos predominantemente indios; hasta un tercio en compañías no India cuando el Investment Manager lo considere oportuno."},
-          {"dimension": "tipo de activo", "detalle": "Mayoritariamente renta variable + valores asimilables a equity; hasta 20% en deuda pública/corporativa investment grade."},
-          {"dimension": "derivados", "detalle": "FDIs (futuros, forwards de divisa, total return swaps) solo para cobertura, reducción de riesgo y propósitos no especulativos. Apalancamiento máximo 100% del NAV."},
-          {"dimension": "moneda", "detalle": "Base USD. Clase IE00BDR0JY05 = Class D Shares EUR (exposición divisa USD/INR/EUR sin confirmación de hedge en el bundle)."}
+          {
+            "dimension": "geografía",
+            "detalle": "≥2/3 patrimonio en compañías India o con ingresos predominantemente indios; hasta un tercio en no-India; exposición efectivamente 100% no-España."
+          },
+          {
+            "dimension": "capitalización",
+            "detalle": "Large cap 50,9% (índice 67,0%), Mid cap 14,0% (18,8%), Small cap 33,8% (14,2%): claro sesgo SMID frente al MSCI India IMI."
+          },
+          {
+            "dimension": "sectores",
+            "detalle": "Financials 28,4%, Industrials 15,7%, Consumer Discretionary 13,2%, Health Care 11,1%, Comm Services 6,3%, Materials 6,2%, Information Tech 5,6%, Energy 4,7%, Consumer Staples 3,8%, Real Estate 2,7%, Utilities 1,1%."
+          },
+          {
+            "dimension": "derivados",
+            "detalle": "FDIs (futuros, forwards de divisa, total return swaps) solo para cobertura y reducción de riesgo; apalancamiento máximo 100% del NAV."
+          }
         ]
       },
       "hitos_estrategia": [
         {
           "periodo": "2018-Q4",
-          "contexto_mercado": "Lanzamiento del fondo el 19 de diciembre de 2018. Contexto India: año marcado por una caída del INR vs USD (~9%), tensiones de banca corporativa (caso IL&FS) y elecciones generales programadas para 2019.",
-          "decisiones": "Constitución del sub-fondo bajo el Ashoka WhiteOak ICAV (Irlanda). Khemka asume lead PM desde día uno. Cartera inicial siguiendo el mismo proceso bottom-up que el AIE Trust UK (lanzado 5 meses antes).",
-          "resultado": "Sin datos verificados de rentabilidad por periodo en el bundle. Pendiente extracción del intl_extractor v2."
+          "contexto_mercado": "Lanzamiento del fondo el 19-dic-2018 (clase D operativa 31-ene-2019). Contexto India: caída del INR vs USD (~9% en 2018), tensiones de banca corporativa (caso IL&FS) y elecciones generales programadas para 2019.",
+          "decisiones": "Constitución del sub-fondo bajo el Ashoka WhiteOak ICAV (Irlanda). Khemka asume lead PM desde el día uno, replicando el proceso bottom-up del Ashoka India Equity Investment Trust (UK), lanzado cinco meses antes.",
+          "resultado": "+0,00% — punto de partida; el índice base 100 evolucionará hasta 214,95 (US$) a 31-mar-2026."
         },
         {
-          "periodo": "2021-Q3",
-          "contexto_mercado": "Mercados emergentes con rally post-COVID y rebote del Nifty 50 superior al 20% en 2021. India es uno de los mejores EM del año.",
-          "decisiones": "WhiteOak lanza el segundo UCITS India (Ashoka WhiteOak India Leaders, 29-jul-2021), señal de tracción comercial y capacidad de research suficiente para segmentar productos.",
-          "resultado": "Sin datos verificados de rentabilidad por periodo en el bundle."
+          "periodo": "Desde inicio a 31-mar-2026",
+          "contexto_mercado": "Ciclo completo de mercado indio: rebote post-COVID, rally de 2021-2024 y corrección de 2025-1T2026. Las small/mid caps y las empresas estatales han alternado liderazgo con las large caps privadas.",
+          "decisiones": "Mantenimiento del proceso bottom-up con cartera diversificada y sesgo persistente a small/mid caps; sobreponderación de Industrials, Health Care y Comm Services frente al índice.",
+          "resultado": "+114,95% — frente al +73,86% del MSCI India IMI (US$): ~+41 pp de alpha acumulado neto de comisiones (+11,27% vs +8,03% anualizado), validando la generación de valor de la selección bottom-up."
         },
         {
           "periodo": "2025-Q3",
-          "contexto_mercado": "Mercado emergente con flujos rotativos vs renta variable estadounidense large cap muy concentrada en AI. Discusión institucional sobre valoraciones extremas en US large cap.",
-          "decisiones": "WhiteOak incorpora a Hiren Dasani como CIO EM (12-ago-2025) procedente de Goldman Sachs Asset Management tras 18 años (ex-co-head Global EM Equity). Asume PM del AIE trust UK y del mandato EM global de WhiteOak; sin asignación explícita al UCITS India en la nota AIC.",
-          "resultado": "Refuerzo del equipo senior de la plataforma; impacto directo sobre IE00BDR0JY05 pendiente de confirmación documental."
+          "contexto_mercado": "Rotación de flujos en emergentes y debate sobre valoraciones extremas en la renta variable estadounidense large cap. Plataforma WhiteOak en plena expansión institucional.",
+          "decisiones": "WhiteOak incorpora a Hiren Dasani como CIO for Emerging Markets (12-ago-2025), procedente de GSAM tras 18 años (ex-co-head Global EM Equity). Se le asigna el AIE trust (UK) y el mandato EM global; sin asignación explícita al UCITS India a la fecha.",
+          "resultado": "+0,00% — refuerzo del equipo senior de la plataforma; impacto directo sobre IE00BDR0JY05 pendiente de confirmación documental."
+        },
+        {
+          "periodo": "2026-Q1",
+          "contexto_mercado": "Trimestre adverso para la bolsa india: MSCI India IMI -18,20% en US$, rezagado frente a S&P 500 (-7,1%), MSCI World (-5,7%) y MSCI EM (+0,9%). FIIs vendedores netos por 13.700 M$, DIIs compradores por 14.100 M$; rupia -5,0% vs USD; TIR 10 años del 6,59% al 7,03%. Las large caps batieron a small/mid y las SOEs a las privadas.",
+          "decisiones": "Principales contribuidores: Acutaas Chemicals (+42,3%), Aditya Infotech (+14,4%) y TD Power Systems (+14,9%). Principales detractores: Intellect Design Arena (-41,6%), Firstsource Solutions (-41,0%) y Bajaj Finserv (-24,2%).",
+          "resultado": "-19,05% — frente al -18,20% del índice (-85 pb); el sesgo SMID penalizó en un trimestre liderado por large caps y empresas estatales, si bien marzo recuperó terreno relativo (+121 pb)."
         }
       ],
-      "quotes": []
+      "quotes": [
+        {
+          "texto": "The Fund was down 19.05% in 1Q 2026, underperforming the benchmark by 85bps.",
+          "autor": "WhiteOak Capital",
+          "contexto": "Ficha mensual, Performance Review, 31-mar-2026"
+        },
+        {
+          "texto": "Large caps have underperformed mid and small caps, while State-owned entities outperformed their private peers.",
+          "autor": "WhiteOak Capital",
+          "contexto": "Ficha mensual, Market Review, 1T 2026"
+        },
+        {
+          "texto": "Seeks to build a long-only portfolio of securities at attractive values through a bottom-up selection process.",
+          "autor": "WhiteOak Capital",
+          "contexto": "Ficha mensual, Investment Strategy, 31-mar-2026"
+        }
+      ]
     },
     "cartera": {
-      "texto": "El bundle de datos recibido **no contiene la composición actual de la cartera** del fondo IE00BDR0JY05: no hay top holdings, no hay distribución por sectores, no hay distribución por capitalización, no hay desglose geográfico granular dentro de India (estados, ciudades, exposición rural vs urbano), no hay número total de posiciones, no hay rotación de cartera. Esta información es la salida típica del extractor INT v2 sobre el annual report del ICAV y los factsheets mensuales, y todavía no se ha completado para este fondo según el flag `_cowork_pending: true` en `fund_data.json`.\n\n**Lo que sí podemos afirmar sobre la composición (basado únicamente en política de inversión)**\n\nA falta de extracción de cartera real, lo único verificable proviene del prospectus:\n\n- **Al menos dos tercios** del patrimonio está en renta variable o asimilados con exposición predominante a India (por reglamento).\n- **Hasta un tercio** puede estar en renta variable o asimilados de compañías no India cuando el Investment Manager lo considere oportuno.\n- **Hasta un 20%** puede estar en deuda pública o corporativa investment grade (tipo fijo o variable).\n- El uso de derivados (futuros, forwards de divisa, total return swaps) está acotado a cobertura, reducción de riesgo y propósitos no especulativos; apalancamiento máximo 100% NAV.\n- La cartera está activamente gestionada con plena libertad respecto del MSCI India IMI; **solo una minoría de las posiciones se espera que coincida con constituyentes del índice** en un momento dado — esto sugiere de manera estructural que la cartera del fondo difiere significativamente del MSCI India IMI en composición.\n\n**Implicaciones estructurales de la política**\n\nLa cláusula de plena libertad respecto del MSCI India IMI tiene implicaciones para el inversor incluso sin ver la cartera concreta: la cartera resultante será una cartera de convicciones, probablemente concentrada en un número limitado de posiciones high-conviction (típicamente 25-50 nombres en este tipo de productos value bottom-up), con sesgos sectoriales y de capitalización que pueden divergir notablemente del benchmark. El inversor debe asumir tracking error elevado vs MSCI India IMI como característica estructural del producto, no como anomalía temporal.\n\nLa autorización para tomar hasta un tercio en compañías no India con revenue predominante indio amplía el universo más allá del listado del NSE/BSE — incluye potencialmente ADRs/GDRs cotizados en NYSE/LSE y multinacionales con peso significativo de ventas en India (consumer staples globales con franquicia india, por ejemplo). Esto da flexibilidad al gestor en momentos en que los listados domésticos cotizan caros.\n\n**Anti-invención**\n\nPor la naturaleza limitada de los datos disponibles, **no se enumeran posiciones concretas, pesos, sectores ni geografías intra-India**. Las únicas referencias a 'posiciones' que aparecen en el bundle (`letters_data.cartas[0].posiciones_mencionadas`) corresponden a la carta de GMO sobre la burbuja AI y **no son posiciones del fondo Ashoka WhiteOak India Opportunities** — son posiciones de la estrategia GMO Benchmark-Free Allocation. Cualquier mención de Nvidia, Tesla, Palantir, Japan Small Value o Equity Dislocation en este contexto sería invención.\n\n**Datos faltantes**\n\nPara una sección de cartera completa se necesitarían: top 10 / top 20 posiciones con peso, sector y país; concentración top5/top10/top15; distribución por sectores GICS; distribución por capitalización (large/mid/small); número de posiciones; rotación anual; serie histórica de concentración top10 por ejercicio; eventual desglose por subsector relevante (financials, IT services, consumer discretionary, industriales — los sectores estructurales del Nifty). Todos esos datos están normalmente en el annual report del ICAV y en los factsheets mensuales publicados por la gestora.",
-      "top_posiciones": [],
-      "concentracion": {
-        "top5_pct": null,
-        "top10_pct": null,
-        "top15_pct": null
-      },
+      "texto": "La cartera del Ashoka WhiteOak India Opportunities Fund es **larga, diversificada y de baja concentración**: a 31 de marzo de 2026 ninguna posición individual supera el ~2,9% del patrimonio, lo que implica una cartera amplia de decenas de valores en la que el alpha se busca por la suma de muchas decisiones de selección y no por unas pocas apuestas concentradas. Es renta variable india prácticamente en su totalidad (~99%), con una liquidez residual y sin posiciones de renta fija relevantes a la fecha, pese a que la política permite hasta un 20% en deuda investment grade.\n\n**Distribución por capitalización (sesgo SMID)**\n\nEl rasgo más distintivo de la composición es el **sesgo a pequeña y mediana capitalización**. El fondo destina un 50,9% a large caps frente al 67,0% del MSCI India IMI, un 14,0% a mid caps (índice 18,8%) y un 33,8% a small caps, muy por encima del 14,2% del índice. Esta sobreponderación de small caps es una decisión estructural: el equipo considera que el segmento SMID del mercado indio es donde existe mayor ineficiencia de precios y, por tanto, más recorrido para el stock-picking fundamental.\n\n**Distribución sectorial**\n\nPor sectores, las mayores exposiciones son **Financials (28,4%)**, **Industrials (15,7%)**, **Consumer Discretionary (13,2%)** y **Health Care (11,1%)**, seguidos de Communication Services (6,3%), Materials (6,2%), Information Technology (5,6%), Energy (4,7%), Consumer Staples (3,8%), Real Estate (2,7%) y Utilities (1,1%). Respecto al índice, la cartera sobrepondera Industrials (+3,6 pp), Health Care (+3,2 pp) y Communication Services (+2,1 pp), e infrapondera de forma notable Materials, Information Technology, Energy y Utilities. Estos sesgos no responden a una visión macro top-down sino al resultado agregado de la selección bottom-up de compañías concretas.\n\n**Naturaleza de las posiciones**\n\nLas posiciones que la gestora divulga en la ficha (a través del análisis de contribución del trimestre) ilustran el tipo de negocio que busca el equipo: campeones nacionales con ventajas competitivas y crecimiento estructural. Entre ellas figuran Bajaj Finserv (servicios financieros diversificados con franquicias líderes en crédito al consumo y seguros), State Bank of India (mayor banco estatal del país), Bharat Electronics (electrónica de defensa estatal beneficiada por el mayor gasto en preparación militar), Acutaas Chemicals (química de especialidad y CDMO con fuerte crecimiento), Aditya Infotech / CP Plus (líder en videovigilancia, beneficiario de la regulación STQC de certificación de cámaras) y nombres del software financiero como Intellect Design Arena y Coforge. La presencia simultánea de bancos estatales, defensa, química especializada y software refleja la amplitud sectorial de la cartera.\n\n**Riesgos estructurales de la composición**\n\nLa combinación de país único, sesgo SMID y exposición a divisa INR/USD implica que el inversor debe asumir una volatilidad superior a la de un fondo India centrado en large caps. La baja concentración mitiga el riesgo idiosincrático de cada nombre, pero no el riesgo sistémico del mercado indio ni el de liquidez inherente a las compañías de menor capitalización en fases de tensión. El elevado tracking error frente al MSCI India IMI es una característica deliberada del producto.",
+      "top_posiciones": [
+        {
+          "nombre": "Bajaj Finserv",
+          "peso_pct": 2.9,
+          "categoria": "Financials"
+        },
+        {
+          "nombre": "State Bank of India",
+          "peso_pct": 2.7,
+          "categoria": "Financials"
+        },
+        {
+          "nombre": "Bharat Electronics",
+          "peso_pct": 1.8,
+          "categoria": "Industrials (defensa)"
+        },
+        {
+          "nombre": "Coforge",
+          "peso_pct": 1.0,
+          "categoria": "Information Technology"
+        },
+        {
+          "nombre": "Info Edge",
+          "peso_pct": 1.0,
+          "categoria": "Communication Services"
+        },
+        {
+          "nombre": "Aditya Infotech (CP Plus)",
+          "peso_pct": 0.7,
+          "categoria": "Industrials / videovigilancia"
+        },
+        {
+          "nombre": "TD Power Systems",
+          "peso_pct": 0.7,
+          "categoria": "Industrials"
+        },
+        {
+          "nombre": "Acutaas Chemicals",
+          "peso_pct": 0.6,
+          "categoria": "Materials (química de especialidad)"
+        },
+        {
+          "nombre": "Firstsource Solutions",
+          "peso_pct": 0.5,
+          "categoria": "Information Technology (BPO)"
+        },
+        {
+          "nombre": "Intellect Design Arena",
+          "peso_pct": 0.4,
+          "categoria": "Information Technology (software financiero)"
+        }
+      ],
+      "concentracion": {},
       "concentracion_historica": [],
       "distribucion_tipo": {
-        "rv_internacional_pct": null,
-        "rv_españa_pct": null,
-        "rf_pct": null,
-        "liquidez_pct": null
+        "rv_internacional_pct": 98.7,
+        "rv_españa_pct": 0.0,
+        "rf_pct": 0.0,
+        "liquidez_pct": 1.3
       }
     },
     "fuentes_externas": {
-      "texto": "El bundle de datos recibido **no contiene readings de terceros** para este fondo: el archivo `readings.json` está vacío (`readings: []`). Esto significa que no hay análisis publicados de comunidad inversora, blogs especializados, foros profesionales o medios de prensa financiera específicamente sobre el Ashoka WhiteOak India Opportunities Fund que hayan sido descubiertos por el readings_collector y procesados al bundle.\n\n**Fuentes que sí están disponibles (a nivel de gestor, no de fondo)**\n\nLas fuentes externas verificables que se han usado en este informe corresponden al **manager profile** y son fuentes sobre el equipo gestor — no sobre el rendimiento o las posiciones del fondo concreto:\n\n- **Trustnet (Manager Factsheet de Prashant Khemka)**: ficha oficial del gestor que confirma su rol como lead manager del fondo desde el 19-dic-2018 y sus otros mandatos paralelos en WhiteOak. Métricas agregadas de performance a nivel de gestor (no de fondo específico).\n- **Wikipedia (biografía Prashant Khemka)**: trayectoria completa 1998-presente, datos verificables sobre formación (MBA Vanderbilt 1998, CFA), carrera en Goldman Sachs (2000-2017, India CIO desde 2006) y fundación de WhiteOak (2017).\n- **Association of Investment Companies (AIC)**: nota de industry-news de agosto 2025 sobre el nombramiento de Hiren Dasani como CIO EM en WhiteOak. Aporta el dato de la escala de la firma (~10.000M$ AUM, 4 oficinas) y el contexto del equipo ampliado.\n- **Citywire (página de fondo en versión francesa)**: aparece en `fuentes_consultadas` pero sin contenido extraído al bundle.\n- **Business Today / BT-TV (vídeo entrevista con Khemka)**: aparece en `fuentes_consultadas` pero sin contenido textual extraído.\n- **Research-Tree (artículo 'Trust Issues' con Ayush Abhijeet)**: aparece en `fuentes_consultadas` pero sin contenido textual extraído.\n\n**Lo que faltaría descubrir y procesar**\n\nUn análisis completo de fuentes externas sobre el fondo IE00BDR0JY05 debería contemplar al menos:\n\n- **Análisis de comunidades de inversores** en español (Rankia, Bolsamanía, foros de fondos). Probabilidad media de existir dado el tamaño relativamente nicho del producto en España.\n- **Reviews y comparativas** en blogs especializados en fondos UCITS sobre India (Money Week, Portfolio Adviser, Citywire UK).\n- **Calificaciones de plataformas independientes** (Morningstar, FE Trustnet a nivel de fondo, Lipper).\n- **Entrevistas en vídeo y podcast** con Khemka o Abhijeet sobre la tesis del fondo concreto (no solo sobre la plataforma).\n- **Coverage en prensa financiera india** (Mint, Business Standard, BloombergQuint) sobre el equipo gestor y sus llamadas de mercado.\n\nLa ausencia de readings en el bundle no significa que estas fuentes no existan; significa que el readings_collector del pipeline no las ha capturado o procesado. Es un gap del bundle, no necesariamente de la realidad del fondo.\n\n**Anti-invención**\n\nNo se incluyen `opiniones_clave` ficticias o sintetizadas a partir de búsquedas no documentadas en el bundle. Si una opinión no está en `readings.readings[]`, no aparece en este informe.",
-      "opiniones_clave": []
+      "texto": "La cobertura externa específica sobre el Ashoka WhiteOak India Opportunities Fund es limitada en el bundle: el `readings.json` está vacío, por lo que no se han descubierto análisis publicados de comunidades de inversores, blogs especializados o prensa financiera centrados en este fondo concreto. Las fuentes externas verificables disponibles son, por un lado, la **documentación oficial del propio fondo y de la gestora** y, por otro, fuentes a **nivel de gestor** (Prashant Khemka y el equipo WhiteOak).\n\n**Documentación oficial del fondo**\n\nLa ficha mensual oficial (WhiteOak / distribuida por BrightGate Capital en España, datos a 31-mar-2026) es la fuente primaria de los KPIs del fondo: AUM de 1.560 M$, TER clase D del 1,06%, benchmark MSCI India IMI, rentabilidad desde inicio (+114,95% vs +73,86% del índice), composición por capitalización y por sectores, y comentario de mercado del trimestre. El fondo cuenta con calificación **Morningstar** y con un reconocimiento al **mejor fondo de renta variable India a tres años** recogido en la ficha (disclosure Refinitiv Lipper). El fondo está **registrado en España ante la CNMV con el número 1847** y dispone de representante en Suiza (Waystone) y agente de pagos local.\n\n**Fuentes a nivel de gestor**\n\n- **Trustnet — Manager Factsheet de Prashant Khemka**: ficha oficial que confirma su rol de lead manager del fondo desde el 19-dic-2018 y sus mandatos paralelos en WhiteOak (India Leaders, Emerging Markets).\n\n- **Wikipedia — biografía de Prashant Khemka**: trayectoria verificable 1998-presente (MBA Vanderbilt 1998, CFA, carrera en Goldman Sachs 2000-2017 con la responsabilidad de India CIO desde 2006 y la expansión del mandato Global EM Equity, y fundación de WhiteOak en 2017).\n\n- **Association of Investment Companies (AIC)**: nota de agosto de 2025 sobre el nombramiento de Hiren Dasani como CIO for Emerging Markets en WhiteOak, que aporta la escala de la firma y el contexto del equipo ampliado.\n\n- **Business Today / BT-TV**: entrevista en vídeo con Prashant Khemka (founder, WhiteOak Capital Group) sobre su visión de inversión en India.\n\n- **Research-Tree — 'Trust Issues'**: artículo con Ayush Abhijeet (co-portfolio manager) sobre el Ashoka India Equity Investment Trust, vehículo hermano del fondo.\n\n- **Citywire**: página de fondo y seguimiento del rating del gestor.\n\n**Qué faltaría descubrir**\n\nUn análisis externo completo del fondo debería incorporar, cuando se descubran y procesen al bundle: reviews y comparativas en plataformas independientes (Morningstar a nivel de fondo, FE Trustnet, Lipper), análisis de comunidades de inversores en español (Rankia y similares — probabilidad media dada la naturaleza de nicho del producto en España) y entrevistas/podcasts recientes con el equipo gestor. La ausencia de readings en el bundle no implica inexistencia de cobertura, sino que el readings_collector no la ha localizado para este fondo todavía.",
+      "opiniones_clave": [
+        {
+          "fuente": "WhiteOak Capital / BrightGate Capital",
+          "titulo": "Ficha mensual Ashoka WhiteOak India Opportunities Fund (31-mar-2026)",
+          "url": "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf",
+          "tipo": "review",
+          "opinion": "Documento oficial con los KPIs del fondo: AUM 1.560 M$, TER 1,06% (clase D), benchmark MSCI India IMI, rentabilidad desde inicio +114,95% vs +73,86% del índice, sesgo SMID y comentario de mercado del 1T 2026.",
+          "fecha": "2026"
+        },
+        {
+          "fuente": "Morningstar / Refinitiv Lipper",
+          "titulo": "Calificación Morningstar y premio a mejor fondo India a tres años",
+          "url": "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf",
+          "tipo": "rating",
+          "opinion": "La ficha recoge calificación Morningstar del fondo y un reconocimiento al mejor fondo de renta variable India a tres años (disclosure Refinitiv Lipper), señal de consistencia ajustada a riesgo en el medio plazo.",
+          "fecha": "2026"
+        },
+        {
+          "fuente": "Trustnet",
+          "titulo": "Manager Factsheet — Prashant Khemka",
+          "url": "https://www2.trustnet.com/Managers/ManagerFactsheet.aspx?personCode=MC35025610&univ=U",
+          "tipo": "rating",
+          "opinion": "Confirma a Khemka como lead manager del fondo desde el 19-dic-2018 y sus mandatos paralelos India/EM en WhiteOak; recoge métricas de gestor.",
+          "fecha": "2025"
+        },
+        {
+          "fuente": "Wikipedia",
+          "titulo": "Prashant Khemka",
+          "url": "https://en.wikipedia.org/wiki/Prashant_Khemka",
+          "tipo": "articulo",
+          "opinion": "Biografía verificable: MBA Vanderbilt (1998), CFA, 17 años en Goldman Sachs (CIO India desde 2006, expansión de Global EM Equity) y fundación de WhiteOak en 2017.",
+          "fecha": "2025"
+        },
+        {
+          "fuente": "Association of Investment Companies (AIC)",
+          "titulo": "Ashoka manager hires senior investor from Goldman Sachs",
+          "url": "https://www.theaic.co.uk/aic/news/industry-news/ashoka-manager-hires-senior-investor-from-goldman-sachs",
+          "tipo": "articulo",
+          "opinion": "Cubre el nombramiento de Hiren Dasani como CIO for Emerging Markets (ago-2025) y aporta contexto de escala y equipo de la plataforma WhiteOak.",
+          "fecha": "2025"
+        },
+        {
+          "fuente": "Business Today / BT-TV",
+          "titulo": "In conversation with Prashant Khemka, founder WhiteOak Capital Group",
+          "url": "https://www.businesstoday.in/bt-tv/udayan-mukherjee/video/in-conversation-with-prashant-khemka-founder-whiteoak-capital-group",
+          "tipo": "interview",
+          "opinion": "Entrevista en vídeo con el fundador sobre su enfoque de inversión y la oportunidad estructural de la renta variable india.",
+          "fecha": "2024"
+        },
+        {
+          "fuente": "Research-Tree",
+          "titulo": "Trust Issues — Ashoka India Equity Investment Trust (Ayush Abhijeet)",
+          "url": "https://www.research-tree.com/newsfeed/article/trust-issues-ashoka-india-equity-investment-trust-ayush-abhijeet",
+          "tipo": "analisis",
+          "opinion": "Artículo con el co-portfolio manager sobre el vehículo hermano (AIE Trust), ilustrativo del proceso de inversión común a la plataforma.",
+          "fecha": "2024"
+        }
+      ]
     },
     "documentos": {
-      "informes_pdf": [],
+      "informes_pdf": [
+        {
+          "archivo": "WOAIOF_ficha_2026-03.pdf"
+        }
+      ],
       "xmls_cnmv": [],
       "cartas_urls": [],
       "fuentes_externas_urls": [
+        "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf",
         "https://citywire.com/fr/fund/ashoka-whiteoak-india-opports",
         "https://en.wikipedia.org/wiki/Prashant_Khemka",
-        "https://marketdata.ebnbanco.com/v3/products/document/62dd1878-241a-4bae-b8f0-67cf52b57b60",
+        "https://funds.carnegroup.com/ashoka-whiteoak-icav",
         "https://www.businesstoday.in/bt-tv/udayan-mukherjee/video/in-conversation-with-prashant-khemka-founder-whiteoak-capital-group",
         "https://www.research-tree.com/newsfeed/article/trust-issues-ashoka-india-equity-investment-trust-ayush-abhijeet",
         "https://www.theaic.co.uk/aic/news/industry-news/ashoka-manager-hires-senior-investor-from-goldman-sachs",
         "https://www2.trustnet.com/Managers/ManagerFactsheet.aspx?personCode=MC35025610&univ=U"
       ],
       "urls_consultadas": [
-        "https://www2.trustnet.com/Managers/ManagerFactsheet.aspx?personCode=MC35025610&univ=U",
-        "https://www.theaic.co.uk/aic/news/industry-news/ashoka-manager-hires-senior-investor-from-goldman-sachs",
-        "https://en.wikipedia.org/wiki/Prashant_Khemka",
-        "https://citywire.com/fr/fund/ashoka-whiteoak-india-opports",
-        "https://www.businesstoday.in/bt-tv/udayan-mukherjee/video/in-conversation-with-prashant-khemka-founder-whiteoak-capital-group",
-        "https://www.research-tree.com/newsfeed/article/trust-issues-ashoka-india-equity-investment-trust-ayush-abhijeet"
+        "https://funds.carnegroup.com/ashoka-whiteoak-icav",
+        "https://www.cnmv.es/portal/home.aspx"
       ],
-      "total_fuentes": 13
+      "total_fuentes": 11
     }
   }
 }

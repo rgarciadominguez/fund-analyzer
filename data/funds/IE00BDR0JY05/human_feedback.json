@@ -133,6 +133,208 @@
           "verify_reason": "sección 'documentos' quedó vacía o muy corta (0 chars). El analyst no consiguió generar contenido — posiblemente faltan datos en bundle/ para esa sección."
         }
       ]
+    },
+    {
+      "id": "fb_20260606_063823_c246",
+      "created_at": "2026-06-06T06:38:23.360109+00:00",
+      "raw_text": "Global / datos: El análisis se generó sin los datos reales del fondo. El factsheet oficial está en https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf (Carne, 31-mar-2026): Fund AUM $1.56bn, NAV, benchmark MSCI India IMI, top holdings, desglose por sector y capitalización, performance anual y top contribuidores. Usa esos datos.\n\nCartas: La carta \"GMO Quarterly Letter 4Q 2025\" NO es de este fondo (es de GMO/Ben Inker). Elimínala por completo del análisis y de las fuentes. No menciones GMO, burbuja IA ni Benchmark-Free Allocation.\n\nSección Evolución: Reescríbela con el AUM real ($1.56bn / €1.435M, mar-2026), NAV €242,26, lanzamiento 19-dic-2018, y la rentabilidad anualizada vs MSCI India IMI del factsheet. Quita el disclaimer de \"no hay datos\".\n\nSección Cartera: Reescríbela con las posiciones reales, el desglose por sector y por capitalización (large/mid/small) y el nº de posiciones del factsheet. Quita el disclaimer. No expliques la contaminación: simplemente da la cartera real.\n\nResumen/Estrategia: Añade el dato de AUM y el TER 1,06% (Clase D). Mantén lo del proceso bottom-up de valor intrínseco (está bien).",
+      "raw_urls": [],
+      "structured_items": [
+        {
+          "action": "set",
+          "confidence": "high",
+          "rationale": "Usuario proporciona AUM real de $1.56bn (€1.435M) a marzo 2026 del factsheet oficial.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": "kpis.aum_actual_meur",
+          "target_section": null,
+          "value": 1435
+        },
+        {
+          "action": "set",
+          "confidence": "high",
+          "rationale": "Usuario proporciona NAV exacto de €242,26 del factsheet oficial.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": "kpis.nav_eur",
+          "target_section": null,
+          "value": 242.26
+        },
+        {
+          "action": "set",
+          "confidence": "high",
+          "rationale": "Usuario especifica TER 1,06% para Clase D del fondo.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": "kpis.ter_pct",
+          "target_section": null,
+          "value": 1.06
+        },
+        {
+          "action": "set",
+          "confidence": "high",
+          "rationale": "Usuario proporciona fecha de lanzamiento exacta: 19-dic-2018.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": "kpis.fecha_lanzamiento",
+          "target_section": null,
+          "value": "2018-12-19"
+        },
+        {
+          "action": "set",
+          "confidence": "high",
+          "rationale": "Usuario confirma benchmark oficial del fondo es MSCI India IMI.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": "kpis.benchmark",
+          "target_section": null,
+          "value": "MSCI India IMI"
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario pide reescribir sección Evolución con AUM real ($1.56bn/€1.435M), NAV €242,26, lanzamiento 19-dic-2018, rentabilidad anualizada vs MSCI India IMI del factsheet. Eliminar disclaimer de 'no hay datos'.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": null,
+          "target_section": "evolucion",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario pide reescribir sección Cartera con posiciones reales, desglose por sector, desglose por capitalización (large/mid/small) y número de posiciones del factsheet. Eliminar disclaimer.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": null,
+          "target_section": "cartera",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario pide añadir dato de AUM ($1.56bn) y TER 1,06% (Clase D) al Resumen/Estrategia. Mantener proceso bottom-up de valor intrínseco.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": null,
+          "target_section": "resumen",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario pide eliminar completamente la carta 'GMO Quarterly Letter 4Q 2025' (no es de este fondo) y no mencionar GMO, burbuja IA ni Benchmark-Free Allocation.",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": null,
+          "target_section": "fuentes_externas",
+          "value": null
+        },
+        {
+          "action": "consultar_fuente",
+          "confidence": "high",
+          "rationale": "Usuario proporciona URL del factsheet oficial como fuente primaria para extraer datos reales del fondo (AUM, NAV, benchmark, posiciones, sectores, capitalización, performance).",
+          "source_urls": [
+            "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf"
+          ],
+          "target_path": null,
+          "target_section": null,
+          "value": null
+        }
+      ],
+      "estado": "partially_resolved",
+      "applied_at": "2026-06-06T06:57:42.487393+00:00",
+      "resolved_items": [
+        1,
+        3,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "run_id_applied": "IE00BDR0JY05_consume_all",
+      "item_results": [
+        {
+          "idx": 0,
+          "applied": false,
+          "reason": "no se aplicó: el valor ya era 1435",
+          "resolved": false,
+          "verify_reason": "el valor no cambió tras el run (sigue siendo 1435.0). Causas posibles: el agente fuente lo sobrescribió, _manual_edits no protegió, o el item no se aplicó."
+        },
+        {
+          "idx": 1,
+          "applied": true,
+          "reason": "actualizado: None → 242.26",
+          "resolved": true,
+          "verify_reason": "valor cambió: None → 242.26"
+        },
+        {
+          "idx": 2,
+          "applied": false,
+          "reason": "no se aplicó: el valor ya era 1.06",
+          "resolved": false,
+          "verify_reason": "el valor no cambió tras el run (sigue siendo 1.06). Causas posibles: el agente fuente lo sobrescribió, _manual_edits no protegió, o el item no se aplicó."
+        },
+        {
+          "idx": 3,
+          "applied": true,
+          "reason": "actualizado: None → '2018-12-19'",
+          "resolved": true,
+          "verify_reason": "valor cambió: None → '2018-12-19'"
+        },
+        {
+          "idx": 4,
+          "applied": false,
+          "reason": "no se aplicó: el valor ya era 'MSCI India IMI'",
+          "resolved": false,
+          "verify_reason": "el valor no cambió tras el run (sigue siendo 'MSCI India IMI'). Causas posibles: el agente fuente lo sobrescribió, _manual_edits no protegió, o el item no se aplicó."
+        },
+        {
+          "idx": 5,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (evolucion)",
+          "resolved": true,
+          "verify_reason": "Reescrita Evolución con datos reales del factsheet: AUM 1.560 M$ (≈1.435 M€), NAV 242,26 € (clase D EUR) y 214,95 $ (clase D USD), lanzamiento 19-dic-2018 (clase D 31-ene-2019), y rentabilidad desde inicio +114,95% acumulado / +11,27% anualizado vs MSCI India IMI +73,86% / +8,03%. Eliminado el disclaimer de 'no hay datos'."
+        },
+        {
+          "idx": 6,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (cartera)",
+          "resolved": true,
+          "verify_reason": "Reescrita Cartera con datos reales del factsheet: 10 posiciones divulgadas con peso (Bajaj Finserv 2,9%, SBI 2,7%, Bharat Electronics 1,8%...), desglose sectorial completo (Financials 28,4%, Industrials 15,7%...) y por capitalización (Large 50,9% / Mid 14,0% / Small 33,8%). Honestidad: el factsheet divulga posiciones vía análisis de contribución (no un 'top-10 por peso' explícito) y no publica el número total de posiciones ni los ratios top5/top10/top15; no los invento, por lo que concentracion queda vacía y se describe cualitativamente (ninguna posición >~2,9% → cartera muy diversificada)."
+        },
+        {
+          "idx": 7,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (resumen)",
+          "resolved": true,
+          "verify_reason": "Añadidos AUM 1.560 M$ y TER clase D 1,06% (95 pb gestión + 11 pb otros) al Resumen y a la Estrategia, manteniendo el proceso bottom-up de valor intrínseco. Se incorporó además el track record real desde inicio."
+        },
+        {
+          "idx": 8,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (fuentes_externas)",
+          "resolved": true,
+          "verify_reason": "Eliminada por completo cualquier referencia a la 'GMO Quarterly Letter 4Q 2025': se reescribió Fuentes externas sin GMO, sin burbuja IA y sin Benchmark-Free Allocation, y se regeneró también Estrategia (que contenía 3 menciones a GMO/Ben Inker) para purgar esa contaminación. La carta GMO se excluye de documentos.cartas_urls (no pertenece a este fondo)."
+        },
+        {
+          "idx": 9,
+          "applied": true,
+          "reason": "+1 URLs añadidas a fuentes_adicionales",
+          "resolved": true,
+          "verify_reason": "URL(s) presentes en fuentes_adicionales: ['https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf']"
+        }
+      ]
     }
   ],
   "fund_name_at_creation": "Ashoka WhiteOak India Opportunities Fund"

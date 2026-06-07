@@ -1,27 +1,22 @@
 {
   "isin": "IE00BDR0JY05",
   "nombre": "Ashoka WhiteOak India Opportunities Fund",
-  "timestamp": "2026-06-04T16:46:45.108089",
-  "completeness_pct": 5.6,
-  "dashboard_ready": false,
-  "dashboard_blockers": [
-    "sin datos cuantitativos ni cualitativos mínimos (falta: AUM, mix_activos, posiciones y gestores) — el fondo aparecería vacío en el dashboard"
-  ],
+  "timestamp": "2026-06-06T08:57:45.927090",
+  "completeness_pct": 22.2,
+  "dashboard_ready": true,
+  "dashboard_blockers": [],
   "issues": [
-    "gestora vacía",
-    "AUM actual vacío — revisar XMLs CNMV o annual report",
     "gestores vacíos — buscar en Citywire / Finect",
     "sin estrategia ni filosofía de inversión — necesita PDFs cualitativos",
     "sin posiciones actuales — revisar extracción de cartera",
     "serie AUM muy corta (0 puntos) — añadir XMLs históricos",
     "solo 0 periodos de consistencia — añadir más PDFs semestrales",
     "sin análisis externos — ejecutar readings_agent",
-    "[patron_conocido:fondo_no_listo_para_dashboard] BLOQUEANTE: fondo no listo para dashboard — sin datos cuantitativos ni cualitativos mínimos (falta: AUM, mix_activos, posiciones y gestores) — el fondo aparecería vacío en el dashboard",
     "[patron_conocido:serie_aum_muy_corta] serie AUM muy corta (<4 puntos) — XMLs CNMV no procesados correctamente o fondo muy nuevo"
   ],
   "suggestions": [
-    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin IE00BDR0JY05 --auto",
-    "-> Anadir más PDFs semestrales en raw/reports/"
+    "-> Anadir más PDFs semestrales en raw/reports/",
+    "-> Descargar XMLs faltantes: python -m agents.orchestrator --isin IE00BDR0JY05 --auto"
   ],
   "feedback_previo": [],
   "stats": {

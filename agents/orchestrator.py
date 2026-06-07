@@ -1675,6 +1675,33 @@ def _find_null_fields(obj, path="") -> list[str]:
 
 # ── Cowork-skill integration (Fase 1, 2026-05-04) ─────────────────────────────
 
+def _feedback_targeted_sections(output_data: dict):
+    """Fix A (2026-06-06): set de secciones de `analyst_synthesis` que el
+    feedback de ESTE run dirige explícitamente, o None si no aplica la
+    regeneración selectiva.
+
+    None ⇒ «reemplaza todas las secciones» (comportamiento legacy), cuando:
+      - no hay `_feedback_revisar` (no se aplicó feedback narrativo este run), o
+      - algún item es global (sin `target_section`) → afecta a todas.
+
+    Devolver un set acotado ⇒ solo esas secciones se regeneran; el resto del
+    análisis previo se preserva verbatim. Evita que el analyst-cowork (que
+    regenera las 8 secciones) empeore pestañas que el usuario no pidió tocar.
+    """
+    revisar = output_data.get("_feedback_revisar")
+    if not revisar or not isinstance(revisar, list):
+        return None
+    sections: set = set()
+    for entry in revisar:
+        if not isinstance(entry, dict):
+            return None
+        ts = entry.get("target_section")
+        if not ts:
+            return None  # feedback global → regenerar todo
+        sections.add(ts)
+    return sections or None
+
+
 def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     """Integrate analyst_synthesis_cowork.json (produced by the skill) into output.json.
 
@@ -1726,10 +1753,48 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     # Replace analyst_synthesis with the skill's
     if "analyst_synthesis" not in cowork_data:
         raise ValueError("analyst_synthesis_cowork.json no contiene 'analyst_synthesis'")
-    output_data["analyst_synthesis"] = cowork_data["analyst_synthesis"]
+    new_synth = cowork_data["analyst_synthesis"]
+    existing_synth = output_data.get("analyst_synthesis") or {}
+
+    # Fix A (2026-06-06): regeneración SELECTIVA cuando el run aplica feedback
+    # dirigido a secciones concretas. Solo reemplazamos esas secciones y
+    # preservamos el resto del análisis previo verbatim. Solo se activa en runs
+    # de feedback (FUND_APPLY_FEEDBACK=1); un re-análisis normal sigue
+    # reemplazando todo. Caso real: feedback sobre cartera/evolucion no debe
+    # tocar la pestaña de gestores (LU0168736675).
+    apply_feedback_run = os.environ.get("FUND_APPLY_FEEDBACK") == "1"
+    targeted = _feedback_targeted_sections(output_data) if apply_feedback_run else None
+    if targeted is not None and existing_synth:
+        merged_synth = dict(existing_synth)
+        replaced, preserved = [], []
+        for sec, val in new_synth.items():
+            if sec in targeted or sec not in existing_synth:
+                merged_synth[sec] = val
+                replaced.append(sec)
+            else:
+                preserved.append(sec)
+        output_data["analyst_synthesis"] = merged_synth
+        sections = list(merged_synth.keys())
+        log("COWORK", "OK",
+            f"Regeneración selectiva por feedback → reemplazadas: {replaced}; "
+            f"preservadas del análisis previo: {preserved}")
+    else:
+        output_data["analyst_synthesis"] = new_synth
+        sections = list(new_synth.keys())
+
+    # Fix B (2026-06-06): el analyst puede declarar, por item de feedback, si lo
+    # resolvió y por qué (incluido «no pude mejorarlo: <razón>»). Lo propagamos a
+    # output.json para que verify_resolved_after_run lo respete sobre su heurística.
+    fb_outcomes = cowork_meta.get("feedback_outcomes")
+    if fb_outcomes:
+        output_data.setdefault("_meta", {})["feedback_outcomes"] = fb_outcomes
+
+    # Limpiar los hints `revisar` ya consumidos para que no contaminen runs
+    # futuros (la decisión de regeneración selectiva es por-run).
+    if apply_feedback_run:
+        output_data.pop("_feedback_revisar", None)
 
     # Protect each section as _manual_edits so future Python runs don't overwrite
-    sections = list(cowork_data["analyst_synthesis"].keys())
     for sec in sections:
         mark_manual_edit(output_data, f"analyst_synthesis.{sec}")
 

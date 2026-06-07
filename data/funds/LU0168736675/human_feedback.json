@@ -1,0 +1,158 @@
+{
+  "isin": "LU0168736675",
+  "feedbacks": [
+    {
+      "id": "fb_20260606_052551_5eaf",
+      "created_at": "2026-06-06T05:25:51.321370+00:00",
+      "raw_text": "grafica AUM\npestaña de evolución completa\ncartera => indica mal el nº de posiciones totales y la concentración",
+      "raw_urls": [],
+      "structured_items": [
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario solicita pestaña de evolución completa. La sección de evolución debe incluir gráfica de AUM con histórico detallado.",
+          "source_urls": [],
+          "target_path": null,
+          "target_section": "evolucion",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario menciona 'gráfica AUM' como feedback, indicando que el valor o su visualización requiere revisión.",
+          "source_urls": [],
+          "target_path": "kpis.aum_actual_meur",
+          "target_section": "resumen",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario indica que el número de posiciones totales está mal indicado en la cartera. Requiere re-análisis.",
+          "source_urls": [],
+          "target_path": "cartera.num_posiciones",
+          "target_section": "cartera",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "high",
+          "rationale": "Usuario señala que la concentración está mal indicada en la cartera. Requiere re-análisis y corrección.",
+          "source_urls": [],
+          "target_path": "cartera.concentracion_pct",
+          "target_section": "cartera",
+          "value": null
+        },
+        {
+          "action": "revisar",
+          "confidence": "medium",
+          "rationale": "ISIN proporcionado pero gestora marcada como desconocida (?). Requiere identificación y validación de la gestora del fondo.",
+          "source_urls": [],
+          "target_path": "gestora",
+          "target_section": "resumen",
+          "value": null
+        }
+      ],
+      "estado": "resolved",
+      "applied_at": "2026-06-06T05:48:51.431861+00:00",
+      "resolved_items": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "run_id_applied": "LU0168736675_consume_all",
+      "item_results": [
+        {
+          "idx": 0,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (evolucion)",
+          "resolved": true,
+          "verify_reason": "sección 'evolucion' tiene contenido (1644 chars). El analyst la regeneró considerando el feedback."
+        },
+        {
+          "idx": 1,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (resumen)",
+          "resolved": true,
+          "verify_reason": "sección 'resumen' tiene contenido (1704 chars). El analyst la regeneró considerando el feedback."
+        },
+        {
+          "idx": 2,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (cartera)",
+          "resolved": true,
+          "verify_reason": "sección 'cartera' tiene contenido (1493 chars). El analyst la regeneró considerando el feedback."
+        },
+        {
+          "idx": 3,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (cartera)",
+          "resolved": true,
+          "verify_reason": "sección 'cartera' tiene contenido (1493 chars). El analyst la regeneró considerando el feedback."
+        },
+        {
+          "idx": 4,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (resumen)",
+          "resolved": true,
+          "verify_reason": "sección 'resumen' tiene contenido (1704 chars). El analyst la regeneró considerando el feedback."
+        }
+      ]
+    },
+    {
+      "id": "fb_20260606_123538_4a28",
+      "created_at": "2026-06-06T12:35:38.022389+00:00",
+      "raw_text": "cartera => el nº total de posiciones y la concentración están mal; revisa también la pestaña de evolución. La pestaña de gestores está bien, no la toques.",
+      "raw_urls": [],
+      "structured_items": [
+        {
+          "action": "revisar",
+          "target_section": "cartera",
+          "target_path": null,
+          "value": null,
+          "confidence": "high",
+          "source_urls": [],
+          "rationale": "El nº total de posiciones y la concentración de la cartera son incorrectos."
+        },
+        {
+          "action": "revisar",
+          "target_section": "evolucion",
+          "target_path": null,
+          "value": null,
+          "confidence": "high",
+          "source_urls": [],
+          "rationale": "La pestaña de evolución necesita la serie de AUM completa."
+        }
+      ],
+      "estado": "applied",
+      "applied_at": "2026-06-06T12:44:47.676486+00:00",
+      "resolved_items": [],
+      "run_id_applied": "LU0168736675_consume_all",
+      "item_results": [
+        {
+          "idx": 0,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (cartera)",
+          "resolved": false,
+          "verify_reason": "el analyst NO pudo mejorar esto: He corregido la narrativa de cartera para dejar claro que el fondo mantiene del orden de 25-30 posiciones (no 10), que las diez listadas son solo el tramo superior de la cartera (top-10 ~59% del patrimonio; top-5 ~38%) y que el ~41% restante corresponde a ~15-20 posiciones que las fuentes publicas no detallan nombre a nombre. PERO el KPI 'Posiciones totales' del dashboard se calcula con len(posiciones.actuales) sobre datos TOP-LEVEL, donde solo hay las 10 posiciones que publica el tearsheet de FT; el skill analyst-cowork solo escribe analyst_synthesis y NO puede modificar ese campo top-level. Para que el KPI muestre ~28 y la concentracion sea completa (top-15) hace falta capturar la lista integra de holdings desde el factsheet oficial (requiere fetch externo, pendiente de autorizacion) o re-ejecutar el extractor INT y reconstruir posiciones.actuales. No invento las ~18 posiciones que faltan."
+        },
+        {
+          "idx": 1,
+          "applied": true,
+          "reason": "instrucción registrada en _feedback_revisar para que analyst la procese (evolucion)",
+          "resolved": false,
+          "verify_reason": "el analyst NO pudo mejorar esto: He reescrito la narrativa de evolucion detallando los tres cierres fiscales de AUM disponibles (ago-2023: 194,67 M EUR; ago-2024: 268,45 M EUR; ago-2025: 280,75 M EUR), la estructura por clases y el recorrido de rentabilidad reconstruido de cartas e informes anuales. PERO una serie de AUM 'completa' desde el lanzamiento (2003) NO esta en el material del bundle: un Annual Report solo aporta el ejercicio en curso y los dos anteriores, asi que las fuentes solo cubren 2023-2025. Ademas, el grafico de AUM del dashboard lee de cuantitativo.serie_aum (TOP-LEVEL), que este skill no escribe. Para extender la serie haria falta descargar los informes anuales historicos de la gestora. No invento cifras de patrimonio de anios sin fuente."
+        }
+      ],
+      "skill_diagnostic": {
+        "status": "ok",
+        "revisar_items": 2,
+        "with_outcome": 2,
+        "message": "El analyst se pronunció sobre los 2 puntos de revisión."
+      }
+    }
+  ],
+  "fund_name_at_creation": "SIFTER FUND - GLOBAL"
+}
