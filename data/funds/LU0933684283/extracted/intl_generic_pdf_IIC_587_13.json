@@ -1,0 +1,61 @@
+{
+  "task_id": "intl_generic_pdf_IIC_587_13",
+  "agent": "intl_extractor_v2",
+  "pdf_path": "data/funds/LU0933684283/raw/discovery/IIC_587_13.pdf",
+  "extracted_at": "2026-06-09T10:25:00Z",
+  "model_used": "claude-opus-4-8 (cowork)",
+  "data": {
+    "doc_type": "Incometric Fund - Unaudited Semi-Annual Report as of 30 June 2016",
+    "fund_name_in_doc": "INCOMETRIC FUND - Equam Global Value",
+    "fecha_corte": "2016-06-30",
+    "kpis": {
+      "aum_actual_meur": 12.24,
+      "aum_eur_exacto": 12242415.85,
+      "fecha_aum": "2016-06-30",
+      "ter_pct": null,
+      "com_gestion_clase_b_pct": 1.70,
+      "com_gestion_clase_a_pct": 1.00,
+      "com_gestion_clase_c_pct": 1.50,
+      "com_gestion_clase_d_i_pct": 1.25,
+      "performance_fee_clase_a_pct": 8.00,
+      "num_participes": null,
+      "divisa_base": "EUR",
+      "fecha_lanzamiento_subfondo": "2015-01-15",
+      "gestora": "ADEPA Asset Management S.A.",
+      "custodio": "KBL European Private Bankers S.A.",
+      "auditor": "BDO Audit, S.A."
+    },
+    "posiciones_actuales": [
+      {"nombre": "HUNTER DOUGLAS NV", "peso_pct": 5.40, "sector": null, "pais": "Netherlands"},
+      {"nombre": "CHARGEURS SA", "peso_pct": 3.86, "sector": null, "pais": "France"},
+      {"nombre": "HORNBACH BAUMARKT AG", "peso_pct": 3.80, "sector": null, "pais": "Germany"},
+      {"nombre": "DEUTSCHE PFANDBRIEFBANK AG", "peso_pct": 3.72, "sector": null, "pais": "Germany"},
+      {"nombre": "CEGEDIM SA", "peso_pct": 3.71, "sector": null, "pais": "France"},
+      {"nombre": "TGS NOPEC GEOPHYSICAL CO ASA", "peso_pct": 3.58, "sector": null, "pais": "Norway"},
+      {"nombre": "ING GROEP NV-CVA", "peso_pct": 3.56, "sector": null, "pais": "Netherlands"},
+      {"nombre": "MITIE GROUP PLC", "peso_pct": 3.35, "sector": null, "pais": "United Kingdom"},
+      {"nombre": "SERCO GROUP PLC", "peso_pct": 3.35, "sector": null, "pais": "United Kingdom"},
+      {"nombre": "STALLERGENES GREER PLC", "peso_pct": 3.21, "sector": null, "pais": "France"}
+    ],
+    "asset_allocation": {
+      "equity_pct": 98.02,
+      "bonds_pct": 0.0,
+      "cash_pct": 1.98,
+      "otros_pct": 0.0
+    },
+    "geographic_allocation": [],
+    "sector_allocation": [],
+    "performance": null,
+    "comentario_gestor": null
+  },
+  "anti_invencion_notes": [
+    "Documento = Incometric Fund Semi-Annual Report (no auditado) a 30/06/2016. Datos del sub-fondo Equam Global Value son HISTORICOS (junio 2016), NO actuales.",
+    "kpis.aum_actual_meur: 12.24 M€ es el Total Net Assets del SUB-FONDO Equam Global Value (pag.7), NO del paraguas Incometric Fund (combined €90.1M). Correcto a nivel sub-fondo.",
+    "kpis.ter_pct: el report no da un OCF/TER unico; solo comisiones de gestion por clase (tabla nota 7). Dejado null; usadas com_gestion por clase.",
+    "kpis.num_participes: el report da NAV por clase pero no numero de participes consolidado para Equam. Dejado null.",
+    "posiciones[*].sector: el portfolio statement lista por divisa, no por sector. Sector dejado null. Pais inferido del domicilio/listado de la accion (aproximado).",
+    "asset_allocation: derivado de Total Shares 98.02% + Other net assets 1.98% (pag.15). No hay renta fija en este sub-fondo a esta fecha.",
+    "geographic_allocation / sector_allocation: el report no incluye tabla de breakdown por pais/sector para Equam. Listas vacias (no inventado).",
+    "performance / comentario_gestor: el semi-annual report no incluye tabla de rentabilidad ni comentario del gestor para el sub-fondo. Dejado null."
+  ]
+}

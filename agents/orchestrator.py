@@ -2715,6 +2715,53 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
         log("NAME_RECOVERY", "ERROR", f"falló inesperadamente: {exc}")
         summary["name_recovery"] = {"applied": False, "error": str(exc)}
 
+    # 4.6. Gestora recovery (2026-06-09): para fondos INT la `gestora` top-level
+    # quedaba vacía (el extractor INT no la rellena) → el sync ABORTABA con
+    # "gestora vacía" y el fondo no se publicaba (FAIL crítico). Recuperarla de
+    # manager_profile.gestora → identity del regulador. Marca _manual_edits.
+    try:
+        output_path_gr = fund_dir / "output.json"
+        if output_path_gr.exists():
+            od = json.loads(output_path_gr.read_text(encoding="utf-8"))
+            cur_gestora = (od.get("gestora") or "").strip()
+            isin_up = isin.upper()
+            if not cur_gestora or cur_gestora.upper() == isin_up:
+                recovered = ""
+                # 1) manager_profile.gestora
+                mp_p = fund_dir / "manager_profile.json"
+                if mp_p.exists():
+                    try:
+                        recovered = (json.loads(mp_p.read_text(encoding="utf-8")).get("gestora") or "").strip()
+                    except Exception:
+                        recovered = ""
+                # 2) identity del regulador (cssf/cbi/amf/bundesanzeiger)
+                if not recovered or recovered.upper() == isin_up:
+                    for reg in ("cssf_data.json", "cbi_data.json", "amf_data.json", "bundesanzeiger_data.json"):
+                        rp = fund_dir / reg
+                        if rp.exists():
+                            try:
+                                rj = json.loads(rp.read_text(encoding="utf-8"))
+                                cand = (rj.get("gestora_oficial") or rj.get("gestora") or "").strip()
+                                if cand and cand.upper() != isin_up:
+                                    recovered = cand
+                                    break
+                            except Exception:
+                                pass
+                if recovered and recovered.upper() != isin_up:
+                    od["gestora"] = recovered
+                    me = od.setdefault("_manual_edits", [])
+                    if "gestora" not in me:
+                        me.append("gestora")
+                    output_path_gr.write_text(json.dumps(od, ensure_ascii=False, indent=2), encoding="utf-8")
+                    log("GESTORA_RECOVERY", "OK", f"gestora recuperada: {recovered!r}")
+                    summary["gestora_recovery"] = {"applied": True, "gestora": recovered}
+                else:
+                    log("GESTORA_RECOVERY", "WARN", "gestora vacía y sin fuente (manager_profile/regulador)")
+                    summary["gestora_recovery"] = {"applied": False, "reason": "sin fuente"}
+    except Exception as exc:
+        log("GESTORA_RECOVERY", "ERROR", f"falló inesperadamente: {exc}")
+        summary["gestora_recovery"] = {"applied": False, "error": str(exc)}
+
     # 5. Validation + meta + quality + calendar + dashboard (same as consume_cowork_pipeline)
     config_path = fund_dir / "config.json"
     if config_path.exists():

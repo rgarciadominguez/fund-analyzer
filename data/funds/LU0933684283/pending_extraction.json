@@ -1,0 +1,157 @@
+{
+  "isin": "LU0933684283",
+  "tipo": "INT",
+  "generated_at": "2026-06-09T08:16:07Z",
+  "tasks": [
+    {
+      "id": "intl_generic_pdf_2025_06_30_Informe_semestral",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0933684283/raw/discovery/2025.06.30_Informe_semestral.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0933684283 (INCOMETRIC FUND - EQUAM GLOBAL VALUE / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf_IIC_587_13",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0933684283/raw/discovery/IIC_587_13.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0933684283 (INCOMETRIC FUND - EQUAM GLOBAL VALUE / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf_INCOMETRIC-FUND-2024-12-31",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0933684283/raw/discovery/INCOMETRIC-FUND-2024-12-31.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0933684283 (INCOMETRIC FUND - EQUAM GLOBAL VALUE / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_annual_subfund_Incometric-Fund-Annual-Report-31-12-2022",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0933684283/raw/discovery/Incometric-Fund-Annual-Report-31-12-2022.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float",
+          "ter_pct": "float",
+          "num_participes": "int"
+        },
+        "posiciones": "list[{nombre, peso_pct, sector, pais}] holdings completos del sub-fondo",
+        "cualitativo": {
+          "estrategia": "string",
+          "decisiones_periodo": "string",
+          "contexto_mercado": "string",
+          "outlook": "string"
+        }
+      },
+      "context": "PDF tipo=annual_subfund. ISIN target: LU0933684283 (INCOMETRIC FUND - EQUAM GLOBAL VALUE / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note.",
+      "two_stage": true
+    },
+    {
+      "id": "intl_generic_pdf_LU0933684283",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0933684283/raw/discovery/LU0933684283.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0933684283 (INCOMETRIC FUND - EQUAM GLOBAL VALUE / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_generic_pdf_Noviembre2023",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "data/funds/LU0933684283/raw/discovery/Noviembre2023.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "PDF tipo=generic_pdf. ISIN target: LU0933684283 (INCOMETRIC FUND - EQUAM GLOBAL VALUE / unknown). Extrae SOLO datos del SUB-FONDO target, NUNCA agregues la gestora paraguas/umbrella SICAV. Si el PDF es corporate y no menciona el ISIN, devuelve null en kpis y explica en anti_invencion_note."
+    },
+    {
+      "id": "intl_web_fund_page",
+      "agent": "intl_extractor_v2",
+      "pdf_path": "https://www.caixabank.es/docs/fondos/pdfs/es/LU0933684283.pdf",
+      "schema": {
+        "kpis": {
+          "aum_actual_meur": "float - AUM TOTAL del sub-fondo target en M€ (NO de la gestora paraguas; OJO 'fund AuM' vs 'firm AuM')",
+          "fecha_aum": "string YYYY-MM-DD del corte",
+          "ter_pct": "float",
+          "num_participes": "int",
+          "divisa_base": "string EUR/USD/GBP"
+        },
+        "posiciones_actuales": "list[{nombre, peso_pct, sector, pais}] top 10",
+        "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct}",
+        "geographic_allocation": "list[{region, peso_pct}]",
+        "sector_allocation": "list[{sector, peso_pct}]",
+        "performance": "{ytd_pct, y1_pct, y3_anual_pct, y5_anual_pct, since_inception_anual_pct}",
+        "comentario_gestor": "string si el factsheet incluye block de commentary"
+      },
+      "context": "NO es PDF. Es URL: https://www.caixabank.es/docs/fondos/pdfs/es/LU0933684283.pdf. Hacer WebFetch. Extraer datos LIVE del sub-fondo target (LU0933684283): AUM, NAV, top holdings, asset allocation, performance. VERIFICAR que el ISIN aparece en la página antes de extraer. Si no aparece, devuelve null + anti_invencion_note.",
+      "is_web_fetch": true,
+      "url": "https://www.caixabank.es/docs/fondos/pdfs/es/LU0933684283.pdf"
+    }
+  ],
+  "updated_at": "2026-06-09T08:16:11Z"
+}
