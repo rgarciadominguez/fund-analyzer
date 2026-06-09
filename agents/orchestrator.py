@@ -2747,6 +2747,18 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
                                     break
                             except Exception:
                                 pass
+                # 3) ÚLTIMO recurso: derivar del nombre-paraguas (parte antes de
+                #    " - "). Evita que el sync ABORTE por "gestora vacía" cuando ni
+                #    manager_profile ni el regulador la traen (caso Vontobel). Mejor
+                #    una gestora aproximada y editable que un fondo no publicable.
+                if not recovered or recovered.upper() == isin_up:
+                    nombre_fund = (od.get("nombre") or "").strip()
+                    if " - " in nombre_fund:
+                        umbrella = nombre_fund.split(" - ")[0].strip()
+                        if len(umbrella) >= 3 and umbrella.upper() != isin_up:
+                            recovered = umbrella
+                            log("GESTORA_RECOVERY", "WARN",
+                                f"gestora derivada del paraguas (aproximada, revisar): {recovered!r}")
                 if recovered and recovered.upper() != isin_up:
                     od["gestora"] = recovered
                     me = od.setdefault("_manual_edits", [])

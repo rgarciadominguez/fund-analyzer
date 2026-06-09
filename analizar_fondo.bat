@@ -337,6 +337,11 @@ REM queda desactualizado tras un run (Cloudflare sirve desde git, no de
 REM Supabase Storage que sirve text/plain inalterable).
 REM No bloqueante si falla — el analisis local sigue OK.
 echo === Paso 7.5/7: Auto-commit + push del dashboard regenerado ===
+REM Hardening (2026-06-09): evitar que git/GCM abra un prompt interactivo de
+REM credenciales y CUELGUE el run (el watchdog lo mataria tras el sync OK).
+REM Con esto git falla rapido si no hay credencial cacheada (no critico).
+set GIT_TERMINAL_PROMPT=0
+set GCM_INTERACTIVE=never
 if exist "dashboard\fund-%ISIN%.html" (
     git add "dashboard\fund-%ISIN%.html" >nul 2>&1
     git diff --cached --quiet "dashboard\fund-%ISIN%.html"

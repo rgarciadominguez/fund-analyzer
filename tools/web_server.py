@@ -658,9 +658,12 @@ def make_app(cold_start: bool = True) -> Flask:
     # - W2: log creció en últimos N min
     # Si NO → marca interrupted (W4).
     WATCHDOG_INTERVAL_S = 60
-    WATCHDOG_LOG_STALE_MIN = 25  # Si NINGÚN output del run (log+skill logs+data
-    # dir) crece en 25 min, asumir muerto. Subido de 15→25: las skills cowork
-    # (`claude -p`) pueden tardar >15 min y solo vuelcan su log al terminar.
+    WATCHDOG_LOG_STALE_MIN = 40  # Si NINGÚN output del run (log+skill logs+data
+    # dir) crece en 40 min, asumir muerto. Subido 15→40: extract-pdfs escribe
+    # incrementalmente (cubierto por el check de data dir a cualquier umbral),
+    # pero analyst/manager/letters-cowork escriben su salida UNA sola vez al
+    # final → durante su generación (10-25 min) no hay actividad de ficheros.
+    # 40 min da margen sin matarlas. Failsafe último: QUEUE_MAX_RUN_SECONDS (4h).
 
     def _start_watchdog():
         global WATCHDOG_THREAD
