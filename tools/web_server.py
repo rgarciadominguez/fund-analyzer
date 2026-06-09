@@ -658,7 +658,9 @@ def make_app(cold_start: bool = True) -> Flask:
     # - W2: log creció en últimos N min
     # Si NO → marca interrupted (W4).
     WATCHDOG_INTERVAL_S = 60
-    WATCHDOG_LOG_STALE_MIN = 15  # Si log no crece en 15 min, asumir muerto
+    WATCHDOG_LOG_STALE_MIN = 25  # Si NINGÚN output del run (log+skill logs+data
+    # dir) crece en 25 min, asumir muerto. Subido de 15→25: las skills cowork
+    # (`claude -p`) pueden tardar >15 min y solo vuelcan su log al terminar.
 
     def _start_watchdog():
         global WATCHDOG_THREAD
@@ -702,6 +704,43 @@ def make_app(cold_start: bool = True) -> Flask:
             return (time.time() - mtime) / 60.0
         except Exception:
             return None
+
+    def _run_last_activity_min(log_path: str, isin: str) -> "float | None":
+        """Minutos desde la ÚLTIMA actividad de todo el run, no solo del log
+        principal. CRÍTICO: durante una skill cowork (`claude -p`) la salida va a
+        logs/skill_*_{ISIN}.log y en print-mode NO se vuelca hasta terminar, así
+        que el log principal queda 'mudo' 5-15 min. Sin esto el watchdog mataba la
+        skill por falso 'cuelgue'. Tomamos el mtime MÁS RECIENTE entre:
+          - el log principal del run
+          - los skill logs del ISIN
+          - los ficheros que las skills escriben incrementalmente en
+            data/funds/{ISIN}/ (extracted/, bundle/, *.json)
+        """
+        newest = 0.0
+        try:
+            if log_path and Path(log_path).exists():
+                newest = max(newest, Path(log_path).stat().st_mtime)
+        except Exception:
+            pass
+        try:
+            for sl in LOGS_DIR.glob(f"skill_*_{isin}*.log"):
+                newest = max(newest, sl.stat().st_mtime)
+        except Exception:
+            pass
+        try:
+            fund_dir = ROOT / "data" / "funds" / isin
+            if fund_dir.exists():
+                for f in fund_dir.rglob("*"):
+                    if f.is_file():
+                        try:
+                            newest = max(newest, f.stat().st_mtime)
+                        except Exception:
+                            pass
+        except Exception:
+            pass
+        if newest <= 0:
+            return None
+        return (time.time() - newest) / 60.0
 
     def _watchdog_loop():
         """Loop cada 60s: revisa items running y detecta zombies por PID
@@ -750,9 +789,11 @@ def make_app(cold_start: bool = True) -> Flask:
                 changes_made = True
                 continue
 
-            # W2: log staleness
+            # W2: staleness sobre TODO el footprint del run (log principal +
+            # skill logs + data/funds/{ISIN}/). Antes solo miraba el log
+            # principal → mataba skills cowork largas por falso cuelgue.
             log_path = run.get("log_path", "")
-            stale_min = _log_last_activity_min(log_path)
+            stale_min = _run_last_activity_min(log_path, isin)
             if stale_min is not None and stale_min > WATCHDOG_LOG_STALE_MIN:
                 # Verificar adicionalmente que pid_alive es None (no podemos saber) o True
                 # Si pid_alive es True pero log está stale 15+ min, asumir cuelgue
