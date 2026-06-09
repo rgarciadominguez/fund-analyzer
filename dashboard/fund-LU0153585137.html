@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VONTOBEL FUND - EUROPEAN EQUITY — Informe Analítico</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#0e0e0e;--ink-2:#2a2a2a;--ink-3:#555;--ink-4:#888;--ink-5:#bbb;--rule:#d0d0d0;--rule-light:#e8e8e8;--paper:#fafaf8;--paper-2:#f3f3f0;--paper-3:#ececea;--white:#fff;--navy:#0c2340;--navy-mid:#1a3a5c;--navy-pale:#e8eef5;--pos:#1a4d2e;--neg:#6b1a1a;--pos-bg:#f0f7f2;--neg-bg:#fdf2f2;}
+[data-theme="dark"]{--ink:#e8e4dc;--ink-2:#c8c4bc;--ink-3:#908c84;--ink-4:#5c5850;--ink-5:#3c3830;--rule:#2e2c28;--rule-light:#252320;--paper:#111110;--paper-2:#181816;--paper-3:#1e1d1b;--white:#111110;--navy:#6a9ec8;--navy-mid:#4a7ea8;--navy-pale:#141e28;--pos:#2a7a44;--neg:#c04040;--pos-bg:#0e1a12;--neg-bg:#1a0e0e;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{font-size:14px;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;}
+/* HEADER */
+.lh{background:var(--navy);}
+.lh-top{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.10);}
+.lh-left{padding:16px 28px;border-right:1px solid rgba(255,255,255,0.10);min-width:320px;display:flex;flex-direction:column;gap:4px;}
+.lh-fund{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1.2;}
+.lh-meta-line{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.3px;}
+.lh-meta-line strong{color:rgba(255,255,255,0.7);font-weight:500;}
+.lh-center{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 24px;gap:3px;}
+.lh-cv{font-family:'Source Code Pro',monospace;font-size:11px;color:rgba(255,255,255,0.65);display:flex;gap:6px;align-items:center;}
+.lh-cl{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;min-width:52px;}
+.lh-right{display:flex;align-items:center;gap:24px;padding:14px 36px 14px 24px;border-left:1px solid rgba(255,255,255,0.07);margin-left:auto;}
+.lh-rd{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lh-rd-v{font-family:'Source Code Pro',monospace;font-size:11.5px;color:rgba(255,255,255,0.75);}
+.lh-rd-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;}
+.lh-aum{text-align:right;}.lh-aum-v{font-family:'Source Code Pro',monospace;font-size:20px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lh-aum-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.28);margin-top:4px;}
+.lh-pubs{margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;font-family:'Source Code Pro',monospace;font-size:9.5px;line-height:1.4;color:rgba(255,255,255,0.55);}
+.lh-pubs .lh-pub-row{display:flex;justify-content:space-between;gap:8px;}
+.lh-pubs .lh-pub-lbl{color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.6px;}
+.lh-pubs .lh-pub-val{color:rgba(255,255,255,0.78);}
+.lh-pubs .lh-pub-next{color:rgba(255,255,255,0.45);font-style:italic;}
+.lh-pubs .lh-pub-soon{color:#f4a261;font-weight:600;}
+.srri-pips{display:flex;gap:2px;}.srri-pip{width:9px;height:9px;border:1px solid rgba(255,255,255,0.20);}.srri-pip.on{background:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.65);}
+.srri-l{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.40);font-family:'Source Sans 3';font-size:11px;padding:5px 11px;cursor:pointer;white-space:nowrap;margin-left:12px;}
+.theme-toggle:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.30);}
+/* TABS */
+.tabbar{background:var(--navy);padding:0 28px;display:flex;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;}.tabbar::-webkit-scrollbar{display:none;}
+.tb{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px 8px;font-family:'Source Sans 3';font-size:11.5px;color:rgba(255,255,255,0.35);cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.tb:hover{color:rgba(255,255,255,0.65);}.tb.on{color:rgba(255,255,255,0.88);border-bottom-color:rgba(255,255,255,0.55);}
+/* BODY */
+.body{max-width:1600px;margin:0 auto;padding:36px 48px 72px;}.pane{display:none;}.pane.on{display:block;}
+.pane-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;margin-bottom:24px;border-bottom:2px solid var(--ink);}
+.pane-h1{font-family:'EB Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);letter-spacing:-0.3px;line-height:1;}
+.pane-dl{font-size:10.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.8px;}
+.sr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}.sr:first-child{margin-top:0;}
+/* Inline subsection inside analyst_synthesis narratives (used by render_narrative_inline).
+   Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
+.subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
+.pr+.subsec{margin-top:22px;}
+.pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
+/* Inline narrative list (markdown - or * inside analyst_synthesis text). */
+.nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}.col3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}.mb24{margin-bottom:24px;}
+hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:20px;}
+.kpi-cell{padding:12px 18px;border-right:1px solid var(--rule);}.kpi-cell:first-child{padding-left:0;}.kpi-cell:last-child{border-right:none;}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-4);margin-bottom:4px;}
+.kpi-value{font-family:'Source Code Pro',monospace;font-size:20px;font-weight:400;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.kpi-value.pos{color:var(--pos);}.kpi-value.neg{color:var(--neg);}.kpi-sub{font-size:10px;color:var(--ink-4);margin-top:4px;}
+/* TABLE */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}.rt thead tr{border-bottom:1px solid var(--ink);}
+.rt th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);padding:0 10px 7px;text-align:right;}.rt th:first-child{text-align:left;padding-left:0;}
+.rt td{padding:8px 10px;text-align:right;font-family:'Source Code Pro',monospace;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--rule-light);}
+.rt td:first-child{font-family:'Source Sans 3';font-size:13px;font-weight:500;text-align:left;color:var(--ink);padding-left:0;}
+.rt tbody tr:hover td{background:var(--paper-2);}.pos-v{color:var(--pos);}.neg-v{color:var(--neg);}
+/* PRINCIPLES */
+.prin{margin-top:8px;}.prin-i{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);align-items:baseline;}
+.prin-i:last-child{border-bottom:none;}.prin-n{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);}
+.prin-b{font-size:12.5px;color:var(--ink-2);line-height:1.5;}.prin-b strong{color:var(--ink);font-weight:600;}
+/* TIMELINE — dashboard original style */
+.timeline{position:relative;padding-left:32px;}
+.timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:1px;background:var(--rule);}
+.tl-item{position:relative;margin-bottom:28px;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--navy-mid);z-index:1;}
+.tl-dot.dot-hito{border-color:var(--pos);}.tl-dot.dot-strat{border-color:var(--navy);}.tl-dot.dot-market{border-color:var(--navy-mid);}.tl-dot.dot-crisis{border-color:var(--neg);}.tl-dot.dot-reg{border-color:var(--ink-4);}
+.tl-date{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--ink-4);margin-bottom:5px;}
+.tl-tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;margin-bottom:6px;text-transform:uppercase;}
+.tag-hito{background:var(--pos-bg);color:var(--pos);}.tag-strat{background:var(--paper-2);color:var(--navy);border:1px solid var(--rule-light);}.tag-market{background:var(--navy-pale);color:var(--navy-mid);}.tag-crisis{background:var(--neg-bg);color:var(--neg);}.tag-reg{background:var(--paper-3);color:var(--ink-4);}
+[data-theme="dark"] .tag-hito{background:#0a2a1c;color:#4ecf99;}[data-theme="dark"] .tag-strat{background:#2a200a;color:#e8c56c;}[data-theme="dark"] .tag-market{background:#141e28;color:#6a9ec8;}[data-theme="dark"] .tag-crisis{background:#1a0e0e;color:#c04040;}[data-theme="dark"] .tag-reg{background:#1e1d1b;color:#908c84;}
+.tl-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;}.tl-desc{font-size:13px;color:var(--ink-3);line-height:1.65;}
+/* MANAGER */
+.mgr{display:grid;grid-template-columns:260px 1fr;border-top:1px solid var(--rule);padding:22px 0;gap:4px;}
+.mgr:last-of-type{border-bottom:1px solid var(--rule);}
+.mgr-s{padding-right:24px;border-right:1px solid var(--rule);}
+.mgr-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;color:#fff;margin-bottom:10px;}
+.mgr-nm{font-family:'EB Garamond',serif;font-size:18px;color:var(--ink);line-height:1.2;margin-bottom:3px;}
+.mgr-rl{font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.4px;line-height:1.4;margin-bottom:10px;}
+.mgr-cv{font-size:11.5px;color:var(--ink-3);line-height:1.55;padding-left:14px;list-style:disc;}
+.mgr-cv li{margin-bottom:5px;}
+.mgr-b{padding-left:24px;}
+/* STRATEGY MATRIX */
+.strat-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-top:1px solid var(--rule-light);}
+.strat-row:first-of-type{border-top:1px solid var(--rule);}
+.strat-yr{padding:12px 12px;font-family:'Source Code Pro';font-size:12px;font-weight:500;color:var(--navy);border-right:1px solid var(--rule-light);background:var(--navy-pale);white-space:nowrap;}
+.strat-c{padding:12px 10px;font-size:12px;color:var(--ink-2);line-height:1.6;border-right:1px solid var(--rule-light);}
+.strat-c:last-child{border-right:none;}.strat-c strong{color:var(--ink);font-weight:600;}
+/* PORTFOLIO TABLE */
+.pt-wrap{overflow-x:auto;}.pt{width:100%;border-collapse:collapse;white-space:nowrap;}
+.pt thead tr{border-bottom:2px solid var(--ink);}
+.pt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-2);padding:0 8px 8px;text-align:left;}
+.pt td{padding:7px 8px;font-family:'Source Code Pro';font-size:11px;color:var(--ink-2);text-align:right;border-bottom:1px solid var(--rule-light);}
+.pt td:first-child{font-family:'Source Sans 3';font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;padding-left:0;}
+.pt tbody tr:hover td{background:var(--paper-2);}
+/* Variant pt-flex: para tablas con columnas de comentario/descripción que wrap */
+.pt.pt-flex{white-space:normal;table-layout:fixed;}
+.pt.pt-flex td{white-space:normal;text-align:left;vertical-align:top;line-height:1.5;}
+.pt.pt-flex td.num{text-align:right;white-space:nowrap;font-family:'Source Code Pro';}
+.pt.pt-flex td:first-child{font-family:'Source Sans 3';font-size:11.5px;color:var(--ink-3);font-weight:400;}
+.wbar{display:flex;align-items:center;gap:5px;}.wfill{height:4px;border-radius:1px;}
+.tp-badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:0.4px;font-family:'Source Sans 3';text-transform:uppercase;white-space:nowrap;line-height:1.4;min-width:110px;text-align:center;}
+.tp-rv{background:#1a3a5c;color:#fff;}
+.tp-rf{background:#8c3214;color:#fff;}
+.tp-gold{background:#b48020;color:#fff;}
+.tp-cash{background:#4a7a5a;color:#fff;}
+.tp-etf{background:#3d5a80;color:#fff;}
+.tp-comm{background:#6b3fa0;color:#fff;}
+.tp-der{background:#5c5850;color:#fff;}
+.tp-otro{background:#888;color:#fff;}
+.delta-new{font-size:9px;font-weight:600;color:var(--pos);background:var(--pos-bg);padding:1px 5px;border-radius:2px;}
+.delta-up{color:var(--pos);}.delta-down{color:var(--neg);}
+/* SOURCES — card style */
+.src-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:14px;}
+.src-card:hover{border-color:var(--navy-mid);}
+.src-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.src-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3';font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-info{flex:1;}
+.src-o{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--navy);line-height:1.3;}
+.src-author{font-size:11px;color:var(--ink-4);margin-top:1px;}
+.src-date{font-family:'Source Code Pro';font-size:10px;color:var(--ink-4);flex-shrink:0;}
+.src-t{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.exp-btn{background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-family:'Source Sans 3';padding:0;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.exp-body{display:none;font-size:12.5px;color:var(--ink-3);line-height:1.65;background:var(--paper-3);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.exp-body.open{display:block;}
+.src-lnk{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);text-decoration:none;border:1px solid var(--navy);border-radius:4px;padding:4px 10px;transition:background 0.15s;}
+.src-lnk:hover{background:var(--navy-pale);}
+/* DOCS */
+.doc-grp{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-3);padding:18px 0 5px;border-bottom:1px solid var(--rule);}
+.doc-grp:first-child{padding-top:0;}
+.doc-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule-light);}
+.doc-r:hover{background:var(--paper-2);}
+.doc-ext{font-family:'Source Code Pro';font-size:8px;font-weight:600;color:var(--ink-4);background:var(--paper-3);padding:2px 4px;min-width:26px;text-align:center;flex-shrink:0;}
+.doc-nm{font-size:12px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.doc-mt{font-family:'Source Code Pro';font-size:9px;color:var(--ink-4);}
+.doc-a{font-size:10px;color:var(--navy);text-decoration:none;flex-shrink:0;}
+/* CHART */
+.ch-b{margin-bottom:20px;padding:12px 8px 8px;}.ch-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.1px;color:var(--ink-4);margin-bottom:14px;border-bottom:1px solid var(--rule-light);padding-bottom:5px;}
+.ch-h{height:180px;position:relative;padding:4px 0;}.ch-hm{height:220px;position:relative;padding:4px 0;}
+/* CHART SELECTOR */
+.ch-sel{display:inline-flex;align-items:center;gap:6px;float:right;font-size:10px;color:var(--ink-4);}
+.ch-sel select{background:var(--paper-2);border:1px solid var(--rule);padding:2px 6px;font-size:10px;font-family:'Source Sans 3';color:var(--ink);}
+/* RESPONSIVE */
+@media(max-width:900px){.lh-top{flex-wrap:wrap;}.lh-center{display:none;}.body{padding:20px 16px;}.col2,.col3{grid-template-columns:1fr;}.kpi-row{grid-template-columns:1fr 1fr;}.mgr{grid-template-columns:1fr;}.strat-row{grid-template-columns:60px 1fr;}}
+</style>
+</head>
+<body>
+
+<header class="lh">
+  <div class="lh-top">
+    <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
+    <div class="lh-left">
+      <div class="lh-fund">VONTOBEL FUND - EUROPEAN EQUITY <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★☆☆</span></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>VONTOBEL FUND</strong></div>
+      
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0153585137</strong> <span style='opacity:.55;font-size:10.5px;'>· Class B EUR</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>LU2967769808</strong> <span style='opacity:.55;font-size:10.5px;'>· C EUR Cap</span></div>
+    </div>
+
+    <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
+    <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-aum">
+        <div class="lh-aum-v">€87M</div>
+        <div class="lh-aum-l">AUM</div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2026-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2027-12 (Carta)</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 4 / 7</span>
+      </div>
+    </div>
+
+    <!-- ZONA 3: Inicio, Categoría, Gestor, Divisa -->
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
+      <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Diciembre 2002</span></div>
+      <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Europea</span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Robert Borenich</strong> <span style='opacity:.7;'>(lead)</span> · Cristiano Migliorini <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
+    </div>
+
+    <!-- ZONA 4: Botón dark/light -->
+    <div style="display:flex;align-items:center;padding:14px 24px;border-left:1px solid rgba(255,255,255,0.08);margin-left:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()"><span id="thlbl">Modo oscuro</span></button>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <button class="tb on" onclick="goTab(0,this)">Resumen</button>
+    <button class="tb" onclick="goTab(1,this)">Historia</button>
+    <button class="tb" onclick="goTab(2,this)">Gestores</button>
+    <button class="tb" onclick="goTab(3,this)">Evolución</button>
+    <button class="tb" onclick="goTab(4,this)">Estrategia</button>
+    <button class="tb" onclick="goTab(5,this)">Cartera</button>
+    <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
+    <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
+  </nav>
+  <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-09</strong></span>
+    <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0153585137 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+  </div>
+</header>
+<main class="body">
+
+<section class="pane on" id="p0">
+  <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
+
+  <div class="mb24">
+    <p class="pr">Vontobel Fund – European Equity (LU0153585137, clase B EUR de acumulación) es un fondo de renta variable europea de gran capitalización con estilo <strong>quality growth</strong>, lanzado el 16 de diciembre de 2002 y domiciliado en Luxemburgo. Su objetivo declarado es lograr el mayor crecimiento de capital posible en EUR, midiéndose frente al <strong>MSCI Europe Index TR net</strong> y operando bajo el régimen de gestión activa (clasificación SFDR Artículo 8). Morningstar lo encuadra en la categoría 'Europe Large-Cap Growth Equity' (ficha FT del ISIN, junio 2026).</p><p class="pr">La propuesta del fondo no es batir al índice en mercados alcistas, sino ofrecer retornos sólidos a lo largo de un ciclo completo asumiendo un <strong>riesgo empresarial sensiblemente inferior</strong> al del mercado europeo. Para ello invierte en una cartera concentrada de compañías de crecimiento de alta calidad —con beneficios relativamente estables y predecibles, franquicias fuertes, poder de fijación de precios y balances poco apalancados— que la gestora describe como empresas que son 'dueñas de su propio destino' (carta 2026). El Active Share reportado es elevado: 82% a nivel emisor y 83% a nivel ISIN, lo que confirma una cartera muy diferenciada del benchmark (carta 2026).</p><p class="pr">Los datos de mercado a junio de 2026 (ficha FT del ISIN) dibujan un fondo <strong>pequeño</strong> —patrimonio total en torno a 87,8 M€ y unos 60 M€ en la clase B (Finect, junio 2026)— y con <strong>comisiones elevadas</strong> en la clase retail: gastos corrientes del 2,06% anual, comisión de gestión 1,65% y comisión de suscripción máxima del 5%. El historial relativo es el principal punto débil: según la carta de abril de 2026 (clase I), el fondo acumula +155,7% desde inicio frente al +164,5% del MSCI Europe, y queda por detrás del índice a 1, 3 y 5 años, con un Sharpe cercano a cero y volatilidad superior a la del índice (12,3% vs 10,5%). 2025 fue, sin embargo, un año fuerte (YTD +12,4% vs +9,31% del índice en la carta del 3T-2025), mostrando que la estrategia puede destacar en determinados entornos.</p><p class="pr">Los gestores responsables son <strong>Daniel Kranson</strong> (co-gestor desde marzo de 2016) y <strong>Markus Hansen</strong> (co-gestor desde junio de 2020), según la ficha FT del ISIN exacto, el artículo de Morningstar y Yahoo Finance.</p>
+  </div>
+
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr">La filosofía es <strong>quality growth con sesgo a preservación de capital</strong>. El fondo busca compañías europeas con crecimiento de beneficios elevado y sostenible a largo plazo y rentabilidad sobre el capital por encima de la media, aceptando que esta selección exigente produzca una cartera relativamente <strong>concentrada por compañía y sector</strong> (folleto/política de inversión). La idea central, articulada en la carta de 2026, es que las empresas de calidad —franquicias sólidas, poder de precios y balances sin apalancamiento— pueden prosperar en mercados inciertos y ofrecer resiliencia además de crecimiento a largo plazo. El gestor busca deliberadamente 'crecimiento predecible y resiliencia', tanto dentro como fuera del ecosistema de la inteligencia artificial, y advierte contra la complacencia del mercado y las valoraciones infladas. Universo: principalmente acciones y valores asimilables de empresas con sede o negocio mayoritario en Europa, con hasta un 33% fuera de ese universo y hasta un 10% en otros UCITS. El enfoque global de riesgo es el commitment approach y los derivados se usan solo para cobertura y gestión eficiente.</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Calidad del negocio:</strong> <span class="pr" style="font-size:12.5px;">Franquicias sólidas con poder de fijación de precios y ventajas competitivas duraderas; empresas 'dueñas de su propio destino' capaces de sostener su rentabilidad a lo largo del ciclo.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Crecimiento predecible:</strong> <span class="pr" style="font-size:12.5px;">Compañías con beneficios relativamente estables y predecibles y crecimiento sostenible a largo plazo, por encima de la media del mercado, dentro y fuera del ecosistema de IA.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Solidez financiera:</strong> <span class="pr" style="font-size:12.5px;">Preferencia por balances sin apalancamiento (unlevered) capaces de navegar inflación, ciclos económicos cambiantes y volatilidad de tipos de interés.</span></div>
+            </div>
+    </div>
+  </div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
+  <div class="col2 mb20">
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-ret"></canvas></div><div id="mst-ret-note" style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px;"></div></div>
+    <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
+  </div>
+
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estilo quality-growth coherente y bien articulado, centrado en compañías con franquicias fuertes, poder de precios y balances sin apalancamiento.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Cartera de alta convicción y muy diferenciada del índice: Active Share del 82% a nivel emisor y 83% a nivel ISIN (carta 2026).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Equipo gestor estable y experimentado: Markus Hansen (PM desde 2020, con experiencia desde los años noventa) y Daniel Kranson (co-PM desde 2016).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Año 2025 sólido frente al índice (YTD +12,4% vs +9,31% del MSCI Europe en la carta del 3T-2025), demostrando capacidad de aportar valor en entornos favorables a la calidad.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Enfoque explícito a preservación de capital y menor riesgo empresarial que el mercado, atractivo para inversores conservadores dentro de la RV europea.</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Underperformance persistente frente al MSCI Europe a 1, 3 y 5 años y desde inicio (+155,7% vs +164,5%, carta abril 2026), con Sharpe cercano a cero.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Comisiones elevadas en la clase retail: gastos corrientes del 2,06% anual y suscripción máxima del 5%, que erosionan la rentabilidad neta del partícipe.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Fondo de tamaño reducido (~88 M€ de patrimonio total), lo que plantea dudas sobre escala, viabilidad comercial y posible cierre o fusión de clases.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Volatilidad superior a la del índice (12,3% vs 10,5%) pese al sesgo de calidad, sin que ello se haya traducido en mejor retorno ajustado al riesgo.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración por compañía y sector que amplifica el impacto de errores de selección de valores (industriales fue el mayor detractor relativo en el 3T-2025).</span></div></div>
+    </div></div>
+
+  <div class="sr">Clases disponibles</div>
+  <table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
+    <tbody><tr><td><strong>C EUR Cap</strong></td><td>LU2967769808</td><td>—</td><td>5,0%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2025</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class B EUR</strong></td><td>LU0153585137</td><td>—</td><td>2,0%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2002</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+  </table>
+  
+
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor que busca exposición de gestión activa a renta variable europea de gran capitalización con estilo quality-growth y vocación de preservar capital a lo largo del ciclo, dispuesto a aceptar períodos de underperformance frente al índice a cambio de menor riesgo empresarial y mayor predecibilidad. No es adecuado para quien priorice replicar al índice a bajo coste, dado el TER del 2,06% en la clase retail y el historial relativo rezagado.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Vontobel Asset Management es una gestora suiza cotizada con un equipo de boutiques especializadas. El fondo está co-gestionado de forma estable por Markus Hansen (desde 2020) y Daniel Kranson (desde 2016), lo que aporta continuidad en el proceso. El bundle disponible no documenta inversión personal de los gestores (skin in the game) ni participaciones, por lo que no es posible afirmar el grado de alineación patrimonial.</p></div></div>
+
+  <div class="sr">TER por clase (snapshot actual)</div>
+  <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
+    <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
+  </div>
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctx = document.getElementById('c-com-snap');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ["Class B EUR", "C EUR Cap"], datasets: [
+      {label:'TER (%)', data:[2.0, 5.0], backgroundColor:'rgba(12,35,64,0.85)'}
+    ] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+        scales: {
+          x: { stacked: false, grid: { display: false } },
+          y: { stacked: false, beginAtZero: true, grid: { display: false }, ticks: { callback: v => v+'%' } }
+        }
+      }
+    });
+  })();
+  </script>
+</section>
+
+<section class="pane" id="p1">
+  <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Diciembre 2002 — presente</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Origen y lanzamiento (diciembre 2002)</p><p class="pr">Vontobel Fund – European Equity es uno de los sub-fondos del paraguas SICAV luxemburgués Vontobel Fund, gestionado por Vontobel Asset Management S.A. Las clases A y B en EUR se lanzaron el 16 de diciembre de 2002 (datos de clases del bundle y ficha Finect), lo que sitúa al fondo entre los vehículos europeos de renta variable de largo recorrido de la gestora suiza. El ISIN LU0153585137 corresponde a la clase B EUR de acumulación, la clase retail de referencia.</p><p class="subsec">Evolución de la estructura de clases (2007-2019)</p><p class="pr">A lo largo de su historia el fondo ha ido ampliando su gama de clases para distintos perfiles de inversor y divisas: clase I institucional en EUR (abril 2007), clase C retail (julio 2007), clase R cubierta (junio 2009), clases institucionales G y S (octubre 2016), clases N y A de menor comisión (octubre 2017) y clases cubiertas en CHF y USD (2017-2019). Esta proliferación de clases —con comisiones de gestión que van del 0,0% (clase S institucional) al 2,6% (clase C retail)— es característica de los fondos paraguas UCITS distribuidos en múltiples mercados europeos. El fondo está registrado para distribución en Austria, Finlandia, Francia, Alemania, Italia, Liechtenstein, Luxemburgo, Noruega, España, Suecia, Suiza y Reino Unido (ficha FT, 2026).</p><p class="subsec">Continuidad del equipo gestor (2016-2020)</p><p class="pr">Los dos hitos más relevantes de gobierno del fondo son las incorporaciones de sus gestores actuales: Daniel Kranson asumió como co-gestor el 7 de marzo de 2016 y Markus Hansen el 30 de junio de 2020 (ficha FT del ISIN). Desde entonces el binomio ha mantenido el estilo quality-growth característico del fondo, con una cartera concentrada y un Active Share elevado frente al MSCI Europe.</p><p class="subsec">Período reciente: contexto 2024-2026</p><p class="pr">En 2025 el fondo navegó un entorno favorable a la renta variable europea: las acciones del continente avanzaron impulsadas por la rotación de inversores hacia compañías cíclicas a medida que se reducía la incertidumbre comercial, el BCE mantenía tipos con la inflación cerca del objetivo del 2%, la UE cerraba un acuerdo arancelario del 15% con la administración Trump y Alemania aprobaba un fuerte incremento del gasto en defensa e infraestructura. Francia, en cambio, sufría turbulencia política con la caída del gobierno por segunda vez en nueve meses (carta 3T-2025). En ese año el fondo batió a su índice (YTD +12,4% vs +9,31%). Entrado 2026, la lectura de la gestora viró hacia la cautela: en su carta describe unos mercados marcados por la <strong>complacencia</strong> de los inversores —que comparan con la fábula de Esopo del niño que gritaba '¡que viene el lobo!'—, con valoraciones elevadas, defensividad reducida y un ecosistema de IA dominante pero vulnerable por su dependencia de financiación externa. En ese contexto el fondo reforzó su énfasis en compañías de calidad con crecimiento predecible, dentro y fuera de la IA.</p><p class="pr">El saldo histórico, no obstante, es de un fondo que ha quedado ligeramente por detrás de su benchmark a largo plazo (+155,7% vs +164,5% desde inicio en la clase I, carta abril 2026) y que mantiene un tamaño reducido (~88 M€), elementos que condicionan su valoración pese a la solidez conceptual de su estrategia.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">—</div><div class="kpi-sub">Diciembre 2002 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
+  </div>
+
+  <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
+  <script>
+  // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
+  window.__HIST_AUM_HEADER__ = 86.7;
+  </script>
+  
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2002</div>
+      <div class="tl-tag tag-hito">Lanzamiento</div>
+      <div class="tl-title">Lanzamiento del fondo</div>
+      <div class="tl-desc">Lanzamiento de las clases A y B en EUR el 16 de diciembre de 2002 dentro del paraguas SICAV Vontobel Fund, con estilo quality-growth de renta variable europea de gran capitalización.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2007</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Apertura de clases institucional y retail adicionales</div>
+      <div class="tl-desc">Lanzamiento de la clase I institucional (abril 2007) y de la clase C retail (julio 2007), ampliando el acceso de distintos perfiles de inversor.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2016</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Equipo</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Daniel Kranson asume como co-gestor</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Daniel Kranson se incorpora como co-gestor del fondo el 7 de marzo de 2016 (ficha FT del ISIN).</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Otro</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Clases institucionales G y S</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Lanzamiento de las clases institucionales G (octubre 2016, comisión 0,8%) y S (comisión 0,0%), orientadas a grandes mandatos.</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2017</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Clases N y A de menor comisión</div>
+      <div class="tl-desc">Lanzamiento de clases retail de comisión reducida (N y A al 1,2%) en octubre de 2017.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2020</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Markus Hansen asume como co-gestor</div>
+      <div class="tl-desc">Markus Hansen se incorpora como co-gestor el 30 de junio de 2020, consolidando el binomio gestor actual junto a Daniel Kranson.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2025</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Año fuerte frente al índice</div>
+      <div class="tl-desc">En el ejercicio 2025 el fondo superó a su benchmark (YTD +12,4% vs +9,31% del MSCI Europe según la carta del 3T-2025), en un entorno de rotación hacia renta variable europea y recortes del BCE.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2026</div>
+      <div class="tl-tag tag-hito">Salto de escala</div>
+      <div class="tl-title">Giro a la cautela ante la complacencia del mercado</div>
+      <div class="tl-desc">La carta de 2026 alerta de complacencia inversora, valoraciones elevadas y fragilidad estructural del mercado, reforzando el sesgo a compañías de calidad con crecimiento predecible y resiliencia frente al hype de la IA.</div>
+    </div>
+  </div>
+  
+</section>
+
+<section class="pane" id="p2">
+  <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
+
+  <div class="mb24"><p class="subsec">Nota previa sobre la identificación del equipo</p><p class="pr">La prep determinista de este fondo arrastró una <strong>contaminación cross-fund</strong>: el manager_profiler identificó como gestores a Robert Borenich y Cristiano Migliorini, que en realidad gestionan el sub-fondo hermano *Vontobel Fund – European Equity Income Plus* (una estrategia distinta de covered-call e ingresos, lanzada en marzo de 2025 y referenciada al MSCI EMU). Tres fuentes independientes —la ficha de Financial Times del ISIN exacto LU0153585137, el artículo de Morningstar que cita a 'Markus Hansen, co-gestor del Vontobel European Equity Fund' y la ficha de Yahoo Finance— confirman que los gestores REALES de este fondo son <strong>Daniel Kranson</strong> y <strong>Markus Hansen</strong>. El presente análisis usa estos últimos y descarta los datos biográficos de Borenich/Migliorini para los perfiles de este fondo.</p></div>
+
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">MH</div>
+        <div class="mgr-nm">Markus Hansen<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#2c6e49;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">Verificado manual</span></div>
+        <div class="mgr-rl">Portfolio Manager (co-gestor del fondo desde el 30 de junio de 2020)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Co-gestor de Vontobel Fund – European Equity desde junio de 2020</li><li style="margin-bottom:3px;">Cerca de tres décadas de experiencia en análisis de renta variable (desde mediados de los años noventa, según Yahoo Finance)</li><li style="margin-bottom:3px;">Especialización en consumo básico, consumo discrecional y servicios de comunicación</li><li style="margin-bottom:3px;">Cobertura de mercados de acciones europeos y estadounidenses</li><li style="margin-bottom:3px;">Voz experta citada por Morningstar sobre perspectivas de la renta variable europea (2025)</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>Markus Hansen</strong> es co-gestor de Vontobel Fund – European Equity desde el <strong>30 de junio de 2020</strong> (ficha FT del ISIN LU0153585137). Según la ficha de Yahoo Finance, cuenta con una <strong>amplia experiencia en el análisis de renta variable europea y estadounidense</strong>, que la fuente sitúa con inicio a mediados de la década de 1990, lo que le otorga cerca de tres décadas de recorrido en mercados de acciones. Su enfoque de análisis se ha orientado de forma destacada a sectores de <strong>consumo básico, consumo discrecional y servicios de comunicación</strong>.
+
+Como cara visible del fondo, Hansen es citado por <strong>Morningstar</strong> (mediados de 2025) en su análisis de perspectivas para los mercados europeos: en ese momento esperaba <strong>recortes adicionales de tipos por parte del BCE</strong> a medida que la inflación seguía cayendo, se mostraba <strong>optimista sobre la convergencia del crecimiento del PIB de la eurozona</strong> hacia niveles cercanos a los de EE.UU. en 2026, e identificaba <strong>oportunidades en compañías de mediana capitalización europeas</strong> como una ventaja estructural del continente, en un contexto de rotación de capital desde activos estadounidenses hacia Europa.
+
+El bundle no documenta de forma verificada empresas anteriores concretas ni fechas previas a su rol en Vontobel, por lo que esos datos se omiten para evitar atribuciones no contrastadas.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Hansen aplica un enfoque quality-growth bottom-up: selección de compañías europeas de alta calidad con crecimiento predecible y franquicias resilientes, combinada con una lectura macro activa (ciclo de tipos del BCE, divisa, rotación geográfica) para el posicionamiento sectorial. En 2025 esa lectura se tradujo en mayor exposición a financieras en mercados locales racionales con potencial de tipos reales positivos y crecimiento del crédito.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Aumento de la asignación a financieras durante 2025, con foco en bancos en mercados locales racionales (NatWest, Svenska Handelsbanken, DNB, UBS) ante expectativas de márgenes de interés neto positivos y crecimiento del crédito (carta 3T-2025).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Cautela explícita sobre Francia por la incertidumbre política, evitando bancos, autopistas y aeropuertos franceses expuestos a riesgo político (carta 3T-2025).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Posicionamiento en compañías beneficiadas por el gasto alemán en defensa e infraestructura y por la transición energética (p. ej. Terna por sus conexiones a energía limpia y demanda de centros de datos).</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Combina disciplina quality-growth con una lectura macro pragmática (ciclo de tipos, divisa, geografía). Pone el foco en 'mercados locales racionales' y en compañías 'dueñas de su propio destino', y prioriza la resiliencia y la preservación de capital sobre la captura completa de mercados alcistas.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">DK</div>
+        <div class="mgr-nm">Daniel Kranson<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#2c6e49;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">Verificado manual</span></div>
+        <div class="mgr-rl">Portfolio Manager (co-gestor del fondo desde el 7 de marzo de 2016)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Co-gestor de Vontobel Fund – European Equity desde marzo de 2016</li><li style="margin-bottom:3px;">Más de ocho años de antigüedad en la gestión del fondo</li><li style="margin-bottom:3px;">Responsable, junto a Markus Hansen, del proceso quality-growth de la cartera</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>Daniel Kranson</strong> es co-gestor de Vontobel Fund – European Equity desde el <strong>7 de marzo de 2016</strong>, según la ficha de Financial Times del ISIN LU0153585137. Forma, junto a Markus Hansen, el binomio responsable de la estrategia quality-growth del fondo. El bundle disponible confirma su rol y su antigüedad en el fondo, pero <strong>no aporta detalle biográfico adicional verificado</strong> (formación, trayectoria previa, reconocimientos). Para respetar el principio de no invención, su perfil se mantiene acotado a lo contrastable: co-gestión continuada del fondo desde 2016 bajo el mismo proceso de inversión centrado en compañías europeas de alta calidad, cartera concentrada y elevado Active Share frente al MSCI Europe.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Comparte con Hansen el mandato quality-growth del fondo: identificación de compañías europeas con crecimiento de beneficios sostenible, poder de fijación de precios y balances sólidos, y construcción de una cartera de alta convicción orientada a la preservación de capital a lo largo del ciclo.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-1" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Co-responsable de mantener una cartera concentrada y diferenciada del índice (Active Share del 82% a nivel emisor), con rotación entre sectores defensivos y financieros según el ciclo (cartas 2025-2026).</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Continuidad y estabilidad: aporta varios años de gestión ininterrumpida del fondo bajo una filosofía consistente, un activo relevante en un vehículo de convicción a largo plazo.</p></div>
+      </div>
+    </div>
+
+  
+</section>
+
+<section class="pane" id="p3">
+  <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
+  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+</section>
+
+<section class="pane" id="p4">
+  <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  <div class="mb24">
+    <p class="subsec">El núcleo: quality growth orientado a preservación de capital</p><p class="pr">La estrategia de Vontobel Fund – European Equity se asienta en un estilo <strong>quality growth</strong> aplicado a renta variable europea de gran capitalización. El fondo no persigue maximizar la captura de los mercados alcistas, sino entregar retornos sólidos a lo largo de un <strong>ciclo completo</strong> asumiendo un riesgo empresarial sensiblemente inferior al del mercado europeo (carta 2026). Para ello concentra la cartera en compañías de alta calidad —franquicias fuertes, poder de fijación de precios, crecimiento de beneficios predecible y balances poco apalancados— que la gestora describe como empresas 'dueñas de su propio destino'. Esta exigencia produce, por diseño, una cartera <strong>concentrada por compañía y sector</strong> y muy diferenciada del índice: el Active Share reportado es del 82% a nivel emisor y del 83% a nivel ISIN (carta 2026), frente a un 36% a nivel país.</p><p class="subsec">Cómo se ejecuta: lectura macro sobre selección bottom-up</p><p class="pr">Aunque la selección de valores es bottom-up, el equipo superpone una <strong>lectura macro activa</strong> para el posicionamiento sectorial y geográfico. La carta del 3T-2025 lo ilustra con nitidez: el fondo aumentó su exposición a <strong>financieras</strong> apostando por 'mercados locales racionales' con potencial de tipos reales positivos y crecimiento del crédito —bancos como NatWest, Svenska Handelsbanken, DNB y UBS—, mientras evitaba deliberadamente compañías francesas expuestas a riesgo político (bancos, autopistas, aeropuertos) ante la inestabilidad del gobierno galo. El equipo evalúa además a las empresas según dónde fabrican frente a dónde venden, la disponibilidad de sustitutos, la viabilidad de la producción local y el poder de fijación de precios, una rejilla especialmente útil en un entorno de aranceles.</p><p class="subsec">El giro de 2026: calidad frente a la complacencia y al hype de la IA</p><p class="pr">En 2026 la gestora adoptó un tono más cauto. Su carta compara el mercado con la fábula de Esopo del niño que gritaba '¡que viene el lobo!': años de correcciones superficiales y recuperaciones rápidas impulsadas por los bancos centrales habrían acostumbrado a los inversores a ignorar los riesgos, generando valoraciones elevadas y <strong>fragilidad estructural</strong>. Frente a ello, el fondo redobla su apuesta por compañías de calidad capaces de prosperar en mercados inciertos, buscando crecimiento predecible y resiliencia tanto dentro como fuera del ecosistema de la IA —sobre el que la gestora se muestra escéptica respecto a que los retornos de inversión acaben igualando el hype tecnológico—.</p><p class="subsec">Marco operativo y de riesgo</p><p class="pr">El universo es principalmente acciones y valores asimilables (incluidas REITs cerradas, certificados de participación y ADRs/GDRs) de empresas con sede o negocio mayoritario en Europa, con hasta un 33% fuera de ese universo, hasta un 10% en otros UCITS (que pueden ser del grupo Vontobel) y hasta un 20% en depósitos a la vista. Los derivados (futuros, forwards, opciones, warrants) se emplean únicamente para cobertura —incluida la de divisa— y gestión eficiente, y el enfoque global de riesgo es el <strong>commitment approach</strong>. El fondo está clasificado como <strong>Artículo 8 SFDR</strong>.</p><p class="subsec">Resultado de la estrategia</p><p class="pr">La estrategia ha cumplido su parte defensiva pero ha fallado en lo relativo: a largo plazo el fondo queda por detrás del MSCI Europe en casi todos los plazos, con una volatilidad incluso superior a la del índice, lo que arroja un Sharpe cercano a cero. 2025 fue la excepción positiva. El reto pendiente es traducir la disciplina de calidad en un mejor retorno ajustado al riesgo neto de unas comisiones elevadas.</p>
+  </div>
+
+  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Markets today resemble Aesop's fable The Boy Who Cried Wolf, with many investors conditioned to dismiss risks after years of shallow, short-lived downturns and swift recoveries fueled by central bank interventions.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo gestor (Vontobel), Carta / comentario del fondo 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Quality companies—those with strong franchises, pricing power, and unlevered balance sheets—can thrive in uncertain markets and appear to offer resilience and long-term growth potential.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo gestor (Vontobel), Carta / comentario del fondo 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Artificial intelligence (AI) may be one of the greatest technological breakthroughs, but it's too early to tell. History shows that investment returns don't always match innovation hype.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo gestor (Vontobel), Carta / comentario del fondo 2026</span></p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Cartera concentrada quality-growth de renta variable europea de gran capitalización, con Active Share del 82% a nivel emisor, lectura macro activa (financieras en mercados locales racionales, cautela con Francia) y giro a la cautela en 2026 frente a la complacencia del mercado y el hype de la IA. Artículo 8 SFDR.</p>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Europa Gran Capitalización (Europe Large-Cap Growth Equity, estilo quality growth)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de mercado de renta variable europea (volatilidad 12,3%, beta 0,9 frente al MSCI Europe)</li><li style="margin-bottom:4px;">Riesgo de concentración por compañía y sector inherente a una cartera de alta convicción</li><li style="margin-bottom:4px;">Riesgo de estilo: el sesgo quality-growth puede quedar rezagado en mercados liderados por value o por compañías cíclicas/de baja calidad</li><li style="margin-bottom:4px;">Riesgo de costes: TER del 2,06% en la clase retail que erosiona la rentabilidad neta</li><li style="margin-bottom:4px;">Riesgo de tamaño/liquidez de producto: patrimonio reducido (~88 M€)</li></ul></div>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2025-Q3</div>
+  <div class="strat-c">Las acciones europeas avanzaron por la rotación hacia compañías cíclicas al reducirse la incertidumbre comercial. El BCE mantuvo tipos con la inflación cerca del 2%, la UE cerró un acuerdo arancelario del 15% con EE.UU. y Alemania aprobó un fuerte aumento del gasto en defensa e infraestructura, mientras Francia caía en turbulencia política.</div>
+  <div class="strat-c">Aumento de la exposición a financieras en 'mercados locales racionales' (NatWest, Svenska Handelsbanken, DNB, UBS) y nuevas posiciones en Terna, Deutsche Börse, Scout24 y Lotus Bakeries. Cierre de Schindler, Epiroc, Alcon y Aon. Cautela explícita con compañías francesas expuestas a riesgo político.</div>
+  <div class="strat-c">Fondo por debajo del índice en el trimestre — la selección en industriales fue el mayor detractor relativo; en cambio healthcare y la ausencia de inmobiliario aportaron. YTD 2025 +12,4% vs +9,31% del MSCI Europe, con Prosus, Galderma y Eurobank como mayores contribuidores absolutos.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2026 (a abril)</div>
+  <div class="strat-c">Mercados marcados por la complacencia inversora, valoraciones elevadas y defensividad reducida; ecosistema de IA dominante pero vulnerable por su dependencia de financiación externa. Incertidumbre sobre si los retornos igualarán el hype tecnológico.</div>
+  <div class="strat-c">Refuerzo del sesgo a compañías de calidad con crecimiento predecible y resiliencia dentro y fuera de la IA, con balances sin apalancamiento; mantenimiento de una cartera concentrada (Active Share 82% a nivel emisor), con Galderma como ejemplo de franquicia pura en dermatología estética.</div>
+  <div class="strat-c">+3,7% YTD (clase I a 30-abr) frente a +4,2% del MSCI Europe — ligera underperformance; +155,7% desde inicio vs +164,5% del índice, con volatilidad 12,3% (vs 10,5%) y Sharpe ≈0,1.</div>
+</div>
+
+  
+</section>
+
+<section class="pane" id="p5">
+  <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
+
+  <div class="mb24">
+    <p class="subsec">Composición general</p><p class="pr">La cartera de Vontobel Fund – European Equity es una cartera de <strong>renta variable europea casi íntegramente invertida en acciones</strong>, sin renta fija estructural y con un peso de liquidez reducido; los derivados se usan solo para cobertura y gestión eficiente. Es una cartera <strong>concentrada y de alta convicción</strong>: el Active Share alcanza el 82% a nivel emisor y el 83% a nivel ISIN (carta 2026), lo que la sitúa muy lejos de un perfil índice. El bundle no incluye el listado completo de posiciones con pesos (el campo de posiciones del fund_data llegó vacío), por lo que la composición se describe a partir de la ficha de Financial Times del ISIN y de las posiciones citadas en las cartas del fondo.</p><p class="subsec">Distribución geográfica</p><p class="pr">Geográficamente la cartera reparte su peso de forma bastante equilibrada dentro de Europa: en torno a un tercio en <strong>Reino Unido</strong> (31,94%), otro tercio en la <strong>Eurozona</strong> (31,87%) y casi otro tercio en <strong>Europa ex-euro</strong> (28,17%), con un pequeño resto en EE.UU. y liquidez (ficha FT, mayo 2026). Esta diversificación intra-europea, con un peso británico notable, diferencia al fondo de vehículos centrados solo en la Eurozona.</p><p class="subsec">Distribución sectorial</p><p class="pr">Por sectores, los mayores pesos son <strong>Industriales</strong> (28,32%), <strong>Servicios Financieros</strong> (19,58%) y <strong>Consumo Defensivo</strong> (14,45%) según la ficha FT. La sobreponderación de industriales es coherente con la apuesta del equipo por compañías de calidad expuestas a temáticas estructurales (electrificación, automatización, gasto en defensa e infraestructura en Alemania), aunque también ha sido fuente de volatilidad relativa: la selección en industriales fue el mayor detractor en el 3T-2025. El refuerzo de financieras durante 2025 respondió a la tesis de 'mercados locales racionales' con potencial de márgenes de interés neto positivos.</p><p class="subsec">Concentración y racional</p><p class="pr">Las cinco mayores posiciones conocidas (ficha FT, mayo 2026) suman alrededor del <strong>25,8% del patrimonio</strong> —National Grid, Halma, Siemens Energy, ASML y Galderma—, lo que confirma un grado de concentración elevado en el top de la cartera. El racional es invertir en franquicias resilientes con poder de precios y crecimiento predecible: utilities reguladas (National Grid), instrumentación y tecnología de calidad (Halma, ASML), transición energética (Siemens Energy) y dermatología estética (Galderma, descrita en la carta 2026 como franquicia pura en estética y cuidado de la piel con productos como Dysport, Botox y Nemluvio). En el ámbito europeo el fondo ha incorporado nombres como Terna, Deutsche Börse, Scout24, Lotus Bakeries, Prosus, Eurobank o UBS, y ha rotado fuera de posiciones como Schindler, Epiroc, Alcon o Aon (carta 3T-2025).</p><p class="subsec">Riesgos estructurales de la cartera</p><p class="pr">Los principales riesgos estructurales son la <strong>concentración</strong> (cualquier error en una posición de cabecera pesa de forma desproporcionada), el <strong>sesgo de estilo</strong> (la calidad puede quedar rezagada frente a value o cíclicas) y la elevada exposición a industriales, que ha sido el principal detractor relativo reciente. Todo ello en un fondo de tamaño reducido y con comisiones altas en la clase retail.</p>
+  </div>
+
+  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
+  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>geografía</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Reino Unido 31,94%, Eurozona 31,87%, Europa ex-euro 28,17%, resto EE.UU./liquidez (ficha FT del ISIN, mayo 2026)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sectores</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Industriales 28,32%, Servicios Financieros 19,58%, Consumo Defensivo 14,45% como principales pesos (ficha FT del ISIN, mayo 2026)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>tipo de activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Renta variable europea casi en su totalidad; uso de derivados solo para cobertura y gestión eficiente (commitment approach)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+
+  <div class="kpi-row">
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">0</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">0,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">—</div><div class="kpi-sub">—</div></div>
+  </div>
+
+  
+  <script>
+  (function(){
+    if (typeof Chart === 'undefined') return;
+    const ctxMix = document.getElementById('c-mix');
+    if (ctxMix) {
+      const tipos = [];
+      new Chart(ctxMix, {
+        type: 'doughnut',
+        data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+      });
+    }
+    const ctxC = document.getElementById('c-conc');
+    if (ctxC) {
+      new Chart(ctxC, {
+        type: 'bar',
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [0, 0, 0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
+      });
+    }
+  })();
+  </script>
+
+  <div class="sr">Todas las posiciones (0)</div>
+  <div class="pt-wrap">
+    <table class="pt">
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pane" id="p6">
+  <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
+  
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2026-06-05</span>
+      </div>
+      <div class="src-t">Vontobel Fund - European Equity B EUR Cap</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Ficha en español: patrimonio del fondo 87,8 M€ (clase B 60,0 M€), NAV 433,74 EUR, YTD 2026 +5,15%, 5 años +3,00%, riesgo 4/7, gestión 1,65% y gastos corrientes 2,06%. Señala que las comisiones —especialmente la suscripción del 5%— son relativamente altas y pueden impactar la rentabilidad neta.</div>
+      <a href="https://www.finect.com/fondos-inversion/LU0153585137-Vontobel_european_equity_b_eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#cc0000;">MS</div>
+        <div class="src-info">
+          <div class="src-o">Morningstar</div>
+        </div>
+        <span class="src-date">2025</span>
+      </div>
+      <div class="src-t">Key Themes for European Stock Markets in Q3 and Q4</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Cita al gestor del fondo, Markus Hansen, como voz experta optimista sobre Europa: espera más recortes del BCE con la inflación a la baja, convergencia del crecimiento del PIB de la eurozona hacia EE.UU. en 2026 y oportunidades en mid-caps europeas, en un contexto de rotación de capital desde activos estadounidenses hacia Europa.</div>
+      <a href="https://www.morningstar.com/markets/where-next-european-uk-stock-markets-2025" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-06-08</span>
+      </div>
+      <div class="src-t">Vontobel Fund - European Equity B EUR Cap (LU0153585137)</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha técnica del ISIN exacto: NAV 435,23 EUR, 1 año −1,23%, patrimonio ~76 M£ del fondo, TER 2,06%, categoría Europe Large-Cap Growth Equity. Aporta top-5 (National Grid, Halma, Siemens Energy, ASML, Galderma), geografía (UK 31,94% / Eurozona 31,87% / Europa ex-euro 28,17%) y, de forma clave, identifica a los gestores reales: Daniel Kranson (2016) y Markus Hansen (2020).</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=LU0153585137:EUR" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-06-08</span>
+      </div>
+      <div class="src-t">Vontobel Fund - European Equity B EUR Cap — Performance</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Datos de rentabilidad de la clase B: 3 meses +3,12%, 6 meses +4,54%, 1 año −1,23%, 5 años +0,66%. Posicionamiento mayoritario en el segundo cuartil de su categoría (119-137 fondos), con desempeño relativo mejor a corto que a largo plazo.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU0153585137:EUR" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">YA</div>
+        <div class="src-info">
+          <div class="src-o">Yahoo Finance</div>
+        </div>
+        <span class="src-date">2024</span>
+      </div>
+      <div class="src-t">Vontobel European Equity C EUR - Ficha de fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha de la clase C: rentabilidad YTD +3,18% (2024), rating Morningstar de 3 estrellas, turnover de cartera del 14,44% e inicio el 16-dic-2002. Confirma a Markus Hansen como Portfolio Manager desde 2020, con foco sectorial en consumo básico, consumo discrecional y comunicación.</div>
+      <a href="https://uk.finance.yahoo.com/quote/0P000099R5.F/profile/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026-06-08</span>
+      </div>
+      <div class="src-t">Vontobel Fund - European Equity HR CHF Hedged Acc (LU2054206730)</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha de riesgo de la clase cubierta en CHF: benchmark MSCI Europe NR EUR, 1 año −2,09%, Sharpe creciente con el plazo (0,06 a 1 año → 0,31 a 5 años) y desviación estándar ~15%. Refleja un perfil de riesgo-rendimiento que mejora en horizontes largos pero con retorno reciente negativo.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU2054206730:CHF" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+</section>
+
+<section class="pane" id="p7">
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">11 fuentes consultadas</span></div>
+
+  <div class="doc-grp">Informes semestrales CNMV (0)</div>
+  
+
+  <div class="doc-grp">Cartas del gestor (2)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">am.vontobel.com — vontobel fund european equity</span><a href="https://am.vontobel.com/en/view/LU0278085062/vontobel-fund-european-equity" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">am.vontobel.com — Quarterly Commentary 20250930 EN Vontobel Fund European Equity.pd</span><a href="https://am.vontobel.com/en/document/b4335dc1-c799-4133-baf5-f64e180f3292/Quarterly-Commentary_20250930_EN_Vontobel-Fund-European-Equity.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+
+  <div class="doc-grp">XMLs CNMV (0)</div>
+  
+
+  <div class="doc-grp">Fuentes externas (6)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — performance</span><a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU0153585137:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — risk</span><a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU2054206730:CHF" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=LU0153585137:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">uk.finance.yahoo.com — profile</span><a href="https://uk.finance.yahoo.com/quote/0P000099R5.F/profile/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">finect.com — LU0153585137 Vontobel european equity b eur</span><a href="https://www.finect.com/fondos-inversion/LU0153585137-Vontobel_european_equity_b_eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">morningstar.com — where next european uk stock markets 2025</span><a href="https://www.morningstar.com/markets/where-next-european-uk-stock-markets-2025" target="_blank" class="doc-a">↗ Abrir</a></div>
+</section>
+
+<section class="pane" id="p8">
+  <style>
+    .chat-container {
+      max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 500px;
+    }
+    .chat-header {
+      padding: 16px 0 12px; border-bottom: 1px solid var(--rule-light);
+    }
+    .chat-header h1 {
+      font-family: 'EB Garamond', serif; font-size: 22px; color: var(--ink-1); margin: 0;
+    }
+    .chat-header p {
+      font-size: 12px; color: var(--ink-4); margin: 4px 0 0; line-height: 1.4;
+    }
+    .chat-status {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px;
+      padding: 3px 10px; border-radius: 10px; background: var(--navy-pale);
+    }
+    .chat-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #ccc;
+    }
+    .chat-status .dot.on { background: #22c55e; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.55;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-msg.user {
+      align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start; background: var(--navy-pale); color: var(--ink-1); border-bottom-left-radius: 3px;
+      border: 1px solid var(--rule-light);
+    }
+    .chat-msg.ai strong { color: var(--navy); }
+    .chat-msg.system {
+      align-self: center; background: none; color: var(--ink-4); font-size: 11px; padding: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 14px 0; border-top: 1px solid var(--rule-light);
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--rule-light); border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 14px; background: var(--bg);
+      color: var(--ink-1); resize: none; outline: none; min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(15,23,42,0.08); }
+    .chat-send {
+      padding: 10px 20px; background: var(--navy); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .chat-send:hover { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-clear {
+      padding: 10px 14px; background: none; color: var(--ink-4); border: 1px solid var(--rule-light);
+      border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+    }
+    .chat-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+    .chat-typing span {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); opacity: 0.4;
+      animation: blink 1.4s infinite both;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0.4; } 40% { opacity: 1; } }
+    .chat-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0;
+    }
+    .chat-sug {
+      padding: 6px 12px; border: 1px solid var(--rule-light); border-radius: 16px;
+      font-size: 12px; color: var(--ink-3); cursor: pointer; background: var(--bg);
+      font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+    }
+    .chat-sug:hover { background: var(--navy-pale); border-color: var(--navy); color: var(--navy); }
+  </style>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chat con los documentos del fondo</h1>
+      <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
+         VONTOBEL FUND - EUROPEAN EQUITY (LU0153585137): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         de gestores. No consulta fuentes externas ni inventa datos.</p>
+      <div class="chat-status">
+        <div class="dot" id="chatDot"></div>
+        <span id="chatStatusText">Conectando...</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg system">Inicia una conversacion o prueba una de las sugerencias.</div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-sug" onclick="askSuggestion(this)">Resumen ejecutivo del fondo en 5 puntos</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que dijo el gestor en su ultima carta?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Cuales son las 5 mayores posiciones y por que estan?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Como se comporto el fondo en 2022?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Que riesgos tiene este fondo?</button>
+        <button class="chat-sug" onclick="askSuggestion(this)">Comparame las comisiones entre clases</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Pregunta sobre el fondo..."
+        rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">Enviar</button>
+      <button class="chat-clear" onclick="clearChat()">Limpiar</button>
+    </div>
+  </div>
+
+  <script>
+  const CHAT_API = 'http://localhost:8899';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  const chatDot = document.getElementById('chatDot');
+  const chatStatusText = document.getElementById('chatStatusText');
+  let chatBusy = false;
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  // Check server status
+  async function checkServer() {
+    try {
+      const r = await fetch(CHAT_API + '/api/info');
+      if (r.ok) {
+        const d = await r.json();
+        chatDot.classList.add('on');
+        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
+        return true;
+      }
+    } catch(e) {}
+    chatDot.classList.remove('on');
+    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py LU0153585137';
+    return false;
+  }
+  checkServer();
+  setInterval(checkServer, 10000);
+
+  function addMessage(text, role) {
+    // Remove suggestions on first message
+    const sug = document.getElementById('chatSuggestions');
+    if (sug) sug.remove();
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    // Convert markdown bold and newlines
+    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\n/g, '<br>');
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.id = 'chatTyping';
+    div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const q = chatInput.value.trim();
+    if (!q) return;
+
+    const online = await checkServer();
+    if (!online) {
+      addMessage('Servidor no disponible. Ejecuta: python chat_server.py LU0153585137', 'system');
+      return;
+    }
+
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    addMessage(q, 'user');
+    const typing = addTyping();
+
+    try {
+      const resp = await fetch(CHAT_API + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q}),
+      });
+
+      // Remove typing indicator and create AI message
+      typing.remove();
+      const aiDiv = addMessage('', 'ai');
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        fullText += chunk;
+        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        aiDiv.innerHTML = html;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } catch(e) {
+      typing.remove();
+      addMessage('Error de conexion: ' + e.message, 'system');
+    }
+
+    chatBusy = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendChat();
+  }
+
+  async function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
+    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  }
+  </script>
+</section>
+</main>
+
+<!-- T3 feedback widget (2026-05-28) -->
+<style>
+  .fb-fab {
+    position: fixed; top: 76px; right: 20px; z-index: 1000;
+    background: #c5a25a; color: white; border: none;
+    padding: 10px 16px; border-radius: 24px;
+    font-family: 'Source Sans 3', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  }
+  .fb-fab:hover { background: #a87b1f; transform: translateY(-1px); }
+  .fb-fab .fb-badge {
+    display: inline-block; background: white; color: #c5a25a;
+    border-radius: 10px; padding: 1px 7px; font-size: 11px;
+    margin-left: 6px; font-weight: 700;
+  }
+  .fb-modal-bg {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(0,0,0,0.5);
+    align-items: center; justify-content: center;
+  }
+  .fb-modal-bg.show { display: flex; }
+  .fb-modal {
+    background: white; max-width: 720px; width: 92%; max-height: 88vh;
+    overflow-y: auto; border-radius: 4px; padding: 24px;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-modal h2 {
+    font-family: 'EB Garamond', serif; font-size: 22px;
+    margin: 0 0 4px 0; color: #222;
+  }
+  .fb-modal .fb-sub { font-size: 12px; color: #666; margin-bottom: 16px; }
+  .fb-modal label {
+    display: block; text-transform: uppercase; letter-spacing: 1px;
+    font-size: 10px; color: #888; font-weight: 600; margin: 12px 0 6px 0;
+  }
+  .fb-modal textarea, .fb-modal input[type="text"] {
+    width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px;
+    font-family: inherit; font-size: 13px; box-sizing: border-box;
+  }
+  .fb-modal textarea { min-height: 140px; resize: vertical; }
+  .fb-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .fb-btn {
+    padding: 9px 16px; border: 1px solid #ccc; background: white; color: #333;
+    border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 13px;
+  }
+  .fb-btn:hover { background: #f5f5f5; }
+  .fb-btn-primary { background: #c5a25a; color: white; border-color: #c5a25a; }
+  .fb-btn-primary:hover { background: #a87b1f; }
+  .fb-btn-secondary { background: #2a3d57; color: white; border-color: #2a3d57; }
+  .fb-btn-secondary:hover { background: #1a2d47; }
+  .fb-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fb-preview {
+    background: #fafafa; border: 1px solid #eee; border-radius: 3px;
+    padding: 12px; margin-top: 14px; font-size: 12px; color: #444;
+  }
+  .fb-preview-item {
+    padding: 8px; border-bottom: 1px dashed #ddd; display: flex; gap: 8px;
+    align-items: flex-start;
+  }
+  .fb-preview-item:last-child { border-bottom: none; }
+  .fb-preview-action {
+    background: #2a3d57; color: white; padding: 2px 8px; border-radius: 3px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .fb-preview-conf-high { color: #1b8c3b; }
+  .fb-preview-conf-medium { color: #b8860b; }
+  .fb-preview-conf-low { color: #cc0033; }
+  .fb-error { color: #cc0033; font-size: 12px; margin-top: 8px; }
+  .fb-info { color: #1b8c3b; font-size: 12px; margin-top: 8px; }
+  .fb-history-section {
+    margin: 60px 20px 40px 20px; padding: 20px; background: #fafafa;
+    border-radius: 4px; font-family: 'Source Sans 3', sans-serif;
+  }
+  .fb-history-section h3 {
+    font-family: 'EB Garamond', serif; font-size: 20px; margin: 0 0 10px 0;
+    color: #222; cursor: pointer; user-select: none;
+  }
+  .fb-history-section h3::after { content: ' ▾'; color: #999; font-size: 14px; }
+  .fb-history-section.collapsed h3::after { content: ' ▸'; }
+  .fb-history-section.collapsed .fb-history-body { display: none; }
+  .fb-history-item {
+    padding: 12px; border-left: 3px solid #ccc; background: white;
+    margin: 10px 0; border-radius: 0 3px 3px 0;
+  }
+  .fb-history-item.estado-pending { border-left-color: #b8860b; }
+  .fb-history-item.estado-applied { border-left-color: #2a3d57; }
+  .fb-history-item.estado-resolved { border-left-color: #1b8c3b; }
+  .fb-history-item.estado-partially_resolved { border-left-color: #c5a25a; }
+  .fb-history-meta { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .fb-history-text { font-size: 13px; color: #333; margin: 6px 0; }
+  .fb-history-items {
+    font-size: 11px; color: #666; margin-top: 6px;
+    background: #f5f5f5; padding: 8px; border-radius: 3px;
+  }
+  .fb-history-delete {
+    float: right; background: none; border: 1px solid #ccc; color: #888;
+    padding: 1px 7px; cursor: pointer; font-size: 11px; border-radius: 3px;
+  }
+  .fb-history-delete:hover { background: #cc0033; color: white; border-color: #cc0033; }
+</style>
+
+<button id="fb-fab" class="fb-fab" type="button" title="Aportar feedback sobre este análisis">📝 Mejorar este análisis<span id="fb-fab-badge" class="fb-badge" style="display:none;">0</span></button>
+
+<div id="fb-modal-bg" class="fb-modal-bg">
+  <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
+    <h2 id="fb-modal-title">📝 Mejorar análisis: VONTOBEL FUND - EUROPEAN EQUITY</h2>
+    <div class="fb-sub">ISIN: <code>LU0153585137</code> · VONTOBEL FUND</div>
+
+    <label for="fb-text">¿Qué hay que mejorar?</label>
+    <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
+
+    <label for="fb-urls">URLs/fuentes adicionales (opcional, una por línea)</label>
+    <textarea id="fb-urls" style="min-height:60px;" placeholder="https://ejemplo.com/articulo&#10;https://otrafuente.com/pdf"></textarea>
+
+    <div id="fb-error" class="fb-error" style="display:none;"></div>
+    <div id="fb-info" class="fb-info" style="display:none;"></div>
+
+    <div id="fb-preview-block" style="display:none;">
+      <div style="font-size:11px;color:#666;margin-top:14px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Items que se van a guardar (puedes editar antes):</div>
+      <div id="fb-preview" class="fb-preview"></div>
+    </div>
+
+    <div class="fb-actions">
+      <button id="fb-btn-cancel" class="fb-btn" type="button">Cancelar</button>
+      <button id="fb-btn-preview" class="fb-btn fb-btn-primary" type="button">Analizar texto →</button>
+      <button id="fb-btn-save" class="fb-btn fb-btn-primary" type="button" style="display:none;">Solo guardar</button>
+      <button id="fb-btn-save-improve" class="fb-btn fb-btn-secondary" type="button" style="display:none;">Guardar + Mejorar ahora</button>
+    </div>
+  </div>
+</div>
+
+<div id="fb-history" class="fb-history-section collapsed" style="display:none;">
+  <h3 id="fb-history-title">Histórico de feedback (0)</h3>
+  <div class="fb-history-body" id="fb-history-body"></div>
+</div>
+
+<script>
+(function() {
+  const ISIN = 'LU0153585137';
+  const FUND_NAME = 'VONTOBEL FUND - EUROPEAN EQUITY';
+  const GESTORA = 'VONTOBEL FUND';
+  // API_BASE: localStorage o relativo. Igual que catalog.html.
+  let API_BASE = localStorage.getItem('fa_api_base') || '';
+  function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
+
+  const fab = document.getElementById('fb-fab');
+  const modalBg = document.getElementById('fb-modal-bg');
+  const txt = document.getElementById('fb-text');
+  const urlsInput = document.getElementById('fb-urls');
+  const errEl = document.getElementById('fb-error');
+  const infoEl = document.getElementById('fb-info');
+  const prevBlock = document.getElementById('fb-preview-block');
+  const prevEl = document.getElementById('fb-preview');
+  const btnPreview = document.getElementById('fb-btn-preview');
+  const btnSave = document.getElementById('fb-btn-save');
+  const btnSaveImprove = document.getElementById('fb-btn-save-improve');
+  const btnCancel = document.getElementById('fb-btn-cancel');
+  const historySection = document.getElementById('fb-history');
+  const historyTitle = document.getElementById('fb-history-title');
+  const historyBody = document.getElementById('fb-history-body');
+  const fabBadge = document.getElementById('fb-fab-badge');
+
+  let currentItems = null;  // items estructurados tras /parse
+
+  fab.addEventListener('click', () => {
+    if (!API_BASE) {
+      alert('No hay server local conectado. Arranca iniciar.bat y refresca el catalog primero.');
+      return;
+    }
+    resetModal();
+    modalBg.classList.add('show');
+    setTimeout(() => txt.focus(), 50);
+  });
+  btnCancel.addEventListener('click', () => modalBg.classList.remove('show'));
+  modalBg.addEventListener('click', (e) => { if (e.target === modalBg) modalBg.classList.remove('show'); });
+
+  function resetModal() {
+    txt.value = ''; urlsInput.value = '';
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    prevBlock.style.display = 'none';
+    btnPreview.style.display = 'inline-block';
+    btnSave.style.display = 'none';
+    btnSaveImprove.style.display = 'none';
+    currentItems = null;
+  }
+
+  function showError(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  function showInfo(msg) { infoEl.textContent = msg; infoEl.style.display = 'block'; }
+
+  function parseUrlsLines(s) {
+    return (s || '').split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
+  }
+
+  function renderPreview(items) {
+    if (!items || !items.length) {
+      prevEl.innerHTML = '<div style="padding:10px;color:#888;">(El parser no extrajo items. Comprueba el texto o guarda como feedback "genérico".)</div>';
+      return;
+    }
+    prevEl.innerHTML = items.map((it, idx) => {
+      const target = it.target_path || (it.target_section ? 'sección: ' + it.target_section : '(global)');
+      const valStr = it.value === null || it.value === undefined ? '' :
+                     (typeof it.value === 'object' ? JSON.stringify(it.value) : String(it.value));
+      const urls = (it.source_urls || []).join(', ');
+      return `<div class="fb-preview-item" data-idx="${idx}">
+        <span class="fb-preview-action">${it.action}</span>
+        <div style="flex:1;">
+          <div><strong>${target}</strong>${valStr ? ' → <code>' + valStr.substring(0,80) + '</code>' : ''}</div>
+          <div style="font-size:11px;color:#777;margin-top:3px;">${it.rationale || ''}</div>
+          ${urls ? `<div style="font-size:10px;color:#999;margin-top:2px;">${urls}</div>` : ''}
+          <div style="font-size:10px;margin-top:2px;" class="fb-preview-conf-${it.confidence||'medium'}">Confianza: ${it.confidence||'medium'}</div>
+        </div>
+        <button type="button" class="fb-btn" style="padding:2px 8px;font-size:11px;" data-rm-preview="${idx}" title="Quitar este item">✕</button>
+      </div>`;
+    }).join('');
+    // bind remove
+    prevEl.querySelectorAll('button[data-rm-preview]').forEach(b => {
+      b.addEventListener('click', () => {
+        const i = parseInt(b.dataset.rmPreview);
+        currentItems.splice(i, 1);
+        renderPreview(currentItems);
+        if (currentItems.length === 0) {
+          btnSave.style.display = 'none';
+          btnSaveImprove.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  btnPreview.addEventListener('click', async () => {
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    const rawText = txt.value.trim();
+    const rawUrls = parseUrlsLines(urlsInput.value);
+    if (!rawText && rawUrls.length === 0) {
+      showError('Escribe algo o pega URLs.');
+      return;
+    }
+    btnPreview.disabled = true;
+    btnPreview.textContent = 'Analizando…';
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/parse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: rawText, raw_urls: rawUrls,
+          fund_name: FUND_NAME, gestora: GESTORA,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showError(data.error || 'Error en parse'); return; }
+      currentItems = data.structured_items || [];
+      renderPreview(currentItems);
+      prevBlock.style.display = 'block';
+      const method = data.parse_meta?.method || 'unknown';
+      const note = method === 'haiku' ? ' (Haiku)' : method === 'fallback' ? ' (parser básico — Haiku no disponible)' : '';
+      showInfo(`${currentItems.length} item(s) extraído(s)${note}. Revisa, elimina los que no quieras y guarda.`);
+      btnPreview.style.display = 'none';
+      btnSave.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+      btnSaveImprove.style.display = currentItems.length > 0 ? 'inline-block' : 'none';
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnPreview.disabled = false;
+      btnPreview.textContent = 'Analizar texto →';
+    }
+  });
+
+  async function saveAndMaybeImprove(triggerImprove) {
+    if (!currentItems || currentItems.length === 0) {
+      showError('No hay items que guardar.');
+      return;
+    }
+    btnSave.disabled = true; btnSaveImprove.disabled = true;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: txt.value.trim(),
+          raw_urls: parseUrlsLines(urlsInput.value),
+          structured_items: currentItems,
+          fund_name: FUND_NAME,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) { showError(data.error || 'Error guardando'); return; }
+      showInfo(`✓ Feedback guardado.${triggerImprove ? ' Lanzando re-run…' : ''}`);
+      if (triggerImprove) {
+        const res2 = await fbFetch('/api/analyze-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isins: [ISIN], cold_start: false, apply_feedback: true,
+          }),
+        });
+        const d2 = await res2.json();
+        if (!res2.ok) { showError('Encolado falló: ' + (d2.error || res2.status)); return; }
+        showInfo(`✓ Feedback guardado. Re-run encolado. Cierra el modal y verás el progreso en la cola del catalog.`);
+      }
+      // Tras 1.5s cerrar
+      setTimeout(() => { modalBg.classList.remove('show'); loadHistory(); }, 1500);
+    } catch (err) {
+      showError('Error de red: ' + err.message);
+    } finally {
+      btnSave.disabled = false; btnSaveImprove.disabled = false;
+    }
+  }
+  btnSave.addEventListener('click', () => saveAndMaybeImprove(false));
+  btnSaveImprove.addEventListener('click', () => saveAndMaybeImprove(true));
+
+  // ───────── Histórico ─────────
+  async function loadHistory() {
+    if (!API_BASE) return;
+    try {
+      const res = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}`, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const data = await res.json();
+      const feedbacks = data.feedbacks || [];
+      const nPending = feedbacks.filter(f => f.estado === 'pending').length;
+      if (nPending > 0) {
+        fabBadge.textContent = nPending;
+        fabBadge.style.display = 'inline-block';
+      } else {
+        fabBadge.style.display = 'none';
+      }
+      historyTitle.textContent = `Histórico de feedback (${feedbacks.length})`;
+      if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
+      historySection.style.display = 'block';
+      historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
+          const target = it.target_path || it.target_section || '(global)';
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
+        }).join('');
+        const ts = new Date(fb.created_at).toLocaleString('es-ES');
+        const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
+        return `<div class="fb-history-item estado-${fb.estado}">
+          ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
+          <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
+          <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
+          <div class="fb-history-items">${items}</div>
+        </div>`;
+      }).join('');
+      historyBody.querySelectorAll('button[data-del-fb]').forEach(b => {
+        b.addEventListener('click', async () => {
+          if (!confirm('Borrar este feedback? Solo se borran los pending.')) return;
+          const fbId = b.dataset.delFb;
+          const r = await fbFetch(`/api/feedback/${encodeURIComponent(ISIN)}/${encodeURIComponent(fbId)}`, { method: 'DELETE' });
+          if (r.ok) loadHistory();
+        });
+      });
+    } catch (e) { /* sin server, silencioso */ }
+  }
+
+  historyTitle.addEventListener('click', () => historySection.classList.toggle('collapsed'));
+
+  // Cargar al inicio si hay API_BASE
+  if (API_BASE) loadHistory();
+})();
+</script>
+
+
+<script>
+function goTab(i,b){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));document.getElementById('p'+i).classList.add('on');b.classList.add('on');}
+function toggleTheme(){const d=document.documentElement;const k=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',k?'light':'dark');document.getElementById('thlbl').textContent=k?'Modo oscuro':'Modo claro';buildCharts();}
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const TC=()=>dk()?'#908c84':'#444';
+const GC=()=>dk()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+const A1=()=>dk()?'#4a7ea8':'#0c2340';
+const A2=()=>dk()?'#4a8a6a':'#1a4d2e';
+const A3=()=>dk()?'rgba(120,140,160,0.5)':'rgba(100,120,140,0.4)';
+const AR=()=>dk()?'#c04040':'#6b1a1a';
+const CI={};
+// Formato español: . miles, , decimal
+function fmtES(v,dec){
+  if(v==null)return'';
+  if(dec===undefined)dec=v>=100||v===Math.round(v)?0:1;
+  return v.toLocaleString('de-DE',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
+const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
+const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
+const Y=[];
+// Anti-collision label helper for area/line charts with multiple series
+function drawAreaLabels(chart,colors,dec,minGap){
+  const ctx=chart.ctx;
+  ctx.font='500 7px Source Code Pro';
+  ctx.textAlign='center';
+  if(!minGap)minGap=12;
+  if(!dec&&dec!==0)dec=1;
+  const nds=chart.data.datasets.length;
+  const npts=chart.data.datasets[0]?chart.data.datasets[0].data.length:0;
+  // For each x-point, collect all labels and resolve collisions
+  for(let i=0;i<npts;i++){
+    const labels=[];
+    for(let di=0;di<nds;di++){
+      const ds=chart.data.datasets[di];
+      const v=ds.data[i];
+      const prev=i>0?ds.data[i-1]:null;
+      if(v==null||v===0||v===prev)continue;
+      const meta=chart.getDatasetMeta(di);
+      const pt=meta.data[i];
+      if(!pt)continue;
+      labels.push({di:di,v:v,x:pt.x,y:pt.y,color:colors[di]||TC()});
+    }
+    // Sort by y position (top to bottom)
+    labels.sort((a,b)=>a.y-b.y);
+    // Resolve collisions: push labels apart
+    for(let j=1;j<labels.length;j++){
+      const gap=labels[j].y-labels[j-1].y;
+      if(Math.abs(gap)<minGap){
+        labels[j-1].y-=(minGap-Math.abs(gap))/2;
+        labels[j].y+=(minGap-Math.abs(gap))/2;
+      }
+    }
+    // Draw
+    labels.forEach(l=>{
+      ctx.fillStyle=l.color;
+      const suffix=dec>=0?'%':'';
+      const txt=dec>=0?fmtES(l.v,dec)+suffix:fmtES(l.v);
+      ctx.fillText(txt,l.x,l.y-7);
+    });
+  }
+}
+const valPlugin={
+  id:'valLabels',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx;
+    ctx.font='500 8px Source Code Pro';
+    ctx.textAlign='center';
+    ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+    chart.data.datasets.forEach((ds,di)=>{
+      chart.getDatasetMeta(di).data.forEach((el,i)=>{
+        const v=ds.data[i];
+        if(v!=null){
+          const y=el.y!=null?el.y:(el.y2||el.y);
+          ctx.fillText(fmtES(v),el.x,y-6);
+        }
+      });
+    });
+  }
+};
+function buildCharts(){
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  const vlCorrupta=false;
+  if(vlCorrupta){
+    const cvl=document.getElementById('c-vl');
+    if(cvl){
+      const parent=cvl.parentElement;
+      cvl.style.display='none';
+      const warn=document.createElement('div');
+      warn.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-4);font-size:11px;font-style:italic;text-align:center;padding:12px;';
+      warn.textContent='Serie VL no fiable (primer valor anómalo). Datos omitidos.';
+      parent.appendChild(warn);
+    }
+  }else{
+    const vlMin=Math.max(0,Math.floor(Math.min(...[].filter(v=>v>0))/10)*10-10);
+    const vlMax=Math.ceil(Math.max(...[])/10)*10+10;
+    mk('c-vl',{type:'line',data:{labels:Y,datasets:[{data:[],borderColor:A1(),backgroundColor:A1()+'14',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()}]},options:{...opt(),scales:sc(vlMin,vlMax)},plugins:[valPlugin]});
+  }
+  buildComChart();
+  // Both charts share same X labels for alignment
+  const cartYrs=[];
+  const nposMax=Math.max(...[])+10;
+  mk('c-npos',{type:'bar',data:{labels:cartYrs,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0,nposMax)},plugins:[valPlugin]});
+  const concLblPlugin={
+    id:'concLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#7ba8d0':'#1a3a5c',dk()?'#7ba8d0':'#3d5a80'],1,14);
+    }
+  };
+  // Eje Y SIEMPRE 0-100% para ver concentración real de un vistazo
+  mk('c-conc',{type:'line',data:{labels:cartYrs,datasets:[
+    {label:'Top 5',data:[],borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()},
+    {label:'Top 10',data:[],borderColor:A1()+'99',backgroundColor:A1()+'25',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'99'},
+    {label:'Top 15',data:[],borderColor:A1()+'66',backgroundColor:A1()+'15',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1()+'66'}
+  ]},options:{...opt(true),scales:sc(0,100)},plugins:[concLblPlugin]});
+}
+const COM_DATA={"A": []};
+const TER_DATA={"A": []};
+const TER_EFECTIVO=[];
+const CY=[];
+const HAS_EXITO=false;
+const EXITO_REAL=[];
+function buildComChart(){
+  const sel=document.getElementById('com-sel');
+  const cls=sel?sel.value:Object.keys(COM_DATA)[0]||'A';
+  const d=COM_DATA[cls]||CY.map(()=>null);
+  const t=TER_DATA[cls]||CY.map(()=>null);
+  const tef=TER_EFECTIVO;
+  const pctCb=function(v){return v.toFixed(1)+'%';};
+  // Com. éxito: importes REALES cobrados s/patrimonio
+  const exito=HAS_EXITO?EXITO_REAL.map((real,i)=>{
+    if(real!=null)return real;
+    const tv=t[i],dv=d[i];
+    if(tv==null||dv==null)return null;
+    const diff=Math.round((tv-dv)*100)/100;
+    return diff>0.05?diff:null;
+  }):t.map(()=>null);
+  // Datasets: TER (efectivo = gestión + depositario + éxito + otros), Com. gestión, Com. éxito
+  // TER mostrado es el EFECTIVO (lo que paga el inversor), no el TER oficial CNMV que excluye éxito
+  const terShown = HAS_EXITO ? tef : t;
+  const datasets=[
+    {label:'TER',data:terShown,borderColor:A1(),backgroundColor:A1()+'40',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A1(),order:1},
+    {label:'Com. gestión',data:d,borderColor:A2(),backgroundColor:A2()+'35',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:A2(),order:2},
+    {label:'Com. éxito',data:exito,borderColor:dk()?'#c07040':'#8c3214',backgroundColor:dk()?'rgba(192,112,64,0.40)':'rgba(140,50,20,0.30)',borderWidth:1.5,fill:true,tension:0.3,pointRadius:1,pointBackgroundColor:dk()?'#c07040':'#8c3214',order:3}
+  ];
+  const allVals=[...terShown,...d,...exito].filter(v=>v!=null);
+  const yMax=Math.max(1.2,Math.ceil((Math.max(...allVals)+0.2)*10)/10);
+  const comLblPlugin={
+    id:'comAreaLabels',
+    afterDatasetsDraw(chart){
+      drawAreaLabels(chart,[dk()?'#7ba8d0':'#0c2340',dk()?'#6aaa88':'#1a4d2e',dk()?'#e0a080':'#8c3214'],2,14);
+    }
+  };
+  mk('c-com',{type:'line',data:{labels:CY,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},min:0,max:yMax,ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}}
+      }
+    },
+    plugins:[comLblPlugin]
+  });
+}
+document.addEventListener('DOMContentLoaded',buildCharts);
+
+// ═══════════════════════════════════════════════════════════
+// MORNINGSTAR DATA: fetch + calculate + render
+// ═══════════════════════════════════════════════════════════
+const ISIN='LU0153585137';
+let MST_DATA=null;
+
+function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
+function monthEndF(s){const m=new Map();for(const p of s){const k=p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0');const c=m.get(k);if(!c||p.date>c.date)m.set(k,{date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.date-b.date);}
+function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFullYear();const c=m.get(y);if(!c||p.date>c.date)m.set(y,{year:y,date:p.date,nav:p.nav});}return Array.from(m.values()).sort((a,b)=>a.year-b.year);}
+function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
+function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
+
+async function fetchMST(){
+  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  try{
+    const res=await fetch(url,{credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const arr=await res.json();
+    const pts=[];
+    for(const it of arr){
+      if(!Array.isArray(it)||it.length<2)continue;
+      const ts=Number(it[0]),v=Number(it[1]);
+      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+      const d0=new Date(ts);
+      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
+    }
+    return dedupeSort(pts);
+  }catch(e){
+    // Fallback proxy
+    try{
+      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
+      const arr2=await res2.json();
+      const pts2=[];
+      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
+      return dedupeSort(pts2);
+    }catch(e2){throw e2;}
+  }
+}
+
+function calcYearlyReturns(ye){
+  const xs=[],ys=[];
+  for(let i=1;i<ye.length;i++){
+    const r=ye[i].nav/ye[i-1].nav-1;
+    xs.push(ye[i].year);ys.push(r);
+  }
+  return {xs,ys};
+}
+
+function calcYearlyVol(me){
+  const mr=rets(me).map(x=>({r:x.r,y:x.date.getUTCFullYear()}));
+  const byPos=new Map(),byNeg=new Map();
+  const years=new Set();
+  mr.forEach(p=>{years.add(p.y);if(!byPos.has(p.y)){byPos.set(p.y,[]);byNeg.set(p.y,[]);}if(p.r>0)byPos.get(p.y).push(p.r);else if(p.r<0)byNeg.get(p.y).push(p.r);});
+  const xs=Array.from(years).sort(),ysP=[],ysN=[];
+  // Detect incomplete last year
+  const lastYr=xs[xs.length-1];
+  const lastYrPts=mr.filter(p=>p.y===lastYr).length;
+  xs.forEach(y=>{
+    const isInc=(y===lastYr&&lastYrPts<11);
+    const pos=byPos.get(y)||[];const neg=byNeg.get(y)||[];
+    ysP.push(isInc?NaN:(pos.length>=2?stdF(pos)*Math.sqrt(12):NaN));
+    ysN.push(isInc?NaN:(neg.length>=2?stdF(neg)*Math.sqrt(12):NaN));
+  });
+  return {xs,ysP,ysN};
+}
+
+function calcDrawdown(series){
+  let peak=series[0].nav;
+  let peakDate=series[0].date;
+  const dates=[],dd=[];
+  let worstDD=0,worstDate=null,worstPeakDate=null;
+  let recoveredDate=null;
+  for(const p of series){
+    if(p.nav>peak){peak=p.nav;peakDate=p.date;}
+    const d=(p.nav-peak)/peak;
+    dates.push(p.date);dd.push(d);
+    if(d<worstDD){worstDD=d;worstDate=p.date;worstPeakDate=peakDate;}
+  }
+  // Find recovery: primer punto post-trough donde nav vuelve al peak previo
+  if(worstDate && worstPeakDate){
+    let peakVal=0;
+    for(const p of series){if(p.date===worstPeakDate){peakVal=p.nav;break;}}
+    for(const p of series){
+      if(p.date>worstDate && p.nav>=peakVal){recoveredDate=p.date;break;}
+    }
+  }
+  return {dates,dd,worstDD,worstDate,worstPeakDate,recoveredDate};
+}
+
+function monthsBetween(d1,d2){
+  if(!d1||!d2)return null;
+  const a=new Date(d1),b=new Date(d2);
+  return Math.round((b-a)/(1000*60*60*24*30.44));
+}
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function calcRolling(me,months){
+  const dates=[],vals=[];
+  for(let i=months;i<me.length;i++){
+    const r=me[i].nav/me[i-months].nav;
+    const ann=Math.pow(r,12/months)-1;
+    dates.push(me[i].date);vals.push(ann);
+  }
+  return {dates,vals};
+}
+
+function calcRollingVol(me,months){
+  const mr=rets(me);
+  const dates=[],vals=[];
+  for(let i=months-1;i<mr.length;i++){
+    const window=mr.slice(i-months+1,i+1).map(x=>x.r);
+    vals.push(stdF(window)*Math.sqrt(12));
+    dates.push(mr[i].date);
+  }
+  return {dates,vals};
+}
+
+// Store processed data globally for rolling updates
+let MST_ME=null,MST_SERIES=null;
+const pctAxis={grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}}};
+
+function renderMST(series){
+  MST_SERIES=series;
+  const me=monthEndF(series);MST_ME=me;
+  const ye=yearEndF(series);
+  const {xs:retXsAll,ys:retYsAll}=calcYearlyReturns(ye);
+  const {xs:volXsAll,ysP:ysPAll,ysN:ysNAll}=calcYearlyVol(me);
+  const incYear=new Date().getUTCFullYear();
+
+  // Limit bar charts to last 10 years + ensure same years for both
+  const maxBars=10;
+  const allYears=retXsAll.slice();
+  const startIdx=Math.max(0,allYears.length-maxBars);
+  const retXs=retXsAll.slice(startIdx);
+  const retYs=retYsAll.slice(startIdx);
+  // Align vol to same years
+  const volStart=volXsAll.indexOf(retXs[0]);
+  const ysP=ysPAll.slice(volStart>=0?volStart:0);
+  const ysN=ysNAll.slice(volStart>=0?volStart:0);
+  const retLabels=retXs.map(String);
+  const volLabels=retLabels; // SAME years
+
+  // Tooltip interaction for line charts
+  const lineOpt=(leg)=>({responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}},
+      tooltip:{enabled:true,callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtES(ctx.parsed.y,1)+'%';}}}},
+    scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:12}},y:pctAxis}
+  });
+
+  // ── Shared chart builders ──
+  function renderRetChart(id){
+    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
+    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+      options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+        y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+          // Extra range so labels don't touch edges
+          suggestedMax:Math.ceil(Math.max(...retYs)*100)+10,
+          suggestedMin:Math.floor(Math.min(...retYs)*100)-10
+        }
+      }},
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 8px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.getDatasetMeta(0).data.forEach((el,i)=>{
+          const v=retYs[i];if(v==null)return;
+          ctx.fillText((v>=0?'+':'')+fmtES(v*100,1)+'%',el.x,v>=0?el.y-10:el.y+16);
+        });
+      }}]
+    });
+  }
+
+  function renderVolChart(id){
+    mk(id,{type:'bar',data:{labels:volLabels,datasets:[
+      {label:'Vol. positiva',data:ysP.map(v=>Number.isFinite(v)?v*100:null),backgroundColor:dk()?'#4a8a6a':'#1a4d2e'},
+      {label:'Vol. negativa',data:ysN.map(v=>Number.isFinite(v)?-v*100:null),backgroundColor:dk()?'#8c3a3a':'#8c3214'}
+    ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}},
+        scales:{x:{grid:{display:false},stacked:true,ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
+          y:{grid:{display:false},stacked:true,ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
+            suggestedMax:Math.ceil(Math.max(...ysP.filter(v=>Number.isFinite(v)))*100)+8,
+            suggestedMin:-Math.ceil(Math.max(...ysN.filter(v=>Number.isFinite(v)))*100)-8
+          }
+        }
+      },
+      plugins:[{id:id+'L',afterDatasetsDraw(chart){
+        const ctx=chart.ctx;ctx.font='500 7px Source Code Pro';ctx.textAlign='center';
+        ctx.fillStyle=dk()?'#c8c4bc':'#1a1a1a';
+        chart.data.datasets.forEach((ds,di)=>{
+          chart.getDatasetMeta(di).data.forEach((el,i)=>{
+            const v=ds.data[i];if(v==null||!Number.isFinite(v))return;
+            const prev=i>0?ds.data[i-1]:null;if(v===prev)return;
+            ctx.fillText(fmtES(Math.abs(v),1)+'%',el.x,di===0?el.y-8:el.y+14);
+          });
+        });
+      }}]
+    });
+  }
+
+  // ── Resumen tab ──
+  renderRetChart('mst-ret');
+  renderVolChart('mst-vol');
+  if(retXs[retXs.length-1]===incYear){
+    const el=document.getElementById('mst-ret-note');
+    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+  }
+
+  // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
+  try {
+    // CAGR desde inicio (anualizado)
+    const histTotalR = series[series.length-1].nav / series[0].nav;
+    const histYears = (series[series.length-1].date - series[0].date) / 31557600000;
+    const histCagr = Math.pow(histTotalR, 1/histYears) - 1;
+    const kpiCagr = document.getElementById('kpi-cagr');
+    if (kpiCagr) kpiCagr.textContent = fmtES(histCagr*100, 1) + '%';
+    // Peor/mejor año desde rentabilidades anuales calculadas
+    if (retXs.length > 0) {
+      let bestI=0, worstI=0;
+      for (let i=0; i<retYs.length; i++) {
+        if (retYs[i] > retYs[bestI]) bestI = i;
+        if (retYs[i] < retYs[worstI]) worstI = i;
+      }
+      const kpiBest = document.getElementById('kpi-best');
+      const kpiBestSub = document.getElementById('kpi-best-sub');
+      if (kpiBest) kpiBest.textContent = '+' + fmtES(retYs[bestI]*100, 1) + '%';
+      if (kpiBestSub) kpiBestSub.textContent = retXs[bestI];
+      const kpiWorst = document.getElementById('kpi-worst');
+      const kpiWorstSub = document.getElementById('kpi-worst-sub');
+      if (kpiWorst) kpiWorst.textContent = fmtES(retYs[worstI]*100, 1) + '%';
+      if (kpiWorstSub) kpiWorstSub.textContent = retXs[worstI];
+    }
+    // VL base 100 chart (cvl): reescalado sobre el primer NAV.
+    // IMPORTANTE: destruir el chart previo si existe (buildCharts() ya
+    // pudo montar uno con datos anuales del extractor).
+    const cvlEl = document.getElementById('c-vl');
+    if (cvlEl && series.length > 1) {
+      try { Chart.getChart(cvlEl)?.destroy(); } catch(e) {}
+      const base = series[0].nav;
+      const me2 = monthEndF(series);
+      const labelsM = me2.map(p => p.date.getUTCFullYear()+'-'+String(p.date.getUTCMonth()+1).padStart(2,'0'));
+      const valsM = me2.map(p => (p.nav/base)*100);
+      const lastIdx = valsM.length - 1;
+      const lastVal = valsM[lastIdx];
+      // Anotación del último punto: valor visible en el gráfico
+      const lastPointLabel = {
+        id: 'lastPointLabel',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          const pt = meta.data[lastIdx];
+          if (!pt) return;
+          ctx.save();
+          ctx.fillStyle = 'rgba(12,35,64,0.95)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Etiqueta con el valor
+          ctx.font = '600 11px "Source Code Pro", monospace';
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          const txt = fmtES(lastVal, 1);
+          const tx = pt.x + 8;
+          const ty = pt.y - 2;
+          // Fondo blanco de la etiqueta
+          const metrics = ctx.measureText(txt);
+          const padX = 4, padY = 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.fillRect(tx - padX, ty - 8, metrics.width + padX*2, 14);
+          ctx.fillStyle = 'rgba(12,35,64,1)';
+          ctx.fillText(txt, tx, ty);
+          ctx.restore();
+        }
+      };
+      new Chart(cvlEl, {
+        type: 'line',
+        data: { labels: labelsM, datasets: [{
+          label:'VL Base 100', data: valsM,
+          borderColor:'rgba(12,35,64,0.85)', backgroundColor:'rgba(12,35,64,0.10)',
+          fill:true, tension:0.2,
+          pointRadius:0, pointHoverRadius:5, pointHitRadius:8,
+          pointHoverBackgroundColor:'rgba(12,35,64,1)',
+          pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction: { mode:'index', intersect:false },
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true, displayColors:false,
+              callbacks:{
+                title: (items) => items[0]?.label || '',
+                label: (c) => 'Base 100: '+fmtES(c.parsed.y,1)
+              }
+            }
+          },
+          scales:{
+            x:{ grid:{display:false}, ticks:{ maxTicksLimit:8, font:{size:9} } },
+            y:{ grid:{display:false}, beginAtZero:false, ticks:{ callback: v => fmtES(v,0) } }
+          }
+        },
+        plugins: [lastPointLabel]
+      });
+    }
+  } catch(eHist) { console.warn('Historia KPIs from MST failed:', eHist); }
+
+  // ── Evolución tab ──
+  const evoEl=document.getElementById('mst-evo-content');
+  const loadEl=document.getElementById('mst-loading');
+  if(evoEl)evoEl.style.display='block';
+  if(loadEl)loadEl.style.display='none';
+
+  // KPIs
+  const totalR=series[series.length-1].nav/series[0].nav;
+  const nYears=(series[series.length-1].date-series[0].date)/31557600000;
+  const cagr=Math.pow(totalR,1/nYears)-1;
+  const allMR=rets(me).map(x=>x.r);
+  const volAll=stdF(allMR)*Math.sqrt(12);
+  const ddCalc=calcDrawdown(series);
+  const maxDD=Math.min(...ddCalc.dd);
+  const roll3=calcRolling(me,36);
+  const avgRoll3=roll3.vals.length?roll3.vals.reduce((a,b)=>a+b,0)/roll3.vals.length:0;
+  const rollVol12=calcRollingVol(me,12);
+  const avgRollVol=rollVol12.vals.length?rollVol12.vals.reduce((a,b)=>a+b,0)/rollVol12.vals.length:0;
+
+  const kpiEl=document.getElementById('mst-evo-kpis');
+  // Drawdown details: fecha del mínimo y duración (peak→trough y trough→recovery)
+  const ddDur = ddCalc.worstPeakDate && ddCalc.worstDate ? monthsBetween(ddCalc.worstPeakDate,ddCalc.worstDate) : null;
+  const ddRec = ddCalc.worstDate && ddCalc.recoveredDate ? monthsBetween(ddCalc.worstDate,ddCalc.recoveredDate) : null;
+  const ddSubParts = [];
+  if(ddCalc.worstDate) ddSubParts.push(fmtDate(ddCalc.worstDate));
+  if(ddDur) ddSubParts.push('−'+ddDur+'m');
+  if(ddRec) ddSubParts.push('rec. '+ddRec+'m');
+  else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
+  const ddSub = ddSubParts.join(' · ');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
+  `;
+
+  renderRetChart('mst-evo-ret');
+  renderVolChart('mst-evo-vol');
+
+  // Growth base 100 with tooltip
+  const step=Math.max(1,Math.floor(series.length/100));
+  const gPts=series.filter((_,i)=>i%step===0||i===series.length-1);
+  const gVals=gPts.map(p=>p.nav/series[0].nav*100);
+  // Find max point for annotation
+  const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
+  const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
+  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+    options:lineOpt(),
+    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
+      // Label last point and max
+      const meta=chart.getDatasetMeta(0);
+      [gMaxIdx,gVals.length-1].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(gVals[idx],0),pt.x,pt.y-10);
+        }
+      });
+    }}]
+  });
+
+  // Drawdown daily with max DD annotation
+  const ddStep=Math.max(1,Math.floor(ddCalc.dates.length/100));
+  const ddPts=ddCalc.dates.filter((_,i)=>i%ddStep===0||i===ddCalc.dates.length-1);
+  const ddV=ddCalc.dd.filter((_,i)=>i%ddStep===0||i===ddCalc.dd.length-1);
+  const ddVpct=ddV.map(v=>v*100);
+  const ddMin=Math.min(...ddVpct);const ddMinIdx=ddVpct.indexOf(ddMin);
+  // Find 2nd worst drawdown (different trough)
+  let dd2Idx=-1,dd2Val=0;
+  for(let i=0;i<ddVpct.length;i++){
+    if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
+  }
+  const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
+  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+    options:lineOpt(),
+    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
+      const meta=chart.getDatasetMeta(0);
+      [ddMinIdx,dd2Idx].forEach(idx=>{
+        if(idx>=0&&idx<meta.data.length){
+          const pt=meta.data[idx];
+          ctx.fillText(fmtES(ddVpct[idx],1)+'%',pt.x,pt.y+14);
+        }
+      });
+    }}]
+  });
+
+  // Rolling (initial)
+  updateRollingRet();
+  updateRollingVol();
+}
+
+function updateRollingRet(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-ret-sel').value)||36;
+  const r=calcRolling(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rrL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#6aaa88':'#1a4d2e';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+function updateRollingVol(){
+  if(!MST_ME)return;
+  const months=parseInt(document.getElementById('mst-roll-vol-sel').value)||12;
+  const r=calcRollingVol(MST_ME,months);
+  const step=Math.max(1,Math.floor(r.dates.length/80));
+  const pts=r.dates.filter((_,i)=>i%step===0||i===r.dates.length-1);
+  const vals=r.vals.filter((_,i)=>i%step===0||i===r.vals.length-1);
+  const vpct=vals.map(v=>v*100);
+  const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
+  const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
+  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
+    },
+    plugins:[{id:'rvL',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#8095ad':'#3d5a80';
+      const meta=chart.getDatasetMeta(0);
+      [maxI,vpct.length-1].forEach(idx=>{if(idx>=0&&idx<meta.data.length)ctx.fillText(fmtES(vpct[idx],1)+'%',meta.data[idx].x,meta.data[idx].y-10);});
+    }}]
+  });
+}
+
+// Auto-fetch on page load
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else{const el=document.getElementById('mst-loading');if(el)el.textContent='Datos insuficientes de Morningstar ('+((MST_DATA||[]).length)+' puntos)';}
+  }catch(e){
+    const el=document.getElementById('mst-loading');
+    if(el)el.textContent='Error cargando datos de Morningstar: '+e.message;
+    console.error('MST error:',e);
+  }
+});
+</script>
+</body>
+</html>
