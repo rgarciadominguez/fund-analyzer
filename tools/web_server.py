@@ -313,6 +313,15 @@ def make_app(cold_start: bool = True) -> Flask:
             # opera sobre outputs existentes que cold_start acaba de borrar.
             print(f"[ANALYZE {isin}] [WARN] cold_start=True ignora apply_feedback=True")
 
+        # Test-guard (2026-06-09): bajo pytest NUNCA lanzar el bat de producción.
+        # Un test que crea la app o dispara el worker leía el queue_state.json
+        # REAL y lanzaba runs de verdad (bat + orchestrator orphan, contra ISINs
+        # reales de la cola del usuario). Devolvemos un run stub sin Popen.
+        if os.environ.get("PYTEST_CURRENT_TEST") and not os.environ.get("FUND_ANALYZER_ALLOW_REAL_LAUNCH"):
+            print(f"[ANALYZE {isin}] [TEST-GUARD] launch real omitido bajo pytest")
+            RUNS[run_id] = {"run_id": run_id, "isin": isin, "status": "test_skipped", "pid": None}
+            return {"run_id": run_id, "isin": isin, "status": "test_skipped", "test_guard": True}, 200
+
         try:
             log_file = log_path.open("w", encoding="utf-8")
             creationflags = 0
