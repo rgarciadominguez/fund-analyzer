@@ -121,8 +121,9 @@ _COMMENTARY_KEYWORDS = (
 _KID_KEYWORDS = ("kid", "kiid", "prip", "dfi", "_dic_", "-dic-")
 _PROSPECTUS_KEYWORDS = ("prospectus", "folleto", "prospecto")
 _AR_KEYWORDS = (
-    "annual-report", "annualreport", "semi-annual", "semiannual",
-    "informe-anual", "informe-semestral",
+    "annual-report", "annual_report", "annualreport", "annual_financial",
+    "annual-financial", "semi-annual", "semi_annual", "semiannual",
+    "informe-anual", "informe-semestral", "comptes-annuels",
 )
 
 # Tokens genéricos de nombres de fondo que NO sirven para confirmar identidad
@@ -142,7 +143,19 @@ def _classify_pdf_for_task(pdf_path: Path, isin: str, fund_name: str = "") -> tu
     Devuelve None si el PDF debe descartarse (corporate ESG/stewardship que no
     menciona el ISIN target en sus primeras páginas).
     """
-    name_lc = pdf_path.name.lower()
+    # Normalizar %20 (espacios URL-encoded) → '-' para que los keywords casen
+    # con nombres tipo 'Annual%20Impact%20Report'.
+    name_lc = pdf_path.name.lower().replace("%20", "-")
+
+    # AR de la KB (data/known_annual_reports.json, descargados por
+    # tools.fetch_annual_report con nombre annual_report_YYYY / semi_annual_YYYY):
+    # PRE-VERIFICADOS por los agentes de sourcing (contienen el sub-fondo). En
+    # umbrellas de ~950 págs el sub-fondo está a pág 100+ y el scan corto de
+    # abajo los rechazaría → confiar directamente.
+    if name_lc.startswith("annual_report_"):
+        return ("annual_subfund", AR_SUBFUND_SCHEMA)
+    if name_lc.startswith("semi_annual_") or name_lc.startswith("semi_annual_report_"):
+        return ("semi_annual_subfund", AR_SUBFUND_SCHEMA)
 
     # Skip corporativo/temático/ESG: estos tipos NUNCA son las cuentas/factsheet/
     # carta del fondo, aunque mencionen el ISIN (Robeco etiqueta sus market
@@ -1455,14 +1468,26 @@ Devuelve SOLO el JSON. Nada más."""
                 # está sano (no corrupto/truncado ni ajeno) ANTES de emitir tarea.
                 # Evita extraer basura (snapshots Wayback a 1MB, docs de otro fondo).
                 try:
-                    from tools.verify_fund_docs import verify_doc_for_fund
-                    _mp = 60 if task_type in ("annual_subfund", "semi_annual_subfund") else 8
-                    _ok, _reason = verify_doc_for_fund(
-                        pdf, self.isin, self.fund_name, self.gestora, max_pages=_mp)
-                    if not _ok:
-                        console.log(f"[yellow]A.2 skip {pdf.name[:40]}: {_reason}")
-                        n_skipped += 1
-                        continue
+                    from tools.verify_fund_docs import verify_doc_for_fund, is_complete_pdf
+                    # AR de la KB (data/known_annual_reports.json, descargados por
+                    # tools.fetch_annual_report con nombre annual_report_YYYY) están
+                    # PRE-VERIFICADOS por los agentes de sourcing (contienen el
+                    # sub-fondo). En umbrellas de ~950 págs el sub-fondo está a
+                    # pág 100+ y un scan corto los rechazaría por error → confiar
+                    # (solo exigir completitud).
+                    if pdf.name.lower().startswith("annual_report_"):
+                        if not is_complete_pdf(pdf):
+                            console.log(f"[yellow]A.2 skip {pdf.name[:40]}: truncado")
+                            n_skipped += 1
+                            continue
+                    else:
+                        _mp = 60 if task_type in ("annual_subfund", "semi_annual_subfund") else 8
+                        _ok, _reason = verify_doc_for_fund(
+                            pdf, self.isin, self.fund_name, self.gestora, max_pages=_mp)
+                        if not _ok:
+                            console.log(f"[yellow]A.2 skip {pdf.name[:40]}: {_reason}")
+                            n_skipped += 1
+                            continue
                 except Exception:
                     pass  # ante fallo del verificador, no bloquear
                 stem = re.sub(r"[^A-Za-z0-9_-]", "_", pdf.stem)[:50]

@@ -1,0 +1,61 @@
+{
+  "_doc": "AR oficiales verificados (URLs directas, completas, NO Wayback). Sourcing A.2 (2026-06-10). El downloader (tools/fetch_annual_report.py) y el discovery consultan esto antes de scrapear. Un AR de paraguas cubre todos los ISINs listados.",
+  "umbrellas": {
+    "Robeco Capital Growth Funds": {
+      "isins": ["LU0203975437", "LU0329355670", "LU1048590381", "LU1654173217"],
+      "documents_page": "https://www.robeco.com/en-int/products/funds/isin-lu0203975437/robeco-bp-global-premium-equities-d-eur",
+      "reports": [
+        {"year": "2024", "url": "https://www.robeco.com/files/docm/annu-2024-robeco-capital-growth-funds-en.pdf"},
+        {"year": "2023", "url": "https://www.robeco.com/files/docm/annu-2023-robeco-capital-growth-funds-en.pdf"}
+      ]
+    },
+    "Goldman Sachs Funds": {
+      "isins": ["LU0234681749"],
+      "documents_page": "https://www.gsam.com/en/sicav/annual-report",
+      "reports": [
+        {"year": "2024", "url": "https://www.gsam.com/content/dam/gsam/pdfs/international/en/prospectus-and-regulatory/annual-financial-statement/ar_sicav_en.pdf"}
+      ]
+    },
+    "Vontobel Fund": {
+      "isins": ["LU0153585137"],
+      "documents_page": "https://am.vontobel.com/en/view/LU0153585137/vontobel-fund-european-equity",
+      "reports": [
+        {"year": "2024", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20240831-en.pdf"},
+        {"year": "2023", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20230831-en.pdf"}
+      ]
+    },
+    "HAMCO SICAV": {
+      "isins": ["LU3038481936"],
+      "documents_page": "https://www.andbank.com/luxembourg/en/gestion-dactifs/nos-fonds/",
+      "reports": [
+        {"year": "2025", "url": "https://www.andbank.com/funds/luxemburg/pdf/ff_000000000045_fin_12m_en_202605051232.pdf"}
+      ]
+    },
+    "Wellington Management Funds (Ireland) plc": {
+      "isins": ["IE00B8BPMF80"],
+      "documents_page": "https://www.swissfunddata.ch/sfdpub/funds?company=8501",
+      "_nota": "swissfunddata: HEAD devuelve stub, GET devuelve el PDF (el downloader usa GET).",
+      "reports": [
+        {"year": "2024", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20241231-en.pdf"},
+        {"year": "2023", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20231231-en.pdf"}
+      ]
+    },
+    "GAM Star Fund plc": {
+      "isins": ["IE00BF5GGB04"],
+      "documents_page": "https://www.gam.com/en/documents",
+      "_nota": "FY-end 30 junio. FY2024 en FSC Bulgaria (regulador), FY2023 en swissfunddata.",
+      "reports": [
+        {"year": "2024", "url": "https://www.fsc.bg/wp-content/uploads/2024/11/1-gam-star-fund-plc-30.06.2024.pdf"},
+        {"year": "2023", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-3241_47_02-20230630-en.pdf"}
+      ]
+    },
+    "Ashoka WhiteOak ICAV": {
+      "isins": ["IE00BDR0JY05"],
+      "documents_page": "https://www.whiteoakcapitalpartners.com/ucits.php",
+      "_nota": "URL fundslibrary con tokens firmados que pueden CADUCAR; el AR ya descargado persiste en raw/discovery. Históricos bajo nombre antiguo 'India Acorn ICAV' (portal Carne JS-gated).",
+      "reports": [
+        {"year": "2024", "url": "https://www.fundslibrary.co.uk/FundsLibrary.DataRetrieval/Documents.aspx/?type=packet_fund_doc_reports_and_accounts&docid=295a9023-1dec-4999-bd16-99648ac81ca9&user=tbWlNaMtBU9Y4RTo08a%2F1NW5TLT1ViKMLlz0ufR7yoU%3D&language=en-GB&track1=lzGMNKxfme9S2jZog0uzX%2BpGtVZmF0IVx8zXrCgcTkGmbvpgTK7Etvejn1VDrCn3pbxYiEaeQ8XS8OFh4%2B9zVw%3D%3D&track2=1xmpUavs7iF4WHR9benbqVNd9nEbZNG8emMIi9VCrTQ%3D&r=1"}
+      ]
+    }
+  }
+}
