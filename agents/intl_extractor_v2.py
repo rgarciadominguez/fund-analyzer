@@ -1457,6 +1457,15 @@ Devuelve SOLO el JSON. Nada más."""
             # discovery, que clasifica casi todo como annual_report). Usar
             # classifier por nombre de fichero y emitir UNA task por PDF.
             discovery_dir = self.fund_dir / "raw" / "discovery"
+            # A.2 sourcing (2026-06-10): si el fondo tiene AR oficial en la KB
+            # (data/known_annual_reports.json), descargarlo a discovery antes de
+            # escanear. Resuelve el caso INT donde el discovery automatico no
+            # encuentra el AR del sub-fondo (o coge Wayback truncado).
+            try:
+                from tools.fetch_annual_report import run as _fetch_ar
+                _fetch_ar(isin_filter=self.isin)
+            except Exception as exc:
+                console.log(f"[dim]fetch_annual_report KB skip: {exc}")
             pdfs = sorted(discovery_dir.glob("*.pdf")) if discovery_dir.exists() else []
             for pdf in pdfs:
                 classified = _classify_pdf_for_task(pdf, self.isin, self.fund_name)
