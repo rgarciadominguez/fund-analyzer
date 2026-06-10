@@ -89,23 +89,33 @@ def _norm_estilo(nombre: str, analysis: str, gestora: str, tipo: str | None) -> 
     por menciones genéricas en el cuerpo del análisis, p.ej. AzValor Managers que
     cita 'small caps' pero es value multi-gestor). Estilo de RV (Value/Growth/
     Quality) → gestora + lenguaje del análisis."""
+    # SUB-fondo = parte tras " - " (evita que el nombre del PARAGUAS, p.ej.
+    # "Robeco CAPITAL GROWTH FUNDS - ..." o "DNCA Invest - ...", marque estilo).
+    sub = nombre.split(" - ")[-1].lower() if " - " in nombre else nombre.lower()
     n = nombre.lower()
     a = analysis.lower()
     g = gestora.lower()
+    # Tags especiales por nombre del sub-fondo
     if re.search(r"floating rate|tipo flotante|\bfrn\b", n):
         return "Floating rate"
     if re.search(r"retorno absoluto|absolute return|market neutral", n):
         return "Retorno absoluto"
-    if re.search(r"small.?cap|microcap|micro.?cap|micro.?caps", n):
+    if re.search(r"small.?cap|microcap|micro.?cap|micro.?caps", sub):
         return "SmallCaps"
-    if re.search(r"sector financ|financials|\bbanks?\b|banc", n):
+    if re.search(r"sector financ|financials sector", sub):
         return "Sector financiero"
-    # Estilo de RV. El NOMBRE manda sobre la reputación de la gestora:
+    # Pasivos / cuánticos: NO asignar estilo activo (Value/Growth/Quality).
+    if re.search(r"[ií]ndice|enhanced index|\bindex\b|tracker|etf", sub):
+        return "Indexado"
+    if re.search(r"\bqi\b|quant|momentum|smart beta|factor", sub):
+        # Robeco QI / quant / momentum → factor, no value/growth/quality
+        return "Momentum" if "momentum" in sub else None
+    # Estilo de RV (gestión activa). El SUB-fondo manda sobre la gestora:
     # p.ej. "Sextant Quality Focus" (Amiral, casa value) → Quality, no Value.
     if tipo == "RV":
-        if "quality" in n:
+        if "quality" in sub:
             return "Quality"
-        if "growth" in n or "crecimiento" in n:
+        if "growth" in sub or "crecimiento" in sub:
             return "Growth"
         if any(v in g for v in _VALUE_GESTORAS):
             return "Value"
