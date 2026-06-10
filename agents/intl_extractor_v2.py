@@ -1503,6 +1503,21 @@ Devuelve SOLO el JSON. Nada más."""
                     return (0, -9999)              # Finect (último) lo primero
                 return (1, p.name)                 # resto, alfabético
             pdfs = sorted(pdfs, key=_ar_priority)
+
+            # Sourcing por AGENTE (2026-06-10): si tras KB+Finect el fondo sigue
+            # con <2 AR locales, encolarlo para que el agente Opus (canal de
+            # máximo rendimiento, 1 vez/fondo) navegue web gestora + swissfunddata
+            # + Wayback y rellene known_annual_reports.json. No spawnea desde el
+            # pipeline (coste); solo flaggea -> tools.ar_sourcing_queue.
+            _ar_local = sum(1 for p in pdfs
+                            if re.search(r"annual_report|semi_annual", p.name.lower()))
+            if _ar_local < 2:
+                try:
+                    from tools.ar_sourcing_queue import enqueue as _enq
+                    _enq(self.isin, self.fund_name, self.gestora, _ar_local)
+                except Exception:
+                    pass
+
             for pdf in pdfs:
                 classified = _classify_pdf_for_task(pdf, self.isin, self.fund_name)
                 if classified is None:
