@@ -71,6 +71,10 @@ async def download_and_register(
         if not any(k in ct for k in ("pdf", "html", "xml", "octet-stream")):
             if not content.startswith(b"%PDF") and b"<html" not in content[:200].lower():
                 return None
+        # A.2 (2026-06-10): rechazar PDFs TRUNCADOS (descargas/Wayback cortados a
+        # 1MB exacto → sin %%EOF → corruptos). Evita registrar AR ilegibles.
+        if content.startswith(b"%PDF") and b"%%EOF" not in content[-4096:]:
+            return None
         target.write_bytes(content)
     except Exception:
         return None

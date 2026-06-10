@@ -42,6 +42,26 @@ _GENERIC = frozenset({
 })
 
 
+def is_complete_pdf(path) -> bool:
+    """True si el PDF parece COMPLETO (no truncado). Un PDF válido termina con
+    el marcador '%%EOF'. Los snapshots truncados de Wayback (cortados a 1MB
+    exacto) NO lo tienen → ilegibles. Cheque rápido sin parsear todo el doc."""
+    try:
+        p = Path(path)
+        size = p.stat().st_size
+        if size < 1024:
+            return False
+        with p.open("rb") as fh:
+            head = fh.read(5)
+            if not head.startswith(b"%PDF"):
+                return False
+            fh.seek(max(0, size - 4096))
+            tail = fh.read()
+        return b"%%EOF" in tail
+    except Exception:
+        return False
+
+
 def _name_tokens(fund_name: str, gestora: str = "") -> list[str]:
     # Excluir tokens de la GESTORA: 'robeco' aparece en todos los docs
     # corporativos de Robeco → demasiado débil. Exigimos tokens del SUB-fondo.
@@ -55,6 +75,8 @@ def verify_doc_for_fund(path, isin: str, fund_name: str = "", gestora: str = "",
     p = Path(path)
     if not p.exists():
         return False, "no_existe"
+    if not is_complete_pdf(p):
+        return False, "truncado/incompleto (sin %%EOF)"
     try:
         from tools.pdf_extractor import extract_page_range
         text = extract_page_range(str(p), 0, max_pages)

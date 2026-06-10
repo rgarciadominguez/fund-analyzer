@@ -1242,6 +1242,11 @@ class LettersCollector:
                 })
                 if r.status_code != 200 or not r.content[:5].startswith(b"%PDF"):
                     return ""
+                # A.2 (2026-06-10): rechazar PDFs TRUNCADOS (Wayback corta a 1MB
+                # exacto → sin %%EOF → ilegibles). No guardarlos: ensucian
+                # raw/discovery y el extractor INT los recoge como AR corruptos.
+                if b"%%EOF" not in r.content[-4096:]:
+                    return ""  # truncado/incompleto → tratar como fallo (prueba otra fuente)
                 # Guardar temporalmente y extraer
                 fname = Path(url.split("?")[0]).stem[:50]
                 tmp = self.fund_dir / "raw" / "discovery" / f"_web_{fname}.pdf"
