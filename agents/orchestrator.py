@@ -2252,6 +2252,16 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
                     if ttype in tid:
                         new_prio = pri
                         break
+                # Cartera = MÁXIMO DETALLE (2026-06-10, Rafa): el AR trae los
+                # holdings COMPLETOS (Securities Portfolio: 50-200 posiciones con
+                # sector+país) → debe ganar al factsheet (solo top-10). Y entre
+                # AR, el más RECIENTE gana. Codificamos el año en la prioridad
+                # (semestral > anual del mismo año; ambos > factsheet=100).
+                if "annual_subfund" in tid or "semi_annual_subfund" in tid:
+                    _ym = _re_mod.search(r"(\d{4})", tid)
+                    _yr = int(_ym.group(1)) if _ym else 0
+                    _base = 210 if "semi_annual" in tid else 200
+                    new_prio = _base + (_yr - 2000)
                 # Detectar prio del existente (guardado en _meta si lo hay)
                 existing_prio = intl_data.get("_posiciones_prio", 0)
                 if not existing_pos or new_prio >= existing_prio:
