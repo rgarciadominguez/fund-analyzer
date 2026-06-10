@@ -2774,6 +2774,28 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
         log("GESTORA_RECOVERY", "ERROR", f"falló inesperadamente: {exc}")
         summary["gestora_recovery"] = {"applied": False, "error": str(exc)}
 
+    # 4.7. AUM recovery desde la NARRATIVA del análisis (2026-06-10): cuando el
+    # extractor INT no rellenó kpis.aum_actual_meur pero el analyst SÍ menciona el
+    # patrimonio en el texto (de FT/Finect/ficha), cogerlo de ahí. Determinista.
+    try:
+        output_path_au = fund_dir / "output.json"
+        if output_path_au.exists():
+            od = json.loads(output_path_au.read_text(encoding="utf-8"))
+            if (od.get("kpis") or {}).get("aum_actual_meur") is None:
+                from tools.aum_from_analysis import harvest
+                h = harvest(od)
+                if h:
+                    od.setdefault("kpis", {})["aum_actual_meur"] = h[0]
+                    me = od.setdefault("_manual_edits", [])
+                    if "kpis.aum_actual_meur" not in me:
+                        me.append("kpis.aum_actual_meur")
+                    output_path_au.write_text(json.dumps(od, ensure_ascii=False, indent=2), encoding="utf-8")
+                    log("AUM_RECOVERY", "OK", f"AUM recuperado de narrativa: {h[0]} M€")
+                    summary["aum_recovery"] = {"applied": True, "meur": h[0]}
+    except Exception as exc:
+        log("AUM_RECOVERY", "ERROR", f"falló inesperadamente: {exc}")
+        summary["aum_recovery"] = {"applied": False, "error": str(exc)}
+
     # 5. Validation + meta + quality + calendar + dashboard (same as consume_cowork_pipeline)
     config_path = fund_dir / "config.json"
     if config_path.exists():
