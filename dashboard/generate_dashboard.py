@@ -4260,9 +4260,10 @@ def _build_desglose_exposicion_html(data):
     )
 
 
-def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=8):
-    """Gráfico Chart.js stacked-bar de evolución de pesos por año (geo o sector).
-    history = [{periodo, <subkey>: {categoria: peso_pct}}]. Devuelve '' si <2 años."""
+def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=5):
+    """Gráfico Chart.js de ÁREA APILADA de evolución de pesos por año (geo/sector).
+    Muestra las top_n categorías principales + 'Otros'. history = [{periodo,
+    <subkey>: {categoria: peso_pct}}]. Devuelve '' si <2 años."""
     import json as _json
     hist = [h for h in (history or []) if h.get("periodo") and isinstance(h.get(subkey), dict)]
     hist.sort(key=lambda h: str(h.get("periodo")))
@@ -4275,21 +4276,29 @@ def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=8):
             if v is not None:
                 agg[k] = agg.get(k, 0) + (v or 0)
     top = [k for k, _ in sorted(agg.items(), key=lambda x: -x[1])[:top_n]]
-    palette = ["#0c2340", "#b48020", "#1b8a3d", "#6b3fa0", "#3d5a80",
-               "#0891b2", "#db2777", "#65a30d", "#9333ea", "#ca8a04"]
+    # paleta con alpha para área
+    base = ["#0c2340", "#b48020", "#1b8a3d", "#6b3fa0", "#3d5a80", "#0891b2"]
+    def _rgba(hexc, a):
+        hexc = hexc.lstrip("#")
+        return f"rgba({int(hexc[0:2],16)},{int(hexc[2:4],16)},{int(hexc[4:6],16)},{a})"
     datasets = []
     for i, cat in enumerate(top):
+        col = base[i % len(base)]
         datasets.append({"label": cat,
                          "data": [round((h[subkey].get(cat) or 0), 2) for h in hist],
-                         "backgroundColor": palette[i % len(palette)]})
+                         "borderColor": col, "backgroundColor": _rgba(col, 0.55),
+                         "fill": True, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5})
     otros = [round(sum((v or 0) for k, v in h[subkey].items() if k not in top), 2) for h in hist]
     if any(o > 0.05 for o in otros):
-        datasets.append({"label": "Otros", "data": otros, "backgroundColor": "#94a3b8"})
+        datasets.append({"label": "Otros", "data": otros, "borderColor": "#94a3b8",
+                         "backgroundColor": _rgba("#94a3b8", 0.45), "fill": True,
+                         "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5})
     return f'''<div class="ch-b"><div class="ch-l">{titulo}</div><div class="ch-h"><canvas id="{cid}"></canvas></div>
   <script>(function(){{ if(typeof Chart==='undefined')return; const ctx=document.getElementById('{cid}'); if(!ctx)return;
-  new Chart(ctx,{{type:'bar',data:{{labels:{_json.dumps(years)},datasets:{_json.dumps(datasets)}}},
-  options:{{responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom',labels:{{font:{{size:10}},boxWidth:10}}}},tooltip:{{callbacks:{{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}}}}},
-  scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,grid:{{display:false}},ticks:{{callback:v=>v+'%'}}}}}}}}}});}})();</script></div>'''
+  new Chart(ctx,{{type:'line',data:{{labels:{_json.dumps(years)},datasets:{_json.dumps(datasets)}}},
+  options:{{responsive:true,maintainAspectRatio:false,interaction:{{mode:'index',intersect:false}},
+  plugins:{{legend:{{position:'bottom',labels:{{font:{{size:10}},boxWidth:10}}}},tooltip:{{callbacks:{{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}}}}},
+  scales:{{x:{{grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,grid:{{display:false}},ticks:{{callback:v=>v+'%'}}}}}}}}}});}})();</script></div>'''
 
 
 def build_tab_cartera(data):
