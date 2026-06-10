@@ -85,13 +85,26 @@ PROSPECTUS_SCHEMA = {
 }
 
 AR_SUBFUND_SCHEMA = {
-    "kpis": {"aum_actual_meur": "float", "ter_pct": "float", "num_participes": "int"},
-    "posiciones": "list[{nombre, peso_pct, sector, pais}] holdings completos del sub-fondo",
+    "periodo": "string YYYY del cierre del ejercicio del AR (ej '2024')",
+    "kpis": {
+        "aum_actual_meur": "float - Total Net Assets del SUB-FONDO target en M€ (de 'Statement of Net Assets'; NO el combinado del paraguas/SICAV)",
+        "fecha_aum": "string YYYY-MM-DD del cierre",
+        "ter_pct": "float (ongoing charges / TER si aparece)",
+        "num_participes": "int si aparece",
+        "divisa_base": "string EUR/USD/GBP",
+    },
+    "posiciones": "list[{nombre, peso_pct, sector, pais}] TODOS los holdings del sub-fondo (de 'Securities Portfolio'/'Schedule of Investments'; pueden ser 30-200)",
+    "top_10": "list[{nombre, peso_pct}] de la seccion 'Top Ten Holdings' si existe (si no, las 10 mayores de posiciones)",
+    "geographic_allocation": "list[{region, peso_pct}] desglose por PAIS/zona (de 'Portfolio Breakdown'/'Geographical allocation')",
+    "sector_allocation": "list[{sector, peso_pct}] desglose por SECTOR/industria (de 'Portfolio Breakdown'/'Economic allocation')",
+    "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct} si el fondo es mixto/multi-activo",
+    "statistics": "list[{periodo: 'YYYY', nav_por_clase: {clase: nav}, num_acciones: int, aum_meur: float}] de la seccion 'Statistics'/'Statistical Information' que da NAV+acciones de los ULTIMOS 3 AÑOS -> clave para series historicas",
+    "performance": "list[{periodo: 'YYYY', clase, rentabilidad_pct, benchmark_pct}] de la tabla de rentabilidad del Directors'/Investment Manager's Report",
     "cualitativo": {
-        "estrategia": "string",
-        "decisiones_periodo": "string",
+        "estrategia": "string - filosofia/proceso del sub-fondo",
+        "decisiones_periodo": "string - movimientos de cartera del año con NOMBRES concretos (compras/ventas/cambios de peso)",
         "contexto_mercado": "string",
-        "outlook": "string",
+        "outlook": "string - perspectivas",
     },
 }
 

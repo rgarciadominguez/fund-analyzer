@@ -2037,6 +2037,41 @@ def _merge_prep_into_output(isin: str, fund_dir: Path, log) -> dict:
     return {"merged": True, "fields": fields_copied, "source": src_name}
 
 
+def merge_ar_statistics_performance(data: dict, intl_data: dict) -> None:
+    """Fase B: convierte 'statistics' (NAV/AUM 3 años) → cuantitativo.serie_aum y
+    'performance' (lista anual vs benchmark) → cuantitativo.serie_rentabilidad,
+    del AR ampliado. Upsert por periodo (solo años ^\\d{4}$). Mutación in-place."""
+    import re as _re
+    stats = data.get("statistics")
+    if isinstance(stats, list) and stats:
+        cuant = intl_data.setdefault("cuantitativo", {})
+        by_per = {e.get("periodo"): e for e in cuant.setdefault("serie_aum", []) if isinstance(e, dict)}
+        for s in stats:
+            if not isinstance(s, dict):
+                continue
+            per = str(s.get("periodo") or "")
+            meur = s.get("aum_meur")
+            if _re.match(r"^\d{4}$", per) and isinstance(meur, (int, float)) and meur:
+                by_per[per] = {"periodo": per, "valor_meur": round(float(meur), 2)}
+        cuant["serie_aum"] = list(by_per.values())
+
+    perf = data.get("performance")
+    if isinstance(perf, list) and perf:
+        cuant = intl_data.setdefault("cuantitativo", {})
+        sr = cuant.setdefault("serie_rentabilidad", [])
+        seen = {(e.get("periodo"), e.get("clase")) for e in sr if isinstance(e, dict)}
+        for p in perf:
+            if not isinstance(p, dict):
+                continue
+            per = str(p.get("periodo") or "")
+            key = (per, p.get("clase"))
+            if _re.match(r"^\d{4}$", per) and key not in seen:
+                sr.append({"periodo": per, "clase": p.get("clase", ""),
+                           "rentabilidad_pct": p.get("rentabilidad_pct"),
+                           "benchmark_pct": p.get("benchmark_pct")})
+                seen.add(key)
+
+
 def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
     """Integrate outputs of extract-pdfs-cowork into cnmv_data.json or intl_data.json.
 
@@ -2270,6 +2305,11 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
                     sanitize_serie_aum(intl_data)
                 except Exception:
                     pass
+
+            # Fase B (2026-06-10): el AR ampliado trae 'statistics' (NAV/AUM de
+            # los últimos 3 años) → serie_aum, y 'performance' (lista anual vs
+            # benchmark) → serie_rentabilidad. Llenan la pestaña Evolución INT.
+            merge_ar_statistics_performance(data, intl_data)
 
             integrated_paths.append(f"intl_data.{tf.stem}")
             n_ok += 1
