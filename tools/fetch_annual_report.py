@@ -79,12 +79,21 @@ def run(umbrella_filter: str = "", isin_filter: str = "") -> int:
                     print(f"[{uname} {year}] caché en disco OK ({tmp.stat().st_size // 1024} KB)")
                     cache[url] = tmp
                 else:
-                    ok, why = _download(url, tmp)
-                    print(f"[{uname} {year}] descarga: {why}")
-                    if not ok:
-                        n_fail += 1
-                        continue
-                    cache[url] = tmp
+                    # Antes de ir a la fuente, intentar recuperar del ARCHIVO
+                    # durable (Supabase). Así no re-descargamos años tras año y
+                    # sobrevive a que la fuente muera (Wayback/CDN/Finect efímeros).
+                    from tools.doc_archive import retrieve as _arch_retrieve
+                    _fn = f"annual_report_{year}.pdf"
+                    if isins and _arch_retrieve(isins[0], _fn, tmp) and is_complete_pdf(tmp):
+                        print(f"[{uname} {year}] recuperado del archivo durable")
+                        cache[url] = tmp
+                    else:
+                        ok, why = _download(url, tmp)
+                        print(f"[{uname} {year}] descarga: {why}")
+                        if not ok:
+                            n_fail += 1
+                            continue
+                        cache[url] = tmp
             # copiar a cada sub-fondo (los AR de la KB ya están verificados por
             # los agentes; aquí solo confirmamos completitud, rápido).
             for isin in isins:
@@ -92,6 +101,13 @@ def run(umbrella_filter: str = "", isin_filter: str = "") -> int:
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(tmp, dest)
                 status = "OK completo" if is_complete_pdf(dest) else "⚠ incompleto"
+                # Archivar (durable, content-addressed → el AR umbrella se sube 1 vez)
+                try:
+                    from tools.doc_archive import archive_file
+                    if archive_file(dest, isin, f"annual_report_{year}.pdf"):
+                        status += " + archivado"
+                except Exception:
+                    pass
                 print(f"    {isin} {year}: {status}")
                 n_ok += 1
     print(f"\nResumen: {n_ok} AR colocados, {n_fail} descargas fallidas.")
