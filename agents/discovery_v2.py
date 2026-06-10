@@ -267,10 +267,28 @@ _RULES: list[tuple[str, re.Pattern, str, int, str]] = [
     # ── SKIP (primero, cortan antes que nada) ──
     ("skip_legal", re.compile(r"\b(privacy|cookies?|terms|conditions|legal[-_ ]notice|aviso[-_ ]legal|disclaimer|gdpr)\b", re.I), "skip", 0, "legal"),
     ("skip_promo", re.compile(r"\b(application[-_ ]form|formulario|brochure|leaflet|glossary|application)\b", re.I), "skip", 0, "promotional"),
+    # 2026-06-10: rechazar falsos-AR y ruido corporativo/ESG que se colaban como
+    # 'annual_report' (Robeco 'integrated annual report') o como unknown_pdf
+    # (impact/stewardship/market monitor/retirement index...). NO son las cuentas
+    # del fondo ni cartas del gestor → ensucian la extracción del INT.
+    ("skip_corporate", re.compile(
+        r"integrated[-_ ]annual|annual[-_ ]impact|impact[-_ ]report|"
+        r"stewardship|responsible[-_ ]investment|sustainabilit|engagement[-_ ]report|"
+        r"\besg[-_ ]report|country[-_ ]esg|voting[-_ ]|proxy[-_ ]"
+        r"|market[-_ ]monitor|market[-_ ]outlook|monthly[-_ ]market|"
+        r"global[-_ ]survey|retirement[-_ ]index|key[-_ ]themes|"
+        r"climate[-_ ]report|carbon[-_ ]report", re.I), "skip", 0, "corporate_esg"),
+
+    # ── Semi-Annual (ANTES de AR: 'semi_annual_report' contiene 'annual report'
+    #    y caía mal en annual_report) ──
+    ("sar_early", re.compile(r"semi[-_ ]?annual|halbjahresbericht|halbjahres[-_ ]?bericht|rapport[-_ ]semestriel|informe[-_ ]semestral|relazione[-_ ]semestrale", re.I), "semi_annual_report", 92, ""),
 
     # ── Annual Report ──
     ("ar_dated_full", re.compile(rf"annual[-_ ]report[-_ ]\d{{1,2}}[-_ ]{_MONTHS}[-_ ](?:19|20)\d{{2}}", re.I), "annual_report", 95, ""),
-    ("ar_year", re.compile(r"(?:annual[-_ ]report|jahresbericht|rechenschaftsbericht|rapport[-_ ]annuel|informe[-_ ]anual|memoria[-_ ]anual|annrep|annual[-_ ]accounts)", re.I), "annual_report", 90, ""),
+    # 2026-06-10: reconocer las CUENTAS ANUALES del (sub)fondo/paraguas como AR
+    # ('Annual Financial Report', 'annual financial statements', 'comptes
+    # annuels'...). Son la fuente nº1 INT y antes caían en unknown_pdf.
+    ("ar_year", re.compile(r"(?:annual[-_ ]report|annual[-_ ]financial[-_ ](?:report|statements?|accounts)|jahresbericht|rechenschaftsbericht|rapport[-_ ]annuel|comptes[-_ ]annuels|informe[-_ ]anual|informe[-_ ]financiero[-_ ]anual|memoria[-_ ]anual|annrep|annual[-_ ]accounts)", re.I), "annual_report", 90, ""),
     ("ar_prefix", re.compile(r"(?:^|/)AR[-_][a-z0-9]", re.I), "annual_report", 75, ""),
 
     # ── Semi-Annual / Interim ──
@@ -282,7 +300,7 @@ _RULES: list[tuple[str, re.Pattern, str, int, str]] = [
     # ── Letters ──
     ("letter_no", re.compile(r"(?:investor[-_ ]letter|investment[-_ ]report)[-_ ](?:no[-_. ]?)?(\d{1,3})", re.I), "quarterly_letter", 90, ""),
     ("letter_dated_eu", re.compile(r"(?:investor[-_ ]letter|letter|carta)[-_ ]\d{1,2}[-_.]\d{1,2}[-_.](?:19|20)\d{2}", re.I), "quarterly_letter", 95, ""),
-    ("letter_kw", re.compile(r"\b(quarterly[-_ ]letter|carta[-_ ]trimestral|lettre[-_ ]trimestrielle|investor[-_ ]letter|commentary|letter[-_ ]to[-_ ](?:share|unit)holders)\b", re.I), "quarterly_letter", 80, ""),
+    ("letter_kw", re.compile(r"\b(quarterly[-_ ]letter|quarterly[-_ ]report|carta[-_ ]trimestral|informe[-_ ]trimestral|lettre[-_ ]trimestrielle|investor[-_ ]letter|investor[-_ ]update|fund[-_ ]update|commentary|market[-_ ]commentary|comentario[-_ ](?:del[-_ ]gestor|trimestral|mensual)|letter[-_ ]to[-_ ](?:share|unit)holders|entrevista|interview)\b", re.I), "quarterly_letter", 80, ""),
     ("letter_prefix", re.compile(r"(?:^|/)LETTER[-_][a-z0-9]", re.I), "quarterly_letter", 75, ""),
 
     # ── KID / Prospectus ──
