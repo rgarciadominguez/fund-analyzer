@@ -4260,6 +4260,17 @@ def _build_desglose_exposicion_html(data):
     )
 
 
+def _canon_pais(pais):
+    """Normaliza el país de una posición (USA→Estados Unidos) para la tabla."""
+    if not pais:
+        return "—"
+    try:
+        from tools.region_normalizer import canonical_country
+        return canonical_country(pais) or "—"
+    except Exception:
+        return pais or "—"
+
+
 def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=5):
     """Gráfico Chart.js de ÁREA APILADA de evolución de pesos por año (geo/sector).
     Muestra las top_n categorías principales + 'Otros'. history = [{periodo,
@@ -4409,7 +4420,7 @@ def build_tab_cartera(data):
         rows += f"""<tr>
   <td title="{name}">{name_display}</td>
   <td style="text-align:center;"><span class="tp-badge {tipo_cls}">{tipo_lbl}</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">{pos.get('pais','—')}</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">{_canon_pais(pos.get('pais'))}</td>
   <td>{pos.get('divisa','—')}</td>
   <td><div class="wbar"><div class="wfill" style="width:{bar_w}px;background:#0c2340;"></div>{f(w,1)}%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:{cum_bar_w}px;background:var(--ink-3);"></div>{f(cum,0)}%</div></td>

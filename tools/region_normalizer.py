@@ -56,6 +56,10 @@ _CANON = {
     "south africa": "Sudáfrica", "sudafrica": "Sudáfrica", "sudáfrica": "Sudáfrica",
     "turkey": "Turquía", "turquia": "Turquía", "turquía": "Turquía",
     "bermuda": "Bermudas", "cayman islands": "Islas Caimán", "jersey": "Jersey",
+    "british virgin islands": "Islas Vírgenes Británicas",
+    "virgin islands british": "Islas Vírgenes Británicas",
+    "virgin islands": "Islas Vírgenes Británicas", "curacao": "Curazao",
+    "isle of man": "Isla de Man", "guernsey": "Guernsey",
     "israel": "Israel", "saudi arabia": "Arabia Saudí",
     "greece": "Grecia", "grecia": "Grecia", "poland": "Polonia", "polonia": "Polonia",
     # zonas/agregados
