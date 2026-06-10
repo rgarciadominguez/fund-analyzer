@@ -4286,7 +4286,9 @@ def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=5):
         for k, v in h[subkey].items():
             if v is not None:
                 agg[k] = agg.get(k, 0) + (v or 0)
-    top = [k for k, _ in sorted(agg.items(), key=lambda x: -x[1])[:top_n]]
+    # 'Otros'/'Liquidez' nunca van al top: son siempre el bucket de resto
+    _resto = {"Otros", "Liquidez", "Cash"}
+    top = [k for k, _ in sorted(agg.items(), key=lambda x: -x[1]) if k not in _resto][:top_n]
     # paleta con alpha para área
     base = ["#0c2340", "#b48020", "#1b8a3d", "#6b3fa0", "#3d5a80", "#0891b2"]
     def _rgba(hexc, a):
@@ -4321,6 +4323,12 @@ def build_tab_cartera(data):
         s = data.get("analyst_synthesis", {}).get("cartera", {})
         pos_actual = data.get("posiciones", {}).get("actuales", [])
         pos_hist = data.get("posiciones", {}).get("historicas", [])
+    # Sectores: rellenar desde el caché global (Opción B) si falta
+    try:
+        from tools.sector_classifier import apply_sectors
+        apply_sectors(pos_actual)
+    except Exception:
+        pass
     sorted_pos = sorted(pos_actual, key=lambda x: x.get("peso_pct",0) or 0, reverse=True)
 
     # Inferir tipos de activo que faltan y calcular tipos dominantes
@@ -4420,6 +4428,7 @@ def build_tab_cartera(data):
         rows += f"""<tr>
   <td title="{name}">{name_display}</td>
   <td style="text-align:center;"><span class="tp-badge {tipo_cls}">{tipo_lbl}</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">{pos.get('sector') or '—'}</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">{_canon_pais(pos.get('pais'))}</td>
   <td>{pos.get('divisa','—')}</td>
   <td><div class="wbar"><div class="wfill" style="width:{bar_w}px;background:#0c2340;"></div>{f(w,1)}%</div></td>
@@ -4594,7 +4603,7 @@ def build_tab_cartera(data):
   <div class="sr">Todas las posiciones ({len(sorted_pos)})</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody>{rows}</tbody>
     </table>
   </div>

@@ -561,9 +561,14 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
   <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>tipo de activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">97,4% renta variable, 2,1% liquidez, 0,5% otros, 0% renta fija</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>geografía</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">EE.UU. 27,3%, Reino Unido 15,7%, Francia 13,7%, Japón 7,3%, Irlanda 6,6%, España 3,0%, resto del mundo el restante</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sectores</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Financieras 25,6%, Industriales 18,9%, Salud 15,3%, Energía 9,3%, Consumo Básico 8,9%, Tecnología 6,3%</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
 
-  <div class="col1 mb20"><div class="ch-b"><div class="ch-l">Evolución por geografía (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-geo-evo"></canvas></div>
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Evolución por geografía (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-geo-evo"></canvas></div>
   <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-geo-evo'); if(!ctx)return;
   new Chart(ctx,{type:'line',data:{labels:["2020", "2021", "2022", "2023", "2024", "2025"],datasets:[{"label": "Estados Unidos", "data": [40.29, 43.56, 38.33, 27.01, 24.02, 31.34], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Reino Unido", "data": [7.98, 8.68, 8.88, 15.26, 18.08, 15.81], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Francia", "data": [9.03, 9.52, 8.34, 10.05, 11.65, 12.97], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Jap\u00f3n", "data": [11.89, 6.41, 5.96, 9.6, 5.31, 5.9], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Alemania", "data": [8.76, 4.61, 7.49, 8.19, 6.44, 2.46], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [22.04, 26.63, 30.67, 29.82, 34.36, 32.42], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div><div class="ch-b"><div class="ch-l">Evolución por sector (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-sec-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-sec-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2020", "2021", "2022", "2023", "2024", "2025"],datasets:[{"label": "Servicios financieros", "data": [8.17, 16.84, 10.49, 16.83, 25.08, 26.48], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Industria", "data": [3.91, 18.19, 8.75, 11.76, 12.67, 18.63], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Salud", "data": [3.73, 14.63, 12.09, 4.14, 8.28, 15.76], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Materiales", "data": [4.96, 7.81, 4.55, 5.55, 4.11, 6.76], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Tecnolog\u00eda", "data": [1.85, 12.2, 3.4, 4.31, 4.29, 6.71], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [76.1, 29.74, 56.16, 55.39, 42.73, 22.63], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
   options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
   plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
   scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div></div>
@@ -602,10 +607,11 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
   <div class="sr">Todas las posiciones (115)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="CRH plc">CRH plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Materiales</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -614,6 +620,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Banco Bilbao Vizcaya Argentaria SA">Banco Bilbao Vizcaya Argentaria SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -622,6 +629,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="AstraZeneca plc">AstraZeneca plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -630,6 +638,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Rexel SA">Rexel SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -638,6 +647,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="NatWest Group plc">NatWest Group plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -646,6 +656,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Nordea Bank Abp">Nordea Bank Abp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Finlandia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -654,6 +665,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Capgemini SE">Capgemini SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -662,6 +674,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Sandoz Group AG">Sandoz Group AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -670,6 +683,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="ING Groep NV">ING Groep NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -678,6 +692,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="SPIE SA">SPIE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -686,6 +701,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="IMI plc">IMI plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -694,6 +710,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="AIB Group plc">AIB Group plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -702,6 +719,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Tesco plc">Tesco plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -710,6 +728,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Bank of America Corp.">Bank of America Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -718,6 +737,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="JPMorgan Chase & Co.">JPMorgan Chase & Co.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -726,6 +746,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Ryanair Holdings plc">Ryanair Holdings plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -734,6 +755,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Prudential plc">Prudential plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -742,6 +764,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Textron, Inc.">Textron, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,2%</div></td>
@@ -750,6 +773,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Shell plc">Shell plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Energía</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -758,6 +782,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Goldman Sachs Group, Inc. (The)">Goldman Sachs Group, Inc. (The)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -766,6 +791,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Danske Bank A/S">Danske Bank A/S</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -774,6 +800,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Bankinter SA">Bankinter SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -782,6 +809,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Bureau Veritas SA">Bureau Veritas SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
@@ -790,6 +818,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Enel SpA">Enel SpA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios públicos</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
@@ -798,6 +827,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Cie de Saint-Gobain SA">Cie de Saint-Gobain SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Materiales</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -806,6 +836,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Informa plc">Informa plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Comunicación</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -814,6 +845,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Deutsche Telekom AG">Deutsche Telekom AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Comunicación</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -822,6 +854,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="TotalEnergies SE">TotalEnergies SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Energía</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -830,6 +863,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Walt Disney Co. (The)">Walt Disney Co. (The)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Comunicación</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -838,6 +872,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Koninklijke Ahold Delhaize NV">Koninklijke Ahold Delhaize NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -846,6 +881,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Fuji Electric Co. Ltd.">Fuji Electric Co. Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -854,6 +890,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Gen Digital, Inc.">Gen Digital, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -862,6 +899,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Weir Group plc (The)">Weir Group plc (The)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -870,6 +908,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Freeport-McMoRan, Inc.">Freeport-McMoRan, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Materiales</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -878,6 +917,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Acuity, Inc.">Acuity, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -886,6 +926,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Hiscox Ltd.">Hiscox Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Bermudas</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -894,6 +935,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Kerry Group plc 'A'">Kerry Group plc 'A'</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -902,6 +944,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Airbus SE">Airbus SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -910,6 +953,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Amgen, Inc.">Amgen, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -918,6 +962,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Range Resources Corp.">Range Resources Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Energía</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -926,6 +971,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Renesas Electronics Corp.">Renesas Electronics Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -934,6 +980,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Hikma Pharmaceuticals plc">Hikma Pharmaceuticals plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -942,6 +989,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Allstate Corp. (The)">Allstate Corp. (The)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -950,6 +998,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Sumitomo Mitsui Financial Group, Inc.">Sumitomo Mitsui Financial Group, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -958,6 +1007,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Glencore plc">Glencore plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Materiales</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Jersey</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -966,6 +1016,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Beazley plc">Beazley plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -974,6 +1025,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Tenet Healthcare Corp.">Tenet Healthcare Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -982,6 +1034,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Marks & Spencer Group plc">Marks & Spencer Group plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo cíclico</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -990,6 +1043,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Chubb Ltd.">Chubb Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -998,6 +1052,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Cummins, Inc.">Cummins, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1006,6 +1061,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Labcorp Holdings, Inc.">Labcorp Holdings, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1014,6 +1070,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="FedEx Corp.">FedEx Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1022,6 +1079,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Cisco Systems, Inc.">Cisco Systems, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1030,6 +1088,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Vallourec SACA">Vallourec SACA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Materiales</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1038,6 +1097,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Coca-Cola Europacific Partners plc">Coca-Cola Europacific Partners plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1046,6 +1106,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="IQVIA Holdings, Inc.">IQVIA Holdings, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1054,6 +1115,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Huntington Bancshares, Inc.">Huntington Bancshares, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1062,6 +1124,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="GE HealthCare Technologies, Inc.">GE HealthCare Technologies, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1070,6 +1133,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Novo Nordisk A/S 'B'">Novo Nordisk A/S 'B'</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1078,6 +1142,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Biogen, Inc.">Biogen, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1086,6 +1151,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="HCA Healthcare, Inc.">HCA Healthcare, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1094,6 +1160,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Grifols SA">Grifols SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1102,6 +1169,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="RenaissanceRe Holdings Ltd.">RenaissanceRe Holdings Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Bermudas</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1110,6 +1178,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Elis SA">Elis SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1118,6 +1187,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Fifth Third Bancorp">Fifth Third Bancorp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1126,6 +1196,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="M&T Bank Corp.">M&T Bank Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1134,6 +1205,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="SSE plc">SSE plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios públicos</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1142,6 +1214,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Cigna Group (The)">Cigna Group (The)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1150,6 +1223,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Schlumberger Ltd.">Schlumberger Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Energía</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Curazao</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1158,6 +1232,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Ipsen SA">Ipsen SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1166,6 +1241,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Siemens AG">Siemens AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1174,6 +1250,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Saipem SpA">Saipem SpA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Energía</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1182,6 +1259,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Sugi Holdings Co. Ltd.">Sugi Holdings Co. Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1190,6 +1268,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Merck KGaA">Merck KGaA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1198,6 +1277,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Heineken NV">Heineken NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1206,6 +1286,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="East West Bancorp, Inc.">East West Bancorp, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1214,6 +1295,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Everest Group Ltd.">Everest Group Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Bermudas</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -1222,6 +1304,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Johnson & Johnson">Johnson & Johnson</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -1230,6 +1313,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="CDW Corp.">CDW Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -1238,6 +1322,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Cencora, Inc.">Cencora, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -1246,6 +1331,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Diamondback Energy, Inc.">Diamondback Energy, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Energía</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -1254,6 +1340,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Eiffage SA">Eiffage SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1262,6 +1349,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="AbbVie, Inc.">AbbVie, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1270,6 +1358,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="ConocoPhillips">ConocoPhillips</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Energía</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1278,6 +1367,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Flowserve Corp.">Flowserve Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1286,6 +1376,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Italgas SpA">Italgas SpA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios públicos</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1294,6 +1385,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="KT Corp.">KT Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Comunicación</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Corea del Sur</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1302,6 +1394,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Mitsubishi Chemical Group Corp.">Mitsubishi Chemical Group Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Materiales</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1310,6 +1403,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Mitsubishi UFJ Financial Group, Inc.">Mitsubishi UFJ Financial Group, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1318,6 +1412,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Barratt Redrow plc">Barratt Redrow plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo cíclico</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1326,6 +1421,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="NetApp, Inc.">NetApp, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1334,6 +1430,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Loomis AB 'B'">Loomis AB 'B'</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1342,6 +1439,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="EPAM Systems, Inc.">EPAM Systems, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1350,6 +1448,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Aptiv plc">Aptiv plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo cíclico</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Jersey</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1358,6 +1457,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Cie Generale des Etablissements Michelin SCA">Cie Generale des Etablissements Michelin SCA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo cíclico</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1366,6 +1466,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Sanofi SA">Sanofi SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Salud</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1374,6 +1475,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Toyo Suisan Kaisha Ltd.">Toyo Suisan Kaisha Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1382,6 +1484,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="T-Mobile US, Inc.">T-Mobile US, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Comunicación</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1390,6 +1493,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="BNP Paribas SA">BNP Paribas SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1398,6 +1502,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="DuPont de Nemours, Inc.">DuPont de Nemours, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Materiales</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1406,6 +1511,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="HD Korea Shipbuilding & Offshore Engineering Co. Ltd.">HD Korea Shipbuilding & Offshore Engineering Co. Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Corea del Sur</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1414,6 +1520,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Samsung Fire & Marine Insurance Co. Ltd.">Samsung Fire & Marine Insurance Co. Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Corea del Sur</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1422,6 +1529,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Leidos Holdings, Inc.">Leidos Holdings, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1430,6 +1538,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="US Foods Holding Corp.">US Foods Holding Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1438,6 +1547,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="KB Financial Group, Inc.">KB Financial Group, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Corea del Sur</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1446,6 +1556,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Marathon Petroleum Corp.">Marathon Petroleum Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Energía</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1454,6 +1565,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="United Rentals, Inc.">United Rentals, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1462,6 +1574,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Kyocera Corp.">Kyocera Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1470,6 +1583,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Eurazeo SE">Eurazeo SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1478,6 +1592,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Diageo plc">Diageo plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Consumo defensivo</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1486,6 +1601,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Alten SA">Alten SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Tecnología</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1494,6 +1610,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="KBR, Inc.">KBR, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1502,6 +1619,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Nippon Gas Co. Ltd.">Nippon Gas Co. Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios públicos</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1510,6 +1628,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Japan Post Insurance Co. Ltd.">Japan Post Insurance Co. Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Servicios financieros</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1518,6 +1637,7 @@ Es licenciado en <strong>Economía</strong> (B.A.) por <strong>Bowdoin College</
 </tr><tr>
   <td title="Resideo Technologies, Inc.">Resideo Technologies, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Industria</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>

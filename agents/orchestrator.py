@@ -2091,8 +2091,17 @@ def merge_ar_statistics_performance(data: dict, intl_data: dict) -> None:
             hist.sort(key=lambda h: h.get("periodo", ""))
         if isinstance(data.get("geographic_allocation"), list):
             _upsert_hist("geographic_allocation_history", "zonas", data["geographic_allocation"], "region", normalize=True)
-        if isinstance(data.get("sector_allocation"), list):
-            _upsert_hist("sector_allocation_history", "sectores", data["sector_allocation"], "sector")
+        # Sector: del AR si lo trae; si no (caso Robeco, lista por país), DERIVAR
+        # de las posiciones del AR vía el clasificador (caché global de sectores).
+        sec_items = data.get("sector_allocation") if isinstance(data.get("sector_allocation"), list) else None
+        if not sec_items and isinstance(data.get("posiciones"), list) and data["posiciones"]:
+            try:
+                from tools.sector_classifier import build_sector_allocation
+                sec_items = build_sector_allocation(data["posiciones"])
+            except Exception:
+                sec_items = None
+        if sec_items:
+            _upsert_hist("sector_allocation_history", "sectores", sec_items, "sector")
 
 
 def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
