@@ -485,6 +485,19 @@ def render_narrative_inline(text, fund_name=""):
             prev_was_header = True
             continue
 
+        # 1b. Párrafo que empieza con "**AÑO ... :** texto" (cronología de Historia)
+        # → bloque de AÑO indentado y elegante (sangría + borde), no negrita suelta
+        # a mismo nivel que los headers de sección.
+        ym = _re.match(r'^\*\*\s*((?:19|20)\d{2}[^*]{0,60}?)\*\*\s*[:\-—]?\s*(.+)', para, _re.DOTALL)
+        if ym:
+            label = ym.group(1).strip().rstrip(":-—— ").strip()
+            rest = _bold(ym.group(2).strip().replace("\n", " "))
+            html += (f'<div style="margin:7px 0 7px 16px;padding:2px 0 2px 12px;'
+                     f'border-left:2px solid var(--gold,#b48020);">'
+                     f'<strong style="color:var(--ink-1);">{label}</strong> · {rest}</div>')
+            prev_was_header = False
+            continue
+
         # 2. Mixed prose + list inside the block: emit interleaved <p>/<ul>.
         # Lines starting with `- ` or `* ` form a contiguous <ul>; the rest
         # accumulates into a <p> until a list line breaks the run (or v.v.).
@@ -4260,6 +4273,23 @@ def _build_desglose_exposicion_html(data):
     )
 
 
+_SECTOR_COLORS = {
+    "Tecnología": "#e7f0fb", "Servicios financieros": "#e9f3ec", "Salud": "#fdeef0",
+    "Consumo cíclico": "#fdf3e6", "Consumo defensivo": "#f0ecf8", "Industria": "#eaf0f4",
+    "Energía": "#fbeede", "Materiales": "#edf6f8", "Servicios públicos": "#fbe9f1",
+    "Inmobiliario": "#f1f6e6", "Comunicación": "#f7f0e6", "Otros": "#f2f1ef",
+}
+
+
+def _sector_cell(sector):
+    """Celda de sector con tinte suave por sector (diferenciar a simple vista)."""
+    if not sector or sector == "—":
+        return '<td style="font-family:\'Source Sans 3\';font-size:11px;color:var(--ink-4);">—</td>'
+    bg = _SECTOR_COLORS.get(sector, "#f2f1ef")
+    return (f'<td style="font-family:\'Source Sans 3\';font-size:11px;">'
+            f'<span style="background:{bg};padding:1px 7px;border-radius:3px;white-space:nowrap;">{sector}</span></td>')
+
+
 def _canon_pais(pais):
     """Normaliza el país de una posición (USA→Estados Unidos) para la tabla."""
     if not pais:
@@ -4428,7 +4458,7 @@ def build_tab_cartera(data):
         rows += f"""<tr>
   <td title="{name}">{name_display}</td>
   <td style="text-align:center;"><span class="tp-badge {tipo_cls}">{tipo_lbl}</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">{pos.get('sector') or '—'}</td>
+  {_sector_cell(pos.get('sector'))}
   <td style="font-family:'Source Sans 3';font-size:11px;">{_canon_pais(pos.get('pais'))}</td>
   <td>{pos.get('divisa','—')}</td>
   <td><div class="wbar"><div class="wfill" style="width:{bar_w}px;background:#0c2340;"></div>{f(w,1)}%</div></td>
@@ -4586,8 +4616,6 @@ def build_tab_cartera(data):
   <div class="mb24">
     {narrativa_html}
   </div>
-
-  {desglose_expo_html}
 
   {evo_alloc_html}
 
@@ -5189,6 +5217,10 @@ def build_scripts(data):
     # que el chart AUM tenga último valor erróneo del extractor
     aum = [s for s in aum if isinstance(s, dict)
            and str(s.get("periodo", "")).strip() not in ("", "None", "none")]
+    # Ordenar cronológicamente (serie_aum se construye por upsert, sin orden) —
+    # si no, el gráfico AUM sale con los años desordenados y el "último = header"
+    # apunta al punto equivocado.
+    aum = sorted(aum, key=lambda s: str(s.get("periodo", "")))
     years = [str(s.get("periodo",""))[-2:] for s in aum]
     aum_v = [s.get("valor_meur",0) for s in aum]
     # AUM último valor: forzar consistencia con el header (fuente autoritativa FT/extractor)
