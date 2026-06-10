@@ -1466,6 +1466,17 @@ Devuelve SOLO el JSON. Nada más."""
                 _fetch_ar(isin_filter=self.isin)
             except Exception as exc:
                 console.log(f"[dim]fetch_annual_report KB skip: {exc}")
+            # Canal Finect (generico por ISIN): AR si la KB no aporto ninguno +
+            # SAR (semestral, que la KB no cubre). Solo descarga si falta.
+            try:
+                from tools.finect_sourcing import finect_report_urls, _download_verify
+                _urls = finect_report_urls(self.isin)
+                if _urls.get("annual_report") and not any(discovery_dir.glob("annual_report_*.pdf")):
+                    _download_verify(_urls["annual_report"], discovery_dir / "annual_report_finect.pdf")
+                if _urls.get("semi_annual_report") and not any(discovery_dir.glob("semi_annual_*.pdf")):
+                    _download_verify(_urls["semi_annual_report"], discovery_dir / "semi_annual_finect.pdf")
+            except Exception as exc:
+                console.log(f"[dim]finect sourcing skip: {exc}")
             pdfs = sorted(discovery_dir.glob("*.pdf")) if discovery_dir.exists() else []
             for pdf in pdfs:
                 classified = _classify_pdf_for_task(pdf, self.isin, self.fund_name)
