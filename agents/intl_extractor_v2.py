@@ -1491,6 +1491,18 @@ Devuelve SOLO el JSON. Nada más."""
             except Exception as exc:
                 console.log(f"[dim]finect sourcing skip: {exc}")
             pdfs = sorted(discovery_dir.glob("*.pdf")) if discovery_dir.exists() else []
+
+            # Fase B (2026-06-10): procesar los AR/SAR de MÁS NUEVO a más viejo.
+            # Si la extracción se corta (sesión/timeout), prioriza los años
+            # recientes (2024/2025) que son los más valiosos, no los antiguos.
+            def _ar_priority(p):
+                m = re.search(r"(?:annual_report|semi_annual)[_-]?(\d{4})", p.name.lower())
+                if m:
+                    return (0, -int(m.group(1)))   # ARs primero, año desc
+                if "_finect" in p.name.lower():
+                    return (0, -9999)              # Finect (último) lo primero
+                return (1, p.name)                 # resto, alfabético
+            pdfs = sorted(pdfs, key=_ar_priority)
             for pdf in pdfs:
                 classified = _classify_pdf_for_task(pdf, self.isin, self.fund_name)
                 if classified is None:
