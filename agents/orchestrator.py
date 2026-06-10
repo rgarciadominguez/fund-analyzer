@@ -1975,6 +1975,7 @@ def _merge_prep_into_output(isin: str, fund_dir: Path, log) -> dict:
         "economia_fondo", "clases",
         "asset_allocation", "geographic_allocation",
         "sector_allocation", "performance",
+        "geographic_allocation_history", "sector_allocation_history",
     )
 
     # 1. Cargar source: cnmv_data.json para ES, intl_data.json para INT
@@ -2070,6 +2071,24 @@ def merge_ar_statistics_performance(data: dict, intl_data: dict) -> None:
                            "rentabilidad_pct": p.get("rentabilidad_pct"),
                            "benchmark_pct": p.get("benchmark_pct")})
                 seen.add(key)
+
+    # Histórico de geografía/sector POR AÑO (para el gráfico de evolución de
+    # pesos). Cada AR trae el desglose de su 'periodo' → acumular (upsert).
+    _per = str(data.get("periodo") or "")
+    if _re.match(r"^\d{4}$", _per):
+        def _upsert_hist(key, subkey, items, namek):
+            mapping = {it.get(namek): it.get("peso_pct") for it in items
+                       if isinstance(it, dict) and it.get(namek) and it.get("peso_pct") is not None}
+            if not mapping:
+                return
+            hist = intl_data.setdefault(key, [])
+            hist[:] = [h for h in hist if h.get("periodo") != _per]
+            hist.append({"periodo": _per, subkey: mapping})
+            hist.sort(key=lambda h: h.get("periodo", ""))
+        if isinstance(data.get("geographic_allocation"), list):
+            _upsert_hist("geographic_allocation_history", "zonas", data["geographic_allocation"], "region")
+        if isinstance(data.get("sector_allocation"), list):
+            _upsert_hist("sector_allocation_history", "sectores", data["sector_allocation"], "sector")
 
 
 def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:

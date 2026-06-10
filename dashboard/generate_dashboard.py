@@ -4083,15 +4083,30 @@ def _infer_asset_type(pos):
         return "COMM", "Commodity", "tp-comm"
     if _re.search(r"\b(cash|deposit|money market|fondo monetario|mmf|overnight)\b", name):
         return "CASH", "Liquidez", "tp-cash"
-    if _re.search(r"\b(future|swap|option|forward|call|put|hedge)\b", name):
+    # Derivados — especificar el TIPO (no solo "Derivado")
+    if _re.search(r"\b(future|futuro|fut)\b", name):
+        return "DER", "Futuro", "tp-der"
+    if _re.search(r"\b(call|put|option|opci[óo]n|warrant|wts|rights?|derechos?)\b", name):
+        return "DER", ("Warrant" if _re.search(r"warrant|wts|rights?|derechos?", name) else "Opción"), "tp-der"
+    if _re.search(r"\b(swap|cds|irs|trs)\b", name):
+        return "DER", "Swap", "tp-der"
+    if _re.search(r"\b(forward|fwd)\b", name):
+        return "DER", "Forward", "tp-der"
+    if _re.search(r"\bcfd\b", name):
+        return "DER", "CFD", "tp-der"
+    if _re.search(r"\b(hedge|derivative|derivado)\b", name):
         return "DER", "Derivado", "tp-der"
-    # Si tiene "inc", "plc", "ag", "sa", "corp", "co" → probablemente equity
-    if _re.search(r"\b(inc|plc|ag|s\.a\.|corp|corporation|co\.?|holdings?|group)\b", name):
+    # Equity por sufijo societario (incl. más formas internacionales)
+    if _re.search(r"\b(inc|plc|ag|s\.a\.|sa|nv|spa|oyj|asa|ab|ltd|limited|corp|corporation|co|holdings?|group|se|kgaa|bhd|tbk|pjsc)\b", name):
         return "RV", "Renta variable", "tp-rv"
     # Sector como pista secundaria
     if sector and any(w in sector for w in ("bond", "government", "corporate", "fixed income")):
         return "RF", "Renta fija", "tp-rf"
     if sector and any(w in sector for w in ("equity", "consumer", "technology", "financial", "healthcare", "industrial")):
+        return "RV", "Renta variable", "tp-rv"
+    # Holding con PAÍS y sin señal de RF/derivado/cash/fondo → es una acción
+    # (en un fondo de RV, una posición nominada con país es equity, no "otros").
+    if pos.get("pais"):
         return "RV", "Renta variable", "tp-rv"
     return "OTHER", (tipo.capitalize() if tipo else "Otros"), "tp-otro"
 
@@ -4243,6 +4258,38 @@ def _build_desglose_exposicion_html(data):
         + tabla_html
         + '</div>'
     )
+
+
+def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=8):
+    """Gráfico Chart.js stacked-bar de evolución de pesos por año (geo o sector).
+    history = [{periodo, <subkey>: {categoria: peso_pct}}]. Devuelve '' si <2 años."""
+    import json as _json
+    hist = [h for h in (history or []) if h.get("periodo") and isinstance(h.get(subkey), dict)]
+    hist.sort(key=lambda h: str(h.get("periodo")))
+    if len(hist) < 2:
+        return ""
+    years = [str(h["periodo"]) for h in hist]
+    agg = {}
+    for h in hist:
+        for k, v in h[subkey].items():
+            if v is not None:
+                agg[k] = agg.get(k, 0) + (v or 0)
+    top = [k for k, _ in sorted(agg.items(), key=lambda x: -x[1])[:top_n]]
+    palette = ["#0c2340", "#b48020", "#1b8a3d", "#6b3fa0", "#3d5a80",
+               "#0891b2", "#db2777", "#65a30d", "#9333ea", "#ca8a04"]
+    datasets = []
+    for i, cat in enumerate(top):
+        datasets.append({"label": cat,
+                         "data": [round((h[subkey].get(cat) or 0), 2) for h in hist],
+                         "backgroundColor": palette[i % len(palette)]})
+    otros = [round(sum((v or 0) for k, v in h[subkey].items() if k not in top), 2) for h in hist]
+    if any(o > 0.05 for o in otros):
+        datasets.append({"label": "Otros", "data": otros, "backgroundColor": "#94a3b8"})
+    return f'''<div class="ch-b"><div class="ch-l">{titulo}</div><div class="ch-h"><canvas id="{cid}"></canvas></div>
+  <script>(function(){{ if(typeof Chart==='undefined')return; const ctx=document.getElementById('{cid}'); if(!ctx)return;
+  new Chart(ctx,{{type:'bar',data:{{labels:{_json.dumps(years)},datasets:{_json.dumps(datasets)}}},
+  options:{{responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom',labels:{{font:{{size:10}},boxWidth:10}}}},tooltip:{{callbacks:{{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}}}}},
+  scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,grid:{{display:false}},ticks:{{callback:v=>v+'%'}}}}}}}}}});}})();</script></div>'''
 
 
 def build_tab_cartera(data):
@@ -4491,6 +4538,18 @@ def build_tab_cartera(data):
 
     desglose_expo_html = _build_desglose_exposicion_html(data)
 
+    # Evolución de pesos por geografía / sector a lo largo de los años (de los AR).
+    _geo_evo = build_allocation_evolution_chart(
+        data.get("geographic_allocation_history"), "zonas",
+        "Evolución por geografía (% sobre patrimonio)", "c-geo-evo")
+    _sec_evo = build_allocation_evolution_chart(
+        data.get("sector_allocation_history"), "sectores",
+        "Evolución por sector (% sobre patrimonio)", "c-sec-evo")
+    evo_alloc_html = ""
+    if _geo_evo or _sec_evo:
+        _cls = "col2" if (_geo_evo and _sec_evo) else "col1"
+        evo_alloc_html = f'<div class="{_cls} mb20">{_geo_evo}{_sec_evo}</div>'
+
     return f"""
 <section class="pane" id="p5">
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
@@ -4500,6 +4559,8 @@ def build_tab_cartera(data):
   </div>
 
   {desglose_expo_html}
+
+  {evo_alloc_html}
 
   <div class="kpi-row">
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">{len(sorted_pos)}</div><div class="kpi-sub">vs media hist. {f(avg_npos,0)}</div></div>

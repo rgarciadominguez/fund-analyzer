@@ -93,7 +93,7 @@ AR_SUBFUND_SCHEMA = {
         "num_participes": "int si aparece",
         "divisa_base": "string EUR/USD/GBP",
     },
-    "posiciones": "list[{nombre, peso_pct, sector, pais}] TODOS los holdings del sub-fondo (de 'Securities Portfolio'/'Schedule of Investments'; pueden ser 30-200)",
+    "posiciones": "list[{nombre, peso_pct, sector, pais, tipo}] TODOS los holdings del sub-fondo (de 'Securities Portfolio'/'Schedule of Investments'; pueden ser 30-200). tipo = clase de activo SEGÚN LA SECCIÓN del AR: 'RV' (Shares/Equities), 'RF' (Bonds/Notes), 'fondo' (Investment/Open-ended funds), 'warrant' (Warrants and rights), 'future'/'option'/'swap'/'forward' (Derivatives), 'liquidez' (Cash). NO marcar 'otros' si es una acción.",
     "top_10": "list[{nombre, peso_pct}] de la seccion 'Top Ten Holdings' si existe (si no, las 10 mayores de posiciones)",
     "geographic_allocation": "list[{region, peso_pct}] desglose por PAIS/zona (de 'Portfolio Breakdown'/'Geographical allocation')",
     "sector_allocation": "list[{sector, peso_pct}] desglose por SECTOR/industria (de 'Portfolio Breakdown'/'Economic allocation')",
