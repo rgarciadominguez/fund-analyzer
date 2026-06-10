@@ -261,17 +261,20 @@ Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.jso
 
 ### historia
 
+**ENFOQUE (2026-06-10): la CLAVE es vincular performance del fondo ↔ DECISIONES del gestor ↔ ENTORNO de mercado.** No una cronología genérica, y NO repetir arriba lo que ya está en el timeline (`hitos`) de abajo.
+
 ```json
 {
-  "texto": "4000-6000 chars. Narrativa cronológica del fondo desde inicio hasta hoy.",
+  "texto": "3500-6000 chars. ARRIBA (narrativa): (1) año de INICIO y origen del fondo; (2) qué ha hecho el fondo VS su mercado/benchmark a lo largo del tiempo, SIEMPRE ligado a las DECISIONES del gestor que lo explican y al CONTEXTO de mercado de cada fase. Patrón: 'en 2022 el fondo cayó X% (mercado Y%) porque el gestor mantuvo/rotó hacia Z'. Esto es lo esencial y diferencial. NO enumerar los hitos de abajo.",
   "hitos": [
-    {"anio": "2014", "titulo": "...", "evento": "...", "tipo": "lanzamiento|premio|cambio_gestor|cambio_estrategia|hecho_relevante"},
+    {"anio": "2014", "titulo": "...", "evento": "...", "tipo": "..."},
     ...8-15 hitos
   ]
 }
 ```
 
-`tipo` opciones: `lanzamiento, premio, cambio_gestor, cambio_estrategia, cambio_owner, hecho_relevante, contexto_mercado, otro`.
+Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos relevantes estructurales**, NO en la narrativa de performance de arriba: cambios de equipo gestor (entradas/salidas), caídas fuertes de AUM, reembolsos/salidas de dinero, grandes drawdowns, cambios de propiedad/gestora, cambios de estrategia.
+`tipo` opciones: `lanzamiento, cambio_gestor, cambio_owner, cambio_estrategia, caida_aum, reembolsos, drawdown, hecho_relevante, premio, otro`.
 
 ### gestores (CRÍTICO — schema exacto, no usar `biografia`)
 
@@ -332,9 +335,17 @@ Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.jso
 
 ### estrategia
 
+**ENFOQUE (2026-06-10): CENTRAR el tiro — pocas sub-secciones, más profundidad en lo diferencial. NADA de historia (va en Historia) ni de posiciones concretas (van en Cartera).** El texto DEBE dejar claro y explícito, en este orden:
+1. **Objetivo del fondo** (qué busca lograr y para qué inversor).
+2. **Benchmark** (contra quién compara; si no tiene, decirlo).
+3. **Universo de inversión**: tipo de activo, geografía/sectores permitidos, y **rangos de inversión permitidos** (% RV/RF, límites por posición, liquidez, etc. del folleto).
+4. **Estilo de inversión** (value/growth/quality/quant/macro...).
+5. **Fondo AUTOR vs GESTIONADO** (¿gestión personalista de un autor con skin-in-the-game, o producto gestionado por equipo/casa?).
+6. **Cuantitativo vs cualitativo** + la **"fórmula"/forma concreta de analizar y seleccionar** (proceso, filtros, métricas, cómo deciden comprar/vender) — lo más diferencial.
+
 ```json
 {
-  "texto": "6000-10000 chars. Narrativa profunda de la estrategia. Sub-secciones con **bold** headers.",
+  "texto": "5000-9000 chars. Estrategia centrada en los 6 puntos de arriba (objetivo, benchmark, universo+rangos, estilo, autor/gestionado, cuanti/cuali+fórmula), profundizando en lo diferencial. POCAS sub-secciones con **bold** headers (no fragmentar en exceso). Sin historia ni enumerar posiciones.",
   "estrategia_actual_resumen": "200-400 chars. Resumen de la estrategia hoy.",
   "fortalezas": [
     "frase 1 (100-300 chars)",
@@ -383,7 +394,7 @@ Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.jso
 
 ```json
 {
-  "texto": "5000-8000 chars. Narrativa COMPOSICIONAL de la cartera: tipo de activos, sectores, geografía, racional general. NO enumerar las posiciones individuales — la tabla del dashboard ya las muestra. Foco en composición + racional + riesgos.",
+  "texto": "5000-8000 chars. ENFOQUE (2026-06-10): la CARTERA, no la estrategia. Tres bloques: (1) CÓMO SE CONSTRUYE la cartera (proceso de construcción: nº de posiciones objetivo, criterios de entrada/peso, concentración buscada, gestión de liquidez/riesgo); (2) CÓMO HA IDO CAMBIANDO y POR QUÉ (rotaciones, cambios de sesgo geográfico/sectorial/tipo-activo a lo largo del tiempo, con el racional de cada giro); (3) COMPOSICIÓN ACTUAL y POR QUÉ (tipo de activo, geografía, sector, concentración top-N como %, y el RACIONAL/TESIS de la composición de hoy). NO repetir la filosofía/estilo (eso es Estrategia). NO enumerar posiciones con su peso — la tabla ya las muestra; menciona valores solo para ilustrar el racional, sin peso.",
   "top_posiciones": [
     {"nombre": "...", "peso_pct": 6.05, "categoria": "Real estate / Tech / Banca / etc"},
     ...10 entries — DUPLICAN top10 de posiciones.actuales[] del top-level del schema
