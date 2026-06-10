@@ -2076,9 +2076,13 @@ def merge_ar_statistics_performance(data: dict, intl_data: dict) -> None:
     # pesos). Cada AR trae el desglose de su 'periodo' → acumular (upsert).
     _per = str(data.get("periodo") or "")
     if _re.match(r"^\d{4}$", _per):
-        def _upsert_hist(key, subkey, items, namek):
+        def _upsert_hist(key, subkey, items, namek, normalize=False):
             mapping = {it.get(namek): it.get("peso_pct") for it in items
                        if isinstance(it, dict) and it.get(namek) and it.get("peso_pct") is not None}
+            if normalize:
+                # USA / United States / Estados Unidos → un solo país (agrega)
+                from tools.region_normalizer import aggregate_by_country
+                mapping = aggregate_by_country(mapping)
             if not mapping:
                 return
             hist = intl_data.setdefault(key, [])
@@ -2086,7 +2090,7 @@ def merge_ar_statistics_performance(data: dict, intl_data: dict) -> None:
             hist.append({"periodo": _per, subkey: mapping})
             hist.sort(key=lambda h: h.get("periodo", ""))
         if isinstance(data.get("geographic_allocation"), list):
-            _upsert_hist("geographic_allocation_history", "zonas", data["geographic_allocation"], "region")
+            _upsert_hist("geographic_allocation_history", "zonas", data["geographic_allocation"], "region", normalize=True)
         if isinstance(data.get("sector_allocation"), list):
             _upsert_hist("sector_allocation_history", "sectores", data["sector_allocation"], "sector")
 
@@ -2291,6 +2295,13 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
                           "sector_allocation", "performance"):
                 v = data.get(key)
                 if v:
+                    if key == "geographic_allocation" and isinstance(v, list):
+                        # Normalizar país (USA=Estados Unidos) y agregar duplicados
+                        from tools.region_normalizer import aggregate_by_country
+                        agg = aggregate_by_country({it.get("region"): it.get("peso_pct")
+                                                    for it in v if isinstance(it, dict)})
+                        v = [{"region": r, "peso_pct": p} for r, p in
+                             sorted(agg.items(), key=lambda x: -x[1])]
                     intl_data[key] = v
 
             cual = data.get("cualitativo") or {}
