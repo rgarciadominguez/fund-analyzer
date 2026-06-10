@@ -1448,6 +1448,20 @@ Devuelve SOLO el JSON. Nada más."""
                     n_skipped += 1
                     continue
                 task_type, schema = classified
+                # A.2 (2026-06-10): verificar que el doc es del fondo target y
+                # está sano (no corrupto/truncado ni ajeno) ANTES de emitir tarea.
+                # Evita extraer basura (snapshots Wayback a 1MB, docs de otro fondo).
+                try:
+                    from tools.verify_fund_docs import verify_doc_for_fund
+                    _mp = 60 if task_type in ("annual_subfund", "semi_annual_subfund") else 8
+                    _ok, _reason = verify_doc_for_fund(
+                        pdf, self.isin, self.fund_name, self.gestora, max_pages=_mp)
+                    if not _ok:
+                        console.log(f"[yellow]A.2 skip {pdf.name[:40]}: {_reason}")
+                        n_skipped += 1
+                        continue
+                except Exception:
+                    pass  # ante fallo del verificador, no bloquear
                 stem = re.sub(r"[^A-Za-z0-9_-]", "_", pdf.stem)[:50]
                 tid = f"intl_{task_type}_{stem}"
                 two_stage = task_type in ("annual_subfund", "semi_annual_subfund",
