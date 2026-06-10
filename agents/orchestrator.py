@@ -2023,6 +2023,17 @@ def _merge_prep_into_output(isin: str, fund_dir: Path, log) -> dict:
     # 4. Merge respetando _manual_edits del existing
     merged = merge_preserving_manual_edits(existing, new)
 
+    # 4b. Persistir SECTOR canónico en las posiciones (caché global) para que
+    # output.json —no solo el render del dashboard— lleve el sector (tabla,
+    # desglose, Supabase). Determinista: solo rellena desde caché lo que falte.
+    try:
+        from tools.sector_classifier import apply_sectors
+        _pos = (merged.get("posiciones", {}) or {}).get("actuales", [])
+        if _pos:
+            apply_sectors(_pos)
+    except Exception:
+        pass
+
     # 5. Guardar via output_merger (atomic write)
     try:
         save_output(isin, merged)
