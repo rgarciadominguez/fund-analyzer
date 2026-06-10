@@ -492,9 +492,11 @@ def render_narrative_inline(text, fund_name=""):
         if ym:
             label = ym.group(1).strip().rstrip(":-—— ").strip()
             rest = _bold(ym.group(2).strip().replace("\n", " "))
-            html += (f'<div style="margin:7px 0 7px 16px;padding:2px 0 2px 12px;'
-                     f'border-left:2px solid var(--gold,#b48020);">'
-                     f'<strong style="color:var(--ink-1);">{label}</strong> · {rest}</div>')
+            # Entrada de año: bullet cuadrado + sangría francesa (el año lidera,
+            # las líneas siguientes alinean bajo el texto).
+            html += (f'<p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;">'
+                     f'<span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> '
+                     f'<strong>{label}.</strong> {rest}</p>')
             prev_was_header = False
             continue
 
@@ -691,6 +693,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -3367,12 +3383,28 @@ def build_tab_historia(data):
         col_cls = None
     charts_block = f'<div class="{col_cls} mb20">{"".join(charts_html_parts)}</div>' if col_cls else ""
 
+    # Historia con sub-pestañas (misma estructura que Estrategia): Resumen
+    # general + una pestaña por subsección (idea de Rafa 2026-06-10).
+    _hnombre = data.get("nombre", "")
+    _h_resumen = s.get("resumen_general") or ""
+    _h_tabs = []
+    if _h_resumen:
+        _h_tabs.append(("Resumen general", render_narrative_inline(_h_resumen, _hnombre)))
+    for _h, _block in _narrative_groups(texto):
+        _body = render_narrative_inline("\n\n".join(_block), _hnombre) if _block else ""
+        if _h is None:
+            if not _h_resumen and _body:
+                _h_tabs.insert(0, ("Resumen general", _body))
+            continue
+        _h_tabs.append((_tab_label(_h), _body))
+    historia_narr = build_subtabs(_h_tabs, "hist-tabs") if len(_h_tabs) > 1 else render_narrative_inline(texto, _hnombre)
+
     return f"""
 <section class="pane" id="p1">
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">{fecha_inicio} — presente</span></div>
 
   <div class="mb24">
-    {render_narrative_inline(texto, data.get("nombre",""))}
+    {historia_narr}
   </div>
 
   <div class="kpi-row">
@@ -3781,6 +3813,89 @@ def build_tab_evolucion(data):
 # TAB 5: ESTRATEGIA
 # ═══════════════════════════════════════════════════════════════
 
+def render_narrative_accordion(text, fund_name="", open_first=1):
+    """Como render_narrative_inline pero cada **Header** standalone es una
+    subsección PLEGABLE (<details>): la primera abierta, el resto 'ver más'.
+    Hace la sección menos pesada y escaneable."""
+    import re as _re
+    if not text:
+        return render_narrative_inline(text, fund_name)
+    paras = [p.strip() for p in text.split("\n\n") if p.strip()]
+
+    def _is_hdr(p):
+        return p.startswith("**") and p.endswith("**") and p.count("**") == 2 and "\n" not in p
+
+    groups, cur_h, cur = [], None, []
+    for p in paras:
+        if _is_hdr(p):
+            if cur_h is not None or cur:
+                groups.append((cur_h, cur))
+            cur_h, cur = p.strip("*").strip(), []
+        else:
+            cur.append(p)
+    if cur_h is not None or cur:
+        groups.append((cur_h, cur))
+
+    # Si no hay headers (1 solo grupo sin título), render normal.
+    if len(groups) <= 1 and groups and groups[0][0] is None:
+        return render_narrative_inline(text, fund_name)
+
+    out, idx = [], 0
+    for h, block in groups:
+        body = render_narrative_inline("\n\n".join(block), fund_name) if block else ""
+        if h is None:
+            if body:
+                out.append(body)
+            continue
+        op = " open" if idx < open_first else ""
+        idx += 1
+        hh = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', h)
+        out.append(f'<details class="acc"{op}><summary>{hh}</summary><div class="acc-b">{body}</div></details>')
+    return "".join(out)
+
+
+def _narrative_groups(text):
+    """Divide la narrativa en [(header|None, [parrafos])] por **Header** standalone."""
+    paras = [p.strip() for p in (text or "").split("\n\n") if p.strip()]
+    def _is_hdr(p):
+        return p.startswith("**") and p.endswith("**") and p.count("**") == 2 and "\n" not in p
+    groups, cur_h, cur = [], None, []
+    for p in paras:
+        if _is_hdr(p):
+            if cur_h is not None or cur:
+                groups.append((cur_h, cur))
+            cur_h, cur = p.strip("*").strip(), []
+        else:
+            cur.append(p)
+    if cur_h is not None or cur:
+        groups.append((cur_h, cur))
+    return groups
+
+
+def _tab_label(h, maxlen=26):
+    """Etiqueta corta para la pestaña a partir del header de subsección."""
+    import re as _re
+    lbl = _re.split(r'[:\-—(]', h.strip("* "))[0].strip()
+    return (lbl[:maxlen].rstrip() + "…") if len(lbl) > maxlen else lbl
+
+
+def build_subtabs(tabs, gid):
+    """tabs = [(label, html)] → sub-pestañas dentro de un pane (la 1ª activa)."""
+    tabs = [(l, h) for l, h in tabs if h and h.strip()]
+    if len(tabs) <= 1:
+        return tabs[0][1] if tabs else ""
+    nav = "".join(
+        f'<button class="subtab-btn{" active" if i==0 else ""}" onclick="subtab(this,\'{gid}\',{i})">{l}</button>'
+        for i, (l, _) in enumerate(tabs))
+    panels = "".join(
+        f'<div class="subtab-panel{" active" if i==0 else ""}">{h}</div>'
+        for i, (_, h) in enumerate(tabs))
+    js = ("<script>function subtab(btn,g,i){var r=document.getElementById(g);"
+          "r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});"
+          "r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>")
+    return f'<div class="subtabs" id="{gid}"><div class="subtab-nav">{nav}</div>{panels}</div>{js}'
+
+
 def build_tab_estrategia(data):
     import re
     s = get_section_estrategia(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("estrategia", {})
@@ -3834,6 +3949,14 @@ def build_tab_estrategia(data):
                 + (f' <span style="display:block;font-weight:400;font-style:normal;'
                    f'font-size:11px;color:var(--ink-4);margin-top:6px;">{attr}</span>' if attr else '')
                 + '</p>'
+            )
+        # Separar las citas del resto en un bloque propio (mejora visual)
+        if quotes_html:
+            quotes_html = (
+                '<div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);">'
+                '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;'
+                'color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div>'
+                + quotes_html + '</div>'
             )
 
     # Matriz estratégica con 4 columnas (periodo/contexto/decisiones/resultado)
@@ -3965,13 +4088,29 @@ def build_tab_estrategia(data):
     {f'<div><strong style="color:var(--ink);font-size:12px;">Justificación:</strong> <span class="pr" style="font-size:12.5px;font-style:italic;">{just}</span></div>' if just else ''}
   </div>'''
 
+    # Sub-pestañas dentro de Estrategia: "Resumen general" (prosa fluida de todo)
+    # + una pestaña por subsección detallada (idea de Rafa 2026-06-10).
+    _nombre = data.get("nombre", "")
+    _resumen_gral = s.get("resumen_general") or s.get("estrategia_actual_resumen") or ""
+    _est_tabs = []
+    if _resumen_gral:
+        _est_tabs.append(("Resumen general", render_narrative_inline(_resumen_gral, _nombre)))
+    for _h, _block in _narrative_groups(texto):
+        _body = render_narrative_inline("\n\n".join(_block), _nombre) if _block else ""
+        if _h is None:
+            if not _resumen_gral and _body:
+                _est_tabs.insert(0, ("Resumen general", _body))
+            continue
+        _est_tabs.append((_tab_label(_h), _body))
+    estrategia_narr = build_subtabs(_est_tabs, "est-tabs") if _est_tabs else render_narrative_inline(texto, _nombre)
+
     # ── Layout fijo: narrativa → quotes → resumen actual → matriz hitos → resumen consistencia
     return f"""
 <section class="pane" id="p4">
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    {render_narrative_inline(texto, data.get("nombre",""))}
+    {estrategia_narr}
   </div>
 
   {quotes_html}

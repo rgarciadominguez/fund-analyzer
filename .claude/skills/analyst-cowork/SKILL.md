@@ -265,7 +265,8 @@ Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.jso
 
 ```json
 {
-  "texto": "3500-6000 chars. ARRIBA (narrativa): (1) año de INICIO y origen del fondo; (2) qué ha hecho el fondo VS su mercado/benchmark a lo largo del tiempo, SIEMPRE ligado a las DECISIONES del gestor que lo explican y al CONTEXTO de mercado de cada fase. Patrón: 'en 2022 el fondo cayó X% (mercado Y%) porque el gestor mantuvo/rotó hacia Z'. Esto es lo esencial y diferencial. NO enumerar los hitos de abajo.",
+  "resumen_general": "2000-3500 chars. PROSA FLUIDA EXTENSA (3-5 párrafos, SIN headers) que resume toda la historia del fondo de un tirón: origen, su trayectoria frente al mercado ligada a las decisiones del gestor, y los hitos/inflexiones clave. 1ª pestaña de Historia (visión de conjunto); el detalle por bloque va en `texto`.",
+  "texto": "3500-6000 chars. Detalle en sub-secciones con **bold** headers (el dashboard las convierte en pestañas): (1) ORIGEN del fondo; (2) FONDO VS MERCADO año a año ligado a DECISIONES del gestor y CONTEXTO (patrón: 'en 2022 cayó X% vs Y% del mercado porque el gestor mantuvo/rotó Z'; formatea cada año como línea que empieza con **AÑO — título:**); (3) LECTURA DE CONJUNTO. NO enumerar los hitos de abajo.",
   "hitos": [
     {"anio": "2014", "titulo": "...", "evento": "...", "tipo": "..."},
     ...8-15 hitos
@@ -345,7 +346,8 @@ Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos re
 
 ```json
 {
-  "texto": "5000-9000 chars. Estrategia centrada en los 6 puntos de arriba (objetivo, benchmark, universo+rangos, estilo, autor/gestionado, cuanti/cuali+fórmula), profundizando en lo diferencial. POCAS sub-secciones con **bold** headers (no fragmentar en exceso). Sin historia ni enumerar posiciones.",
+  "resumen_general": "2500-4000 chars. PROSA FLUIDA EXTENSA (4-6 párrafos, SIN headers ni subsecciones) que RESUME de forma sustancial TODO lo que se detalla en las demás pestañas/subsecciones (objetivo, benchmark, universo+rangos, estilo, autor vs gestionado, cuanti/cuali y la fórmula). Es la 1ª pestaña de Estrategia: una visión de conjunto sólida y completa que se pueda leer sola y entender la estrategia entera; el detalle por bloque va en `texto`. Debe ser CONSIDERABLEMENTE extensa, no un resumen corto.",
+  "texto": "5000-9000 chars. Estrategia centrada en los 6 puntos de arriba (objetivo, benchmark, universo+rangos, estilo, autor/gestionado, cuanti/cuali+fórmula), profundizando en lo diferencial. Cada uno como sub-sección con **bold** header (el dashboard las convierte en pestañas). Sin historia ni enumerar posiciones.",
   "estrategia_actual_resumen": "200-400 chars. Resumen de la estrategia hoy.",
   "fortalezas": [
     "frase 1 (100-300 chars)",
@@ -394,7 +396,7 @@ Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos re
 
 ```json
 {
-  "texto": "5000-8000 chars. ENFOQUE (2026-06-10): la CARTERA, no la estrategia. Tres bloques: (1) CÓMO SE CONSTRUYE la cartera (proceso de construcción: nº de posiciones objetivo, criterios de entrada/peso, concentración buscada, gestión de liquidez/riesgo); (2) CÓMO HA IDO CAMBIANDO y POR QUÉ (rotaciones, cambios de sesgo geográfico/sectorial/tipo-activo a lo largo del tiempo, con el racional de cada giro); (3) COMPOSICIÓN ACTUAL y POR QUÉ (tipo de activo, geografía, sector, concentración top-N como %, y el RACIONAL/TESIS de la composición de hoy). NO repetir la filosofía/estilo (eso es Estrategia). NO enumerar posiciones con su peso — la tabla ya las muestra; menciona valores solo para ilustrar el racional, sin peso.",
+  "texto": "5000-8000 chars. ENFOQUE (2026-06-10): la CARTERA, no la estrategia. Cuatro bloques: (1) CÓMO SE CONSTRUYE (proceso: nº de posiciones objetivo, criterios de entrada/peso, concentración buscada, gestión de liquidez/riesgo); (2) CÓMO HAN EVOLUCIONADO LOS PESOS y POR QUÉ — CUALITATIVO y concreto: rotaciones y cambios de sesgo (geográfico/sectorial/tipo-activo) a lo largo del tiempo ligados al MERCADO y a las CONVICCIONES del gestor (qué aumentó/redujo y por qué); (3) POSICIONES DE ALTA CONVICCIÓN — lo más importante: los valores/temas que el gestor lleva AÑOS en cartera o con peso destacado (núcleo de convicción), por qué los mantiene y qué representan; (4) COMPOSICIÓN ACTUAL y RACIONAL (tipo de activo, geografía, sector, concentración top-N como %). NO repetir filosofía/estilo (eso es Estrategia). NO enumerar todas las posiciones con su peso — la tabla ya las muestra; nombra valores para ilustrar convicción/racional, sin listar pesos uno a uno.",
   "top_posiciones": [
     {"nombre": "...", "peso_pct": 6.05, "categoria": "Real estate / Tech / Banca / etc"},
     ...10 entries — DUPLICAN top10 de posiciones.actuales[] del top-level del schema
