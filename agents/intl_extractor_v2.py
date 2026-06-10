@@ -99,6 +99,12 @@ _ESG_CORPORATE_KEYWORDS = (
     "stewardship", "esg-report", "esgreport", "engagement", "engagementrep",
     "transition-report", "sfdr-report", "sfdr_report", "global-survey",
     "retirement-index", "appointed",  # press releases / corporate news
+    # 2026-06-10: ruido corporativo/temático/marketing que se colaba como
+    # generic_pdf en el extractor (consistente con discovery skip_corporate).
+    "market-monitor", "market_monitor", "monthly-market", "market-outlook",
+    "integrated-annual", "annual-impact", "impact-report", "impact%20report",
+    "responsible-investment", "climate-report", "carbon-report", "3d-investing",
+    "voting-report", "proxy-voting", "country-esg",
 )
 
 _FACTSHEET_KEYWORDS = (
@@ -138,15 +144,12 @@ def _classify_pdf_for_task(pdf_path: Path, isin: str, fund_name: str = "") -> tu
     """
     name_lc = pdf_path.name.lower()
 
-    # Skip ESG/stewardship corporates UNLESS mencionan ISIN en primeras 3 págs
+    # Skip corporativo/temático/ESG: estos tipos NUNCA son las cuentas/factsheet/
+    # carta del fondo, aunque mencionen el ISIN (Robeco etiqueta sus market
+    # monitors con el fondo). Skip INCONDICIONAL (2026-06-10, consistente con
+    # discovery skip_corporate).
     if any(k in name_lc for k in _ESG_CORPORATE_KEYWORDS):
-        try:
-            from tools.pdf_extractor import extract_page_range
-            head = extract_page_range(str(pdf_path), 0, 3)[:5000]
-            if isin.lower() not in head.lower():
-                return None
-        except Exception:
-            return None
+        return None
 
     # Factsheet del sub-fondo (clave para AUM + posiciones actuales)
     if any(k in name_lc for k in _FACTSHEET_KEYWORDS):
