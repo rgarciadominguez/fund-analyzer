@@ -153,6 +153,8 @@ Cuando **TODOS** los items de `human_feedback.json` tienen `target_section` (es 
 - **Regenera SOLO esas secciones** y emítelas en `analyst_synthesis`. NO regeneres las demás: el consumidor (`orchestrator._consume_cowork_analyst`) preservará verbatim las secciones que NO incluyas, copiándolas del análisis anterior. Esto evita empeorar pestañas que el usuario no pidió tocar (caso real: feedback sobre `cartera`/`evolucion` no debe alterar `gestores`) y ahorra tokens.
 - Si **algún** item es global (sin `target_section`), regenera TODAS las secciones como siempre.
 
+**REGEN POR DEFECTO = COMPLETA (2026-06-11, crítico):** salvo el caso de feedback dirigido por sección de arriba, **SIEMPRE regenera las 8 secciones COMPLETAS con el formato actual del schema**. NO hagas regen parcial ni reutilices una síntesis previa aunque los inputs del bundle parezcan idénticos (mismos SHA256): el FORMATO/PROMPT evoluciona entre runs (p.ej. se añadieron `resumen_general`, sub-pestañas, sectores), así que una síntesis previa "con los mismos inputs" puede tener el formato VIEJO. Emite siempre las 8 secciones.
+
 ### Veredicto por item (2026-06-06) — OBLIGATORIO: `_meta.feedback_outcomes`
 
 Por **cada** item de `human_feedback.json` que proceses, añade una entrada a `_meta.feedback_outcomes` declarando HONESTAMENTE si conseguiste lo que el usuario pidió:
