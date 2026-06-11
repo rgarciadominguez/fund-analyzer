@@ -80,15 +80,18 @@ def validate(isin: str) -> dict:
                 return True
             return bool(_re.search(r"treasury|bill|\bbond|\bnote|coupon|\d{4}-\d{2}-\d{2}|\d(?:[.,]\d+)?%",
                                    str(p.get("nombre", "")), _re.I))
+        from tools.sector_classifier import relevant_positions
+        rel = relevant_positions(pos)  # top-50 por peso + peso alto; la cola se deja en blanco
         rf_share = sum(1 for p in pos if _is_bond(p)) / len(pos)
-        with_sec = sum(1 for p in pos if p.get("sector"))
-        cov = round(100 * with_sec / len(pos))
+        with_sec = sum(1 for p in rel if p.get("sector"))
+        cov = round(100 * with_sec / len(rel)) if rel else 0
         if rf_share > 0.5:
             ok_pts.append(f"sector N/A (renta fija, {round(rf_share*100)}% bonos)")
         elif cov >= 70:
-            ok_pts.append(f"sector cobertura {cov}%")
+            extra = f" (top-{len(rel)} relevantes de {len(pos)})" if len(pos) > len(rel) else ""
+            ok_pts.append(f"sector cobertura {cov}%{extra}")
         else:
-            issues.append(f"FORMATO: sector cobertura baja {cov}% ({with_sec}/{len(pos)})")
+            issues.append(f"FORMATO: sector cobertura baja {cov}% ({with_sec}/{len(rel)} relevantes)")
 
     geo = j.get("geographic_allocation", []) or []
     raw_us = [g for g in geo if g.get("region") in ("United States", "United States of America", "USA")]

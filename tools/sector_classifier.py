@@ -150,9 +150,13 @@ def clean_positions(positions: list) -> int:
         # separar sufijo legal pegado al final ('DanoneSA'->'Danone SA',
         # 'NokiaOYJ'->'Nokia OYJ', 'MowiASA'->'Mowi ASA') → _norm_company lo quita
         # y la empresa casa con la caché.
-        nm = re.sub(r"(?<=[A-Za-z])(ASA|SpA|OYJ|GmbH|KGaA|Abp|PLC|Ltd|SA|SE|AS|AG|NV)(?=$|\s|\.|,)", r" \1", nm)
-        # re-espaciar si está pegado (sin espacios y con mayúsculas internas)
-        if " " not in nm and len(nm) > 8 and re.search(r"[a-z][A-Z]|[A-Z]{2,}[a-z]", nm):
+        nm = re.sub(r"(?<=[A-Za-z])(ASA|SpA|OYJ|GmbH|KGaA|Abp|ADR|PLC|Ltd|SA|SE|AS|AG|NV)(?=$|\s|\.|,)", r" \1", nm)
+        nm = re.sub(r"(?<=[A-Za-z])(ADR)(?=$|\s|\.|,)", r" \1", nm)  # 'PLCADR'->'PLC ADR'
+        # quitar marcadores que no son parte del nombre (ADR/ADS/Reg. S) al final
+        nm = re.sub(r"\s*\b(ADR|ADS|Reg\.?\s*S)\b\.?\s*$", "", nm, flags=re.I).strip()
+        # re-espaciar CamelCase pegado en CUALQUIER palabra (aunque ya haya espacios,
+        # p.ej. 'ASMLHolding NV'->'ASML Holding NV', 'AirLiquide SA'->'Air Liquide SA')
+        if re.search(r"[a-z][A-Z]|[A-Z]{2,}[a-z]", nm):
             nm = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", nm)
             nm = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", nm)
         nm = re.sub(r"\s+", " ", nm).strip()
@@ -184,11 +188,29 @@ def apply_sectors(positions: list, cache: dict | None = None) -> tuple[int, int]
     return n_set, n_unknown
 
 
-def unknown_companies(positions: list, cache: dict | None = None) -> list:
-    """Nombres (originales) de posiciones sin sector canónico ni en caché."""
+def relevant_positions(positions: list, top_n: int = 50, min_weight: float = 1.0) -> list:
+    """Posiciones que MERECEN clasificación de sector: las `top_n` mayores por peso
+    + cualquiera con peso >= `min_weight`% (alta convicción) aunque esté más abajo.
+    La cola diminuta (pos. 50+ y poco peso) se deja en blanco a propósito — no
+    perder tiempo clasificándola (regla Rafa 2026-06-11)."""
+    pos = [p for p in (positions or []) if isinstance(p, dict)]
+    by_w = sorted(pos, key=lambda p: p.get("peso_pct") or 0, reverse=True)
+    rel = list(by_w[:top_n])
+    ids = {id(p) for p in rel}
+    for p in by_w[top_n:]:
+        if (p.get("peso_pct") or 0) >= min_weight and id(p) not in ids:
+            rel.append(p)
+    return rel
+
+
+def unknown_companies(positions: list, cache: dict | None = None,
+                      only_relevant: bool = True) -> list:
+    """Nombres (originales) de posiciones sin sector canónico ni en caché.
+    Por defecto SOLO entre las posiciones relevantes (top-50 + peso alto)."""
     cache = cache if cache is not None else load_cache()
+    pool = relevant_positions(positions) if only_relevant else (positions or [])
     out, seen = [], set()
-    for p in positions or []:
+    for p in pool:
         if not isinstance(p, dict):
             continue
         if canonical_sector(p.get("sector")):
