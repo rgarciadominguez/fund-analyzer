@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -173,9 +187,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
     <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€63M</div>
+        <div class="lh-aum-v">€80M</div>
         <div class="lh-aum-l">AUM</div>
-        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2022-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2023-12 (Carta)</span></div></div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
         <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
@@ -208,7 +222,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-09</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-11</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0933684283 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -218,27 +232,27 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr">Equam Global Value es un fondo de renta variable europea de pequena y mediana capitalizacion (small/mid caps) con filosofia value clasica, asesorado desde Madrid por Equam Capital, EAFI S.L. y articulado como sub-fondo del paraguas luxemburgues Incometric Fund (FCP UCITS). La administracion la lleva ADEPA Asset Management, el depositario es Quintet (ex-KBL European Private Bankers) y el auditor KPMG; el fondo esta registrado en la CNMV (num. 587) y es traspasable en Espana (factsheet).</p><p class="pr">La tesis es directa y se repite sin desviaciones a lo largo de los anos: invertir a largo plazo en companias europeas con un modelo de negocio claro, estructura de capital solida y que coticen con un descuento significativo sobre su valor intrinseco. El gestor solo entra cuando el riesgo es cuantificable y asumible y donde el potencial de revalorizacion excede de modo asimetrico cualquier escenario negativo (factsheet). En ausencia de oportunidades atractivas, el fondo prefiere mantener liquidez, aunque historicamente ha estado practicamente invertido (en dic-2019 declaraba 43 companias y menos del 1% de caja).</p><p class="pr">La cartera es concentrada pero diversificada: en torno a 44 inversiones, sin posiciones desproporcionadas (la mayor ronda el 6%) y con sesgo a Reino Unido, Espana e Italia. El equipo lo lideran Jose Antonio Larraz (socio fundador, gestor principal) y Alejandro Munoz (socio, co-gestor y portavoz habitual del fondo). El benchmark (MSCI Europe NR) se usa solo como comparativo, no como objetivo a batir: la gestion es de conviccion y agnostica respecto al indice.</p><p class="pr">Los resultados desde el lanzamiento (enero 2015) muestran un patron tipico del value de pequenas companias: fuerte captura en anos alcistas de mercados europeos (+17% en 2016, +21,7% en 2017, +27,2% en 2019) y peor comportamiento relativo en correcciones impulsadas por estilo o por caidas de small caps (-19,2% en 2018, -10,4% en 2020). El fondo bate con holgura a su comparativo en mercados que premian el valor (2016, 2017, 2022) y queda por detras en fases dominadas por grandes companias y growth (2018, 2020, 2021). La rentabilidad acumulada de la clase A desde inicio era de ~+76% (6,6% anualizado) a finales de 2023, y la gestora estima un potencial de revalorizacion de la cartera cercano al 98% sobre su valor intrinseco.</p>
+    <p class="pr">Incometric Fund – Equam Global Value es un fondo de renta variable europea de pequeña y mediana capitalización con filosofía <strong>value</strong>, domiciliado en Luxemburgo bajo el paraguas Incometric Fund (SICAV; sociedad gestora ADEPA Asset Management, depositario del grupo KBL/Quintet) y <strong>asesorado por Equam Capital</strong>, una boutique independiente española fundada y dirigida por José Antonio Larraz y Alejandro Muñoz. El fondo se lanzó en enero de 2015 (clase A) y esta clase B (LU0933684283) cuenta con histórico propio desde marzo de 2020 (cartas y annual reports Incometric).</p><p class="pr">La estrategia es de autor: los socios buscan <strong>componer capital a largo plazo invirtiendo en negocios sólidos comprados con descuento sobre su valor intrínseco, preservándolo cuando el riesgo es acotado</strong>, sin tratar de adivinar los movimientos de corto plazo del mercado (Informe trimestral marzo 2026). La cartera está concentrada en ~40-47 valores small & mid cap europeos (~98% renta variable, ~2% liquidez, 0% renta fija), con un fuerte sesgo a Reino Unido, Italia, Países Bajos, España, Francia y Alemania, y a sectores de servicios empresariales e industria.</p><p class="pr">Desde su lanzamiento el fondo ha obtenido en torno a un <strong>6,5% anual</strong>, una rentabilidad equivalente a la de los índices europeos con dividendos y con una modesta ventaja histórica frente al MSCI Europe (Carta 2T 2021: 7,4% anual vs 5,8% MSCI Europe desde 2015). El patrimonio ha crecido desde un mínimo de ~40,6 M€ en 2020 hasta ~79,6 M€ en 2025, máximo histórico. Un rasgo central es la <strong>alineación de intereses</strong>: los socios tienen invertida la mayor parte de su patrimonio en el fondo. Esta clase B aplica 1,85% de comisión de gestión y un OCF del 2,2%, sin comisión de éxito (la clase A cobra 1% + 8% sobre beneficios con marca de agua). A junio de 2025 el equipo cifraba el potencial de revalorización de la cartera en niveles históricamente elevados (~98%), reflejo de las valoraciones deprimidas del segmento small cap europeo.</p>
   </div>
 
   <div class="col2 mb20">
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
-      <p class="pr">Value investing clasico aplicado a small y mid caps europeas. La premisa es comprar negocios comprensibles, con balance solido y generacion de caja, cuando cotizan con un descuento amplio frente a su valor intrinseco, exigiendo siempre un margen de seguridad. El objetivo declarado no es batir un indice sino <strong>minimizar la probabilidad de perdida permanente de capital</strong>: el fondo solo invierte donde el riesgo es cuantificable y asumible y donde el potencial al alza es asimetrico respecto al posible escenario negativo (factsheet).
+      <p class="pr">La filosofía es <strong>value investing de calidad a precio atractivo</strong> con margen de seguridad. Equam busca negocios estables, predecibles, con generación de caja recurrente, balances sólidos (baja deuda) y capacidad de trasladar la inflación a precios, comprados con un descuento significativo respecto a su valor intrínseco. El mandato legal del fondo es amplio (puede invertir en renta variable y renta fija OCDE), pero de facto la cartera se concentra de forma casi íntegra en renta variable <strong>small & mid cap europea</strong>, donde el equipo cree encontrar las mejores oportunidades por menor cobertura de analistas e ineficiencias de precio.
 
-El proceso combina un analisis exhaustivo de la calidad del negocio con la disciplina de precio -en palabras de Alejandro Munoz, "buscar la calidad al mejor precio posible" (entrevista Astralis Funds Academy, 2024)-. La construccion de cartera es de alta conviccion pero diversificada (en torno a 44 valores, ninguno dominante), con rotacion baja y horizonte plurianual. La liquidez es residual y solo se eleva cuando no hay oportunidades que cumplan los criterios. Se evita asumir riesgos macro implicitos: la rentabilidad debe venir del acierto en la seleccion de companias infravaloradas, no de apuestas direccionales sobre tipos, divisas o ciclo.</p>
+El proceso es bottom-up y paciente: no se intenta anticipar el corto plazo del mercado sino adquirir participaciones en buenos negocios a muy buenos precios y mantenerlas a largo plazo, reforzando en las caídas. La gestión es personalista, de autor, con los socios fundadores tomando las decisiones y con la mayor parte de su patrimonio invertido junto a los partícipes, lo que materializa una alineación de intereses muy estrecha. La comunicación —informes trimestrales detallados desde el primer año— refuerza ese enfoque de transparencia y horizonte de largo plazo.</p>
     </div>
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
       <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Descuento sobre valor intrinseco:</strong> <span class="pr" style="font-size:12.5px;">Solo se invierte en companias que cotizan con un descuento significativo frente a su valor intrinseco estimado, asegurando un margen de seguridad explicito en cada posicion.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Calidad del negocio:</strong> <span class="pr" style="font-size:12.5px;">Empresas estables y predecibles, con ventajas competitivas, alta conversión de beneficio en caja y balances sólidos con baja deuda.</span></div>
             </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Calidad del negocio:</strong> <span class="pr" style="font-size:12.5px;">Modelo de negocio claro y comprensible, estructura de capital solida y baja dependencia de apalancamiento financiero. La calidad precede al precio en el filtro.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Descuento sobre valor intrínseco:</strong> <span class="pr" style="font-size:12.5px;">Comprar solo con un margen de seguridad amplio respecto al valor estimado del negocio; la disciplina de precio es el segundo pilar junto a la calidad.</span></div>
             </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Asimetria riesgo/recompensa:</strong> <span class="pr" style="font-size:12.5px;">El potencial de revalorizacion debe exceder de modo asimetrico cualquier escenario negativo; el riesgo ha de ser cuantificable y asumible antes de comprometer capital.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Small & mid cap europeo:</strong> <span class="pr" style="font-size:12.5px;">Foco en compañías pequeñas y medianas europeas, segmento menos cubierto y con mayores ineficiencias, donde el análisis propio aporta más valor.</span></div>
             </div>
     </div>
   </div>
@@ -251,10 +265,10 @@ El proceso combina un analisis exhaustivo de la calidad del negocio con la disci
 
   <div class="col2 mb20"><div>
       <div class="sr" style="color:var(--pos);">Fortalezas</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Filosofia value coherente y sin desviaciones desde 2015: la misma disciplina de descuento, calidad y margen de seguridad se observa ano tras ano en factsheet, entrevistas e informes.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Equipo estable y alineado: socios fundadores que gestionan su propio vehiculo (boutique independiente), con principios de alineacion de intereses gestor-participe destacados ya en sus primeros informes (Rankia, 2015).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Buen comportamiento relativo en mercados que premian el valor: bate al MSCI Europe NR con holgura en 2016 (+14,4 pp), 2017 (+11,5 pp) y 2022 (+5,8 pp), demostrando proteccion en correcciones de valoracion.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Cartera concentrada pero diversificada (~44 valores, mayor posicion ~6%) y descorrelacionada de las megacaps, con un potencial de revalorizacion estimado por la gestora cercano al 98%.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Clase B sin comision de exito (solo 1,85% de gestion): estructura de coste mas sencilla que la clase A, que si soporta performance fee del 8%.</span></div></div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Equipo gestor de autor, fundadores con rating Citywire A y la mayor parte de su patrimonio invertido en el fondo: alineación de intereses muy fuerte.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Filosofía value disciplinada y consistente desde 2015: calidad a descuento, baja deuda y poder de fijación de precios, demostrada en entornos inflacionarios (2022).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Foco en small & mid cap europeo, un universo poco cubierto donde el análisis propio aporta ventaja y donde las valoraciones actuales ofrecen un potencial de revalorización históricamente alto.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Cartera diversificada por país y sector (~44 valores) pero con convicción: posiciones núcleo mantenidas durante años (Mondadori, Applus, TGS, Prosegur Cash, Elecnor, DO&CO).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Transparencia y comunicación de calidad: informes trimestrales detallados desde el primer año, reconocidos por la comunidad inversora.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Rentabilidad de largo plazo (~6,5% anual desde 2015) en línea con los índices europeos con dividendos, con caídas contenidas frente al mercado en años difíciles.</span></div></div>
     </div><div>
       <div class="sr" style="color:var(--neg);">Riesgos</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Volatilidad y drawdowns propios del small cap value: caidas marcadas en 2018 (-19,2%) y 2020 (-10,4%), peores que su comparativo en fases adversas para el estilo.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste total elevado para la clase B: OCF ~2,2% anual, un lastre relevante sobre la rentabilidad neta a largo plazo en un fondo de gestion activa boutique.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Exposicion exclusivamente europea: limita la diversificacion geografica y deja fuera el small cap estadounidense, riesgo senalado explicitamente por analistas externos (Salud Financiera, 2024).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Tamano modesto (~65-73 M EUR) y estructura de sub-fondo en un paraguas (Incometric) administrado por terceros: menor escala y dependencia operativa de la plataforma luxemburguesa.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de iliquidez relativa de las small caps en escenarios de estres de mercado, donde la salida de posiciones puede penalizar precios.</span></div></div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste elevado de esta clase B: 1,85% de gestión y 2,2% de OCF, que erosionan materialmente la rentabilidad neta frente a clases más baratas (A/C/D) o alternativas indexadas.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Exclusivamente renta variable europea small/mid cap: alta volatilidad, sensibilidad al ciclo y menor liquidez; rentabilidad muy dependiente de un único segmento de mercado.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Outperformance de largo plazo modesta frente a índices europeos (~1,5-3% anual) y negativa en el corto plazo reciente (alpha 1 año -5,5 según FT).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Patrimonio pequeño (~80 M€) y dependencia de dos personas clave; la firma ha reconocido que no descarta incorporar un socio para ganar volumen (feb-2025).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración relativa: el top 10 supone ~45% de la cartera, lo que amplifica el impacto de errores en valores individuales.</span></div></div>
     </div></div>
 
   <div class="sr">Clases disponibles</div>
@@ -264,7 +278,7 @@ El proceso combina un analisis exhaustivo de la calidad del negocio con la disci
   </table>
   
 
-  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con perfil moderadamente agresivo y horizonte largo (10+ anos) que busca un componente de small/mid cap value europeo dentro de una cartera diversificada y que tolera volatilidad y drawdowns notables a cambio del potencial de revalorizacion. No es adecuado para quien necesite liquidez a corto plazo, baja volatilidad o diversificacion geografica global en un solo producto (conviene complementarlo con exposicion fuera de Europa).</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Equam Capital es una boutique independiente gestionada por sus socios fundadores (Larraz y Munoz), que asesoran su propio vehiculo. Desde sus primeros informes el fondo destaca la alineacion de intereses entre gestores y participes y la transparencia de sus reportes trimestrales (Rankia, 2015). La estructura de la clase A reparte el 90% de la comision de exito al asesor de inversion, vinculando su retribucion a los resultados sobre high water mark.</p></div></div>
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con perfil de riesgo alto y horizonte largo (7-10 años) que quiere exposición pura a renta variable europea de pequeña y mediana capitalización con enfoque value, gestionada por un equipo de autor con fuerte alineación. No es adecuado para quien busque rentas, baja volatilidad o exposición global diversificada; conviene combinarlo con otras geografías (p. ej. small caps EE. UU.) para una cartera verdaderamente global, como señalan analistas externos.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Alto. Los socios fundadores de Equam (Larraz y Muñoz) tienen invertida la mayor parte de su patrimonio personal en el propio fondo, según declaran en sus informes trimestrales, alineando totalmente sus intereses con los de los partícipes. La estructura de comisiones de la clase A (1% + 8% sobre beneficios con marca de agua) vincula además parte de la retribución al resultado obtenido.</p></div></div>
 
   <div class="sr">TER por clase (snapshot actual)</div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
@@ -297,7 +311,7 @@ El proceso combina un analisis exhaustivo de la calidad del negocio con la disci
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Septiembre 2019 — presente</span></div>
 
   <div class="mb24">
-    <p class="subsec">Origen: una boutique value asesorada desde Madrid (2014-2015)</p><p class="pr">Equam Global Value nace como el vehiculo de inversion de Equam Capital, una EAFI (Empresa de Asesoramiento Financiero) espanola con sede en Madrid. En lugar de constituir una SICAV o un FI domestico, los socios optaron por la formula habitual entre boutiques value espanolas de la epoca: articular el fondo como sub-fondo de un paraguas luxemburges -en este caso Incometric Fund, un FCP UCITS- administrado por ADEPA Asset Management, con Equam Capital actuando como asesor de inversion. Esto permitia operar bajo el marco UCITS de Luxemburgo manteniendo la gestion intelectual en Espana, con registro en la CNMV (num. 587) y caracter traspasable para el inversor espanol.</p><p class="pr">La clase A del fondo arranco el 15 de enero de 2015. Desde el primer momento el fondo se presento con una propuesta nitida: value clasico sobre companias europeas, principalmente de pequena y mediana capitalizacion, compradas con descuento sobre su valor intrinseco. Ya en su primer ano de vida usuarios de la comunidad inversora destacaban sus principios value, la alineacion de intereses entre gestores y participes y la calidad de sus informes trimestrales, aunque por entonces el fondo aun no figuraba en Morningstar y acumulaba una ligera perdida (Rankia, nov-2015).</p><p class="subsec">Primeros anos: validacion del estilo (2015-2017)</p><p class="pr">Tras un 2015 inicial plano (-1,1%, por detras del MSCI Europe NR +0,9%), el fondo encadeno dos ejercicios excepcionales que validaron su estilo: +17,0% en 2016 (frente a +2,6% del comparativo, +14,4 pp de diferencial) y +21,7% en 2017 (frente a +10,2%, +11,5 pp). Este periodo asento la credibilidad del proyecto y mostro la capacidad del equipo para generar alfa en small caps europeas cuando el mercado reconocia el valor.</p><p class="subsec">La prueba de 2018 y la recuperacion de 2019</p><p class="pr">2018 fue el primer gran reves: el fondo cayo -19,2%, claramente peor que el -10,6% del MSCI Europe NR, en un ano de correccion generalizada que golpeo con dureza a las pequenas companias. La respuesta llego en 2019, un ano geopolriticamente cargado (guerra comercial EE.UU.-China, Brexit, tensiones en Oriente Medio) en el que los bancos centrales viraron de endurecimiento a flexibilizacion y los mercados europeos cerraron con fuertes alzas. Equam recupero con un +27,2% (clase A), practicamente en linea con el +26,0% del comparativo. En su informe de cierre de 2019 el fondo declaraba estar invertido en 43 companias, con menos del 1% de caja y un nivel medio de inversion superior al 95%, reafirmando que su rentabilidad debe venir de la seleccion de valores y no del market timing.</p><p class="subsec">Pandemia y rotacion de estilo (2020-2021)</p><p class="pr">2020 estuvo dominado por la pandemia: caida brusca en marzo y recuperacion posterior impulsada por las vacunas, con fuerte divergencia regional (Asia y EE.UU. por delante de Europa). El sesgo a small caps europeas y value penalizo al fondo, que cerro en -10,4% frente al -3,3% del comparativo. 2021 fue un ano alcista de reapertura economica, pero de nuevo dominado por grandes companias y growth: Equam avanzo +23,9%, algo por detras del +25,1% del MSCI Europe NR. El fondo mantuvo su disciplina sin desviarse hacia las modas del momento.</p><p class="subsec">2022: el ano en que el value protegio</p><p class="pr">2022 fue un ano tumultuoso -inflacion elevada, subidas agresivas de tipos, invasion rusa de Ucrania, crisis energetica europea- que castigo especialmente a growth y renta fija. Aqui el estilo de Equam demostro su valor defensivo: el fondo cedio solo -3,72% (clase A) / -4,56% (clase B), muy por encima del -9,5% del MSCI Europe NR (+5,8 pp de diferencial). En ese ejercicio el equipo amplio posiciones en Vopak, AcadeMedia, Applus, AllforOne, Dalata Hotels, TI Fluids y Elecnor, y se beneficio de operaciones corporativas vendiendo VIVO (opa de Vitol), Intertrust (opa de CSC), Orsero, Euronav y Fresenius. La gestora subrayaba que su cartera cotizaba con un descuento pronunciado sobre el valor intrinseco, lo que ofrecia a la vez proteccion ante correcciones y potencial de revalorizacion.</p><p class="subsec">Consolidacion reciente (2023-2026)</p><p class="pr">2023 trajo de nuevo terreno positivo (+13,6% clase A en YTD a 30/11, frente a +11,7% del comparativo). A finales de 2023 la rentabilidad acumulada de la clase A desde inicio rondaba el +76% (6,6% anualizado). Los datos de mercado mas recientes (Financial Times, jun-2026) situan al fondo en el segundo cuartil de su categoria Europe Small-Cap Equity a 1, 3 y 5 anos, con una rentabilidad a 5 anos en torno al 6-7% anual y volatilidades moderadas (~10-12%). A lo largo de toda su historia el fondo ha mantenido un patrimonio modesto (hoy en el rango de 65-73 M EUR repartido entre las clases A, B, C, D y E) y una identidad de inversion inalterada: small/mid cap value europeo, concentrado, paciente y agnostico respecto al indice.</p>
+    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Origen del fondo y de la g…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">Fondo vs mercado, año a añ…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Lectura de conjunto</button></div><div class="subtab-panel active"><p class="pr">Equam Global Value nació en enero de 2015 como vehículo luxemburgués (sub-fondo del paraguas Incometric Fund, con ADEPA como sociedad gestora) para canalizar la estrategia de Equam Capital, la boutique value española fundada por José Antonio Larraz y Alejandro Muñoz. Desde el primer día el proyecto se planteó como un fondo de autor: cartera concentrada en small & mid caps europeas compradas con descuento sobre su valor intrínseco, informes trimestrales muy detallados y los socios invirtiendo la mayor parte de su patrimonio junto a los partícipes. En su primer año (2015) el fondo aún cotizaba con una ligera pérdida y ni siquiera figuraba en Morningstar, pero ya destacaba por su disciplina y su comunicación, como recogían los foros de la época.</p><p class="pr">La trayectoria del fondo está marcada por la cadencia del value europeo small cap. Tras unos primeros años de patrimonio en torno a 50-58 M€, 2019 fue un ejercicio muy fuerte (+27,2% en la clase A) con una cartera de ~43 valores y liquidez inferior al 1%. La pandemia de 2020 golpeó con dureza al segmento small cap: la clase A cedió un 10,4% y el patrimonio cayó a su mínimo histórico (~40,6 M€); fue precisamente cerca de esos mínimos, en marzo de 2020, cuando arrancó el histórico de la clase B. La recuperación posterior fue intensa —+23,9% en 2021— apoyada en nuevas posiciones de calidad como DO&CO, Sonans o All for One. El convulso 2022 (guerra de Ucrania, inflación y subidas de tipos) se saldó con una caída contenida (-4,6% en la clase B), gracias a empresas con poder de fijación de precios y baja deuda capaces de trasladar la inflación.</p><p class="pr">Desde 2023 el fondo encadenó una clara recuperación de patrimonio (de ~50,8 M€ en 2022 a ~68 M€ en 2023, ~72,7 M€ en 2024 y ~79,6 M€ en 2025, su máximo histórico), con la clase A devengando comisión de éxito en 2024 al superar su marca de agua. En febrero de 2025 la firma reconoció públicamente que no descarta incorporar un socio que le ayude a ganar volumen, reflejo del reto de escala de una boutique de ~80 M€. El arranque de 2026 fue algo más débil (-3,4% en el primer trimestre por el conflicto en Irán y la volatilidad en small caps energéticas), pero con un potencial de revalorización de la cartera que el equipo situaba en niveles históricamente elevados. En conjunto, una historia de consistencia de proceso más que de fuegos artificiales: ~6,5% anual desde 2015, en línea con los índices europeos con dividendos y con un perfil de caídas más contenido en los años difíciles.</p></div><div class="subtab-panel"><p class="pr">Equam Capital es una boutique value independiente española creada y dirigida por José Antonio Larraz y Alejandro Muñoz. Para instrumentar su estrategia eligieron un vehículo luxemburgués: el sub-fondo Equam Global Value dentro del paraguas Incometric Fund (SICAV UCITS), con ADEPA Asset Management como sociedad gestora y entidades del grupo KBL/Quintet como depositario. El fondo arrancó en enero de 2015. Como recogía un hilo de Rankia en noviembre de 2015, en su primer año el fondo era un value investing registrado en Luxemburgo pero gestionado desde España, con principios value, fuerte alineación de intereses entre gestores y partícipes e informes trimestrales muy cuidados, aunque todavía con una ligera pérdida (-2%) y sin presencia en Morningstar.</p></div><div class="subtab-panel"><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2019 — Año fuerte de small caps europeas.</strong> en un ejercicio dominado por la guerra comercial EE. UU.-China y el Brexit, el fondo cerró con +27,2% (clase A). El equipo mantenía ~43 empresas con liquidez inferior al 1% y un nivel medio de inversión superior al 95%, con sesgo a mid-caps europeas y compras como Applus, Euronav o Inbev; su mensaje: certeza en compañías centradas en la generación de caja, alta conversión de EBITDA y planes de crecimiento creíbles.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2020 — COVID y mínimo de patrimonio.</strong> la pandemia castigó al segmento small cap; la clase A cedió 10,4% y el patrimonio cayó a ~40,6 M€, su mínimo histórico. En marzo de 2020, cerca de los mínimos de mercado, comenzó a registrarse el histórico de la clase B (LU0933684283).</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2021 — Recuperación intensa.</strong> la clase B subió ~23,9% y en el primer semestre el fondo avanzó +21,5% frente a +15% de los índices comparables. El equipo abrió DO&CO (catering aéreo austriaco), Sonans (educación noruega) y All for One (servicios SAP en Alemania), y desinvirtió de Hunter Douglas a 91€ tras rechazar una OPA. La cartera llegó a ~47 valores con liquidez ~1%.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2022 — Caída contenida en un año tumultuoso.</strong> con la invasión de Ucrania, la inflación y las subidas de tipos, el fondo cedió -4,6% (clase B), mucho menos que muchos comparables. El equipo reforzó Vopak, AcadeMedia, Applus, All for One, Dalata, TI Fluids y Elecnor, vendió VIVO (OPA de Vitol) e Intertrust (OPA de CSC) y argumentó que su cartera estaba bien preparada para el nuevo escenario porque las compañías podían trasladar los aumentos de costes a sus clientes.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2023-2024 — Recuperación de patrimonio.</strong> sin carta específica en 2023, el patrimonio saltó de ~50,8 M€ (2022) a ~68 M€ (2023) y ~72,7 M€ (2024); en 2024 la clase A devengó comisión de éxito (~94.476€) al superar su marca de agua.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2025 — Máximo histórico de AUM.</strong> el patrimonio alcanzó ~79,6 M€ y la clase B avanzó +6,2% en el año, con la firma planteándose en febrero la incorporación de un socio para ganar volumen.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2026 (1T) — Volatilidad geopolítica.</strong> el fondo cayó -3,4% frente a -3,2% de los índices mundiales y -1% de los europeos con dividendos, penalizado por el conflicto en Irán y la volatilidad en small caps energéticas; el equipo aprovechó las caídas para reforzar valores de calidad y situaba el potencial de revalorización en niveles históricamente elevados.</p></div><div class="subtab-panel"><p class="pr">La historia del fondo es la de un proceso value estable aplicado con paciencia a través de varios ciclos. Su rentabilidad de largo plazo (~6,5% anual desde 2015) ha sido equivalente a la de los índices europeos con dividendos, con una ventaja histórica modesta sobre el MSCI Europe y, sobre todo, con caídas más contenidas en los años adversos (2022) gracias a la calidad y la baja deuda de las compañías. El reto estructural sigue siendo el de escala: una boutique de ~80 M€, muy dependiente de sus dos socios, que busca crecer sin renunciar a su disciplina.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
   <div class="kpi-row">
@@ -310,7 +324,7 @@ El proceso combina un analisis exhaustivo de la calidad del negocio con la disci
   <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 63.4;
+  window.__HIST_AUM_HEADER__ = 79.6;
   </script>
   
   <div class="sr">Cronología de eventos relevantes</div>
@@ -322,82 +336,110 @@ El proceso combina un analisis exhaustivo de la calidad del negocio con la disci
         
         <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <span class="tl-tag tag-reg">Regulatorio</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Lanzamiento del fondo (clase A)</strong>
+            <span class="tl-tag tag-hito">Lanzamiento</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Lanzamiento del fondo</strong>
           </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">El 15 de enero de 2015 arranca la clase A de Equam Global Value como sub-fondo del paraguas luxemburges Incometric Fund (FCP UCITS), asesorado por Equam Capital EAFI y registrado en CNMV (num. 587).</div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Equam Global Value arranca en enero de 2015 como sub-fondo del paraguas Incometric Fund (SICAV lux., gestora ADEPA), asesorado por la boutique española Equam Capital.</div>
         </div>
         <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <span class="tl-tag tag-hito">Contexto_mercado</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Primer ano: -1,1%</strong>
+            <span class="tl-tag tag-hito">Equipo</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Equipo de autor y alineación</strong>
           </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">Arranque plano (-1,1% clase A) frente al +0,9% del MSCI Europe NR. La comunidad inversora ya destaca sus principios value y la alineacion de intereses, aunque aun no figura en Morningstar.</div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Larraz y Muñoz gestionan con filosofía value (calidad a descuento, small/mid cap europeo) e invierten la mayor parte de su patrimonio en el fondo; informes trimestrales detallados desde el inicio.</div>
         </div>
       </div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2016</div>
-      <div class="tl-tag tag-hito">Hecho_relevante</div>
-      <div class="tl-title">+17,0%: primer gran ano</div>
-      <div class="tl-desc">El fondo bate al comparativo en +14,4 pp (+17,0% vs +2,6%), validando el estilo value en small caps europeas.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
       <div class="tl-date">2017</div>
-      <div class="tl-tag tag-hito">Hecho_relevante</div>
-      <div class="tl-title">+21,7%: confirmacion del estilo</div>
-      <div class="tl-desc">Segundo ejercicio sobresaliente (+11,5 pp sobre el MSCI Europe NR), consolidando la credibilidad del proyecto.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2018</div>
-      <div class="tl-tag tag-hito">Contexto_mercado</div>
-      <div class="tl-title">Primer gran reves (-19,2%)</div>
-      <div class="tl-desc">Correccion generalizada que golpea a las small caps; el fondo cae mas que el comparativo (-19,2% vs -10,6%).</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Patrimonio en torno a 58 M€</div>
+      <div class="tl-desc">El fondo alcanza ~58 M€, máximo de sus primeros años antes de la corrección posterior.</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
       <div class="tl-date">2019</div>
-      <div class="tl-tag tag-hito">Hecho_relevante</div>
-      <div class="tl-title">Recuperacion +27,2%, casi 99% invertido</div>
-      <div class="tl-desc">Fuerte recuperacion en linea con el mercado europeo. El fondo declara 43 companias y <1% de caja, reafirmando su disciplina de estar invertido.</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Año fuerte (+27,2%)</div>
+      <div class="tl-desc">La clase A sube +27,2% con una cartera de ~43 valores y liquidez inferior al 1%, en plena guerra comercial y Brexit.</div>
     </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2020</div>
-      <div class="tl-tag tag-hito">Contexto_mercado</div>
-      <div class="tl-title">Pandemia: -10,4%</div>
-      <div class="tl-desc">El sesgo small cap value penaliza en un ano de divergencia regional dominado por EE.UU. y Asia.</div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2020</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-strat">Decisión estratégica</span>
+            <strong style="font-size:12.5px;color:var(--ink);">COVID: drawdown y mínimo de AUM</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">La clase A cede -10,4% y el patrimonio cae a ~40,6 M€, mínimo histórico, por el castigo a las small caps en la pandemia.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Lanzamiento</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Arranque de la clase B</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">En marzo de 2020, cerca de los mínimos de mercado, comienza a registrarse el histórico de la clase B (LU0933684283).</div>
+        </div>
+      </div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
       <div class="tl-date">2021</div>
-      <div class="tl-tag tag-hito">Contexto_mercado</div>
-      <div class="tl-title">+23,9% en mercado de grandes companias</div>
-      <div class="tl-desc">Ano alcista de reapertura dominado por growth y megacaps; el fondo avanza con fuerza pero queda algo por detras del comparativo.</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Recuperación (+23,9%)</div>
+      <div class="tl-desc">Fuerte rebote (+21,5% en H1 vs +15% de índices); nuevas posiciones DO&CO, Sonans y All for One; cartera de ~47 valores.</div>
     </div>
     <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
+      <div class="tl-dot dot-crisis"></div>
       <div class="tl-date">2022</div>
-      <div class="tl-tag tag-hito">Cambio_estrategia</div>
-      <div class="tl-title">El value protege: -3,7% vs -9,5%</div>
-      <div class="tl-desc">En el ano de inflacion, subidas de tipos y guerra en Ucrania, el fondo bate al comparativo en +5,8 pp. Amplia Vopak, AcadeMedia, Applus, Dalata, TI Fluids, Elecnor; se beneficia de opas (VIVO, Intertrust).</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2023</div>
-      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
-      <div class="tl-title">+13,6% y +76% acumulado</div>
-      <div class="tl-desc">Nuevo ano positivo (YTD a 30/11). La rentabilidad acumulada de la clase A desde inicio alcanza ~+76% (6,6% anualizado).</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Caída contenida en año tumultuoso</div>
+      <div class="tl-desc">Con guerra, inflación y subidas de tipos, la clase B cede solo -4,6%; refuerzo de Vopak, AcadeMedia, Applus, Dalata, TI Fluids y Elecnor; ventas por OPA de VIVO e Intertrust.</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2026</div>
+      <div class="tl-date">2023</div>
+      <div class="tl-tag tag-hito">Salto de escala</div>
+      <div class="tl-title">Recuperación de patrimonio</div>
+      <div class="tl-desc">El AUM sube de ~50,8 M€ (2022) a ~68 M€, en un año de recuperación de las bolsas europeas.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2024</div>
       <div class="tl-tag tag-hito">Hecho_relevante</div>
-      <div class="tl-title">Segundo cuartil de su categoria</div>
-      <div class="tl-desc">Los datos de Financial Times (jun-2026) situan al fondo en el 2o cuartil de Europe Small-Cap Equity a 1/3/5 anos, con ~6-7% anual a 5 anos y volatilidad ~10-12%.</div>
+      <div class="tl-title">Comisión de éxito en la clase A</div>
+      <div class="tl-desc">El patrimonio alcanza ~72,7 M€ y la clase A devenga comisión de éxito (~94.476€) al superar su marca de agua.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2025</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Equipo</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Equam estudia incorporar un socio</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Con ~75-80 M€ bajo gestión, la firma reconoce (feb-2025) que no descarta sumar un socio que le ayude a ganar volumen.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Salto de escala</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Máximo histórico de AUM (~79,6 M€)</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">El patrimonio marca máximos y la clase B avanza +6,2% en el año.</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2026</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Volatilidad por el conflicto en Irán</div>
+      <div class="tl-desc">El 1T cae -3,4%; el equipo refuerza calidad en las caídas y cifra el potencial de revalorización de la cartera en niveles históricamente elevados.</div>
     </div>
   </div>
   
@@ -406,57 +448,45 @@ El proceso combina un analisis exhaustivo de la calidad del negocio con la disci
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  <div class="mb24"><p class="subsec">Una boutique de dos socios fundadores</p><p class="pr">Equam Global Value es el vehiculo de Equam Capital, EAFI S.L., una boutique de asesoramiento financiero con sede en Madrid. El equipo gestor lo forman dos socios que asesoran su propio fondo: <strong>Jose Antonio Larraz</strong>, socio fundador y gestor principal (lead portfolio manager), y <strong>Alejandro Munoz</strong>, socio, co-gestor y portavoz habitual del fondo en entrevistas y foros. Esta estructura -gestores-propietarios al frente de un vehiculo de tamano contenido- es el rasgo central del proyecto y explica el enfasis del fondo, desde sus primeros informes, en la alineacion de intereses entre gestores y participes (Rankia, 2015).</p><p class="subsec">Reparto de roles</p><p class="pr">Las fuentes disponibles permiten establecer con confianza media el reparto de funciones. Larraz figura como socio fundador y lead historico de la gestion; Munoz aparece de forma consistente como co-gestor y voz publica del fondo -es quien concede las entrevistas y articula la filosofia de inversion ante terceros-. Ambos son citados conjuntamente como los responsables del fondo en analisis de terceros sobre gestores value espanoles (Moclano, 2025): "Alejandro Munoz y Jose Antonio Larraz, con Incometric Equam Global Value, se adentran en las small caps bajo ese prisma puramente empresarial".</p></div>
+  <div class="mb24"><p class="pr">Equam Global Value es, ante todo, un <strong>fondo de autor</strong>: detrás está Equam Capital, una boutique value independiente española fundada y dirigida por <strong>José Antonio Larraz</strong> y <strong>Alejandro Muñoz</strong>, ambos socios y gestores del fondo y ambos con rating <strong>Citywire A</strong>. La estructura legal —sub-fondo del paraguas luxemburgués Incometric Fund, con ADEPA Asset Management como sociedad gestora (ManCo) y el grupo KBL/Quintet como depositario— es el envoltorio regulatorio del vehículo; las decisiones de inversión las toma Equam Capital desde España. Es decir, una gestora de convicción personalista en la que el resultado depende directamente del criterio y la disciplina de sus dos socios.</p><p class="subsec">Equam Capital: la boutique detrás del fondo</p><p class="pr">Equam Capital es una firma española independiente de gestión value que actúa como asesor de inversión (investment advisor) del Incometric Fund – Equam Global Value. El fondo se gestiona desde España aunque esté domiciliado en Luxemburgo, una combinación habitual entre las boutiques españolas que buscan el régimen UCITS y la distribución internacional de un vehículo luxemburgués sin asumir la infraestructura completa de una gestora propia. Por eso el fondo se apoya en una sociedad gestora de terceros (ADEPA Asset Management en Luxemburgo), un depositario del grupo KBL/Quintet (KBL European Private Bankers) y un auditor de primer nivel (KPMG): toda esa arquitectura externa aporta el cumplimiento regulatorio, mientras que el alma inversora —la selección de valores y la construcción de cartera— reside íntegramente en los dos socios de Equam. Esta separación es importante para entender el fondo: lo que el partícipe compra no es la marca Incometric ni el servicio de ADEPA, sino el criterio de inversión de Larraz y Muñoz.</p><p class="subsec">Estructura del equipo y reparto de funciones</p></div>
 
   
     <div class="mgr">
       <div class="mgr-s">
         <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">JA</div>
-        <div class="mgr-nm">Jose Antonio Larraz<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">Socio fundador y gestor principal (Lead Portfolio Manager)</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Socio fundador de Equam Capital, EAFI S.L. (Madrid)</li><li style="margin-bottom:3px;">Gestor principal (lead) de Equam Global Value desde su lanzamiento en enero de 2015</li><li style="margin-bottom:3px;">Especialista en value investing sobre small y mid caps europeas</li><li style="margin-bottom:3px;">Gestor-propietario: asesora su propio vehiculo, con alineacion de intereses gestor-participe</li></ul>
+        <div class="mgr-nm">José Antonio Larraz<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Socio fundador y gestor principal (Lead Manager)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Socio fundador de Equam Capital</li><li style="margin-bottom:3px;">Gestor principal del Incometric Fund – Equam Global Value desde 2015</li><li style="margin-bottom:3px;">Rating Citywire A</li><li style="margin-bottom:3px;">Gestor de registro del fondo en Citywire y Finect</li><li style="margin-bottom:3px;">Más de una década aplicando value investing en small/mid caps europeas</li><li style="margin-bottom:3px;">Mayor parte de su patrimonio invertido en el propio fondo (alineación de intereses)</li></ul>
       </div>
       <div class="mgr-b">
-        <p class="pr" style="font-size:13px;"><strong>Socio fundador de Equam Capital</strong>
+        <p class="pr" style="font-size:13px;"><strong>José Antonio Larraz</strong> es socio fundador de <strong>Equam Capital</strong> y gestor principal del Incometric Fund – Equam Global Value. Figura como <strong>gestor de registro del fondo en Citywire y Finect</strong>, con rating <strong>Citywire A</strong>, y se ha presentado públicamente como socio fundador de la firma, por ejemplo en el 'Café virtual' de Finect de junio de 2021. Gestiona el fondo desde su lanzamiento en 2015, aplicando de forma consistente una filosofía de value investing centrada en compañías pequeñas y medianas europeas de calidad compradas con descuento sobre su valor intrínseco.
 
-Jose Antonio Larraz es socio fundador de Equam Capital, la EAFI madrilena que asesora el fondo Equam Global Value desde su lanzamiento en enero de 2015. Lidera el equipo gestor y es el responsable historico de la gestion del vehiculo.
+Su enfoque, plasmado en las cartas trimestrales que co-firma, prioriza la <strong>paciencia y la disciplina de precio</strong> sobre la anticipación del corto plazo del mercado: 'No intentamos adivinar los movimientos a corto del Mercado sino comprar buenos negocios a muy buenos precios'. Larraz defiende negocios con generación de caja recurrente, alta conversión de EBITDA en caja, balances sólidos y planes de crecimiento creíbles, y un horizonte de inversión de largo plazo en el que las caídas de mercado son oportunidades para reforzar las posiciones de mayor convicción.
 
-<strong>Estilo de inversion</strong>
-
-Bajo su liderazgo, el fondo aplica una filosofia value clasica: invertir a largo plazo en companias europeas -principalmente de pequena y mediana capitalizacion- con un modelo de negocio claro, estructura de capital solida y que coticen con un descuento significativo sobre su valor intrinseco. El enfoque es empresarial y de conviccion, con una cartera concentrada (~44 valores) y baja rotacion, y prioriza la minimizacion de la perdida permanente de capital sobre la busqueda de batir un indice.
-
-Es citado de forma recurrente, junto a Alejandro Munoz, como uno de los dos gestores del fondo en analisis del ecosistema value espanol, que enmarcan su trabajo en small caps europeas "bajo un prisma puramente empresarial" (Moclano, mayo 2025).
-
-*Nota de fuentes: no se dispone de datos verificados sobre su formacion academica ni su trayectoria profesional previa a Equam; este perfil se limita a lo documentado en el expediente.*</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Value clasico de conviccion centrado en la calidad del negocio y el descuento sobre valor intrinseco, con margen de seguridad explicito y horizonte de largo plazo. Prioriza la preservacion de capital y la asimetria riesgo/recompensa frente a la referencia a un indice, y mantiene el fondo practicamente invertido salvo ausencia de oportunidades que cumplan los criterios.</p>
+Como socio fundador, tiene invertida —junto a su socio— la mayor parte de su patrimonio personal en el propio fondo, lo que materializa una alineación de intereses muy estrecha con los partícipes. Dentro del ecosistema del value español de boutiques independientes, es reconocido como uno de los gestores de referencia en el nicho de small caps europeas. (No se incorporan datos de su trayectoria profesional previa por no constar de forma verificada en las fuentes disponibles.)</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Value investing de calidad a precio atractivo aplicado a small & mid caps europeas: comprar negocios sólidos, predecibles y poco endeudados con un descuento amplio sobre su valor intrínseco, mantenerlos a largo plazo y reforzar en las caídas, sin tratar de adivinar el corto plazo del mercado. Convicción concentrada (~40-47 valores) y fuerte alineación con el partícipe.</p>
         
         
         <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Definicion y mantenimiento, sin desviaciones desde 2015, de una filosofia value disciplinada centrada en el descuento sobre valor intrinseco y el margen de seguridad.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mantener el fondo casi totalmente invertido (43 companias y <1% de caja a cierre de 2019), evitando el market timing y confiando la rentabilidad a la seleccion de valores.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Posicionamiento defensivo via valoracion que permitio limitar la caida a -3,7% en 2022 (vs -9,5% del comparativo) gracias a una cartera con descuento amplio y bajo apalancamiento.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Gestor-fundador que combina disciplina value estricta con especializacion en el extremo small/mid cap europeo, un segmento menos cubierto donde el analisis profundo de negocios genera ventaja. Perfil de baja exposicion publica (deja la portavocia a su socio) y orientacion a largo plazo.</p></div>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">2019: mantener una cartera concentrada de ~43 valores con liquidez inferior al 1% y nivel de inversión medio superior al 95%, apostando por mid-caps europeas de calidad en plena guerra comercial.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">2021: abrir DO&CO, Sonans y All for One y desinvertir de Hunter Douglas a 91€ tras rechazar una OPA, aprovechando la recuperación post-COVID de cíclicos de calidad.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">2022: reforzar Vopak, AcadeMedia, Applus, Dalata, TI Fluids y Elecnor y vender VIVO (OPA de Vitol) e Intertrust (OPA de CSC), apoyándose en compañías capaces de trasladar la inflación a precios.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">2026 (1T): aprovechar las caídas provocadas por el conflicto en Irán para reforzar posiciones de calidad con descuentos aún mayores.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Disciplina value y paciencia: gestor de autor que prioriza la calidad del negocio y el margen de seguridad sobre el ruido de mercado, con la mayor parte de su patrimonio en juego y una comunicación trimestral transparente que lo ha convertido en referencia del value español en small caps.</p></div>
       </div>
     </div>
     <div class="mgr">
       <div class="mgr-s">
         <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">AM</div>
-        <div class="mgr-nm">Alejandro Munoz<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">Socio y co-gestor (Co Portfolio Manager) / portavoz del fondo</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Socio y co-gestor (co-PM) de Equam Capital</li><li style="margin-bottom:3px;">Portavoz habitual del fondo en entrevistas y foros (p.ej. Astralis Funds Academy, 2024)</li><li style="margin-bottom:3px;">Co-responsable de la estrategia value en small/mid caps europeas de Equam Global Value</li></ul>
+        <div class="mgr-nm">Alejandro Muñoz<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Socio y co-gestor (Co-Manager)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Socio (Partner) de Equam Capital</li><li style="margin-bottom:3px;">Co-gestor del Incometric Fund – Equam Global Value</li><li style="margin-bottom:3px;">Rating Citywire A</li><li style="margin-bottom:3px;">Portavoz habitual del fondo (entrevista Astralis Funds Academy, feb-2024)</li><li style="margin-bottom:3px;">Enfoque value de calidad a precio atractivo con margen de seguridad</li></ul>
       </div>
       <div class="mgr-b">
-        <p class="pr" style="font-size:13px;"><strong>Socio, co-gestor y voz publica de Equam</strong>
+        <p class="pr" style="font-size:13px;"><strong>Alejandro Muñoz</strong> es socio (partner) y co-gestor de <strong>Equam Capital</strong> y del Incometric Fund – Equam Global Value, con rating <strong>Citywire A</strong>. Ejerce habitualmente como <strong>portavoz del fondo</strong>, explicando su filosofía en entrevistas y foros del sector. En la entrevista de Astralis Funds Academy (febrero de 2024) resumió el enfoque del fondo: especialización en renta variable europea, foco en empresas de mediana y pequeña capitalización, y una estrategia que combina un análisis exhaustivo de la calidad de los negocios con la búsqueda de un precio de entrada atractivo, con el objetivo de 'identificar empresas estables con bajo riesgo, adquirirlas a precios atractivos y mantener un margen de seguridad'.
 
-Alejandro Munoz es socio y gestor de Equam Capital y el portavoz habitual del fondo: es quien concede las entrevistas y articula publicamente la filosofia de inversion. En su conversacion con Astralis Funds Academy (febrero 2024) describe la estrategia como "combinar un analisis exhaustivo de la calidad de las companias con la evaluacion de su precio en el mercado", con el objetivo de "identificar empresas estables con bajo riesgo, adquirirlas a precios atractivos y mantener un margen de seguridad en las inversiones".
-
-<strong>Encaje en el value espanol</strong>
-
-Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre talento value local, que destacan su enfoque empresarial sobre las small caps europeas (Moclano, mayo 2025). Su rol de portavoz lo convierte en la cara mas reconocible del fondo ante la comunidad inversora.
-
-*Nota de fuentes: no se dispone de datos verificados sobre su formacion ni trayectoria previa a Equam; este perfil se limita a lo documentado en el expediente.*</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">"Buscar la calidad al mejor precio posible": doble filtro de calidad del negocio y disciplina de precio, con margen de seguridad y foco en empresas estables de bajo riesgo dentro del universo small/mid cap europeo. Coincide plenamente con la filosofia del fondo, que el comunica de forma directa y pedagogica.</p>
+Como socio fundador comparte plenamente la filosofía y la responsabilidad de gestión con José Antonio Larraz —ambos aparecen citados conjuntamente como gestores del fondo por fuentes externas— y, al igual que su socio, tiene invertida la mayor parte de su patrimonio en el fondo. Su papel como cara visible refuerza la transparencia del proyecto hacia los partícipes. (No se incorporan datos de su trayectoria profesional previa por no constar de forma verificada en las fuentes disponibles.)</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Calidad empresarial + precio atractivo con margen de seguridad en small & mid caps europeas: análisis exhaustivo de la calidad del negocio combinado con disciplina de valoración, buscando empresas estables de bajo riesgo a precios descontados y manteniéndolas con horizonte de largo plazo.</p>
         
         
         <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-1" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Articulacion publica y consistente de la filosofia del fondo ('calidad al mejor precio posible'), reforzando la transparencia y la alineacion con los participes.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Combina la gestion con la comunicacion: es el gestor que explica la tesis de inversion al inversor final, con un discurso claro y centrado en calidad, precio y margen de seguridad.</p></div>
+        <div id="mgr-extra-1" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Articular públicamente (Astralis, feb-2024) la tesis del fondo: calidad + margen de seguridad en small/mid caps europeas, como portavoz de la estrategia.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Compartir con su socio las decisiones de cartera de convicción a largo plazo (núcleo de posiciones mantenidas durante años como Mondadori, Applus, TGS o Prosegur Cash).</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Portavoz y co-gestor que transmite con claridad la filosofía de la casa; socio fundador alineado con el partícipe, refuerza la dimensión de transparencia y comunicación del proyecto Equam.</p></div>
       </div>
     </div>
 
@@ -465,25 +495,72 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
 
 <section class="pane" id="p3">
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
-  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="pane" id="p4">
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="subsec">El doble filtro: calidad y precio</p><p class="pr">La estrategia de Equam Global Value es value investing clasico aplicado al universo small/mid cap europeo. El punto de partida es un doble filtro que el propio equipo resume como "buscar la calidad al mejor precio posible" (Alejandro Munoz, Astralis Funds Academy, 2024): primero se exige calidad del negocio -modelo claro, balance solido, baja dependencia de deuda y generacion de caja-, y solo despues se exige precio, esto es, un descuento significativo sobre el valor intrinseco estimado. Sin margen de seguridad, no hay inversion.</p><p class="subsec">Asimetria y preservacion de capital</p><p class="pr">El objetivo declarado del fondo no es batir un indice sino minimizar la probabilidad de perdida permanente de capital. El equipo solo invierte en situaciones en las que el riesgo es cuantificable y asumible y donde el potencial de revalorizacion excede de modo asimetrico cualquier escenario negativo (factsheet). Esta asimetria riesgo/recompensa es el corazon de la disciplina: se renuncia a oportunidades dudosas para concentrarse en aquellas donde el suelo de valoracion esta acotado y el recorrido al alza es amplio. La gestora cifra el potencial de revalorizacion de la cartera actual cerca del 98%.</p><p class="subsec">Construccion de cartera</p><p class="pr">La cartera es concentrada pero diversificada: en torno a 44 companias, ninguna dominante (la mayor ronda el 6%), con baja rotacion y horizonte plurianual. La liquidez es residual y solo se eleva si no hay oportunidades que cumplan los criterios; historicamente el fondo ha estado practicamente invertido (>99% en 2019). El benchmark (MSCI Europe NR) es puramente comparativo: la gestion es agnostica respecto al indice y no busca replicar su composicion ni superarlo a corto plazo.</p><p class="subsec">Como se ejecuta la tesis en la practica</p><p class="pr">Los movimientos de cartera ilustran el estilo. En 2022, un ano de inflacion, subidas de tipos y guerra en Ucrania, el equipo amplio posiciones en Vopak, AcadeMedia, Applus, AllforOne, Dalata Hotels, TI Fluids y Elecnor, y monetizo varias tesis via operaciones corporativas: vendio VIVO (opa de Vitol), Intertrust (opa de CSC), Orsero, Euronav y Fresenius, y redujo Navigator, Restore y Neurones. Es un patron coherente con el value: comprar lo barato y de calidad, y dejar que el mercado (o un comprador estrategico) cierre la brecha de valoracion. La gestora subrayaba que la cartera cotizaba con un descuento pronunciado sobre el valor intrinseco, lo que ofrecia a la vez proteccion ante correcciones y potencial de plusvalias.</p><p class="subsec">Sin riesgos macro implicitos</p><p class="pr">El equipo evita asumir apuestas macro direccionales: la rentabilidad debe venir de la seleccion de companias infravaloradas, no de posicionarse sobre tipos, divisas o ciclo. Las companias en cartera -segun la propia gestora- han demostrado capacidad de trasladar a precios los incrementos de costes derivados de la inflacion, lo que refuerza la resiliencia del modelo en entornos adversos.</p><p class="subsec">Lectura de consistencia</p><p class="pr">La gran fortaleza de la estrategia es su consistencia: la misma filosofia se observa sin desviaciones desde 2015, en factsheets, entrevistas e informes. Su contrapartida es la volatilidad inherente al small cap value y los periodos de underperformance cuando el mercado premia a las grandes companias y al growth (2018, 2020, 2021). Es una estrategia que exige paciencia y horizonte largo para que el descuento sobre valor intrinseco se materialice.</p>
+    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Objetivo del fondo</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Benchmark</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Universo de inversión y ra…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Estilo de inversión</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Fondo de autor vs gestiona…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',6)">Cuantitativo vs cualitativ…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',7)">Gestión del riesgo y de la…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',8)">Coherencia del proceso en…</button></div><div class="subtab-panel active"><p class="pr">La estrategia de Equam Global Value es la de un <strong>fondo value de autor especializado en renta variable europea de pequeña y mediana capitalización</strong>. Su objetivo declarado es lograr la revalorización del capital a medio y largo plazo componiendo a un buen ritmo y, a la vez, preservándolo invirtiendo solo cuando el riesgo está acotado. El inversor al que se dirige es uno de perfil de riesgo alto (indicador 4/7) y horizonte largo.</p><p class="pr">Formalmente el fondo no tiene un benchmark restrictivo: el folleto referencia mandatos amplios y la ficha menciona el MSCI World, pero el equipo gestiona de forma activa y sin restricción, y en sus cartas se compara con los índices europeos con dividendos, el MSCI Europe y, por categoría Morningstar, con un índice de small caps europeas (Europe Small-Cap Equity / Morningstar Dev Eur Sml). En la práctica, por tanto, la referencia relevante es la renta variable europea de pequeña capitalización, no un índice global.</p><p class="pr">El universo de inversión legal es deliberadamente amplio —renta variable, instrumentos asimilados y renta fija emitidos principalmente en países OCDE, con uso ancilar de derivados y de liquidez— pero el fondo lo ejecuta de forma muy concentrada: ~98% en renta variable, ~2% en liquidez y 0% en renta fija, con una cartera de ~40-47 valores europeos small/mid cap y un sesgo a Reino Unido, Italia, Países Bajos, España, Francia y Alemania, y a sectores de servicios empresariales e industria.</p><p class="pr">El estilo es <strong>value de calidad</strong>: comprar negocios sólidos, predecibles, con generación de caja y baja deuda a un descuento amplio sobre su valor intrínseco, manteniéndolos a largo plazo. Es claramente un <strong>fondo de autor</strong>: las decisiones las toman los dos socios fundadores de Equam Capital, que tienen la mayor parte de su patrimonio invertido en el vehículo; la SICAV luxemburguesa Incometric y la gestora ADEPA son el envoltorio regulatorio, no el cerebro inversor.</p><p class="pr">El proceso es <strong>fundamentalmente cualitativo apoyado en análisis cuantitativo</strong>: se estudia en profundidad la calidad del negocio (ventajas competitivas, conversión de EBITDA en caja, solidez del balance, planes de crecimiento creíbles) y se exige un precio de entrada con margen de seguridad respecto al valor intrínseco estimado. La 'fórmula' no es una pantalla mecánica sino una combinación de selección bottom-up de compañías infravaloradas, paciencia para mantenerlas y disciplina para reforzar en las caídas o salir cuando el descuento desaparece o aparece una OPA. El resultado de largo plazo (~6,5% anual desde 2015) confirma una estrategia consistente, con caídas más contenidas que el mercado en los años difíciles y una ventaja modesta sobre los índices europeos.</p></div><div class="subtab-panel"><p class="pr">El objetivo de inversión declarado es conseguir la <strong>revalorización del capital a medio plazo</strong>. En palabras del propio equipo, se busca rentabilizar el capital con inversiones a largo plazo en negocios sólidos comprados a descuento de su valor intrínseco, así como preservarlo invirtiendo solo cuando el riesgo es acotado. Es un producto pensado para un inversor de perfil de riesgo alto (indicador de riesgo 4/7) y horizonte de varios años.</p></div><div class="subtab-panel"><p class="pr">El fondo es de <strong>gestión activa y no replica ni se ata a un índice</strong>. El folleto y la ficha mencionan de forma genérica el MSCI World (EUR), pero esa referencia no describe bien la cartera. En sus informes el equipo se compara con los <strong>índices europeos con dividendos</strong>, el <strong>MSCI Europe</strong> y el Stoxx 50, y la categoría Morningstar del fondo es <strong>Europe Small-Cap Equity</strong> (índice Morningstar Dev Eur Sml). La comparación honesta, por tanto, es contra la renta variable europea de pequeña y mediana capitalización, no contra un índice global.</p></div><div class="subtab-panel"><p class="pr">El mandato legal es amplio: el sub-fondo puede invertir principalmente en renta variable e instrumentos asimilados (acciones ordinarias o preferentes, bonos convertibles) y en renta fija (tipo fijo o flotante, cupón cero, deuda pública) e instrumentos del mercado monetario, emitidos o negociados en la Eurozona y otros mercados regulados internacionales. Como límites relevantes del folleto: <strong>no más del 10% del patrimonio en ETFs u otros fondos</strong>; uso de <strong>derivados</strong> con fines de cobertura y, de forma ancilar, de inversión (metodología de compromiso); y <strong>activos líquidos ancilares limitados al 20%</strong> del patrimonio (depósitos a la vista) para pagos o en condiciones de mercado desfavorables. El folleto califica el perfil de riesgo del sub-fondo como alto.</p><p class="pr">Ahora bien, <strong>de facto la cartera es renta variable europea pura</strong>: a fecha reciente, ~97,8% en acciones, ~2,2% en liquidez y 0% en renta fija, con ~44 valores small/mid cap. El grueso del retorno se espera de la renta variable; la flexibilidad teórica para usar renta fija, derivados o liquidez es un recurso ancilar que en la práctica apenas se utiliza.</p></div><div class="subtab-panel"><p class="pr">El estilo es <strong>value de calidad</strong> ('quality value'): no es value profundo de activos baratos sin más, sino la compra de <strong>buenos negocios a buenos precios</strong>. Se exige a la vez calidad (ventajas competitivas, generación de caja, baja deuda, predictibilidad) y un descuento amplio sobre el valor intrínseco. El foco en small & mid caps europeas responde a la convicción de que ese universo, menos cubierto por los analistas, ofrece más ineficiencias que el análisis propio puede explotar.</p></div><div class="subtab-panel"><p class="pr">Equam Global Value es inequívocamente un <strong>fondo de autor</strong>. Aunque el vehículo es una SICAV luxemburguesa (Incometric Fund) con ADEPA Asset Management como sociedad gestora y un depositario del grupo KBL/Quintet, esa estructura es el envoltorio regulatorio. Las decisiones de inversión las toman los dos socios fundadores de Equam Capital, José Antonio Larraz y Alejandro Muñoz, que además tienen invertida la mayor parte de su patrimonio en el fondo. Es gestión personalista de convicción, con la ventaja de la alineación y la cercanía y el riesgo de la dependencia de dos personas clave y de la escala reducida (~80 M€).</p></div><div class="subtab-panel"><p class="pr">El proceso es <strong>predominantemente cualitativo, apoyado en análisis cuantitativo</strong>. El equipo realiza un estudio en profundidad de cada negocio (modelo de negocio, ventajas competitivas, conversión de EBITDA en caja, solidez del balance, planes de crecimiento creíbles y capacidad de trasladar la inflación) y, en paralelo, estima un valor intrínseco frente al que exige un margen de seguridad para comprar. La 'fórmula' concreta combina: (1) selección bottom-up de compañías infravaloradas con calidad; (2) construcción de una cartera concentrada (~40-47 valores) con liquidez muy baja (~1-2%); (3) paciencia —mantener a largo plazo y reforzar en las caídas cuando el descuento se amplía—; y (4) disciplina de salida —vender cuando el precio alcanza el valor o cuando una OPA cristaliza el valor (casos Hunter Douglas, VIVO, Intertrust)—. No hay apalancamiento estructural ni apuestas macro implícitas: el riesgo se gestiona vía calidad del negocio y precio de entrada, no vía coberturas sofisticadas.</p></div><div class="subtab-panel"><p class="pr">Una característica diferencial del proceso es el énfasis en la <strong>resiliencia del negocio ante la inflación</strong>. En la carta de 2022 el equipo subrayó que sus compañías habían demostrado capacidad de trasladar todos los aumentos de costes derivados de la inflación, ofreciendo así una buena protección frente a ella en un horizonte plurianual. Esa exigencia —poder de fijación de precios, baja deuda y estructuras de coste flexibles— actúa como filtro de calidad y como mecanismo implícito de gestión del riesgo: en lugar de cubrir la cartera con derivados o de hacer apuestas macro, el riesgo se mitiga eligiendo negocios capaces de defender sus márgenes en escenarios adversos. El folleto permite derivados y liquidez ancilar (hasta el 20%), pero la práctica observada es de inversión casi plena y sin coberturas estructurales.</p></div><div class="subtab-panel"><p class="pr">Lo más reseñable de la estrategia es su <strong>consistencia</strong>: las cartas de 2019, 2021, 2022 y 2026 repiten los mismos principios casi con las mismas palabras ('compound our capital through long-term investment in companies with solid businesses that we can acquire at a discount to their Intrinsic Value'). No hay deriva de estilo ni cambios oportunistas de enfoque según la moda del mercado; el equipo ha mantenido el rumbo value small/mid cap europeo a través de la pandemia, la inflación, la guerra y la volatilidad geopolítica. Para el inversor, esa previsibilidad de proceso es en sí misma una ventaja: sabe qué tipo de exposición está comprando y puede confiar en que no cambiará de forma sorpresiva. La contrapartida es la ya señalada: una exposición pura, sin red, a un único segmento de mercado, cuya rentabilidad neta en la clase B queda además lastrada por un coste elevado.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Invertimos solo en situaciones en las que el riesgo es cuantificable y asumible y donde el potencial de revalorizacion excede de modo asimetrico cualquier posible escenario negativo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equam Capital (gestora), Comentario de factsheet del fondo</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;The Sub-Fund's portfolio is trading at a steep discount to its intrinsic value. This offers both protection from market corrections and the potential to achieve significant capital gains.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equam Global Value (gestora), Informe Anual Incometric Fund 2022 - seccion Equam Global Value</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;The companies of the portfolio have demonstrated over the past year that they can pass through all cost increases derived from inflation.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equam Global Value (gestora), Informe Anual Incometric Fund 2022 - seccion Equam Global Value</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;No intentamos adivinar los movimientos a corto del Mercado sino comprar buenos negocios a muy buenos precios.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equam Capital (Larraz / Muñoz), Informe trimestral marzo 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Los socios de EQUAM hemos invertido la mayor parte de nuestro patrimonio en el Fondo, alineando totalmente nuestros intereses con los de los partícipes.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equam Capital, Informe trimestral marzo 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;We intend to compound our capital through long-term investment in companies with solid businesses that we can acquire at a discount to their Intrinsic Value.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equam Capital, Carta 2T 2021</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
-  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Value clasico en small/mid caps europeas: cartera concentrada (~44 valores) de negocios de calidad comprados con descuento sobre su valor intrinseco y margen de seguridad, 100% invertida en renta variable, agnostica respecto al indice y con potencial de revalorizacion estimado por la gestora cercano al 98%.</p>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Renta variable europea small/mid cap, value de calidad, cartera concentrada de ~44 valores (~98% RV, ~2% liquidez). Foco en negocios sólidos comprados con descuento; potencial de revalorización en niveles históricamente altos a junio de 2025.</p>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Europea Small/Mid Cap (estilo Value)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de small/mid cap: mayor volatilidad e iliquidez relativa frente a grandes companias</li><li style="margin-bottom:4px;">Riesgo de estilo value: periodos prolongados de underperformance cuando el mercado premia growth y megacaps</li><li style="margin-bottom:4px;">Riesgo de concentracion geografica: exposicion exclusivamente europea, sin diversificacion global</li><li style="margin-bottom:4px;">Riesgo de divisa: exposicion a GBP, NOK, SEK y otras divisas no euro sin cobertura sistematica explicita</li><li style="margin-bottom:4px;">Indicador de riesgo regulatorio 4 sobre 7 (SRRI/KID)</li></ul></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Europea Small/Mid Cap (value)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Volatilidad y menor liquidez del segmento small/mid cap europeo</li><li style="margin-bottom:4px;">Concentración de cartera (top 10 ~45%) y dependencia de pocas ideas de alta convicción</li><li style="margin-bottom:4px;">Coste alto de la clase B (OCF 2,2%) y dependencia de dos gestores clave</li></ul></div>
 
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
   <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
@@ -494,29 +571,29 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
   </div>
   <div class="strat-row">
   <div class="strat-yr">2019</div>
-  <div class="strat-c">Ano geopoliticamente cargado (guerra comercial EE.UU.-China, Brexit, tensiones en Oriente Medio) en el que los bancos centrales viraron de endurecimiento a flexibilizacion y los mercados europeos cerraron con fuertes alzas.</div>
-  <div class="strat-c">El fondo se mantuvo practicamente invertido: a cierre de 2019 declaraba 43 companias, menos del 1% de caja y un nivel medio de inversion superior al 95%, fiel a su rechazo del market timing.</div>
-  <div class="strat-c">+27,2% (clase A) — recuperacion casi en linea con el +26,0% del MSCI Europe NR; driver: rebote generalizado de la renta variable europea capturado por una cartera plenamente invertida.</div>
+  <div class="strat-c">Año dominado por la guerra comercial EE. UU.-China (aranceles del 10% al 25%) y el Brexit, con bancos centrales virando hacia política monetaria más laxa y crecimiento global incierto.</div>
+  <div class="strat-c">Cartera de ~43 valores con liquidez <1% y nivel medio de inversión >95%, con sesgo a mid-caps europeas de calidad (compras como Applus, Euronav, Inbev) y foco en negocios con fuerte generación de caja.</div>
+  <div class="strat-c">+27,23% (clase A) — fuerte recuperación de valoraciones en small/mid caps europeas y buena selección de negocios de calidad.</div>
 </div><div class="strat-row">
-  <div class="strat-yr">2020</div>
-  <div class="strat-c">Pandemia de COVID-19: caida brusca en marzo y recuperacion posterior impulsada por las vacunas, con fuerte divergencia regional a favor de EE.UU. y Asia frente a Europa.</div>
-  <div class="strat-c">Mantenimiento de la disciplina value sin rotacion de estilo hacia growth ni hacia las tematicas de moda; cartera centrada en small/mid caps europeas de calidad con descuento.</div>
-  <div class="strat-c">-10,4% (clase A) — peor que el -3,3% del comparativo; driver: el sesgo small cap value europeo quedo rezagado en un ano dominado por megacaps y mercados no europeos.</div>
-</div><div class="strat-row">
-  <div class="strat-yr">2021</div>
-  <div class="strat-c">Ano alcista de reapertura economica impulsado por vacunas y estimulos, pero liderado de nuevo por grandes companias y growth; preocupaciones crecientes por inflacion y futuras subidas de tipos.</div>
-  <div class="strat-c">Continuidad del estilo sin desviarse hacia las modas del mercado, manteniendo la cartera concentrada de valor en pequenas companias europeas.</div>
-  <div class="strat-c">+23,9% (clase A) — ligeramente por detras del +25,1% del comparativo; driver: fuerte avance absoluto, pero el liderazgo de las megacaps limito la ventaja relativa.</div>
+  <div class="strat-yr">2021-H1</div>
+  <div class="strat-c">Recuperación económica post-COVID con levantamiento de restricciones, repunte de materias primas y tipos aún bajos que favorecían a activos de larga duración.</div>
+  <div class="strat-c">Apertura de DO&CO (catering aéreo), Sonans (educación noruega) y All for One (servicios SAP); desinversión de Hunter Douglas a 91€ tras rechazar una OPA; cartera de ~47 valores con liquidez ~1%.</div>
+  <div class="strat-c">+21,5% (H1, clase B) — recuperación de cíclicos de calidad (DO&CO, Dalata) y normalización post-COVID, batiendo a los índices comparables (+15%).</div>
 </div><div class="strat-row">
   <div class="strat-yr">2022</div>
-  <div class="strat-c">Inflacion elevada, subidas agresivas de tipos, invasion rusa de Ucrania y crisis energetica europea castigaron a growth y renta fija; el value y los negocios con poder de fijacion de precios resistieron mejor.</div>
-  <div class="strat-c">Amplio Vopak, AcadeMedia, Applus, AllforOne, Dalata Hotels, TI Fluids y Elecnor; monetizo tesis via opas (vendio VIVO a Vitol, Intertrust a CSC), ademas de Orsero, Euronav y Fresenius; redujo Navigator, Restore y Neurones.</div>
-  <div class="strat-c">-3,7% (clase A) / -4,56% (clase B) — muy por encima del -9,5% del comparativo (+5,8 pp); driver: cartera con descuento amplio, bajo apalancamiento y companias capaces de trasladar la inflacion a precios.</div>
+  <div class="strat-c">Uno de los años más tumultuosos de la historia: invasión de Ucrania, inflación disparada, subidas agresivas de tipos de la Fed y crisis energética en Europa.</div>
+  <div class="strat-c">Refuerzo de Vopak, AcadeMedia, Applus, All for One, Dalata, TI Fluids y Elecnor; ventas de VIVO (OPA de Vitol) e Intertrust (OPA de CSC); cartera de ~40 valores con énfasis en compañías capaces de trasladar la inflación.</div>
+  <div class="strat-c">-4,56% (clase B) — caída contenida frente al mercado gracias a negocios con poder de fijación de precios y balances saneados.</div>
 </div><div class="strat-row">
-  <div class="strat-yr">2023</div>
-  <div class="strat-c">Recuperacion de los mercados tras el ano duro de 2022, con moderacion gradual de la inflacion y expectativas de fin del ciclo de subidas de tipos.</div>
-  <div class="strat-c">Mantenimiento de la conviccion en una cartera value europea con descuento sobre valor intrinseco como proteccion ante volatilidad y palanca de revalorizacion.</div>
-  <div class="strat-c">+13,6% (clase A, YTD a 30/11) — por delante del +11,7% del comparativo; driver: reconocimiento progresivo del valor en small/mid caps europeas.</div>
+  <div class="strat-yr">2025</div>
+  <div class="strat-c">Año de retornos dispares con mejor comportamiento relativo de las bolsas no estadounidenses, dólar más débil y valoraciones europeas atractivas; patrimonio del fondo en máximos.</div>
+  <div class="strat-c">Mantenimiento de la cartera de convicción (~44 valores) en small/mid cap europeo, con disciplina en la selección de negocios de calidad a descuento.</div>
+  <div class="strat-c">+6,20% (clase B, año) — avance en línea con los índices europeos con dividendos en un entorno de rotación hacia el value y las acciones internacionales.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2026-Q1</div>
+  <div class="strat-c">Volatilidad por el conflicto en Irán, debilidad del crecimiento europeo y caída del dólar, con fuerte impacto en los mercados de energía y en el segmento small/mid cap europeo.</div>
+  <div class="strat-c">Aprovechamiento de las caídas para reforzar posiciones de calidad con descuentos aún mayores; convicción mantenida en la cartera.</div>
+  <div class="strat-c">-3,40% (1T) — ligeramente peor que los índices mundiales (-3,2%) y europeos con dividendos (-1%) por el peso en small caps y energía; potencial de revalorización en máximos históricos.</div>
 </div>
 
   
@@ -526,18 +603,28 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
 
   <div class="mb24">
-    <p class="subsec">Composicion general</p><p class="pr">La cartera de Equam Global Value esta 100% invertida en renta variable, sin renta fija y con liquidez residual. Reune en torno a 44 companias europeas de pequena y mediana capitalizacion, seleccionadas una a una bajo el doble filtro de calidad del negocio y descuento sobre valor intrinseco. Es una cartera concentrada pero sin posiciones dominantes: la mayor apenas ronda el 5,9% del patrimonio.</p><p class="subsec">Concentracion</p><p class="pr">La concentracion es moderada para un fondo de conviccion: las cinco mayores posiciones suman aproximadamente el 24,6% del patrimonio y las diez mayores en torno al 42,8%. Esto refleja un equilibrio entre conviccion (pocas ideas, bien analizadas) y control de riesgo idiosincratico (ninguna companias decide por si sola el resultado del fondo). La ficha de Financial Times situaba el top 5 en torno al 22,7% en una fecha distinta, coherente con este rango.</p><p class="subsec">Distribucion geografica</p><p class="pr">Pese a su vocacion europea, la cartera tiene un marcado sesgo a Reino Unido (~24%), seguido de Espana e Italia (~13% cada uno), Francia (~9%), Alemania (~8%) y Noruega (~7%), con colas en Paises Bajos, Irlanda, Suecia y una pequena exposicion a EE.UU. (~3%). Esta distribucion implica exposicion a divisas no euro (GBP, NOK, SEK) que el inversor debe tener presente. El sesgo a Reino Unido es relevante: el equipo encuentra recurrentemente valor en companias britanicas castigadas tras el Brexit.</p><p class="subsec">Distribucion sectorial</p><p class="pr">Por sectores, la cartera se inclina con fuerza hacia Business Services (~35%) e Industrial (~26%), que juntos superan el 60% del patrimonio, seguidos a distancia por Consumer goods, Oil & Gas y Leisure (~7% cada uno), Media (~6%), Infrastructure (~5%) y Education (~4%). Es un perfil de economia real, ciclico-moderado, alejado de las tematicas de alto crecimiento y de las megacaps tecnologicas.</p><p class="subsec">Racional global y ejemplos</p><p class="pr">El hilo conductor de la cartera es la valoracion: cada posicion entra por cotizar con descuento sobre su valor intrinseco y por ofrecer una asimetria favorable. Algunas posiciones ilustran el estilo -exposicion a servicios industriales y de inspeccion via companias como Applus o RHI Magnesita, a medios via Arnoldo Mondadori, a hosteleria via Dalata Hotel Group, o a infraestructura energetica espanola via Elecnor-, sin que el peso de ninguna de ellas comprometa la diversificacion. Varias tesis se han materializado historicamente via operaciones corporativas (opas), lo que confirma que el mercado terminaba reconociendo el descuento. (Los pesos exactos de cada posicion se muestran en la tabla de posiciones del panel.)</p><p class="subsec">Riesgos estructurales de la cartera</p><p class="pr">Los riesgos estructurales son los propios del estilo: volatilidad e iliquidez relativa de las small caps, concentracion geografica exclusivamente europea, exposicion a divisas no euro y sensibilidad al ciclo economico por su sesgo a sectores de economia real. A cambio, la gestora estima un potencial de revalorizacion de la cartera cercano al 98% sobre su valor intrinseco, la contrapartida de comprar con descuento amplio.</p>
+    
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El predominio de servicios empresariales (~35%) e industria (~26%) no es casual: son sectores con negocios de modelo estable, ingresos recurrentes y capacidad de trasladar costes, exactamente el tipo de compañía que encaja en la filosofía de calidad a descuento del equipo. Dentro de servicios empresariales destacan nombres como Applus (testing, inspección y certificación), Prosegur Cash (logística de efectivo) o Mitie (facility management); en industria, RHI Magnesita (refractarios), TI Fluid Systems (componentes de automoción), Cementir o SOL. El peso en energía/servicios energéticos (TGS, Expro, KLX) aporta un componente más cíclico y volátil —fue el origen del rezago del primer trimestre de 2026— pero el equipo lo justifica por las valoraciones muy deprimidas de esas compañías. El sesgo a Reino Unido (~24-26%) refleja, en parte, el descuento persistente de la bolsa británica desde el Brexit, un caldo de cultivo natural para un value de small caps.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Rotación corporativa como fuente de valor</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Un rasgo recurrente de la cartera es que varias de sus compañías acaban siendo objeto de <strong>operaciones corporativas (OPAs)</strong>, lo que permite cristalizar el valor antes incluso de que el mercado lo reconozca: ocurrió con Hunter Douglas, VIVO (oferta de Vitol), Intertrust (oferta de CSC), International Engelska Skolan o Cerved. No es coincidencia: comprar negocios de calidad con descuento sobre su valor intrínseco es precisamente lo que también buscan los compradores industriales y el private equity, de modo que el enfoque del fondo lo alinea con esos catalizadores. El equipo aprovecha esas ventas para reciclar capital hacia nuevas ideas infravaloradas, manteniendo el número de posiciones en su banda habitual.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Liquidez y construcción de posiciones</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La liquidez de la cartera es estructuralmente muy baja (~1-2%), señal de la alta convicción del equipo y de su rechazo a hacer market timing: prefieren estar invertidos casi al 100% y aprovechar las caídas para reforzar, como hicieron en 2020 y de nuevo en el arranque de 2026, antes que acumular caja a la espera de un momento de entrada. Las nuevas posiciones se construyen gradualmente y los pesos crecen con la convicción y el descuento; cuando una tesis se agota o el precio converge al valor, la posición se reduce o se vende. Es una cartera viva pero de baja rotación, donde los grandes pesos suelen ser ideas maduras y muy trabajadas.</p></div>
   </div>
 
-  
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
-  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>geografia</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Reino Unido ~24%, Espana ~13%, Italia ~13%, Francia ~9%, Alemania ~8%, Noruega ~7%, Paises Bajos ~6%, Irlanda ~5%, Suecia ~4%, EE.UU. ~3%, resto ~8%</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sectores</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Business Services ~35%, Industrial ~26%, Consumer goods ~7%, Oil & Gas ~7%, Leisure ~7%, Media ~6%, Infrastructure ~5%, Education ~4%, Shipping ~2%, Software ~1%</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>tipo de activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">100% renta variable; sin renta fija; liquidez residual</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Evolución por geografía (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-geo-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-geo-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2019", "2020", "2021", "2022", "2025"],datasets:[{"label": "Total", "data": [99.99, 94.77, 99.81, 0, 0], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Reino Unido", "data": [29.0, 18.24, 17.59, 15.73, 26.07], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Italia", "data": [12.82, 13.36, 13.47, 10.56, 11.16], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Pa\u00edses Bajos", "data": [7.46, 13.78, 12.68, 14.78, 12.39], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Espa\u00f1a", "data": [6.09, 8.49, 10.16, 13.8, 8.81], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [44.62, 40.9, 45.91, 42.36, 40.89], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div><div class="ch-b"><div class="ch-l">Evolución por sector (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-sec-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-sec-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2019", "2020", "2021", "2022", "2025"],datasets:[{"label": "Total", "data": [99.99, 94.77, 99.81, 0, 0], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Industrials", "data": [20.0, 33.53, 30.06, 29.91, 0], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Energy", "data": [15.44, 9.37, 10.48, 14.29, 0], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Consumer discretionary", "data": [0, 15.83, 15.85, 17.75, 0], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Technology", "data": [10.93, 8.52, 13.15, 12.43, 0], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [53.62, 27.52, 30.27, 22.85, 97.8], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div></div>
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">10</div><div class="kpi-sub">vs media hist. 0</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">42,8%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">41</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">45,1%</div><div class="kpi-sub">—</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">22,4%</div><div class="kpi-sub">Otros · Renta variable 16,8% · Liquidez 3,6%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">97,2%</div><div class="kpi-sub">Renta variable</div></div>
   </div>
 
   <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
@@ -546,7 +633,7 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
     if (typeof Chart === 'undefined') return;
     const ctxMix = document.getElementById('c-mix');
     if (ctxMix) {
-      const tipos = [["OTHER", 22.4], ["RV", 16.8], ["CASH", 3.6]];
+      const tipos = [["RV", 97.2]];
       new Chart(ctxMix, {
         type: 'doughnut',
         data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
@@ -557,96 +644,385 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
     if (ctxC) {
       new Chart(ctxC, {
         type: 'bar',
-        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [24.6, 42.8, 42.8], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [24.3, 45.1, 60.2], backgroundColor:'rgba(12,35,64,0.85)' }] },
         options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
       });
     }
   })();
   </script>
 
-  <div class="sr">Todas las posiciones (10)</div>
+  <div class="sr">Todas las posiciones (41)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
-  <td title="Arnoldo Mondadori Editore S.p.A.">Arnoldo Mondadori Editore S.p.A.</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Italy</td>
+  <td title="Arnoldo Mondadori Editore Sp A">Arnoldo Mondadori Editore Sp A</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:47px;background:#0c2340;"></div>5,9%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:44px;background:#0c2340;"></div>5,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>6%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Elecnor S.A.">Elecnor S.A.</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Spain</td>
+  <td title="Applus Services SA">Applus Services SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:42px;background:#0c2340;"></div>5,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:4px;background:var(--ink-3);"></div>11%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="RHI Magnesita NV">RHI Magnesita NV</td>
+  <td title="TGS A SA">TGS A SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">None</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
   <td>—</td>
   <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,7%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>16%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>15%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="TI Fluid Systems plc">TI Fluid Systems plc</td>
+  <td title="Expro Group Holdings NV">Expro Group Holdings NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States (U.S.A.)</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,7%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>21%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="APPLUS SERVICES S.A.">Applus Services S.a.</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Spain</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>25%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Dalata Hotel Group Plc">Dalata Hotel Group Plc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Ireland</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>3,9%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>28%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="TGS ASA">TGS ASA</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Norway</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,7%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>32%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:7px;background:var(--ink-3);"></div>20%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="Prosegur Cash SA">Prosegur Cash SA</td>
-  <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Spain</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>36%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>24%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="AcadeMedia AB">AcadeMedia AB</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Sweden</td>
+  <td title="Rhi Magnesita NV">Rhi Magnesita NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>39%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>29%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="TI Fluid Systems PLC">TI Fluid Systems PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>33%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Elecnor SA">Elecnor SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>37%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="DO & CO AG">DO & CO AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Austria</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>41%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Dalata Hotel Group PLC">Dalata Hotel Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>45%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Koninklijke Vopak NV">Koninklijke Vopak NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>49%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Acade Media AB">Acade Media AB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>52%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Wilh Wilhelmsen Holding A SA">Wilh Wilhelmsen Holding A SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>55%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Smart Metering Systems PLC">Smart Metering Systems PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>2,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>58%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="DFS Furniture PLC">DFS Furniture PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">United Kingdom</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>43%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>60%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SOL Sp A">SOL Sp A</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>62%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Navigator Co SA/The">Navigator Co SA/The</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Portugal</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>65%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Anheuser-Busch In Bev SA/NV">Anheuser-Busch In Bev SA/NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Bélgica</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>67%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Admiral Group PLC">Admiral Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Mitie Group PLC">Mitie Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>70%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="LDC SA">LDC SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>72%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Stef SA">Stef SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>74%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Cellularline Spa">Cellularline Spa</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Neurones">Neurones</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Origin Enterprises PLC">Origin Enterprises PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="KLX Energy Services Holdings Inc">KLX Energy Services Holdings Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">United States (U.S.A.)</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Whitbread PLC">Whitbread PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Takkt AG">Takkt AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="All for One Group SE">All for One Group SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Bollore SE">Bollore SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Brodrene Hartmann A/S">Brodrene Hartmann A/S</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Brunel International NV">Brunel International NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Rieter Holding AG">Rieter Holding AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Cementir Holding NV">Cementir Holding NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Cegedim SA">Cegedim SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Sesa Sp A">Sesa Sp A</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Sarantis SA">Sarantis SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Grecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Headlam Group PLC">Headlam Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Anora Group Plc">Anora Group Plc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Finlandia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Lumi Gruppen AS">Lumi Gruppen AS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Imperial Brands PLC">Imperial Brands PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr></tbody>
     </table>
@@ -667,7 +1043,7 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
       </div>
       <div class="src-t">Incometric Equam Global Value. Buscando la calidad al mejor precio posible</div>
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
-      <div class="exp-body open">Entrevista a Alejandro Munoz que presenta el fondo como estrategia que combina analisis de calidad y disciplina de precio en small/mid caps europeas. Vision positiva del enfoque disciplinado.</div>
+      <div class="exp-body open">Entrevista al co-gestor Alejandro Muñoz: el fondo combina análisis exhaustivo de la calidad de small/mid caps europeas con un precio de entrada atractivo y margen de seguridad. Valoración positiva del enfoque disciplinado.</div>
       <a href="https://astralisfundsacademy.com/entrevista/buscando-la-calidad-al-mejor-precio-posible-incometric-equam-global-value/" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
@@ -678,9 +1054,9 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
         </div>
         <span class="src-date">2024</span>
       </div>
-      <div class="src-t">FDV #10: Una Cartera de Renta Variable para los proximos 15 anos</div>
+      <div class="src-t">FDV #10: Una Cartera de Renta Variable para los próximos 15 años</div>
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
-      <div class="exp-body open">Lo considera una excelente opcion de small caps europeas para una cartera de largo plazo por su enfoque value, pero senala que su exposicion solo-Europa limita la diversificacion y recomienda complementarlo con small caps de EE.UU.</div>
+      <div class="exp-body open">Considera a Equam Global Value una excelente opción de small caps europeas para inversores que quieren controlar la volatilidad, pero recomienda complementarlo con small caps de EE. UU. por su foco exclusivamente europeo.</div>
       <a href="https://saludfinanciera.substack.com/p/fdv-10-una-cartera-de-renta-variable" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
@@ -691,9 +1067,9 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
         </div>
         <span class="src-date">2025</span>
       </div>
-      <div class="src-t">La gloria del Imperio espanol: Home country bias</div>
+      <div class="src-t">La gloria del Imperio español: Home country bias</div>
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
-      <div class="exp-body open">Integra el fondo en una cartera de gestores value espanoles, en el segmento small value especializado junto a Magallanes, Nartex y Horos. Describe a Munoz y Larraz como gestores de enfoque empresarial sobre small caps. Positiva.</div>
+      <div class="exp-body open">Selecciona el fondo en una cartera modelo de gestores value españoles, destacando a Larraz y Muñoz por su enfoque puramente empresarial en small caps y situándolos junto a Magallanes, Nartex y Horos.</div>
       <a href="https://moclano.substack.com/p/la-gloria-del-imperio-espanol" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
@@ -704,9 +1080,9 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
         </div>
         <span class="src-date">2015</span>
       </div>
-      <div class="src-t">Consulta sobre Equam Global Value - Fondo Value Investing</div>
+      <div class="src-t">Consulta sobre Equam Global Value – Fondo Value Investing</div>
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
-      <div class="exp-body open">Hilo de 2015 (primer ano del fondo): destaca principios value, alineacion de intereses gestor-participe e informes trimestrales cuidados, pese a una perdida del -2% y a no figurar aun en Morningstar. Positiva/neutral.</div>
+      <div class="exp-body open">Foro de 2015: los inversores valoran los principios value, la alineación de intereses gestores-partícipes y la calidad de los informes trimestrales, pese a la corta trayectoria y una pérdida inicial del -2%.</div>
       <a href="https://www.rankia.com/foros/fondos-inversion/temas/3042310-incometric-equam-global-value-fondo-investing?page=1" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
@@ -718,9 +1094,9 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
         </div>
         <span class="src-date">2026</span>
       </div>
-      <div class="src-t">Incometric Equam Global Value B - Ficha de Fondo</div>
+      <div class="src-t">Incometric Equam Global Value B – Ficha de Fondo</div>
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Ficha tecnica de la clase B: 2o cuartil de Europe Small-Cap Equity a 1/3/5 anos, ~6,13% anual a 5 anos. Desempeno en linea con la media de su categoria, sin destacar significativamente. Neutral.</div>
+      <div class="exp-body">Sitúa la clase B en el segundo cuartil de la categoría Europe Small-Cap Equity en la mayoría de horizontes, con rentabilidades de ~6-7% a 3 y 5 años. Desempeño moderadamente competitivo, sin opinión editorial.</div>
       <a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU0933684283:EUR" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
@@ -731,9 +1107,9 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
         </div>
         <span class="src-date">2026</span>
       </div>
-      <div class="src-t">Incometric Equam Global Value A - Ficha de riesgo</div>
+      <div class="src-t">Incometric Equam Global Value A – Ficha de riesgo</div>
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Metricas de riesgo de la clase A: volatilidad ~12,3% (1a) y ~11,8% (5a), Sharpe +0,56, beta +0,93. Alfa negativo a 1 ano (-5,52) pero positivo a 5 anos (+2,98): mejor comportamiento relativo en horizontes largos. Neutral.</div>
+      <div class="exp-body">Métricas de riesgo: Sharpe ~0,55, desviación típica ~12% (1A), beta 0,93 y R² 81%. Alpha negativo a 1 año (-5,5) pero positivo a 5 años (+2,98): valor a largo plazo con rezago de corto.</div>
       <a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU0933684101:EUR" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
     <div class="src-card">
@@ -744,10 +1120,23 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
         </div>
         <span class="src-date">2026</span>
       </div>
-      <div class="src-t">Incometric Equam Global Value A - Ficha de Fondo (resumen)</div>
+      <div class="src-t">Incometric Equam Global Value A – Ficha resumen</div>
       <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Resumen tecnico: FCP small cap value luxemburges, patrimonio ~65,5 M GBP (may-2026), +6,06% a 1 ano, comision anual 0,58%. Top 5 holdings 22,7%, ~59% eurozona y ~26% Reino Unido. Neutral.</div>
+      <div class="exp-body">Ficha con composición y datos: fondo small cap value domiciliado en Luxemburgo, ~59% Eurozona y ~26% Reino Unido, sectores líderes industriales y consumo cíclico; comisión de la clase A baja (~0,58-1%).</div>
       <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0933684101:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026</span>
+      </div>
+      <div class="src-t">Incometric Equam Global Value D – Ficha de Fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">La clase D muestra rentabilidades acumuladas positivas (1A +6,3%, 5A +6,8% anual) y se posiciona en el segundo cuartil de su categoría a 3 y 5 años; desempeño moderado y estable.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU1274584991:EUR" class="src-lnk" target="_blank">Ver análisis completo →</a>
     </div>
 </section>
 
@@ -757,8 +1146,8 @@ Es citado junto a Jose Antonio Larraz como gestor del fondo en analisis sobre ta
   <div class="doc-grp">Informes semestrales CNMV (0)</div>
   
 
-  <div class="doc-grp">Cartas del gestor (4)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">athosam.com — Incometric Fund Annual Report 31 12 2021.pdf</span><a href="https://www.athosam.com/wp-content/uploads/2025/04/Incometric-Fund-Annual-Report-31-12-2021.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">athosam.com — Incometric Fund Annual Report 31 12 2022.pdf</span><a href="https://www.athosam.com/wp-content/uploads/2023/10/Incometric-Fund-Annual-Report-31-12-2022.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">athosam.com — Incometric Fund Annual Report 31 12 2020.pdf</span><a href="https://www.athosam.com/wp-content/uploads/2021/07/Incometric-Fund-Annual-Report-31-12-2020.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">athosam.com — Incometric Fund Annual Report 31 12 2019.pdf</span><a href="https://www.athosam.com/wp-content/uploads/2020/05/Incometric-Fund-Annual-Report-31-12-2019.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+  <div class="doc-grp">Cartas del gestor (5)</div>
+  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">athosam.com — Incometric Fund Annual Report 31 12 2022.pdf</span><a href="https://www.athosam.com/wp-content/uploads/2023/10/Incometric-Fund-Annual-Report-31-12-2022.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">athosam.com — Incometric Fund Annual Report 31 12 2020.pdf</span><a href="https://www.athosam.com/wp-content/uploads/2021/07/Incometric-Fund-Annual-Report-31-12-2020.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">athosam.com — Incometric Fund Annual Report 31 12 2019.pdf</span><a href="https://www.athosam.com/wp-content/uploads/2020/05/Incometric-Fund-Annual-Report-31-12-2019.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">equamcapital.com — EQUAM 1T2026.pdf</span><a href="https://equamcapital.com/wp-content/uploads/2022/06/EQUAM-1T2026.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">equamcapital.com — 2Q2021v2.pdf</span><a href="https://equamcapital.com/wp-content/uploads/2022/06/2Q2021v2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
 
   <div class="doc-grp">XMLs CNMV (0)</div>
   
@@ -1425,7 +1814,7 @@ function fmtES(v,dec){
 function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
 const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
 const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
-const Y=[];
+const Y=["17", "18", "19", "20", "21", "22", "23", "24", "25"];
 // Anti-collision label helper for area/line charts with multiple series
 function drawAreaLabels(chart,colors,dec,minGap){
   const ctx=chart.ctx;
@@ -1486,7 +1875,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[58.02, 50.87, 55.14, 40.64, 52.33, 50.84, 68.2, 72.69, 79.6],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){
