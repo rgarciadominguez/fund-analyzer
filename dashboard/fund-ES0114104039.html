@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -187,7 +201,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Junio 2000</span></div>
       <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable</span></div>
-      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Equipo de Gestión Indexada — Bankinter Gestión de Activos</strong></span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Cristina Lastra</strong></span></div>
       <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
     </div>
 
@@ -218,27 +232,27 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr">BANKINTER ÍNDICE JAPÓN, FI (ISIN ES0114104039, registro CNMV nº 2149) es un fondo de gestión pasiva cuyo único objetivo es replicar el comportamiento de la renta variable japonesa, tomando como referencia el índice TOPIX (Tokyo Stock Price Index). Fue registrado el 14 de junio de 2000 y lo gestiona Bankinter Gestión de Activos, S.G.I.I.C., con Bankinter, S.A. como entidad depositaria (CNMV, informe semestral 2S 2025).</p><p class="pr">A diferencia de un fondo de gestión activa, aquí no hay selección de valores ni apuestas del gestor: el fondo mantiene una exposición en torno al 100% al índice mediante futuros sobre el Topix y un ETF de Lyxor sobre el mismo índice, mientras la liquidez y las garantías de los derivados se invierten en repos y deuda pública a corto plazo. Por eso, aunque la composición contable declara cerca del 78% en 'renta fija' (el colateral) y un 8% en IIC, la exposición económica real es prácticamente íntegra a bolsa japonesa (CNMV 2S 2025).</p><p class="pr">A cierre de 2025 el fondo gestionaba 46,8 M€ con 2.753 partícipes, frente a 3.763 un año antes. La calidad de la réplica fue buena: correlación lineal de 0,96 con el índice y tracking error del 3,90%, por debajo del límite recogido en el folleto. En 2025 la clase R rentó +20,38% y la clase C +20,69%, frente al +21,37% del índice de referencia; la diferencia se explica por los gastos corrientes (impacto de −0,56% en la clase R) y por el coste de mantener la exposición vía derivados. El coste total (TER) es del 1,12%, elevado para un producto puramente indexado (CNMV 2S 2025).</p>
+    <p class="pr">Bankinter Índice Japón, FI (ES0114104039, clase R) es un fondo de <strong>gestión pasiva</strong> que busca replicar el comportamiento del índice <strong>TOPIX</strong> (Tokyo Stock Price Index), el índice amplio de la bolsa japonesa que recoge a las grandes compañías cotizadas en la Primera Sección de Tokio. No es un fondo de selección de valores: su único objetivo es ofrecer al partícipe una rentabilidad lo más parecida posible a la del TOPIX, asumiendo el riesgo de la renta variable japonesa (informe CNMV 2025-H2).</p><p class="pr">Lo característico del producto es que la exposición a Japón se obtiene de forma <strong>sintética</strong>, no comprando las acciones japonesas directamente. El fondo mantiene en torno al 100% de exposición vía <strong>futuros sobre el TOPIX</strong> complementados con un <strong>ETF de réplica del TOPIX</strong> (Lyxor/Amundi Japan TOPIX), mientras que el patrimonio físico se invierte en <strong>repos sobre deuda del Estado español</strong> y liquidez que sirven de colateral y garantía para las posiciones en derivados (informe CNMV 2025-H2; ficha Rankia). A cierre de 2025 la correlación lineal con el índice fue del 0,96 y el tracking error del 3,90%, por debajo del límite del folleto.</p><p class="pr">El fondo nació el <strong>14 de junio de 2000</strong> y gestiona unos <strong>46,8 M€</strong> con <strong>2.753 partícipes</strong> (CNMV, dic-2025). Su coste corriente (TER) es del <strong>1,12%</strong> anual con una comisión de gestión del 1,00% en esta clase R, lo que para un producto puramente indexado es <strong>elevado</strong>: existen alternativas de réplica del mercado japonés con TER inferior al 0,15% (Rankia cita Amundi Index MSCI Japan al 0,13%). Bankinter ofrece además una clase C más barata (ES0114104005, gestión 0,50% / gastos corrientes 0,63%) para importes mayores. La rentabilidad reciente ha sido muy fuerte de la mano del rally de la bolsa japonesa: la ficha de FT reportaba +42% a un año (jun-2026) y los derivados aportaron un +17,2% sobre patrimonio medio solo en el segundo semestre de 2025.</p>
   </div>
 
   <div class="col2 mb20">
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
-      <p class="pr">La filosofía del fondo es deliberadamente sencilla y no discrecional: ofrecer al inversor la rentabilidad de la bolsa japonesa lo más fielmente posible, sin tratar de batir al mercado. El folleto define el producto como un 'fondo que toma como referencia un índice', con vocación de Renta Variable Internacional y el objetivo de invertir en torno al 100% de la exposición total en renta variable japonesa (CNMV, sección 1, 2025).
+      <p class="pr">La filosofía es la de <strong>indexación pura</strong>: no hay tesis de inversión, ni convicción sobre valores concretos, ni intento de batir al mercado. El gestor renuncia explícitamente al <strong>alpha</strong> y persigue <strong>beta</strong> — capturar el comportamiento del conjunto del mercado japonés al menor tracking error razonable. La política de inversión declarada es "tratar de dar una rentabilidad similar a su índice de referencia (TOPIX)" (CNMV 2025-H2).
 
-La gestión es <strong>pasiva y sistemática</strong>: no hay análisis fundamental de compañías ni rotación discrecional de la cartera (la rotación declarada es del 0% en 2025). Las únicas operaciones son de compraventa de futuros y de un ETF sobre el Topix para mantener el nivel de inversión cerca del 100% conforme entran y salen partícipes (CNMV 2S 2025). El éxito de la estrategia no se mide por la rentabilidad absoluta sino por la fidelidad de la réplica: minimizar el tracking error y maximizar la correlación con el índice. Coherente con ese enfoque, el fondo no aplica comisión de éxito en ninguna de sus clases.</p>
+La elección instrumental es la diferencia clave frente a un indexado de réplica física: en lugar de comprar la cesta completa de acciones japonesas, Bankinter utiliza <strong>futuros sobre el TOPIX</strong> como vehículo principal de exposición, apoyados en un ETF del mismo índice. Esto permite mantener la exposición al 100% de forma eficiente y barata en términos operativos, ajustando la posición con compraventas de futuros según entran o salen partícipes. El patrimonio no comprometido en margen se coloca en <strong>repos de deuda española y liquidez</strong>, que actúan como colateral. La consecuencia es que, contablemente, el fondo aparece con un peso alto en renta fija aunque su exposición económica sea ~100% renta variable japonesa.</p>
     </div>
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
       <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Réplica del índice TOPIX:</strong> <span class="pr" style="font-size:12.5px;">El objetivo no es batir al mercado sino reproducir la rentabilidad del índice de renta variable japonesa con la máxima fidelidad posible.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Replicar, no seleccionar:</strong> <span class="pr" style="font-size:12.5px;">El objetivo es seguir al TOPIX con el menor tracking error posible, no elegir valores. No hay análisis fundamental de compañías japonesas.</span></div>
             </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Exposición vía derivados y ETF:</strong> <span class="pr" style="font-size:12.5px;">La exposición a bolsa se obtiene con futuros sobre el Topix y un ETF de Lyxor sobre el mismo índice, manteniendo la inversión en torno al 100% del patrimonio.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Réplica sintética vía derivados:</strong> <span class="pr" style="font-size:12.5px;">La exposición se obtiene con futuros sobre el TOPIX (~92-100%) y un ETF del índice (~8%), no comprando las acciones físicas.</span></div>
             </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Colateral en activos de bajo riesgo:</strong> <span class="pr" style="font-size:12.5px;">La liquidez y las garantías de los derivados se invierten en repos y deuda pública a corto plazo, lo que explica el elevado peso contable de la 'renta fija'.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Exposición plena y permanente:</strong> <span class="pr" style="font-size:12.5px;">Mantener en torno al 100% de exposición a renta variable japonesa en todo momento; sin market timing ni gestión táctica de la beta.</span></div>
             </div>
     </div>
   </div>
@@ -251,10 +265,10 @@ La gestión es <strong>pasiva y sistemática</strong>: no hay análisis fundamen
 
   <div class="col2 mb20"><div>
       <div class="sr" style="color:var(--pos);">Fortalezas</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Réplica de calidad contrastada: en 2025 la correlación con el Topix fue de 0,96 y el tracking error del 3,90%, por debajo del límite fijado en el folleto.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Exposición limpia y diversificada a la bolsa japonesa, una de las grandes regiones desarrolladas, mediante un índice amplio (Topix) que abarca cientos de compañías cotizadas.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estructura transparente y sin comisión de éxito: el inversor obtiene la rentabilidad del índice menos los costes, sin sorpresas por decisiones discrecionales del gestor.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Rotación nula y operativa mecánica, lo que elimina el riesgo de errores de timing y hace muy predecible el comportamiento del fondo respecto a su referencia.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Liquidez diaria y respaldo de un grupo bancario sólido (Bankinter) que actúa a la vez como gestora y como depositario.</span></div></div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Cumple su función: réplica fiel del TOPIX con correlación 0,96 y tracking error 3,90% a cierre de 2025, por debajo del límite del folleto.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Acceso sencillo y diversificado a la renta variable japonesa de gran capitalización a través de un vehículo UCITS español traspasable.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Exposición plena y estable al mercado: sin riesgo de error de gestor activo ni de desviación de estilo, lo que recibes es el mercado japonés.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Sin comisiones de suscripción ni reembolso, y con valoración diaria; existe una clase C más barata (gestión 0,50%) para importes mayores.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estructura de réplica eficiente con futuros + ETF que permite ajustar la exposición al 100% de forma operativamente barata ante entradas y salidas.</span></div></div>
     </div><div>
       <div class="sr" style="color:var(--neg);">Riesgos</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste elevado para un producto indexado: el TER del 1,12% (comisión de gestión del 1,0% en la clase R) es alto frente a ETFs y fondos índice sobre Japón disponibles al 0,2%-0,5%, y erosiona la rentabilidad neta año tras año.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de mercado pleno: al replicar al 100% la bolsa japonesa, el fondo asume toda la volatilidad del Topix (volatilidad del valor liquidativo en el entorno del 15%-20%) sin ningún colchón defensivo en las caídas.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo divisa: la rentabilidad en euros depende del tratamiento del yen; movimientos del euro/yen (el yen se depreció un 8,4% en 2025) pueden afectar al resultado según el grado de cobertura aplicado.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste de replicar con derivados: aunque el tracking error es reducido, el fondo quedará estructuralmente algo por debajo del índice por los gastos corrientes y por el coste de mantener la exposición vía futuros y ETF.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Base de partícipes pequeña y volátil: el patrimonio ha sufrido reembolsos puntuales muy grandes en el pasado (33% en 2012, 32% en 2017), lo que puede generar costes de ajuste de la cartera.</span></div></div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste elevado para un indexado: TER del 1,12% en la clase R cuando existen réplicas del mercado japonés por debajo del 0,15% (Amundi MSCI Japan 0,13%).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de renta variable japonesa pura: volatilidad del 20,39% y perfil de riesgo 4/7; el fondo cae todo lo que cae el TOPIX (p.ej. -17,7% en 2018).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo divisa yen/euro no cubierto: el comportamiento en euros depende del cruce JPY/EUR además del índice.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de réplica sintética y contrapartida: la exposición depende de futuros y de un ETF, con tracking error estructural (3,90%) frente al índice.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Histórico de reembolsos abultados y patrimonio volátil (p.ej. salidas del 33% del patrimonio en un día en 2012), propio de un producto usado de forma táctica.</span></div></div>
     </div></div>
 
   <div class="sr">Clases disponibles</div>
@@ -264,7 +278,7 @@ La gestión es <strong>pasiva y sistemática</strong>: no hay análisis fundamen
   </table>
   
 
-  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Está pensado para el inversor que busca una exposición concreta y pura a la bolsa japonesa, como pieza táctica o de diversificación dentro de una cartera más amplia, y que prefiere replicar el índice antes que confiar en un gestor activo. Exige tolerancia a la alta volatilidad de la renta variable y un horizonte de medio-largo plazo. No es adecuado para perfiles conservadores ni para quien priorice el mínimo coste posible en indexación.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Al tratarse de un fondo de gestión pasiva, no existe un gestor estrella con 'skin in the game' individual: el fondo lo administra el equipo de gestión indexada de Bankinter Gestión de Activos siguiendo reglas sistemáticas. La alineación con el inversor descansa en el marco institucional del grupo Bankinter (gestora y depositario) y en la ausencia de comisión de éxito, más que en la inversión personal de un gestor concreto.</p></div></div>
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Para el inversor que quiere <strong>exposición directa y diversificada a la bolsa japonesa</strong> (TOPIX) como pieza táctica o satélite de una cartera, dentro del universo de fondos traspasables de Bankinter, y que valora la comodidad de operar en su banco por encima del coste. No es la opción óptima para quien priorice el coste: para indexación a Japón existen alternativas notablemente más baratas.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Al ser un producto de <strong>gestión pasiva indexada</strong>, no aplica el concepto de skin in the game ni de gestor-autor con convicción personal. El "compromiso" relevante es operativo: que el equipo de gestión indexada de Bankinter G.A. mantenga la réplica fiel del TOPIX con tracking error controlado, objetivo que el fondo viene cumpliendo (0,96 de correlación en 2025).</p></div></div>
 
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="R" selected>R (TER 1,0%)</option><option value="C">C (TER 0,5%)</option><option value="A">A (cerrada)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
@@ -276,7 +290,7 @@ La gestión es <strong>pasiva y sistemática</strong>: no hay análisis fundamen
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Junio 2000 — presente</span></div>
 
   <div class="mb24">
-    <p class="subsec">Origen y vocación (2000)</p><p class="pr">BANKINTER ÍNDICE JAPÓN, FI fue registrado en la CNMV el 14 de junio de 2000 con el número 2149, como uno de los fondos índice con los que Bankinter Gestión de Activos daba acceso minorista a la bolsa japonesa. Desde su origen su vocación ha sido la misma: replicar el comportamiento de la renta variable japonesa tomando como referencia el índice Topix, sin gestión activa.</p><p class="subsec">La crisis financiera global (2006-2008)</p><p class="pr">La serie de valor liquidativo refleja con crudeza que el fondo replica plenamente el mercado: partiendo de una base 100 en 2006, el valor liquidativo cayó alrededor del 11% en 2007 y un 42,7% adicional en 2008, hundiéndose hasta una base 51 en plena crisis financiera global. La recuperación posterior fue lenta y el fondo siguió presionado por la crisis de deuda europea.</p><p class="subsec">2011-2012: caídas y reembolsos</p><p class="pr">En 2011 el valor liquidativo retrocedió un 16,4%, un año especialmente difícil para la bolsa japonesa. En septiembre de 2012 el fondo sufrió un reembolso equivalente al 33,29% del patrimonio por parte de partícipes pertenecientes a un mismo grupo, un episodio que ilustra la elevada concentración y volatilidad de su base inversora. Ese mismo año la gestora ajustó la política de inversión para alinear la calidad crediticia de los activos de renta fija con la calificación del Reino de España (hecho relevante CNMV 2012).</p><p class="subsec">2013: reestructuración y año récord</p><p class="pr">2013 fue un ejercicio de doble transformación estructural. Por un lado, el folleto se adaptó a la Directiva 2009/65/CE (UCITS), pasando el fondo a registrarse como fondo armonizado. Por otro, la CNMV autorizó la fusión por absorción de BANKINTER EMERGENTES, FI (nº 4084) por parte de BANKINTER ÍNDICE JAPÓN, FI. En el plano de mercado fue el mejor año de su historia reciente, con una revalorización del valor liquidativo en torno al +46,5%, coincidiendo con el fuerte rally de la bolsa japonesa impulsado por los estímulos de la 'Abenomics'.</p><p class="subsec">2017: nuevos reembolsos y apertura al minorista</p><p class="pr">En octubre de 2017 el fondo volvió a registrar un reembolso muy relevante, del 31,88% del patrimonio. Ese mismo año la gestora rebajó la inversión mínima inicial desde 600 euros hasta 1 euro, democratizando el acceso al producto (hecho relevante CNMV 2017).</p><p class="subsec">2018: nueva estructura de clases</p><p class="pr">A partir de 2018 el fondo abandonó la clase única (clase A) y pasó a comercializarse en dos clases: la clase R, minorista, con comisión de gestión del 1,0%, y la clase C, con comisión del 0,5%. Esta segmentación sigue vigente.</p><p class="subsec">2021: actualización de la política de inversión</p><p class="pr">En 2021 la CNMV verificó y registró una actualización del folleto y del documento de datos fundamentales para el inversor con el objeto de modificar la política de inversión del fondo (hecho relevante CNMV 2021).</p><p class="subsec">2022-2025: recuperación</p><p class="pr">Tras un 2022 negativo (−5,0%), el patrimonio se recuperó hasta los 46,8 M€ a cierre de 2025, su nivel más alto en años, aunque con un descenso de partícipes (de 3.763 a 2.753). 2025 fue un ejercicio muy positivo: la clase R rentó +20,38% y la clase C +20,69%, en línea con el +21,37% del índice de referencia, en un año de fuerte avance de las bolsas globales (CNMV 2S 2025).</p><p class="subsec">Un patrimonio pequeño y de manos institucionales</p><p class="pr">El hilo conductor de toda la historia del fondo es la inestabilidad de su patrimonio, mucho más propia de un vehículo en manos de unos pocos partícipes institucionales que de un producto minorista masivo. La secuencia de patrimonio a cierre de año lo ilustra: 10,4 M€ (2009), 26,9 M€ (2010), 21,1 M€ (2011), apenas 10,0 M€ (2012), un salto a 58,4 M€ (2013) y 76,4 M€ (2014), de nuevo un desplome a 21,4 M€ (2015), recuperación a 60,7 M€ (2016) y 73,0 M€ (2017), y otra caída hasta 18,3 M€ en 2020. Estas oscilaciones bruscas —que poco tienen que ver con la rentabilidad del índice— responden a entradas y salidas de capital concentrado, como los reembolsos del 33% (2012) y del 32% (2017) que figuran como hechos relevantes. Para el inversor que entra y permanece, esta rotación de la base no afecta al objetivo del fondo (replicar el Topix), pero sí explica por qué un producto con 25 años de historia sigue siendo de tamaño reducido.</p><p class="subsec">Coherencia del relato</p><p class="pr">Más allá de los vaivenes de patrimonio y de las reestructuraciones administrativas, la vocación del fondo no ha cambiado en su cuarto de siglo de vida: dar al inversor la rentabilidad de la bolsa japonesa replicando un índice. Las modificaciones de política de inversión (2012, 2021) han sido ajustes técnicos —calidad crediticia del colateral, formalización de la referencia al índice— y no giros de estrategia. Es, en ese sentido, un producto consistente con lo que promete.</p>
+    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Origen</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">El fondo frente al mercado…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Lectura de conjunto</button></div><div class="subtab-panel active"><p class="pr">Bankinter Índice Japón, FI se registró en la CNMV el <strong>14 de junio de 2000</strong>, en plena resaca del estallido de la burbuja tecnológica, como vehículo indexado para dar a los clientes de Bankinter acceso a la bolsa japonesa a través del índice TOPIX. Desde su origen ha sido un producto de <strong>réplica pasiva</strong>, gestionado por Bankinter Gestión de Activos, que obtiene la exposición a Japón de forma sintética mediante futuros sobre el TOPIX y, más recientemente, un ETF del mismo índice, manteniendo el patrimonio físico en repos de deuda española y liquidez como colateral.</p><p class="pr">Su trayectoria es, por construcción, la del propio mercado japonés: el fondo sube y baja con el TOPIX y no intenta desmarcarse. Eso explica las caídas pronunciadas de los años malos de la bolsa nipona (el valor liquidativo se hundió hasta mínimos en 2008-2009 con la crisis financiera global, y volvió a caer en 2011 y 2018) y los fuertes rebotes en los años de reactivación, especialmente desde la llegada de las <strong>Abenomics</strong> en 2013 (+46% ese año) y el potente rally de la bolsa japonesa de 2023-2025, que llevó la rentabilidad a un año por encima del +40% según FT (jun-2026).</p><p class="pr">El patrimonio del fondo ha sido <strong>muy volátil</strong> a lo largo de su historia, oscilando entre menos de 10 M€ y más de 75 M€, con entradas y salidas abruptas que delatan un uso <strong>táctico</strong> por parte de los partícipes (en 2012 un grupo de partícipes reembolsó el 33% del patrimonio en un solo día). El número de partícipes ha fluctuado de forma similar, entre el millar y los más de 5.000, situándose en 2.753 a cierre de 2025. A lo largo de los años el fondo ha sufrido ajustes técnicos derivados del marco regulatorio (calificación crediticia de los activos de colateral ligada a la del Reino de España en 2012) pero ha mantenido intacta su naturaleza: un tracker del TOPIX, barato de operar pero caro de comisión para lo que es.</p></div><div class="subtab-panel"><p class="pr">El fondo se autorizó y registró en la CNMV el 14 de junio de 2000, gestionado por Bankinter Gestión de Activos, S.A., S.G.I.I.C. y con Bankinter, S.A. como depositario. Nació con una vocación clara y nunca abandonada: ofrecer a los clientes del banco un vehículo indexado al <strong>TOPIX</strong> para tomar exposición al conjunto de la bolsa japonesa sin tener que seleccionar valores. La réplica se ha hecho desde el principio de forma sintética, con derivados sobre el índice apoyados en colateral de renta fija y liquidez.</p></div><div class="subtab-panel"><p class="pr">Por ser un tracker, la lectura de su historia es la del TOPIX en euros. Los datos de valor liquidativo dibujan el ciclo de la bolsa japonesa:</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2007-2009 — La crisis financiera.</strong> el VL se desplomó (~-43% en 2008) arrastrado por la caída global, tocando mínimos en 2009. La decisión del fondo fue, como siempre, ninguna: mantener la exposición al 100% y acompañar al índice a la baja.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2011 — Terremoto de Fukushima y crisis de deuda.</strong> otro año negativo (~-16%), con el añadido del shock japonés de marzo de 2011 y la crisis de deuda europea.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2013 — Abenomics.</strong> el gran año del periodo (~+46%), con el programa de estímulo monetario y fiscal de Shinzo Abe disparando la bolsa japonesa. El fondo capturó íntegro el rally por mantenerse plenamente invertido.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2018 — Corrección global.</strong> año negativo (~-18%) con la bolsa japonesa cayendo por el endurecimiento monetario de la Fed y las tensiones comerciales.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2019-2021 — Recuperación.</strong> tres años positivos (+15%, +6%, +10%) en el ciclo alcista pre y post-COVID.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2022 — Tipos al alza.</strong> ligera caída (~-5%) en el año de las subidas de tipos, en el que el yen débil amortiguó parte del golpe.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2023-2025 — El gran rally japonés.</strong> la bolsa nipona vivió uno de sus mejores periodos en décadas (reforma del gobierno corporativo, fin de la deflación, atractivo para el inversor extranjero). El fondo lo capturó: FT reportaba +42% a un año en junio de 2026 y los derivados sobre el TOPIX aportaron un +17,2% sobre patrimonio medio solo en el segundo semestre de 2025.</p></div><div class="subtab-panel"><p class="pr">El fondo ha hecho exactamente lo que promete: replicar al TOPIX, para bien y para mal. No hay decisiones de gestor que expliquen sus altibajos —los explica el mercado japonés y el cruce yen/euro—. Lo que sí distingue su historia es la <strong>inestabilidad de su patrimonio</strong>, con entradas y salidas masivas que reflejan un uso táctico por parte de inversores que entran y salen de Japón, no una base de partícipes de largo plazo.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
   <div class="kpi-row">
@@ -298,78 +312,99 @@ La gestión es <strong>pasiva y sistemática</strong>: no hay análisis fundamen
       <div class="tl-dot dot-reg"></div>
       <div class="tl-date">2000</div>
       <div class="tl-tag tag-reg">Regulatorio</div>
-      <div class="tl-title">Lanzamiento del fondo</div>
-      <div class="tl-desc">Registrado en la CNMV el 14 de junio de 2000 (nº 2149) por Bankinter Gestión de Activos, con vocación de réplica de la bolsa japonesa (índice Topix).</div>
+      <div class="tl-title">Registro del fondo en CNMV</div>
+      <div class="tl-desc">Bankinter Índice Japón FI se registra el 14 de junio de 2000 como fondo indexado al TOPIX gestionado por Bankinter Gestión de Activos.</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-crisis"></div>
       <div class="tl-date">2008</div>
       <div class="tl-tag tag-crisis">Crisis</div>
-      <div class="tl-title">Crisis financiera global</div>
-      <div class="tl-desc">El valor liquidativo cae un 42,7% en 2008, reflejando la réplica plena del mercado japonés en plena crisis financiera global.</div>
+      <div class="tl-title">Hundimiento por la crisis financiera global</div>
+      <div class="tl-desc">El valor liquidativo cae alrededor de un 43% siguiendo el desplome de la bolsa japonesa y mundial.</div>
     </div>
     <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2012</div>
-      <div class="tl-tag tag-hito">Hecho_relevante</div>
-      <div class="tl-title">Reembolso del 33% y ajuste crediticio</div>
-      <div class="tl-desc">Reembolso del 33,29% del patrimonio por un mismo grupo de partícipes; ajuste de la calidad crediticia de la renta fija a la calificación del Reino de España.</div>
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2011</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Reembolsos y ajuste de calidad crediticia</div>
+      <div class="tl-desc">Año negativo (~-16%) marcado por Fukushima y la crisis de deuda europea; comunicación de cambio de gestora/asesor.</div>
     </div>
     <div class="tl-item" style="align-items:flex-start;">
       <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
-      <div class="tl-date" style="font-weight:600;">2013</div>
+      <div class="tl-date" style="font-weight:600;">2012</div>
       <div style="grid-column:3/span 2;">
         
         <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <span class="tl-tag tag-reg">Regulatorio</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Adaptación a UCITS</strong>
+            <span class="tl-tag tag-hito">Reembolsos</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Reembolso del 33% del patrimonio en un día</strong>
           </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">El folleto se adapta a la Directiva 2009/65/CE y el fondo pasa a registrarse como fondo armonizado.</div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">El 21 de septiembre de 2012 partícipes de un mismo grupo reembolsaron un 33,29% del patrimonio; el patrimonio cayó a ~10 M€.</div>
         </div>
         <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
             <span class="tl-tag tag-reg">Regulatorio</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Fusión con Bankinter Emergentes, FI</strong>
+            <strong style="font-size:12.5px;color:var(--ink);">Ajuste regulatorio del colateral</strong>
           </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">La CNMV autoriza la fusión por absorción de BANKINTER EMERGENTES, FI (nº 4084) por parte del fondo.</div>
-        </div>
-        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <span class="tl-tag tag-hito">Contexto_mercado</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Mejor año de su historia reciente</strong>
-          </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">Revalorización del valor liquidativo en torno al +46,5%, coincidiendo con el rally de la bolsa japonesa de la 'Abenomics'.</div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">La calificación crediticia de los activos de renta fija se ajusta a la del Reino de España conforme al art. 14.2 del Reglamento de IIC.</div>
         </div>
       </div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2017</div>
-      <div class="tl-tag tag-hito">Hecho_relevante</div>
-      <div class="tl-title">Reembolso del 32% y mínimo de 1€</div>
-      <div class="tl-desc">Reembolso del 31,88% del patrimonio; la inversión mínima inicial se rebaja de 600€ a 1€.</div>
+      <div class="tl-date">2013</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Abenomics: +46% y entrada de dinero</div>
+      <div class="tl-desc">El gran año del fondo de la mano del estímulo de Shinzo Abe; el patrimonio se dispara de ~10 M€ a ~58 M€.</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2018</div>
-      <div class="tl-tag tag-hito">Cambio_estrategia</div>
-      <div class="tl-title">Nueva estructura de clases R y C</div>
-      <div class="tl-desc">El fondo sustituye la clase única por dos clases: R (gestión 1,0%) y C (gestión 0,5%).</div>
+      <div class="tl-date">2014</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Máximo de patrimonio del periodo</div>
+      <div class="tl-desc">El patrimonio alcanza ~76 M€, el nivel más alto de la serie disponible.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2018</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Otro</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Lanzamiento de la clase C</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Se crea la clase C (ES0114104005) con comisión de gestión del 0,50%, más barata que la clase R (fecha de inicio 21/05/2018).</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-crisis">Crisis</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Corrección de la bolsa japonesa</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Año negativo (~-18%) por el endurecimiento monetario de la Fed y las tensiones comerciales.</div>
+        </div>
+      </div>
     </div>
     <div class="tl-item">
-      <div class="tl-dot dot-reg"></div>
-      <div class="tl-date">2021</div>
-      <div class="tl-tag tag-reg">Regulatorio</div>
-      <div class="tl-title">Actualización de la política de inversión</div>
-      <div class="tl-desc">La CNMV registra una actualización del folleto y del DFI para modificar la política de inversión del fondo.</div>
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2020</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Mínimo de patrimonio reciente</div>
+      <div class="tl-desc">El patrimonio cae a ~18 M€ en el año del COVID pese a la recuperación del VL.</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2023</div>
+      <div class="tl-tag tag-hito">Otro</div>
+      <div class="tl-title">Arranca el gran rally japonés</div>
+      <div class="tl-desc">Comienza el periodo de fuerte revalorización de la bolsa nipona por la reforma del gobierno corporativo y el fin de la deflación.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
       <div class="tl-date">2025</div>
-      <div class="tl-tag tag-hito">Contexto_mercado</div>
-      <div class="tl-title">Recuperación de patrimonio y +20%</div>
-      <div class="tl-desc">El patrimonio sube a 46,8 M€; la clase R renta +20,38% frente al +21,37% del índice de referencia.</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Rentabilidad cercana al +42% a un año</div>
+      <div class="tl-desc">Los derivados sobre el TOPIX aportan +17,2% sobre patrimonio medio en el 2º semestre; patrimonio sube a ~46,8 M€ con 2.753 partícipes.</div>
     </div>
   </div>
   
@@ -378,25 +413,27 @@ La gestión es <strong>pasiva y sistemática</strong>: no hay análisis fundamen
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  
+  <div class="mb24"><p class="pr">Bankinter Índice Japón es un <strong>fondo de gestión pasiva</strong>, y eso condiciona por completo cómo entender su "equipo gestor". A diferencia de un fondo de autor —donde un gestor con nombre y apellidos imprime su criterio, su tesis y su skin in the game sobre la cartera—, en un tracker indexado el papel del gestor es <strong>operativo y técnico</strong>: no decide qué comprar, sino cómo replicar al índice de la forma más fiel y eficiente posible. No hay convicciones de inversión que narrar porque, por diseño, el fondo no las tiene: su único mandato es seguir al TOPIX.</p></div>
 
   
     <div class="mgr">
       <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">Ed</div>
-        <div class="mgr-nm">Equipo de Gestión Indexada — Bankinter Gestión de Activos<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#a64949;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">Síntesis LLM (verificar)</span></div>
-        <div class="mgr-rl">Gestión pasiva del fondo (sin gestor individual nombrado)</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Gestora: Bankinter Gestión de Activos, S.A., S.G.I.I.C. (grupo Bankinter)</li><li style="margin-bottom:3px;">Depositario: Bankinter, S.A.</li><li style="margin-bottom:3px;">Modelo: gestión pasiva / indexada (réplica del índice Topix)</li><li style="margin-bottom:3px;">Sin gestor individual nombrado (producto indexado)</li><li style="margin-bottom:3px;">Instrumentos: futuros sobre Topix + ETF de Lyxor</li><li style="margin-bottom:3px;">Tracking error 2025: 3,90%; correlación 0,96</li></ul>
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">VL</div>
+        <div class="mgr-nm">Vicente López Quetglas<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#2d8cf0;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">Snippet Google/Morningstar</span></div>
+        <div class="mgr-rl">Gestor de referencia (equipo de gestión indexada de Bankinter Gestión de Activos)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Gestor de referencia de Bankinter Índice Japón FI según ficha técnica de Financial Times</li><li style="margin-bottom:3px;">Fecha de gestión desde el 1 de enero de 2013 (FT)</li><li style="margin-bottom:3px;">Equipo de gestión pasiva/indexada de Bankinter Gestión de Activos, S.G.I.I.C.</li><li style="margin-bottom:3px;">Función técnica de réplica del índice TOPIX (sin selección activa de valores)</li></ul>
       </div>
       <div class="mgr-b">
-        <p class="pr" style="font-size:13px;">BANKINTER ÍNDICE JAPÓN, FI es un fondo de <strong>gestión pasiva</strong> gestionado por Bankinter Gestión de Activos, S.A., S.G.I.I.C., la gestora del grupo Bankinter, con Bankinter, S.A. como depositario. No existe un gestor individual nombrado: las fuentes públicas consultadas (ficha de quefondos y Morningstar) no atribuyen el fondo a una persona, y este análisis no inventa ninguna.
+        <p class="pr" style="font-size:13px;"><strong>Vicente López Quetglas</strong> figura como gestor de referencia del fondo en la ficha técnica de <strong>Financial Times</strong>, con fecha de gestión desde el <strong>1 de enero de 2013</strong>. Forma parte del equipo de gestión pasiva/indexada de Bankinter Gestión de Activos, la gestora del Grupo Bankinter.
 
-El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo una exposición cercana al 100% mediante futuros y un ETF de Lyxor sobre dicho índice, y gestionar el colateral (repos y deuda pública a corto plazo) y la liquidez para atender suscripciones y reembolsos. La calidad de la gestión se mide por la fidelidad de la réplica: en 2025 la correlación con el índice fue de 0,96 y el tracking error del 3,90%, por debajo del límite del folleto (CNMV 2S 2025).</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Gestión sistemática orientada a reproducir el índice de referencia, no a batirlo. El proceso es mecánico: comprar/vender futuros y ETF sobre el Topix para mantener el nivel de inversión objetivo, sin selección discrecional de valores ni rotación táctica (rotación del 0% en 2025).</p>
+Conviene ser transparente sobre el alcance de esta información: al tratarse de un <strong>fondo indexado</strong> (un tracker del TOPIX), no existe material público —entrevistas, artículos, cartas a inversores— que detalle su trayectoria, formación o filosofía de inversión, sencillamente porque un producto de réplica pasiva no se construye sobre la figura de un gestor-autor. Su función es <strong>técnica y de réplica</strong>: mantener la exposición del fondo al 100% del TOPIX mediante futuros y ETFs, gestionar el colateral y controlar el tracking error, no seleccionar valores ni expresar convicciones de inversión.
+
+En coherencia con la política de no inventar datos, este perfil <strong>no atribuye empleadores previos, titulaciones ni méritos</strong> que no consten en fuentes verificables. Lo único sólidamente documentado es su condición de gestor de registro del fondo desde 2013 según FT y su pertenencia al equipo de gestión indexada de Bankinter G.A.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Como responsable de un producto indexado, su "filosofía" no es la de un selector de valores sino la de la <strong>indexación</strong>: renunciar al alpha, capturar la beta del mercado japonés y minimizar el tracking error frente al TOPIX. La eficiencia operativa de la réplica (vía futuros + ETF) y el control del colateral son los ejes de su trabajo, no la convicción sobre compañías concretas.</p>
         
         
         <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mantener la exposición en torno al 100% al índice mediante futuros y ETF, ajustándola con las entradas y salidas de patrimonio (CNMV 2S 2025).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Invertir el colateral y la liquidez en repos y deuda pública a corto plazo para respaldar la operativa de derivados.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Controlar el tracking error para que se mantenga por debajo del límite recogido en el folleto.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> La nota distintiva no es un estilo personal de gestión sino la naturaleza institucional y sistemática del proceso: el resultado del fondo depende del índice Topix y de la calidad de la réplica, no del criterio de un gestor concreto.</p></div>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mantener la exposición del fondo en torno al 100% al TOPIX mediante futuros y ETF, ajustándola ante entradas y salidas de partícipes (CNMV 2025-H2).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Gestionar el colateral del fondo en repos de deuda del Estado español y liquidez como garantía de las posiciones en derivados.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Controlar el tracking error (3,90% en 2025) y la correlación con el índice (0,96) dentro de los límites del folleto.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> No es un gestor-autor sino un gestor de réplica: su valor está en la fidelidad técnica al índice, no en una visión de mercado propia. La información pública sobre su persona es limitada por la propia naturaleza pasiva del producto.</p></div>
       </div>
     </div>
 
@@ -459,18 +496,18 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="subsec">Una estrategia de réplica, no de selección</p><p class="pr">La estrategia de BANKINTER ÍNDICE JAPÓN, FI consiste en reproducir la rentabilidad del índice Topix de la bolsa japonesa. El folleto lo define como un fondo que toma como referencia un índice, con vocación de Renta Variable Internacional, y fija el objetivo de invertir en torno al 100% de la exposición total en renta variable japonesa (CNMV, sección 1, 2025). No hay, por tanto, tesis de inversión sobre compañías concretas ni rotación táctica: el valor del producto reside en la fidelidad de la réplica.</p><p class="subsec">Cómo se obtiene la exposición</p><p class="pr">En lugar de comprar directamente las acciones del índice, el fondo logra la exposición de forma sintética y eficiente: mantiene posiciones en <strong>futuros sobre el Topix</strong> y en un <strong>ETF de Lyxor</strong> sobre el mismo índice. Durante 2025 el fondo se mantuvo invertido en torno al 100% mediante estos instrumentos, con un peso del 8% del patrimonio en IIC (el ETF) a cierre del periodo. Las operaciones se limitan a comprar y vender futuros y ETF para mantener el nivel de inversión al 100% según entran y salen partícipes (CNMV 2S 2025).</p><p class="subsec">Gestión del colateral y apalancamiento</p><p class="pr">El uso de derivados implica mantener garantías. Por eso la cartera contable está dominada por repos (operaciones con pacto de recompra con Bankinter) y deuda pública a corto plazo, además de la liquidez. El nivel medio de apalancamiento en derivados durante el periodo fue del 91,63%, una cifra coherente con un fondo que replica el índice manteniendo el efectivo como respaldo de los futuros. La rentabilidad media de la liquidez en 2025 fue del 1,89% (CNMV 2S 2025).</p><p class="subsec">Calidad de la réplica</p><p class="pr">La métrica clave de un fondo indexado es lo cerca que sigue a su índice. En 2025, la correlación lineal con el índice de referencia fue de 0,96 y el tracking error del 3,90%, por debajo del límite recogido en el folleto. La operativa con futuros sobre índices aportó una rentabilidad del 17,20% sobre el patrimonio medio del fondo, y la volatilidad del valor liquidativo (15,66% en el periodo) fue similar a la del índice de referencia (CNMV 2S 2025).</p><p class="subsec">Estructura de clases y costes</p><p class="pr">El fondo se comercializa en dos clases: la clase R, minorista, con comisión de gestión del 1,0%, y la clase C, con comisión del 0,5%. El TER agregado se sitúa en el 1,12% y no existe comisión de éxito. Este coste es la principal debilidad competitiva del producto: existen ETFs y fondos índice sobre Japón con costes muy inferiores (0,2%-0,5%), frente a los que este fondo parte con desventaja estructural en rentabilidad neta.</p><p class="subsec">Contexto de mercado 2025 y actuación prevista</p><p class="pr">En el segundo semestre de 2025 las bolsas globales registraron avances significativos, con el S&P 500 y el Eurostoxx 50 en máximos históricos y un yen que se depreció un 8,4% frente al euro tras la elección de Takaichi y la expectativa de políticas expansivas en Japón; el Banco de Japón subió tipos 25 pb en diciembre hasta el 0,75%. De cara a 2026, la gestora anticipa que las bolsas seguirán mostrando resiliencia en un contexto de crecimiento moderado e inflación aún persistente en EE.UU., con el crecimiento de beneficios empresariales como principal catalizador. Para este fondo, no obstante, la actuación prevista es la misma de siempre: 'dada su política de inversión, el fondo evolucionará acorde con el comportamiento de su índice de referencia' (CNMV 2S 2025).</p><p class="subsec">Comparación con la indexación de bajo coste</p><p class="pr">La estrategia debe juzgarse frente a su alternativa natural: un ETF o fondo índice sobre Japón de gestión pasiva, que hoy puede contratarse con costes del 0,2%-0,5% anual. Sobre un horizonte largo, una diferencia de coste de 60-90 puntos básicos al año (TER 1,12% frente a ~0,3%) se traduce en una merma acumulada notable de la rentabilidad neta, precisamente porque la propia estrategia garantiza que el bruto será el del índice. Dicho de otro modo: en un producto donde no hay valor añadido por selección de valores, el coste es casi la única variable que separa a un fondo de otro, y aquí juega en contra. La contrapartida es la comodidad de tener el producto dentro del catálogo y la operativa de Bankinter, con liquidez diaria y un único interlocutor como gestora y depositario.</p><p class="subsec">Disciplina operativa</p><p class="pr">La ejecución de la estrategia es repetitiva y disciplinada: comprar y vender futuros y ETF sobre el Topix para mantener el nivel de inversión al 100% según las suscripciones y reembolsos, renovar los repos que sirven de colateral, y vigilar que el tracking error no exceda el límite del folleto. La rotación contable del 0% en 2025 (con repuntes del 26% en 2023 y del 56% en 2024 ligados a la renovación de garantías) confirma que no hay actividad de selección de valores, solo el mantenimiento mecánico de la réplica.</p>
+    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Objetivo del fondo</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Benchmark</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Universo de inversión y ra…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Estilo de inversión</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Fondo gestionado, no de au…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',6)">Cuantitativo vs cualitativ…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',7)">La variable que de verdad…</button></div><div class="subtab-panel active"><p class="pr">La estrategia de Bankinter Índice Japón es de una sencillez deliberada: <strong>replicar el índice TOPIX</strong>, el indicador amplio de la bolsa japonesa, y entregar al partícipe esa rentabilidad menos comisiones. No hay selección de valores, no hay visión de mercado, no hay gestión táctica de la exposición. El <strong>objetivo</strong> es puramente de réplica: ofrecer beta japonesa diversificada a través de un vehículo UCITS español traspasable, para el inversor que quiere una pieza de Japón en su cartera sin complicarse.</p><p class="pr">El <strong>benchmark</strong> no es una referencia contra la que el fondo intenta competir, sino el índice que <strong>es</strong> el fondo: el TOPIX (Tokyo Stock Price Index). El producto se juzga por su fidelidad a ese índice —correlación 0,96 y tracking error 3,90% en 2025— y no por batirlo. El <strong>universo de inversión</strong> es la renta variable japonesa de gran capitalización, con una exposición declarada en torno al 100%, sin límites tácticos relevantes porque el mandato es estar siempre plenamente invertido en el índice.</p><p class="pr">El <strong>estilo</strong> es, por tanto, <strong>indexación pasiva (blend / large-cap Japón)</strong>: ni value ni growth, sino el conjunto del mercado. Lo más particular es el <strong>instrumento</strong>: el fondo logra la exposición de forma <strong>sintética</strong>, con <strong>futuros sobre el TOPIX</strong> como vehículo principal (~92-100%) y un <strong>ETF del índice</strong> (~8%), manteniendo el patrimonio físico en <strong>repos de deuda española y liquidez</strong> que sirven de colateral. Esto hace que contablemente aparezca con un peso alto en renta fija, aunque su exposición económica sea ~100% renta variable japonesa.</p><p class="pr">No es un fondo de <strong>autor</strong> sino un producto <strong>gestionado</strong> por el equipo de gestión indexada de Bankinter Gestión de Activos: la persona del gestor es secundaria respecto al sistema de réplica. Y no hay componente <strong>cualitativo</strong> de selección: la "fórmula" es cuantitativa y mecánica —seguir la composición del índice vía derivados, ajustar la exposición ante entradas/salidas y controlar el tracking error—. La gran palanca de resultado para el partícipe, una vez asumido que se compra el mercado japonés, es el <strong>coste</strong>: y ahí el 1,12% de TER de la clase R es alto para un indexado, lo que constituye la principal crítica al producto.</p></div><div class="subtab-panel"><p class="pr">El objetivo es <strong>replicar la rentabilidad del índice TOPIX</strong>, ofreciendo al partícipe exposición diversificada a la renta variable japonesa de gran capitalización. La política de inversión declarada en los informes CNMV es literal: "tratar de dar una rentabilidad similar a su índice de referencia (TOPIX)". No persigue batir al mercado ni generar alpha; persigue <strong>capturar la beta</strong> japonesa de la forma más fiel posible.</p></div><div class="subtab-panel"><p class="pr">El índice de referencia es el <strong>TOPIX (Tokyo Stock Price Index)</strong>, que recoge el conjunto de grandes valores cotizados en la bolsa de Tokio. En un fondo indexado el benchmark no es un rival sino el objeto mismo de la réplica. La calidad del fondo se mide por su ajuste al índice: a cierre de 2025 la <strong>correlación lineal fue del 0,96</strong> y el <strong>tracking error del 3,90%</strong>, por debajo del límite fijado en el folleto (CNMV 2025-H2).</p></div><div class="subtab-panel"><p class="pr">El universo es la <strong>renta variable japonesa de gran capitalización</strong> representada en el TOPIX. La exposición objetivo es de en torno al <strong>100%</strong> y se mantiene de forma permanente. El instrumento de exposición son <strong>futuros sobre el TOPIX</strong> y un <strong>ETF</strong> del mismo índice (la inversión en otras IIC —el ETF— representaba un 8% del patrimonio a cierre de 2025). El patrimonio no comprometido como margen se invierte en <strong>repos sobre deuda del Estado español y liquidez</strong>. Por marco regulatorio (art. 14.2 del Reglamento de IIC), la calidad crediticia de esos activos de colateral se ajusta a la calificación del Reino de España.</p></div><div class="subtab-panel"><p class="pr">El estilo es <strong>indexación pasiva pura</strong>, categorizada por Morningstar como <strong>RV Japón Gran Capitalización (Large-Cap Blend)</strong>. No hay sesgo value ni growth: el fondo compra el mercado completo. No hay rotación activa de cartera (la rotación de contado es prácticamente nula); la única actividad es el ajuste de los derivados para mantener la exposición ante entradas y salidas de partícipes.</p></div><div class="subtab-panel"><p class="pr">Es un producto <strong>gestionado por una casa</strong> —el equipo de gestión indexada de Bankinter Gestión de Activos— y no un fondo de autor con un gestor-estrella y skin in the game. La identidad del gestor (FT atribuye la gestión a Vicente López Quetglas desde 2013) es secundaria frente al sistema de réplica. Esto es coherente con la naturaleza del producto: en un tracker, lo que importa es el proceso mecánico, no la convicción individual.</p></div><div class="subtab-panel"><p class="pr">El proceso es <strong>100% cuantitativo y mecánico</strong>, sin componente cualitativo de selección de compañías. La "fórmula" consiste en: (1) determinar la exposición objetivo (~100% del TOPIX); (2) instrumentarla con futuros sobre el índice complementados con un ETF; (3) colocar el colateral en repos de deuda española y liquidez; (4) reajustar las posiciones en derivados a medida que el fondo recibe suscripciones o atiende reembolsos; y (5) monitorizar de forma continua la correlación y el tracking error para mantenerlos dentro de los límites del folleto. No hay decisión discrecional sobre qué valores japoneses comprar: la composición la dicta el índice.</p></div><div class="subtab-panel"><p class="pr">Asumido que el partícipe compra el mercado japonés, la palanca diferencial es el <strong>coste</strong>. El TER del 1,12% de la clase R es elevado para un indexado: análisis externos (Rankia) señalan que existen réplicas del mercado japonés con TER inferior al 0,15% (Amundi Index MSCI Japan, 0,13%). La clase C de Bankinter (gestión 0,50%, gastos 0,63%) es más barata pero sigue por encima de las mejores alternativas del mercado. Este es el verdadero punto débil estratégico del fondo.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El fondo se ha mantenido invertido durante el periodo en torno al 100% en futuros sobre el Topix y ETFs sobre el mismo índice&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Bankinter Gestión de Activos, Informe semestral CNMV, 2S 2025</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;A cierre del periodo, la correlación lineal del fondo con su índice de referencia ha sido del 0,96.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Bankinter Gestión de Activos, Informe semestral CNMV, 2S 2025</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El tracking error ha sido del 3,90% frente a su índice de referencia inferior a lo indicado en su folleto informativo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Bankinter Gestión de Activos, Informe semestral CNMV, 2S 2025</span></p>
+  
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
-  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Réplica pasiva del índice Topix de la bolsa japonesa con exposición cercana al 100% vía futuros y un ETF de Lyxor, colateral en repos y deuda pública, sin selección de valores ni comisión de éxito. TER del 1,12%; tracking error del 3,90% y correlación de 0,96 en 2025.</p>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Réplica pasiva del TOPIX vía futuros (~92-100%) + ETF, con colateral en repos de deuda española y liquidez. Exposición ~100% a renta variable japonesa de gran capitalización, correlación 0,96 y tracking error 3,90% (2025).</p>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Internacional — bolsa japonesa (índice Topix), réplica vía derivados</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de renta variable: exposición plena a la volatilidad de la bolsa japonesa (perfil 4/7).</li><li style="margin-bottom:4px;">Riesgo divisa (euro/yen) según el grado de cobertura del índice.</li><li style="margin-bottom:4px;">Riesgo de derivados y de contraparte en futuros y repos; tracking error residual frente al índice.</li></ul></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Japón Gran Capitalización (réplica sintética del TOPIX vía futuros + ETF)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de mercado de renta variable japonesa (volatilidad 20,39%, perfil 4/7)</li><li style="margin-bottom:4px;">Riesgo divisa yen/euro no cubierto</li><li style="margin-bottom:4px;">Riesgo de réplica/tracking error (3,90%) y de instrumentos derivados y contrapartida del colateral</li></ul></div>
 
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
   <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
@@ -480,30 +517,30 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
     <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
   </div>
   <div class="strat-row">
-  <div class="strat-yr">2008</div>
-  <div class="strat-c">Crisis financiera global. Los mercados de renta variable se desplomaron en todo el mundo y la bolsa japonesa no fue una excepción.</div>
-  <div class="strat-c">Como fondo de réplica, mantuvo la exposición al índice; no hubo gestión defensiva ni reducción discrecional de la exposición.</div>
-  <div class="strat-c">-42,7% — caída del valor liquidativo en línea con el hundimiento del mercado japonés (réplica plena, sin colchón).</div>
-</div><div class="strat-row">
   <div class="strat-yr">2013</div>
-  <div class="strat-c">Fuerte rally de la bolsa japonesa impulsado por los estímulos monetarios y fiscales de la 'Abenomics'.</div>
-  <div class="strat-c">Mantenimiento de la réplica al ~100% del índice; en el plano estructural, adaptación a UCITS y fusión con Bankinter Emergentes.</div>
-  <div class="strat-c">+46,5% — mejor año de la serie, capturando la subida del Topix vía la réplica del índice.</div>
+  <div class="strat-c">Llegada de las Abenomics: el programa de estímulo monetario y fiscal de Shinzo Abe y la agresiva expansión del Banco de Japón disparan la bolsa japonesa y debilitan el yen.</div>
+  <div class="strat-c">Sin cambios de estrategia: el fondo mantuvo su exposición al 100% del TOPIX vía derivados, capturando íntegro el rally por estar plenamente invertido.</div>
+  <div class="strat-c">+46,53% — captura completa del rally de las Abenomics por mantener exposición plena al TOPIX.</div>
 </div><div class="strat-row">
   <div class="strat-yr">2018</div>
-  <div class="strat-c">Año negativo para la renta variable global, con corrección en el último trimestre.</div>
-  <div class="strat-c">Réplica continuada del índice; ese año se reorganizó la estructura en clases R y C.</div>
-  <div class="strat-c">-17,7% — descenso del valor liquidativo acorde con la caída del mercado japonés.</div>
+  <div class="strat-c">Endurecimiento monetario de la Fed, tensiones comerciales EEUU-China y corrección generalizada de la renta variable global en el último trimestre.</div>
+  <div class="strat-c">Réplica pasiva sin gestión defensiva: el fondo acompañó la caída del índice manteniendo la exposición íntegra.</div>
+  <div class="strat-c">-17,65% — caída en línea con el TOPIX al no existir gestión táctica que amortigüe el mercado bajista.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2020</div>
+  <div class="strat-c">Shock del COVID-19, desplome y posterior recuperación en V de las bolsas mundiales apoyada en estímulos monetarios y fiscales masivos.</div>
+  <div class="strat-c">Mantenimiento de la exposición plena al índice durante toda la crisis; el patrimonio del fondo, en cambio, cayó a ~18 M€ por reembolsos.</div>
+  <div class="strat-c">+5,97% — el VL cerró el año en positivo siguiendo la recuperación del TOPIX.</div>
 </div><div class="strat-row">
   <div class="strat-yr">2022</div>
-  <div class="strat-c">Año de subidas de tipos y caídas generalizadas en renta variable y renta fija.</div>
-  <div class="strat-c">Mantenimiento de la exposición indexada al ~100% mediante futuros y ETF.</div>
-  <div class="strat-c">-5,0% — caída moderada del valor liquidativo, mejor que otras bolsas gracias al comportamiento relativo de Japón.</div>
+  <div class="strat-c">Año de subidas de tipos agresivas a nivel global y caídas de la renta variable; el yen muy débil amortiguó parte del golpe para el inversor en euros.</div>
+  <div class="strat-c">Sin cambios: réplica del índice con colateral en repos de deuda española.</div>
+  <div class="strat-c">-5,03% — caída contenida frente a otros mercados, en parte por el comportamiento del cruce yen/euro.</div>
 </div><div class="strat-row">
-  <div class="strat-yr">2025</div>
-  <div class="strat-c">Fuerte avance de las bolsas globales; el yen se depreció un 8,4% frente al euro y el Banco de Japón subió tipos al 0,75%.</div>
-  <div class="strat-c">El fondo se mantuvo invertido en torno al 100% en futuros sobre el Topix y un ETF de Lyxor; la operativa con futuros aportó +17,20% sobre el patrimonio medio.</div>
-  <div class="strat-c">+20,38% (clase R) — frente al +21,37% del índice; la diferencia corresponde a gastos corrientes y coste de réplica.</div>
+  <div class="strat-yr">2025-S2</div>
+  <div class="strat-c">La bolsa japonesa prolonga uno de sus mejores ciclos en décadas (reforma del gobierno corporativo, fin de la deflación, atractivo para el inversor extranjero), con la Fed retomando bajadas de tipos y el BCE en pausa al 2%.</div>
+  <div class="strat-c">El fondo mantuvo la exposición ~100% mediante compraventa de futuros y ETF de Lyxor sobre el TOPIX, ajustando ante entradas y salidas; correlación 0,96 y tracking error 3,90%.</div>
+  <div class="strat-c">+17,20% — rentabilidad aportada por los derivados sobre el TOPIX sobre patrimonio medio en el semestre, de la mano del rally japonés.</div>
 </div>
 
   
@@ -513,22 +550,16 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
 
   <div class="mb24">
-    
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">En términos económicos, el fondo está invertido prácticamente al 100% en bolsa japonesa. El índice Topix es un índice amplio que recoge el grueso de las compañías cotizadas en el mercado principal de Tokio, por lo que la cartera ofrece una exposición muy diversificada al conjunto de la economía japonesa —desde financieras e industriales hasta automoción, tecnología y consumo— sin sesgos sectoriales introducidos por el gestor. La diversificación, por tanto, la aporta el propio índice, no una selección activa.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Composición contable</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El desglose contable a cierre de 2025 muestra en torno al 78% en renta fija/colateral (repos y deuda pública a corto plazo), un 7,6% en IIC (el ETF) y cerca del 10% en liquidez. Históricamente la estructura ha sido similar, con la renta fija y la liquidez actuando siempre como respaldo de los derivados, y la presencia de depósitos en los primeros años de la serie.</p></div>
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Concentración</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La concentración aparente es alta —las cinco mayores posiciones suman cerca del 65% y las posiciones declaradas en total alrededor del 86%— pero de nuevo se trata de concentración en colateral (repos con la misma contraparte, Bankinter), no en compañías. La concentración del riesgo de mercado es la del índice Topix, no la de estas líneas.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Riesgos estructurales de la cartera</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Los principales riesgos de la cartera son: el riesgo de mercado de la renta variable japonesa (asumido al 100%); el riesgo de contraparte de los repos y de los futuros, mitigado por operar con una entidad del propio grupo y con colateral; el riesgo divisa euro/yen según la cobertura aplicada; y el coste de mantener la réplica vía derivados, que hace que el fondo quede estructuralmente algo por debajo del índice (CNMV 2S 2025).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Cómo ha cambiado la composición contable</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La estructura de la cartera contable ha sido estable en su lógica pero cambiante en su detalle. En los primeros años de la serie (2009-2011) la renta fija pesaba entre el 70% y el 83% y aparecían depósitos como vía de colocar el colateral. Entre 2012 y 2017 los depósitos llegaron a representar entre el 28% y el 37% del patrimonio (33,6% en 2017), combinados con renta fija. A partir de 2018 los depósitos desaparecen y el colateral se concentra en renta fija (repos y deuda pública), que se mueve entre el 65% y el 80%, con la liquidez en el 8%-19% y el ETF (IIC) en torno al 6%-11%. Esta evolución no refleja cambios en la exposición económica —siempre ~100% a bolsa japonesa— sino distintas formas de instrumentar el colateral de los derivados a lo largo del tiempo.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Qué mirar y qué no</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Para interpretar correctamente la cartera, el inversor debe ignorar la etiqueta de 'renta fija' que domina el desglose y entender que está comprando bolsa japonesa. Los datos verdaderamente relevantes no son los pesos de los repos sino las métricas de réplica (correlación 0,96, tracking error 3,90% en 2025) y el coste total (TER 1,12%), que son los que determinan cuánto se acercará el resultado del fondo al del índice Topix.</p></div>
+    <p class="subsec">Cómo se construye la cartera</p><p class="pr">La cartera de Bankinter Índice Japón <strong>no se construye por selección de valores</strong>, sino por <strong>réplica del índice</strong>. El gestor no decide qué compañías japonesas comprar: determina una exposición objetivo (~100% del TOPIX) y la instrumenta con derivados. La consecuencia es que la cartera de contado del fondo <strong>no contiene acciones japonesas</strong>, sino los instrumentos que dan exposición sintética y el colateral que los respalda. Es una distinción esencial para no malinterpretar la composición: lo que aparece en la lista de posiciones son repos y un ETF, no las empresas a las que el fondo está realmente expuesto.</p><p class="subsec">Estructura real de la cartera a cierre de 2025</p><p class="pr">A diciembre de 2025 la cartera física se compone de: una batería de <strong>repos sobre deuda del Estado español</strong> con Bankinter como contrapartida (en conjunto en torno al 78% del patrimonio, repartidos en varias operaciones de peso individual cercano al 13%, todas con vencimiento a comienzos de enero de 2026 y cupón en torno al 1,95%); un <strong>ETF del TOPIX</strong> (Lyxor/Amundi Japan TOPIX, ~7,6% del patrimonio); y <strong>liquidez</strong> (~9,7%). Por encima de esa cartera de contado, el fondo mantiene posiciones en <strong>futuros sobre el TOPIX</strong> que aportan la exposición real a la renta variable japonesa hasta completar el ~100%. Los repos y la liquidez funcionan como <strong>colateral y garantía</strong> de esos futuros; no son una apuesta de renta fija.</p><p class="subsec">Cómo han evolucionado los pesos y por qué</p><p class="pr">La composición de la cartera de contado ha cambiado a lo largo de los años por razones <strong>técnicas</strong>, no de convicción. En los ejercicios 2013-2017 el colateral combinaba renta fija con <strong>depósitos</strong> que llegaron a pesar un 33-37% del patrimonio; en los últimos años el colateral se ha concentrado en <strong>repos sobre deuda española</strong> (en torno al 70-78%) más el ETF y la liquidez. Esta evolución responde a la gestión del colchón de garantía y a las condiciones de los mercados monetarios, no a un cambio de visión sobre Japón: la exposición a renta variable japonesa se ha mantenido siempre en el ~100%. La rotación de la cartera de contado es prácticamente nula, coherente con un fondo cuya verdadera actividad está en el ajuste continuo de los derivados.</p><p class="subsec">Posiciones de alta convicción</p><p class="pr">El concepto de "posición de alta convicción" <strong>no aplica</strong> a este fondo: no hay valores que el gestor mantenga por convicción a lo largo de los años, porque no selecciona compañías. La única "posición" estructural y permanente es el <strong>propio índice TOPIX</strong>, replicado de forma constante. Lo más cercano a una constante de cartera es el binomio <strong>futuros TOPIX + ETF TOPIX</strong> como vehículo de exposición y los <strong>repos de deuda española</strong> como colateral recurrente. Si se quiere hablar de convicción, la única es la de <strong>estar siempre plenamente invertido en Japón</strong>, sin intentar anticipar al mercado.</p><p class="subsec">Composición actual y racional</p><p class="pr">En términos de <strong>exposición económica</strong>, la cartera es ~100% renta variable japonesa de gran capitalización (diversificada a través de todo el TOPIX, varios cientos de valores). En términos de <strong>cartera de contado</strong>, es renta fija de muy corto plazo (repos soberanos españoles) más un ETF y liquidez. La concentración aparente de la lista de posiciones (los repos suman ~78% en operaciones de ~13% cada una) es <strong>engañosa</strong>: no refleja concentración de riesgo de inversión, sino la mecánica del colateral. El riesgo estructural relevante de la cartera es el del <strong>mercado japonés y el yen</strong>, no el de la deuda española de los repos, que es de cortísimo plazo y alta calidad. El principal pero de la cartera es de <strong>coste</strong>: toda esta estructura de réplica conlleva un TER del 1,12% que merma la rentabilidad neta frente a alternativas indexadas más baratas.</p>
   </div>
 
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
-  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>geografía (exposición económica)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">~100% bolsa japonesa (índice Topix) vía futuros + ETF</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>composición contable (cierre 2025)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">renta fija/colateral 77,9%, IIC (ETF) 7,6%, liquidez 9,7%</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>apalancamiento medio en derivados (2025)</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">91,63%</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
 
   <div class="kpi-row">
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">7</div><div class="kpi-sub">vs media hist. 5</div></div>
     <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">85,5%</div><div class="kpi-sub">vs media hist. 82,5%</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">9,7%</div><div class="kpi-sub">vs media hist. 15,1%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">85,5%</div><div class="kpi-sub">Otros</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">85,5%</div><div class="kpi-sub">Renta variable</div></div>
   </div>
 
   <div class="col2 mb20">
@@ -539,10 +570,11 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <div class="sr">Todas las posiciones (7)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="BKT">BKT</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:103px;background:#0c2340;"></div>13,0%</div></td>
@@ -550,7 +582,8 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <td><span style="background:rgba(107,26,26,0.22999999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-16,5%</span></td>
 </tr><tr>
   <td title="BKT">BKT</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:103px;background:#0c2340;"></div>13,0%</div></td>
@@ -558,7 +591,8 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <td><span style="background:rgba(107,26,26,0.22999999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-16,5%</span></td>
 </tr><tr>
   <td title="BKT">BKT</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:103px;background:#0c2340;"></div>13,0%</div></td>
@@ -566,7 +600,8 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <td><span style="background:rgba(107,26,26,0.22999999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-16,5%</span></td>
 </tr><tr>
   <td title="BKT">BKT</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:103px;background:#0c2340;"></div>13,0%</div></td>
@@ -574,7 +609,8 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <td><span style="background:rgba(107,26,26,0.22999999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-16,5%</span></td>
 </tr><tr>
   <td title="BKT">BKT</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:103px;background:#0c2340;"></div>13,0%</div></td>
@@ -582,7 +618,8 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <td><span style="background:rgba(107,26,26,0.22999999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-16,6%</span></td>
 </tr><tr>
   <td title="BKT">BKT</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:103px;background:#0c2340;"></div>13,0%</div></td>
@@ -590,7 +627,8 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <td><span style="background:rgba(107,26,26,0.22999999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-16,6%</span></td>
 </tr><tr>
   <td title="LYXOR INTL ASSET">Lyxor Intl Asset</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:61px;background:#0c2340;"></div>7,6%</div></td>
@@ -604,12 +642,64 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
 <section class="pane" id="p6">
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
   
-  
-  
+  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#e85d26;">RK</div>
+        <div class="src-info">
+          <div class="src-o">Rankia</div>
+        </div>
+        <span class="src-date">2022</span>
+      </div>
+      <div class="src-t">Los mejores fondos indexados de Bankinter</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Valoración neutral-negativa centrada en el coste: replica bien el TOPIX (futuro ~92% + Lyxor Japan TOPIX ETF ~8,7%) pero su TER del 1,12% es alto para un indexado; recomienda alternativas más baratas como Amundi Index MSCI Japan (TER 0,13%).</div>
+      <a href="https://www.rankia.com/blog/etf/5477955-mejores-fondos-indexados-bankinter" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2026</span>
+      </div>
+      <div class="src-t">Bankinter Índice Japón R FI - Ficha de Fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Ficha técnica neutral de la clase R: indexado al Topix EUR, patrimonio ~41-43 M€, gestión 1,00% / gastos corrientes 1,13%, riesgo 4/7, sin comisiones de suscripción ni reembolso. Rentabilidad 2026 +15,21% y +16,54% a 5 años.</div>
+      <a href="https://www.finect.com/fondos-inversion/ES0114104039-Bankinter_indice_japon_r_fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#1a8c5a;">FN</div>
+        <div class="src-info">
+          <div class="src-o">Finect</div>
+        </div>
+        <span class="src-date">2026</span>
+      </div>
+      <div class="src-t">Bankinter Índice Japón C FI - Ficha de Fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
+      <div class="exp-body open">Ficha de la clase C, más barata (gestión 0,50% / gastos corrientes 0,63%), creada el 21/05/2018 y con patrimonio de clase mucho menor (~1 M€). Misma estrategia y riesgo (4/7); rentabilidad 2026 +15,47% y +17,12% a 5 años, algo superior a la clase R por el menor coste.</div>
+      <a href="https://www.finect.com/fondos-inversion/ES0114104005-Bankinter_indice_japon_r_fi" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#fff1e5;">FT</div>
+        <div class="src-info">
+          <div class="src-o">Financial Times</div>
+        </div>
+        <span class="src-date">2026</span>
+      </div>
+      <div class="src-t">Bankinter Índice Japón R FI - Ficha de Fondo</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha técnica neutral: fondo indexado al TOPIX vía futuros, rentabilidad a un año del +42,05% (jun-2026), comisión anual 1,11%, categoría Morningstar Japan Large-Cap Blend. Atribuye la gestión a Vicente López Quetglas desde enero de 2013.</div>
+      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=es0114104039:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
 </section>
 
 <section class="pane" id="p7">
-  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">81 fuentes consultadas</span></div>
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">83 fuentes consultadas</span></div>
 
   <div class="doc-grp">Informes semestrales CNMV (17)</div>
   <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2009_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2009_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2010_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2010_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2011_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2011_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2012_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2012_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2013_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2013_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2014_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2014_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2015_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2015_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2016_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2016_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2017_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2017_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2018_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2018_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2019_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2019_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0114104039_2020_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/reports/CNMV_ES0114104039_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 5 archivos más</div>
@@ -620,8 +710,8 @@ El cometido del equipo es <strong>replicar el índice Topix</strong> manteniendo
   <div class="doc-grp">XMLs CNMV (60)</div>
   <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/xml/Abril_FONDMENS_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/xml/Abril_FONDREGISTRO_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/xml/Agosto_FONDMENS_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/xml/Agosto_FONDREGISTRO_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/xml/Diciembre_FONDCART_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0114104039/raw/xml/Diciembre_FONDDERI_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
 
-  <div class="doc-grp">Fuentes externas (0)</div>
-  
+  <div class="doc-grp">Fuentes externas (4)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=es0114104039:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">finect.com — ES0114104005 Bankinter indice japon r fi</span><a href="https://www.finect.com/fondos-inversion/ES0114104005-Bankinter_indice_japon_r_fi" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">finect.com — ES0114104039 Bankinter indice japon r fi</span><a href="https://www.finect.com/fondos-inversion/ES0114104039-Bankinter_indice_japon_r_fi" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">rankia.com — 5477955 mejores fondos indexados bankinter</span><a href="https://www.rankia.com/blog/etf/5477955-mejores-fondos-indexados-bankinter" target="_blank" class="doc-a">↗ Abrir</a></div>
 </section>
 
 <section class="pane" id="p8">
