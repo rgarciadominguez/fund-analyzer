@@ -147,11 +147,15 @@ def clean_positions(positions: list) -> int:
             if sec and not canonical_sector(p.get("sector")):
                 p["sector"] = sec
             nm = nm[:m.start()].strip()
+        # separar sufijo legal pegado al final ('DanoneSA'->'Danone SA',
+        # 'NokiaOYJ'->'Nokia OYJ', 'MowiASA'->'Mowi ASA') → _norm_company lo quita
+        # y la empresa casa con la caché.
+        nm = re.sub(r"(?<=[A-Za-z])(ASA|SpA|OYJ|GmbH|KGaA|Abp|PLC|Ltd|SA|SE|AS|AG|NV)(?=$|\s|\.|,)", r" \1", nm)
         # re-espaciar si está pegado (sin espacios y con mayúsculas internas)
         if " " not in nm and len(nm) > 8 and re.search(r"[a-z][A-Z]|[A-Z]{2,}[a-z]", nm):
             nm = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", nm)
             nm = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", nm)
-            nm = re.sub(r"\s+", " ", nm).strip()
+        nm = re.sub(r"\s+", " ", nm).strip()
         if nm and nm != orig:
             p["nombre"] = nm
             n += 1
