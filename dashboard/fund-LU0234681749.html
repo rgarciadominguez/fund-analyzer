@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -173,7 +187,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
     <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€7.000M</div>
+        <div class="lh-aum-v">€1.592M</div>
         <div class="lh-aum-l">AUM</div>
         <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
       </div>
@@ -183,7 +197,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Noviembre 2005</span></div>
       <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Europea</span></div>
-      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Len Ioffe</strong> <span style='opacity:.7;'>(lead)</span> · Takashi Suwabe <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Osman Ali</strong> <span style='opacity:.7;'>(lead)</span> · Len Ioffe <span style='opacity:.6;font-size:9px;'>(co)</span> · Takashi Suwabe <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
       <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
     </div>
 
@@ -204,7 +218,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-10</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-11</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0234681749 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -214,30 +228,10 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr">El Goldman Sachs Europe CORE® Equity Portfolio (LU0234681749) es un compartimento de renta variable europea de la SICAV luxemburguesa Goldman Sachs Funds, gestionado por Goldman Sachs Asset Management a través de su equipo de Quantitative Investment Strategies (QIS) (ficha CSSF; manager_profile). El fondo aplica la estrategia CORE®, un modelo propietario multifactorial desarrollado por Goldman Sachs que busca pronosticar de forma sistemática el comportamiento de los valores y construir una cartera diversificada de compañías europeas con el objetivo de batir su índice de referencia, el MSCI Europe Index (Net TR) en euros (objetivo y política de inversión del folleto).</p><p class="pr">Se trata de un producto de gestión activa pero sistemática: el modelo cuantitativo decide la composición dentro de un marco de riesgo controlado frente al índice de referencia, en lugar de la selección discrecional valor a valor típica de los fondos fundamentales. La clase analizada (Base Shares Acc., ISIN LU0234681749) está denominada en euros y es de acumulación —las rentas se reinvierten en el valor liquidativo (folleto). El fondo promueve características ambientales y sociales (clasificación coherente con el Artículo 8 SFDR) mediante exclusiones y métricas climáticas propietarias, sin comprometerse a realizar inversiones sostenibles.</p><p class="pr">En coste, soporta unos gastos corrientes del 1,38% anual (TER 1,37%), una comisión de entrada máxima del 5,5% y no aplica comisión de éxito ni de reembolso (folleto/KID). Es importante señalar que la documentación disponible no aporta datos cuantitativos del compartimento —patrimonio bajo gestión, número de partícipes, posiciones de cartera ni series históricas de rentabilidad—, por lo que este análisis se apoya en la documentación de identidad regulatoria (CSSF), el folleto y los perfiles del equipo gestor, evitando afirmar cifras de evolución que no han podido verificarse.</p>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
-  <div class="col2 mb20">
-    <div>
-      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
-      <p class="pr">La filosofía del fondo es la del enfoque CORE® de Goldman Sachs: una inversión cuantitativa y sistemática que parte de la premisa de que los mercados presentan ineficiencias persistentes pero pequeñas, explotables de forma disciplinada procesando grandes volúmenes de información. El modelo multifactorial combina señales de valoración, calidad y rentabilidad de las compañías, momentum y sentimiento, entre otras dimensiones, para estimar el atractivo relativo de cada valor del universo europeo.
-
-Frente a la gestión fundamental tradicional —donde un analista estudia un número limitado de compañías—, el enfoque CORE® aspira a aplicar el mismo criterio analítico de manera consistente y sin sesgos emocionales a todo el universo invertible, manteniendo la exposición a factores de riesgo controlada respecto al MSCI Europe. La cartera resultante tiende a estar ampliamente diversificada, con desviaciones medidas frente al índice en lugar de apuestas concentradas. El juicio humano del equipo QIS interviene en el diseño, validación y supervisión de los modelos —y en el procesamiento de datos alternativos a escala—, no en la selección discrecional diaria de valores (manager_profile; artículos GSAM).</p>
-    </div>
-    <div>
-      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
-      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Universo de renta variable europea:</strong> <span class="pr" style="font-size:12.5px;">Invierte mayoritariamente en acciones de compañías basadas en Europa o que obtienen la mayor parte de sus beneficios o ingresos en Europa, con posibilidad puntual de invertir en compañías de cualquier parte del mundo (folleto).</span></div>
-            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Modelo multifactorial sistemático:</strong> <span class="pr" style="font-size:12.5px;">La selección y ponderación de valores la determina el modelo propietario CORE® de Goldman Sachs, que pronostica rendimientos esperados combinando múltiples factores de forma cuantitativa y replicable.</span></div>
-            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Riesgo controlado frente al benchmark:</strong> <span class="pr" style="font-size:12.5px;">El fondo es de gestión activa pero define umbrales internos de riesgo discrecionales referenciados al MSCI Europe Index (Net TR) EUR; las desviaciones frente al índice están acotadas, aunque los retornos pueden divergir materialmente.</span></div>
-            </div>
-    </div>
-  </div>
+  
 
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
   <div class="col2 mb20">
@@ -245,13 +239,7 @@ Frente a la gestión fundamental tradicional —donde un analista estudia un nú
     <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
   </div>
 
-  <div class="col2 mb20"><div>
-      <div class="sr" style="color:var(--pos);">Fortalezas</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Respaldo de una de las mayores gestoras del mundo (Goldman Sachs Asset Management) y de un equipo cuantitativo especializado (QIS) con amplios recursos de datos y modelización.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Proceso sistemático y replicable que minimiza los sesgos emocionales y aplica el mismo criterio analítico a todo el universo de renta variable europea.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Diversificación amplia y riesgo controlado frente al MSCI Europe, lo que reduce el riesgo idiosincrático de apuestas concentradas en pocos valores.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Continuidad y especialización del equipo gestor: Len Ioffe co-gestiona el fondo desde 2007 y Takashi Suwabe desde 2013, ambos con larga trayectoria en QIS.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estructura UCITS luxemburguesa con liquidez diaria, supervisión del CSSF y clasificación Artículo 8 SFDR.</span></div></div>
-    </div><div>
-      <div class="sr" style="color:var(--neg);">Riesgos</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste elevado para una estrategia sistemática: unos gastos corrientes del 1,38% más una comisión de entrada de hasta el 5,5% erosionan la rentabilidad neta frente a alternativas indexadas baratas sobre el mismo índice.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de modelo: al depender de un motor cuantitativo multifactorial, periodos en los que los factores dejan de funcionar (factor drawdowns) pueden penalizar el resultado relativo.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Plena exposición a la renta variable europea: el fondo no es un producto defensivo y sufrirá las caídas del MSCI Europe.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Transparencia limitada de la cartera concreta para el inversor, dado que el modelo gestiona muchas posiciones con rotación; además, las fuentes disponibles no detallan las posiciones actuales.</span></div></div>
-    </div></div>
+  
 
   <div class="sr">Clases disponibles</div>
   <table class="rt mb20">
@@ -260,7 +248,7 @@ Frente a la gestión fundamental tradicional —donde un analista estudia un nú
   </table>
   
 
-  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con perfil de renta variable que busca exposición diversificada al mercado europeo mediante un proceso sistemático y disciplinado, dentro del paraguas de una gran gestora global. Requiere horizonte de largo plazo y tolerancia a la volatilidad propia de la bolsa europea. No es adecuado para quien busque un producto defensivo, rentas periódicas (es de acumulación) o el menor coste posible, ya que existen alternativas indexadas más baratas sobre el MSCI Europe.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">El fondo se gestiona en equipo dentro de la división QIS de Goldman Sachs Asset Management; la documentación disponible no recoge información sobre coinversión personal (skin in the game) de los gestores. La alineación descansa en la estructura institucional de la firma y en la continuidad del equipo, más que en un compromiso patrimonial individual documentado.</p></div></div>
+  
 
   <div class="sr">TER por clase (snapshot actual)</div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
@@ -293,7 +281,7 @@ Frente a la gestión fundamental tradicional —donde un analista estudia un nú
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Noviembre 2005 — presente</span></div>
 
   <div class="mb24">
-    <p class="pr">El Goldman Sachs Europe CORE® Equity Portfolio se integra dentro de la SICAV paraguas <strong>Goldman Sachs Funds</strong>, domiciliada en Luxemburgo y autorizada por el regulador luxemburgués (CSSF) con fecha de registro del compartimento en septiembre de 1999 (ficha de identidad CSSF). El fondo forma parte de la gama global CORE® de Goldman Sachs Asset Management, una familia de estrategias de renta variable cuantitativa que comparten el mismo motor de modelización multifactorial aplicado a distintos universos geográficos (Europa, global, mercados emergentes, EE.UU., small cap, etc.).</p><p class="subsec">El equipo gestor a lo largo del tiempo</p><p class="pr">La historia reciente del fondo está marcada por la continuidad de su equipo cuantitativo. Len Ioffe asumió la co-gestión del Europe CORE® Equity Portfolio en enero de 2007 y añade una larga experiencia gestionando otras estrategias de la gama (Global CORE® desde octubre de 2004, además de Global Small Cap, Emerging Markets, US y US Small Cap). Takashi Suwabe se incorporó como co-gestor en enero de 2013, tras haberse unido a Goldman Sachs en 2004 dentro del Global Investment Research y trasladarse al grupo QIS en 2009 (manager_profile). Esta estabilidad —más de quince años de uno de los gestores al frente— es un rasgo relevante en un producto sistemático, donde la consistencia del proceso prima sobre el protagonismo individual.</p><p class="subsec">Evolución del marco de inversión responsable</p><p class="pr">Con la entrada en vigor del reglamento europeo de divulgación en materia de sostenibilidad (SFDR) en marzo de 2021, el fondo se enmarca como producto que promueve características ambientales y sociales (Artículo 8), incorporando cribados de exclusión y métricas climáticas propietarias a su proceso (folleto vigente). No se compromete, sin embargo, a realizar inversiones sostenibles en sentido estricto.</p><p class="subsec">Limitaciones de la reconstrucción histórica</p><p class="pr">Las fuentes recopiladas para este análisis no incluyen informes anuales o semestrales del compartimento ni comentarios periódicos del gestor sobre este fondo en concreto, de modo que no es posible narrar año a año la evolución del patrimonio, los cambios de posicionamiento o los resultados frente al índice. La cronología que sigue se limita a los hitos verificables a partir de la ficha regulatoria y de la trayectoria documentada del equipo gestor, sin extrapolar acontecimientos no respaldados por las fuentes.</p>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
   <div class="kpi-row">
@@ -306,123 +294,86 @@ Frente a la gestión fundamental tradicional —donde un analista estudia un nú
   <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 6999.6;
+  window.__HIST_AUM_HEADER__ = 1591.58;
   </script>
   
-  <div class="sr">Cronología de eventos relevantes</div>
-  <div class="timeline">
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">1999</div>
-      <div class="tl-tag tag-hito">Lanzamiento</div>
-      <div class="tl-title">Autorización del compartimento en Luxemburgo</div>
-      <div class="tl-desc">El compartimento dentro de la SICAV Goldman Sachs Funds queda registrado/autorizado por el CSSF (fecha de autorización: 1 de septiembre de 1999), bajo régimen UCITS y denominación en euros.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2004</div>
-      <div class="tl-tag tag-hito">Equipo</div>
-      <div class="tl-title">Llegada del equipo QIS a Goldman Sachs</div>
-      <div class="tl-desc">Len Ioffe (Global CORE® desde octubre de 2004) y Takashi Suwabe (incorporado a Goldman Sachs en 2004) consolidan su presencia en el equipo cuantitativo que opera la gama CORE®.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2007</div>
-      <div class="tl-tag tag-strat">Decisión estratégica</div>
-      <div class="tl-title">Len Ioffe asume la co-gestión del Europe CORE®</div>
-      <div class="tl-desc">Ioffe pasa a co-gestionar el GS Europe CORE® Equity Portfolio en enero de 2007, aportando experiencia de la estrategia Global CORE®.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2013</div>
-      <div class="tl-tag tag-hito">Equipo</div>
-      <div class="tl-title">Takashi Suwabe se incorpora como co-gestor</div>
-      <div class="tl-desc">Suwabe asume la co-gestión en enero de 2013, reforzando el banco de investigación cuantitativa del fondo (Head of Research for QIS Equity Alpha).</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2021</div>
-      <div class="tl-tag tag-hito">Cambio_estrategia</div>
-      <div class="tl-title">Encaje en el marco SFDR (Artículo 8)</div>
-      <div class="tl-desc">Con la aplicación del reglamento SFDR en marzo de 2021, el fondo se clasifica como producto que promueve características ambientales y sociales, integrando exclusiones y métricas climáticas propietarias.</div>
-    </div>
-  </div>
   
 </section>
 
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  <div class="mb24"><p class="pr">El Goldman Sachs Europe CORE® Equity Portfolio no responde al modelo de "gestor estrella" sino al de un <strong>equipo cuantitativo institucional</strong>: la división de Quantitative Investment Strategies (QIS) de Goldman Sachs Asset Management. En este tipo de fondo el valor añadido procede del diseño, mantenimiento y supervisión de los modelos propietarios, más que de la intuición discrecional de una persona concreta. Por ello la propia gestora describe el fondo como "co-gestionado", sin designar un único responsable principal; el análisis de las fuentes (factsheets de Trustnet) confirma que tanto Len Ioffe como Takashi Suwabe figuran como co-managers, con incorporaciones escalonadas (2007 y 2013 respectivamente) y sin evidencia de un lead único (manager_profile, confianza media).</p></div>
-
   
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">TS</div>
-        <div class="mgr-nm">Takashi Suwabe<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#1e5a8a;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerDeep</span></div>
-        <div class="mgr-rl">Co-Manager / Senior Portfolio Manager y Head of Research for QIS Equity Alpha (GSAM)</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Co-Manager del GS Europe CORE® Equity Portfolio desde enero de 2013</li><li style="margin-bottom:3px;">Senior Portfolio Manager y Head of Research for QIS Equity Alpha (GSAM)</li><li style="margin-bottom:3px;">En Goldman Sachs desde 2004; managing director desde 2012</li><li style="margin-bottom:3px;">BS en Física, Tokyo Institute of Technology (1995)</li><li style="margin-bottom:3px;">PhD, The Graduate University for Advanced Studies, Japón (2011)</li><li style="margin-bottom:3px;">Trustnet FE fundinfo Alpha Manager</li><li style="margin-bottom:3px;">Experiencia previa en Nomura Securities y Nomura Research Institute</li></ul>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:13px;">Takashi Suwabe es <strong>Senior Portfolio Manager</strong> y <strong>Head of Research for QIS Equity Alpha</strong> en Goldman Sachs Asset Management. Co-gestiona el <strong>GS Europe CORE® Equity Portfolio desde el 1 de enero de 2013</strong>, junto con el GS Global CORE® Equity Portfolio y el GS Global Small Cap CORE® Equity Portfolio.
 
-Se incorporó a <strong>Goldman Sachs en 2004</strong>, dentro del área de Global Investment Research (Japan Portfolio Strategy Group). En <strong>2009</strong> se trasladó al grupo de Quantitative Investment Strategies (QIS) como senior equity researcher, y en <strong>2012</strong> fue nombrado <strong>managing director</strong>. Con anterioridad trabajó en <strong>Nomura Securities</strong> y en el <strong>Nomura Research Institute</strong>.
-
-Su perfil combina gestión e investigación académica: es <strong>licenciado en Física (BS) por el Tokyo Institute of Technology (1995)</strong> y <strong>doctor (PhD) por The Graduate University for Advanced Studies de Japón (2011)</strong>. Ha sido <strong>editor de la revista Gendai Finance</strong> (Nippon Finance Association / MPT Forum) y antiguo miembro del <strong>Examination Committee de la Security Analysts Association of Japan</strong>. Trustnet lo reconoce como <strong>FE fundinfo Alpha Manager</strong>.
-
-En sus artículos recientes para GSAM defiende un enfoque cuantitativo que procesa datos alternativos a gran escala —informes de analistas, earnings calls, solicitudes de patentes, NLP sobre documentos en idioma local— para identificar valores mal valorados, combinando la potencia del motor cuantitativo con el juicio humano experimentado.</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Defiende que las estrategias cuantitativas están especialmente capacitadas para explotar las ineficiencias de mercado allí donde la información es asimétrica o de difícil acceso, procesando a escala fuentes de datos que la gestión fundamental no puede abarcar. El motor cuantitativo actúa como núcleo del proceso, complementado por el juicio de un equipo experimentado, con el objetivo de convertir la complejidad informativa en una ventaja sistemática y replicable.</p>
-        
-        
-        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Traslado del Global Investment Research al grupo QIS en 2009, orientando su carrera hacia la investigación cuantitativa de renta variable que hoy aplica al fondo europeo.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Co-autoría (2026) de análisis de GSAM sobre el uso de datos alternativos y NLP para explotar ineficiencias en mercados poco cubiertos, articulando la tesis cuantitativa del equipo CORE®.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Perfil híbrido de gestor-investigador con formación en física y doctorado, especializado en investigación cuantitativa de renta variable (con conocimiento profundo del mercado japonés) y con rol de liderazgo en la investigación de alpha del equipo QIS.</p></div>
-      </div>
-    </div>
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">LI</div>
-        <div class="mgr-nm">Len Ioffe<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">Co-Manager (Quantitative Investment Strategies, GSAM)</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Co-Manager del GS Europe CORE® Equity Portfolio desde enero de 2007</li><li style="margin-bottom:3px;">Co-Manager del GS Global CORE® Equity Portfolio desde octubre de 2004</li><li style="margin-bottom:3px;">Co-gestiona las estrategias CORE® de Global Small Cap, Emerging Markets, US y US Small Cap</li><li style="margin-bottom:3px;">Lead manager de Emerging Markets Ex-China (Equity y CORE®) desde julio de 2023</li></ul>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:13px;">Len Ioffe es gestor de fondos en el equipo de <strong>Quantitative Investment Strategies (QIS)</strong> de Goldman Sachs Asset Management. <strong>Co-gestiona el GS Europe CORE® Equity Portfolio desde el 1 de enero de 2007</strong> y el <strong>GS Global CORE® Equity Portfolio desde octubre de 2004</strong>.
-
-Su mandato es transversal a toda la gama CORE®: también co-gestiona las versiones de <strong>Global Small Cap, Emerging Markets, US y US Small Cap</strong>, y desde <strong>julio de 2023</strong> es <strong>lead manager de las estrategias Emerging Markets Ex-China</strong> (Equity y CORE®).
-
-Las fuentes públicas consultadas (factsheet de Trustnet) confirman su papel como co-gestor pero <strong>no aportan su biografía detallada</strong> —formación académica, etapas previas o reconocimientos individuales—, por lo que este perfil se mantiene deliberadamente acotado a los datos verificados, sin atribuirle información no documentada.</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Como integrante veterano del equipo QIS, comparte el enfoque CORE® de inversión cuantitativa multifactorial: aplicación sistemática y consistente de un mismo modelo propietario a distintos universos geográficos, priorizando la disciplina del proceso y el control de riesgo frente al índice sobre la selección discrecional de valores.</p>
-        
-        
-        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-1" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Continuidad ininterrumpida de más de quince años al frente del fondo europeo (desde 2007), aportando estabilidad al proceso sistemático.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Asunción del liderazgo de las estrategias Emerging Markets Ex-China en 2023, reflejo de la confianza del equipo en su criterio dentro de la gama CORE®.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Veterano de la gama CORE® con presencia simultánea en múltiples estrategias geográficas, lo que evidencia un dominio del marco metodológico común. Perfil parcialmente infra-documentado en las fuentes públicas disponibles.</p></div>
-      </div>
-    </div>
+  <p class="pr" style="color:var(--ink-4);font-style:italic;">Información de gestores pendiente. Ejecutar manager_deep_agent para obtener perfiles.</p>
 
   
 </section>
 
 <section class="pane" id="p3">
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
-  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="pane" id="p4">
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">La estrategia del Goldman Sachs Europe CORE® Equity Portfolio se articula en torno a la marca <strong>CORE®</strong> de Goldman Sachs: un modelo propietario multifactorial diseñado para pronosticar de forma sistemática los rendimientos esperados de los valores. El objetivo declarado del fondo es <strong>proporcionar crecimiento del capital a largo plazo</strong>, invirtiendo mayoritariamente en acciones (o instrumentos similares) de compañías europeas —entendidas como aquellas basadas en Europa o que obtienen la mayor parte de sus beneficios o ingresos en la región—, con la posibilidad puntual de invertir en compañías de cualquier parte del mundo (folleto).</p><p class="subsec">Gestión activa pero sistemática</p><p class="pr">El fondo es de gestión activa y referencia el MSCI Europe Index (Net TR) EUR a efectos de fijar umbrales internos de riesgo discrecionales, que pueden expresarse como desviaciones respecto al índice. El asesor de inversiones tiene plena discrecionalidad sobre la composición de la cartera: aunque ésta tiende a contener componentes del índice, puede ponderarlos en proporciones distintas e incorporar activos ajenos al índice. Por ello, la propia documentación advierte de que los retornos pueden <strong>desviarse materialmente</strong> del comportamiento del índice de referencia. La diferencia esencial frente a un fondo fundamental es el método: las decisiones de cartera las guía un modelo cuantitativo que aplica el mismo criterio a todo el universo, no la convicción discrecional sobre compañías concretas.</p><p class="subsec">El motor multifactorial CORE®</p><p class="pr">El enfoque CORE® descansa en la idea de que existen ineficiencias de mercado pequeñas pero persistentes, capturables mediante el procesamiento disciplinado de grandes volúmenes de datos. El modelo combina múltiples familias de señales —valoración, calidad/rentabilidad corporativa, momentum, sentimiento— para ordenar el universo por atractivo esperado y construir una cartera ampliamente diversificada con riesgo controlado. Según describe el propio equipo QIS en su literatura reciente, la ventaja competitiva reside en procesar a escala fuentes de información inaccesibles para la gestión tradicional (informes de analistas, transcripciones de resultados, patentes, datos alternativos y técnicas de NLP), combinando el motor cuantitativo con el juicio humano experimentado del equipo.</p><p class="subsec">Límites de cartera y uso de derivados</p><p class="pr">La política de inversión acota el perfil del fondo: <strong>no invertirá más de un tercio de su patrimonio</strong> en bonos (corporativos o públicos), convertibles, instrumentos del mercado monetario y otros activos no ligados a acciones. Puede emplear <strong>derivados</strong> con fines de gestión eficiente de la cartera, de cobertura de riesgos y, puntualmente, de inversión para tratar de aumentar el rendimiento. Las participaciones son reembolsables diariamente y las rentas se acumulan en el valor liquidativo (clase de acumulación).</p><p class="subsec">Integración de sostenibilidad</p><p class="pr">En el plano ESG, el fondo promueve características ambientales y sociales (coherente con el Artículo 8 SFDR) sin comprometerse a realizar inversiones sostenibles. El proceso aplica un enfoque multi-estrategia: <strong>cribados de exclusión</strong> y el uso de <strong>métricas climáticas propietarias</strong> para abordar el riesgo de transición climática. La integración se realiza, por tanto, dentro del marco cuantitativo, como una capa adicional de restricciones y señales más que como una gestión temática.</p><p class="subsec">Consideración sobre el coste</p><p class="pr">Un elemento determinante de la estrategia desde el punto de vista del inversor es su coste: unos gastos corrientes del 1,38% anual (TER 1,37%) son elevados para un producto cuantitativo y sistemático cuyo objetivo es batir de forma medida a su índice. A ello se suma una comisión de entrada de hasta el 5,5%. La ausencia de comisión de éxito es positiva, pero el listón de rentabilidad que el modelo debe superar para añadir valor neto frente a un indexado de coste bajo es exigente. Conviene señalar, no obstante, que las fuentes disponibles no permiten verificar el track record real del fondo frente al MSCI Europe.</p>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
   
 
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
-  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Renta variable europea gestionada de forma activa pero sistemática mediante el modelo cuantitativo multifactorial CORE® de Goldman Sachs, con riesgo controlado frente al MSCI Europe (Net TR) EUR, integración ESG por exclusiones y métricas climáticas (Artículo 8 SFDR) y clase de acumulación en euros.</p>
 
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Europa (gestión cuantitativa sistemática, UCITS)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de mercado de renta variable europea (plena exposición al MSCI Europe)</li><li style="margin-bottom:4px;">Riesgo de modelo cuantitativo / factor drawdown</li><li style="margin-bottom:4px;">Riesgo de divisa en compañías no denominadas en euros dentro del universo europeo</li><li style="margin-bottom:4px;">Riesgo derivado del uso de instrumentos derivados</li><li style="margin-bottom:4px;">Coste elevado que penaliza la rentabilidad neta relativa</li></ul></div>
 
   
 
@@ -433,27 +384,35 @@ Las fuentes públicas consultadas (factsheet de Trustnet) confirman su papel com
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
 
   <div class="mb24">
-    <p class="pr">Las fuentes disponibles <strong>no detallan las posiciones concretas de la cartera</strong>, ni actuales ni historicas, ni el numero total de valores ni los pesos de las principales posiciones. El campo `posiciones.actuales` del expediente esta vacio y no existe ninguna ficha tecnica ni informe del compartimento que permita listar holdings con sus ponderaciones. En consecuencia, este apartado describe la composicion *esperable* a partir del mandato y la politica de inversion, <strong>sin atribuir pesos, nombres ni cifras que no hayan podido verificarse</strong>. Esta es exactamente la limitacion que el usuario senyala en su feedback; se aborda mas abajo con honestidad sobre por que no puede resolverse con la documentacion actual.</p><p class="subsec">Composicion por mandato</p><p class="pr">El fondo es, por disenyo, un producto de <strong>renta variable europea ampliamente diversificada</strong>. La politica de inversion establece que la cartera estara invertida mayoritariamente en acciones de companyias europeas (entendidas como aquellas radicadas en Europa o que obtienen alli la mayor parte de sus beneficios o ingresos) y permite invertir en companyias de cualquier parte del mundo. El folleto fija un limite explicito: <strong>no mas de un tercio</strong> del patrimonio podra destinarse a bonos (corporativos o de gobierno), convertibles, instrumentos del mercado monetario u otros activos no ligados a acciones. En la practica, esto implica una exposicion predominante, habitualmente cercana a la plena inversion, a la bolsa europea, con liquidez y componente no-equity limitados.</p><p class="subsec">Naturaleza de la cartera bajo el enfoque CORE</p><p class="pr">A diferencia de los fondos de alta conviccion con carteras concentradas en pocos valores, el modelo cuantitativo <strong>CORE</strong> (un modelo multi-factor propietario de Goldman Sachs que busca pronosticar el retorno de los valores) tiende a construir carteras <strong>amplias y muy diversificadas</strong>. El patron tipico de estas estrategias es mantener un numero elevado de posiciones (habitualmente del orden de varios cientos de valores) con pesos individuales moderados y desviaciones medidas respecto al MSCI Europe. La gestion del riesgo se realiza a nivel de cartera (controlando la exposicion a factores y el *tracking error* frente al indice) mas que mediante apuestas binarias en companyias concretas. La rotacion es una consecuencia natural de la actualizacion periodica de las senyales del modelo. <strong>Importante</strong>: la referencia a varios cientos de posiciones es una caracteristica generica del estilo CORE, no un dato verificado de este compartimento; el numero exacto de posiciones no consta en el expediente.</p><p class="subsec">Capa de gestion activa y referencia al indice</p><p class="pr">El fondo es de gestion activa y utiliza el MSCI Europe (Net TR, EUR) solo como referencia para fijar umbrales internos discrecionales de riesgo: el gestor tiene plena discrecion sobre la composicion, puede ponderar de forma distinta los componentes del indice e incluso mantener valores ajenos a el, por lo que el retorno puede desviarse materialmente del benchmark. Sobre esta base factorial se superpone una <strong>capa ESG multi-estrategia</strong> (Articulo 8 SFDR): pantallas de exclusion y metricas climaticas propietarias para gestionar el riesgo de transicion, que recortan el universo invertible respecto a un CORE europeo sin restricciones.</p><p class="subsec">Por que no puede darse el detalle de posiciones que se pide</p><p class="pr">El detalle solicitado (numero de posiciones y pesos de las principales) solo existe en el *factsheet* mensual de GSAM o en el *Securities Portfolio* del informe anual de la SICAV. Ninguno de los dos esta en el bundle. Los unicos documentos con cartera que el sistema recopilo pertenecian a <strong>otros fondos</strong> (Architas multiactivo y Mirova US Sustainable) y se han descartado por contaminacion cruzada; sus posiciones (Microsoft, NVIDIA, bonos emergentes, convertibles, etc.) <strong>no son de este fondo</strong>. Atribuirlas aqui seria un error grave. La resolucion correcta de este punto pasa por obtener la ficha tecnica oficial del compartimento, fuera del alcance de esta ejecucion sin acceso web.</p>
+    <p class="pr">La cartera del GS Europe CORE® Equity Portfolio es el resultado directo de su motor de inversión: un modelo cuantitativo multifactor (la estrategia CORE de Goldman Sachs) que puntúa miles de valores europeos y construye una cartera amplísima de pequeñas apuestas activas alrededor del índice MSCI Europe. Entender la cartera de este fondo no es identificar cinco grandes convicciones, sino comprender cómo el modelo reparte cientos de desviaciones controladas sobre un universo muy diversificado.</p><p class="subsec">Cómo se construye la cartera</p><p class="pr">La característica que mejor define esta cartera es su amplitud: a la fecha del último dato (snapshot 2025) el fondo mantiene 152 líneas, de las cuales ~151 son acciones europeas y una es un fondo monetario de tesorería (GS Euro Liquid Reserves, con un peso testimonial del 0,05%). Esa amplitud es deliberada y consustancial a la estrategia CORE: el modelo busca capturar pequeñas ineficiencias transversales en muchos valores a la vez, en lugar de concentrar el riesgo en unas pocas posiciones de alta convicción. Como consecuencia, los pesos individuales son moderados y se mueven en una banda estrecha alrededor de la ponderación del valor en el índice. La gestión es activa pero con desviaciones acotadas: el folleto deja claro que el fondo "referencia" el MSCI Europe (Net TR) en euros para fijar umbrales internos de riesgo, manteniéndose mayoritariamente dentro de los componentes del índice aunque con libertad para sobreponderar, infraponderar o incorporar valores fuera de él.</p><p class="subsec">Concentración: muy baja, propia de un quant diversificado</p><p class="pr">Las métricas de concentración confirman este perfil. Las cinco mayores posiciones suman apenas el 15,9% del patrimonio; las diez mayores, el 26,1%; y las quince mayores, el 34,3%. Es una concentración baja para un fondo de renta variable: más de dos tercios de la cartera está repartida fuera de las quince primeras líneas, en una cola muy larga de posiciones pequeñas. Esto reduce el riesgo idiosincrático de cualquier valor concreto y traslada el peso del resultado al acierto agregado del modelo más que a aciertos individuales.</p><p class="subsec">Evolución de los pesos y sesgos en el tiempo</p><p class="pr">Aunque el detalle posición a posición histórico no está disponible, la evolución por sector y país sí permite leer cómo se han movido los sesgos. A lo largo de la serie el modelo ha ido reduciendo el peso histórico de la banca (primer sector en 2016) y elevando el de farmacéuticas y semiconductores, que junto con aeroespacial-defensa son hoy los grandes pilares sectoriales. En 2025, sin embargo, la banca recupera con fuerza hasta casi igualar a la farma, lo que muestra que el modelo rota dinámicamente entre sectores en función de las señales de valoración y momentum, sin un sesgo estructural permanente. Geográficamente el peso ha migrado del Reino Unido hacia Suiza, Alemania y Francia, apoyándose en los grandes valores defensivos suizos y en industriales alemanes y franceses.</p><p class="subsec">Las posiciones de mayor peso y qué representan</p><p class="pr">En la cabecera de la cartera dominan los grandes valores de calidad europeos. La primera posición es ASML (4,33%), el fabricante neerlandés de equipos de litografía y principal apuesta del fondo en el sector de semiconductores. Le siguen tres pesos pesados de la salud y el consumo suizos: Roche (3,22%), Nestlé (2,94%) y Novartis (2,89%). Completan el grupo de cabecera los industriales y aseguradores alemanes Siemens (2,48%) y Allianz (2,31%), la farmacéutica danesa Novo Nordisk (2,17%), la británica AstraZeneca (1,99%) y los suizos UBS (1,94%) y ABB (1,83%). Es significativo que estas diez primeras posiciones sean, en su práctica totalidad, grandes componentes del propio MSCI Europe: el fondo no expresa convicción mediante apuestas exóticas, sino mediante ligeras sobre/infraponderaciones sobre los líderes del índice, complementadas con cientos de pequeñas posiciones donde el modelo detecta valor. La concentración sectorial de esta cabecera (farma, semiconductores, industriales, seguros y banca) resume bien los pilares de la cartera.</p><p class="subsec">Composición actual</p><p class="pr">En términos de tipo de activo, el fondo es de renta variable europea pura: la exposición a acciones capturada supera el 95% del patrimonio, sin renta fija y con una liquidez mínima canalizada a través del fondo monetario de GS. La distribución por país (snapshot 2025) sitúa en cabeza a Alemania (17,5%), Suiza (17,3%), Francia (15,0%) y Reino Unido (14,5%), con Países Bajos (6,0%), Dinamarca (4,3%), Suecia (3,7%), Finlandia (3,4%), España (2,9%) e Italia (2,8%) como segundo grupo. Por sector, farmacéuticas (13,8%) y banca (13,8%) lideran, seguidas de seguros (7,5%), alimentación y bebidas (6,7%), semiconductores (6,1%) y aeroespacial-defensa (5,3%). El principal riesgo estructural de la cartera no es la concentración (es baja), sino la dependencia del comportamiento agregado del modelo cuantitativo: en años de cambio brusco de régimen de mercado —como ocurrió en 2022— la estrategia puede quedarse por detrás del índice pese a su diversificación.</p><p class="pr">Nota metodológica: las posiciones y pesos descritos corresponden al snapshot más reciente disponible (2025, calculado sobre una base de patrimonio de ~5.488 M€), que difiere del AUM de portada de 1.592 M€ fechado en mayo de 2024. La tabla de posiciones del dashboard muestra el detalle completo línea a línea.</p>
   </div>
 
-  
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
-  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>geografía</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Mayoritariamente renta variable europea (compañías basadas en Europa o con la mayor parte de sus ingresos/beneficios en Europa); posibilidad puntual de invertir fuera de Europa. No se dispone de desglose porcentual por país en las fuentes.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>tipo de activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Acciones e instrumentos similares; máximo un tercio del patrimonio en bonos, convertibles, instrumentos del mercado monetario y otros activos no ligados a acciones (folleto).</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>divisa</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Clase y cartera denominadas en EUR; clase de acumulación. Índice de referencia MSCI Europe Index (Net TR) EUR.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Evolución por geografía (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-geo-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-geo-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2016", "2022", "2023", "2024", "2025"],datasets:[{"label": "Unitedkingdom", "data": [22.48, 15.78, 17.77, 15.72, 14.48], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Francia", "data": [12.35, 17.96, 18.23, 13.78, 15.01], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Suiza", "data": [12.34, 13.94, 14.74, 16.68, 17.32], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Alemania", "data": [16.74, 10.49, 12.59, 13.26, 17.49], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Pa\u00edses Bajos", "data": [6.41, 8.08, 8.55, 10.54, 6.03], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [19.35, 26.63, 25.23, 25.22, 22.2], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div><div class="ch-b"><div class="ch-l">Evolución por sector (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-sec-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-sec-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2016", "2022", "2023", "2024", "2025"],datasets:[{"label": "TOTAL", "data": [100.0, 100.0, 100.0, 100.0, 100.0], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Others", "data": [29.18, 26.86, 36.54, 34.05, 30.74], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Pharmaceuticals", "data": [10.43, 16.12, 11.23, 14.37, 13.82], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Banks", "data": [14.75, 11.64, 9.3, 12.31, 13.76], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Food,Beverages&Tobacco", "data": [9.37, 10.61, 9.03, 4.37, 6.68], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [32.74, 32.25, 31.53, 32.19, 32.33], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div></div>
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">0</div><div class="kpi-sub">vs media hist. 0</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">0,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">152</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">26,1%</div><div class="kpi-sub">—</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">—</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">92,5%</div><div class="kpi-sub">Renta variable</div></div>
   </div>
 
-  
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
   <script>
   (function(){
     if (typeof Chart === 'undefined') return;
     const ctxMix = document.getElementById('c-mix');
     if (ctxMix) {
-      const tipos = [];
+      const tipos = [["RV", 92.5]];
       new Chart(ctxMix, {
         type: 'doughnut',
         data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
@@ -464,18 +423,1386 @@ Las fuentes públicas consultadas (factsheet de Trustnet) confirman su papel com
     if (ctxC) {
       new Chart(ctxC, {
         type: 'bar',
-        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [0, 0, 0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [15.9, 26.1, 34.3], backgroundColor:'rgba(12,35,64,0.85)' }] },
         options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
       });
     }
   })();
   </script>
 
-  <div class="sr">Todas las posiciones (0)</div>
+  <div class="sr">Todas las posiciones (152)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
-      <tbody></tbody>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody><tr>
+  <td title="ASMLHoldingNV">ASMLHoldingNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>4%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RocheHoldingAG">RocheHoldingAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NestleSA">NestleSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>2,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:4px;background:var(--ink-3);"></div>10%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NovartisAG">NovartisAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>2,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:5px;background:var(--ink-3);"></div>13%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SiemensAG">SiemensAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>16%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AllianzSE">AllianzSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:7px;background:var(--ink-3);"></div>18%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NovoNordiskASClassB">NovoNordiskASClassB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>20%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AstraZenecaPLCADR">AstraZenecaPLCADR</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>22%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="UBSGroupAG">UBSGroupAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>24%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ABBLtd.">ABBLtd.</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:10px;background:var(--ink-3);"></div>26%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SiemensEnergyAG">SiemensEnergyAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>28%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SanofiSA">SanofiSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>30%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="LloydsBankingGroupPLC">LloydsBankingGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>31%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="TotalEnergiesSE">TotalEnergiesSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>33%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BPPLCADR">BPPLCADR</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>34%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AirLiquideSA">AirLiquideSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>36%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HermesInternationalSCA">HermesInternationalSCA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>37%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="DeutscheBankAG">DeutscheBankAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>39%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NordeaBankAbp">NordeaBankAbp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Finlandia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>40%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SafranSA">SafranSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>42%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="DanoneSA">DanoneSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>43%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="InfineonTechnologiesAG">InfineonTechnologiesAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>44%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="E.ONSE">E.ONSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>46%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="TelefonaktiebolagetLMEricssonClassB">TelefonaktiebolagetLMEricssonClassB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>47%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="MTUAeroEnginesAG">MTUAeroEnginesAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>48%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BancaMontedeiPaschidiSienaSpA">BancaMontedeiPaschidiSienaSpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>49%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NextPLC">NextPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>50%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ThalesSA">ThalesSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>51%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="VestasWindSystemsAS">VestasWindSystemsAS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>52%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RioTintoPLCADR">RioTintoPLCADR</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>53%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="EngieSA">EngieSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>54%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ContinentalAG">ContinentalAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>55%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="UCBSA">UCBSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Bélgica</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>56%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HolcimAG">HolcimAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>57%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BolidenAB">BolidenAB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>58%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NatWestGroupPLC">NatWestGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>59%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="MuenchenerRueckversicherungs-GesellschaftAG">MuenchenerRueckversicherungs-GesellschaftAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>60%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="CaixaBankSA">CaixaBankSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>61%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="TescoPLC">TescoPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>62%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="DanskeBankAS">DanskeBankAS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>63%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="PrudentialPLC">PrudentialPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Hong Kong</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>64%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Mercedes-BenzGroupAG">Mercedes-BenzGroupAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>64%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="IndustriadeDisenoTextilSA">IndustriadeDisenoTextilSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>65%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="KongsbergGruppenASA">KongsbergGruppenASA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>66%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SGSSA">SGSSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>66%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NokiaOYJ">NokiaOYJ</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Finlandia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>67%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SampoOYJClassA">SampoOYJClassA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Finlandia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>68%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="GlencorePLC">GlencorePLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>68%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AlconAG">AlconAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HeidelbergMaterialsAG">HeidelbergMaterialsAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>70%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="WartsilaOYJAbp">WartsilaOYJAbp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Finlandia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>70%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SchindlerHoldingAG">SchindlerHoldingAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SAPSE">SAPSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="DassaultAviationSA">DassaultAviationSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>72%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="DassaultSystemesSE">DassaultSystemesSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AngloAmericanPLC">AngloAmericanPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="EndeavourMiningPLC">EndeavourMiningPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>74%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Unibail-Rodamco-Westfield">Unibail-Rodamco-Westfield</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>74%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="InterContinentalHotelsGroupPLC">InterContinentalHotelsGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>75%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="InvestorABClassB">InvestorABClassB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>75%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HannoverRueckSE">HannoverRueckSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="TenarisSA">TenarisSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Luxemburgo</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NationalGridPLC">NationalGridPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="UnipolAssicurazioniSpA">UnipolAssicurazioniSpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NaturgyEnergyGroupSA">NaturgyEnergyGroupSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BeazleyPLC">BeazleyPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>78%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Coca-ColaHBCAG">Coca-ColaHBCAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>78%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AXASA">AXASA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BancoComercialPortuguesSA">BancoComercialPortuguesSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Portugal</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AssociatedBritishFoodsPLC">AssociatedBritishFoodsPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>80%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AegonLtd.">AegonLtd.</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>80%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="LegrandSA">LegrandSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>80%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="EurofinsScientificSE">EurofinsScientificSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Luxemburgo</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BancaMediolanumSpA">BancaMediolanumSpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="FinecoBankBancaFinecoSpA">FinecoBankBancaFinecoSpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SonovaHoldingAG">SonovaHoldingAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ReckittBenckiserGroupPLC">ReckittBenckiserGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="INGGroepNV">INGGroepNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AenaSMESA(a)">AenaSMESA(a)</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HSBCHoldingsPLC">HSBCHoldingsPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="LeonardoSpA">LeonardoSpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NexansSA">NexansSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ValeoSE">ValeoSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Anheuser-BuschInBevSA/NV">Anheuser-BuschInBevSA/NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Bélgica</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="MapfreSA">MapfreSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>85%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="EvolutionAB(a)">EvolutionAB(a)</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>85%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Scout24SE(a)">Scout24SE(a)</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>85%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AIBGroupPLC">AIBGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>85%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ASMInternationalNV">ASMInternationalNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Rolls-RoyceHoldingsPLC">Rolls-RoyceHoldingsPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RELXPLC">RELXPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Knorr-BremseAG">Knorr-BremseAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="CompassGroupPLC">CompassGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AumovioSE">AumovioSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BESemiconductorIndustriesNV">BESemiconductorIndustriesNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ProsusNV">ProsusNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="easyJetPLC">easyJetPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NemetschekSE">NemetschekSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AccelleronIndustriesAG">AccelleronIndustriesAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="KoninklijkeAholdDelhaizeNV">KoninklijkeAholdDelhaizeNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SaabABClassB">SaabABClassB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="GenmabAS">GenmabAS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AtlasCopcoABClassB">AtlasCopcoABClassB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SandvikAB">SandvikAB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="EssilorLuxotticaSA">EssilorLuxotticaSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SvenskaHandelsbankenABClassA">SvenskaHandelsbankenABClassA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HiscoxLtd.">HiscoxLtd.</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Bermudas</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HOCHTIEFAG">HOCHTIEFAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NordexSE">NordexSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RheinmetallAG">RheinmetallAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="M&GPLC">M&GPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SartoriusAG—Preferred">SartoriusAG—Preferred</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="MowiASA">MowiASA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="YaraInternationalASA">YaraInternationalASA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="GaztransportEtTechnigazSA">GaztransportEtTechnigazSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="L’OrealSA">L’OrealSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="VinciSA">VinciSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SolariaEnergiayMedioAmbienteSA">SolariaEnergiayMedioAmbienteSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Plus500Ltd.">Plus500Ltd.</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Israel</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="IGGroupHoldingsPLC">IGGroupHoldingsPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BancaGeneraliSpA">BancaGeneraliSpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="OrklaASA">OrklaASA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="InvestecPLC">InvestecPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Southafrica</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BankofGeorgiaGroupPLC">BankofGeorgiaGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AvioSpA">AvioSpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="VolvoABClassB">VolvoABClassB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="IntertekGroupPLC">IntertekGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SPIESA">SPIESA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="TechnipEnergiesNV">TechnipEnergiesNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="HeinekenHoldingNV">HeinekenHoldingNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RedeiaCorp.SA">RedeiaCorp.SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SwedbankABClassA">SwedbankABClassA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ShellPLC">ShellPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="GalpEnergiaSGPSSA">GalpEnergiaSGPSSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Portugal</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BancoBilbaoVizcayaArgentariaSA">BancoBilbaoVizcayaArgentariaSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AvivaPLC">AvivaPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Marks&SpencerGroupPLC">Marks&SpencerGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="CentricaPLC">CentricaPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="KingfisherPLC">KingfisherPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ManGroupPLC">ManGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="GoldmanSachsEuroLiquidReservesFund(XAccumulationClass)(b)">GoldmanSachsEuroLiquidReservesFund(XAccumulationClass)(b)</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RenaultSA">RenaultSA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="FreseniusMedicalCareAG">FreseniusMedicalCareAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SmithsGroupPLC">SmithsGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RaiffeisenBankInternationalAG">RaiffeisenBankInternationalAG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Austria</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="PandoraAS">PandoraAS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="KoneOYJClassB">KoneOYJClassB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Finlandia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AirbusSE">AirbusSE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BankofIrelandGroupPLC">BankofIrelandGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SBMOffshoreNV">SBMOffshoreNV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AkerSolutionsASA">AkerSolutionsASA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BabcockInternationalGroupPLC">BabcockInternationalGroupPLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Unitedkingdom</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr></tbody>
     </table>
   </div>
 </section>
@@ -484,37 +1811,11 @@ Las fuentes públicas consultadas (factsheet de Trustnet) confirman su papel com
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
   
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#555;">GO</div>
-        <div class="src-info">
-          <div class="src-o">Goldman Sachs Asset Management (thought leadership)</div>
-        </div>
-        <span class="src-date">2026</span>
-      </div>
-      <div class="src-t">The Japanese Paradox: A Systematic Path to Alpha</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Artículo de la propia gestora (co-firmado por el co-gestor Takashi Suwabe) que defiende el enfoque cuantitativo del equipo: en mercados con cobertura de analistas escasa y barreras de idioma, procesar a escala datos alternativos (patentes, documentos, NLP) permitiría explotar ineficiencias de forma sistemática. Ilustra la filosofía CORE® aplicada a la gama, no la cartera europea en concreto. No es una opinión independiente del fondo.</div>
-      <a href="https://am.gs.com/en-us/advisors/insights/article/2026/japanese-paradox-systematic-path-to-alpha" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#555;">GO</div>
-        <div class="src-info">
-          <div class="src-o">Goldman Sachs Asset Management (thought leadership)</div>
-        </div>
-        <span class="src-date">2026</span>
-      </div>
-      <div class="src-t">Japanese Equities Offer Potential Opportunities for Alpha Enhanced Investing</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Segundo artículo de GSAM co-firmado por Takashi Suwabe en enero de 2026 sobre el enfoque cuantitativo 'Alpha Enhanced', que combina exposición al beta del mercado con componentes de búsqueda de alpha gestionados por el motor cuantitativo. Refuerza la coherencia metodológica del equipo, pero su foco es Japón y constituye material de la gestora, no una valoración externa del producto.</div>
-      <a href="https://am.gs.com/en-us/advisors/insights/article/2026/japanese-equities-offer-potential-opportunities" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
+  
 </section>
 
 <section class="pane" id="p7">
-  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">2 fuentes consultadas</span></div>
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">5 fuentes consultadas</span></div>
 
   <div class="doc-grp">Informes semestrales CNMV (0)</div>
   
@@ -525,8 +1826,8 @@ Las fuentes públicas consultadas (factsheet de Trustnet) confirman su papel com
   <div class="doc-grp">XMLs CNMV (0)</div>
   
 
-  <div class="doc-grp">Fuentes externas (0)</div>
-  
+  <div class="doc-grp">Fuentes externas (3)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">am.gs.com — japanese equities offer potential opportunities</span><a href="https://am.gs.com/en-us/advisors/insights/article/2026/japanese-equities-offer-potential-opportunities" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">am.gs.com — unlocking alpha potential in inefficient markets with data powere</span><a href="https://am.gs.com/en-us/advisors/insights/article/2026/unlocking-alpha-potential-in-inefficient-markets-with-data-powered-models" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">am.gs.com — public equity</span><a href="https://am.gs.com/en-us/advisors/products/public-equity" target="_blank" class="doc-a">↗ Abrir</a></div>
 </section>
 
 <section class="pane" id="p8">
@@ -1187,7 +2488,7 @@ function fmtES(v,dec){
 function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
 const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
 const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
-const Y=[];
+const Y=["21", "22", "23", "24", "25"];
 // Anti-collision label helper for area/line charts with multiple series
 function drawAreaLabels(chart,colors,dec,minGap){
   const ctx=chart.ctx;
@@ -1248,7 +2549,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[1746.07, 1576.35, 1194.5, 1591.58, 1591.58],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){
