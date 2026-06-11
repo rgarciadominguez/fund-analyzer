@@ -2027,9 +2027,10 @@ def _merge_prep_into_output(isin: str, fund_dir: Path, log) -> dict:
     # output.json —no solo el render del dashboard— lleve el sector (tabla,
     # desglose, Supabase). Determinista: solo rellena desde caché lo que falte.
     try:
-        from tools.sector_classifier import apply_sectors
+        from tools.sector_classifier import apply_sectors, clean_positions
         _pos = (merged.get("posiciones", {}) or {}).get("actuales", [])
         if _pos:
+            clean_positions(_pos)   # re-espacia nombres pegados + sector del paréntesis
             apply_sectors(_pos)
     except Exception:
         pass

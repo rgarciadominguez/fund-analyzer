@@ -63,7 +63,13 @@ _SECTOR_SYNONYMS = {
     "industrials": "Industria", "industrial": "Industria", "industria": "Industria",
     "energy": "Energía", "energia": "Energía", "energía": "Energía", "oil": "Energía", "oil & gas": "Energía",
     "materials": "Materiales", "basic materials": "Materiales", "raw materials": "Materiales",
-    "materiales": "Materiales", "materias primas": "Materiales",
+    "materiales": "Materiales", "materias primas": "Materiales", "mining": "Materiales",
+    "metals & mining": "Materiales", "chemicals": "Materiales", "construction materials": "Materiales",
+    "pharmaceuticals": "Salud", "biotechnology": "Salud", "diversified financials": "Servicios financieros",
+    "capital goods": "Industria", "transportation": "Industria", "semiconductors": "Tecnología",
+    "software & services": "Tecnología", "automobiles": "Consumo cíclico",
+    "food beverage & tobacco": "Consumo defensivo", "food & staples retailing": "Consumo defensivo",
+    "consumer durables & apparel": "Consumo cíclico", "telecommunication services": "Comunicación",
     "utilities": "Servicios públicos", "servicios publicos": "Servicios públicos",
     "servicios públicos": "Servicios públicos", "utilidades": "Servicios públicos",
     "real estate": "Inmobiliario", "inmobiliario": "Inmobiliario", "reit": "Inmobiliario",
@@ -120,6 +126,36 @@ def save_cache(cache: dict) -> None:
 def sector_for(name: str, cache: dict | None = None) -> str | None:
     cache = cache if cache is not None else load_cache()
     return cache.get(_norm_company(name))
+
+
+def clean_positions(positions: list) -> int:
+    """Limpia artefactos de extracción de nombres (caso AR umbrella GS):
+    - extrae el sector del paréntesis final '(Banks)'/'(Mining)' → pos['sector'];
+    - re-espacia nombres pegados en CamelCase ('RaiffeisenBankInternationalAG'
+      → 'Raiffeisen Bank International AG'; 'BHPBilliton' → 'BHP Billiton').
+    Devuelve nº de nombres modificados. Idempotente."""
+    n = 0
+    for p in positions or []:
+        if not isinstance(p, dict):
+            continue
+        nm = p.get("nombre", "") or ""
+        orig = nm
+        # sector entre paréntesis al final
+        m = re.search(r"\(([^()]{3,40})\)\s*$", nm)
+        if m:
+            sec = canonical_sector(m.group(1).strip())
+            if sec and not canonical_sector(p.get("sector")):
+                p["sector"] = sec
+            nm = nm[:m.start()].strip()
+        # re-espaciar si está pegado (sin espacios y con mayúsculas internas)
+        if " " not in nm and len(nm) > 8 and re.search(r"[a-z][A-Z]|[A-Z]{2,}[a-z]", nm):
+            nm = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", nm)
+            nm = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", nm)
+            nm = re.sub(r"\s+", " ", nm).strip()
+        if nm and nm != orig:
+            p["nombre"] = nm
+            n += 1
+    return n
 
 
 def apply_sectors(positions: list, cache: dict | None = None) -> tuple[int, int]:
