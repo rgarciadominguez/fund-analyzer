@@ -72,21 +72,25 @@ def validate(isin: str) -> dict:
 
     pos = (j.get("posiciones", {}) or {}).get("actuales", []) or []
     if pos:
-        # Los sectores de RV no aplican a fondos de RENTA FIJA / bonos (cat bonds,
-        # treasuries...). Detectar dominancia RF y marcar sector N/A (no fallo).
+        # Los sectores de RV no aplican cuando las posiciones NO son acciones
+        # directas: renta fija/cat bonds/treasuries, repos/monetario, derivados,
+        # o fondos/ETF (índices sintéticos). Marcar sector N/A (no fallo).
         def _is_bond(p):
             t = str(p.get("tipo", "")).upper()
-            if any(k in t for k in ("RF", "FIJA", "BOND", "FUTURO", "DERIV")):
+            if any(k in t for k in ("RF", "FIJA", "BOND", "FUTURO", "DERIV", "REPO",
+                                    "PARTICIPAC", "IIC", "ETF", "MONETARIO", "DEPOSITO", "LIQUID")):
                 return True
-            return bool(_re.search(r"treasury|bill|\bbond|\bnote|coupon|\d{4}-\d{2}-\d{2}|\d(?:[.,]\d+)?%",
-                                   str(p.get("nombre", "")), _re.I))
+            return bool(_re.search(
+                r"treasury|bill|\bbond|\bnote|coupon|\d{4}-\d{2}-\d{2}|\d(?:[.,]\d+)?%|"
+                r"lyxor|ishares|\betf\b|ucits|index fund|amundi|vanguard",
+                str(p.get("nombre", "")), _re.I))
         from tools.sector_classifier import relevant_positions
         rel = relevant_positions(pos)  # top-50 por peso + peso alto; la cola se deja en blanco
         rf_share = sum(1 for p in pos if _is_bond(p)) / len(pos)
         with_sec = sum(1 for p in rel if p.get("sector"))
         cov = round(100 * with_sec / len(rel)) if rel else 0
         if rf_share > 0.5:
-            ok_pts.append(f"sector N/A (renta fija, {round(rf_share*100)}% bonos)")
+            ok_pts.append(f"sector N/A (no RV directa: bonos/repos/ETF/fondos, {round(rf_share*100)}%)")
         elif cov >= 70:
             extra = f" (top-{len(rel)} relevantes de {len(pos)})" if len(pos) > len(rel) else ""
             ok_pts.append(f"sector cobertura {cov}%{extra}")
