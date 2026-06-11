@@ -71,6 +71,8 @@ def validate(isin: str) -> dict:
             issues.append(f"FORMATO: {sec}.resumen_general corto/ausente ({len(rg)}c)")
 
     pos = (j.get("posiciones", {}) or {}).get("actuales", []) or []
+    if not pos:
+        issues.append("FORMATO: sin posiciones (¿extract-pdfs falló?) — cartera vacía")
     if pos:
         # Los sectores de RV no aplican cuando las posiciones NO son acciones
         # directas: renta fija/cat bonds/treasuries, repos/monetario, derivados,
