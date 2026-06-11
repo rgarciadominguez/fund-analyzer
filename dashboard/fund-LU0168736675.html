@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -173,7 +187,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
     <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€281M</div>
+        <div class="lh-aum-v">€163M</div>
         <div class="lh-aum-l">AUM</div>
         <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2026-03</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2027-03 (Carta)</span></div></div>
       </div>
@@ -187,7 +201,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Junio 2003</span></div>
       <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Global</span></div>
-      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Santeri Korpinen</strong> <span style='opacity:.7;'>(lead)</span> · Olli Pöyhönen <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Alexander Järf</strong> <span style='opacity:.7;'>(lead)</span> · Olli Pöyhönen <span style='opacity:.6;font-size:9px;'>(co)</span> · Karl-Johan Lidsle <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
       <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
     </div>
 
@@ -208,7 +222,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-06</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-11</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0168736675 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -218,28 +232,10 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr">SIFTER FUND - GLOBAL es un fondo de renta variable global con enfoque *quality* gestionado por la boutique finlandesa <strong>Sifter Capital Ltd.</strong> (gestor de inversiones delegado), bajo la sociedad gestora luxemburguesa Adepa Asset Management S.A. El fondo nació en 2003 de la mano de Hannes Kulvik, creador del modelo de inversión en calidad de raíz nórdica que da nombre a su proceso (FundsPeople; Salud Financiera). A cierre del ejercicio fiscal (31 de agosto de 2025) gestiona <strong>280,75 millones de euros</strong>, tras crecer de 194,7 M€ en 2023 a 268,4 M€ en 2024 (Annual Report 2025).</p><p class="pr">La propuesta del fondo es deliberadamente sencilla de enunciar y exigente de ejecutar: poseer entre 25 y 30 compañías cotizadas de máxima calidad a escala mundial, sin apalancamiento ni derivados (salvo cobertura puntual de divisa), y mantenerlas a largo plazo. El proceso *Stocksifter* parte de un universo de ~65.000 empresas y descarta sistemáticamente más del 95-99% que no superan cuatro criterios de calidad: crecimiento predecible, ventaja competitiva sostenible, solidez financiera y una valoración disciplinada (cartas del gestor; análisis Moclano y Salud Financiera).</p><p class="pr">La cartera actual está sesgada hacia tecnología (≈37%), industriales de calidad (≈24%) y salud (≈17%), con nombres como Alphabet, Safran, Microsoft y la cadena de valor de semiconductores (Lam Research, Applied Materials, TSMC, Disco). Su rentabilidad ha sido consistente —en torno a +12% anualizado a 5 años según fuentes externas (Moclano)— si bien las comisiones son elevadas (TER ≈1,65-1,8%), un punto recurrente en las críticas independientes. Desde septiembre de 2024 la estrategia se distribuye en Iberia y Latinoamérica a través de ACCI.</p>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
-  <div class="col2 mb20">
-    <div>
-      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
-      <p class="pr">La filosofía es *quality investing* de convicción y baja rotación: invertir en negocios con ventajas competitivas fuertes, poder de fijación de precios, bajo apalancamiento financiero y equipos directivos sólidos, comprados a una valoración razonable (tesis del gestor, cartas 2024-2025). El fondo entiende la inversión no como apostar a favor o en contra de compañías, sino como ser copropietario de los mejores modelos de negocio del mundo durante años. La disciplina de venta es tan importante como la de compra: se desinvierte de una empresa cuando deja de cumplir los criterios de calidad o pierde su senda de crecimiento (ejemplos reales: salidas de Cisco y VeriSign en 2024; Sony, Disney y Autoliv en 2025). El resultado es una cartera concentrada de alta convicción, larga sólo, sin apalancamiento y con una tasa de aceptación de nuevas ideas mínima (en tres años se investigaron 77 empresas y solo entraron 7).</p>
-    </div>
-    <div>
-      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
-      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Crecimiento predecible:</strong> <span class="pr" style="font-size:12.5px;">Negocios con una senda de crecimiento de beneficios visible y sostenible en el tiempo, no dependiente de un único catalizador o ciclo.</span></div>
-            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Ventaja competitiva sostenible:</strong> <span class="pr" style="font-size:12.5px;">Empresas con foso defensivo claro y poder de fijación de precios; se rechazan compañías expuestas a competidores más ágiles o sin barreras (motivo de descarte de Cisco).</span></div>
-            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Solidez financiera:</strong> <span class="pr" style="font-size:12.5px;">Bajo apalancamiento y balance robusto que permita atravesar ciclos sin dilución ni estrés financiero.</span></div>
-            </div>
-    </div>
-  </div>
+  
 
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
   <div class="col2 mb20">
@@ -247,22 +243,16 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
   </div>
 
-  <div class="col2 mb20"><div>
-      <div class="sr" style="color:var(--pos);">Fortalezas</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Proceso de calidad muy disciplinado y repetible (Stocksifter de seis etapas) que se traduce en una cartera concentrada de alta convicción de 25-30 valores.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Track record consistente: rentabilidad anualizada en torno a +12% a 5 años y +24% a 1 año según Financial Times/Moclano, con baja correlación al índice.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Equipo gestor estable y copartícipe (todos los gestores son Partners), con alineación de intereses explícita con los inversores.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estructura simple y transparente: long-only, sin apalancamiento ni derivados salvo cobertura de divisa.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Sesgo a negocios de calidad global (tecnología, industriales y salud) con poder de fijación de precios, defensivos en entornos de volatilidad.</span></div></div>
-    </div><div>
-      <div class="sr" style="color:var(--neg);">Riesgos</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Comisiones elevadas: TER ≈1,65-1,8%, señalado por analistas independientes como un lastre que dificulta batir al índice de forma sostenida.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración alta (25-30 valores y top-10 con peso relevante): la evolución depende de pocas posiciones y sectores (tecnología/semiconductores ≈37%).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sesgo geográfico a Norteamérica (≈64%) y a la cadena de semiconductores, sensible al ciclo de inversión en IA y centros de datos.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Boutique pequeña y poco conocida en España; liquidez y distribución más limitadas que las grandes gestoras (mitigado parcialmente vía ACCI desde 2024).</span></div></div>
-    </div></div>
+  
 
   <div class="sr">Clases disponibles</div>
   <table class="rt mb20">
     <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
-    <tbody><tr><td><strong>Global PA</strong></td><td>LU0168736675</td><td>—</td><td>1,8%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2003</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Global PB</strong></td><td>LU0168577939</td><td>—</td><td>1,6%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2003</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Global PI</strong></td><td>LU1194076995</td><td>—</td><td>1,2%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2015</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+    <tbody><tr><td><strong>Global PA</strong></td><td>LU0168736675</td><td>—</td><td>1,7%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2003</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Global PB</strong></td><td>LU0168577939</td><td>—</td><td>1,6%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2003</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Global PI</strong></td><td>LU1194076995</td><td>—</td><td>1,2%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2015</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
   </table>
   
 
-  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor de largo plazo que busca exposición a renta variable global de calidad con un enfoque concentrado y de baja rotación, cómodo con la volatilidad de una cartera de 25-30 valores sesgada a tecnología, industriales y salud, y dispuesto a asumir comisiones por encima de la media a cambio de un proceso diferenciado y un track record consistente. No es adecuado para quien priorice bajo coste o amplia diversificación sectorial.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Todos los gestores son Partners de Sifter Capital, con alineación de intereses declarada con los inversores (manager_profile; web Our Team). El fundador del modelo, Hannes Kulvik, permanece vinculado a través del Consejo. La filosofía explícita de copropiedad a largo plazo refuerza el *skin in the game*.</p></div></div>
+  
 
   <div class="sr">TER por clase (snapshot actual)</div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
@@ -276,7 +266,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     new Chart(ctx, {
       type: 'bar',
       data: { labels: ["Global PA"], datasets: [
-      {label:'TER (%)', data:[1.8], backgroundColor:'rgba(12,35,64,0.85)'}
+      {label:'TER (%)', data:[1.7], backgroundColor:'rgba(12,35,64,0.85)'}
     ] },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -295,7 +285,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Junio 2003 — presente</span></div>
 
   <div class="mb24">
-    <p class="subsec">Origen y modelo fundacional (2003)</p><p class="pr">El Sifter Fund nació en 2003 impulsado por Hannes Kulvik, a quien las fuentes externas atribuyen la creación del modelo de inversión en calidad de raíz nórdica que sustenta el fondo (Salud Financiera; Moclano). Desde su origen la propuesta fue la misma que mantiene hoy: una cartera global, concentrada y de alta convicción de negocios de calidad seleccionados por eliminación sistemática.</p><p class="subsec">Consolidación del proceso Stocksifter</p><p class="pr">El método madura hasta convertirse en un proceso de seis etapas que parte de ~65.000 empresas cotizadas y descarta más del 95-99% antes del análisis fundamental. En su carta de 2023 la gestora sintetizaba que en los tres años previos había investigado 77 empresas e invertido solo en siete nuevas, ilustrando la exigencia del filtro y la baja rotación estructural de la cartera.</p><p class="subsec">La prueba del COVID (2020)</p><p class="pr">El primer trimestre de 2020 puso a prueba el proceso: ante el desplome por la pandemia, la gestora reforzó posiciones en compañías de calidad a menor precio (Cisco, Oracle, Atlas Copco, Johnson & Johnson y Lam Research), bajo la convicción de que las crisis crean oportunidades para reenfocar la cartera hacia negocios de mayor calidad con flujos de caja futuros a menor coste.</p><p class="subsec">Rotación disciplinada (2021-2025)</p><p class="pr">Los años siguientes muestran la disciplina de venta en acción: entradas en Sony y Nitori en 2021 por su posicionamiento en juego, música y sensores; salida de Cisco y VeriSign en 2024 por falta de ventaja competitiva sostenible y madurez del ciclo corporativo; y desinversión completa de Sony, Disney y Autoliv en 2025 al dejar de cumplir los criterios, sustituidas por nuevas ideas de mayor calidad.</p><p class="subsec">Expansión a Iberia y Latinoamérica (2024)</p><p class="pr">En septiembre de 2024 la gestora española ACCI firmó un acuerdo para distribuir la estrategia *flagship* de Sifter en los mercados de Iberia y Latinoamérica (FundsPeople), aumentando la accesibilidad del fondo para el inversor español. A cierre de agosto de 2025 el patrimonio alcanzaba 280,75 M€.</p>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
   <div class="kpi-row">
@@ -308,89 +298,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 280.75;
+  window.__HIST_AUM_HEADER__ = 162.94;
   </script>
   
-  <div class="sr">Cronología de eventos relevantes</div>
-  <div class="timeline">
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2003</div>
-      <div class="tl-tag tag-hito">Lanzamiento</div>
-      <div class="tl-title">Lanzamiento del fondo</div>
-      <div class="tl-desc">Hannes Kulvik funda el Sifter Fund con el modelo de inversión en calidad de raíz nórdica.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2016</div>
-      <div class="tl-tag tag-hito">Equipo</div>
-      <div class="tl-title">Santeri Korpinen, CEO</div>
-      <div class="tl-desc">Korpinen asume como CEO de Sifter Capital y lidera el equipo de inversión (registrado como gestor desde noviembre 2016 según FT).</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2019</div>
-      <div class="tl-tag tag-hito">Cambio_estrategia</div>
-      <div class="tl-title">Entrada en Disco Corporation</div>
-      <div class="tl-desc">Inicio de la posición en Disco, que se mantiene en cartera desde 2019 (LinkedIn O. Pöyhönen).</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2020</div>
-      <div class="tl-tag tag-strat">Decisión estratégica</div>
-      <div class="tl-title">Refuerzo de calidad en el COVID</div>
-      <div class="tl-desc">Aumento de Cisco, Oracle, Atlas Copco, J&J y Lam Research durante el desplome del 1T2020.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2021</div>
-      <div class="tl-tag tag-hito">Salto de escala</div>
-      <div class="tl-title">Nuevas ideas: Sony y Nitori</div>
-      <div class="tl-desc">Dos nuevas inversiones por posicionamiento en sectores en crecimiento.</div>
-    </div>
-    <div class="tl-item" style="align-items:flex-start;">
-      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
-      <div class="tl-date" style="font-weight:600;">2024</div>
-      <div style="grid-column:3/span 2;">
-        
-        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <span class="tl-tag tag-hito">Cambio_estrategia</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Salidas de Cisco y VeriSign</strong>
-          </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">Desinversión por falta de ventaja competitiva y madurez del ciclo corporativo.</div>
-        </div>
-        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <span class="tl-tag tag-hito">Hecho_relevante</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Distribución en Iberia vía ACCI</strong>
-          </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">ACCI firma acuerdo para distribuir el Sifter Fund Global en Iberia y Latinoamérica (sept. 2024).</div>
-        </div>
-      </div>
-    </div>
-    <div class="tl-item" style="align-items:flex-start;">
-      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
-      <div class="tl-date" style="font-weight:600;">2025</div>
-      <div style="grid-column:3/span 2;">
-        
-        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <span class="tl-tag tag-strat">Decisión estratégica</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Rotación: salen Sony, Disney y Autoliv</strong>
-          </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">Desinversión completa de tres compañías que dejaron de cumplir los criterios de calidad.</div>
-        </div>
-        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <span class="tl-tag tag-hito">Hecho_relevante</span>
-            <strong style="font-size:12.5px;color:var(--ink);">Patrimonio de 280,75 M€</strong>
-          </div>
-          <div class="tl-desc" style="margin:2px 0 0 0;">El fondo cierra el ejercicio fiscal (ago-2025) con 280,75 M€, tras 268,4 M€ en 2024.</div>
-        </div>
-      </div>
-    </div>
-  </div>
   
 </section>
 
@@ -399,121 +309,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
   
 
-  
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">SK</div>
-        <div class="mgr-nm">Santeri Korpinen<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">CEO, Partner y miembro del Consejo de Sifter Capital — Lead manager registrado</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">CEO, Partner y miembro del Consejo de Sifter Capital Oy desde 2016</li><li style="margin-bottom:3px;">Lead manager registrado del Sifter Fund - Global desde el 1 de noviembre de 2016 (Financial Times)</li><li style="margin-bottom:3px;">25+ años de experiencia en servicios financieros y consultoría de gestión</li><li style="margin-bottom:3px;">17 años previos como consultor de management estratégico (pre-Sifter)</li><li style="margin-bottom:3px;">Portavoz público de Sifter Capital en el acuerdo con ACCI Capital (Iberia/LatAm, 23 sep 2024)</li><li style="margin-bottom:3px;">Supervisor de la colaboración con Adepa Asset Management S.A. (ManCo Luxemburgo)</li><li style="margin-bottom:3px;">Responsable de relaciones con inversores institucionales</li></ul>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:13px;"><strong>CEO y lead manager registrado de Sifter Fund - Global desde noviembre de 2016</strong>
-
-Santeri Korpinen es CEO de Sifter Capital Oy, Partner y miembro del Consejo desde 2016. Lidera el equipo de gestión de inversiones, gestiona las relaciones con los inversores y supervisa la colaboración con la sociedad gestora luxemburguesa (Adepa Asset Management S.A.). Aunque su título formal en la página /our-team es 'CEO, Partner' y no 'Portfolio Manager', <strong>Financial Times lo registra como el gestor formal del Sifter Fund - Global desde el 1 de noviembre de 2016</strong> (FT tearsheet LU0168736675, mayo 2026). Esa atribución externa autorizada resuelve la ambigüedad: en términos de responsabilidad ante el regulador y los inversores, Korpinen es el lead del vehículo.
-
-<strong>Más de 25 años en servicios financieros y consultoría</strong>
-
-Santeri tiene una sólida trayectoria de liderazgo y un historial probado de iniciativas estratégicas. Antes de incorporarse a Sifter en 2016, pasó 17 años como consultor de management especializado en estrategia empresarial y desarrollo organizacional. Esa combinación —consultoría estratégica de fondo + liderazgo ejecutivo + supervisión de gestión de activos— es atípica en el perfil de un gestor de fondos pero encaja con la naturaleza del rol en Sifter: las decisiones de inversión se toman colectivamente por el Investment Committee, y el CEO ejerce de coordinador, portavoz y responsable formal frente al regulador y los distribuidores.
-
-<strong>Portavoz público de la firma</strong>
-
-Korpinen es la cara visible de Sifter Capital en eventos públicos. Cuando ACCI Capital firmó el acuerdo de distribución para Iberia y LatAm el 23 de septiembre de 2024, Korpinen aparece como interlocutor en el pie de foto del artículo de FundsPeople. Es habitual encontrarlo en presentaciones a inversores institucionales españoles a través de ACCI Capital. La página /our-team confirma que su mandato cubre 'liderar el equipo de gestión de inversiones, gestionar relaciones con inversores y supervisar la colaboración con la ManCo en Luxemburgo'.
-
-<strong>Atribución compleja en el reparto de roles del equipo</strong>
-
-La decisión analítica de etiquetar a Korpinen como 'lead manager' descansa sobre tres pilares: (1) atribución formal FT desde 2016, (2) CEO del PM delegado (Sifter Capital), y (3) portavoz público de la firma. Los Portfolio Managers Partner nominales (Olli Pöyhönen, Alexander Järf, Karl-Johan Lidsle) ejecutan el proceso de análisis y deciden colectivamente, pero la atribución externa apunta a Korpinen como referente. Esta estructura es coherente con la cultura nórdica de toma de decisiones en equipo: en Sifter no hay 'star manager' al estilo americano; hay un equipo Partner-owned con un líder formal.</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Lidera un proceso de inversión basado en evidencia, sistemático y repetible, donde las decisiones se toman colectivamente por el equipo. Su filosofía pública es la del 'Nordic engineering mindset' compartida por toda la firma: decisiones basadas en reglas, precisas y consistentes en mercados turbulentos. Defiende explícitamente que 'el oportunismo excesivo puede ser costoso' (carta 2023-Q4) y que la disciplina del proceso —Stocksifter™ + Cylinder— es lo que ha permitido evitar errores importantes en 23 años de historia.</p>
-        
-        
-        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Mantenimiento del proceso Stocksifter en el shock COVID Q1 2020</strong>: en lugar de salir de mercado, el equipo bajo su liderazgo reforzó posiciones de calidad (Cisco, Oracle, Atlas Copco, Johnson & Johnson, Lam Research) durante la caída de -19,5% del MSCI ACWI. Resultado: outperformance de +3,8pp en el trimestre y validación del modelo en estrés.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>No flexibilizar el filtro Cylinder durante 2024 pese al rally de los Magnificent 7</strong>: NVIDIA, Apple y Amazon fueron descartados por valoración. Coste: -14,4pp de underperformance frente al MSCI ACWI en el año natural 2024. Decisión disciplinada que demuestra disposición a aceptar tracking error grande por proceso.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Apertura del mercado Iberia y LatAm vía ACCI Capital (sep 2024)</strong>: acuerdo de distribución y lanzamiento de la clase RA específicamente diseñada para el inversor retail español (mínimo 100€, 2,0% gestión + 15% performance fee sobre hurdle 5%). Diversifica la base de inversores frente al mercado finlandés/escandinavo histórico.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Rotación 2025 post-Liberation Day</strong>: salida de Sony, Walt Disney y Autoliv por incumplimiento de criterios; entrada de Cintas e IDEXX Laboratories. Reducción del 30% en TSMC y aumento del 20% en Alphabet en diciembre 2024, gestionando los riesgos de concentración tras el rally de tecnológicas.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Combina un perfil de consultor estratégico (17 años pre-Sifter) con liderazgo ejecutivo y responsabilidad regulatoria del vehículo. No es un PM 'tradicional' que pase el día analizando empresas: es el coordinador del proceso, garante de la disciplina del modelo y interlocutor con el ecosistema externo (distribuidores, inversores institucionales, regulador). En una firma partner-owned con decisiones colectivas, su rol es asegurar que el proceso Nordic Quality Investing se respeta sin flexibilizaciones tácticas.</p></div>
-      </div>
-    </div>
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">OP</div>
-        <div class="mgr-nm">Olli Pöyhönen<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">Portfolio Manager, Partner — Co-manager</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Portfolio Manager y Partner en Sifter Capital Oy</li><li style="margin-bottom:3px;">Listado primero entre los PMs Partner en la página oficial /our-team</li><li style="margin-bottom:3px;">Experiencia previa: analista en el sector financiero</li><li style="margin-bottom:3px;">Experiencia previa: analista en el Banco de Finlandia (Suomen Pankki)</li><li style="margin-bottom:3px;">Activo en medios financieros finlandeses (Inderes) comentando posiciones del fondo</li><li style="margin-bottom:3px;">Post LinkedIn febrero 2024 sobre Disco Corporation (posición desde 2019)</li></ul>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:13px;"><strong>Portfolio Manager veterano de Sifter Capital</strong>
-
-Olli Pöyhönen es Portfolio Manager y Partner en Sifter Capital. La página oficial /our-team lo lista en primer lugar entre los Portfolio Managers Partner —orden que, en boutiques nórdicas, suele indicar seniority o jerarquía interna— y lo describe como 'seasoned portfolio manager and Partner... ensuring his interests are fully aligned with those of the investors'.
-
-<strong>Trayectoria previa: analista financiero y Banco de Finlandia</strong>
-
-Antes de incorporarse a Sifter, Olli trabajó como analista en el sector financiero y en el <strong>Banco de Finlandia</strong> (Suomen Pankki, banco central del país), donde desarrolló una comprensión profunda de los mercados financieros y el análisis económico. Esa experiencia macro-financiera complementa el resto del equipo, más enfocado en análisis bottom-up de empresas.
-
-<strong>Filosofía: meticuloso, analítico, aversion al riesgo</strong>
-
-La biografía oficial enfatiza su 'enfoque meticuloso y analítico para descubrir oportunidades de inversión de alta calidad' y describe su pensamiento como 'disciplinado y con una fuerte mentalidad aversa al riesgo, asegurando que cada inversión se alinee con los objetivos a largo plazo del fondo'. Esa aversion al riesgo coloca a Pöyhönen como uno de los exponentes más claros del lado 'eliminación' del proceso Stocksifter —el lado que rechaza el 95% del universo por no cumplir criterios— frente al lado constructivo que añade las 3-5 nuevas posiciones al año.
-
-<strong>Presencia pública: medios financieros finlandeses (Inderes)</strong>
-
-A diferencia del resto del equipo, Olli tiene actividad pública documentada en redes sociales financieras. En febrero de 2024 publicó en LinkedIn (en finés) un post comentando una entrevista con Inderes —medio financiero finlandés especializado— sobre Disco Corporation, posición en la cartera de Sifter desde 2019. El post agradece a Antti Järvenpää (Inderes) por las preguntas e incluye enlace al vídeo de YouTube de la entrevista. Esa actividad confirma que Olli participa activamente en comunicación pública del fondo, hace seguimiento de posiciones individuales y representa a Sifter en medios financieros nacionales.
-
-<strong>Co-manager natural del equipo según el orden oficial y el flujo público</strong>
-
-El etiquetado de Olli como 'co-manager' descansa sobre dos pilares: (1) figura primero entre los PMs Partner en la página /our-team, lo que sugiere seniority frente a Alexander y Karl-Johan; (2) es el único PM del equipo (aparte del CEO) con actividad pública documentada externamente, comentando posiciones específicas del fondo. Las decisiones de cartera, no obstante, se toman colectivamente por el Investment Committee.</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Disciplina rigurosa y aversion al riesgo. Filosofía individual fuertemente alineada con el lado 'eliminación' del Stocksifter: rechazar empresas que no cumplen criterios de calidad antes que tomar riesgos por oportunismo. La cita oficial es clara: 'each investment aligns with the long-term objectives of the fund'. Su background en el Banco de Finlandia aporta una capa macro-financiera al análisis bottom-up del equipo.</p>
-        
-        
-        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-1" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Seguimiento público de la posición Disco Corporation</strong>: publicó en LinkedIn (feb 2024) y participó en entrevista con Inderes comentando la tesis sobre Disco Corporation, fabricante japonés de equipos para semiconductores en la cartera desde 2019. Disco fue reducida -33% en 2024 por sobrevaloración tras rally, y aumentada de nuevo en Q4 2025 según factsheet diciembre 2025.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);"><strong>Lado eliminación del Stocksifter — rechazos documentados</strong>: en el material colectivo del equipo (carta 2023-Q4) se documentan rechazos por falta de moat claro (Garmin, Rockwell), crecimiento estancado (Cisco antes de ser comprado y luego vendido, Generac), riesgo excesivo (Moncler, SolarEdge) y ética (Vertex Pharmaceuticals). El estilo aversion-al-riesgo del proceso refleja la influencia explícita de Olli.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Único PM Partner del equipo con actividad pública documentada externamente (post LinkedIn 2024, entrevista Inderes). Su background en Banco de Finlandia diferencia su perspectiva del resto del equipo (más bottom-up corporativo). En un equipo nórdico que rehúye protagonismos individuales, Olli es el comunicador externo natural del proceso de análisis.</p></div>
-      </div>
-    </div>
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#2c6e49,#4ecf99);">AJ</div>
-        <div class="mgr-nm">Alexander Järf<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">Portfolio Manager, Partner</div>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:12.5px;">Portfolio Manager y Partner en Sifter Capital. Doble grado académico y amplia experiencia en análisis de inversión. Especializado en evaluar modelos de ingresos de negocio e identificar oportunidades de alto potencial. Forma parte del equipo de PMs Partner que ejecutan el análisis profundo de las ~50 empresas candidatas al año dentro del proceso Stocksifter. La biografía pública es escueta —el equipo nórdico evita la sobre-exposición individual— y no se encontraron entrevistas ni perfiles externos detectados en la búsqueda. Forma parte del equipo actual que, según Moclano (mayo 2026), lleva 9 años junto.</p>
-      </div>
-    </div>
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:#3d5a80;">KL</div>
-        <div class="mgr-nm">Karl-Johan Lidsle<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">Portfolio Manager, Partner</div>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:12.5px;">Portfolio Manager y Partner en Sifter Capital. Aporta una 'mentalidad analítica afilada y un enfoque metódico de evaluación de inversiones' según la biografía oficial de /our-team. Investigador. Como Alexander Järf, su cobertura pública es escueta —característica de boutiques nórdicas con cultura de decisiones colectivas— y no se encontraron entrevistas ni perfiles externos en la búsqueda. Parte del equipo de 9 años junto.</p>
-      </div>
-    </div>
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:#5c5850;">HK</div>
-        <div class="mgr-nm">Hannes Kulvik<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">Founder & Board of Directors — Principal accionista del fondo</div>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:12.5px;">**Fundador del Sifter Fund (2003) y arquitecto del modelo Nordic Quality Investing**
-
-Hannes Kulvik fundó Sifter Capital y lanzó el Sifter Fund - Global el 19 de junio de 2003. Es el creador del modelo 'Stocksifter' que la firma desarrollaría durante más de dos décadas hasta su forma actual de Nordic Quality Investing. Graduado en Economía, su trayectoria suma 40 años en el sector financiero, desarrollo corporativo y corporate finance.
-
-**Perfil atípico: CEO de cotizadas, asesor del Presidente de Finlandia, gabinete del Ministerio de Defensa**
-
-Fuera de la gestión de activos, Kulvik ha sido CEO de varias compañías cotizadas finlandesas, asesor del Presidente de Finlandia y miembro del gabinete del Ministerio de Defensa finlandés. Es uno de los pocos gestores europeos con experiencia ejecutiva en empresas listadas y simultáneamente experiencia institucional al más alto nivel del estado.
-
-**Sigue siendo principal accionista del fondo y miembro del Consejo**
-
-Aunque ya no ejerce como Portfolio Manager activo, Kulvik **sigue siendo el principal inversor individual del fondo y miembro del Board of Directors de Sifter Capital**. Su skin-in-the-game personal sigue siendo el ancla de la alineación de intereses con el resto de inversores: el creador del modelo es también el mayor inversor del vehículo. Esta continuidad es la razón por la que el track record de 23 años se considera coherente: aunque el equipo operativo cambió con la llegada de Korpinen en 2016, la filosofía y el proceso siguen siendo los diseñados originalmente por Kulvik en 2003.</p>
-      </div>
-    </div>
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">PK</div>
-        <div class="mgr-nm">Pauli Kulvik<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
-        <div class="mgr-rl">Investment Committee Member (no PM)</div>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:12.5px;">Inversor de private equity y ejecutivo corporativo experimentado. Aporta pensamiento estratégico, experiencia financiera y perspectiva industrial al Investment Committee de Sifter. **No es Portfolio Manager activo** —forma parte del Comité de Inversión que ratifica decisiones del equipo operativo— pero su perspectiva PE/industrial complementa el análisis bottom-up de las posiciones candidatas. Su presencia en el IC junto a otros miembros (Antti Vasara, Wilhelm Fazer según Moclano) es la pieza de gobernanza que asegura desafío crítico a las propuestas del equipo de PMs Partner.</p>
-      </div>
-    </div>
+  <p class="pr" style="color:var(--ink-4);font-style:italic;">Información de gestores pendiente. Ejecutar manager_deep_agent para obtener perfiles.</p>
 
   
 </section>
@@ -574,47 +370,16 @@ Aunque ya no ejerce como Portfolio Manager activo, Kulvik **sigue siendo el prin
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="subsec">Calidad por eliminación: el método Stocksifter</p><p class="pr">La estrategia se articula en torno a un proceso de cribado propio que parte de un universo de ~65.000 compañías cotizadas y descarta más del 95-99% antes de pasar al análisis fundamental. Solo las empresas que superan cuatro criterios —crecimiento predecible, ventaja competitiva sostenible, solidez financiera y valoración disciplinada— llegan a la fase de investigación bottom-up. El resultado es una cartera concentrada de 25-30 valores de máxima convicción.</p><p class="subsec">Disciplina de compra y venta</p><p class="pr">La gestora combina adiciones contracíclicas (reforzar calidad cuando el mercado cae, como en 2020) con una disciplina de venta estricta: se sale de una posición cuando deja de cumplir los criterios o pierde su senda de crecimiento. Los ejemplos son concretos y verificables en las cartas: salidas de Cisco y VeriSign en 2024 y de Sony, Disney y Autoliv en 2025.</p><p class="subsec">Posicionamiento actual y visión 2026</p><p class="pr">La cartera está sesgada a tecnología (≈37%), con ≈30% en la cadena de semiconductores como vía de exposición selectiva a la IA y los centros de datos, ≈24% en industriales de calidad y ≈14% en salud. De cara a 2026 la gestora sostiene que, aunque a corto plazo manden los temas y el momentum, a largo plazo los retornos los determinan el crecimiento de beneficios, la disciplina de capital y las ventajas competitivas durables, y considera la cartera bien posicionada para ese entorno.</p>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;A través del método Stocksifter, rechazamos más del 95% de las 65.000 empresas que analizamos.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo gestor de Sifter, Carta del gestor 2023-Q4</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Seleccionar las mejores acciones del mundo es como buscar una aguja en un pajar.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo gestor de Sifter, Carta del gestor 2023-Q4</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;For most asset managers, investing means betting for and against companies.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Equipo gestor de Sifter, Carta del gestor 2021</span></p>
+  
 
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
-  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Renta variable global de calidad, long-only y sin apalancamiento, con cartera concentrada de 25-30 valores seleccionados por eliminación (Stocksifter) y sesgo a tecnología/semiconductores, industriales y salud.</p>
 
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Global (calidad, long-only)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Concentración sectorial en tecnología y cadena de semiconductores (≈37%)</li><li style="margin-bottom:4px;">Concentración geográfica en Norteamérica (≈64%)</li><li style="margin-bottom:4px;">Comisiones altas (TER ≈1,65-1,8%)</li><li style="margin-bottom:4px;">Cartera concentrada de 25-30 valores: alta dependencia de pocas posiciones</li></ul></div>
 
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
-  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
-    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
-  </div>
-  <div class="strat-row">
-  <div class="strat-yr">2020-Q1</div>
-  <div class="strat-c">La irrupción del coronavirus provocó un desplome bursátil súbito ('cisne negro') tras un arranque de año con buenas perspectivas de crecimiento global.</div>
-  <div class="strat-c">La gestora reforzó posiciones de calidad a menor precio: Cisco, Oracle, Atlas Copco, Johnson & Johnson y Lam Research, bajo la idea de que las crisis crean oportunidades para mejorar la calidad de la cartera.</div>
-  <div class="strat-c">Reposicionamiento hacia mayor calidad — base de la recuperación posterior (cualitativo, no se reporta cifra del periodo).</div>
-</div><div class="strat-row">
-  <div class="strat-yr">2021</div>
-  <div class="strat-c">Fuerte escasez de capacidad de transporte LTL de calidad en EE. UU. y crecimiento en publicidad online y tecnología.</div>
-  <div class="strat-c">Entrada en Sony (juego, música, sensores de imagen) y Nitori (Japón) por su historial y posicionamiento en sectores en crecimiento.</div>
-  <div class="strat-c">Ampliación de la cartera con nuevas ideas de calidad (sin cifra de periodo reportada).</div>
-</div><div class="strat-row">
-  <div class="strat-yr">2024</div>
-  <div class="strat-c">Buen comportamiento de la renta variable global (S&P500, Euro Stoxx 50, MSCI ACWI EUR al alza).</div>
-  <div class="strat-c">Desinversión completa de Cisco Systems y VeriSign por falta de ventaja competitiva sostenible y madurez del ciclo corporativo.</div>
-  <div class="strat-c">Mejora de la calidad media de la cartera (sin cifra de periodo reportada).</div>
-</div><div class="strat-row">
-  <div class="strat-yr">2025</div>
-  <div class="strat-c">El entusiasmo por la IA impulsó numerosas acciones, en algunos casos sin justificación fundamental suficiente; el euro se apreció frente al dólar.</div>
-  <div class="strat-c">Salida completa de Sony, Disney y Autoliv al dejar de cumplir los criterios, sustituidas por nuevas ideas de mayor calidad.</div>
-  <div class="strat-c">+7,1% acumulado en 2025 hasta noviembre — impulsado por semiconductores e industriales de calidad.</div>
-</div>
+  
 
   
 </section>
@@ -623,20 +388,26 @@ Aunque ya no ejerce como Portfolio Manager activo, Kulvik **sigue siendo el prin
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
 
   <div class="mb24">
-    
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Por geografía domina <strong>Norteamérica (≈64,5%)</strong>, seguida de Europa desarrollada (≈27,8%) y una presencia menor en Asia desarrollada (≈4,6%) y Japón (≈3,1%). No se trata de una apuesta macro: la concentración geográfica es consecuencia de dónde residen, según el proceso, los mejores modelos de negocio de calidad, no de una visión top-down (la gestora se declara explícitamente *benchmark-agnostic* y sin *macro views*).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La lectura sectorial explica buena parte del comportamiento reciente. La <strong>tecnología pesa ≈37%</strong>, con la cadena de valor de semiconductores (fabricantes de equipos como Lam Research, Applied Materials, Disco y TSMC) como vía selectiva de exposición al ciclo de inversión en IA y centros de datos —la gestora cifra los semiconductores en torno al <strong>30%</strong> de la cartera—. Los <strong>industriales de calidad</strong> suman ≈24% (Safran, Atlas Copco, Old Dominion, Canadian National) y la <strong>salud</strong> ≈17% (West Pharmaceutical, Mettler-Toledo, Johnson & Johnson, IDEXX), aportando defensividad. Completan el cuadro comunicación (≈12%, esencialmente vía Alphabet), financieras (≈7%, Deutsche Börse) y consumo defensivo (≈4%, Costco, North West Company).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Racional y riesgos estructurales</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La concentración —pocas posiciones de alta convicción y un peso relevante del top-10— es coherente con la filosofía de calidad y baja rotación, pero implica que la evolución del fondo depende del acierto en relativamente pocas decisiones y de la salud del ciclo tecnológico-industrial. El riesgo estructural es, por tanto, doble: <strong>sectorial</strong> (tecnología/semiconductores ≈37%) y <strong>geográfico</strong> (Norteamérica ≈64%), parcialmente mitigado por la calidad, el poder de fijación de precios y los balances saneados de los negocios subyacentes. La <strong>exposición mínima a software</strong> limitó el impacto de la corrección del SaaS a comienzos de 2026, ilustrando cómo el sesgo a semiconductores, industriales y defensivos actúa de contrapeso.</p></div>
+    <p class="subsec">Cómo se construye la cartera</p><p class="pr">La cartera del Sifter Fund - Global es el resultado de un embudo de selección muy estricto: el proceso propietario *Stocksifter* parte de un universo de unas <strong>65.000 cotizadas</strong>, rechaza más del 95% por baja calidad, deja ~50 candidatas para análisis fundamental profundo y solo incorpora <strong>3-5 valores nuevos al año</strong>. El producto final es una cartera deliberadamente concentrada de <strong>25-30 negocios de calidad</strong> (carta de febrero 2026: «focused 25-30 quality stock portfolio»). A cierre del último periodo la cartera está compuesta por <strong>25 posiciones</strong>, que suman prácticamente el 100% del patrimonio (≈99,5%): es, por tanto, una cartera *larga sólo*, sin apalancamiento, sin derivados salvo cobertura puntual de divisa y plenamente invertida a lo largo del ciclo. La política de inversión fija un <strong>límite del 10% por emisor</strong>, que actúa como tope natural al tamaño de cada posición y obliga a recortar las ganadoras cuando se acercan a ese techo.</p><p class="subsec">Número de posiciones y concentración</p><p class="pr">Con la cartera íntegra disponible, las cifras son nítidas: el fondo mantiene <strong>25 valores</strong>, con una concentración apreciable pero no extrema. Las <strong>cinco mayores pesan ≈33,6%</strong>, las <strong>diez mayores ≈54,7%</strong> y las <strong>quince mayores ≈72,7%</strong> del patrimonio. Ninguna posición individual supera el techo del 10%: la mayor, Safran (≈8,9%), y Microsoft (≈8,2%) concentran por sí solas algo más del 17%, mientras la cola de la cartera (posiciones 16 a 25) aporta pesos del 1-3%. Es una concentración coherente con la filosofía de alta convicción y baja rotación: pocas ideas, muy estudiadas, mantenidas durante años.</p><p class="subsec">Cómo han evolucionado los pesos y por qué</p><p class="pr">La rotación es baja y siempre justificada por fundamentales, no por *timing*. En el ejercicio 2024 el equipo <strong>desinvirtió por completo Cisco y VeriSign</strong> —ambas por agotamiento de la vía de crecimiento (Cisco no puede crecer orgánicamente por encima del PIB; los dominios .com están en contracción)— y las reemplazó por <strong>TOMRA Systems</strong> (máquinas de reciclaje, 70% de cuota global, impulso regulatorio de la UE) y <strong>Mettler-Toledo</strong> (instrumentación de precisión). En ese mismo periodo recortó ~33% de <strong>Disco</strong> porque su cotización se había adelantado a los fundamentales, y rebajó <strong>Novo Nordisk</strong> al aproximarse al límite del 10%. En el tercer trimestre de 2025 no añadió ningún nombre nuevo, pero <strong>recortó Disco, TSMC, Safran y Lam Research</strong> tras su fuerte revalorización (y por motivos regulatorios) y <strong>reasignó capital a Novo Nordisk, West Pharmaceutical, Canadian National y Old Dominion</strong>, donde la debilidad reciente del precio mejoraba el retorno esperado a largo plazo. Estos movimientos han ido desplazando el sesgo de la cartera: el peso de <strong>Norteamérica ha bajado del ≈64% (2020) al ≈53% (2025)</strong> a favor de Europa desarrollada y Japón, y el de <strong>tecnología del ≈40% (2020/2022) al ≈31% (2025)</strong> en favor de industriales de calidad.</p><p class="subsec">Posiciones de alta convicción</p><p class="pr">El núcleo de convicción está formado por compañías que el equipo lleva <strong>años en cartera</strong> y que reaparecen carta tras carta: <strong>Microsoft</strong> (la única posición con rentabilidad positiva en el desplome del primer trimestre de 2020, gracias a un peso entonces del 7,2%), <strong>Safran</strong> (descrita como «a great, quality company by Sifter's criteria», mantenida incluso durante el estrés aeroespacial del COVID y hoy primera posición), <strong>Alphabet</strong> (+77,8% en 2021, motor recurrente), <strong>Novo Nordisk</strong> (incorporada en 2020 por cumplir criterios de calidad y éticos, mantenida pese a la caída del -35,7% en febrero de 2026 por considerar su valoración atractiva), y un bloque de <strong>fabricantes de equipos de semiconductores</strong> (Lam Research, Applied Materials, Disco, TSMC) que canaliza de forma selectiva la exposición al ciclo de inversión en IA y centros de datos. A ellos se suman industriales y defensivas de larguísimo recorrido —<strong>Old Dominion, Canadian National, Atlas Copco, Costco, Johnson & Johnson</strong>— que actúan de lastre estabilizador. La permanencia de estos nombres ilustra la idea central del proceso: la calidad del negocio «es, en última instancia, lo único que importa».</p><p class="subsec">Composición actual y racional</p><p class="pr">Hoy la cartera es <strong>100% renta variable global</strong>, sin exposición doméstica española. Por geografía domina <strong>Estados Unidos (≈53%)</strong>, seguido de Francia (≈8,9%, vía Safran), Japón (≈6,7%, Disco y SMC), Países Bajos (≈6,1%, Universal Music y BE Semiconductor), Canadá (≈5,1%), Alemania (≈5,1%, Deutsche Börse), Noruega (≈4,3%, TOMRA), Taiwán (≈4,2%, TSMC), Suecia (≈3,5%, Atlas Copco) y Dinamarca (≈3,1%, Novo Nordisk). Por sectores lideran los <strong>industriales de calidad (≈33%)</strong> y la <strong>tecnología (≈31%)</strong> —dentro de la cual los semiconductores rondan el 30% de la cartera—, seguidos de <strong>salud (≈16%)</strong>, comunicación (≈10%, esencialmente Alphabet y Universal Music), financieras (≈5%, Deutsche Börse) y consumo defensivo (≈4%, Costco y North West Company). El riesgo estructural es doble: <strong>sectorial</strong> (tecnología/semiconductores) y <strong>geográfico</strong> (Norteamérica), parcialmente mitigado por la calidad de los negocios, su poder de fijación de precios y sus balances saneados. La <strong>exposición mínima a software</strong> limitó el daño de la corrección del SaaS a comienzos de 2026, mostrando cómo el sesgo a semiconductores, industriales y defensivas funciona como contrapeso.</p>
   </div>
 
-  
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
-  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>geografía</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Norteamérica 64,5%, Europa desarrollada 27,8%, Asia desarrollada 4,6%, Japón 3,1%</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sectores</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Tecnología 36,8%, Industriales 23,5%, Salud 16,9%, Comunicación 12,4%, Financieras 6,6%, Consumo defensivo 3,9%</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Evolución por geografía (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-geo-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-geo-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2020", "2024", "2025"],datasets:[{"label": "Estados Unidos", "data": [64.44, 47.41, 52.61], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Jap\u00f3n", "data": [10.87, 7.29, 6.65], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Francia", "data": [2.37, 5.93, 8.87], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Taiw\u00e1n", "data": [7.2, 5.54, 4.17], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Canad\u00e1", "data": [6.49, 5.04, 5.1], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [8.88, 28.15, 22.14], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div><div class="ch-b"><div class="ch-l">Evolución por sector (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-sec-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-sec-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2020", "2022", "2024", "2025"],datasets:[{"label": "Technology", "data": [40.36, 0, 32.37, 30.81], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Industrials", "data": [20.89, 0, 27.58, 33.08], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Tecnolog\u00eda", "data": [0, 40.77, 0, 0], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Healthcare", "data": [0, 0, 19.15, 16.37], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Communications", "data": [8.98, 0, 9.31, 9.99], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [30.02, 58.87, 10.95, 9.29], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div></div>
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">10</div><div class="kpi-sub">vs media hist. 0</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">59,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">25</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">54,7%</div><div class="kpi-sub">—</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">59,0%</div><div class="kpi-sub">Renta variable</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">99,5%</div><div class="kpi-sub">Renta variable</div></div>
   </div>
 
   <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
@@ -645,7 +416,7 @@ Aunque ya no ejerce como Portfolio Manager activo, Kulvik **sigue siendo el prin
     if (typeof Chart === 'undefined') return;
     const ctxMix = document.getElementById('c-mix');
     if (ctxMix) {
-      const tipos = [["RV", 59.0]];
+      const tipos = [["RV", 99.5]];
       new Chart(ctxMix, {
         type: 'doughnut',
         data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
@@ -656,96 +427,241 @@ Aunque ya no ejerce como Portfolio Manager activo, Kulvik **sigue siendo el prin
     if (ctxC) {
       new Chart(ctxC, {
         type: 'bar',
-        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [38.3, 59.0, 59.0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [33.6, 54.7, 72.7], backgroundColor:'rgba(12,35,64,0.85)' }] },
         options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
       });
     }
   })();
   </script>
 
-  <div class="sr">Todas las posiciones (10)</div>
+  <div class="sr">Todas las posiciones (25)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
-  <td title="Alphabet Inc Class A">Alphabet Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:76px;background:#0c2340;"></div>9,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>10%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
   <td title="Safran SA">Safran SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">France</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:62px;background:#0c2340;"></div>7,8%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>17%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:70px;background:#0c2340;"></div>8,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>9%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="Microsoft Corp">Microsoft Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:59px;background:#0c2340;"></div>7,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>25%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:65px;background:#0c2340;"></div>8,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>17%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Lam Research Corp">Lam Research Corp</td>
+  <td title="Alphabet Inc-A">Alphabet Inc-A</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Communications</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:56px;background:#0c2340;"></div>7,1%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>32%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Applied Materials Inc">Applied Materials Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:52px;background:#0c2340;"></div>6,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>38%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Taiwan Semiconductor Manufacturing Co Ltd ADR">Taiwan Semiconductor Manufacturing Co Ltd ADR</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Taiwan</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>43%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="West Pharmaceutical Services Inc">West Pharmaceutical Services Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:35px;background:#0c2340;"></div>4,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>47%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:53px;background:#0c2340;"></div>6,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>24%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="Deutsche Boerse AG">Deutsche Boerse AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Germany</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,3%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>52%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:40px;background:#0c2340;"></div>5,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>29%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Lam Research Corp">Lam Research Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:38px;background:#0c2340;"></div>4,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>34%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Disco Corp">Disco Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>38%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="TOMRA Systems A SA">TOMRA Systems A SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Noruega</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>42%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Taiwan Semiconductor Manufacturing-">Taiwan Semiconductor Manufacturing-</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Taiwán</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>47%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="West Pharmaceutical Services Inc">West Pharmaceutical Services Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>51%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Texas Instruments Inc">Texas Instruments Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>55%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Canadian National Railway Co">Canadian National Railway Co</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>59%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Applied Materials Inc">Applied Materials Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>62%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Atlas Copco AB">Atlas Copco AB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>66%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="Mettler-Toledo International Inc">Mettler-Toledo International Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">United States</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>55%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Atlas Copco AB Class B">Atlas Copco AB Class B</td>
+  <td title="Old Dominion Freight Line Inc">Old Dominion Freight Line Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Sweden</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>59%</div></td>
+  <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Universal Music Group NV">Universal Music Group NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="IDEXX Laboratories Inc">IDEXX Laboratories Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Automatic Data Processing Inc">Automatic Data Processing Inc</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Novo Nordisk A/S">Novo Nordisk A/S</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Costco Wholesale Corp">Costco Wholesale Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="BE Semiconductor Industries NV">BE Semiconductor Industries NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Cintas Corp">Cintas Corp</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Johnson & Johnson">Johnson & Johnson</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SMC Corp/Japan">SMC Corp/Japan</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>98%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="North West Co Inc/The">North West Co Inc/The</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>100%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr></tbody>
     </table>
@@ -755,89 +671,24 @@ Aunque ya no ejerce como Portfolio Manager activo, Kulvik **sigue siendo el prin
 <section class="pane" id="p6">
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
   
-  <div class="sr" style="margin-top:0;color:var(--navy);border-bottom-color:var(--navy);">Análisis profesionales</div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#ff6719;">SF</div>
-        <div class="src-info">
-          <div class="src-o">Salud Financiera</div>
-        </div>
-        <span class="src-date">2025</span>
-      </div>
-      <div class="src-t">Análisis del Sifter Global Fund</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
-      <div class="exp-body open">Uno de los mejores fondos de RV global de calidad en Europa: ~30 compañías de alta convicción, proceso bottom-up por eliminación con cuatro criterios. Crítica: TER ~1,7% elevado que dificulta batir al índice sostenidamente.</div>
-      <a href="https://saludfinanciera.substack.com/p/analisis-sifter-global-fund" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#ff6719;">MO</div>
-        <div class="src-info">
-          <div class="src-o">Moclano</div>
-        </div>
-        <span class="src-date">2025</span>
-      </div>
-      <div class="src-t">Sifter Fund Global — Nordic Quality Investing</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
-      <div class="exp-body open">Detalle del método: 23 años aplicando eliminación sistemática del 99% del universo (65.000→25-30), proceso de seis etapas y cuatro pilares de calidad. Rentabilidad anualizada a 5 años +12,14%.</div>
-      <a href="https://moclano.substack.com/p/sifter-global-fund" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#ff6719;">MO</div>
-        <div class="src-info">
-          <div class="src-o">Moclano</div>
-        </div>
-        <span class="src-date">2025</span>
-      </div>
-      <div class="src-t">Carteras modelo V.1</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▼ Ver puntos clave</button>
-      <div class="exp-body open">Incluye al Sifter en las carteras modelo Moderado (15%) y Dinámico (12%) como boutique finlandesa de calidad concentrada; Sharpe 0,55 y capacidad de generar alfa sin alta correlación.</div>
-      <a href="https://moclano.substack.com/p/carteras-modelo-v1" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#fff1e5;">FT</div>
-        <div class="src-info">
-          <div class="src-o">Financial Times</div>
-        </div>
-        <span class="src-date">2026</span>
-      </div>
-      <div class="src-t">Sifter Fund - Global PA — Fund tearsheet</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Ficha de datos: precio, tamaño del fondo, ongoing charge ≈1,65%, revalorización a 1 año +24,17%, principales sectores (Tecnología ≈39%, Industriales). Gestión atribuida a Santeri Korpinen desde 2016.</div>
-      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168736675:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#6b3fa0;">AS</div>
-        <div class="src-info">
-          <div class="src-o">FundsPeople</div>
-        </div>
-        <span class="src-date">2024</span>
-      </div>
-      <div class="src-t">ACCI trae a España la gestora finlandesa Sifter</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Acuerdo (sept. 2024) para distribuir el Sifter Fund Global en Iberia y Latinoamérica, ampliando el acceso del inversor español a la estrategia flagship de la boutique.</div>
-      <a href="https://fundspeople.com/es/acci-trae-a-espana-la-gestora-finlandesa-sifter/" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
+  
+  
 </section>
 
 <section class="pane" id="p7">
-  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">29 fuentes consultadas</span></div>
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">0 fuentes consultadas</span></div>
 
-  <div class="doc-grp">Informes semestrales CNMV (5)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Sifter-Fund-Annual-Report-300820-SIGNED-by-STE.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0168736675/raw/discovery/Sifter-Fund-Annual-Report-300820-SIGNED-by-STE.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_sifter-annual-report-31082025-signed.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0168736675/raw/discovery/_web_sifter-annual-report-31082025-signed.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifter-fund-factsheet-december-2025.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0168736675/raw/discovery/sifter-fund-factsheet-december-2025.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">KIDDOC-LU0168736675-CH.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0168736675/raw/discovery/KIDDOC-LU0168736675-CH.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">_web_sifter-fund-prospectus-september-2025.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/LU0168736675/raw/discovery/_web_sifter-fund-prospectus-september-2025.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+  <div class="doc-grp">Informes semestrales CNMV (0)</div>
+  
 
-  <div class="doc-grp">Cartas del gestor (8)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">rns-pdf.londonstockexchange.com — 8633V  2015 8 12.pdf</span><a href="https://www.rns-pdf.londonstockexchange.com/rns/8633V_-2015-8-12.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — SifterFund Quarterly report Q1 2020.pdf</span><a href="https://sifterfund.com/wp-content/uploads/SifterFund-Quarterly-report-Q1-2020.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — DOCREP O00003553 00000000 0000 2024 08 31 AR EN 0000.pdf</span><a href="https://sifterfund.com/wp-content/uploads/DOCREP-O00003553-00000000-0000-2024-08-31-AR-EN-0000.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — three reasons to avoid investing in a company</span><a href="https://sifterfund.com/en/three-reasons-to-avoid-investing-in-a-company/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — quality investing generated an annual return of 34 3 to the sifte</span><a href="https://sifterfund.com/en/quality-investing-generated-an-annual-return-of-34-3-to-the-sifter-fund-in-2021/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">sifterfund.com — blog</span><a href="https://sifterfund.com/en/blog/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">2579063.fs1.hubspotusercontent-na1.net — sifter fund factsheet eom february 2026.pdf</span><a href="https://2579063.fs1.hubspotusercontent-na1.net/hubfs/2579063/sifter-fund-factsheet-eom-february-2026.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">2579063.fs1.hubspotusercontent-na1.net — sifter annual report 31082025 signed.pdf</span><a href="https://2579063.fs1.hubspotusercontent-na1.net/hubfs/2579063/sifter-annual-report-31082025-signed.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+  <div class="doc-grp">Cartas del gestor (0)</div>
+  
 
   <div class="doc-grp">XMLs CNMV (0)</div>
   
 
-  <div class="doc-grp">Fuentes externas (14)</div>
-  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — acci trae a espana la gestora finlandesa sifter</span><a href="https://fundspeople.com/es/acci-trae-a-espana-la-gestora-finlandesa-sifter/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — acci traz para a peninsula iberica a gestora finlandesa sifter</span><a href="https://fundspeople.com/pt/acci-traz-para-a-peninsula-iberica-a-gestora-finlandesa-sifter/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — holdings</span><a href="https://markets.ft.com/data/funds/tearsheet/holdings?s=LU0168736675:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — risk</span><a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU0168577939:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168577939:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0168736675:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu1194076995:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">moclano.substack.com — carteras modelo v1</span><a href="https://moclano.substack.com/p/carteras-modelo-v1" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">moclano.substack.com — sifter global fund</span><a href="https://moclano.substack.com/p/sifter-global-fund" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">saludfinanciera.substack.com — analisis sifter global fund</span><a href="https://saludfinanciera.substack.com/p/analisis-sifter-global-fund" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 4 archivos más</div>
+  <div class="doc-grp">Fuentes externas (0)</div>
+  
 </section>
 
 <section class="pane" id="p8">
@@ -1498,7 +1349,7 @@ function fmtES(v,dec){
 function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
 const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
 const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
-const Y=["23", "24", "25"];
+const Y=["18", "19", "20", "21", "22", "23", "24", "25"];
 // Anti-collision label helper for area/line charts with multiple series
 function drawAreaLabels(chart,colors,dec,minGap){
   const ctx=chart.ctx;
@@ -1559,7 +1410,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[194.67, 268.45, 280.75],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[99.93, 112.2, 119.99, 167.67, 165.66, 194.67, 268.45, 162.94],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){
