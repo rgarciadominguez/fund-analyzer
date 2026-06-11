@@ -72,9 +72,20 @@ def validate(isin: str) -> dict:
 
     pos = (j.get("posiciones", {}) or {}).get("actuales", []) or []
     if pos:
+        # Los sectores de RV no aplican a fondos de RENTA FIJA / bonos (cat bonds,
+        # treasuries...). Detectar dominancia RF y marcar sector N/A (no fallo).
+        def _is_bond(p):
+            t = str(p.get("tipo", "")).upper()
+            if any(k in t for k in ("RF", "FIJA", "BOND", "FUTURO", "DERIV")):
+                return True
+            return bool(_re.search(r"treasury|bill|\bbond|\bnote|coupon|\d{4}-\d{2}-\d{2}|\d(?:[.,]\d+)?%",
+                                   str(p.get("nombre", "")), _re.I))
+        rf_share = sum(1 for p in pos if _is_bond(p)) / len(pos)
         with_sec = sum(1 for p in pos if p.get("sector"))
         cov = round(100 * with_sec / len(pos))
-        if cov >= 70:
+        if rf_share > 0.5:
+            ok_pts.append(f"sector N/A (renta fija, {round(rf_share*100)}% bonos)")
+        elif cov >= 70:
             ok_pts.append(f"sector cobertura {cov}%")
         else:
             issues.append(f"FORMATO: sector cobertura baja {cov}% ({with_sec}/{len(pos)})")
