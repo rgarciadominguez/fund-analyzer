@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -166,14 +180,14 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div class="lh-left">
       <div class="lh-fund">Wellington Strategic European Equity Fund <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
       <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Wellington Management</strong></div>
-      
+      <div class="lh-meta-line">Depositario: <strong>IndependentAuditors GlobalSub-Custodian</strong></div>
       <div class='lh-meta-line'>ISIN retail EUR: <strong>IE00B8BPMF80</strong> <span style='opacity:.55;font-size:10.5px;'>· Class FUND EUR</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>IE000X1S9XC9</strong> <span style='opacity:.55;font-size:10.5px;'>· Wellington Strategic European Equity Fund S Q1 EUR Distri...</span></div>
     </div>
 
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
     <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€5.130M</div>
+        <div class="lh-aum-v">€5.092M</div>
         <div class="lh-aum-l">AUM</div>
         <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
       </div>
@@ -187,7 +201,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Diciembre 2012</span></div>
       <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Europea</span></div>
-      
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Dirk Enderlein</strong></span></div>
       <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
     </div>
 
@@ -208,7 +222,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-10</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-11</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin IE00B8BPMF80 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -218,25 +232,27 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr">Wellington Strategic European Equity Fund es un sub-fondo UCITS domiciliado en Irlanda dentro del paraguas Wellington Management Funds (Ireland) plc, gestionado por Wellington Management (entidad PRIIP: Wellington Luxembourg S.à r.l.) y con State Street Custodial Services (Ireland) como depositario. La clase analizada es la EUR D AccU (acumulación, divisa base EUR), con ISIN IE00B8BPMF80 (fuente: PRIIP KID, producido 2026-02-02).</p><p class="pr">El fondo busca retornos totales a largo plazo invirtiendo de forma activa y predominante en una cartera diversificada de compañías europeas que el gestor considera que disfrutarán de un crecimiento de beneficios y de flujo de caja superior a la media en relación con el índice MSCI Europe, que actúa como benchmark de referencia (no usado en la construcción de la cartera). El enfoque es bottom-up de selección de valores, con sesgo a crecimiento (KID, sección Objetivos).</p><p class="pr">En el plano de costes y riesgo, el KID reporta un coste recurrente de gestión y administración del 1,69% anual, costes de transacción del 0,36%, coste de entrada de hasta el 5,00%, sin coste de salida ni comisión de éxito. El indicador de riesgo (SRRI) es 4 sobre 7 y el horizonte de inversión recomendado es de 5 años.</p><p class="pr">AVISO DE DATOS: este resumen se basa únicamente en el PRIIP KID, la única fuente del expediente validada para este ISIN. El expediente NO contiene patrimonio (AUM), número de partícipes, posiciones de cartera, rentabilidad histórica real ni identificación del equipo gestor. La única 'carta' presente en el expediente pertenece a otro fondo (Diameter Capital Partners, un hedge fund de crédito) y ha sido excluida por contaminación. Por tanto, los apartados de gestores, posiciones, evolución cuantitativa y fuentes externas quedan sin contenido verificable.</p>
+    <p class="pr">El <strong>Wellington Strategic European Equity Fund</strong> (ISIN IE00B8BPMF80) es un fondo de renta variable europea, domiciliado en Irlanda y denominado en euros, gestionado por <strong>Wellington Management</strong>, una de las mayores casas de inversión independientes del mundo. Su objetivo es obtener rendimientos totales a largo plazo batiendo al <strong>MSCI Europe Index</strong> mediante una selección de valores <strong>bottom-up</strong>, invirtiendo de forma predominante en compañías domiciliadas en Europa que el gestor cree que disfrutarán de un crecimiento de beneficios y flujos de caja superior a la media de los componentes del índice (fund_data.cualitativo.estrategia).</p><p class="pr">El fondo lo dirige <strong>Dirk Enderlein, CFA</strong>, gestor principal y único del enfoque Strategic European Equity, que él mismo estableció. Morningstar le otorga un <strong>People Pillar 'High'</strong> y lo describe como el 'seasoned skipper' del fondo (manager_profile.json). Esta es una estrategia de <strong>gestor único</strong> (single-PM) dentro de una plataforma institucional: Enderlein toma las decisiones de cartera apoyándose en la red global de analistas sectoriales y de equipo de Wellington.</p><p class="pr">A cierre de 2025 el fondo gestiona <strong>€5.092 millones</strong> de patrimonio (fecha 2025-12-31), con una cartera <strong>diversificada de 66 posiciones</strong>, prácticamente todo en renta variable (97,4% equity, 2,7% liquidez). El sesgo sectorial está claramente inclinado hacia <strong>Industriales (31,7%)</strong> y <strong>Financieras (20,6%)</strong>, seguidos de Consumo básico (13,7%). Está clasificado como <strong>Artículo 8 SFDR</strong>, promoviendo características sociales (al menos el 60% de los activos en compañías con un S Rating 1-3) y aplicando exclusiones (carbón térmico, arenas bituminosas, armas nucleares/controvertidas).</p><p class="pr">El principal punto de atención es el <strong>coste</strong>: con un TER del 1,69% y unos gastos corrientes totales del 2,02% (impacto estimado a 5 años del 3,1%), es un producto caro que debe demostrar de forma sostenida su capacidad de añadir valor neto sobre el MSCI Europe. El bundle disponible <strong>no incluye serie de rentabilidad histórica verificable</strong>, por lo que ese juicio queda pendiente de datos de performance.</p>
   </div>
 
   <div class="col2 mb20">
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
-      <p class="pr">La filosofía declarada del fondo (según el PRIIP KID) es la de un proceso activo de selección bottom-up de renta variable europea con sesgo al crecimiento: el objetivo es identificar compañías domiciliadas en Europa cuyo crecimiento de beneficios y de flujo de caja se espere superior a la media del MSCI Europe. El fondo puede invertir en acciones y otros valores con características de renta variable (preferentes, convertibles, depositary receipts), de forma directa o vía derivados. Incorpora un marco de sostenibilidad SFDR artículo 8: al menos un 60% del patrimonio neto en compañías con rating social 1-3 (escala 1-5), un mínimo del 80% del patrimonio alineado con características medioambientales/sociales, y exclusiones explícitas de carbón térmico, arenas petrolíferas, ojivas/misiles nucleares y armamento controvertido. No se dispone en fuentes de un detalle adicional sobre el proceso (universo, scoring propietario, límites de cartera) más allá de lo recogido en el KID.</p>
+      <p class="pr">La filosofía del fondo es de <strong>crecimiento estructural</strong> ejecutada con disciplina bottom-up. El gestor busca compañías europeas capaces de generar un crecimiento de beneficios y de flujos de caja por encima de la media del MSCI Europe, sin atarse a la composición sectorial del índice. La construcción de cartera parte del análisis fundamental de cada compañía (modelo de negocio, ventajas competitivas, calidad del balance y sostenibilidad del crecimiento), no de una visión macro top-down.
+
+Un matiz importante de su filosofía lo resume el propio Enderlein en una entrevista de 2026: «la mejor acción de crecimiento es hoy todavía un valor *value*». Es decir, el fondo no persigue crecimiento a cualquier precio, sino <strong>crecimiento de calidad a una valoración razonable</strong>, combinando el ADN growth con disciplina de precio. La integración de criterios ASG (Artículo 8) es parte estructural del proceso, no un filtro accesorio: las compañías se evalúan también por su perfil social y se excluyen actividades controvertidas. El resultado es una cartera amplia (decenas de nombres) que busca diversificar el riesgo idiosincrático mientras concentra la convicción en negocios de calidad con crecimiento sostenible.</p>
     </div>
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
       <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Crecimiento superior a la media:</strong> <span class="pr" style="font-size:12.5px;">Selección de compañías europeas con expectativa de crecimiento de beneficios y flujo de caja por encima de la media del MSCI Europe (KID, Objetivos).</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Crecimiento estructural superior al índice:</strong> <span class="pr" style="font-size:12.5px;">Selección de compañías europeas con crecimiento esperado de beneficios y flujos de caja por encima de la media de los componentes del MSCI Europe.</span></div>
             </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Selección bottom-up:</strong> <span class="pr" style="font-size:12.5px;">Construcción de cartera basada en el análisis individual de cada compañía, no en asignación top-down ni replicación del índice.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Análisis bottom-up fundamental:</strong> <span class="pr" style="font-size:12.5px;">Las decisiones nacen del estudio compañía a compañía (modelo de negocio, ventaja competitiva, calidad del balance), apoyado en la red global de analistas sectoriales de Wellington.</span></div>
             </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Universo de renta variable europea:</strong> <span class="pr" style="font-size:12.5px;">Inversión predominante en compañías domiciliadas en Europa, en acciones y valores con características de equity (preferentes, convertibles, depositary receipts).</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Crecimiento de calidad a precio razonable:</strong> <span class="pr" style="font-size:12.5px;">El gestor evita pagar cualquier precio por el crecimiento; busca negocios de calidad cuya valoración no descuente ya todo el crecimiento futuro («el mejor growth sigue siendo un value»).</span></div>
             </div>
     </div>
   </div>
@@ -249,10 +265,10 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
   <div class="col2 mb20"><div>
       <div class="sr" style="color:var(--pos);">Fortalezas</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Gestionado por Wellington Management, una de las mayores gestoras independientes globales, con un proceso activo y declaradamente bottom-up (KID).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Marco de sostenibilidad explicito y verificable (SFDR articulo 8) con umbrales concretos de rating social y exclusiones sectoriales claras.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estructura UCITS irlandesa con depositario State Street y clase de acumulacion en EUR, adecuada para inversores europeos con horizonte de 5 anios.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Mandato claro y enfocado: renta variable europea con sesgo a crecimiento de beneficios y flujo de caja superior a la media del indice.</span></div></div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Gestor principal único, veterano y estable: Dirk Enderlein (27+ años de experiencia, en Wellington desde 2010) estableció y dirige el enfoque, con un People Pillar 'High' de Morningstar que avala su continuidad.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Respaldo de una plataforma institucional de primer nivel: Wellington Management aporta una red global de analistas sectoriales sobre la que se apoya la selección bottom-up.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Cartera bien diversificada (66 posiciones, top 10 ≈ 32%), lo que reduce la dependencia de cualquier valor concreto y suaviza el riesgo específico.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Proceso coherente y articulado: crecimiento estructural de calidad a precio razonable, con un sesgo claro y explicable hacia industriales y financieras europeas.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Marco ASG estructural (Artículo 8 SFDR) con métricas sociales medibles y exclusiones definidas, integrado en el proceso y no como capa cosmética.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Escala y viabilidad: €5.092M de patrimonio a cierre de 2025 garantizan masa crítica y continuidad operativa del producto.</span></div></div>
     </div><div>
       <div class="sr" style="color:var(--neg);">Riesgos</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Exposicion plena a renta variable europea: el indicador de riesgo es 4/7 (SRRI) y el escenario de tension del KID proyecta -18,3% anualizado a 5 anios.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Carga de costes relevante: coste de entrada de hasta 5,00% mas TER 1,69% y costes de transaccion 0,36%; el impacto de costes a 1 anio se estima en 7,1% segun el KID.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">El sesgo a crecimiento puede penalizar en entornos de rotacion hacia value o de subidas de tipos de interes.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">No se dispone en fuentes de track record real, posiciones ni AUM, por lo que no es posible evaluar consistencia historica, concentracion ni tamanio del fondo.</span></div></div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste elevado: TER 1,69% y gastos corrientes totales 2,02% (impacto a 5 años ≈ 3,1%), una carga exigente que el fondo debe superar de forma sostenida para batir al MSCI Europe neto de comisiones.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Ausencia de serie de rentabilidad verificable en el bundle: no es posible confirmar con datos el valor añadido histórico frente al índice ni la consistencia del proceso.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de hombre clave: al ser una estrategia single-PM sin co-gestor publicado, la marcha o indisponibilidad de Dirk Enderlein sería un evento material para el fondo.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sesgo de estilo growth/calidad que puede quedar rezagado en fases de fuerte rotación hacia value profundo o en entornos de tipos elevados y persistentes.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración sectorial relevante en Industriales (31,7%) y Financieras (20,6%), que expone la cartera al ciclo industrial europeo y a la sensibilidad de la banca a los tipos.</span></div></div>
     </div></div>
 
   <div class="sr">Clases disponibles</div>
@@ -262,7 +278,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   </table>
   
 
-  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con perfil de riesgo medio (SRRI 4) y horizonte de al menos 5 años que busca exposición a renta variable europea gestionada activamente con sesgo a crecimiento y un marco de sostenibilidad SFDR artículo 8, y que sea consciente del coste de entrada de hasta el 5% y de los costes recurrentes.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone en las fuentes del expediente de información sobre alineación del gestor, inversión propia (skin in the game) ni estructura de propiedad del equipo. No se afirma nada al respecto para no inventar.</p></div></div>
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con horizonte de <strong>al menos 5 años</strong> (periodo de tenencia recomendado) que busca exposición activa a renta variable europea de calidad-crecimiento y acepta la volatilidad propia de la bolsa (perfil de riesgo SRRI 4 sobre 7). Adecuado como bloque core o satélite de RV Europa para carteras que valoran un gestor con criterio propio y marco ASG Artículo 8, y que toleran un coste por encima de la media a cambio de gestión activa. No apto para quien priorice bajo coste o un vehículo puramente indexado.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">El alineamiento descansa en el modelo de <strong>gestor único y veterano</strong>: Dirk Enderlein creó el enfoque Strategic European Equity y lo gestiona en exclusiva, lo que vincula su reputación profesional al resultado del fondo. Wellington Management es una firma independiente, propiedad de sus socios, estructura que favorece la retención del talento. El bundle no aporta datos públicos de inversión personal del gestor (skin in the game) en el propio fondo, por lo que ese punto no puede afirmarse con cifras.</p></div></div>
 
   <div class="sr">TER por clase (snapshot actual)</div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
@@ -295,7 +311,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Diciembre 2012 — presente</span></div>
 
   <div class="mb24">
-    <p class="pr">No se dispone en el expediente de fuentes que permitan reconstruir la historia del fondo (fecha de lanzamiento, evolución de patrimonio, cambios de equipo o de estrategia, hitos o premios). La única fuente validada para este ISIN es el PRIIP KID, producido el 2 de febrero de 2026, que no incluye cronología histórica.</p><p class="pr">Lo único verificable es la naturaleza estructural del vehículo: Wellington Strategic European Equity Fund es un sub-fondo UCITS dentro del paraguas Wellington Management Funds (Ireland) plc, domiciliado en Irlanda, gestionado por Wellington Management con entidad PRIIP Wellington Luxembourg S.à r.l. y depositario State Street Custodial Services (Ireland) Limited. La clase analizada es la EUR D AccU.</p><p class="pr">Para construir una verdadera narrativa histórica (año de creación, evolución de AUM y rentabilidad, cambios en el equipo) sería necesario recuperar los informes anuales/semestrales y factsheets de Wellington para este sub-fondo, así como el anexo de rentabilidad histórica del KID, ninguno de los cuales está presente y extraído en el expediente actual.</p>
+    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Origen del fondo y del enf…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">El fondo frente al mercado</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Lectura de conjunto</button></div><div class="subtab-panel active"><p class="pr">El Wellington Strategic European Equity Fund es la materialización en formato UCITS irlandés del enfoque <strong>Strategic European Equity</strong> que <strong>Dirk Enderlein</strong> estableció dentro de Wellington Management tras incorporarse a la firma en 2010, procedente de Allianz Global Investors / RCM, donde ya gestionaba renta variable europea. El fondo nace, por tanto, ligado a una persona y a un proceso concretos: la búsqueda de crecimiento estructural de calidad en compañías europeas, seleccionadas una a una desde abajo y apoyadas en la potencia analítica global de Wellington.</p><p class="pr">La trayectoria visible en los datos disponibles muestra un fondo que ha <strong>rotado de forma sustancial su composición sectorial</strong> a lo largo del tiempo sin abandonar su ADN. En 2020 la cartera estaba claramente escorada hacia <strong>Health care (~29%)</strong> e Industriales (~32%), un perfil más defensivo y de calidad. Cinco años después, en 2025, la salud ha caído hasta el ~7% mientras Financieras (del ~16% al ~21%) e Industriales (estable en el ~32%) dominan la cartera, reflejando el giro hacia la normalización de tipos en Europa y la recuperación del ciclo industrial. Es una rotación de convicción importante, ejecutada por el mismo gestor, que ilustra el carácter activo y no indexado del proceso.</p><p class="pr">El fondo ha alcanzado una escala relevante —<strong>€5.092 millones a cierre de 2025</strong>— y mantiene de forma consistente su marco ASG Artículo 8, con el porcentaje de activos en compañías con buen S Rating oscilando entre el 76% y el 83% en los últimos cuatro años. La continuidad del gestor único, reconocida por Morningstar con un People Pillar 'High', es el hilo conductor de toda su historia: pocas casas pueden presumir de tener al fundador del enfoque al frente del producto durante tantos años.</p><p class="pr">El bundle disponible <strong>no contiene una serie de rentabilidad histórica ni de patrimonio año a año verificable</strong>, por lo que la narrativa de performance frente al mercado no puede detallarse con cifras y se limita a lo que reflejan la rotación sectorial, la escala actual y el reconocimiento cualitativo del gestor.</p></div><div class="subtab-panel"><p class="pr">El fondo es el vehículo UCITS (domiciliado en Irlanda, denominado en euros) del enfoque Strategic European Equity creado por Dirk Enderlein en Wellington Management. Enderlein se incorporó a Wellington en 2010 tras su etapa como Portfolio Manager en Allianz Global Investors / RCM, y desde entonces es el gestor principal —y único— de la estrategia. El proceso es bottom-up: selección de compañías europeas con crecimiento de beneficios y flujos de caja superior a la media del MSCI Europe, apoyándose en la red global de analistas sectoriales de Wellington (manager_profile.json; fund_data.cualitativo.estrategia).</p></div><div class="subtab-panel"><p class="pr">Aunque el bundle no aporta rentabilidades año a año, sí permite leer la evolución a través del posicionamiento sectorial, que es donde se materializan las decisiones del gestor:</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2020 — Cartera defensiva y de calidad.</strong> Health care pesaba ~29,2% e Industriales ~31,6%, con Financieras solo en ~15,8%. Un perfil coherente con un entorno de tipos bajos y refugio en negocios estables y de crecimiento visible (fund_data.sector_allocation_history).</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2021 — Transición.</strong> la salud empieza a recortarse (~24,8%) mientras Financieras sube ligeramente (~17,4%) e Industriales se mantiene dominante (~30,4%). El gestor comienza a girar hacia el ciclo.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2025 — Cartera procíclica.</strong> la rotación culmina con Industriales en el ~31,7% y Financieras disparadas hasta el ~20,6%, mientras Health care colapsa al ~7,4%. La cartera abraza la normalización de tipos en Europa (banca periférica y nórdica) y el ciclo industrial, manteniendo un núcleo de consumo básico de calidad (BAT, Unilever, Haleon). Es una de las señales más claras del carácter activo del fondo: el mismo gestor ha transformado por completo el perfil sectorial en cinco años.</p></div><div class="subtab-panel"><p class="pr">La historia del fondo es, ante todo, la historia de un proceso estable ejecutado por un gestor estable. Sin rupturas de equipo ni cambios de propiedad reseñables en los datos disponibles, lo que cambia es el *contenido* de la cartera —su sesgo sectorial— no la *forma* de invertir. El fondo ha crecido hasta una escala de €5.092M (2025) manteniendo su marco ASG Artículo 8. La principal laguna de su relato es la falta de datos de rentabilidad verificables en el bundle, que impide cerrar el círculo decisión→entorno→resultado con cifras de performance.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
   <div class="kpi-row">
@@ -308,17 +324,80 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 5130.0;
+  window.__HIST_AUM_HEADER__ = 5091.69;
   </script>
   
   <div class="sr">Cronología de eventos relevantes</div>
   <div class="timeline">
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2026</div>
+      <div class="tl-date">2010</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Dirk Enderlein se incorpora a Wellington</div>
+      <div class="tl-desc">El futuro gestor del fondo llega a Wellington Management desde Allianz Global Investors / RCM, donde gestionaba renta variable europea.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2010-2012</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Establecimiento del enfoque Strategic European Equity</div>
+      <div class="tl-desc">Enderlein crea el enfoque que da forma a la estrategia: selección bottom-up de compañías europeas de crecimiento estructural de calidad.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2020</div>
+      <div class="tl-tag tag-hito">Cambio_estrategia</div>
+      <div class="tl-title">Cartera defensiva centrada en salud</div>
+      <div class="tl-desc">Health care ~29% e Industriales ~32% dominan la cartera; Financieras solo ~16%.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2021</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Inicio de la rotación sectorial</div>
+      <div class="tl-desc">La salud empieza a recortarse y las financieras ganan peso; transición hacia un perfil más procíclico.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2022</div>
       <div class="tl-tag tag-hito">Hecho_relevante</div>
-      <div class="tl-title">PRIIP KID vigente</div>
-      <div class="tl-desc">Documento de datos fundamentales (PRIIP KID) producido el 2026-02-02 para la clase EUR D AccU, unica fuente validada para el ISIN IE00B8BPMF80.</div>
+      <div class="tl-title">ASG: 80,6% en compañías con buen S Rating</div>
+      <div class="tl-desc">El porcentaje de activos en compañías con S Rating 1-3 se sitúa en 80,56%, dentro del marco Artículo 8 SFDR.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2024</div>
+      <div class="tl-tag tag-hito">Hecho_relevante</div>
+      <div class="tl-title">Pico de alineamiento social (83,3%)</div>
+      <div class="tl-desc">El porcentaje de activos en compañías con S Rating 1-3 alcanza su máximo del periodo: 83,26%.</div>
+    </div>
+    <div class="tl-item" style="align-items:flex-start;">
+      <div class="tl-dot dot-hito" style="width:14px;height:14px;"></div>
+      <div class="tl-date" style="font-weight:600;">2025</div>
+      <div style="grid-column:3/span 2;">
+        
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-strat">Decisión estratégica</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Cartera procíclica: industriales y financieras</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Culmina la rotación: Industriales 31,7% y Financieras 20,6%; Health care baja al 7,4%. Patrimonio €5.092M a cierre de año.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px dashed var(--rule-light);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span class="tl-tag tag-hito">Premio</span>
+            <strong style="font-size:12.5px;color:var(--ink);">Morningstar People Pillar 'High'</strong>
+          </div>
+          <div class="tl-desc" style="margin:2px 0 0 0;">Morningstar reconoce a Enderlein como 'seasoned skipper' del fondo y le otorga People Pillar 'High'.</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2026</div>
+      <div class="tl-tag tag-hito">Salto de escala</div>
+      <div class="tl-title">Entrevista: «el mejor growth sigue siendo un value»</div>
+      <div class="tl-desc">Enderlein expone en Fondsprofessionell (jun-2026) su tesis de crecimiento estructural a precio razonable en RV europea.</div>
     </div>
   </div>
   
@@ -327,9 +406,31 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  <div class="mb24"><p class="pr">No es posible perfilar al equipo gestor con la información disponible. El agente de perfilado (manager_profiler) falló durante la prep con el error 'list index out of range' y no identificó a ningún gestor; el fichero manager_profile.json del expediente está vacío de nombres. El PRIIP KID, única fuente validada para este ISIN, no nombra a los gestores responsables.</p><p class="pr">En coherencia con las reglas anti-invención del proyecto, NO se atribuye aquí ningún nombre, biografía, trayectoria ni decisión a persona alguna: hacerlo supondría inventar. El fondo está gestionado por Wellington Management (entidad PRIIP Wellington Luxembourg S.à r.l.), pero el o los gestores concretos del mandato Strategic European Equity no constan en las fuentes del expediente.</p><p class="pr">Para completar este apartado sería necesario recuperar el factsheet, el informe anual o la ficha de equipo de Wellington para este sub-fondo, donde habitualmente figuran los Portfolio Managers responsables. IMPORTANTE: la carta de 'Diameter Capital Partners' presente en el expediente pertenece a otro fondo (un hedge fund de crédito) y NO debe usarse para inferir el equipo de este fondo de renta variable europea.</p></div>
+  <div class="mb24"><p class="pr">El <strong>Wellington Strategic European Equity Fund</strong> es, en lo que respecta a su gestión, un fondo de <strong>un solo nombre</strong>: <strong>Dirk Enderlein, CFA</strong>. No se trata de una limitación informativa del bundle, sino de la naturaleza real del producto: ni el KID ni el Annual Report nombran gestores individuales —Wellington reporta a nivel de firma/equipo—, pero la investigación cruzada de fuentes independientes (página oficial de Wellington, MarketScreener, Citywire, Morningstar, Fondsprofessionell) confirma que Enderlein es el <strong>lead equity portfolio manager</strong> del enfoque Strategic European Equity, que él mismo estableció, sin co-gestor publicado (manager_profile.json, _manager_deep_meta).</p><p class="pr"><strong>Trayectoria y credenciales.</strong> Carl Dirk Enderlein, CFA, es <strong>Senior Managing Director y Equity Portfolio Manager</strong> de Wellington Management, con base en Londres. Acumula <strong>más de 27 años de experiencia</strong> en la industria y <strong>más de 15 en Wellington</strong>, firma a la que se incorporó en <strong>2010</strong>. Antes fue Portfolio Manager en <strong>Allianz Global Investors / RCM</strong>, donde ya gestionaba renta variable europea. La página oficial de Wellington lo describe textualmente como «the lead equity portfolio manager for the Strategic European Equity approach», que «manages equity assets on behalf of our clients, drawing on research from Wellington Management's global industry analysts, equity portfolio managers and team analysts».</p><p class="pr"><strong>Reconocimiento externo.</strong> Morningstar le concede un <strong>People Pillar 'High'</strong> y lo describe como el 'seasoned skipper' del fondo, valorando su papel en el establecimiento y la gestión continuada del producto. Es una de las mejores garantías cualitativas del fondo: continuidad y autoría de quien diseñó el proceso.</p><p class="pr"><strong>Su tesis hoy.</strong> En una entrevista reciente (Fondsprofessionell, junio de 2026) Enderlein resume su filosofía con una idea provocadora: «la mejor acción de crecimiento es hoy todavía un valor *value*», defendiendo la búsqueda de <strong>crecimiento estructural</strong> en renta variable europea a valoraciones razonables. (El cuerpo completo de la entrevista está tras muro de registro; solo se han verificado titular, fecha y tema central, para no inventar contenido.)</p></div>
 
-  <p class="pr" style="color:var(--ink-4);font-style:italic;">Información de gestores pendiente. Ejecutar manager_deep_agent para obtener perfiles.</p>
+  
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">DE</div>
+        <div class="mgr-nm">Dirk Enderlein<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#1e5a8a;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerDeep</span></div>
+        <div class="mgr-rl">Lead Equity Portfolio Manager — Strategic European Equity (Senior Managing Director, CFA)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Lead Equity Portfolio Manager del enfoque Strategic European Equity (Wellington Management)</li><li style="margin-bottom:3px;">Senior Managing Director, CFA</li><li style="margin-bottom:3px;">+27 años de experiencia en la industria de inversión</li><li style="margin-bottom:3px;">+15 años en Wellington (incorporado en 2010)</li><li style="margin-bottom:3px;">Previamente Portfolio Manager en Allianz Global Investors / RCM</li><li style="margin-bottom:3px;">Morningstar People Pillar 'High' — 'seasoned skipper' del fondo</li><li style="margin-bottom:3px;">Gestor único (single-PM) del enfoque, que él mismo estableció</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>Carl Dirk Enderlein, CFA</strong>, es Senior Managing Director y Equity Portfolio Manager de <strong>Wellington Management</strong>, con base en Londres. Es el <strong>gestor principal y único</strong> del enfoque Strategic European Equity, que él mismo estableció, y dirige el Wellington Strategic European Equity Fund (IE00B8BPMF80).
+
+Acumula <strong>más de 27 años de experiencia</strong> en la industria de inversión y <strong>más de 15 años en Wellington</strong>, firma a la que se incorporó en <strong>2010</strong>. Con anterioridad fue <strong>Portfolio Manager en Allianz Global Investors / RCM</strong>, donde gestionaba renta variable europea. Su designación <strong>CFA</strong> y su larga trayectoria respaldan un perfil de gestor experimentado y especializado en el universo europeo.
+
+En Wellington gestiona los activos de renta variable de la estrategia apoyándose en la <strong>red global de analistas sectoriales, gestores y analistas de equipo</strong> de la firma —una de las principales ventajas de pertenecer a una plataforma institucional de gran tamaño—. Su proceso es <strong>bottom-up</strong>: selecciona compañías europeas una a una buscando crecimiento de beneficios y flujos de caja por encima de la media del MSCI Europe.
+
+<strong>Morningstar</strong> le otorga un <strong>People Pillar 'High'</strong> y lo describe como el 'seasoned skipper' del fondo, reconociendo su papel en el diseño y la gestión continuada del producto. (Datos biográficos contrastados en la página oficial de Wellington, MarketScreener, Citywire y Morningstar; no se atribuyen empleadores ni fechas no documentados.)</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Enderlein busca <strong>crecimiento estructural de calidad a un precio razonable</strong>. Su tesis, expresada en 2026, es que «la mejor acción de crecimiento es hoy todavía un valor *value*»: no paga cualquier precio por el crecimiento, sino que exige que la valoración no descuente ya todo el potencial futuro. Selecciona compañías desde abajo, por sus fundamentales (modelo de negocio, ventaja competitiva, calidad del balance, sostenibilidad del crecimiento), integrando criterios ASG como parte estructural del análisis (Artículo 8 SFDR).</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Reducción estructural de Health care desde ~29% (2020) hasta ~7% (2025): una de las rotaciones sectoriales más significativas de la cartera, hacia un perfil más procíclico.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Construcción de un bloque financiero diversificado (~20,6% en 2025) con banca periférica y nórdica (AIB, Bank of Ireland, Erste, KBC, Bankinter), capturando la normalización de tipos en Europa.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mantenimiento de Industriales como pilar central de la cartera (~32% de forma estable) con nombres como Smiths Group, Bunzl, Brenntag o Rheinmetall.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Conservación de un núcleo defensivo de consumo básico de calidad (British American Tobacco, Unilever, Haleon) como ancla de generación de caja.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Gestor único, veterano y autor del enfoque, con designación CFA y respaldo de la plataforma analítica global de Wellington. Combina ADN growth con disciplina de valoración ('el mejor growth sigue siendo un value') y un marco ASG integrado. Su continuidad —reconocida por Morningstar con People 'High'— es la principal garantía cualitativa del fondo.</p></div>
+      </div>
+    </div>
 
   
 </section>
@@ -343,20 +444,47 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">Wellington Strategic European Equity Fund aplica una estrategia de <strong>renta variable europea gestionada activamente</strong> con el objetivo de batir al índice MSCI Europe en el largo plazo. Toda la descripción de esta sección procede del PRIIP KID (producido 2026-02-02), única fuente validada para el ISIN; no se dispone de cartas trimestrales válidas, factsheets ni informes anuales de este sub-fondo en el expediente.</p><p class="subsec">Universo y enfoque de selección</p><p class="pr">El fondo invierte de forma predominante en una cartera diversificada de compañías domiciliadas en Europa que el gestor considera que disfrutarán de un crecimiento de beneficios y de flujo de caja superior a la media en relación con el índice. El proceso es explícitamente <strong>bottom-up</strong>: la construcción de la cartera nace del análisis individual de cada compañía, no de una asignación top-down por país o sector ni de la replicación del benchmark. El MSCI Europe se declara como benchmark de referencia, pero <strong>no se utiliza en la construcción de la cartera</strong>, lo que señala una gestión de alta convicción y potencialmente alejada del índice (active share elevada), aunque las fuentes no aportan la cifra de active share.</p><p class="subsec">Instrumentos</p><p class="pr">Además de acciones ordinarias, el fondo puede invertir en otros valores con características de renta variable — acciones preferentes, valores convertibles y depositary receipts — ya sea de forma directa o a través de derivados.</p><p class="subsec">Marco de sostenibilidad (SFDR artículo 8)</p><p class="pr">La estrategia integra criterios de sostenibilidad: al menos un 60% del patrimonio neto se invierte en compañías con un rating social de 1 a 3 (en una escala de 1 a 5), y un mínimo del 80% del patrimonio se alinea con características medioambientales o sociales. Aplica exclusiones explícitas: carbón térmico, extracción de arenas petrolíferas, ojivas y misiles nucleares y armamento controvertido.</p><p class="subsec">Perfil de riesgo y costes</p><p class="pr">El indicador de riesgo es 4 sobre 7 (SRRI). La estructura de costes incluye un coste de entrada de hasta el 5,00%, costes recurrentes de gestión y administración del 1,69% anual, costes de transacción del 0,36% y ausencia de comisión de éxito y de coste de salida. El horizonte recomendado es de 5 años y la clase analizada (EUR D AccU) es de acumulación (reinvierte las rentas).</p><p class="subsec">Limitación</p><p class="pr">No se dispone de información de fuentes sobre la ejecución concreta de la estrategia (posicionamiento actual, rotación, sesgos sectoriales o por capitalización, exposición por país), ni de comentarios del gestor para este fondo. La carta de Diameter Capital Partners presente en el expediente corresponde a otro fondo (crédito distressed) y se ha excluido por completo.</p>
+    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Objetivo del fondo</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Benchmark</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Universo de inversión y ra…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Estilo de inversión</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Fondo autor vs. fondo gest…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',6)">Cuantitativo vs. cualitati…</button></div><div class="subtab-panel active"><p class="pr">La estrategia del Wellington Strategic European Equity Fund se puede resumir en una frase: <strong>gestión activa de renta variable europea de calidad-crecimiento, seleccionada bottom-up, con el objetivo de batir al MSCI Europe a largo plazo</strong>. El <strong>objetivo</strong> es obtener rendimientos totales a largo plazo superando a su índice de referencia; el <strong>benchmark</strong> es explícito y es el <strong>MSCI Europe Index</strong>, frente al cual el gestor se compara y al que busca superar sin replicarlo.</p><p class="pr">El <strong>universo de inversión</strong> son compañías domiciliadas en Europa, con la cartera invertida de forma predominante en renta variable (97,4% equity a cierre de 2025, frente a un 2,7% de liquidez). El fondo puede invertir directa o indirectamente (a través de FDIs, fondos y ETFs) en valores de renta variable y con características similares. Como producto <strong>Artículo 8 SFDR</strong>, incorpora restricciones estructurales: al menos el 60% de los activos en compañías con un S Rating 1-3, un mínimo del 80% de los activos netos alineados con características ambientales/sociales, y exclusiones de carbón térmico, arenas bituminosas y armas nucleares/controvertidas.</p><p class="pr">El <strong>estilo</strong> es de crecimiento estructural de calidad: el gestor busca empresas cuyo crecimiento de beneficios y flujos de caja supere la media del índice, pero a valoraciones razonables —su lema, «el mejor growth sigue siendo un value», sintetiza esa disciplina de precio—. En cuanto a la <strong>naturaleza de la gestión</strong>, el fondo es un <strong>híbrido</strong>: un enfoque autoral de gestor único (Dirk Enderlein lo estableció y lo dirige en exclusiva) ejecutado dentro de una plataforma institucional (Wellington), que aporta la red global de analistas en la que se apoya la selección.</p><p class="pr">El proceso es <strong>predominantemente cualitativo y bottom-up</strong>: las decisiones nacen del análisis fundamental compañía a compañía (modelo de negocio, ventaja competitiva, calidad del balance, sostenibilidad del crecimiento e integración ASG), no de apuestas macro top-down. El resultado es una cartera amplia (~66 valores), con un sesgo claro y deliberado hacia Industriales y Financieras europeas, que persigue capturar crecimiento de calidad mientras diversifica el riesgo específico de cada nombre. Es importante subrayar el principal condicionante de la propuesta: un <strong>coste elevado</strong> (gastos corrientes 2,02%) que el proceso debe superar de forma sostenida para entregar valor neto sobre el índice.</p></div><div class="subtab-panel"><p class="pr">El objetivo de inversión es <strong>obtener rendimientos totales a largo plazo</strong>, buscando <strong>superar al MSCI Europe Index</strong>. El periodo de tenencia recomendado es de <strong>5 años</strong>, coherente con un producto de renta variable orientado al largo plazo. Es un fondo pensado para inversores que aceptan la volatilidad de la bolsa (SRRI 4/7) a cambio de gestión activa especializada en Europa.</p></div><div class="subtab-panel"><p class="pr">El índice de referencia es explícito: el <strong>MSCI Europe Index</strong>. El gestor lo utiliza como vara de medir y como objetivo a batir, pero <strong>no replica su composición</strong> —de ahí los marcados sesgos sectoriales de la cartera frente al índice—. Es, por tanto, un fondo de gestión activa de alta convicción relativa al benchmark, no un cuasi-indexado.</p></div><div class="subtab-panel"><p class="pr">El universo son <strong>compañías domiciliadas en Europa</strong>. El fondo invierte de forma <strong>predominante en renta variable</strong> y valores con características similares, pudiendo hacerlo directa o indirectamente mediante instrumentos financieros derivados (FDIs), instituciones de inversión colectiva y ETFs. A cierre de 2025 la exposición efectiva era 97,4% renta variable y 2,7% liquidez. Como producto <strong>Artículo 8 SFDR</strong>, los rangos no son solo financieros sino también ASG: <strong>mínimo 60%</strong> de los activos en compañías con S Rating 1-3, <strong>mínimo 80%</strong> de los activos netos alineados con características ambientales/sociales, y <strong>exclusiones</strong> de carbón térmico, arenas bituminosas y armas nucleares/controvertidas. La divisa base es el euro.</p></div><div class="subtab-panel"><p class="pr">El estilo es <strong>crecimiento estructural de calidad</strong> (quality-growth). El gestor busca compañías con crecimiento de beneficios y flujos de caja superior a la media del índice, pero con disciplina de valoración: su tesis de 2026 —«la mejor acción de crecimiento es hoy todavía un valor *value*»— resume que no se paga cualquier precio por el crecimiento. No es un growth agresivo ni un value profundo, sino un punto intermedio centrado en calidad y sostenibilidad del crecimiento.</p></div><div class="subtab-panel"><p class="pr">El fondo es un <strong>híbrido entre gestión autoral y gestión institucional</strong>. Por un lado, es un producto de <strong>gestor único</strong> (single-PM): Dirk Enderlein estableció el enfoque Strategic European Equity y lo dirige en exclusiva, sin co-gestor publicado, lo que le da un carácter personalista. Por otro, esa gestión se ejerce dentro de <strong>Wellington Management</strong>, una gran plataforma institucional que aporta la red global de analistas sectoriales sobre la que se apoya la selección. El inversor obtiene así criterio propio de un gestor veterano respaldado por la infraestructura de una casa de primer nivel —con la contrapartida del riesgo de hombre clave.</p></div><div class="subtab-panel"><p class="pr">El proceso es <strong>fundamentalmente cualitativo y bottom-up</strong>. La selección parte del análisis individual de cada compañía: calidad y durabilidad del modelo de negocio, ventajas competitivas, solidez del balance, capacidad de crecimiento de beneficios y flujos de caja por encima de la media, y perfil ASG. No es un proceso sistemático/cuantitativo; los modelos y filtros sirven de apoyo, pero la decisión de comprar, ponderar o vender la toma el gestor con criterio fundamental, integrando la valoración (crecimiento a precio razonable) como disciplina central. La construcción resultante es una cartera diversificada (~66 nombres) con sesgos sectoriales deliberados que reflejan dónde el gestor ve hoy mejor relación crecimiento/valoración: Industriales y Financieras europeas.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
-  
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La mejor acción de crecimiento es hoy todavía un valor «value».&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Dirk Enderlein, Entrevista Fondsprofessionell, junio de 2026</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
-  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Renta variable europea long-only, activa y bottom-up, con sesgo a compañías de crecimiento de beneficios/flujo de caja superior a la media del MSCI Europe y marco de sostenibilidad SFDR artículo 8 (KID 2026).</p>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">RV europea activa, calidad-crecimiento bottom-up, batiendo al MSCI Europe. Cartera 2025 sesgada a Industriales (31,7%) y Financieras (20,6%); Artículo 8 SFDR; gestor único Dirk Enderlein.</p>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Europea (long-only, sesgo crecimiento)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de mercado de renta variable europea (SRRI 4/7; escenario de tension -18,3% anual a 5 anios segun KID)</li><li style="margin-bottom:4px;">Riesgo de estilo: sesgo a crecimiento, vulnerable a rotaciones hacia value y a subidas de tipos</li><li style="margin-bottom:4px;">Drag de costes: coste de entrada hasta 5% mas TER 1,69% y costes de transaccion 0,36%</li></ul></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Europa (gestión activa, calidad-crecimiento)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de mercado de renta variable europea (SRRI 4/7)</li><li style="margin-bottom:4px;">Riesgo de estilo: sesgo growth/calidad puede rezagarse frente a value en ciertos entornos</li><li style="margin-bottom:4px;">Concentración sectorial en Industriales y Financieras</li><li style="margin-bottom:4px;">Riesgo de hombre clave (gestor único sin co-gestor publicado)</li><li style="margin-bottom:4px;">Coste elevado que erosiona el rendimiento neto</li></ul></div>
 
-  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2020</div>
+  <div class="strat-c">Entorno de tipos bajos y preferencia por negocios estables y de crecimiento visible; pandemia y refugio en calidad.</div>
+  <div class="strat-c">Cartera escorada a Health care (~29%) e Industriales (~32%), con Financieras infraponderadas (~16%). Perfil defensivo-calidad.</div>
+  <div class="strat-c">n/d — el bundle no aporta rentabilidad de este periodo; lectura cualitativa vía posicionamiento sectorial.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2021</div>
+  <div class="strat-c">Recuperación post-COVID y primeras expectativas de normalización monetaria en Europa.</div>
+  <div class="strat-c">Inicio de la rotación: recorte de salud (~25%) y aumento gradual de financieras (~17%), industriales estables (~30%).</div>
+  <div class="strat-c">n/d — transición de posicionamiento; sin cifras de performance en el bundle.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2022-2024</div>
+  <div class="strat-c">Subidas de tipos del BCE y mayor atractivo del sector bancario europeo; marco ASG Artículo 8 consolidado.</div>
+  <div class="strat-c">Refuerzo del bloque financiero (banca periférica y nórdica) y mantenimiento del pilar industrial; S Rating 1-3 en 80,6%→83,3%.</div>
+  <div class="strat-c">n/d — sin serie de rentabilidad; alineamiento ASG en máximos (83,26% en 2024).</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2025</div>
+  <div class="strat-c">Tipos en niveles elevados pero estabilizándose; fortaleza del ciclo industrial y defensa europea.</div>
+  <div class="strat-c">Culminación de la rotación procíclica: Industriales 31,7%, Financieras 20,6%, Health care al 7,4%. Cartera de 66 valores, €5.092M.</div>
+  <div class="strat-c">n/d — sin rentabilidad verificable; posicionamiento procíclico y diversificado, top 10 ≈ 31,7%.</div>
+</div>
 
   
 </section>
@@ -365,29 +493,30 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
 
   <div class="mb24">
-    
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Exposición actual y racional</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Para poblar la tabla de posiciones, la concentración (top-5/10/15) y la distribución por tipo de activo, sector y geografía, sería imprescindible recuperar el factsheet mensual o el informe anual/semestral de Wellington para este sub-fondo. AVISO: la carta de Diameter Capital Partners del expediente describe posiciones de un fondo de crédito distressed (deuda de data centers, CLOs, AT1s, LNG...) y NO representa en absoluto la cartera de este fondo de renta variable europea; ha sido excluida.</p></div>
+    <p class="subsec">Cómo se construye la cartera</p><p class="pr">El Wellington Strategic European Equity Fund construye una cartera <strong>amplia y diversificada</strong> de en torno a <strong>66 posiciones</strong>, fruto de un proceso bottom-up en el que cada valor entra por sus propios fundamentales. La diversificación es deliberada: el <strong>top 5 representa ~18,9%</strong>, el <strong>top 10 ~31,7%</strong> y el <strong>top 15 ~43,0%</strong> del patrimonio, niveles que evitan que un solo nombre domine el resultado del fondo. La exposición es casi íntegramente a renta variable (97,4%), con un colchón de liquidez del 2,7%. No es una cartera concentrada de altísima convicción en pocos valores, sino una construcción de convicción repartida entre muchas compañías de calidad.</p><p class="subsec">Cómo han evolucionado los pesos y por qué</p><p class="pr">El rasgo más llamativo de la cartera es la <strong>profunda rotación sectorial</strong> ejecutada entre 2020 y 2025. El gestor ha <strong>reducido drásticamente Health care</strong> (de ~29% en 2020 a ~7% en 2025) y ha <strong>elevado con fuerza las Financieras</strong> (de ~16% a ~21%), manteniendo Industriales como pilar estable (~32%). El racional es claramente macro-fundamental: aprovechar la <strong>normalización de tipos en Europa</strong> —que mejora la rentabilidad de la banca— y la <strong>fortaleza del ciclo industrial y de defensa</strong> europeo, abandonando el perfil más defensivo y de crecimiento visible que tenía sentido en el entorno de tipos cero de 2020. Es una decisión de convicción que ilustra el carácter activo del fondo frente al MSCI Europe.</p><p class="subsec">Posiciones y temas de mayor convicción</p><p class="pr">La cartera 2025 combina dos bloques. Un <strong>núcleo defensivo de calidad</strong> en consumo básico —<strong>British American Tobacco</strong> (la mayor posición, ~5%), <strong>Unilever</strong> (~4,1%) y <strong>Haleon</strong> (~3,1%)— que actúa como ancla de generación de caja. Y un <strong>bloque procíclico</strong> que concentra la apuesta táctica: la <strong>banca europea diversificada</strong> (AIB y Bank of Ireland en Irlanda, Erste en Austria, KBC en Bélgica, Bankinter en España, además de aseguradoras como Sampo o Beazley) y un amplio abanico de <strong>industriales</strong> (Smiths Group, Bunzl, Brenntag, RS Group, Elis, SPIE, Rheinmetall en defensa). <strong>Publicis</strong> (comunicación, ~3,3%) aporta exposición a publicidad digital. Es una cartera que mezcla compounders defensivos con beneficiarios del ciclo y de los tipos.</p><p class="subsec">Composición actual y racional</p><p class="pr">Por sectores, la cartera de 2025 está encabezada por <strong>Industriales (31,7%)</strong> y <strong>Financieras (20,6%)</strong>, seguidos de <strong>Consumo básico (13,7%)</strong>, <strong>Health care (7,4%)</strong> y <strong>Materiales (7,3%)</strong>; el resto se reparte entre consumo discrecional, comunicaciones, transporte, energía, telecomunicaciones, tecnología, utilities e inmobiliario. Geográficamente es una cartera paneuropea, con presencia destacada de Reino Unido, Francia, Alemania, Irlanda, Suiza, los países nórdicos y la periferia (incluido ~4% en valores españoles: Bankinter, Fluidra y Técnicas Reunidas). El racional global combina <strong>calidad-crecimiento</strong> (el ADN del fondo) con un <strong>posicionamiento procíclico</strong> alineado con el entorno de tipos y ciclo industrial. El principal riesgo estructural de la composición actual es la <strong>doble concentración en industriales y financieras</strong> (~52% conjunto), que ata el fondo a la evolución del ciclo económico europeo y a la curva de tipos.</p>
   </div>
 
-  
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
-  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>tipo de activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Renta variable europea predominante; puede usar preferentes, convertibles, depositary receipts y derivados (KID). Sin desglose cuantitativo en fuentes.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>geografia</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Compania domiciliadas en Europa; benchmark de referencia MSCI Europe. Sin desglose por pais en fuentes.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sostenibilidad</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">SFDR art. 8: min 60% en compania con rating social 1-3, min 80% alineado a caracteristicas E/S; exclusiones de carbon termico, arenas petroliferas y armamento controvertido.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
+  <div class="col1 mb20"><div class="ch-b"><div class="ch-l">Evolución por sector (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-sec-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-sec-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2020", "2021", "2025"],datasets:[{"label": "Industrials", "data": [31.59, 30.43, 31.69], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Health care", "data": [29.2, 24.79, 7.38], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Financials", "data": [15.78, 17.35, 20.61], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Consumer staples", "data": [12.04, 10.71, 13.7], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Materials", "data": [1.77, 1.51, 7.27], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [8.34, 14.51, 19.38], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div></div>
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">0</div><div class="kpi-sub">vs media hist. 0</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">0,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">66</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">31,7%</div><div class="kpi-sub">—</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">—</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">97,4%</div><div class="kpi-sub">Renta variable</div></div>
   </div>
 
-  
+  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
   <script>
   (function(){
     if (typeof Chart === 'undefined') return;
     const ctxMix = document.getElementById('c-mix');
     if (ctxMix) {
-      const tipos = [];
+      const tipos = [["RV", 97.4]];
       new Chart(ctxMix, {
         type: 'doughnut',
         data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
@@ -398,18 +527,612 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     if (ctxC) {
       new Chart(ctxC, {
         type: 'bar',
-        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [0, 0, 0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [18.9, 31.7, 43.0], backgroundColor:'rgba(12,35,64,0.85)' }] },
         options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
       });
     }
   })();
   </script>
 
-  <div class="sr">Todas las posiciones (0)</div>
+  <div class="sr">Todas las posiciones (66)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
-      <tbody></tbody>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <tbody><tr>
+  <td title="British American Tobacco PLC">British American Tobacco PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:40px;background:#0c2340;"></div>5,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>5%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Unilever PLC">Unilever PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>9%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Publicis Groupe SA">Publicis Groupe SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Communications</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fr</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:4px;background:var(--ink-3);"></div>12%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AIB Group PLC">AIB Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ie</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>16%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Haleon PLC">Haleon PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:7px;background:var(--ink-3);"></div>19%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Erste Group Bank AG">Erste Group Bank AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">At</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>22%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Smiths Group PLC">Smiths Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>24%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="KBC Group NV">KBC Group NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Be</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:10px;background:var(--ink-3);"></div>27%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Bunzl PLC">Bunzl PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>29%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Rheinmetall AG">Rheinmetall AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>32%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Brenntag SE">Brenntag SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>34%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Elis SA">Elis SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fr</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>36%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RS Group PLC">RS Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>39%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Bank of Ireland Group PLC">Bank of Ireland Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ie</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>41%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Bankinter SA">Bankinter SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Es</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>43%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Technip Energies NV">Technip Energies NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fr</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>45%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="SPIE SA">SPIE SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fr</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>47%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Royal Unibrew AS">Royal Unibrew AS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dk</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>49%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Heidelberg Materials AG">Heidelberg Materials AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>51%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Jeronimo Martins SGPS SA">Jeronimo Martins SGPS SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>52%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Beazley PLC">Beazley PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>54%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="United Internet AG">United Internet AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>56%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Assa Abloy AB">Assa Abloy AB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Se</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>58%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Ryanair Holdings PLC">Ryanair Holdings PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ie</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>59%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="UCB SA">UCB SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Be</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>61%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Helvetia Baloise Holding AG">Helvetia Baloise Holding AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ch</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>63%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Sampo OYJ">Sampo OYJ</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fi</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>64%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Amrize Ltd.">Amrize Ltd.</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ch</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>66%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Magnum Ice Cream Co. NV">Magnum Ice Cream Co. NV</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>67%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Fluidra SA">Fluidra SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Es</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Galderma Group AG">Galderma Group AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ch</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>70%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Holcim AG">Holcim AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ch</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Next PLC">Next PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Serco Group PLC">Serco Group PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>74%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Alfa Laval AB">Alfa Laval AB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Se</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>75%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Sulzer AG">Sulzer AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ch</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="DSV AS">DSV AS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dk</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>78%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Bilfinger SE">Bilfinger SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="ABB Ltd.">ABB Ltd.</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ch</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>80%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Rotork PLC">Rotork PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="IONOS Group SE">IONOS Group SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="FUCHS SE">FUCHS SE</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Italgas SpA">Italgas SpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">It</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Trelleborg AB">Trelleborg AB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Se</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>85%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="IMI PLC">IMI PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Genus PLC">Genus PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Danone SA">Danone SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fr</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Komercni Banka AS">Komercni Banka AS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Cz</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="National Bank of Greece SA">National Bank of Greece SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gr</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Dassault Aviation SA">Dassault Aviation SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fr</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Konecranes OYJ">Konecranes OYJ</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fi</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="NOBA Bank Group AB">NOBA Bank Group AB</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Se</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="RENK Group AG">RENK Group AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Buzzi SpA">Buzzi SpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">It</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Savills PLC">Savills PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Tecnicas Reunidas SA">Tecnicas Reunidas SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Es</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Storebrand A SA">Storebrand A SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">No</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Hill & Smith PLC">Hill & Smith PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Gb</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AlzChem Group AG">AlzChem Group AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Pandora AS">Pandora AS</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Dk</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="DiaSorin SpA">DiaSorin SpA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">It</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Legrand SA">Legrand SA</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Fr</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Vossloh AG">Vossloh AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Beiersdorf AG">Beiersdorf AG</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">De</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Permanent TSB Group Holdings PLC">Permanent TSB Group Holdings PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">Ie</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Bank of Cyprus Holdings PLC">Bank of Cyprus Holdings PLC</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr></tbody>
     </table>
   </div>
 </section>
@@ -418,11 +1141,76 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
   
   
-  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#cc0000;">MS</div>
+        <div class="src-info">
+          <div class="src-o">Morningstar</div>
+        </div>
+        <span class="src-date">2025</span>
+      </div>
+      <div class="src-t">Morningstar — People Pillar 'High' (análisis de fondos europeos 2025)</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Otorga un People Pillar 'High' al fondo y describe a Dirk Enderlein como el 'seasoned skipper' del producto, reconociendo su papel en el diseño y la gestión continuada. Respalda la calidad y continuidad del gestor. Ficha completa bajo suscripción.</div>
+      <a href="https://www.morningstar.com" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">FO</div>
+        <div class="src-info">
+          <div class="src-o">Fondsprofessionell</div>
+        </div>
+        <span class="src-date">2026-06-03</span>
+      </div>
+      <div class="src-t">«Die beste Wachstumsaktie ist heute noch ein Value-Titel» — entrevista a Dirk Enderlein</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Entrevista reciente en la que el gestor expone su tesis: crecimiento estructural de calidad a valoraciones razonables en RV europea. El cuerpo está tras muro de registro; solo se verifican titular, fecha y tema central.</div>
+      <a href="https://www.fondsprofessionell.de/news/produkte/headline/die-beste-wachstumsaktie-ist-heute-noch-ein-value-titel-251145/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">WE</div>
+        <div class="src-info">
+          <div class="src-o">Wellington Management</div>
+        </div>
+        <span class="src-date">None</span>
+      </div>
+      <div class="src-t">Dirk Enderlein — Portfolio Manager, CFA (página oficial)</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Fuente oficial de la gestora: confirma a Enderlein como lead equity PM del enfoque Strategic European Equity, que gestiona los activos apoyándose en la red global de analistas sectoriales, gestores y analistas de equipo de Wellington.</div>
+      <a href="https://www.wellington.com/en/experts.expert/dirk-enderlein" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#555;">MA</div>
+        <div class="src-info">
+          <div class="src-o">MarketScreener</div>
+        </div>
+        <span class="src-date">None</span>
+      </div>
+      <div class="src-t">Dirk Enderlein — Insider / Fund Manager profile</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Perfil que corrobora los datos biográficos verificables: más de 27 años de experiencia, más de 15 en Wellington, y empleo previo como Portfolio Manager en Allianz Global Investors / RCM.</div>
+      <a href="https://www.marketscreener.com/insider/DIRK-ENDERLEIN-A04I2L/" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
+    <div class="src-card">
+      <div class="src-head">
+        <div class="src-logo" style="background:#005195;">CW</div>
+        <div class="src-info">
+          <div class="src-o">Citywire</div>
+        </div>
+        <span class="src-date">None</span>
+      </div>
+      <div class="src-t">Dirk Enderlein — Manager profile</div>
+      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
+      <div class="exp-body">Ficha de gestor que sitúa su incorporación a Wellington Management en 2010, confirmando la tenure y la continuidad al frente de la estrategia europea.</div>
+      <a href="https://citywire.com/ria/manager/dirk-enderlein/d4037" class="src-lnk" target="_blank">Ver análisis completo →</a>
+    </div>
 </section>
 
 <section class="pane" id="p7">
-  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">3 fuentes consultadas</span></div>
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">6 fuentes consultadas</span></div>
 
   <div class="doc-grp">Informes semestrales CNMV (0)</div>
   
@@ -433,8 +1221,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="doc-grp">XMLs CNMV (0)</div>
   
 
-  <div class="doc-grp">Fuentes externas (0)</div>
-  
+  <div class="doc-grp">Fuentes externas (5)</div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">citywire.com — d4037</span><a href="https://citywire.com/ria/manager/dirk-enderlein/d4037" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fondsprofessionell.de — die beste wachstumsaktie ist heute noch ein value titel 251145</span><a href="https://www.fondsprofessionell.de/news/produkte/headline/die-beste-wachstumsaktie-ist-heute-noch-ein-value-titel-251145/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">marketscreener.com — DIRK ENDERLEIN A04I2L</span><a href="https://www.marketscreener.com/insider/DIRK-ENDERLEIN-A04I2L/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">morningstar.com</span><a href="https://www.morningstar.com" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">wellington.com — dirk enderlein</span><a href="https://www.wellington.com/en/experts.expert/dirk-enderlein" target="_blank" class="doc-a">↗ Abrir</a></div>
 </section>
 
 <section class="pane" id="p8">
