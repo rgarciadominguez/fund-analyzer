@@ -331,6 +331,19 @@ if errorlevel 1 (
 echo.
 
 REM ----------------------------------------------------------------------
+REM Paso 7.4/7: Puente al fund-dashboard (Supabase propia dcnvda...). Empuja la
+REM CATEGORIZACION (meta) del fondo. Si ya existe, PATCH aditivo (no pisa la serie
+REM ni lo que tengas puesto); si es nuevo, lo crea con rows vacias y el
+REM fund-dashboard baja su serie de Morningstar al abrir+sincronizar. NO bloquea.
+echo === Paso 7.4/7: Puente fund-dashboard ^(categorizacion^) ===
+call python -m tools.funddash_sync --isin %ISIN%
+if errorlevel 1 (
+    echo [WARN] Puente fund-dashboard fallo. Reintenta: python -m tools.funddash_sync --isin %ISIN%
+    set FAILED_STEPS=!FAILED_STEPS! funddash-bridge
+)
+echo.
+
+REM ----------------------------------------------------------------------
 REM Paso 7.5/7: Auto-commit + push del HTML regenerado para que Cloudflare
 REM lo sirva al catalog publico. Sin esto el dashboard del catalog publico
 REM queda desactualizado tras un run (Cloudflare sirve desde git, no de

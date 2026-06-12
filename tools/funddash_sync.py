@@ -93,14 +93,31 @@ def build_meta(isin: str) -> dict | None:
         "currency": cur,
         "issuer": "Gubernamental" if (rf > 0.3 and "gobierno" in nlow) else "",
     }
-    # override manual por fondo
+    return meta  # solo DERIVADO (guess). El override del usuario se aplica aparte.
+
+
+def _override(isin: str) -> dict:
+    """Categorización EXPLÍCITA del usuario (data/funds/{ISIN}/funddash_meta.json).
+    Lo que pongas aquí SIEMPRE manda (sobre el derivado y sobre lo que haya en el tool)."""
     ov = FUNDS / isin / "funddash_meta.json"
     if ov.exists():
         try:
-            meta.update({k: v for k, v in json.loads(ov.read_text(encoding="utf-8")).items() if v})
+            return {k: v for k, v in json.loads(ov.read_text(encoding="utf-8")).items() if v}
         except Exception:
-            pass
-    return meta
+            return {}
+    return {}
+
+
+def _get_meta(isin: str) -> dict:
+    """Meta actual del fondo en el fund-dashboard (para no pisarla)."""
+    import urllib.request
+    req = urllib.request.Request(SB_URL + "/rest/v1/funds?isin=eq." + isin + "&select=meta",
+                                 headers={"apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY})
+    try:
+        d = json.load(urllib.request.urlopen(req, timeout=30))
+        return (d[0].get("meta") or {}) if d else {}
+    except Exception:
+        return {}
 
 
 def _patch_meta(isin: str, meta: dict) -> int:
@@ -117,20 +134,32 @@ def _patch_meta(isin: str, meta: dict) -> int:
 
 
 def sync(isin: str, repo: set, dry: bool = False) -> bool:
-    meta = build_meta(isin)
-    if not meta:
+    derived = build_meta(isin)
+    if not derived:
         print(f"  SKIP {isin}: sin output.json")
         return False
+    override = _override(isin)
     existe = isin in repo
-    accion = "PATCH-meta (preserva serie)" if existe else "NUEVO (rows vacías → MST)"
-    line = (f"  {isin:14} [{accion:26}] cat={meta['category']:8} tipo={meta['assetType']:6} "
-            f"geo={meta['geography']:10} {meta['name'][:30]}")
+    if existe:
+        cur = {} if dry else _get_meta(isin)
+        meta = dict(cur)
+        for k, v in derived.items():
+            if v and not meta.get(k):     # ADITIVO: el derivado solo rellena campos vacíos
+                meta[k] = v
+        meta.update(override)             # tu categorización explícita SIEMPRE manda
+        meta["isin"] = isin
+        accion = "PATCH aditivo (preserva serie+lo tuyo)"
+    else:
+        meta = {**derived, **override}
+        accion = "NUEVO (rows vacías → MST)"
+    line = (f"  {isin:14} [{accion:38}] cat={meta.get('category'):8} tipo={meta.get('assetType'):6} "
+            f"geo={str(meta.get('geography')):10} {str(meta.get('name'))[:28]}")
     if dry:
         print("[dry] " + line)
         return True
     try:
         if existe:
-            _patch_meta(isin, meta)          # solo meta, NO toca rows
+            _patch_meta(isin, meta)
         else:
             _post({"isin": isin, "meta": meta, "rows": [], "updated_at": "2026-06-12T00:00:00Z"})
         print("[OK]  " + line)
