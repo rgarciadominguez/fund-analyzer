@@ -72,6 +72,12 @@ def build_meta(isin: str) -> dict | None:
     if not op.exists():
         return None
     j = json.loads(op.read_text(encoding="utf-8"))
+    # Guard: saltar stubs/carpetas corruptas (sin nombre, o nombre que es prosa de
+    # análisis en vez de nombre de fondo, o sin estructura de fondo real).
+    nm = (j.get("nombre") or "").strip()
+    has_struct = bool(j.get("kpis") or (j.get("posiciones", {}) or {}).get("actuales") or j.get("analyst_synthesis"))
+    if not nm or not has_struct or " desde " in nm.lower() or nm.endswith((":", "...")):
+        return None
     pos = (j.get("posiciones", {}) or {}).get("actuales", []) or []
     rf = _bond_share(pos)
     asset = "RF LP" if rf > 0.7 else ("Mixto" if rf > 0.3 else "RV")
