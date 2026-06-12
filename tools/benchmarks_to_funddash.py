@@ -108,8 +108,8 @@ def derive_meta(path: Path, indexado: bool) -> dict:
     return {
         "isin": isin,
         "name": display,
-        "className": "Índice",   # marca para filtrar en el selector de repo (clase)
-        "category": "Indexado",
+        "className": "Índice",
+        "category": "Índice",    # categoría = Índice (filtrable en el selector de repo)
         "assetType": asset,
         "geography": _geo(stem),
         "currency": cur,
@@ -128,7 +128,8 @@ def build_rows(path: Path) -> list[dict]:
     by_month = {}
     for d, v in serie:                       # serie viene ascendente
         by_month[(d.year, d.month)] = (d, v)  # se queda el último día de cada mes
-    out = [{"date": d.isoformat(), "nav": v} for d, v in by_month.values()]
+    # el datapack del fund-dashboard lee r.value; incluimos value (+nav por compat)
+    out = [{"date": d.isoformat(), "value": v, "nav": v} for d, v in by_month.values()]
     out.sort(key=lambda x: x["date"])
     return out
 
@@ -144,6 +145,12 @@ def _post(payload: dict) -> int:
         return r.status
 
 
+def _repo_isins() -> set:
+    req = urllib.request.Request(SB_URL + "/rest/v1/funds?select=isin",
+                                 headers={"apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY})
+    return {f["isin"] for f in json.load(urllib.request.urlopen(req, timeout=120))}
+
+
 def iter_csvs(benchmark_only: bool):
     for p in sorted((BDIR / "Benchmark").rglob("*.csv")):
         yield p, False
@@ -157,8 +164,15 @@ def main(argv=None) -> int:
     dry = "--dry-run" in args
     test = "--test" in args
     bonly = "--benchmark-only" in args
+    new_only = "--indexados-new" in args
 
-    items = list(iter_csvs(bonly))
+    if new_only:
+        items = [(p, True) for p in sorted((BDIR / "Indexados").rglob("*.csv"))]
+        repo = _repo_isins()
+        print(f"(repo tiene {len(repo)} ISINs; subo solo Indexados que NO estén)")
+    else:
+        items = list(iter_csvs(bonly))
+        repo = set()
     if test:
         items = [(p, ix) for p, ix in items if re.search(r"MSCI World Gross EUE|SP500 Gross - euros", p.name)][:2]
 
@@ -170,6 +184,8 @@ def main(argv=None) -> int:
         if isin in seen:
             continue
         seen.add(isin)
+        if new_only and (isin in repo or isin.startswith("IDX_")):
+            continue  # ya existe en repo, o sin ISIN real (sintético) → no es "de los 8 nuevos"
         rows = build_rows(p)
         if len(rows) < 30:
             print(f"  SKIP (pocos datos {len(rows)}): {p.name}")
