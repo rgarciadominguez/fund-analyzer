@@ -822,7 +822,23 @@ class ReadingsCollector:
     # ══════════════════════════════════════════════════════════════════════
 
     async def _fetch_and_extract(self, url: str) -> str:
-        """Fetch URL y devolver texto limpio."""
+        """Fetch URL y devolver texto limpio.
+
+        Vídeos de YouTube: se intenta el TRANSCRIPT (texto hablado) en vez del
+        HTML de la página, que solo trae título/descripción. Así el análisis
+        ingiere lo que el gestor DICE en la entrevista/podcast. Si no hay
+        transcript (sin subtítulos, lib ausente, red) → cae al fetch HTML.
+        """
+        try:
+            from tools.youtube_transcript import is_video_url, get_transcript
+            if is_video_url(url):
+                transcript = get_transcript(url)
+                if transcript:
+                    self._log("OK", f"Transcript vídeo ({len(transcript)} chars): {url[:50]}")
+                    return "[TRANSCRIPCIÓN DE VÍDEO/ENTREVISTA]\n\n" + transcript
+                self._log("INFO", f"Sin transcript {url[:50]} — fallback HTML")
+        except Exception as e:
+            self._log("WARN", f"youtube_transcript {url[:50]}: {e}")
         try:
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
