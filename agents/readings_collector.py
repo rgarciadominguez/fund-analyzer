@@ -536,12 +536,30 @@ class ReadingsCollector:
                 queries.append(f'site:{press} "{short_name}"')
             self._log("INFO", f"INT region={int_region} | press={len(int_press)} blogs={len(INT_NICHE_BLOGS_BY_REGION.get(int_region, []))}")
 
-        # YouTube/podcast aparte (con SHORT + gestora)
-        queries.append(f'"{short_name}" OR "{gestora_q}" interview OR podcast OR webinar')
-        # Si tenemos gestores, también YouTube por gestor
-        for gestor in self.gestores[:2]:
+        # ── YouTube / vídeo: queries DEDICADAS site:youtube.com con keywords de
+        #    vídeo en el IDIOMA correcto. El transcript se extrae luego en
+        #    _fetch_and_extract. Clave: con `site:youtube.com` + "entrevista"
+        #    salen las entrevistas del gestor (Iván Martín, Paramés, Guzmán…);
+        #    con "interview" genérico en web a menudo NO (validado: una WebSearch
+        #    site:youtube.com "Iván Martín Magallanes entrevista" devuelve 10).
+        if is_es:
+            video_kw = "entrevista OR podcast OR webinar OR conferencia OR charla"
+        else:
+            _lkw = LANG_KEYWORDS.get(int_region, LANG_KEYWORDS["EN_GLOBAL"])
+            video_kw = f'{_lkw["interview"]} OR interview OR podcast OR webinar'
+        # Fund-level. Usar nombre de fondo + nombre COMPLETO de gestora (no el
+        # token suelto: "Magallanes" trae al explorador/homónimos; "Magallanes
+        # Value Investors" no). El gate _validate_relevance no distingue el
+        # apellido del explorador, así que la especificidad va en la query.
+        queries.append(f'site:youtube.com "{short_name}" {video_kw}')
+        if gestora_q and len(gestora_q.split()) >= 2:
+            queries.append(f'site:youtube.com "{gestora_q}" {video_kw}')
+        # Per-gestor (lo más productivo: gestores conocidos tienen muchas entrevistas)
+        for gestor in self.gestores[:3]:
             if gestor and len(gestor) >= 5:
-                queries.append(f'"{gestor}" YouTube interview OR podcast')
+                queries.append(f'site:youtube.com "{gestor}" {video_kw}')
+        # Query web amplia adicional (capta podcasts no-YouTube: ivoox, Spotify, web)
+        queries.append(f'"{short_name}" OR "{gestora_q}" interview OR podcast OR entrevista OR webinar')
 
         results = await search.search_multiple(queries, num_per_query=3, agent="readings_collector")
         self._log("INFO", f"Busquedas dirigidas: {len(results)} resultados de {len(queries)} queries")
