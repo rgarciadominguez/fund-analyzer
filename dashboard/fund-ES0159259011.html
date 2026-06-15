@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -164,7 +178,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="lh-top">
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
-      <div class="lh-fund">MAGALLANES EUROPEAN EQUITY FI <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★☆</span></div>
+      <div class="lh-fund">MAGALLANES EUROPEAN EQUITY FI <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
       <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>MAGALLANES VALUE INVESTORS, S.A., SGIIC</strong></div>
       <div class="lh-meta-line">Depositario: <strong>CACEIS BANK SPAIN S.A.</strong></div>
       <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0159259011</strong> <span style='opacity:.55;font-size:10.5px;'>· Magallanes European Equity M FI</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>LU1330191385</strong> <span style='opacity:.55;font-size:10.5px;'>· Class I EUR</span></div>
@@ -514,10 +528,10 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">El fondo MAGALLANES EUROPEAN EQUITY FI, gestionado por MAGALLANES VALUE INVESTORS, S.A., SGIIC, se adhiere a una filosofía de inversión claramente definida, que ha guiado su posicionamiento y decisiones de cartera a lo largo de su trayectoria. Este informe ejecutivo detalla las dimensiones clave de su estrategia, desde sus principios fundamentales hasta su visión actual del mercado.</p><p class="subsec">Filosofía de Inversión</p><p class="pr">La estrategia central del fondo se basa en los principios del <strong>Value Investing</strong>, buscando activamente empresas que cotizan por debajo de su valor fundamental intrínseco a largo plazo. Desde su fundación en 2014, la gestora ha mantenido este enfoque, invirtiendo en compañías europeas con sólidos fundamentales, equipos directivos competentes y balances saneados, que el mercado infravalora temporalmente (Tesis Gestora 2015-2026). El universo elegible se centra en la renta variable europea, con una gestión activa que implica un análisis profundo y *bottom-up* de cada compañía. El horizonte temporal de inversión es intrínsecamente a largo plazo, buscando capitalizar la convergencia del precio de mercado con el valor real de las empresas, lo que implica una tolerancia a la volatilidad a corto plazo y una convicción en la tesis de inversión subyacente. La asignación a renta variable ha sido consistentemente elevada, superando el <strong>84%</strong> desde 2016 y alcanzando el <strong>96.87%</strong> en 2025, lo que subraya un compromiso firme con su mandato de renta variable.</p><p class="subsec">Diferenciación Estratégica</p><p class="pr">La principal diferenciación del MAGALLANES EUROPEAN EQUITY FI reside en su rigurosa aplicación del <strong>Value Investing</strong> en el mercado europeo, un estilo que a menudo contrasta con enfoques más orientados al crecimiento o a índices de referencia. A diferencia de muchos de sus pares, el fondo mantiene una cartera concentrada, fruto de un proceso de selección intensivo que prioriza la convicción sobre la diversificación excesiva. Esta concentración se combina con una rotación de cartera que, si bien ha mostrado picos como el <strong>41%</strong> en 2022 o el <strong>24%</strong> en 2024, también ha tenido periodos de baja actividad, como el <strong>0%</strong> en 2019, 2020 y 2023, lo que sugiere una gestión paciente y oportunista, desinvirtiendo solo cuando la tesis de inversión se ha cumplido o deteriorado. El fondo no utiliza derivados de forma estructural para la gestión del riesgo, sino que confía en la selección de activos y la valoración fundamental como su principal herramienta de protección y generación de valor.</p><p class="subsec">Estrategia por Periodos y Adaptación a Entornos de Mercado</p><p class="pr">La aplicación de la filosofía de inversión del fondo ha demostrado adaptabilidad a lo largo de diversos ciclos de mercado, reflejando un pensamiento estratégico detrás de los movimientos de cartera. Un viraje notable se observó entre <strong>2020 y 2021</strong>, cuando el fondo realizó una entrada significativa en el sector financiero y de viajes, incorporando posiciones como <strong>ING GROEP NV (3.90%)</strong>, <strong>EASYJET PLC (3.74%)</strong>, <strong>UNICREDITO ITALIANO (2.48%)</strong> y <strong>AUTOGRILL SPA (3.94%)</strong>. Esta decisión, que implicó la salida de posiciones como AP MOELLER MAERSK A/S, se alineó con la visión de la gestora de una "recuperación económica mundial" (Tesis Gestora 2021) tras la pandemia, apostando por sectores cíclicos y de reapertura que se beneficiarían de la normalización de la actividad.</p><p class="pr">Posteriormente, entre <strong>2021 y 2022</strong>, la estrategia se inclinó hacia un fortalecimiento de la exposición a sectores industriales y automotrices, con entradas relevantes en <strong>HEIDELBERGCEMENT AG (4.15%)</strong>, <strong>FAURECIA (2.96%)</strong>, <strong>SKF AB (2.83%)</strong>, <strong>STELLANTIS NV (2.76%)</strong> y <strong>VOLKSWAGEN (2.18%)</strong>. Este movimiento se produjo en un contexto de "eventos extraordinarios" y "conflicto bélico" (Contexto Mercado 2022), sugiriendo una tesis de inversión que buscaba compañías con valoraciones atractivas en sectores que podrían beneficiarse de la inflación o de la resiliencia de la demanda industrial, a pesar de la incertidumbre geopolítica. La rotación de cartera alcanzó un <strong>41%</strong> en 2022, la más alta registrada, indicando una gestión activa en respuesta al entorno volátil.</p><p class="pr">Más recientemente, entre <strong>2023 y 2024</strong>, el fondo reorientó su cartera hacia materiales básicos y químicos especializados, con la entrada de <strong>ANGLO AMERICAN PLC (3.82%)</strong>, <strong>SYENSQO SA (3.53%)</strong> y <strong>BRENNTAG AG (2.97%)</strong>, mientras reducía o eliminaba posiciones como NOKIA OYJ y SCORPIO TANKERS INC. Este cambio sugiere una tesis vinculada a la transición energética y la demanda de materias primas, así como a la resiliencia de la industria química especializada, en un periodo donde la "economía mundial ha demostrado una notable resiliencia" (Contexto Mercado 2024) a pesar de los desafíos globales.</p><p class="subsec">Estrategia Actual y Visión de Mercado</p><p class="pr">La estrategia actual del MAGALLANES EUROPEAN EQUITY FI, según los informes más recientes, continúa anclada en su filosofía de valor, pero con un posicionamiento que refleja la visión de la gestora sobre el entorno macroeconómico y las oportunidades de valoración. La economía mundial ha mostrado una "resiliencia sorprendente en 2025, impulsada por la mejora de las condiciones financieras, las fuertes inversiones en IA y la disminución de las tensiones" (Contexto Mercado 2025). En este contexto, el fondo ha mantenido una alta exposición a renta variable, con un <strong>96.87%</strong> en 2025, lo que indica una postura constructiva y oportunista.</p><p class="pr">El posicionamiento más reciente de la cartera, evidenciado por los movimientos entre <strong>2024 y 2025</strong>, muestra una continuación del énfasis en sectores industriales y de materiales, con entradas en <strong>SANDVIK AB (3.20%)</strong>, <strong>ELECTROCOMPONENTS PLC (2.81%)</strong> y <strong>VALTERRA PLATINUM LIMITED (2.16%)</strong>. La incorporación de <strong>PERSIMMON PLC (2.59%)</strong> también sugiere una tesis sobre la recuperación o resiliencia del sector de la vivienda. Estos movimientos, junto con el aumento de peso en <strong>REXEL SA (72% de incremento)</strong> y <strong>VOLKSWAGEN (60% de incremento)</strong>, indican una convicción en la fortaleza de la demanda industrial, la infraestructura y ciertos segmentos de consumo cíclico. La gestora parece estar capitalizando las valoraciones atractivas en empresas que se benefician de la inversión en capital y la mejora de las condiciones financieras, manteniendo un enfoque en compañías con sólidos fundamentales que aún no reflejan plenamente su valor intrínseco en el mercado actual.</p>
+    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Análisis Estratégico del F…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Filosofía de Inversión</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Diferenciación Estratégica</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Estrategia por Periodos y…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Estrategia Actual y Visión…</button></div><div class="subtab-panel active"><p class="pr">El fondo se basa en una gestión activa bajo principios de Value Investing, buscando empresas infravaloradas a largo plazo. La estrategia se ha mantenido consistente a lo largo del tiempo, adaptándose a las condiciones de mercado mediante ajustes selectivos en la cartera y rotación de posiciones según las oportunidades identificadas.</p></div><div class="subtab-panel"><p class="pr">El fondo MAGALLANES EUROPEAN EQUITY FI, gestionado por MAGALLANES VALUE INVESTORS, S.A., SGIIC, se adhiere a una filosofía de inversión claramente definida, que ha guiado su posicionamiento y decisiones de cartera a lo largo de su trayectoria. Este informe ejecutivo detalla las dimensiones clave de su estrategia, desde sus principios fundamentales hasta su visión actual del mercado.</p></div><div class="subtab-panel"><p class="pr">La estrategia central del fondo se basa en los principios del <strong>Value Investing</strong>, buscando activamente empresas que cotizan por debajo de su valor fundamental intrínseco a largo plazo. Desde su fundación en 2014, la gestora ha mantenido este enfoque, invirtiendo en compañías europeas con sólidos fundamentales, equipos directivos competentes y balances saneados, que el mercado infravalora temporalmente (Tesis Gestora 2015-2026). El universo elegible se centra en la renta variable europea, con una gestión activa que implica un análisis profundo y *bottom-up* de cada compañía. El horizonte temporal de inversión es intrínsecamente a largo plazo, buscando capitalizar la convergencia del precio de mercado con el valor real de las empresas, lo que implica una tolerancia a la volatilidad a corto plazo y una convicción en la tesis de inversión subyacente. La asignación a renta variable ha sido consistentemente elevada, superando el <strong>84%</strong> desde 2016 y alcanzando el <strong>96.87%</strong> en 2025, lo que subraya un compromiso firme con su mandato de renta variable.</p></div><div class="subtab-panel"><p class="pr">La principal diferenciación del MAGALLANES EUROPEAN EQUITY FI reside en su rigurosa aplicación del <strong>Value Investing</strong> en el mercado europeo, un estilo que a menudo contrasta con enfoques más orientados al crecimiento o a índices de referencia. A diferencia de muchos de sus pares, el fondo mantiene una cartera concentrada, fruto de un proceso de selección intensivo que prioriza la convicción sobre la diversificación excesiva. Esta concentración se combina con una rotación de cartera que, si bien ha mostrado picos como el <strong>41%</strong> en 2022 o el <strong>24%</strong> en 2024, también ha tenido periodos de baja actividad, como el <strong>0%</strong> en 2019, 2020 y 2023, lo que sugiere una gestión paciente y oportunista, desinvirtiendo solo cuando la tesis de inversión se ha cumplido o deteriorado. El fondo no utiliza derivados de forma estructural para la gestión del riesgo, sino que confía en la selección de activos y la valoración fundamental como su principal herramienta de protección y generación de valor.</p></div><div class="subtab-panel"><p class="pr">La aplicación de la filosofía de inversión del fondo ha demostrado adaptabilidad a lo largo de diversos ciclos de mercado, reflejando un pensamiento estratégico detrás de los movimientos de cartera. Un viraje notable se observó entre <strong>2020 y 2021</strong>, cuando el fondo realizó una entrada significativa en el sector financiero y de viajes, incorporando posiciones como <strong>ING GROEP NV (3.90%)</strong>, <strong>EASYJET PLC (3.74%)</strong>, <strong>UNICREDITO ITALIANO (2.48%)</strong> y <strong>AUTOGRILL SPA (3.94%)</strong>. Esta decisión, que implicó la salida de posiciones como AP MOELLER MAERSK A/S, se alineó con la visión de la gestora de una "recuperación económica mundial" (Tesis Gestora 2021) tras la pandemia, apostando por sectores cíclicos y de reapertura que se beneficiarían de la normalización de la actividad.</p><p class="pr">Posteriormente, entre <strong>2021 y 2022</strong>, la estrategia se inclinó hacia un fortalecimiento de la exposición a sectores industriales y automotrices, con entradas relevantes en <strong>HEIDELBERGCEMENT AG (4.15%)</strong>, <strong>FAURECIA (2.96%)</strong>, <strong>SKF AB (2.83%)</strong>, <strong>STELLANTIS NV (2.76%)</strong> y <strong>VOLKSWAGEN (2.18%)</strong>. Este movimiento se produjo en un contexto de "eventos extraordinarios" y "conflicto bélico" (Contexto Mercado 2022), sugiriendo una tesis de inversión que buscaba compañías con valoraciones atractivas en sectores que podrían beneficiarse de la inflación o de la resiliencia de la demanda industrial, a pesar de la incertidumbre geopolítica. La rotación de cartera alcanzó un <strong>41%</strong> en 2022, la más alta registrada, indicando una gestión activa en respuesta al entorno volátil.</p><p class="pr">Más recientemente, entre <strong>2023 y 2024</strong>, el fondo reorientó su cartera hacia materiales básicos y químicos especializados, con la entrada de <strong>ANGLO AMERICAN PLC (3.82%)</strong>, <strong>SYENSQO SA (3.53%)</strong> y <strong>BRENNTAG AG (2.97%)</strong>, mientras reducía o eliminaba posiciones como NOKIA OYJ y SCORPIO TANKERS INC. Este cambio sugiere una tesis vinculada a la transición energética y la demanda de materias primas, así como a la resiliencia de la industria química especializada, en un periodo donde la "economía mundial ha demostrado una notable resiliencia" (Contexto Mercado 2024) a pesar de los desafíos globales.</p></div><div class="subtab-panel"><p class="pr">La estrategia actual del MAGALLANES EUROPEAN EQUITY FI, según los informes más recientes, continúa anclada en su filosofía de valor, pero con un posicionamiento que refleja la visión de la gestora sobre el entorno macroeconómico y las oportunidades de valoración. La economía mundial ha mostrado una "resiliencia sorprendente en 2025, impulsada por la mejora de las condiciones financieras, las fuertes inversiones en IA y la disminución de las tensiones" (Contexto Mercado 2025). En este contexto, el fondo ha mantenido una alta exposición a renta variable, con un <strong>96.87%</strong> en 2025, lo que indica una postura constructiva y oportunista.</p><p class="pr">El posicionamiento más reciente de la cartera, evidenciado por los movimientos entre <strong>2024 y 2025</strong>, muestra una continuación del énfasis en sectores industriales y de materiales, con entradas en <strong>SANDVIK AB (3.20%)</strong>, <strong>ELECTROCOMPONENTS PLC (2.81%)</strong> y <strong>VALTERRA PLATINUM LIMITED (2.16%)</strong>. La incorporación de <strong>PERSIMMON PLC (2.59%)</strong> también sugiere una tesis sobre la recuperación o resiliencia del sector de la vivienda. Estos movimientos, junto con el aumento de peso en <strong>REXEL SA (72% de incremento)</strong> y <strong>VOLKSWAGEN (60% de incremento)</strong>, indican una convicción en la fortaleza de la demanda industrial, la infraestructura y ciertos segmentos de consumo cíclico. La gestora parece estar capitalizando las valoraciones atractivas en empresas que se benefician de la inversión en capital y la mejora de las condiciones financieras, manteniendo un enfoque en compañías con sólidos fundamentales que aún no reflejan plenamente su valor intrínseco en el mercado actual.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Fondo de inversión abierto gestionado activamente bajo principios de Value Investing, invirtiendo en empresas que cotizan por debajo de su valor fundamental a largo plazo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Magallanes, Tesis Gestora del Fondo</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Magallanes se funda en diciembre de 2014 con el firme propósito de convertirse en un referente dentro de la industria de gestión de activos. La excelencia en el servicio al cliente y el valor añadido son nuestras señas de identidad.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Magallanes, Comentario de Mercado 2015</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El entorno de mercado sugiere que las oportunidades de inversión en renta variable permanecen intactas. Se identifica un momento propicio para invertir en España.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Magallanes, Comentario de Mercado 2020</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Fondo de inversión abierto gestionado activamente bajo principios de Value Investing, invirtiendo en empresas que cotizan por debajo de su valor fundamental a largo plazo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Magallanes, Tesis Gestora del Fondo</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Magallanes se funda en diciembre de 2014 con el firme propósito de convertirse en un referente dentro de la industria de gestión de activos. La excelencia en el servicio al cliente y el valor añadido son nuestras señas de identidad.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Magallanes, Comentario de Mercado 2015</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El entorno de mercado sugiere que las oportunidades de inversión en renta variable permanecen intactas. Se identifica un momento propicio para invertir en España.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Magallanes, Comentario de Mercado 2020</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -585,13 +599,16 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">10 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">13.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">16.0</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">17.4</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.95</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.67</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.63</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.11</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.06</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.15</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.42</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.68</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.93</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">R²</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">75.9</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">68.7</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">77.3</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">25.3%</strong> · 3A <strong style="color:var(--ink);">15.9%</strong> · 5A <strong style="color:var(--ink);">12.0%</strong> · 10A <strong style="color:var(--ink);">10.6%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Mid · Value</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">STOXX Europe 600</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">19.33</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">18.01</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">1.16</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.28</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.46</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">1.70</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">4.79</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">11.04</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura de mercado</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;"><span class="pr" style="width:56px;font-size:11px;color:var(--ink-3);">Subidas</span><div style="flex:1;height:14px;background:#eef1f5;border-radius:3px;position:relative;"><div style="width:63%;height:14px;background:#2b6a3f;border-radius:3px;"></div><div style="position:absolute;left:67%;top:-2px;height:18px;border-left:1px dashed #b0b8c4;"></div></div><strong style="font-size:12px;color:var(--ink);width:40px;text-align:right;">95%</strong></div><div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;"><span class="pr" style="width:56px;font-size:11px;color:var(--ink-3);">Bajadas</span><div style="flex:1;height:14px;background:#eef1f5;border-radius:3px;position:relative;"><div style="width:58%;height:14px;background:#b23a48;border-radius:3px;"></div><div style="position:absolute;left:67%;top:-2px;height:18px;border-left:1px dashed #b0b8c4;"></div></div><strong style="font-size:12px;color:var(--ink);width:40px;text-align:right;">87%</strong></div><div class="pr" style="font-size:10.5px;color:var(--ink-2);margin-top:6px;">Ratio captura <strong>1.08</strong> · vs STOXX Europe 600 · 59 m</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2015</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:24%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">10%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2016</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:15%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">6%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2017</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:24%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">10%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2018</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:51%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">21%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:54%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">22%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">41%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:59%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">24%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 19%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">Industria</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">26.6%</strong></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">Materiales básicos</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:96%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">25.5%</strong></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">Consumo cíclico</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:67%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">17.8%</strong></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">Energía</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:35%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">9.3%</strong></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">Comunicación</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:31%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">8.1%</strong></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">Consumo defensivo</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:19%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">5.1%</strong></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">Tecnología</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:17%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">4.5%</strong></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">Servicios financieros</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:11%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">3.0%</strong></div></div></div></div>
+
   <div class="sr">Todas las posiciones (38)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="TELECOM ITALIA SPA">Telecom Italia Spa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,7%</div></td>
@@ -600,6 +617,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="SKF AB">SKF AB</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,4%</div></td>
@@ -608,6 +626,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="REXEL SA">REXEL SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,3%</div></td>
@@ -616,6 +635,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="ARCELORMITTAL">ARCELORMITTAL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>3,9%</div></td>
@@ -624,6 +644,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="DUFRY AG">DUFRY AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CHF</td>
   <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>3,9%</div></td>
@@ -632,6 +653,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="ANGLO AMERICAN PLC">Anglo American Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,7%</div></td>
@@ -640,6 +662,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="SYENSQO SA">SYENSQO SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,7%</div></td>
@@ -648,6 +671,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="AKER BP ASA">AKER BP ASA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>NOK</td>
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
@@ -656,6 +680,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="KION GROUP AG">KION GROUP AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,5%</div></td>
@@ -664,6 +689,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="BOUYGUES">BOUYGUES</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
@@ -672,6 +698,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="EASYJET PLC">EASYJET PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,2%</div></td>
@@ -680,6 +707,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="SANDVIK AB">SANDVIK AB</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,2%</div></td>
@@ -688,6 +716,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="VOLKSWAGEN">VOLKSWAGEN</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,1%</div></td>
@@ -696,6 +725,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="FAURECIA">FAURECIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,1%</div></td>
@@ -704,6 +734,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="BRENNTAG AG">BRENNTAG AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,1%</div></td>
@@ -712,6 +743,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="EVONIK INDUSTRIES AG">Evonik Industries Ag</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,0%</div></td>
@@ -720,6 +752,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="ELECTROCOMPONENTS PLC">Electrocomponents Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -728,6 +761,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="CARREFOUR">CARREFOUR</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -736,6 +770,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="NOBLE CORP PLC">NOBLE CORP PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -744,6 +779,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="SIGNIFY NV">SIGNIFY NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
@@ -752,6 +788,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="PERSIMMON PLC">PERSIMMON PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
@@ -760,6 +797,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="RENAULT">RENAULT</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
@@ -768,6 +806,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="ANTOFAGASTA PLC">ANTOFAGASTA PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,5%</div></td>
@@ -776,6 +815,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="PORSCHE AG">PORSCHE AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -784,6 +824,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="VIENNA INSURANCE GROUP">Vienna Insurance Group</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -792,6 +833,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="HUSQVARNA AB">HUSQVARNA AB</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -800,6 +842,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="VALTERRA PLATINUM LIMITED">Valterra Platinum Limited</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
@@ -808,6 +851,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="STELLANTIS NV">STELLANTIS NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
@@ -816,6 +860,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="HEIDELBERGCEMENT AG">Heidelbergcement Ag</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -824,6 +869,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="WIZZ AIR HOLDINGS">Wizz Air Holdings</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -832,6 +878,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="ING GROEP NV">ING GROEP NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
@@ -840,6 +887,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="SAVENCIA SA">SAVENCIA SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -848,6 +896,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="UNICREDITO ITALIANO">Unicredito Italiano</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -856,6 +905,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="COMMERZBANK AG">COMMERZBANK AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -864,6 +914,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="C AND C GROUP PLC">C And C Group Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -872,6 +923,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="EUROBANK ERGASIAS">Eurobank Ergasias</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -880,6 +932,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="SHELF DRILLING LTD">Shelf Drilling Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>NOK</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -888,6 +941,7 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
 </tr><tr>
   <td title="KAPSCH TRAFFIC">KAPSCH TRAFFIC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -2103,16 +2157,54 @@ Actualmente, gestiona fondos de renta variable europea, incluyendo el <strong>Ma
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');

@@ -2966,6 +2966,15 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
     except Exception as exc:
         log("QUALITY", "WARN", f"Dashboard quality (single pass) falló: {exc}")
 
+    # Enriquecimiento cuantitativo (Yahoo style box/valoración/riesgo + capture
+    # ratios calculados). Pura Python, best-effort: si Yahoo no cubre el fondo o
+    # falla la red, deja campos None y el panel se oculta.
+    try:
+        from tools.quant_enrichment import enrich_and_save
+        enrich_and_save(isin, log=log)
+    except Exception as exc:
+        log("QUANT", "WARN", f"quant_enrichment: {exc}")
+
     try:
         from tools.publication_calendar import update_output_with_calendar
         if update_output_with_calendar(isin):

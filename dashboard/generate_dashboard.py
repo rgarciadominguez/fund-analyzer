@@ -3896,6 +3896,194 @@ def build_subtabs(tabs, gid):
     return f'<div class="subtabs" id="{gid}"><div class="subtab-nav">{nav}</div>{panels}</div>{js}'
 
 
+_SECTOR_ES = {
+    "industrials": "Industria", "basic_materials": "Materiales básicos",
+    "consumer_cyclical": "Consumo cíclico", "consumer_defensive": "Consumo defensivo",
+    "financial_services": "Servicios financieros", "technology": "Tecnología",
+    "communication_services": "Comunicación", "energy": "Energía",
+    "healthcare": "Salud", "utilities": "Utilities", "realestate": "Inmobiliario",
+    "real_estate": "Inmobiliario",
+}
+
+
+def build_quant_panel(data):
+    """Panel cuantitativo estilo-Morningstar (style box + capture ratios +
+    sectores) desde `data["analisis_cuantitativo"]` (Yahoo + cálculo propio).
+    Devuelve "" si no hay datos. Solo HTML/CSS inline, sin librerías."""
+    q = data.get("analisis_cuantitativo") or {}
+    sb = q.get("style_box") or {}
+    cr = q.get("capture_ratios") or {}
+    secs = q.get("sectores") or []
+    ries = q.get("riesgo") or []
+    ret = q.get("retornos") or {}
+    val = q.get("valoracion") or {}
+    vf = val.get("fondo") or {}
+    vi = val.get("indice") or {}
+    # Rotación de cartera (CNMV): filtra 0.0 = años sin extraer (huecos)
+    rot_serie = (data.get("cuantitativo") or {}).get("serie_rotacion") or []
+    rot_valid = [(str(e.get("periodo")), e.get("rotacion_pct")) for e in rot_serie
+                 if isinstance(e, dict) and e.get("rotacion_pct")]
+    if not (sb.get("box") or cr.get("upside_pct") is not None or secs
+            or ries or ret or rot_valid or vf or vi):
+        return ""
+
+    cards = []
+
+    def _card(title, body):
+        return (
+            '<div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;'
+            'background:#fff;display:flex;flex-direction:column;">'
+            f'<div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;'
+            f'color:var(--ink-4);margin-bottom:11px;">{title}</div>'
+            f'<div style="flex:1;">{body}</div></div>')
+
+    # 0) Riesgo y rentabilidad por holding-period (3/5/10 años)
+    if ries or ret:
+        plabel = {"3y": "3 años", "5y": "5 años", "10y": "10 años"}
+        periods = [r.get("periodo") for r in ries]
+
+        def _n(v, dec=2):
+            return f"{v:.{dec}f}" if isinstance(v, (int, float)) else "—"
+        metrics = [("volatilidad", "Volatilidad", 1), ("sharpe", "Sharpe", 2),
+                   ("beta", "Beta", 2), ("alpha", "Alpha", 2), ("r2", "R²", 1)]
+        thead = '<th></th>' + ''.join(
+            f'<th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">{plabel.get(p, p)}</th>'
+            for p in periods)
+        trows = ''
+        for key, lbl, dec in metrics:
+            tds = ''.join(
+                f'<td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">{_n(r.get(key), dec)}</td>'
+                for r in ries)
+            trows += (f'<tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">{lbl}</td>{tds}</tr>')
+        table = (f'<table style="border-collapse:collapse;width:100%;"><thead><tr>{thead}</tr></thead>'
+                 f'<tbody>{trows}</tbody></table>') if ries else ''
+        # Rentabilidad anualizada (strip)
+        rorder = [("1a", "1A"), ("3a", "3A"), ("5a", "5A"), ("10a", "10A")]
+        rparts = [f'{lbl} <strong style="color:var(--ink);">{ret[k]:.1f}%</strong>'
+                  for k, lbl in rorder if k in ret]
+        rstrip = ('<div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;'
+                  'border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · '
+                  + ' · '.join(rparts) + '</div>') if rparts else ''
+        cards.append(_card("Riesgo y rentabilidad", table + rstrip))
+
+    # 1) Estilo de acciones (style box 3×3)
+    if sb.get("box"):
+        active = sb["box"]
+        cols = ["Value", "Blend", "Growth"]
+        srows = [("Large", [1, 2, 3]), ("Mid", [4, 5, 6]), ("Small", [7, 8, 9])]
+        cells = '<div></div>' + ''.join(
+            f'<div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">{c}</div>'
+            for c in cols)
+        for rlabel, boxes in srows:
+            cells += (f'<div style="display:flex;align-items:center;justify-content:flex-end;'
+                      f'font-size:9.5px;color:var(--ink-4);padding-right:7px;">{rlabel}</div>')
+            for b in boxes:
+                bg = "var(--navy)" if b == active else "#e8ecf1"
+                cells += (f'<div style="width:38px;height:32px;background:{bg};'
+                          f'border:2px solid #fff;border-radius:2px;"></div>')
+        body = (
+            f'<div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;'
+            f'width:max-content;margin:0 auto;">{cells}</div>'
+            f'<div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;'
+            f'font-weight:700;text-align:center;">{sb.get("size")} · {sb.get("style")}</div>')
+        cards.append(_card("Estilo de acciones", body))
+
+    # 2) Valoración (Fondo vs Índice)
+    if vf or vi:
+        idx_lbl = val.get("indice_label") or "Índice"
+        labels = [("per", "P/E"), ("pvc", "P/Valor contable"),
+                  ("pventas", "P/Ventas"), ("pcf", "P/Cash Flow")]
+        vrows = ""
+        for key, lbl in labels:
+            f = vf.get(key); i = vi.get(key)
+            if f is None and i is None:
+                continue
+            f_disp = f"{f:.2f}" if f is not None else "—"
+            i_disp = f"{i:.2f}" if i is not None else "—"
+            cheaper = (f is not None and i is not None and f < i)
+            f_style = "color:var(--navy);font-weight:700;" if cheaper else "color:var(--ink);font-weight:600;"
+            vrows += (
+                f'<tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">{lbl}</td>'
+                f'<td style="padding:4px 12px;text-align:right;font-size:12px;{f_style}">{f_disp}</td>'
+                f'<td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">{i_disp}</td></tr>')
+        body = (
+            '<table style="border-collapse:collapse;width:100%;">'
+            f'<thead><tr><th></th>'
+            f'<th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th>'
+            f'<th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">{idx_lbl}</th></tr></thead>'
+            f'<tbody>{vrows}</tbody></table>'
+            '<div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div>')
+        cards.append(_card("Valoración · Fondo vs Índice", body))
+
+    # 3) Captura de mercado
+    if cr.get("upside_pct") is not None or cr.get("downside_pct") is not None:
+        up = cr.get("upside_pct"); dn = cr.get("downside_pct")
+        ratio = cr.get("capture_ratio")
+        bench = q.get("benchmark_label") or q.get("benchmark_symbol") or "benchmark"
+        n = cr.get("n_meses")
+
+        def _crow(lbl, v, color):
+            if v is None:
+                return ''
+            w = max(3, min(100, v / 150 * 100))
+            return (
+                f'<div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">'
+                f'<span class="pr" style="width:56px;font-size:11px;color:var(--ink-3);">{lbl}</span>'
+                f'<div style="flex:1;height:14px;background:#eef1f5;border-radius:3px;position:relative;">'
+                f'<div style="width:{w:.0f}%;height:14px;background:{color};border-radius:3px;"></div>'
+                f'<div style="position:absolute;left:{100/150*100:.0f}%;top:-2px;height:18px;border-left:1px dashed #b0b8c4;"></div></div>'
+                f'<strong style="font-size:12px;color:var(--ink);width:40px;text-align:right;">{v:.0f}%</strong></div>')
+        meta = (f'Ratio captura <strong>{ratio}</strong>' if ratio else '')
+        meta += (f'{" · " if meta else ""}vs {bench}' if bench else '')
+        meta += (f' · {n} m' if n else '')
+        body = (
+            _crow("Subidas", up, "#2b6a3f") + _crow("Bajadas", dn, "#b23a48")
+            + (f'<div class="pr" style="font-size:10.5px;color:var(--ink-2);margin-top:6px;">{meta}</div>' if meta else ''))
+        cards.append(_card("Captura de mercado", body))
+
+    # 3b) Rotación de cartera (CNMV, por año)
+    if rot_valid:
+        recent = rot_valid[-7:]
+        maxr = max(v for _, v in recent) or 1
+        avg = sum(v for _, v in recent) / len(recent)
+        rbars = ''
+        for per, v in recent:
+            w = max(3, v / maxr * 100)
+            rbars += (
+                f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'
+                f'<span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">{per}</span>'
+                f'<div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;">'
+                f'<div style="width:{w:.0f}%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div>'
+                f'<strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">{v:.0f}%</strong></div>')
+        rfoot = (f'<div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;'
+                 f'border-top:1px solid var(--rule);padding-top:6px;">Media {avg:.0f}%/año · '
+                 f'baja rotación = enfoque a largo plazo.</div>')
+        cards.append(_card("Rotación de cartera", rbars + rfoot))
+
+    # 4) Exposición sectorial
+    if secs:
+        maxp = max((s.get("peso_pct", 0) for s in secs), default=0) or 1
+        srh = ""
+        for s in secs[:8]:
+            name = _SECTOR_ES.get(s.get("sector", ""), (s.get("sector", "") or "").replace("_", " ").title())
+            pct = s.get("peso_pct", 0)
+            w = max(2, pct / maxp * 100)
+            srh += (
+                f'<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">'
+                f'<span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">{name}</span>'
+                f'<div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;">'
+                f'<div style="width:{w:.0f}%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div>'
+                f'<strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">{pct:.1f}%</strong></div>')
+        cards.append(_card("Exposición sectorial", srh))
+
+    grid = (
+        '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;'
+        f'align-items:stretch;margin-bottom:8px;">{"".join(cards)}</div>')
+    return (
+        '<div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div>'
+        + grid)
+
+
 def build_tab_estrategia(data):
     import re
     s = get_section_estrategia(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("estrategia", {})
@@ -4766,6 +4954,8 @@ def build_tab_cartera(data):
   </div>
 
   {charts_html}
+
+  {build_quant_panel(data)}
 
   <div class="sr">Todas las posiciones ({len(sorted_pos)})</div>
   <div class="pt-wrap">
