@@ -58,40 +58,31 @@ _BLACKLIST_STARTS = {
 
 
 def needs_recovery(nombre: str, isin: str) -> bool:
-    """¿El campo `nombre` está claramente mal?"""
+    """¿El campo `nombre` está claramente mal? Usa el validador central, así
+    detecta NO solo vacío/ISIN sino también prosa, etiquetas y fragmentos
+    (antes se colaban porque needs_recovery solo miraba vacío/ISIN/corto)."""
     if not isin:
         return False
-    n = (nombre or "").strip()
-    if not n:
-        return True
-    if n.upper() == isin.upper():
-        return True
-    # nombre parece ser otro ISIN
-    if _ISIN_RE.match(n.upper()):
-        return True
-    # demasiado corto para ser un nombre comercial real
-    if len(n) < 5:
-        return True
-    return False
+    try:
+        from tools.fund_name_utils import is_valid_fund_name
+        return not is_valid_fund_name(nombre, isin)[0]
+    except Exception:
+        # Fallback al chequeo mínimo histórico
+        n = (nombre or "").strip()
+        return (not n) or n.upper() == isin.upper() or bool(_ISIN_RE.match(n.upper())) or len(n) < 5
 
 
 def _candidate_is_valid(name: str, isin: str) -> bool:
-    """Filtros para descartar matches espurios."""
-    name = (name or "").strip()
-    if len(name) < 5:
-        return False
-    if name.upper() == isin.upper():
-        return False
-    if _ISIN_RE.match(name.upper()):
-        return False
-    words = name.split()
-    # Demasiadas palabras = frase, no nombre comercial
-    if len(words) > 10:
-        return False
-    # Primera palabra es conector
-    if words[0].lower().rstrip(",.;:") in _BLACKLIST_STARTS:
-        return False
-    return True
+    """Filtros para descartar matches espurios (mismo validador central)."""
+    try:
+        from tools.fund_name_utils import is_valid_fund_name
+        return is_valid_fund_name(name, isin)[0]
+    except Exception:
+        name = (name or "").strip()
+        if len(name) < 5 or name.upper() == isin.upper() or _ISIN_RE.match(name.upper()):
+            return False
+        words = name.split()
+        return len(words) <= 10 and words[0].lower().rstrip(",.;:") not in _BLACKLIST_STARTS
 
 
 def _extract_via_regex(texts: list[str], isin: str) -> Optional[str]:

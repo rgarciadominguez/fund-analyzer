@@ -36,6 +36,75 @@ CLASS_TAIL_PATTERNS = [
 ]
 
 
+# ════════════════════════════════════════════════════════════════════
+# Validación de nombre de fondo (gate anti-basura, 2026-06-08)
+# ════════════════════════════════════════════════════════════════════
+# Evita almacenar un `nombre` erróneo: ISIN, prosa, etiquetas, fragmentos.
+# Usado por los agentes fuente ANTES de escribir, y por name_recovery para
+# decidir si hace falta recuperar.
+
+# ISIN embebido: token de 12 chars (2 letras + 10 alfanum) como palabra
+# independiente Y con al menos un dígito (un ISIN real lleva check digit). El
+# \b y el dígito evitan falsos positivos con nombres largos ("DNCA Invest...").
+_ISIN_TOKEN_RE = re.compile(r"\b[A-Z]{2}[A-Z0-9]{10}\b")
+
+# Conectores/artículos que delatan que el "nombre" es en realidad una frase.
+# OJO: NO incluir artículos sueltos legítimos en gestoras (La Française, Le ...).
+_CONNECTOR_STARTS = {
+    "para", "como", "esta", "este", "estos", "estas", "desde", "durante",
+    "según", "segun", "tras", "antes", "después", "despues", "porque", "cuando",
+    "donde", "this", "these", "that", "those", "with", "from", "about",
+    "the fund", "el fondo", "la sicav", "el subfondo", "el sub-fondo",
+}
+
+# Etiquetas/placeholders que a veces se cuelan como nombre.
+_STUB_NAMES = {
+    "sin nombre", "no disponible", "n/a", "na", "n.d.", "nd", "unknown",
+    "desconocido", "pendiente", "fondo", "fund", "sicav", "el fondo",
+    "información del fondo", "informacion del fondo", "ficha del fondo",
+    "datos del fondo", "documento", "prospectus", "folleto", "kid", "kiid",
+    "nombre del fondo", "fondo de inversión", "fondo de inversion",
+}
+
+
+def is_valid_fund_name(name: str, isin: str = "") -> tuple[bool, str]:
+    """¿`name` es un nombre de fondo plausible? Devuelve (ok, motivo).
+
+    Conservador: acepta nombres legales largos de paraguas (p.ej. "ROBECO
+    CAPITAL GROWTH FUNDS - ROBECO QI GLOBAL DEVELOPED ENHANCED INDEX EQUITIES")
+    y rechaza ISIN, prosa, etiquetas y fragmentos.
+    """
+    n = (name or "").strip()
+    if not n:
+        return False, "vacio"
+    nl = n.lower().strip(" .,:;")
+    if isin and n.upper() == isin.upper():
+        return False, "es_isin"
+    for _tok in _ISIN_TOKEN_RE.findall(n.upper()):
+        if any(ch.isdigit() for ch in _tok):
+            return False, "contiene_isin"
+    if len(n) < 5:
+        return False, "muy_corto"
+    if len(n) > 110:
+        return False, "muy_largo"
+    words = n.split()
+    if len(words) > 16:
+        return False, "prosa_demasiadas_palabras"
+    if n[0].islower():
+        return False, "empieza_minuscula"
+    if ". " in n:  # varias frases → prosa (no "S.A." que no lleva espacio)
+        return False, "prosa_varias_frases"
+    if sum(c.isalpha() for c in n) < 3:
+        return False, "sin_letras"
+    if nl in _STUB_NAMES:
+        return False, "stub_o_etiqueta"
+    first1 = words[0].lower().rstrip(",.;:")
+    first2 = " ".join(words[:2]).lower().rstrip(",.;:")
+    if first1 in _CONNECTOR_STARTS or first2 in _CONNECTOR_STARTS:
+        return False, "empieza_conector_prosa"
+    return True, "ok"
+
+
 def is_class_tail(s: str) -> bool:
     """True si la cadena parece denominación de clase (no nombre del fondo)."""
     s = s.strip() if s else ""

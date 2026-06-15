@@ -339,8 +339,16 @@ def _merge_target_fund_identity(out: dict, v: Any) -> None:
     if not isinstance(v, dict):
         return
     name = v.get("display_name") or ""
-    if name and not out["nombre"]:
-        out["nombre"] = name
+    # Gate anti-basura (2026-06-08): solo escribir si es un nombre plausible.
+    # Evita almacenar ISIN/prosa/etiquetas del identity card del regulador.
+    if name and not out.get("nombre"):
+        try:
+            from tools.fund_name_utils import is_valid_fund_name
+            ok, _ = is_valid_fund_name(name, out.get("isin", ""))
+        except Exception:
+            ok = True
+        if ok:
+            out["nombre"] = name
     # inception → anio_creacion
     inception = v.get("inception_date") or ""
     if inception:
