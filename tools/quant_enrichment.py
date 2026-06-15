@@ -293,15 +293,48 @@ def compute_capture_ratios(fund_nav: list, bench_nav: list) -> Optional[dict]:
     down = [m for m in common if br[m] < 0]
     res: dict = {"n_meses": len(common), "n_up": len(up), "n_down": len(down),
                  "_source": "computed_nav"}
+
+    # Rendimiento MEDIO mensual por régimen (Fondo vs Índice) — para comparar
+    # visualmente el comportamiento relativo en subidas y en bajadas.
+    def _avg(months, series):
+        return round(sum(series[m] for m in months) / len(months) * 100, 2) if months else None
+    res["rendimiento_regimen"] = {
+        "subidas": {"fondo": _avg(up, fr), "indice": _avg(up, br)},
+        "caidas": {"fondo": _avg(down, fr), "indice": _avg(down, br)},
+    }
+
     if up:
         f, b = _compound(up)
         res["upside_pct"] = round((f / b) * 100, 1) if b else None
+        # Exceso en subidas (pp): retorno compuesto fondo − índice en meses al alza.
+        # Positivo = sube MÁS que el índice.
+        res["exceso_subidas_pp"] = round((f - b) * 100, 1)
     if down:
         f, b = _compound(down)
         res["downside_pct"] = round((f / b) * 100, 1) if b else None
+        # Exceso en caídas (pp): fondo − índice en meses a la baja (ambos negativos).
+        # Positivo = cae MENOS que el índice (mejor).
+        res["exceso_caidas_pp"] = round((f - b) * 100, 1)
     # Total capture = up/down ratio (>1 mejor)
     if res.get("upside_pct") and res.get("downside_pct"):
         res["capture_ratio"] = round(res["upside_pct"] / res["downside_pct"], 2)
+    # Veredicto explícito: ¿bate al índice en subidas, en caídas, ambos, ninguno?
+    msub = res.get("exceso_subidas_pp")
+    mcai = res.get("exceso_caidas_pp")
+    mejor_sub = msub is not None and msub > 0
+    mejor_cai = mcai is not None and mcai > 0
+    if mejor_sub and mejor_cai:
+        res["perfil"] = "Bate al índice en subidas Y en caídas"
+        res["perfil_tag"] = "ambos"
+    elif mejor_cai and not mejor_sub:
+        res["perfil"] = "Defensivo: cae menos que el índice; capta algo menos en subidas"
+        res["perfil_tag"] = "defensivo"
+    elif mejor_sub and not mejor_cai:
+        res["perfil"] = "Ofensivo: sube más que el índice, pero cae igual o más"
+        res["perfil_tag"] = "ofensivo"
+    elif msub is not None and mcai is not None:
+        res["perfil"] = "No bate al índice ni en subidas ni en caídas"
+        res["perfil_tag"] = "ninguno"
     return res
 
 

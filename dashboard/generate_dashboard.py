@@ -4015,31 +4015,47 @@ def build_quant_panel(data):
             '<div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div>')
         cards.append(_card("Valoración · Fondo vs Índice", body))
 
-    # 3) Captura de mercado
-    if cr.get("upside_pct") is not None or cr.get("downside_pct") is not None:
-        up = cr.get("upside_pct"); dn = cr.get("downside_pct")
-        ratio = cr.get("capture_ratio")
-        bench = q.get("benchmark_label") or q.get("benchmark_symbol") or "benchmark"
-        n = cr.get("n_meses")
+    # 3) Comportamiento vs índice en subidas y caídas — comparativa Fondo/Índice
+    rr = cr.get("rendimiento_regimen") or {}
+    sub = rr.get("subidas") or {}
+    cai = rr.get("caidas") or {}
+    reg_vals = [sub.get("fondo"), sub.get("indice"), cai.get("fondo"), cai.get("indice")]
+    if any(v is not None for v in reg_vals) or cr.get("upside_pct") is not None:
+        maxabs = max((abs(v) for v in reg_vals if v is not None), default=1) or 1
+        NAVY = "var(--navy)"; GREY = "#9aa6b4"
 
-        def _crow(lbl, v, color):
+        def _dbar(lbl, v, color):
             if v is None:
-                return ''
-            w = max(3, min(100, v / 150 * 100))
+                return (f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">'
+                        f'<span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">{lbl}</span>'
+                        f'<span class="pr" style="font-size:10px;color:var(--ink-4);">n/d</span></div>')
+            w = abs(v) / maxabs * 47
+            pos = (f'left:50%;width:{w:.0f}%;' if v >= 0 else f'right:50%;width:{w:.0f}%;')
             return (
-                f'<div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">'
-                f'<span class="pr" style="width:56px;font-size:11px;color:var(--ink-3);">{lbl}</span>'
-                f'<div style="flex:1;height:14px;background:#eef1f5;border-radius:3px;position:relative;">'
-                f'<div style="width:{w:.0f}%;height:14px;background:{color};border-radius:3px;"></div>'
-                f'<div style="position:absolute;left:{100/150*100:.0f}%;top:-2px;height:18px;border-left:1px dashed #b0b8c4;"></div></div>'
-                f'<strong style="font-size:12px;color:var(--ink);width:40px;text-align:right;">{v:.0f}%</strong></div>')
-        meta = (f'Ratio captura <strong>{ratio}</strong>' if ratio else '')
-        meta += (f'{" · " if meta else ""}vs {bench}' if bench else '')
-        meta += (f' · {n} m' if n else '')
-        body = (
-            _crow("Subidas", up, "#2b6a3f") + _crow("Bajadas", dn, "#b23a48")
-            + (f'<div class="pr" style="font-size:10.5px;color:var(--ink-2);margin-top:6px;">{meta}</div>' if meta else ''))
-        cards.append(_card("Captura de mercado", body))
+                f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">'
+                f'<span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">{lbl}</span>'
+                f'<div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;">'
+                f'<div style="position:absolute;top:0;height:13px;border-radius:2px;background:{color};{pos}"></div>'
+                f'<div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div>'
+                f'<strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">{v:+.2f}%</strong></div>')
+
+        block = (
+            '<div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div>'
+            + _dbar("Fondo", sub.get("fondo"), NAVY) + _dbar("Índice", sub.get("indice"), GREY)
+            + '<div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div>'
+            + _dbar("Fondo", cai.get("fondo"), NAVY) + _dbar("Índice", cai.get("indice"), GREY))
+        # leyenda + captura resumida
+        up_c = cr.get("upside_pct"); dn_c = cr.get("downside_pct"); ratio = cr.get("capture_ratio")
+        cap = []
+        if up_c is not None: cap.append(f'capt. subidas {up_c:.0f}%')
+        if dn_c is not None: cap.append(f'caídas {dn_c:.0f}%')
+        if ratio: cap.append(f'ratio {ratio}')
+        leg = ('<div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;'
+               'border-top:1px solid var(--rule);padding-top:6px;">'
+               '<span style="color:var(--navy);font-weight:700;">▬</span> Fondo · '
+               '<span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual'
+               + (' · ' + ' · '.join(cap) if cap else '') + '</div>')
+        cards.append(_card("Comportamiento vs índice", block + leg))
 
     # 3b) Rotación de cartera (CNMV, por año)
     if rot_valid:
