@@ -2642,6 +2642,39 @@ function showEditFundForm(fund) {
     </label>
   `).join('');
 
+  // Categorización (catálogo fund-analyzer + fund-dashboard). 1 campo = ambos sistemas.
+  const TAX_DEFAULTS = {
+    categoria: ['Activo', 'Indexado', 'Smart Beta', 'Mixto'],
+    tipo_activo: ['RV', 'RF MP', 'RF LP', 'Mixto', 'Alternativo', 'Monetario'],
+    geografia: ['Global', 'Europa', 'USA', 'España', 'Asia', 'Emergentes', 'Latam'],
+    divisa: ['Euro', 'USD', 'GBP', 'JPY', 'Otra'],
+    issuer: ['n.a.', 'Gubernamental', 'Corporativa', 'Mixto', 'High Yield', 'Inflación'],
+    clase_comercial: ['Limpia', 'Retail', 'Institucional', 'Otro'],
+    estilo: ['Value', 'Growth', 'Quality', 'Blend', 'SmallCaps', 'Momentum', 'Floating rate'],
+  };
+  const TAX_LABELS = { categoria: 'Categoría', tipo_activo: 'Tipo activo', geografia: 'Geografía', divisa: 'Divisa', issuer: 'Emisor', clase_comercial: 'Clase', gestora: 'Gestora', estilo: 'Estilo' };
+  const TAX_ORDER = ['categoria', 'tipo_activo', 'geografia', 'divisa', 'issuer', 'clase_comercial', 'gestora', 'estilo'];
+  const _allFunds = (STATE.catalog && STATE.catalog.funds) || [];
+  const taxOpts = (field) => {
+    const s = new Set(TAX_DEFAULTS[field] || []);
+    _allFunds.forEach(f => { if (f[field]) s.add(f[field]); });
+    return Array.from(s);
+  };
+  const taxFieldsHtml = `
+    <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:8px;">Categorización (catálogo + fund-dashboard)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;">
+      ${TAX_ORDER.map(field => {
+        const cur = fund[field] || (field === 'issuer' ? 'n.a.' : '');
+        const opts = taxOpts(field).map(o => `<option value="${escapeHtml(o)}">`).join('');
+        return `<div><label for="edit-${field}" style="font-size:11px;">${TAX_LABELS[field]}</label>
+          <input id="edit-${field}" list="dl-${field}" value="${escapeHtml(cur)}" autocomplete="off" style="width:100%;padding:5px 7px;font-size:12px;border:1px solid var(--border);border-radius:2px;box-sizing:border-box;">
+          <datalist id="dl-${field}">${opts}</datalist></div>`;
+      }).join('')}
+      </div>
+      <div style="font-size:10px;color:var(--ink-4);margin-top:4px;">Puedes elegir un valor o escribir uno nuevo. Se aplica al catálogo y se empuja al fund-dashboard.</div>
+    </div>`;
+
   $('#modal-body').innerHTML = `
     <div class="edit-form">
       <div style="font-size:12px;color:var(--ink-2);margin-bottom:10px;">
@@ -2665,6 +2698,8 @@ function showEditFundForm(fund) {
 
       <label for="edit-notas">Notas internas</label>
       <textarea id="edit-notas" rows="2" placeholder="Notas privadas (no se publican)">${escapeHtml(fund.notas_internas || '')}</textarea>
+
+      ${taxFieldsHtml}
 
       <div id="edit-error" style="color:var(--neg);font-size:12px;margin-top:10px;display:none;"></div>
     </div>
@@ -2699,12 +2734,18 @@ async function submitEditFund(isin) {
     if (!ok) return;
   }
 
+  // Campos de categorización (taxonomía → fund_taxonomy.json + push fund-dashboard)
+  const TAX_KEYS = ['categoria', 'tipo_activo', 'geografia', 'divisa', 'issuer', 'clase_comercial', 'gestora', 'estilo'];
+  const taxPayload = {};
+  TAX_KEYS.forEach(k => { taxPayload[k] = ($('#edit-' + k)?.value || '').trim(); });
+
   const payload = {
     clasificacion_user: clasif || null,
     opinion_user: opinion || null,
     encaje_texto: encaje || null,
     notas_internas: notas || null,
     broker_disponible: brokers,  // W13
+    ...taxPayload,
   };
 
   $('#modal-action').disabled = true;
@@ -2732,6 +2773,7 @@ async function submitEditFund(isin) {
       encaje: encaje || null,
       notas_internas: notas || null,
       broker_disponible: brokers,  // W13
+      ...taxPayload,  // categorización (categoria/tipo_activo/geografia/divisa/issuer/clase/gestora/estilo)
     });
     closeModal();
   } catch (e) {

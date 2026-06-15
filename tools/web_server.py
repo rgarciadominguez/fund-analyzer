@@ -1679,14 +1679,23 @@ def make_app(cold_start: bool = True) -> Flask:
             "notas_internas",
             "broker_disponible",  # W13: lista de brokers donde está el ISIN
         }
+        # Campos de TAXONOMÍA (categorización) — viven en fund_taxonomy.json y
+        # alimentan tanto el catálogo de fund-analyzer como el fund-dashboard.
+        TAX_FIELDS = {
+            "categoria", "tipo_activo", "geografia", "divisa",
+            "issuer", "estilo", "clase_comercial", "gestora",
+        }
         ALLOWED_CLASIF = {"Top", "Bueno", "Medio", "Clase_similar", "Clase_sucia", None}
 
         update_dict: dict = {}
+        tax_dict: dict = {}
         for k, v in body.items():
+            if k in TAX_FIELDS:
+                tax_dict[k] = (v.strip() if isinstance(v, str) else v) or ""
+                continue
             if k not in ALLOWED_FIELDS:
                 continue
             if k == "broker_disponible":
-                # Validar que sea lista de strings
                 if v is None:
                     v = []
                 if not isinstance(v, list):
@@ -1701,34 +1710,69 @@ def make_app(cold_start: bool = True) -> Flask:
                 }), 400
             update_dict[k] = v
 
-        if not update_dict:
+        if not update_dict and not tax_dict:
             return jsonify({
                 "error": "no hay campos válidos para actualizar",
-                "allowed_fields": sorted(ALLOWED_FIELDS),
+                "allowed_fields": sorted(ALLOWED_FIELDS | TAX_FIELDS),
             }), 400
 
-        try:
-            from tools.supabase_client import get_client
-            client = get_client()
-        except Exception as e:
-            return jsonify({"error": f"Supabase no disponible: {e}"}), 503
+        # 1) Campos de usuario → Supabase funds (como hasta ahora)
+        sb_row = None
+        if update_dict:
+            try:
+                from tools.supabase_client import get_client
+                client = get_client()
+                res = client.table("funds").update(update_dict).eq("isin", isin).execute()
+                data = getattr(res, "data", None) or []
+                if not data:
+                    return jsonify({"error": f"ISIN {isin} no encontrado en funds"}), 404
+                sb_row = data[0] if isinstance(data, list) else data
+            except Exception as e:
+                return jsonify({"error": f"error actualizando funds: {e}"}), 500
 
-        try:
-            res = client.table("funds").update(update_dict).eq("isin", isin).execute()
-        except Exception as e:
-            return jsonify({"error": f"error actualizando funds: {e}"}), 500
-
-        data = getattr(res, "data", None) or []
-        if not data:
-            return jsonify({
-                "error": f"ISIN {isin} no encontrado en funds",
-            }), 404
+        # 2) Taxonomía → fund_taxonomy.json + push al fund-dashboard
+        fd_pushed = False
+        if tax_dict:
+            try:
+                import json as _json
+                from pathlib import Path as _Path
+                taxf = _Path(__file__).resolve().parent.parent / "data" / "fund_taxonomy.json"
+                tx = _json.loads(taxf.read_text(encoding="utf-8")) if taxf.exists() else {"funds": {}}
+                tx.setdefault("funds", {})
+                ent = tx["funds"].setdefault(isin, {"isin": isin})
+                ent.update({k: v for k, v in tax_dict.items()})
+                taxf.write_text(_json.dumps(tx, ensure_ascii=False, indent=2), encoding="utf-8")
+            except Exception as e:
+                return jsonify({"error": f"error guardando taxonomía: {e}"}), 500
+            # push al fund-dashboard (mapeo de campos)
+            try:
+                from tools.funddash_sync import _patch_meta, _post, _repo_isins
+                fd_meta = {
+                    "isin": isin, "name": ent.get("nombre") or isin,
+                    "category": tax_dict.get("categoria", ""),
+                    "assetType": tax_dict.get("tipo_activo", ""),
+                    "geography": tax_dict.get("geografia", ""),
+                    "currency": {"EUR": "Euro", "USD": "USD", "GBP": "GBP", "JPY": "JPY"}.get(
+                        tax_dict.get("divisa", ""), tax_dict.get("divisa", "")),
+                    "issuer": tax_dict.get("issuer", ""),
+                    "className": tax_dict.get("clase_comercial", ""),
+                    "gestora": tax_dict.get("gestora", ""),
+                }
+                fd_meta = {k: v for k, v in fd_meta.items() if v or k in ("isin", "name")}
+                if isin in _repo_isins():
+                    _patch_meta(isin, fd_meta)
+                else:
+                    _post({"isin": isin, "meta": fd_meta, "rows": [], "updated_at": "2026-06-15T00:00:00Z"})
+                fd_pushed = True
+            except Exception as e:
+                print(f"[WARN] funddash push falló para {isin}: {e}")
 
         return jsonify({
             "ok": True,
             "isin": isin,
-            "updated_fields": sorted(update_dict.keys()),
-            "row": data[0] if isinstance(data, list) else data,
+            "updated_fields": sorted(list(update_dict.keys()) + list(tax_dict.keys())),
+            "funddash_pushed": fd_pushed,
+            "row": sb_row,
         })
 
     # M2 (2026-05-19): detector de procesos huérfanos del bat.
