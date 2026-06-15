@@ -2616,6 +2616,16 @@ const CLASIF_OPTIONS = [
   { value: 'Clase_sucia', label: 'Clase sucia' },
 ];
 
+// Al elegir "➕ Escribir nuevo…" en un select de categorización, muestra el input de texto.
+function taxSelChange(field) {
+  const sel = document.getElementById('edit-' + field);
+  const inp = document.getElementById('edit-' + field + '__new');
+  if (!sel || !inp) return;
+  if (sel.value === '__new__') { inp.style.display = ''; inp.focus(); }
+  else { inp.style.display = 'none'; inp.value = ''; }
+}
+window.taxSelChange = taxSelChange;
+
 function showEditFundForm(fund) {
   if (!fund || !fund.isin) {
     alert('Fondo inválido (sin ISIN).');
@@ -2666,10 +2676,16 @@ function showEditFundForm(fund) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;">
       ${TAX_ORDER.map(field => {
         const cur = fund[field] || (field === 'issuer' ? 'n.a.' : '');
-        const opts = taxOpts(field).map(o => `<option value="${escapeHtml(o)}">`).join('');
+        const vals = taxOpts(field);
+        if (cur && !vals.includes(cur)) vals.unshift(cur);  // el valor actual siempre presente
+        const opts = vals.map(o => `<option value="${escapeHtml(o)}"${o === cur ? ' selected' : ''}>${escapeHtml(o)}</option>`).join('');
         return `<div><label for="edit-${field}" style="font-size:11px;">${TAX_LABELS[field]}</label>
-          <input id="edit-${field}" list="dl-${field}" value="${escapeHtml(cur)}" autocomplete="off" style="width:100%;padding:5px 7px;font-size:12px;border:1px solid var(--border);border-radius:2px;box-sizing:border-box;">
-          <datalist id="dl-${field}">${opts}</datalist></div>`;
+          <select id="edit-${field}" onchange="taxSelChange('${field}')" style="width:100%;padding:5px 7px;font-size:12px;border:1px solid var(--border);border-radius:2px;box-sizing:border-box;background:#fff;">
+            <option value=""${!cur ? ' selected' : ''}>—</option>
+            ${opts}
+            <option value="__new__">➕ Escribir nuevo…</option>
+          </select>
+          <input id="edit-${field}__new" type="text" placeholder="nuevo valor" style="display:none;width:100%;margin-top:4px;padding:5px 7px;font-size:12px;border:1px solid var(--border);border-radius:2px;box-sizing:border-box;"></div>`;
       }).join('')}
       </div>
       <div style="font-size:10px;color:var(--ink-4);margin-top:4px;">Puedes elegir un valor o escribir uno nuevo. Se aplica al catálogo y se empuja al fund-dashboard.</div>
@@ -2737,7 +2753,12 @@ async function submitEditFund(isin) {
   // Campos de categorización (taxonomía → fund_taxonomy.json + push fund-dashboard)
   const TAX_KEYS = ['categoria', 'tipo_activo', 'geografia', 'divisa', 'issuer', 'clase_comercial', 'gestora', 'estilo'];
   const taxPayload = {};
-  TAX_KEYS.forEach(k => { taxPayload[k] = ($('#edit-' + k)?.value || '').trim(); });
+  TAX_KEYS.forEach(k => {
+    const sel = $('#edit-' + k);
+    let v = (sel?.value || '').trim();
+    if (v === '__new__') v = ($('#edit-' + k + '__new')?.value || '').trim();  // valor nuevo escrito
+    taxPayload[k] = v;
+  });
 
   const payload = {
     clasificacion_user: clasif || null,
