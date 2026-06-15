@@ -220,8 +220,8 @@ Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.jso
     "generated": "ISO timestamp",
     "generator": "skill:analyst-cowork",
     "skill_version": "2.0.0",
-    "main_model": "opus",
-    "audit_model": "sonnet",
+    "main_model": "claude-opus-4-8",
+    "audit_model": "claude-sonnet-4-6",
     "sections_generated": [...],
     "audit_pass_done": true,
     "audit_iterations": 1,
@@ -288,14 +288,15 @@ Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos re
     {
       "nombre": "Juan Gómez Bada",
       "cargo": "CEO y Director de Inversiones",
-      "trayectoria": "Texto largo (1500-3000 chars) en MARKDOWN con **bold** para énfasis. Cuenta su carrera, formación, experiencia, reconocimientos.",
+      "trayectoria": "Texto largo (1500-3000 chars) en MARKDOWN. FOCO en el RECORRIDO PROFESIONAL, no en la estrategia del fondo: (1) **año de incorporación a la gestora actual** y rol con que entró; (2) **empresas y cargos PREVIOS con fechas/periodos** (dónde trabajó antes y haciendo qué); (3) **formación** (titulación, universidad, certificaciones tipo CFA); (4) **años de experiencia** y track record previo (fondos que gestionó antes, resultados/reconocimientos documentados). Ordénalo cronológicamente cuando puedas. La filosofía de inversión va en su campo aparte y la estrategia del fondo en otra sección — aquí cuenta la PERSONA y su carrera.",
       "filosofia": "Texto (500-1000 chars) sobre su filosofía de inversión personal. NO duplicar con resumen.filosofia_inversion (este es del GESTOR, aquel es del FONDO).",
       "cv_bullets": [
-        "CEO y Director de Inversiones de Avantage Capital",
-        "Rating AA Citywire",
-        "Fondo Avantage Fund con 5 estrellas Morningstar",
-        "+15 años de experiencia",
-        ...4-8 bullets cortos
+        "Formación: Licenciado en X por Universidad Y; CFA charterholder (2010)",
+        "Antes: Analista de RV en Gestora Z (2008-2014)",
+        "Incorporación a la gestora actual: 2014 como Director de Inversiones",
+        "+15 años de experiencia en gestión de activos",
+        "Reconocimientos: Rating AA Citywire; 5★ Morningstar",
+        ...4-8 bullets — PRIORIZA hitos de carrera/CV (fechas, empresas previas, formación) sobre rasgos de estilo
       ],
       "decisiones_clave": [
         "Decisión 1 con contexto: qué hizo y por qué (200-400 chars)",
@@ -311,9 +312,10 @@ Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos re
 
 **REGLAS GESTORES**:
 - `nombre` y `cargo` SON OBLIGATORIOS para todos los perfiles.
-- `trayectoria` es OBLIGATORIO para los 1-2 perfiles lead. Para miembros secundarios puede ser más breve (300-600 chars).
+- **PRIORIDAD: track-record y CV sobre estilo/estrategia.** Lo que el lector quiere entender de cada gestor es su RECORRIDO: cuándo llegó a la gestora, qué hizo antes (empresas y cargos previos con fechas), formación, años de experiencia y resultados previos documentados. Tanto `trayectoria` como `texto` y `cv_bullets` deben liderar con eso. La filosofía/estilo es secundaria aquí (ya tiene su campo y su sección).
+- `trayectoria` es OBLIGATORIO para los 1-2 perfiles lead. Para miembros secundarios puede ser más breve (300-600 chars) pero incluyendo igualmente incorporación + experiencia previa si consta.
 - `cv_bullets` es OBLIGATORIO para lead. Opcional para secundarios.
-- NO inventes empresas previas o años no presentes en `manager_profile.json`. Si no sabes dónde trabajó antes, no lo digas.
+- **ANTI-INVENCIÓN (crítico aquí):** NO inventes empresas previas, fechas, titulaciones ni años no presentes en `manager_profile.json` / `articulos_completos`. Si el recorrido previo no está documentado, di explícitamente "no hay datos públicos sobre su experiencia previa" en vez de rellenar. Un CV corto y verdadero > uno largo inventado. (Recuerda los casos de contaminación cross-fund/homónimos: si un dato de carrera viene de una fuente que no es claramente de ESTE gestor, NO lo uses.)
 - `fuente` debe ser uno de: `manager_profiler, manager_deep_agent, google_snippet, sibling_auto, manual_verificado, analyst_llm`.
 
 ### evolucion

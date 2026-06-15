@@ -53,7 +53,7 @@ Para CADA carta que aún NO tenga K15 estructurado, añadir estos campos al obje
   "doc_type": "manager_presentation|carta_semestral|carta_trimestral|informe_mensual|annual_letter",
   "fuente_tipo": "pdf_discovery|web_scraping|manual",
   "_k15_extracted_at": "ISO timestamp",
-  "_k15_model": "claude-sonnet-4-6 (cowork)"
+  "_k15_model": "claude-opus-4-8 (cowork)"
 }
 ```
 
@@ -137,8 +137,8 @@ Confirma:
 
 ## Modelo recomendado
 
-- Sonnet es suficiente para K15
-- Opus solo si las cartas son extremadamente densas (>15 pp) y necesitas capturar matices semánticos sutiles
+- **Opus 4.8** — el bat lo fuerza vía `claude -p --model claude-opus-4-8` (var `MODEL_LETTERS`). Calidad-primero y coherente con el resto de skills.
+- Lo crítico de calidad aquí es **no mezclar cartas de otro fondo** (contaminación cross-fund): verifica el fondo del documento antes de extraer K15, sea cual sea el modelo.
 
 ## Coste y rate limit
 

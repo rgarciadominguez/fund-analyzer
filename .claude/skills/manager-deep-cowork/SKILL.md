@@ -127,7 +127,7 @@ De `fuentes_web`, identificar las URLs que mencionan a este gestor concreto. Fil
 4. Si pasa los filtros, extraer:
    - `titulo`: del artículo
    - `fecha`: de publicación si aparece
-   - `texto_completo`: 3000-8000 chars del contenido relevante (no el HTML completo)
+   - `texto_completo`: 3000-8000 chars del contenido relevante (no el HTML completo). **PRIORIZA conservar los datos de RECORRIDO/CV** cuando el artículo los mencione: año de incorporación a la gestora, **empresas y cargos previos con fechas**, formación (titulación, universidad, CFA…), años de experiencia, fondos gestionados antes y reconocimientos. Es lo que el analyst necesita para el track-record; no lo recortes en favor de opiniones de mercado.
    - `relevancia_score`: high|medium|low
    - `incluido_porque`: 1-2 frases justificando
 
@@ -169,8 +169,9 @@ Confirma:
 
 ## Modelo recomendado
 
-- Sonnet es suficiente para esta tarea (filtrado + extracción + relevancia)
-- Opus solo si hay >20 URLs y necesitas filtrado más sofisticado
+- **Opus 4.8** — el bat lo fuerza vía `claude -p --model claude-opus-4-8` (var `MODEL_MANAGER`). A diferencia de la extracción pura, aquí SÍ merece más capacidad: la identificación lead/co y el **filtrado de contaminación cross-fund** (homónimos, gestores del sub-fondo hermano, autores de insights en quants) es juicio de alto coste de error — el fallo recurrente del proyecto. Opus reduce ese error.
+- La parte mecánica (extraer el texto completo de una URL ya encontrada) no necesita Opus, pero va en la misma skill.
+- Si lo corres manualmente en Cowork (sin bat), usa Opus para el paso de juicio.
 
 ## Coste y rate limit
 

@@ -51,6 +51,23 @@ if "%3"=="--apply-feedback" set APPLY_FEEDBACK=--apply-feedback
 if "%4"=="--apply-feedback" set APPLY_FEEDBACK=--apply-feedback
 
 REM ====================================================================
+REM Modelos por skill (calidad-primero, 2026-06-08).
+REM Antes: las 4 skills corrian SIN --model -> el modelo por defecto, que
+REM resulto ser Opus 4.8 (evidencia: model_used en data/funds/*/extracted/).
+REM Fijamos --model explicito para: (a) estabilidad (no depender del default),
+REM (b) metadata honesta, (c) poder cambiar analyst->Fable facilmente.
+REM Auditoria 2026-06-08: NO bajar extraccion a Sonnet -> ya iba en Opus y
+REM extrae bien con anti_invencion_notes; bajar seria ahorro, no calidad.
+REM El cuello de botella real de extraccion NO es el modelo sino la lectura
+REM visual de PDFs (ver fallback fitz en extract-pdfs-cowork SKILL.md).
+REM Fable 5 -> candidato de UPGRADE solo para analyst (A/B tras validar Max).
+REM ====================================================================
+set MODEL_EXTRACT=claude-opus-4-8
+set MODEL_LETTERS=claude-opus-4-8
+set MODEL_MANAGER=claude-opus-4-8
+set MODEL_ANALYST=claude-opus-4-8
+
+REM ====================================================================
 REM Fix coste: vaciar ANTHROPIC_API_KEY del env del bat para que las 4
 REM invocaciones de `claude -p` (skills cowork) usen el login Claude Max
 REM en lugar de consumir balance prepago de la API console.
@@ -178,7 +195,7 @@ if defined SKIP_EXTRACT (
     echo ^(output redirigido a logs\skill_extract_pdfs_%ISIN%.log para evitar contaminacion cmd.exe^)
     echo.
     if not exist "logs" mkdir "logs"
-    call claude -p "extract pdfs cowork %ISIN%" --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_extract_pdfs_%ISIN%.log" 2>&1
+    call claude -p "extract pdfs cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_extract_pdfs_%ISIN%.log" 2>&1
     if errorlevel 1 (
         echo [WARN] Skill extract-pdfs-cowork fallo. Ver logs\skill_extract_pdfs_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! extract-pdfs
@@ -219,7 +236,7 @@ if defined SKIP_MGRDEEP (
     echo Identifica lead/co + enriquece manager_profile.json con articulos_completos
     echo ^(output redirigido a logs\skill_manager_deep_%ISIN%.log^)
     echo.
-    call claude -p "manager deep cowork %ISIN%" --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep,WebFetch" > "logs\skill_manager_deep_%ISIN%.log" 2>&1
+    call claude -p "manager deep cowork %ISIN%" --model %MODEL_MANAGER% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep,WebFetch" > "logs\skill_manager_deep_%ISIN%.log" 2>&1
     if errorlevel 1 (
         echo [WARN] Skill manager-deep-cowork fallo. Ver logs\skill_manager_deep_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! manager-deep
@@ -245,7 +262,7 @@ if defined SKIP_LETTERS (
     echo Anade K15 ^(tesis, decisiones, contexto, citas, outlook^) a cada carta
     echo ^(output redirigido a logs\skill_letters_extract_%ISIN%.log^)
     echo.
-    call claude -p "letters extract cowork %ISIN%" --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_letters_extract_%ISIN%.log" 2>&1
+    call claude -p "letters extract cowork %ISIN%" --model %MODEL_LETTERS% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_letters_extract_%ISIN%.log" 2>&1
     if errorlevel 1 (
         echo [WARN] Skill letters-extract-cowork fallo. Ver logs\skill_letters_extract_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! letters-extract
@@ -289,7 +306,7 @@ if defined SKIP_ANALYST (
     echo Genera analyst_synthesis_cowork.json con 8 secciones narrativas
     echo ^(output redirigido a logs\skill_analyst_%ISIN%.log^)
     echo.
-    call claude -p "analyst cowork %ISIN%" --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_analyst_%ISIN%.log" 2>&1
+    call claude -p "analyst cowork %ISIN%" --model %MODEL_ANALYST% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_analyst_%ISIN%.log" 2>&1
     if errorlevel 1 (
         echo [WARN] Skill analyst-cowork fallo. Ver logs\skill_analyst_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! analyst

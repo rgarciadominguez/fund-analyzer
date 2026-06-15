@@ -64,7 +64,7 @@ Por cada task del manifiesto, escribir el resultado en `data/funds/{ISIN}/extrac
   "agent": "cnmv_agent",
   "pdf_path": "...",
   "extracted_at": "ISO timestamp",
-  "model_used": "claude-sonnet-4-6 (cowork)",
+  "model_used": "claude-opus-4-8 (cowork)",
   "data": {
     "seccion_9_texto_completo": "...",
     "seccion_10_perspectivas_texto": "...",
@@ -104,18 +104,30 @@ Si falta el manifest o no hay PDFs → aborta.
 
 Read `data/funds/{ISIN}/pending_extraction.json`. Lista todas las tasks.
 
-### 3. Procesamiento por task (1-2 turns por task)
+### 3. Lectura del PDF — IMAGEN, no texto (crítico para fidelidad de cifras)
 
-Para CADA task:
+Lee cada página como **imagen**, no como texto plano. El texto de `pdfplumber`/`pypdf` en informes CNMV/AR **pierde dígitos** y trae **prosa con fuentes CID** ilegibles — copiar cifras de ahí es la causa nº1 de datos malos. La imagen de la página es inmune a eso.
+
+1. **Primera opción — `Read` del PDF** (el tool lo rasteriza con `pdftoppm`/poppler y te da la página como imagen). Usa el parámetro `pages` (máx ~20 págs/llamada; obligatorio en PDFs >10 págs).
+2. **Si `Read` falla con `pdftoppm not found`** (típico en Windows sin poppler), renderiza con **PyMuPDF (`fitz`, ya instalado)** a PNG 200 DPI y `Read` el PNG:
+   ```bash
+   python -c "import fitz; d=fitz.open(r'{pdf_path}'); [d[p].get_pixmap(dpi=200).save(rf'data/funds/{ISIN}/raw/_pg{p}.png') for p in range(START,END)]"
+   ```
+   Luego `Read data/funds/{ISIN}/raw/_pg{N}.png` por cada página. Borra los `_pg*.png` al terminar la task.
+3. **`pdfplumber`/`pypdf` texto plano SOLO para localizar** (TOC, en qué página está una sección) — **nunca para copiar cifras**.
+
+### 3b. Procesamiento por task (1-2 turns por task)
+
+Para CADA task (leyendo las páginas como imagen según §3):
 
 **Tipo A — Extracción simple (CNMV cualitativo, KIID, factsheet)**:
-1. Read del PDF directamente (mi `Read` tool soporta PDFs)
-2. Aplicar el schema de extracción al contenido del PDF
+1. Leer la(s) página(s) del PDF como imagen (§3)
+2. Aplicar el schema de extracción al contenido leído
 3. Devolver JSON con los campos pedidos
 4. Escribir `data/funds/{ISIN}/extracted/{task_id}.json`
 
 **Tipo B — Concept-first 2-stage (Annual Reports INT >30 páginas)**:
-1. **Stage 1 (mapper)**: Read del PDF entero. Identificar la TOC y mapear qué secciones contienen qué (estrategia, posiciones, KPIs, gestores). Output intermedio: `{section_name: page_range}`.
+1. **Stage 1 (mapper)**: localiza la TOC (texto plano vale aquí) y mapea qué páginas contienen qué (estrategia, posiciones, KPIs, gestores). Output intermedio: `{section_name: page_range}`. NO intentes `Read` de un PDF de 500 págs entero — pagina por rangos de la TOC.
 2. **Stage 2 (extractor)**: Re-leer las páginas específicas identificadas en stage 1, extraer datos estructurados al schema.
 3. Devolver JSON estructurado completo.
 
@@ -159,8 +171,8 @@ NO ejecutes el consume automáticamente.
 
 ## Modelo recomendado
 
-- Sesión principal: Sonnet (suficiente para extracción de PDFs)
-- Si task tipo B sobre PDF >100 pp: Opus puede ayudar en el stage 1 (mapper) por mayor precisión semántica
+- **Opus 4.8** — el bat lo fuerza vía `claude -p --model claude-opus-4-8` (var `MODEL_EXTRACT`). Calidad-primero: la extracción ya corría en Opus (evidencia en `extracted/*.json`) y rinde bien con `anti_invencion_notes`; bajar a Sonnet sería ahorro de coste, no mejora.
+- **El cuello de botella de calidad NO es el modelo sino el input.** Ver «Lectura del PDF» abajo: leer la página como **imagen** (no texto de pdfplumber) es lo que evita los fallos de cifras/CID. Eso rinde más que cualquier cambio de tier.
 
 ## Coste y rate limit
 
