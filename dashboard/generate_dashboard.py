@@ -1005,6 +1005,11 @@ def _hdr_enrich_if_missing(data):
     isin = data.get("isin", "")
     if not isin:
         return {"enriched": [], "suggestions": []}
+    # P3+ (2026-06-16): el flag salta TODO el enrich (descargas Y búsquedas DDG/
+    # fundsquare que hacen red y a veces cuelgan en regen masivo).
+    import os as _os
+    if _os.environ.get("DASHBOARD_SKIP_ENRICH") == "1":
+        return {"enriched": [], "suggestions": []}
     enriched = []
     suggestions = []
     gestora = data.get("gestora", "") or ""
@@ -1093,21 +1098,40 @@ def _hdr_discovery_pdfs(isin):
     return result
 
 
-def _hdr_pdf_text(pdf_path, max_pages=8):
-    """Extrae texto de las primeras N páginas del PDF. None si falla."""
-    try:
-        import pdfplumber
-        with pdfplumber.open(str(pdf_path)) as pdf:
-            pages = pdf.pages[:max_pages]
-            txt = ""
-            for p in pages:
-                try:
-                    txt += (p.extract_text() or "") + "\n"
-                except Exception:
-                    continue
-            return txt
-    except Exception:
+def _hdr_pdf_text(pdf_path, max_pages=8, timeout_s=12):
+    """Extrae texto de las primeras N páginas del PDF. None si falla o tarda > timeout.
+
+    pdfminer puede colgarse construyendo el índice de páginas de PDFs grandes/
+    malformados (ARs de SICAV) — el cuelgue ocurre en `pdf.pages` (DFS), antes del
+    slice. Ejecutamos en un hilo DAEMON con timeout duro: si tarda, devolvemos None
+    y el hilo se abandona (no bloquea la salida del proceso; Windows no tiene
+    signal.alarm)."""
+    import os as _os
+    # Regen masiva: salta TODO parseo de PDF (gestora/SRRI/fecha/...). pdfminer se
+    # cuelga en ARs/KIDs grandes; los datos ya están en output.json.
+    if _os.environ.get("DASHBOARD_SKIP_ENRICH") == "1":
         return None
+    import threading
+    box = {"txt": None}
+
+    def _parse():
+        try:
+            import pdfplumber
+            with pdfplumber.open(str(pdf_path)) as pdf:
+                txt = ""
+                for p in pdf.pages[:max_pages]:
+                    try:
+                        txt += (p.extract_text() or "") + "\n"
+                    except Exception:
+                        continue
+                box["txt"] = txt
+        except Exception:
+            box["txt"] = None
+
+    t = threading.Thread(target=_parse, daemon=True)
+    t.start()
+    t.join(timeout_s)
+    return box["txt"]   # None si el hilo sigue vivo (PDF patológico)
 
 
 # Caché en memoria durante una ejecución del generador (evita releer el mismo PDF)
@@ -1307,8 +1331,12 @@ def _hdr_enrich_gestora_from_ar(isin, short_name):
     PDFs cached (AR/KID/prospectus) el nombre institucional completo
     ({short_name} {sufijo institucional}). Devuelve el nombre largo si lo
     encuentra, o None."""
+    import os as _os
     import re as _re
     if not short_name or len(short_name) > 40:
+        return None
+    # Regen masiva: salta el parseo de ARs (pdfminer se cuelga en PDFs grandes).
+    if _os.environ.get("DASHBOARD_SKIP_ENRICH") == "1":
         return None
     cache_key = f"gestora_enrich::{isin}::{short_name}"
     if cache_key in _HDR_PDF_CACHE:
@@ -1356,8 +1384,10 @@ def _hdr_enrich_gestora_from_ar(isin, short_name):
         return True
 
     candidates_found = []
-    for pdf_path in candidates:
-        txt = _hdr_pdf_text(pdf_path, max_pages=15)
+    # Cap de PDFs + timeout corto por PDF: pdfminer puede ser lentísimo en ARs
+    # grandes y esto es solo un enriquecimiento de respaldo (no crítico).
+    for pdf_path in candidates[:3]:
+        txt = _hdr_pdf_text(pdf_path, max_pages=15, timeout_s=6)
         if not txt:
             continue
         for m in pat.finditer(txt):
@@ -1365,6 +1395,9 @@ def _hdr_enrich_gestora_from_ar(isin, short_name):
             full = _re.sub(r"\s{2,}", " ", full).strip(" .,;")
             if _is_valid_gestora_full(full) and full.lower() != short_name.lower():
                 candidates_found.append(full)
+        # Corte temprano: si ya hay un candidato con sufijo "management", basta.
+        if any("management" in c.lower() for c in candidates_found):
+            break
 
     if not candidates_found:
         _HDR_PDF_CACHE[cache_key] = None
