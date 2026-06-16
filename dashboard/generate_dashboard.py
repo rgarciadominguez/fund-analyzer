@@ -3228,11 +3228,21 @@ def build_tab_historia(data):
     texto = s.get("texto", "")
 
     # KPIs: años desde inicio y fecha_inicio
-    years_since = ""
-    if k.get("anio_creacion"):
-        years_since = str(datetime.now().year - int(k["anio_creacion"]))
     # Fecha inicio: usar la misma resolución que el header (mes+año cuando se puede)
     fecha_inicio = _hdr_resolve_fecha_inicio(data) or format_date(k.get("fecha_registro", ""))
+
+    # Años desde inicio = año_actual − año_inicio (floor, sin decimales). Fix
+    # 2026-06-16: anio_creacion viene null en ~la mitad de los fondos; si falta,
+    # extraer el año de la fecha de inicio YA resuelta (header) en vez de dejar "—".
+    def _year_in(s):
+        s = str(s or "")
+        for i in range(len(s) - 3):
+            ch = s[i:i + 4]
+            if ch.isdigit() and ch[:2] in ("19", "20"):
+                return int(ch)
+        return None
+    _start_year = int(k["anio_creacion"]) if k.get("anio_creacion") else _year_in(fecha_inicio)
+    years_since = str(max(0, datetime.now().year - _start_year)) if _start_year else ""
 
     # CAGR / peor / mejor año: placeholder "—", se rellenan desde JS con datos
     # daily de Morningstar (igual que la tab Evolución).
@@ -5418,7 +5428,11 @@ def build_tab_chat(data):
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = '{isin}';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -5435,16 +5449,21 @@ def build_tab_chat(data):
   // Check server status
   async function checkServer() {{
     try {{
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {{
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {{
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }}
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }}
     }} catch(e) {{}}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py {isin}';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }}
   checkServer();
@@ -5483,7 +5502,7 @@ def build_tab_chat(data):
 
     const online = await checkServer();
     if (!online) {{
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py {isin}', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }}
 
@@ -5496,33 +5515,21 @@ def build_tab_chat(data):
     const typing = addTyping();
 
     try {{
-      const resp = await fetch(CHAT_API + '/api/chat', {{
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {{
         method: 'POST',
         headers: {{'Content-Type': 'application/json'}},
-        body: JSON.stringify({{question: q}}),
+        body: JSON.stringify({{question: q, history: chatHistory}}),
       }});
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {{
-        const {{done, value}} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {{stream: true}});
-        fullText += chunk;
-        let html = fullText.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');
-        html = html.replace(/\\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }}
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({{role: 'user', text: q}});
+      chatHistory.push({{role: 'ai', text: ans}});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     }} catch(e) {{
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }}
 
     chatBusy = false;
@@ -5535,9 +5542,9 @@ def build_tab_chat(data):
     sendChat();
   }}
 
-  async function clearChat() {{
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try {{ await fetch(CHAT_API + '/api/clear', {{method: 'POST'}}); }} catch(e) {{}}
+  function clearChat() {{
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }}
   </script>
 </section>"""

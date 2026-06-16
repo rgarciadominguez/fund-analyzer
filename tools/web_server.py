@@ -209,6 +209,74 @@ def make_app(cold_start: bool = True) -> Flask:
             }
         )
 
+    # ── Chat por fondo (2026-06-16) ───────────────────────────────────────
+    # Unifica el chat AQUÍ (mismo backend que el feedback, mismo API_BASE) para
+    # que NO haga falta arrancar `chat_server.py` aparte. Usa Anthropic (Haiku)
+    # con prompt caching; sin dependencia de Gemini (que tiene kill-switch).
+    @app.route("/api/chat/<isin>/info", methods=["GET"])
+    def api_chat_info(isin):
+        isin = (isin or "").strip().upper()
+        if not ISIN_REGEX.match(isin):
+            return jsonify({"error": "ISIN inválido", "documents_loaded": []}), 400
+        try:
+            from tools.chat_context import load_fund_context
+            ctx = load_fund_context(isin, ROOT)
+        except Exception as e:
+            return jsonify({"error": str(e)[:200], "documents_loaded": [], "llm_ready": False}), 200
+        if ctx.get("error"):
+            return jsonify({"error": "fondo sin documentos", "documents_loaded": [], "llm_ready": False}), 200
+        docs = [k for k, v in ctx.items() if v and k != "isin"]
+        nombre = (ctx.get("output", {}) or {}).get("nombre", isin)
+        return jsonify({
+            "isin": isin, "nombre": nombre,
+            "documents_loaded": docs,
+            "llm_ready": bool(os.environ.get("ANTHROPIC_API_KEY")),
+        })
+
+    @app.route("/api/chat/<isin>", methods=["POST"])
+    def api_chat(isin):
+        isin = (isin or "").strip().upper()
+        if not ISIN_REGEX.match(isin):
+            return jsonify({"error": "ISIN inválido"}), 400
+        body = request.get_json(silent=True) or {}
+        question = (body.get("question") or "").strip()
+        history = body.get("history") or []
+        if not question:
+            return jsonify({"error": "pregunta vacía"}), 400
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            return jsonify({"answer": "El chat no está configurado en el servidor "
+                                      "(falta ANTHROPIC_API_KEY en .env)."}), 200
+        try:
+            from tools.chat_context import load_fund_context, build_system_prompt
+            ctx = load_fund_context(isin, ROOT)
+            if ctx.get("error"):
+                return jsonify({"answer": f"No encuentro los documentos del fondo {isin}."}), 200
+            system = build_system_prompt(ctx)
+            if len(system) > 350000:  # cap defensivo de contexto (~90K tokens)
+                system = system[:350000] + "\n[...contexto truncado...]"
+            msgs = []
+            for m in history[-10:]:
+                role = "assistant" if (m.get("role") in ("ai", "model", "assistant")) else "user"
+                txt = (m.get("text") or m.get("content") or "").strip()
+                if txt:
+                    msgs.append({"role": role, "content": txt})
+            msgs.append({"role": "user", "content": question})
+            from anthropic import Anthropic
+            client = Anthropic()
+            resp = client.messages.create(
+                model="claude-haiku-4-5",
+                max_tokens=1500,
+                system=[{"type": "text", "text": system,
+                         "cache_control": {"type": "ephemeral"}}],
+                messages=msgs,
+            )
+            answer = "".join(
+                b.text for b in resp.content if getattr(b, "type", None) == "text"
+            ).strip()
+            return jsonify({"answer": answer or "No tengo ese dato en los documentos del fondo."})
+        except Exception as e:
+            return jsonify({"answer": f"Error del chat: {str(e)[:200]}"}), 200
+
     @app.route("/api/regenerate-catalog", methods=["POST"])
     def api_regenerate_catalog():
         """Re-ejecuta build_catalog para refrescar el JSON."""
