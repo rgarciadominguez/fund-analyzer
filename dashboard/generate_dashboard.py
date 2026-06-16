@@ -3965,6 +3965,8 @@ def build_quant_panel(data):
     ms_ret = ms.get("rentabilidades") or {}
     ms_val = ms.get("valoracion") or {}
     ms_rf = ms.get("renta_fija") or {}
+    secs_bench = q.get("sectores_benchmark") or []   # sectores del ETF benchmark
+    bench_lbl = q.get("benchmark_label") or "Índice"
     # Rotación de cartera (CNMV): filtra 0.0 = años sin extraer (huecos)
     rot_serie = (data.get("cuantitativo") or {}).get("serie_rotacion") or []
     rot_valid = [(str(e.get("periodo")), e.get("rotacion_pct")) for e in rot_serie
@@ -4190,21 +4192,65 @@ def build_quant_panel(data):
                  f'baja rotación = enfoque a largo plazo.</div>')
         cards.append(_card("Rotación de cartera", rbars + rfoot))
 
-    # 4) Exposición sectorial
+    # 3c) Captura a 5 años (alcista/bajista) — gráfico de capture ratio
+    up_c = cr.get("upside_pct"); dn_c = cr.get("downside_pct")
+    if up_c is not None or dn_c is not None:
+        cmax = max([v for v in (up_c, dn_c, 100) if v is not None]) or 100
+
+        def _cbar(lbl, v, good_high):
+            if v is None:
+                return ""
+            w = v / cmax * 100
+            # alcista: navy si capta >100%; bajista: verde si <100% (cae menos)
+            if good_high:
+                color = "var(--navy)" if v >= 100 else "#9aa6b4"
+            else:
+                color = "var(--pos,#2e7d32)" if v < 100 else "#c0552e"
+            ref = 100 / cmax * 100   # línea de referencia 100%
+            return (
+                f'<div style="margin-bottom:11px;">'
+                f'<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;">'
+                f'<span>{lbl}</span><strong style="color:var(--ink);">{v:.0f}%</strong></div>'
+                f'<div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;">'
+                f'<div style="width:{w:.0f}%;height:15px;background:{color};border-radius:3px;"></div>'
+                f'<div style="position:absolute;left:{ref:.0f}%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div>'
+                f'</div></div>')
+        body = (_cbar("Captura alcista", up_c, True) + _cbar("Captura bajista", dn_c, False)
+                + '<div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;'
+                  'border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. '
+                  'Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div>')
+        cards.append(_card("Captura (5 años)", body))
+
+    # 4) Exposición sectorial — fondo vs benchmark si hay sectores del índice
     if secs:
-        maxp = max((s.get("peso_pct", 0) for s in secs), default=0) or 1
+        bench_map = {s.get("sector"): s.get("peso_pct", 0) for s in secs_bench}
+        maxp = max([s.get("peso_pct", 0) for s in secs[:8]] + list(bench_map.values()) + [1])
         srh = ""
         for s in secs[:8]:
-            name = _SECTOR_ES.get(s.get("sector", ""), (s.get("sector", "") or "").replace("_", " ").title())
+            sec = s.get("sector", "")
+            name = _SECTOR_ES.get(sec, (sec or "").replace("_", " ").title())
             pct = s.get("peso_pct", 0)
             w = max(2, pct / maxp * 100)
+            bpct = bench_map.get(sec)
+            bw = (bpct / maxp * 100) if bpct is not None else None
+            bench_bar = (f'<div style="width:{bw:.0f}%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div>'
+                         if bw is not None else "")
+            diff = (f' <span style="color:{"var(--navy)" if pct>=bpct else "#c0552e"};">({pct-bpct:+.0f})</span>'
+                    if bpct is not None else "")
             srh += (
-                f'<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">'
-                f'<span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;">{name}</span>'
-                f'<div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;">'
-                f'<div style="width:{w:.0f}%;height:11px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div>'
-                f'<strong style="font-size:10.5px;color:var(--ink);width:38px;text-align:right;">{pct:.1f}%</strong></div>')
-        cards.append(_card("Exposición sectorial", srh))
+                f'<div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;">'
+                f'<span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">{name}</span>'
+                f'<div style="flex:1;">'
+                f'<div style="height:11px;background:#eef1f5;border-radius:3px;">'
+                f'<div style="width:{w:.0f}%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div>'
+                f'{bench_bar}</div>'
+                f'<strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">{pct:.1f}%{diff}</strong></div>')
+        foot = (f'<div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;'
+                f'border-top:1px solid var(--rule);padding-top:6px;">'
+                f'<span style="color:var(--navy);font-weight:700;">▬</span> Fondo · '
+                f'<span style="color:#9aa6b4;font-weight:700;">▬</span> {bench_lbl} · (dif. en pp)</div>'
+                if secs_bench else "")
+        cards.append(_card("Exposición sectorial" + (" · vs índice" if secs_bench else ""), srh + foot))
 
     grid = (
         '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;'

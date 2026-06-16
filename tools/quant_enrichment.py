@@ -369,6 +369,9 @@ def enrich_fund(isin: str, benchmark_symbol: Optional[str] = None,
     client, crumb = _yahoo_client()
     if client and crumb:
         out.update(get_style_and_sectors(symbol, client, crumb))
+        # Sectores del benchmark (ETF) → comparativa de pesos fondo vs índice
+        if bench:
+            out["sectores_benchmark"] = get_style_and_sectors(bench, client, crumb).get("sectores")
         # Valoración: fondo vs índice (mismo recíproco→ratio)
         fund_val = get_valuation_ratios(symbol, client, crumb)
         idx_val = get_valuation_ratios(bench, client, crumb) if bench else None
