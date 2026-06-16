@@ -9,7 +9,7 @@ ROOT = Path(__file__).parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.reconcile_fund_groups import clean_base, _is_prefix, detect
+from tools.reconcile_fund_groups import clean_base, _is_prefix, detect, load_class_isins
 
 
 def _f(isin, nombre, gid):
@@ -64,6 +64,30 @@ def test_base_corta_va_a_garbage():
     splits, garbage = detect(funds, groups)
     assert not splits
     assert [g["isin"] for g in garbage] == ["IE00B6T42S66"]
+
+
+def test_load_class_isins_lee_folleto(tmp_path):
+    # Simula data/funds/<ISIN>/output.json con lista de clases del folleto.
+    import json
+    fdir = tmp_path / "FR001400CEK6"
+    fdir.mkdir()
+    (fdir / "output.json").write_text(json.dumps({
+        "nombre": "Sextant Quality Focus",
+        "clases": [
+            {"isin": "FR001400CEG4", "nombre_clase": "Action A"},
+            {"isin": "FR001400CEK6", "nombre_clase": "Action F"},
+            {"isin": "bad", "nombre_clase": "ruido"},
+        ],
+    }), encoding="utf-8")
+    # un dir .bak no debe leerse
+    bak = tmp_path / "FR001400CEK6.bak_x"
+    bak.mkdir()
+    (bak / "output.json").write_text("{}", encoding="utf-8")
+
+    m = load_class_isins(str(tmp_path))
+    assert "FR001400CEK6" in m
+    assert m["FR001400CEK6"] == {"FR001400CEG4", "FR001400CEK6"}
+    assert all("." not in k for k in m)   # ningún .bak
 
 
 if __name__ == "__main__":

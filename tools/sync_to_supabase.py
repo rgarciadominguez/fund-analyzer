@@ -432,6 +432,27 @@ def sync_fund(
             fg_id = r_get.data[0]["fund_group_id"]
             client.table("fund_groups").update(fund_groups_update).eq("fund_group_id", fg_id).execute()
 
+    # Volcar los ISINs de clase del folleto (clases[].isin) a class_isins_known
+    # del grupo → ground-truth ONLINE por ISIN para agrupar clases nuevas.
+    try:
+        import re as _re
+        sibs = sorted({(c.get("isin") or "").upper() for c in (output_data.get("clases") or [])
+                       if _re.match(r"^[A-Z]{2}[A-Z0-9]{10}$", (c.get("isin") or "").upper())})
+        if len(sibs) > 1:
+            r_g = client.table("funds").select("fund_group_id").eq("isin", isin).execute()
+            if r_g.data and r_g.data[0].get("fund_group_id"):
+                fgid = r_g.data[0]["fund_group_id"]
+                cur = client.table("fund_groups").select("class_isins_known").eq(
+                    "fund_group_id", fgid).execute().data
+                known = set(cur[0].get("class_isins_known") or []) if cur else set()
+                merged = sorted(known | set(sibs))
+                if merged != sorted(known):
+                    client.table("fund_groups").update(
+                        {"class_isins_known": merged}).eq("fund_group_id", fgid).execute()
+                    log(f"[SYNC] class_isins_known {isin}: {len(known)} -> {len(merged)} ISINs")
+    except Exception as _e:
+        log(f"[SYNC] class_isins_known update falló (no crítico): {str(_e)[:80]}")
+
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
 
     return {
