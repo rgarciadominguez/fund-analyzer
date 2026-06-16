@@ -1946,34 +1946,54 @@ function joinFundsWithGroups(funds, groups) {
   });
 }
 
-// Vínculos de clase: los ISIN "alias" se ABSORBEN como sub-clases del primario
-// (no aparecen como fila propia). links = {alias_isin: {primary_isin, clase_label}}.
-function applyClassLinks(funds, links) {
+// Vínculos MANUALES de clase: fuerzan que el alias comparta el fund_group_id
+// del primario (para cuando el agrupado automático por nombre falla). El
+// colapso real lo hace collapseByFundGroup. links = {alias: {primary_isin}}.
+function applyManualLinks(funds, links) {
   if (!links || !Object.keys(links).length) return funds;
   const byIsin = {};
   for (const f of funds) byIsin[(f.isin || '').toUpperCase()] = f;
-  const aliasSet = new Set(Object.keys(links).map(s => s.toUpperCase()));
   for (const [aliasRaw, v] of Object.entries(links)) {
-    const alias = aliasRaw.toUpperCase();
-    const primary = ((v && v.primary_isin) || '').toUpperCase();
-    const pf = byIsin[primary];
-    if (!pf) continue;  // primario aún no en catálogo → no absorbemos (alias se queda)
-    const af = byIsin[alias] || {};
-    pf._classes = pf._classes || [];
-    pf._classes.push({
-      isin: alias,
-      clase_label: (v && v.clase_label) || '',
-      divisa: af.divisa || '',
-      ter_pct: (af.ter_pct != null ? af.ter_pct : null),
-    });
+    const af = byIsin[aliasRaw.toUpperCase()];
+    const pf = byIsin[((v && v.primary_isin) || '').toUpperCase()];
+    if (af && pf && pf.fund_group_id) af.fund_group_id = pf.fund_group_id;
   }
-  // Quitar los alias cuyo primario SÍ está (ya absorbidos); los huérfanos se quedan.
-  return funds.filter(f => {
-    const u = (f.isin || '').toUpperCase();
-    if (!aliasSet.has(u)) return true;
-    const primary = (links[f.isin] || links[u] || {}).primary_isin;
-    return !(primary && byIsin[(primary || '').toUpperCase()]);
-  });
+  return funds;
+}
+
+// Colapsa las CLASES del mismo fondo (mismo fund_group_id) en UNA fila: el
+// "primario" (el que tiene análisis cualitativo + más track-record) se muestra;
+// las demás clases se cuelgan en `_classes`. El cualitativo es del primario;
+// la divisa/TER de cada clase queda en _classes. Funciona en local Y en público
+// (fund_group_id viene de Supabase). El agrupado automático "sale solo".
+function collapseByFundGroup(funds) {
+  const groups = {}, singles = [];
+  for (const f of funds) {
+    const gid = f.fund_group_id;
+    if (!gid) { singles.push(f); continue; }
+    (groups[gid] = groups[gid] || []).push(f);
+  }
+  const out = [...singles];
+  const score = (m) => (m.has_qualitative_analysis ? 4 : 0) + (m.has_dashboard ? 2 : 0);
+  for (const gid of Object.keys(groups)) {
+    const members = groups[gid];
+    if (members.length === 1) { out.push(members[0]); continue; }
+    // Primario por defecto: con análisis + más track-record (años_antiguedad).
+    members.sort((a, b) => {
+      const s = score(b) - score(a);
+      if (s) return s;
+      const ta = a.años_antiguedad || 0, tb = b.años_antiguedad || 0;
+      if (tb !== ta) return tb - ta;
+      return (a.isin || '').localeCompare(b.isin || '');
+    });
+    const primary = members[0];
+    primary._classes = members.slice(1).map(m => ({
+      isin: m.isin, clase_label: m.clase_comercial || '',
+      divisa: m.divisa || '', ter_pct: (m.ter_pct != null ? m.ter_pct : null),
+    }));
+    out.push(primary);
+  }
+  return out;
 }
 
 function computeStats(funds, groups) {
@@ -2045,9 +2065,11 @@ async function loadCatalog() {
       apiFetch('/api/class-links').then(r => r.ok ? r.json() : {}).catch(() => ({})),
     ]);
 
-    // JOIN en cliente + aplicar vínculos de clase (alias → sub-clase del primario)
+    // JOIN + vínculos manuales (override fund_group_id) + colapso por fondo:
+    // las clases del mismo fondo se agrupan en una fila (la del primario).
     let mergedFunds = joinFundsWithGroups(funds, groups);
-    mergedFunds = applyClassLinks(mergedFunds, links || {});
+    mergedFunds = applyManualLinks(mergedFunds, links || {});
+    mergedFunds = collapseByFundGroup(mergedFunds);
     const stats = computeStats(mergedFunds, groups);
 
     STATE.catalog = {

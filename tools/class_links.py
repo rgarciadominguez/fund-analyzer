@@ -100,5 +100,30 @@ def remove_link(alias: str) -> dict:
     return {"ok": False, "error": "no existe ese vínculo"}
 
 
+def sync_link_to_supabase(alias: str, primary: str) -> dict:
+    """Propaga el vínculo a Supabase: la fila `funds` del alias hereda el
+    `fund_group_id` del primario → el catálogo PÚBLICO los agrupa (colapsa por
+    fund_group_id). Best-effort: si Supabase no está configurado, no rompe.
+    """
+    alias = (alias or "").upper().strip()
+    primary = (primary or "").upper().strip()
+    try:
+        from tools.supabase_client import get_client
+        client = get_client()
+    except Exception as e:
+        return {"ok": False, "error": f"supabase no disponible: {str(e)[:120]}"}
+    try:
+        r = client.table("funds").select("fund_group_id").eq("isin", primary).execute()
+        if not r.data:
+            return {"ok": False, "error": "el primario no está en Supabase todavía"}
+        gid = r.data[0].get("fund_group_id")
+        if not gid:
+            return {"ok": False, "error": "el primario no tiene fund_group_id"}
+        client.table("funds").update({"fund_group_id": gid}).eq("isin", alias).execute()
+        return {"ok": True, "fund_group_id": gid}
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:160]}
+
+
 __all__ = ["all_links", "resolve_primary", "is_alias", "get_classes",
-           "add_link", "remove_link", "LINKS_PATH"]
+           "add_link", "remove_link", "sync_link_to_supabase", "LINKS_PATH"]

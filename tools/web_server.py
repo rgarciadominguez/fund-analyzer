@@ -285,9 +285,12 @@ def make_app(cold_start: bool = True) -> Flask:
 
     @app.route("/api/class-links", methods=["POST"])
     def api_class_links_add():
-        from tools.class_links import add_link
+        from tools.class_links import add_link, sync_link_to_supabase
         body = request.get_json(silent=True) or {}
         res = add_link(body.get("alias", ""), body.get("primary", ""), body.get("label", ""))
+        if res.get("ok"):
+            # Propagar a Supabase para que el catálogo público también agrupe.
+            res["supabase"] = sync_link_to_supabase(res["alias"], res["primary"])
         return jsonify(res), (200 if res.get("ok") else 400)
 
     @app.route("/api/class-links/<alias>", methods=["DELETE"])
