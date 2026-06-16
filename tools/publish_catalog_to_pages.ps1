@@ -13,6 +13,9 @@
 # - git instalado
 # - repo `fund-analyzer-catalog` creado en github.com bajo el usuario configurado
 # - autenticacion git ya configurada (token PAT o ssh)
+#
+# NOTA: fichero en ASCII puro (sin acentos) para evitar que PowerShell 5.1
+# lo lea como cp1252 y rompa el parser de strings.
 
 param(
     [Parameter()]
@@ -34,7 +37,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$repoPath = Join-Path $repoRoot ".." "fund-analyzer-catalog-publish"
+$repoPath = Join-Path (Join-Path $repoRoot "..") "fund-analyzer-catalog-publish"
 $dashboardSrc = Join-Path $repoRoot "dashboard"
 
 Write-Host "=== publish_catalog_to_pages.ps1 ===" -ForegroundColor Cyan
@@ -43,7 +46,7 @@ Write-Host "Repo target:   $repoPath"
 Write-Host "GitHub repo:   https://github.com/$GitHubUser/$RepoName"
 Write-Host ""
 
-# ── 1. Init: clonar el repo (solo primera vez) ─────────────────────────
+# -- 1. Init: clonar el repo (solo primera vez) --
 if ($Init) {
     Write-Host "Modo INIT: clonando el repo..." -ForegroundColor Yellow
     if (Test-Path $repoPath) {
@@ -70,7 +73,7 @@ if (-not (Test-Path $repoPath)) {
     exit 1
 }
 
-# ── 2. Copiar catalog.html ─────────────────────────────────────────────
+# -- 2. Copiar catalog.html --
 $catalogSrc = Join-Path $dashboardSrc "catalog.html"
 $catalogDst = Join-Path $repoPath "catalog.html"
 $indexDst   = Join-Path $repoPath "index.html"
@@ -88,7 +91,7 @@ if (-not $DryRun) {
 }
 Write-Host "  [OK] catalog.html y index.html copiados" -ForegroundColor Green
 
-# ── 3. Copiar dashboards individuales (opcional) ───────────────────────
+# -- 3. Copiar dashboards individuales (opcional) --
 if ($IncludeAllDashboards) {
     Write-Host "Copiando dashboards fund-*.html..."
     $dashFiles = Get-ChildItem -Path $dashboardSrc -Filter "fund-*.html"
@@ -100,7 +103,7 @@ if ($IncludeAllDashboards) {
     Write-Host "  [SKIP] dashboards individuales (usa -IncludeAllDashboards para incluirlos)" -ForegroundColor DarkGray
 }
 
-# ── 4. Git commit + push ───────────────────────────────────────────────
+# -- 4. Git commit + push --
 Push-Location $repoPath
 try {
     Write-Host ""
@@ -114,7 +117,7 @@ try {
     }
 
     git add -A
-    $hasChanges = git diff --cached --quiet
+    git diff --cached --quiet
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  [SKIP] no hay cambios para commitear" -ForegroundColor DarkGray
     } else {
@@ -144,7 +147,7 @@ try {
     Write-Host "  (espera 1-2 min tras el primer push para que Pages active)"
     Write-Host ""
     if ($Init) {
-        Write-Host "=== IMPORTANTE — Habilita Pages en GitHub ===" -ForegroundColor Yellow
+        Write-Host "=== IMPORTANTE -- Habilita Pages en GitHub ===" -ForegroundColor Yellow
         Write-Host "  1. Ve a https://github.com/$GitHubUser/$RepoName/settings/pages"
         Write-Host "  2. Source: 'Deploy from a branch'"
         Write-Host "  3. Branch: 'main' (o 'master'), folder: '/ (root)'"
