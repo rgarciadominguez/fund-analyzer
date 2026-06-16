@@ -387,6 +387,16 @@ def enrich_fund(isin: str, benchmark_symbol: Optional[str] = None,
     if bench:
         out["capture_ratios"] = compute_capture_ratios(
             get_nav_history(symbol), get_nav_history(bench))
+
+    # Morningstar (autoritativo): medalist, riesgo 3/5/10A, valoración, RF, comisiones.
+    # Reemplaza/complementa a Yahoo donde es mejor.
+    try:
+        from tools.morningstar_quant import fetch_quant as _ms_quant
+        ms = _ms_quant(isin)
+        if ms:
+            out["morningstar"] = ms
+    except Exception:
+        pass
     return out
 
 

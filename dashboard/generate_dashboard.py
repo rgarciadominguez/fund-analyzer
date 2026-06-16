@@ -3074,8 +3074,39 @@ def build_tab_resumen(data):
 
   {para_comp_block}
 
+  {build_comisiones_morningstar(data)}
+
   {_build_com_chart_or_placeholder(data)}
 </section>"""
+
+
+def build_comisiones_morningstar(data):
+    """Tabla resumen de comisiones (Morningstar): TER, gestión, entrada, mínimo.
+    Devuelve "" si no hay datos Morningstar de comisiones."""
+    com = ((data.get("analisis_cuantitativo") or {}).get("morningstar") or {}).get("comisiones") or {}
+    if not com:
+        return ""
+    rows = [("ter_pct", "Gastos corrientes (TER)", "%"),
+            ("comision_gestion_pct", "Comisión de gestión", "%"),
+            ("comision_entrada_max_pct", "Comisión de entrada (máx.)", "%"),
+            ("inversion_minima", "Inversión mínima", "€")]
+    trs = ""
+    for key, lbl, unit in rows:
+        v = com.get(key)
+        if v in (None, ""):
+            continue
+        if unit == "%":
+            vd = f"{v:.2f}%"
+        else:
+            vd = (f"{v:,.0f} €".replace(",", ".") if isinstance(v, (int, float)) else str(v))
+        trs += (f'<tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">{lbl}</td>'
+                f'<td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">{vd}</td></tr>')
+    if not trs:
+        return ""
+    return (
+        '<div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div>'
+        '<table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;">'
+        f'<tbody>{trs}</tbody></table>')
 
 
 def _build_com_chart_or_placeholder(data):
@@ -3929,12 +3960,17 @@ def build_quant_panel(data):
     val = q.get("valoracion") or {}
     vf = val.get("fondo") or {}
     vi = val.get("indice") or {}
+    ms = q.get("morningstar") or {}        # datos autoritativos Morningstar
+    ms_ries = ms.get("riesgo") or {}       # {"3a":{...},"5a":{...},"10a":{...}}
+    ms_ret = ms.get("rentabilidades") or {}
+    ms_val = ms.get("valoracion") or {}
+    ms_rf = ms.get("renta_fija") or {}
     # Rotación de cartera (CNMV): filtra 0.0 = años sin extraer (huecos)
     rot_serie = (data.get("cuantitativo") or {}).get("serie_rotacion") or []
     rot_valid = [(str(e.get("periodo")), e.get("rotacion_pct")) for e in rot_serie
                  if isinstance(e, dict) and e.get("rotacion_pct")]
     if not (sb.get("box") or cr.get("upside_pct") is not None or secs
-            or ries or ret or rot_valid or vf or vi):
+            or ries or ret or rot_valid or vf or vi or ms):
         return ""
 
     cards = []
@@ -3947,30 +3983,53 @@ def build_quant_panel(data):
             f'color:var(--ink-4);margin-bottom:11px;">{title}</div>'
             f'<div style="flex:1;">{body}</div></div>')
 
-    # 0) Riesgo y rentabilidad por holding-period (3/5/10 años)
-    if ries or ret:
-        plabel = {"3y": "3 años", "5y": "5 años", "10y": "10 años"}
-        periods = [r.get("periodo") for r in ries]
+    def _n(v, dec=2):
+        return f"{v:.{dec}f}" if isinstance(v, (int, float)) else "—"
 
-        def _n(v, dec=2):
-            return f"{v:.{dec}f}" if isinstance(v, (int, float)) else "—"
-        metrics = [("volatilidad", "Volatilidad", 1), ("sharpe", "Sharpe", 2),
-                   ("beta", "Beta", 2), ("alpha", "Alpha", 2), ("r2", "R²", 1)]
-        thead = '<th></th>' + ''.join(
-            f'<th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">{plabel.get(p, p)}</th>'
-            for p in periods)
-        trows = ''
-        for key, lbl, dec in metrics:
-            tds = ''.join(
-                f'<td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">{_n(r.get(key), dec)}</td>'
-                for r in ries)
-            trows += (f'<tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">{lbl}</td>{tds}</tr>')
-        table = (f'<table style="border-collapse:collapse;width:100%;"><thead><tr>{thead}</tr></thead>'
-                 f'<tbody>{trows}</tbody></table>') if ries else ''
-        # Rentabilidad anualizada (strip)
-        rorder = [("1a", "1A"), ("3a", "3A"), ("5a", "5A"), ("10a", "10A")]
-        rparts = [f'{lbl} <strong style="color:var(--ink);">{ret[k]:.1f}%</strong>'
-                  for k, lbl in rorder if k in ret]
+    # 0) Riesgo y rentabilidad por holding-period (3/5/10 años).
+    #    Preferimos Morningstar (autoritativo, + sortino + max drawdown).
+    if ms_ries or ries or ret or ms_ret:
+        if ms_ries:
+            # Morningstar: dict {"3a":{alpha,beta,sharpe,sortino,volatilidad,max_drawdown}}
+            mperiods = [p for p in ("3a", "5a", "10a") if ms_ries.get(p)]
+            plabel = {"3a": "3 años", "5a": "5 años", "10a": "10 años"}
+            metrics = [("volatilidad", "Volatilidad", 1), ("sharpe", "Sharpe", 2),
+                       ("sortino", "Sortino", 2), ("beta", "Beta", 2),
+                       ("alpha", "Alpha", 2), ("max_drawdown", "Máx. caída", 1)]
+            thead = '<th></th>' + ''.join(
+                f'<th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">{plabel[p]}</th>'
+                for p in mperiods)
+            trows = ''
+            for key, lbl, dec in metrics:
+                tds = ''.join(
+                    f'<td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">{_n(ms_ries[p].get(key), dec)}</td>'
+                    for p in mperiods)
+                trows += f'<tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">{lbl}</td>{tds}</tr>'
+            table = (f'<table style="border-collapse:collapse;width:100%;"><thead><tr>{thead}</tr></thead>'
+                     f'<tbody>{trows}</tbody></table>')
+            rsrc = ms_ret
+            rorder = [("1a", "1A"), ("3a", "3A"), ("5a", "5A"), ("10a", "10A")]
+        else:
+            # Fallback Yahoo (lista con 'periodo')
+            plabel = {"3y": "3 años", "5y": "5 años", "10y": "10 años"}
+            periods = [r.get("periodo") for r in ries]
+            metrics = [("volatilidad", "Volatilidad", 1), ("sharpe", "Sharpe", 2),
+                       ("beta", "Beta", 2), ("alpha", "Alpha", 2), ("r2", "R²", 1)]
+            thead = '<th></th>' + ''.join(
+                f'<th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">{plabel.get(p, p)}</th>'
+                for p in periods)
+            trows = ''
+            for key, lbl, dec in metrics:
+                tds = ''.join(
+                    f'<td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">{_n(r.get(key), dec)}</td>'
+                    for r in ries)
+                trows += f'<tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">{lbl}</td>{tds}</tr>'
+            table = (f'<table style="border-collapse:collapse;width:100%;"><thead><tr>{thead}</tr></thead>'
+                     f'<tbody>{trows}</tbody></table>') if ries else ''
+            rsrc = ret
+            rorder = [("1a", "1A"), ("3a", "3A"), ("5a", "5A"), ("10a", "10A")]
+        rparts = [f'{lbl} <strong style="color:var(--ink);">{rsrc[k]:.1f}%</strong>'
+                  for k, lbl in rorder if isinstance(rsrc.get(k), (int, float))]
         rstrip = ('<div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;'
                   'border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · '
                   + ' · '.join(rparts) + '</div>') if rparts else ''
@@ -3998,8 +4057,29 @@ def build_quant_panel(data):
             f'font-weight:700;text-align:center;">{sb.get("size")} · {sb.get("style")}</div>')
         cards.append(_card("Estilo de acciones", body))
 
-    # 2) Valoración (Fondo vs Índice)
-    if vf or vi:
+    # 1b) Medalist + estrellas Morningstar (mini-card)
+    if ms.get("medalist_rating") or ms.get("rating_estrellas"):
+        med = ms.get("medalist_rating")
+        stars = ms.get("rating_estrellas")
+        med_color = {"Gold": "#c8a23c", "Silver": "#9aa6b4", "Bronze": "#b08050"}.get(med, "var(--ink-2)")
+        star_str = ("★" * int(stars) + "☆" * (5 - int(stars))) if isinstance(stars, (int, float)) else "—"
+        body = (
+            f'<div style="text-align:center;padding:4px 0;">'
+            f'<div style="font-size:22px;font-weight:800;color:{med_color};line-height:1.1;">{med or "—"}</div>'
+            f'<div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div>'
+            f'<div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">{star_str}</div>'
+            f'<div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">{stars or "—"} estrellas Morningstar</div>'
+            + (f'<div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">{ms.get("categoria_morningstar")}</div>' if ms.get("categoria_morningstar") else "")
+            + '</div>')
+        cards.append(_card("Rating Morningstar", body))
+
+    # 2) Valoración (Fondo vs Índice) + capitalización media
+    if vf or vi or ms_val:
+        # Fallback Morningstar para el lado Fondo si Yahoo no trajo P/E o P/B.
+        if ms_val.get("per") is not None and vf.get("per") is None:
+            vf = {**vf, "per": ms_val["per"]}
+        if ms_val.get("pbv") is not None and vf.get("pvc") is None:
+            vf = {**vf, "pvc": ms_val["pbv"]}
         idx_lbl = val.get("indice_label") or "Índice"
         labels = [("per", "P/E"), ("pvc", "P/Valor contable"),
                   ("pventas", "P/Ventas"), ("pcf", "P/Cash Flow")]
@@ -4023,7 +4103,31 @@ def build_quant_panel(data):
             f'<th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">{idx_lbl}</th></tr></thead>'
             f'<tbody>{vrows}</tbody></table>'
             '<div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div>')
+        # Capitalización media (Morningstar)
+        capm = ms_val.get("cap_media_meur")
+        if isinstance(capm, (int, float)):
+            cap_disp = (f"{capm/1000:.1f} B€" if capm >= 1000 else f"{capm:.0f} M€")
+            body += (f'<div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;'
+                     f'border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · '
+                     f'<strong style="color:var(--ink);">{cap_disp}</strong></div>')
         cards.append(_card("Valoración · Fondo vs Índice", body))
+
+    # 2b) Ratios de renta fija (Morningstar) — solo fondos con cartera de bonos
+    if ms_rf:
+        rf_rows = [("calidad_crediticia", "Calidad crediticia media", ""),
+                   ("duracion_modificada", "Duración modificada", " años"),
+                   ("maturity_efectiva", "Maturity efectiva", " años")]
+        rfrows = ""
+        for key, lbl, suf in rf_rows:
+            v = ms_rf.get(key)
+            if v in (None, ""):
+                continue
+            vd = (f"{v:.2f}{suf}" if isinstance(v, (int, float)) else str(v))
+            rfrows += (f'<tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">{lbl}</td>'
+                       f'<td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">{vd}</td></tr>')
+        if rfrows:
+            cards.append(_card("Renta fija",
+                               f'<table style="border-collapse:collapse;width:100%;"><tbody>{rfrows}</tbody></table>'))
 
     # 3) Comportamiento vs índice en subidas y caídas — comparativa Fondo/Índice
     rr = cr.get("rendimiento_regimen") or {}
