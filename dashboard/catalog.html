@@ -1260,10 +1260,15 @@ function renderRow(fund) {
   // UX1: fecha del último análisis (corta, dd/mm/yy + hover ISO completo)
   const fechaCell = formatFechaAnalisis(fund.ultima_actualizacion);
 
+  const nClases = fund._classes ? fund._classes.length : 0;
+  const chip = nClases
+    ? `<span class="classes-chip" onclick="toggleClasses(event,'${fund.isin}')" title="Ver las ${nClases + 1} clases de este fondo" style="margin-left:6px;font-size:9px;background:var(--navy,#003A75);color:#fff;padding:1px 6px;border-radius:8px;white-space:nowrap;cursor:pointer;">+${nClases} ${nClases === 1 ? 'clase' : 'clases'} ▾</span>`
+    : '';
+
   return `
     <tr data-isin="${fund.isin}" ${dashboardLink ? `data-dashboard="${dashboardLink}"` : ''}>
       <td>${badgeClasificacion(fund)}</td>
-      <td class="isin">${escapeHtml(fund.isin)}${fund._classes && fund._classes.length ? `<span style="margin-left:6px;font-size:9px;background:var(--navy,#003A75);color:#fff;padding:1px 6px;border-radius:8px;white-space:nowrap;" title="Clases vinculadas (mismo análisis): ${fund._classes.map(c=>escapeHtml(c.isin)+(c.divisa?' '+escapeHtml(c.divisa):'')).join(', ')}">+${fund._classes.length} ${fund._classes.length===1?'clase':'clases'}</span>` : ''}</td>
+      <td class="isin">${escapeHtml(fund.isin)}${chip}</td>
       <td class="nombre">${nombreCell}</td>
       <td class="gestora">${escapeHtml(fund.gestora || '—')}</td>
       <td>${escapeHtml(fund.tipo_activo || '—')}</td>
@@ -1277,7 +1282,48 @@ function renderRow(fund) {
       <td class="fecha-cell">${fechaCell}</td>
       <td class="opinion">${opinionCell}</td>
     </tr>
+    ${nClases ? renderClassesDetail(fund) : ''}
   `;
+}
+
+// Fila desplegable con TODAS las clases del fondo (mismo análisis cualitativo;
+// cuantitativos por clase). Oculta por defecto; la abre el chip "+N clases ▾".
+function renderClassesDetail(fund) {
+  const rows = (fund._all_classes || []).map(c => `
+      <tr>
+        <td style="font-family:monospace;font-size:11px;">${escapeHtml(c.isin)}${c.is_primary ? ' <span style="font-size:9px;color:var(--navy,#003A75);">●&nbsp;principal</span>' : ''}</td>
+        <td>${escapeHtml(c.clase_label || '—')}</td>
+        <td>${escapeHtml(c.divisa || '—')}</td>
+        <td class="numeric">${c.anio_inicio || '—'}</td>
+        <td class="numeric">${c.comision_gestion_pct != null ? Number(c.comision_gestion_pct).toFixed(2) + '%' : '—'}</td>
+        <td class="numeric">${c.ter_pct != null ? Number(c.ter_pct).toFixed(2) + '%' : '—'}</td>
+      </tr>`).join('');
+  return `
+    <tr class="classes-detail-row" id="cls-${fund.isin}" style="display:none;">
+      <td colspan="14" style="background:var(--surface-2,#f4f7fa);padding:8px 14px;">
+        <div style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">
+          Clases de <strong>${escapeHtml(fund.nombre || fund.isin)}</strong> — mismo análisis cualitativo, cuantitativos por clase
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="text-align:left;color:var(--ink-3);border-bottom:1px solid var(--border,#dce3ea);">
+              <th style="padding:4px 8px;">ISIN</th><th style="padding:4px 8px;">Clase</th>
+              <th style="padding:4px 8px;">Divisa</th><th style="padding:4px 8px;text-align:right;">Año inicio</th>
+              <th style="padding:4px 8px;text-align:right;">Comisión gestión</th><th style="padding:4px 8px;text-align:right;">TER</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </td>
+    </tr>
+  `;
+}
+
+// Abre/cierra la fila de clases sin disparar la navegación de la fila.
+function toggleClasses(event, isin) {
+  event.stopPropagation();
+  const row = document.getElementById('cls-' + isin);
+  if (row) row.style.display = (row.style.display === 'none' ? 'table-row' : 'none');
 }
 
 // UX1: formatear fecha último análisis. Acepta ISO ('2026-05-19T08:33:47.618Z')
@@ -1920,6 +1966,8 @@ function joinFundsWithGroups(funds, groups) {
       divisa: f.divisa || '',
       divisa_hedge_bool: f.divisa_hedge_bool || false,
       ter_pct: f.ter_pct,
+      comision_gestion_pct: f.comision_gestion_pct,
+      anio_inicio_clase: f.fecha_creacion_clase ? String(f.fecha_creacion_clase).slice(0, 4) : '',
       // Clasificación user (efectiva)
       clasificacion_user: clasifEfectiva,
       opinion: opinionEfectiva,
@@ -1987,10 +2035,18 @@ function collapseByFundGroup(funds) {
       return (a.isin || '').localeCompare(b.isin || '');
     });
     const primary = members[0];
-    primary._classes = members.slice(1).map(m => ({
-      isin: m.isin, clase_label: m.clase_comercial || '',
-      divisa: m.divisa || '', ter_pct: (m.ter_pct != null ? m.ter_pct : null),
-    }));
+    const asClase = (m, isPrimary) => ({
+      isin: m.isin,
+      clase_label: m.clase_comercial || m.nombre || '',
+      divisa: m.divisa || '',
+      ter_pct: (m.ter_pct != null ? m.ter_pct : null),
+      comision_gestion_pct: (m.comision_gestion_pct != null ? m.comision_gestion_pct : null),
+      anio_inicio: m.anio_inicio_clase || (m.años_antiguedad ? String(new Date().getFullYear() - m.años_antiguedad) : ''),
+      is_primary: !!isPrimary,
+    });
+    primary._classes = members.slice(1).map(m => asClase(m, false));
+    // Lista COMPLETA (primario + clases) para el desplegable de la fila.
+    primary._all_classes = [asClase(primary, true), ...primary._classes];
     out.push(primary);
   }
   return out;

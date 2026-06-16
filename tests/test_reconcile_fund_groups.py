@@ -9,7 +9,9 @@ ROOT = Path(__file__).parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.reconcile_fund_groups import clean_base, _is_prefix, detect, load_class_isins
+from tools.reconcile_fund_groups import (
+    clean_base, _is_prefix, detect, load_class_isins, _class_year, _num,
+)
 
 
 def _f(isin, nombre, gid):
@@ -88,6 +90,19 @@ def test_load_class_isins_lee_folleto(tmp_path):
     assert "FR001400CEK6" in m
     assert m["FR001400CEK6"] == {"FR001400CEG4", "FR001400CEK6"}
     assert all("." not in k for k in m)   # ningún .bak
+
+
+def test_class_year_extrae_anio():
+    assert _class_year({"launch": "14-Dec-2017"}) == "2017-01-01"
+    assert _class_year({"fecha_inicio": "2020"}) == "2020-01-01"
+    assert _class_year({"nombre_clase": "Action N"}) is None
+
+
+def test_num_parsea_comision():
+    assert _num("1,1") == 1.1
+    assert _num("0.50%") == 0.5
+    assert _num("—") is None
+    assert _num(None) is None
 
 
 if __name__ == "__main__":

@@ -216,6 +216,96 @@ def push_class_isins_to_supabase(client, apply: bool = False) -> int:
     return n
 
 
+def _class_year(c: dict):
+    """Extrae el año de inicio de una clase del folleto (campos variables)."""
+    import re as _re
+    for k in ("launch", "fecha_inicio", "fecha_creacion", "año", "anio", "year", "inception"):
+        v = c.get(k)
+        if v:
+            m = _re.search(r"(19|20)\d{2}", str(v))
+            if m:
+                return f"{m.group(0)}-01-01"
+    return None
+
+
+def _num(v):
+    try:
+        f = float(str(v).replace(",", ".").replace("%", "").strip())
+        return f
+    except Exception:
+        return None
+
+
+def populate_fund_classes(client, primary_isin: str, clases: list, apply: bool = False,
+                          fund_name: str = "") -> int:
+    """Inserta/actualiza las clases del folleto como filas `funds`, compartiendo
+    el `fund_group_id` del primario (→ se colapsan bajo él en el catálogo) y SUS
+    cuantitativos propios (divisa, comisión, TER, año, mínimo). NO pisa una clase
+    que ya sea un fondo analizado (has_qualitative_analysis o dashboard)."""
+    primary_isin = (primary_isin or "").upper().strip()
+    pf = client.table("funds").select("fund_group_id").eq("isin", primary_isin).execute().data
+    if not pf or not pf[0].get("fund_group_id"):
+        return 0
+    gid = pf[0]["fund_group_id"]
+    existing = {f["isin"].upper(): f for f in client.table("funds").select(
+        "isin,has_qualitative_analysis,dashboard_storage_path").limit(5000).execute().data}
+    n = 0
+    for c in clases or []:
+        iv = (c.get("isin") or "").upper().strip()
+        if not _ISIN_RE.match(iv) or iv == primary_isin:
+            continue
+        ex = existing.get(iv)
+        if ex and (ex.get("has_qualitative_analysis") or ex.get("dashboard_storage_path")):
+            # ya es un fondo analizado: solo asegúrate de que comparte grupo
+            if apply:
+                client.table("funds").update({"fund_group_id": gid}).eq("isin", iv).execute()
+            continue
+        label = (c.get("nombre_clase") or "").strip()
+        row = {
+            "isin": iv,
+            "fund_group_id": gid,
+            "nombre_clase": label or iv,
+            "divisa": (c.get("divisa") or "").upper()[:8] or None,
+            "comision_gestion_pct": _num(c.get("comision_gestion_pct")),
+            "ter_pct": _num(c.get("ter_pct")),
+            "comision_exito_pct": _num(c.get("comision_exito_pct")),
+            "importe_minimo_eur": _num(c.get("min_suscripcion") or c.get("importe_minimo")),
+            "fecha_creacion_clase": _class_year(c),
+            "has_qualitative_analysis": False,
+        }
+        row = {k: v for k, v in row.items() if v is not None}
+        print(f"    + clase {iv}  {row.get('divisa','')}  com={row.get('comision_gestion_pct')}  "
+              f"{row.get('nombre_clase','')!r}  {'(update)' if ex else '(insert)'}")
+        if apply:
+            client.table("funds").upsert(row, on_conflict="isin").execute()
+        n += 1
+    return n
+
+
+def insert_all_fund_classes(client, apply: bool = False) -> int:
+    """Recorre los fondos analizados localmente y vuelca sus clases de folleto a
+    `funds` (vía populate_fund_classes)."""
+    import glob
+    import json
+    import os
+    total = 0
+    for f in glob.glob(os.path.join("data", "funds", "*", "output.json")):
+        d = os.path.basename(os.path.dirname(f))
+        if "." in d or not _ISIN_RE.match(d.upper()):
+            continue
+        try:
+            data = json.load(open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        clases = data.get("clases") or []
+        if len([c for c in clases if _ISIN_RE.match((c.get("isin") or "").upper())]) <= 1:
+            continue
+        print(f"FONDO {d} ({data.get('nombre')}):")
+        total += populate_fund_classes(client, d, clases, apply=apply, fund_name=data.get("nombre") or "")
+        print()
+    return total
+
+
 def resolve_group_for_new_fund(client, nombre: str, gestora: str, fallback_gid: str,
                                new_isin: str = "") -> str:
     """Grupo a usar para una clase entrante. Prioridad:
@@ -267,6 +357,13 @@ def main():
     load_dotenv(Path(__file__).resolve().parent.parent / ".env")
     from tools.supabase_client import get_client
     client = get_client()
+
+    if "--insert-classes" in sys.argv:
+        # Inserta las clases del folleto como filas funds (cuantitativos por clase).
+        print(">>> Insertando clases del folleto en funds (comparten grupo+cualitativo del primario)\n")
+        n = insert_all_fund_classes(client, apply=apply)
+        print(f"{'APLICADO' if apply else 'DRY-RUN'}: {n} clases {'insertadas/actualizadas' if apply else 'a insertar'}.")
+        return
 
     if not name_mode:
         # Por defecto: agrupar por ISIN desde la lista de clases del folleto.

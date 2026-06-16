@@ -453,6 +453,19 @@ def sync_fund(
     except Exception as _e:
         log(f"[SYNC] class_isins_known update falló (no crítico): {str(_e)[:80]}")
 
+    # Insertar las clases del folleto como filas funds (comparten grupo+cualitativo
+    # del primario; cuantitativos por clase) → catálogo las agrupa y despliega.
+    try:
+        from tools.reconcile_fund_groups import populate_fund_classes
+        clases = output_data.get("clases") or []
+        if len(clases) > 1:
+            ins = populate_fund_classes(client, isin, clases, apply=True,
+                                        fund_name=output_data.get("nombre") or "")
+            if ins:
+                log(f"[SYNC] {ins} clases del folleto insertadas/actualizadas en funds")
+    except Exception as _e:
+        log(f"[SYNC] populate_fund_classes falló (no crítico): {str(_e)[:80]}")
+
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
 
     return {
