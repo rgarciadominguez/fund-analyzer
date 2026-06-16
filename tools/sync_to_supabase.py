@@ -398,6 +398,15 @@ def sync_fund(
         nombre_base = normalize_nombre_base(nombre)
         fg_id = _deterministic_uuid(nombre_base, gestora)
 
+        # Si ya hay una clase HERMANA de este fondo en Supabase (misma gestora +
+        # nombre prefijo-compatible), reutiliza SU grupo → la clase nueva se
+        # agrupa sola sin depender de que el nombre_base coincida exacto.
+        try:
+            from tools.reconcile_fund_groups import resolve_group_for_new_fund
+            fg_id = resolve_group_for_new_fund(client, nombre, gestora, fg_id)
+        except Exception as _e:
+            log(f"[SYNC] sibling-group lookup falló (no crítico): {str(_e)[:80]}")
+
         # Insertar fund_group si no existe
         client.table("fund_groups").upsert({
             "fund_group_id": fg_id,
