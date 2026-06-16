@@ -279,6 +279,21 @@ def populate_fund_classes(client, primary_isin: str, clases: list, apply: bool =
         if apply:
             client.table("funds").upsert(row, on_conflict="isin").execute()
         n += 1
+    # Mantén class_isins_known del grupo al día (ground-truth ONLINE por ISIN),
+    # sea cual sea la fuente (folleto o CNMV).
+    if apply:
+        try:
+            sib_isins = {primary_isin} | {(c.get("isin") or "").upper() for c in clases
+                                          if _ISIN_RE.match((c.get("isin") or "").upper())}
+            cur = client.table("fund_groups").select("class_isins_known").eq(
+                "fund_group_id", gid).execute().data
+            known = set(cur[0].get("class_isins_known") or []) if cur else set()
+            merged = sorted(known | sib_isins)
+            if merged != sorted(known):
+                client.table("fund_groups").update(
+                    {"class_isins_known": merged}).eq("fund_group_id", gid).execute()
+        except Exception:
+            pass
     return n
 
 

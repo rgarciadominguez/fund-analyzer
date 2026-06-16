@@ -466,6 +466,28 @@ def sync_fund(
     except Exception as _e:
         log(f"[SYNC] populate_fund_classes falló (no crítico): {str(_e)[:80]}")
 
+    # Fondos ES: listado oficial de clases desde el registro CNMV (por NIF).
+    if isin.upper().startswith("ES"):
+        try:
+            from pathlib import Path as _P
+            import json as _json
+            nif = output_data.get("nif")
+            if not nif:
+                _cf = _P("data") / "funds" / isin / "cnmv_data.json"
+                if _cf.exists():
+                    nif = (_json.loads(_cf.read_text(encoding="utf-8")).get("nif") or "").strip()
+            if nif:
+                from tools.cnmv_classes import fetch_classes
+                from tools.reconcile_fund_groups import populate_fund_classes
+                cnmv_cl = fetch_classes(nif)
+                if len(cnmv_cl) > 1:
+                    ins = populate_fund_classes(client, isin, cnmv_cl, apply=True,
+                                                fund_name=output_data.get("nombre") or "")
+                    if ins:
+                        log(f"[SYNC] {ins} clases CNMV (NIF {nif}) insertadas en funds")
+        except Exception as _e:
+            log(f"[SYNC] CNMV classes falló (no crítico): {str(_e)[:80]}")
+
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
 
     return {
