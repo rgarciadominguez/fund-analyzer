@@ -113,6 +113,38 @@ def fetch_quant(isin: str) -> dict:
     return {k: v for k, v in out.items() if v not in (None, {}, "")}
 
 
+def fetch_category(isin: str) -> dict:
+    """Categoría Morningstar (CategoryName) + estilo inferido (Value/Growth/Blend),
+    barato (1 call). {} si no se encuentra."""
+    isin = (isin or "").upper().strip()
+    if not _ISIN.match(isin):
+        return {}
+    dp = "%7C".join(["Name", "CategoryName", "EquityStyleBox"])
+    url = (f"{_SCR}?page=1&pageSize=1&outputType=json&version=1"
+           f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
+    try:
+        r = httpx.get(url, headers=_UA, timeout=15, follow_redirects=True)
+        r.raise_for_status()
+        rows = r.json().get("rows") or []
+    except Exception:
+        return {}
+    if not rows:
+        return {}
+    cat = (rows[0].get("CategoryName") or "").strip()
+    out = {}
+    if cat:
+        out["categoria_morningstar"] = cat
+        cl = cat.lower()
+        # Estilo solo para RV con vocabulario claro (no inventar en RF).
+        if "value" in cl:
+            out["estilo"] = "Value"
+        elif "growth" in cl:
+            out["estilo"] = "Growth"
+        elif "blend" in cl:
+            out["estilo"] = "Blend"
+    return out
+
+
 def fetch_nav(secid: str, start: str, end: str, freq: str = "monthly") -> list:
     """Serie NAV [[epoch_ms, valor], ...] del SecId (para gráfico/captura)."""
     if not secid:

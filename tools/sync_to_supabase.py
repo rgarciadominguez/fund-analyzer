@@ -466,6 +466,28 @@ def sync_fund(
     except Exception as _e:
         log(f"[SYNC] populate_fund_classes falló (no crítico): {str(_e)[:80]}")
 
+    # Categoría Morningstar (+ estilo inferido) en el grupo, si falta.
+    try:
+        from tools.morningstar_quant import fetch_category
+        r_g = client.table("funds").select("fund_group_id").eq("isin", isin).execute()
+        fgid = r_g.data[0]["fund_group_id"] if r_g.data else None
+        if fgid:
+            cur = client.table("fund_groups").select(
+                "categoria_morningstar,estilo").eq("fund_group_id", fgid).execute().data
+            g0 = cur[0] if cur else {}
+            if not (g0.get("categoria_morningstar") or "").strip():
+                cat = fetch_category(isin)
+                upd = {}
+                if cat.get("categoria_morningstar"):
+                    upd["categoria_morningstar"] = cat["categoria_morningstar"]
+                if cat.get("estilo") and not (g0.get("estilo") or "").strip():
+                    upd["estilo"] = cat["estilo"]
+                if upd:
+                    client.table("fund_groups").update(upd).eq("fund_group_id", fgid).execute()
+                    log(f"[SYNC] categoria Morningstar: {upd}")
+    except Exception as _e:
+        log(f"[SYNC] categoria Morningstar falló (no crítico): {str(_e)[:80]}")
+
     # Fondos ES: listado oficial de clases desde el registro CNMV (por NIF).
     if isin.upper().startswith("ES"):
         try:
