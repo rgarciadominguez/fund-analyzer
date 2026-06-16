@@ -487,6 +487,19 @@ def sync_fund(
                         log(f"[SYNC] {ins} clases CNMV (NIF {nif}) insertadas en funds")
         except Exception as _e:
             log(f"[SYNC] CNMV classes falló (no crítico): {str(_e)[:80]}")
+    else:
+        # Fondos no-ES: listado de clases desde el screener de Morningstar (por ISIN).
+        try:
+            from tools.morningstar_classes import fetch_classes as _ms_classes
+            from tools.reconcile_fund_groups import populate_fund_classes
+            ms_cl = _ms_classes(isin)
+            if len(ms_cl) > 1:
+                ins = populate_fund_classes(client, isin, ms_cl, apply=True,
+                                            fund_name=output_data.get("nombre") or "")
+                if ins:
+                    log(f"[SYNC] {ins} clases Morningstar insertadas en funds")
+        except Exception as _e:
+            log(f"[SYNC] Morningstar classes falló (no crítico): {str(_e)[:80]}")
 
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
 
