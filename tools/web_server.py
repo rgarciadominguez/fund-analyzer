@@ -277,6 +277,25 @@ def make_app(cold_start: bool = True) -> Flask:
         except Exception as e:
             return jsonify({"answer": f"Error del chat: {str(e)[:200]}"}), 200
 
+    # ── Vínculos de clase (2026-06-16): alias_isin → primary_isin ─────────
+    @app.route("/api/class-links", methods=["GET"])
+    def api_class_links_get():
+        from tools.class_links import all_links
+        return jsonify(all_links())
+
+    @app.route("/api/class-links", methods=["POST"])
+    def api_class_links_add():
+        from tools.class_links import add_link
+        body = request.get_json(silent=True) or {}
+        res = add_link(body.get("alias", ""), body.get("primary", ""), body.get("label", ""))
+        return jsonify(res), (200 if res.get("ok") else 400)
+
+    @app.route("/api/class-links/<alias>", methods=["DELETE"])
+    def api_class_links_del(alias):
+        from tools.class_links import remove_link
+        res = remove_link(alias)
+        return jsonify(res), (200 if res.get("ok") else 404)
+
     @app.route("/api/regenerate-catalog", methods=["POST"])
     def api_regenerate_catalog():
         """Re-ejecuta build_catalog para refrescar el JSON."""

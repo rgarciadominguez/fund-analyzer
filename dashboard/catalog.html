@@ -1215,7 +1215,12 @@ function badgeAnalisis(f) {
     ? `<button class="btn-delete" data-delete-isin="${f.isin}" type="button" title="Eliminar este fondo de Supabase (DB + Storage). El ISIN volverá a estado 'sin análisis'. Útil si está mal y prefieres limpiarlo antes de relanzar.">🗑</button>`
     : '';
 
-  return `<div class="action-cell">${cualitativo}${atencion}${cuanti}${editar}${mejorar}${regenerar}${borrar}</div>`;
+  // 🔗 Vincular como clase de otro fondo ya analizado (mismo análisis).
+  const vincular = SERVER.available
+    ? `<button class="btn-link" data-link-isin="${f.isin}" type="button" title="Vincular este ISIN como otra CLASE de un fondo ya analizado: compartirán el mismo análisis y este ISIN dejará de aparecer como fila propia (se mostrará como sub-clase del primario).${SERVER.available ? '' : ' (requiere server local)'}">🔗</button>`
+    : '';
+
+  return `<div class="action-cell">${cualitativo}${atencion}${cuanti}${editar}${mejorar}${vincular}${regenerar}${borrar}</div>`;
 }
 
 // Brokers como chips de colores
@@ -1258,7 +1263,7 @@ function renderRow(fund) {
   return `
     <tr data-isin="${fund.isin}" ${dashboardLink ? `data-dashboard="${dashboardLink}"` : ''}>
       <td>${badgeClasificacion(fund)}</td>
-      <td class="isin">${escapeHtml(fund.isin)}</td>
+      <td class="isin">${escapeHtml(fund.isin)}${fund._classes && fund._classes.length ? `<span style="margin-left:6px;font-size:9px;background:var(--navy,#003A75);color:#fff;padding:1px 6px;border-radius:8px;white-space:nowrap;" title="Clases vinculadas (mismo análisis): ${fund._classes.map(c=>escapeHtml(c.isin)+(c.divisa?' '+escapeHtml(c.divisa):'')).join(', ')}">+${fund._classes.length} ${fund._classes.length===1?'clase':'clases'}</span>` : ''}</td>
       <td class="nombre">${nombreCell}</td>
       <td class="gestora">${escapeHtml(fund.gestora || '—')}</td>
       <td>${escapeHtml(fund.tipo_activo || '—')}</td>
@@ -1505,6 +1510,40 @@ function bindRowClicks() {
         alert('Error de red: ' + err.message);
         btn.disabled = false;
         btn.textContent = '🗑';
+      }
+    });
+  });
+
+  // Botón "🔗" vincular como clase de otro fondo ya analizado (2026-06-16)
+  $$('button.btn-link').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!requireServerOrShowModal()) return;
+      const alias = btn.dataset.linkIsin;
+      const primary = (prompt(
+        `Vincular ${alias} como CLASE de otro fondo ya analizado.\n\n` +
+        `Escribe el ISIN del fondo PRIMARIO (el que tiene el análisis). Compartirán análisis y ${alias} dejará de aparecer como fila propia.`
+      ) || '').trim().toUpperCase();
+      if (!primary) return;
+      if (primary === (alias || '').toUpperCase()) { alert('El primario no puede ser el mismo ISIN.'); return; }
+      const label = (prompt('Etiqueta de la clase (opcional, p.ej. "Clase I EUR"):') || '').trim();
+      btn.disabled = true; btn.textContent = '…';
+      try {
+        const res = await apiFetch('/api/class-links', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ alias, primary, label }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          alert(`No se pudo vincular: ${data.error || res.status}`);
+          btn.disabled = false; btn.textContent = '🔗';
+          return;
+        }
+        await refreshCatalog();
+      } catch (err) {
+        alert('Error de red: ' + err.message);
+        btn.disabled = false; btn.textContent = '🔗';
       }
     });
   });
@@ -1907,6 +1946,36 @@ function joinFundsWithGroups(funds, groups) {
   });
 }
 
+// Vínculos de clase: los ISIN "alias" se ABSORBEN como sub-clases del primario
+// (no aparecen como fila propia). links = {alias_isin: {primary_isin, clase_label}}.
+function applyClassLinks(funds, links) {
+  if (!links || !Object.keys(links).length) return funds;
+  const byIsin = {};
+  for (const f of funds) byIsin[(f.isin || '').toUpperCase()] = f;
+  const aliasSet = new Set(Object.keys(links).map(s => s.toUpperCase()));
+  for (const [aliasRaw, v] of Object.entries(links)) {
+    const alias = aliasRaw.toUpperCase();
+    const primary = ((v && v.primary_isin) || '').toUpperCase();
+    const pf = byIsin[primary];
+    if (!pf) continue;  // primario aún no en catálogo → no absorbemos (alias se queda)
+    const af = byIsin[alias] || {};
+    pf._classes = pf._classes || [];
+    pf._classes.push({
+      isin: alias,
+      clase_label: (v && v.clase_label) || '',
+      divisa: af.divisa || '',
+      ter_pct: (af.ter_pct != null ? af.ter_pct : null),
+    });
+  }
+  // Quitar los alias cuyo primario SÍ está (ya absorbidos); los huérfanos se quedan.
+  return funds.filter(f => {
+    const u = (f.isin || '').toUpperCase();
+    if (!aliasSet.has(u)) return true;
+    const primary = (links[f.isin] || links[u] || {}).primary_isin;
+    return !(primary && byIsin[(primary || '').toUpperCase()]);
+  });
+}
+
 function computeStats(funds, groups) {
   const n_total = funds.length;
   const n_groups = groups.length;
@@ -1969,14 +2038,16 @@ async function loadCatalog() {
     // Pre-warm fund-dashboard catalog en paralelo (acelera click 📊)
     prewarmFundDashboard();
 
-    // Fetch paralelo de las 2 tablas Supabase
-    const [funds, groups] = await Promise.all([
+    // Fetch paralelo de las 2 tablas Supabase + vínculos de clase (web_server)
+    const [funds, groups, links] = await Promise.all([
       fetchSupabase('funds', 'select=*&limit=2000'),
       fetchSupabase('fund_groups', 'select=*&limit=2000'),
+      apiFetch('/api/class-links').then(r => r.ok ? r.json() : {}).catch(() => ({})),
     ]);
 
-    // JOIN en cliente
-    const mergedFunds = joinFundsWithGroups(funds, groups);
+    // JOIN en cliente + aplicar vínculos de clase (alias → sub-clase del primario)
+    let mergedFunds = joinFundsWithGroups(funds, groups);
+    mergedFunds = applyClassLinks(mergedFunds, links || {});
     const stats = computeStats(mergedFunds, groups);
 
     STATE.catalog = {
