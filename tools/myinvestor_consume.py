@@ -55,6 +55,19 @@ def consume(isin: str, client=None, log=None) -> dict:
     if not fu:
         return {}
     f0 = fu[0]
+
+    # Audit MEDIO (2026-06-17): revalidar que matched_isin pertenece al MISMO grupo
+    # que el fondo analizado. Si la skill casó un ISIN de OTRO fondo (mismo nombre,
+    # fondo distinto), escribiríamos su distribución/mín./allocation en la fila/grupo
+    # equivocados. Solo bloquea el caso claro (ambos en Supabase, grupos distintos).
+    if target != isin and f0.get("fund_group_id"):
+        own = c.table("funds").select("fund_group_id").eq("isin", isin).execute().data
+        own_gid = own[0].get("fund_group_id") if own else None
+        if own_gid and own_gid != f0.get("fund_group_id"):
+            if log:
+                log(f"[MYINVESTOR] matched_isin {target} en OTRO grupo que {isin} → descartado (match erróneo)")
+            return {"skipped": "matched_isin_other_group", "matched": target}
+
     fupd = {}
     if d.get("distribucion"):
         fupd["distribucion"] = d["distribucion"]   # MyInvestor es la fuente robusta
