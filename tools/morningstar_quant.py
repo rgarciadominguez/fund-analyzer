@@ -49,6 +49,18 @@ def _num(v):
         return None
 
 
+def _row_for_isin(rows: list, isin: str) -> dict | None:
+    """Devuelve la fila cuyo `Isin` == isin pedido. El screener `term=` es búsqueda
+    FUZZY: ante un ISIN no indexado devuelve el 'mejor match' (OTRO fondo). Sin esta
+    validación escribiríamos rating/riesgo/categoría de un fondo ajeno. Si ninguna
+    fila matchea exactamente, None (mejor sin dato que con dato equivocado)."""
+    isin = (isin or "").upper().strip()
+    for r in (rows or []):
+        if (r.get("Isin") or "").upper().strip() == isin:
+            return r
+    return None
+
+
 def _risk_block(row: dict, suf: str) -> dict:
     d = {
         "alpha": _num(row.get(f"Alpha{suf}")),
@@ -69,7 +81,7 @@ def fetch_quant(isin: str) -> dict:
     if not _ISIN.match(isin):
         return {}
     dp = "%7C".join(_DP)
-    url = (f"{_SCR}?page=1&pageSize=1&outputType=json&version=1"
+    url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
            f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
     try:
         r = httpx.get(url, headers=_UA, timeout=20, follow_redirects=True)
@@ -77,9 +89,9 @@ def fetch_quant(isin: str) -> dict:
         rows = r.json().get("rows") or []
     except Exception:
         return {}
-    if not rows:
+    row = _row_for_isin(rows, isin)
+    if not row:
         return {}
-    row = rows[0]
     med = row.get("Medalist_RatingNumber")
     out = {
         "_fuente": "morningstar",
@@ -119,8 +131,8 @@ def fetch_category(isin: str) -> dict:
     isin = (isin or "").upper().strip()
     if not _ISIN.match(isin):
         return {}
-    dp = "%7C".join(["Name", "CategoryName", "EquityStyleBox"])
-    url = (f"{_SCR}?page=1&pageSize=1&outputType=json&version=1"
+    dp = "%7C".join(["Name", "Isin", "CategoryName", "EquityStyleBox"])
+    url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
            f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
     try:
         r = httpx.get(url, headers=_UA, timeout=15, follow_redirects=True)
@@ -128,9 +140,10 @@ def fetch_category(isin: str) -> dict:
         rows = r.json().get("rows") or []
     except Exception:
         return {}
-    if not rows:
+    row = _row_for_isin(rows, isin)
+    if not row:
         return {}
-    cat = (rows[0].get("CategoryName") or "").strip()
+    cat = (row.get("CategoryName") or "").strip()
     out = {}
     if cat:
         out["categoria_morningstar"] = cat
@@ -150,8 +163,8 @@ def fetch_rating(isin: str) -> dict:
     isin = (isin or "").upper().strip()
     if not _ISIN.match(isin):
         return {}
-    dp = "%7C".join(["Name", "StarRatingM255", "Medalist_RatingNumber"])
-    url = (f"{_SCR}?page=1&pageSize=1&outputType=json&version=1"
+    dp = "%7C".join(["Name", "Isin", "StarRatingM255", "Medalist_RatingNumber"])
+    url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
            f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
     try:
         r = httpx.get(url, headers=_UA, timeout=15, follow_redirects=True)
@@ -159,12 +172,13 @@ def fetch_rating(isin: str) -> dict:
         rows = r.json().get("rows") or []
     except Exception:
         return {}
-    if not rows:
+    row = _row_for_isin(rows, isin)
+    if not row:
         return {}
-    med = rows[0].get("Medalist_RatingNumber")
+    med = row.get("Medalist_RatingNumber")
     out = {}
-    if rows[0].get("StarRatingM255") is not None:
-        out["estrellas"] = rows[0]["StarRatingM255"]
+    if row.get("StarRatingM255") is not None:
+        out["estrellas"] = row["StarRatingM255"]
     if med is not None:
         out["medalist"] = _MEDALIST.get(med)
     return out

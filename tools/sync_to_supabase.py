@@ -61,6 +61,30 @@ ISIN_REGEX = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}\d$")
 ISIN_FULL_REGEX = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
 
 
+import re as _re_mod
+
+# Marcadores de texto de test/placeholder que NUNCA deben publicarse (ni con --force).
+_TEST_PLACEHOLDER_RE = _re_mod.compile(
+    r"\b(BASURA|FALSO|LOREM\s+IPSUM|PLACEHOLDER|XXXX+|FAKE\s+FUND|FONDO\s+FALSO|DUMMY\s+FUND)\b",
+    _re_mod.IGNORECASE,
+)
+
+
+def _norm_cmp(s: str) -> str:
+    return _re_mod.sub(r"[^a-z0-9]", "", (s or "").lower())
+
+
+def _has_test_placeholder(output_data: dict) -> bool:
+    """True si nombre/gestora o el texto del resumen contienen placeholders de test."""
+    parts = [output_data.get("nombre") or "", output_data.get("gestora") or ""]
+    try:
+        res = ((output_data.get("analyst_synthesis") or {}).get("resumen") or {}).get("texto") or ""
+        parts.append(res[:2000])
+    except Exception:
+        pass
+    return bool(_TEST_PLACEHOLDER_RE.search(" \n ".join(parts)))
+
+
 def _validate_before_sync(output_data: dict, isin: str) -> tuple[bool, list[str]]:
     """T2.9 (2026-05-28): comprueba que output.json no tiene fallos críticos
     antes de subir a Supabase.
@@ -83,19 +107,33 @@ def _validate_before_sync(output_data: dict, isin: str) -> tuple[bool, list[str]
     gestora = (output_data.get("gestora") or "").strip()
     isin_upper = isin.upper()
 
+    # Nombre: validador robusto (detecta prosa, etiquetas/stub, fragmentos, ISIN
+    # embebido) en vez de los 4 checks inline débiles que dejaban pasar la
+    # gestora/categoría/clase/placeholder como nombre.
     if not nombre:
         reasons.append("nombre vacío")
-    elif nombre.upper() == isin_upper:
-        reasons.append(f"nombre == ISIN ({isin})")
-    elif ISIN_FULL_REGEX.match(nombre.upper()):
-        reasons.append(f"nombre parece otro ISIN: {nombre!r}")
-    elif len(nombre) < 5:
-        reasons.append(f"nombre muy corto: {nombre!r}")
+    else:
+        try:
+            from tools.fund_name_utils import is_valid_fund_name
+            ok_name, motivo = is_valid_fund_name(nombre, isin)
+            if not ok_name:
+                reasons.append(f"nombre inválido ({motivo}): {nombre!r}")
+        except Exception:
+            # fallback a los checks mínimos si el validador no carga
+            if nombre.upper() == isin_upper or ISIN_FULL_REGEX.match(nombre.upper()) or len(nombre) < 5:
+                reasons.append(f"nombre inválido: {nombre!r}")
+        # nombre == gestora → casi siempre es la gestora colada como nombre
+        if gestora and _norm_cmp(nombre) == _norm_cmp(gestora):
+            reasons.append(f"nombre == gestora ({nombre!r}) — probable gestora-como-nombre")
 
     if not gestora:
         reasons.append("gestora vacía")
     elif gestora.upper() == isin_upper:
         reasons.append("gestora == ISIN")
+
+    # Placeholder de test: bloqueo DURO (lo honra incluso --force, ver sync_fund).
+    if _has_test_placeholder(output_data):
+        reasons.append("contiene texto de TEST/placeholder (BASURA/FALSO/LOREM/…)")
 
     # B1/B2/B3 (2026-06-04): no publicar análisis roto como has_qualitative_analysis=true.
     from tools.analysis_quality import assess_analysis_quality
@@ -184,6 +222,16 @@ def sync_fund(
         raise FileNotFoundError(f"No existe {output_json_path}")
 
     output_data = _safe_read_json(output_json_path) or {}
+
+    # Bloqueo DURO de placeholders de test: ni --force lo salta (un análisis de
+    # prueba con 'BASURA NOMBRE FALSO TEST' jamás debe llegar al catálogo).
+    if _has_test_placeholder(output_data):
+        log("=" * 60)
+        log(f"[SYNC] [HARD-ABORT] {isin} contiene texto de TEST/placeholder — NO se publica")
+        log("  (re-ejecuta el análisis del fondo; esto no se salta ni con --force)")
+        log("=" * 60)
+        return {"isin": isin, "aborted": True, "reasons": ["test_placeholder"],
+                "uploaded": {}, "funds_updated": 0, "fund_groups_updated": False}
 
     # T2.9: guard pre-sync — bloquea si datos críticos están corruptos
     ok, reasons = _validate_before_sync(output_data, isin)
