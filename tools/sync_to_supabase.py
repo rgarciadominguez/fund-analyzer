@@ -482,6 +482,14 @@ def sync_fund(
     except Exception as _e:
         log(f"[SYNC] derive_taxonomy falló (no crítico): {str(_e)[:80]}")
 
+    # años_antiguedad desde la fecha/año de inicio del análisis (fallo común: venía
+    # la fecha pero no se calculaban los años).
+    try:
+        from tools.anios_antiguedad import fill_anios
+        fill_anios(client, isin, output_data=output_data, log=log)
+    except Exception as _e:
+        log(f"[SYNC] años_antiguedad falló (no crítico): {str(_e)[:80]}")
+
     # Quant desde la serie diaria de Morningstar (consistente con fund-dashboard).
     try:
         from tools.morningstar_daily import compute_metrics as _ms_daily
