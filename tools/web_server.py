@@ -128,6 +128,28 @@ def persist_run(run_id: str, r: dict):
 # ─────────────────────────────────────────────────────────────────────────
 # Watcher: hilo que espera a que el subprocess termine y actualiza el run
 # ─────────────────────────────────────────────────────────────────────────
+def _status_from_exit_code(rc, isin: str = "") -> str:
+    """Mapea el exit code del bat a status. Códigos G12 del bat (autoritativos):
+        0  = done (todo OK)
+        5  = completed_with_warnings (PUBLICABLE, fallaron pasos non-critical)
+        10 = failed (crítico: sin output.json / consume / sync)
+    Fuente única para watch_run (single) y _classify_run_result (cola). Un exit
+    inesperado (crash/kill/watchdog) degrada a avisos solo si hay salida usable."""
+    if rc == 0:
+        return "done"
+    if rc == 5:
+        return "completed_with_warnings"
+    if rc == 10:
+        return "failed"
+    try:
+        if isin and (DATA_DIR / "funds" / isin / "output.json").exists() \
+                and (DATA_DIR / "funds" / isin / "meta_report.json").exists():
+            return "completed_with_warnings"
+    except Exception:
+        pass
+    return "failed"
+
+
 def watch_run(run_id: str):
     """Vigila un subprocess y actualiza RUNS cuando termina.
 
@@ -166,7 +188,10 @@ def watch_run(run_id: str):
             rc = -1
             r["status"] = "unknown"
         else:
-            r["status"] = "done" if rc == 0 else "failed"
+            # Audit fix #3 (2026-06-17): usar el exit code autoritativo del bat
+            # (0/5/10) en vez de colapsar todo ≠0 a 'failed'. Un run con exit 5
+            # es PUBLICABLE con avisos, no un fallo.
+            r["status"] = _status_from_exit_code(rc, r.get("isin", ""))
         r["exit_code"] = rc
         r["end_time"] = datetime.now(timezone.utc).isoformat()
         try:
@@ -752,11 +777,11 @@ def make_app(cold_start: bool = True) -> Flask:
         final = RUNS.get(run_id, {})
         status = final.get("status", "unknown")
         exit_code = final.get("exit_code")
-        if status == "failed":
-            output_json = DATA_DIR / "funds" / isin / "output.json"
-            meta_json = DATA_DIR / "funds" / isin / "meta_report.json"
-            if output_json.exists() and meta_json.exists():
-                return "completed_with_warnings", exit_code
+        # Audit fix #3: clasificar por el exit code autoritativo del bat (misma
+        # función que watch_run). Estados especiales (pausa por tokens, unknown,
+        # interrupted) se respetan; solo se re-mapean los terminales normales.
+        if status in ("done", "failed", "completed_with_warnings") and exit_code is not None:
+            return _status_from_exit_code(exit_code, isin), exit_code
         return status, exit_code
 
     # W1-W4 (2026-05-21): Watchdog que detecta inconsistencias del sistema.
