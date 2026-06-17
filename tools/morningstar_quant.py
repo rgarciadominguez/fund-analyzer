@@ -84,9 +84,8 @@ def fetch_quant(isin: str) -> dict:
     url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
            f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
     try:
-        r = httpx.get(url, headers=_UA, timeout=20, follow_redirects=True)
-        r.raise_for_status()
-        rows = r.json().get("rows") or []
+        from tools.http_retry import get_json
+        rows = get_json(url, headers=_UA, timeout=20).get("rows") or []
     except Exception:
         return {}
     row = _row_for_isin(rows, isin)
@@ -135,9 +134,8 @@ def fetch_category(isin: str) -> dict:
     url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
            f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
     try:
-        r = httpx.get(url, headers=_UA, timeout=15, follow_redirects=True)
-        r.raise_for_status()
-        rows = r.json().get("rows") or []
+        from tools.http_retry import get_json
+        rows = get_json(url, headers=_UA, timeout=15).get("rows") or []
     except Exception:
         return {}
     row = _row_for_isin(rows, isin)
@@ -167,9 +165,8 @@ def fetch_rating(isin: str) -> dict:
     url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
            f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
     try:
-        r = httpx.get(url, headers=_UA, timeout=15, follow_redirects=True)
-        r.raise_for_status()
-        rows = r.json().get("rows") or []
+        from tools.http_retry import get_json
+        rows = get_json(url, headers=_UA, timeout=15).get("rows") or []
     except Exception:
         return {}
     row = _row_for_isin(rows, isin)
@@ -191,9 +188,8 @@ def fetch_nav(secid: str, start: str, end: str, freq: str = "monthly") -> list:
     url = (f"{_TS}?currencyId=EUR&idtype=Morningstar&frequency={freq}"
            f"&id={secid}&startDate={start}&endDate={end}&outputType=COMPACTJSON")
     try:
-        r = httpx.get(url, headers=_UA, timeout=20, follow_redirects=True)
-        r.raise_for_status()
-        return r.json() or []
+        from tools.http_retry import get_json
+        return get_json(url, headers=_UA, timeout=20) or []
     except Exception:
         return []
 

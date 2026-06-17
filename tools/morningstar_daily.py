@@ -25,9 +25,9 @@ def fetch_series(isin: str) -> list:
     if not _ISIN.match(isin):
         return []
     try:
-        r = httpx.get(_URL.format(isin=isin), headers=_UA, timeout=25, follow_redirects=True)
-        r.raise_for_status()
-        return [(int(t), float(v)) for t, v in r.json() if v]
+        from tools.http_retry import get_json
+        data = get_json(_URL.format(isin=isin), headers=_UA, timeout=25)
+        return [(int(t), float(v)) for t, v in data if v]
     except Exception:
         return []
 
