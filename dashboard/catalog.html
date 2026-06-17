@@ -1002,6 +1002,7 @@
         <th class="sortable" data-sort="tipo_activo">Tipo activo</th>
         <th class="sortable" data-sort="geografia">Geografía</th>
         <th class="sortable" data-sort="estilo">Estilo</th>
+        <th title="Características especiales (etiquetas)">Características</th>
         <th class="sortable numeric" data-sort="anios_activo" title="Años activo (clase más antigua)">Años</th>
         <th class="sortable numeric" data-sort="aum_meur">AUM (M€)</th>
         <th class="sortable numeric" data-sort="ter_pct">TER %</th>
@@ -1215,26 +1216,28 @@ function badgeAnalisis(f) {
     ? `<button class="btn-delete" data-delete-isin="${f.isin}" type="button" title="Eliminar este fondo de Supabase (DB + Storage). El ISIN volverá a estado 'sin análisis'. Útil si está mal y prefieres limpiarlo antes de relanzar.">🗑</button>`
     : '';
 
-  // 🔗 Vincular como clase de otro fondo ya analizado (mismo análisis).
-  const vincular = SERVER.available
-    ? `<button class="btn-link" data-link-isin="${f.isin}" type="button" title="Vincular este ISIN como otra CLASE de un fondo ya analizado: compartirán el mismo análisis y este ISIN dejará de aparecer como fila propia (se mostrará como sub-clase del primario).${SERVER.available ? '' : ' (requiere server local)'}">🔗</button>`
-    : '';
-
-  return `<div class="action-cell">${cualitativo}${atencion}${cuanti}${editar}${mejorar}${vincular}${regenerar}${borrar}</div>`;
+  // Fila superior: ver análisis + ver en fund-dashboard. Fila inferior:
+  // categorizar (✏) + mejorar (♺) + regenerar/borrar. (Sin 🔗 vincular.)
+  const fila2 = `${editar}${mejorar}${regenerar}${borrar}`;
+  return `<div class="action-cell" style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;">`
+    + `<div style="display:flex;gap:3px;align-items:center;">${cualitativo}${cuanti}${atencion}</div>`
+    + (fila2.trim() ? `<div style="display:flex;gap:3px;align-items:center;">${fila2}</div>` : '')
+    + `</div>`;
 }
 
 // Brokers como chips de colores
+// Colores apagados/suaves (menos vivos) para los chips de broker.
 const BROKER_COLORS = {
-  'MyInvestor': '#0066cc', 'Myinvestor': '#0066cc',
-  'Renta4': '#1b8c3b',
-  'Mapfre': '#cc0033',
-  'BBVA': '#0033a0',
-  'Caixa': '#003e8a',
-  'ABANCA': '#7e3ba7',
-  'Santander': '#ec0000',
-  'CJRS': '#3d6b30',
-  'Ironia': '#ff7a00',
-  'EBN': '#5a6b7d',
+  'MyInvestor': '#6a93c4', 'Myinvestor': '#6a93c4',
+  'Renta4': '#6fa37e',
+  'Mapfre': '#c0808c',
+  'BBVA': '#7088b3',
+  'Caixa': '#6f88ab',
+  'ABANCA': '#9a82b0',
+  'Santander': '#cc8a8a',
+  'CJRS': '#85a079',
+  'Ironia': '#d4a878',
+  'EBN': '#8a96a2',
 };
 
 function renderBrokerChips(brokers) {
@@ -1268,18 +1271,16 @@ function renderRow(fund) {
   // Desplegable de opinión/encaje/características (sustituye a la columna Opinión).
   const hasOp = !!(fund.gestora || fund.opinion || fund.encaje_texto || (fund.caracteristicas_especiales || []).length
                    || fund.categoria_rf || fund.plazo || fund.srri != null);
-  const opChip = (fund.opinion || fund.encaje_texto)
-    ? `<span class="op-chip" onclick="toggleOpinion(event,'${fund.isin}')" title="Ver opinión / encaje / características" style="margin-left:6px;font-size:9px;color:var(--navy,#003A75);cursor:pointer;white-space:nowrap;">💬 ▾</span>`
-    : '';
-  // Rating Morningstar DEBAJO del nombre: estrellas + medalist
+  const opChip = '';  // (chip de comentario eliminado; el desplegable se abre al pulsar la fila)
+  // Rating Morningstar DEBAJO del nombre: estrellas (más grandes) + medalist
   const ratingBelow = (() => {
     const st = fund.ms_estrellas, med = fund.ms_medalist;
     if (st == null && !med) return '';
     const stars = (typeof st === 'number') ? '★'.repeat(st) + '☆'.repeat(5 - st) : '';
     const medColor = { 'Gold': '#c8a23c', 'Silver': '#9aa6b4', 'Bronze': '#b08050' }[med] || 'var(--ink-3)';
-    return `<div style="margin-top:2px;font-size:10px;white-space:nowrap;">`
-      + (stars ? `<span style="color:#c8a23c;letter-spacing:1px;">${stars}</span>` : '')
-      + (med ? `<span style="color:${medColor};font-weight:700;margin-left:5px;">${escapeHtml(med)}</span>` : '')
+    return `<div style="margin-top:3px;white-space:nowrap;">`
+      + (stars ? `<span style="color:#c8a23c;letter-spacing:1.5px;font-size:14px;">${stars}</span>` : '')
+      + (med ? `<span style="color:${medColor};font-weight:700;font-size:10.5px;margin-left:6px;vertical-align:1px;">${escapeHtml(med)}</span>` : '')
       + `</div>`;
   })();
   // Distribución compacta
@@ -1290,8 +1291,16 @@ function renderRow(fund) {
     const r = fund.rentab_5a, v = fund.vol_5a;
     if (r == null && v == null) return '—';
     const rs = (typeof r === 'number') ? `<strong style="color:${r >= 0 ? 'var(--pos,#2e7d32)' : 'var(--neg,#c0392b)'};">${r.toFixed(1)}%</strong>` : '—';
-    const vs = (typeof v === 'number') ? `<span style="color:var(--ink-3);">${v.toFixed(1)}%</span>` : '—';
+    const vs = (typeof v === 'number') ? `<strong style="color:var(--ink-2);">${v.toFixed(1)}%</strong>` : '—';
     return `${rs} <span style="color:var(--ink-4);">/</span> ${vs}`;
+  })();
+  // Multietiqueta (características especiales) compacta — al lado de Estilo
+  const caracsCell = (() => {
+    const tags = fund.caracteristicas_especiales || [];
+    if (!tags.length) return '—';
+    const chips = tags.slice(0, 3).map(t =>
+      `<span style="display:inline-block;background:#eceff3;color:var(--navy,#003A75);font-size:9px;padding:0 5px;border-radius:7px;margin:0 2px 2px 0;white-space:nowrap;">${escapeHtml(t)}</span>`).join('');
+    return chips + (tags.length > 3 ? `<span style="font-size:9px;color:var(--ink-4);">+${tags.length - 3}</span>` : '');
   })();
 
   return `
@@ -1302,6 +1311,7 @@ function renderRow(fund) {
       <td>${escapeHtml(fund.tipo_activo || '—')}</td>
       <td>${escapeHtml(fund.geografia || '—')}</td>
       <td>${escapeHtml(fund.estilo || '—')}</td>
+      <td style="max-width:150px;">${caracsCell}</td>
       <td class="numeric">${fund.anios_activo != null ? fund.anios_activo : '—'}</td>
       <td class="numeric">${fmtAum(fund.aum_meur)}</td>
       <td class="numeric">${fmtTer(fund.ter_pct)}</td>
@@ -1337,11 +1347,13 @@ function renderOpinionDetail(fund) {
     : '';
   return `
     <tr class="opinion-detail-row" id="op-${fund.isin}" style="display:none;">
-      <td colspan="14" style="background:var(--surface-2,#f4f7fa);padding:10px 16px;">
+      <td colspan="15" style="background:var(--surface-2,#f4f7fa);padding:0;">
+        <div style="position:sticky;left:0;width:min(820px,calc(100vw - 48px));padding:10px 16px;box-sizing:border-box;">
         ${fund.gestora ? block('Gestora', fund.gestora) : ''}
         ${block('Opinión', fund.opinion)}
         ${block('Encaje', fund.encaje_texto)}
         ${caracBlock}
+        </div>
       </td>
     </tr>
   `;
@@ -1368,20 +1380,22 @@ function renderClassesDetail(fund) {
       </tr>`).join('');
   return `
     <tr class="classes-detail-row" id="cls-${fund.isin}" style="display:none;">
-      <td colspan="14" style="background:var(--surface-2,#f4f7fa);padding:8px 14px;">
-        <div style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">
-          Clases de <strong>${escapeHtml(fund.nombre || fund.isin)}</strong> — mismo análisis cualitativo, cuantitativos por clase
+      <td colspan="15" style="background:var(--surface-2,#f4f7fa);padding:0;">
+        <div style="position:sticky;left:0;width:min(760px,calc(100vw - 48px));padding:8px 14px;box-sizing:border-box;">
+          <div style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">
+            Clases de <strong>${escapeHtml(fund.nombre || fund.isin)}</strong> — mismo análisis cualitativo, cuantitativos por clase
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;">
+            <thead>
+              <tr style="text-align:left;color:var(--ink-3);border-bottom:1px solid var(--border,#dce3ea);">
+                <th style="padding:4px 8px;width:24%;">ISIN</th><th style="padding:4px 8px;width:20%;">Clase</th>
+                <th style="padding:4px 8px;width:10%;">Divisa</th><th style="padding:4px 8px;text-align:right;width:12%;">Año inicio</th>
+                <th style="padding:4px 8px;text-align:right;width:18%;">Com. gestión</th><th style="padding:4px 8px;text-align:right;width:12%;">TER</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
         </div>
-        <table style="width:100%;border-collapse:collapse;font-size:12px;">
-          <thead>
-            <tr style="text-align:left;color:var(--ink-3);border-bottom:1px solid var(--border,#dce3ea);">
-              <th style="padding:4px 8px;">ISIN</th><th style="padding:4px 8px;">Clase</th>
-              <th style="padding:4px 8px;">Divisa</th><th style="padding:4px 8px;text-align:right;">Año inicio</th>
-              <th style="padding:4px 8px;text-align:right;">Comisión gestión</th><th style="padding:4px 8px;text-align:right;">TER</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
       </td>
     </tr>
   `;
