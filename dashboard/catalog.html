@@ -1002,7 +1002,7 @@
         <th class="sortable" data-sort="tipo_activo">Tipo activo</th>
         <th class="sortable" data-sort="geografia">Geografía</th>
         <th class="sortable" data-sort="estilo">Estilo</th>
-        <th class="sortable numeric" data-sort="años_antiguedad" title="Años activo (clase más antigua)">Años</th>
+        <th class="sortable numeric" data-sort="anios_activo" title="Años activo (clase más antigua)">Años</th>
         <th class="sortable numeric" data-sort="aum_meur">AUM (M€)</th>
         <th class="sortable numeric" data-sort="ter_pct">TER %</th>
         <th class="sortable" data-sort="distribucion" title="Acumulación / Reparto">Dist.</th>
@@ -1302,7 +1302,7 @@ function renderRow(fund) {
       <td>${escapeHtml(fund.tipo_activo || '—')}</td>
       <td>${escapeHtml(fund.geografia || '—')}</td>
       <td>${escapeHtml(fund.estilo || '—')}</td>
-      <td class="numeric">${fund.años_antiguedad != null ? fund.años_antiguedad : '—'}</td>
+      <td class="numeric">${fund.anios_activo != null ? fund.anios_activo : '—'}</td>
       <td class="numeric">${fmtAum(fund.aum_meur)}</td>
       <td class="numeric">${fmtTer(fund.ter_pct)}</td>
       <td>${distCell}</td>
@@ -2042,6 +2042,14 @@ function joinFundsWithGroups(funds, groups) {
       aum_meur: g.aum_meur,
       num_participes: g.num_participes,
       años_antiguedad: g.años_antiguedad,
+      // Años activo (clase más antigua): años_antiguedad o, si falta, desde el primer
+      // año de la serie diaria Morningstar (rentabilidades_anuales).
+      anios_activo: (() => {
+        if (g.años_antiguedad != null) return g.años_antiguedad;
+        const ra = (g.rendimiento_jsonb || {}).rentabilidades_anuales || {};
+        const yrs = Object.keys(ra).map(Number).filter(Boolean);
+        return yrs.length ? (new Date().getFullYear() - Math.min(...yrs)) : null;
+      })(),
       // Rating Morningstar (screener; fallback al de MyInvestor) — debajo del nombre
       ms_estrellas: ((g.portfolio_metrics_jsonb || {}).morningstar || {}).estrellas
                     ?? ((g.portfolio_metrics_jsonb || {}).myinvestor || {}).mstar_rating ?? null,
