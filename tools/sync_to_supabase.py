@@ -466,6 +466,19 @@ def sync_fund(
     except Exception as _e:
         log(f"[SYNC] populate_fund_classes falló (no crítico): {str(_e)[:80]}")
 
+    # Quant desde la serie diaria de Morningstar (consistente con fund-dashboard).
+    try:
+        from tools.morningstar_daily import compute_metrics as _ms_daily
+        r_g = client.table("funds").select("fund_group_id").eq("isin", isin).execute()
+        fgid = r_g.data[0]["fund_group_id"] if r_g.data else None
+        if fgid:
+            m = _ms_daily(isin)
+            if m:
+                client.table("fund_groups").update({"rendimiento_jsonb": m}).eq("fund_group_id", fgid).execute()
+                log(f"[SYNC] quant diario Morningstar: cagr={m.get('cagr_desde_inicio')} vol={m.get('volatilidad')}")
+    except Exception as _e:
+        log(f"[SYNC] quant diario falló (no crítico): {str(_e)[:80]}")
+
     # Categoría Morningstar (+ estilo inferido) en el grupo, si falta.
     try:
         from tools.morningstar_quant import fetch_category
