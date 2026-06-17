@@ -44,7 +44,14 @@ def consume(isin: str, client=None, log=None) -> dict:
         return {}
 
     # --- funds (clase) ---
-    fu = c.table("funds").select("broker_disponible,distribucion,fund_group_id").eq("isin", isin).execute().data
+    # La clase que enriquecemos es la que CASÓ en MyInvestor (matched_isin), que
+    # puede ser una clase hermana distinta de la analizada. Si no, la objetivo.
+    target = (d.get("matched_isin") or isin).upper().strip()
+    fu = c.table("funds").select("broker_disponible,distribucion,fund_group_id").eq("isin", target).execute().data
+    if not fu:
+        # la clase que casó no está como fila en funds → cae a la objetivo para el grupo
+        fu = c.table("funds").select("broker_disponible,distribucion,fund_group_id").eq("isin", isin).execute().data
+        target = isin
     if not fu:
         return {}
     f0 = fu[0]
@@ -58,7 +65,7 @@ def consume(isin: str, client=None, log=None) -> dict:
     if mn is not None and mn > 1:
         fupd["importe_minimo_eur"] = mn
     if fupd:
-        c.table("funds").update(fupd).eq("isin", isin).execute()
+        c.table("funds").update(fupd).eq("isin", target).execute()
 
     # --- fund_groups (datos de cartera/identidad compartidos) ---
     gid = f0.get("fund_group_id")
