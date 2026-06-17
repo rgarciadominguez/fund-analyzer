@@ -1009,7 +1009,6 @@
         <th class="sortable" data-sort="has_qualitative_analysis">Análisis</th>
         <th class="sortable numeric" data-sort="completitud_pct">Compl.</th>
         <th class="sortable" data-sort="ultima_actualizacion" title="Fecha último análisis cualitativo">Última act.</th>
-        <th class="opinion-col">Opinión</th>
       </tr>
     </thead>
     <tbody id="catalog-body"></tbody>
@@ -1265,11 +1264,17 @@ function renderRow(fund) {
     ? `<span class="classes-chip" onclick="toggleClasses(event,'${fund.isin}')" title="Ver las ${nClases + 1} clases de este fondo" style="margin-left:6px;font-size:9px;background:var(--navy,#003A75);color:#fff;padding:1px 6px;border-radius:8px;white-space:nowrap;cursor:pointer;">+${nClases} ${nClases === 1 ? 'clase' : 'clases'} ▾</span>`
     : '';
 
+  // Toggle de opinión/encaje (sustituye a la columna Opinión): caret junto al nombre.
+  const hasOp = !!(fund.opinion || fund.encaje_texto);
+  const opChip = hasOp
+    ? `<span class="op-chip" onclick="toggleOpinion(event,'${fund.isin}')" title="Ver opinión y encaje" style="margin-left:6px;font-size:9px;color:var(--navy,#003A75);cursor:pointer;white-space:nowrap;">💬 opinión ▾</span>`
+    : '';
+
   return `
     <tr data-isin="${fund.isin}" ${dashboardLink ? `data-dashboard="${dashboardLink}"` : ''}>
       <td>${badgeClasificacion(fund)}</td>
       <td class="isin">${escapeHtml(fund.isin)}${chip}</td>
-      <td class="nombre">${nombreCell}</td>
+      <td class="nombre">${nombreCell}${opChip}</td>
       <td class="gestora">${escapeHtml(fund.gestora || '—')}</td>
       <td>${escapeHtml(fund.tipo_activo || '—')}</td>
       <td>${escapeHtml(fund.geografia || '—')}</td>
@@ -1280,10 +1285,33 @@ function renderRow(fund) {
       <td>${badgeAnalisis(fund)}</td>
       <td class="numeric">${fund.has_qualitative_analysis ? completitudBar(fund.completitud_pct) : '<span style="color:var(--ink-3);font-size:10px;">—</span>'}</td>
       <td class="fecha-cell">${fechaCell}</td>
-      <td class="opinion">${opinionCell}</td>
     </tr>
+    ${hasOp ? renderOpinionDetail(fund) : ''}
     ${nClases ? renderClassesDetail(fund) : ''}
   `;
+}
+
+// Fila desplegable con Opinión + Encaje del fondo (sustituye a la columna Opinión).
+function renderOpinionDetail(fund) {
+  const block = (label, txt) => txt
+    ? `<div style="margin-bottom:8px;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3,#7a8694);margin-bottom:2px;">${label}</div>`
+      + `<div style="font-size:12.5px;color:var(--ink,#1a2330);line-height:1.45;">${escapeHtml(txt)}</div></div>`
+    : '';
+  return `
+    <tr class="opinion-detail-row" id="op-${fund.isin}" style="display:none;">
+      <td colspan="13" style="background:var(--surface-2,#f4f7fa);padding:10px 16px;">
+        ${block('Opinión', fund.opinion)}
+        ${block('Encaje', fund.encaje_texto)}
+      </td>
+    </tr>
+  `;
+}
+
+// Abre/cierra la fila de opinión/encaje sin disparar la navegación de la fila.
+function toggleOpinion(event, isin) {
+  event.stopPropagation();
+  const row = document.getElementById('op-' + isin);
+  if (row) row.style.display = (row.style.display === 'none' ? 'table-row' : 'none');
 }
 
 // Fila desplegable con TODAS las clases del fondo (mismo análisis cualitativo;
@@ -1300,7 +1328,7 @@ function renderClassesDetail(fund) {
       </tr>`).join('');
   return `
     <tr class="classes-detail-row" id="cls-${fund.isin}" style="display:none;">
-      <td colspan="14" style="background:var(--surface-2,#f4f7fa);padding:8px 14px;">
+      <td colspan="13" style="background:var(--surface-2,#f4f7fa);padding:8px 14px;">
         <div style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">
           Clases de <strong>${escapeHtml(fund.nombre || fund.isin)}</strong> — mismo análisis cualitativo, cuantitativos por clase
         </div>
