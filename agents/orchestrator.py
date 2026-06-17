@@ -3111,7 +3111,17 @@ def main():
         # T3.6: env var lo lee consume_all_cowork_pipeline para aplicar feedback
         if args.apply_feedback:
             os.environ["FUND_APPLY_FEEDBACK"] = "1"
-        asyncio.run(consume_all_cowork_pipeline(args.isin, log_path))
+        _summary = asyncio.run(consume_all_cowork_pipeline(args.isin, log_path))
+        # Audit fix #1 (2026-06-17): propagar el fallo del analyst como CRÍTICO.
+        # Si la síntesis no se pudo integrar (la skill falló y no dejó cowork json),
+        # el run NO debe reportarse OK ni republicar datos viejos: exit 3 → el bat
+        # lo marca consume-all-cowork crítico → exit 10 (no publicable).
+        if isinstance(_summary, dict) and (_summary.get("analyst") or {}).get("error"):
+            err = _summary["analyst"]["error"]
+            print(f"[ORCHESTRATOR] [CRITICAL] analyst consume falló: {err}", file=sys.stderr)
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(f"[{_ts()}] [ORCHESTRATOR] [CRITICAL] analyst consume falló: {err}\n")
+            sys.exit(3)
     elif args.consume_cowork:
         log_path = ROOT / "progress.log"
         with open(log_path, "a", encoding="utf-8") as f:

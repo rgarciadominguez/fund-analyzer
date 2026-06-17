@@ -306,6 +306,11 @@ if defined SKIP_ANALYST (
     echo Genera analyst_synthesis_cowork.json con 8 secciones narrativas
     echo ^(output redirigido a logs\skill_analyst_%ISIN%.log^)
     echo.
+    REM Fallo silencioso (audit 2026-06-17): si NO borramos el cowork json viejo y
+    REM la skill falla al regenerar, el consume del paso 6 leeria la sintesis VIEJA
+    REM y se republicaria como si fuera fresca. Borrarlo antes -> una regeneracion
+    REM fallida deja sin fichero -> el consume falla -> el sync aborta -> se ve.
+    if exist "data\funds\%ISIN%\analyst_synthesis_cowork.json" del /Q "data\funds\%ISIN%\analyst_synthesis_cowork.json"
     call claude -p "analyst cowork %ISIN%" --model %MODEL_ANALYST% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_analyst_%ISIN%.log" 2>&1
     if errorlevel 1 (
         echo [WARN] Skill analyst-cowork fallo. Ver logs\skill_analyst_%ISIN%.log
@@ -353,11 +358,21 @@ REM ----------------------------------------------------------------------
 REM Paso 7: Sync a Supabase (Storage + tablas). NO bloquea el bat si falla.
 REM Requiere .env con SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY y bucket 'funds-data'.
 echo === Paso 7/7: Sync a Supabase ^(Storage + fund_groups + funds^) ===
-call python -m tools.sync_to_supabase %ISIN%
-if errorlevel 1 (
-    echo [WARN] Sync to Supabase fallo. El analisis local sigue OK; reintenta luego con:
-    echo   python -m tools.sync_to_supabase %ISIN%
-    set FAILED_STEPS=!FAILED_STEPS! sync-supabase
+REM Audit fix #1 (2026-06-17): NO sincronizar si consume-all-cowork fallo. Sin esto,
+REM output.json aun conserva la sintesis VIEJA de un run anterior y el sync la
+REM republicaria como si fuera fresca. Saltar el sync -> no se publican datos viejos.
+set DO_SYNC=1
+echo !FAILED_STEPS! | findstr /C:"consume-all-cowork" >nul && set DO_SYNC=
+if not defined DO_SYNC (
+    echo [SKIP] Sync OMITIDO: consume-all-cowork fallo -- no se publican datos viejos/parciales
+    set FAILED_STEPS=!FAILED_STEPS! sync-skipped
+) else (
+    call python -m tools.sync_to_supabase %ISIN%
+    if errorlevel 1 (
+        echo [WARN] Sync to Supabase fallo. El analisis local sigue OK; reintenta luego con:
+        echo   python -m tools.sync_to_supabase %ISIN%
+        set FAILED_STEPS=!FAILED_STEPS! sync-supabase
+    )
 )
 echo.
 
