@@ -1264,10 +1264,11 @@ function renderRow(fund) {
     ? `<span class="classes-chip" onclick="toggleClasses(event,'${fund.isin}')" title="Ver las ${nClases + 1} clases de este fondo" style="margin-left:6px;font-size:9px;background:var(--navy,#003A75);color:#fff;padding:1px 6px;border-radius:8px;white-space:nowrap;cursor:pointer;">+${nClases} ${nClases === 1 ? 'clase' : 'clases'} ▾</span>`
     : '';
 
-  // Toggle de opinión/encaje (sustituye a la columna Opinión): caret junto al nombre.
-  const hasOp = !!(fund.opinion || fund.encaje_texto);
-  const opChip = hasOp
-    ? `<span class="op-chip" onclick="toggleOpinion(event,'${fund.isin}')" title="Ver opinión y encaje" style="margin-left:6px;font-size:9px;color:var(--navy,#003A75);cursor:pointer;white-space:nowrap;">💬 opinión ▾</span>`
+  // Desplegable de opinión/encaje/características (sustituye a la columna Opinión).
+  const hasOp = !!(fund.opinion || fund.encaje_texto || (fund.caracteristicas_especiales || []).length
+                   || fund.categoria_rf || fund.plazo || fund.srri != null);
+  const opChip = (fund.opinion || fund.encaje_texto)
+    ? `<span class="op-chip" onclick="toggleOpinion(event,'${fund.isin}')" title="Ver opinión / encaje / características" style="margin-left:6px;font-size:9px;color:var(--navy,#003A75);cursor:pointer;white-space:nowrap;">💬 ▾</span>`
     : '';
 
   return `
@@ -1291,17 +1292,31 @@ function renderRow(fund) {
   `;
 }
 
-// Fila desplegable con Opinión + Encaje del fondo (sustituye a la columna Opinión).
+// Fila desplegable: Opinión + Encaje + Características del fondo (sustituye a la
+// columna Opinión). Se abre al pulsar la fila (el nombre abre el análisis).
 function renderOpinionDetail(fund) {
   const block = (label, txt) => txt
     ? `<div style="margin-bottom:8px;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3,#7a8694);margin-bottom:2px;">${label}</div>`
       + `<div style="font-size:12.5px;color:var(--ink,#1a2330);line-height:1.45;">${escapeHtml(txt)}</div></div>`
+    : '';
+  // Características: tags + categoría RF + plazo + SRRI
+  const tags = (fund.caracteristicas_especiales || []).map(t =>
+    `<span style="display:inline-block;font-size:10px;background:#e8ecf1;color:var(--navy,#003A75);padding:1px 7px;border-radius:8px;margin:0 4px 4px 0;">${escapeHtml(t)}</span>`).join('');
+  const extras = [
+    fund.categoria_rf ? `RF: ${escapeHtml(fund.categoria_rf)}` : '',
+    fund.plazo ? `Plazo: ${escapeHtml(fund.plazo)}` : '',
+    (fund.srri != null && fund.srri !== '') ? `SRRI ${fund.srri}/7` : '',
+  ].filter(Boolean).join(' · ');
+  const caracBlock = (tags || extras)
+    ? `<div style="margin-bottom:8px;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3,#7a8694);margin-bottom:3px;">Características</div>`
+      + `<div>${tags}</div>${extras ? `<div class="pr" style="font-size:11px;color:var(--ink-3);margin-top:2px;">${extras}</div>` : ''}</div>`
     : '';
   return `
     <tr class="opinion-detail-row" id="op-${fund.isin}" style="display:none;">
       <td colspan="13" style="background:var(--surface-2,#f4f7fa);padding:10px 16px;">
         ${block('Opinión', fund.opinion)}
         ${block('Encaje', fund.encaje_texto)}
+        ${caracBlock}
       </td>
     </tr>
   `;
@@ -1496,12 +1511,21 @@ function renderTable() {
 }
 
 function bindRowClicks() {
-  $$('tbody tr').forEach((tr) => {
+  // Pulsar en la FILA (excepto el nombre, que es <a> y abre el análisis) →
+  // despliega opinión/encaje/características + resumen de clases. NO navega.
+  $$('tbody tr[data-isin]').forEach((tr) => {
+    if (tr.classList.contains('opinion-detail-row') || tr.classList.contains('classes-detail-row')) return;
     tr.addEventListener('click', (e) => {
-      // Si es link o botón, no navegar al dashboard
-      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
-      const dest = tr.dataset.dashboard;
-      if (dest) window.open(dest, '_blank', 'noopener');
+      // El nombre del fondo (<a>) y los botones gestionan su propia acción.
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('a,button')) return;
+      const isin = tr.dataset.isin;
+      const op = document.getElementById('op-' + isin);
+      const cls = document.getElementById('cls-' + isin);
+      // Si alguno está oculto → abrir ambos; si ya están abiertos → cerrar ambos.
+      const anyHidden = (op && op.style.display === 'none') || (cls && cls.style.display === 'none');
+      const disp = anyHidden ? 'table-row' : 'none';
+      if (op) op.style.display = disp;
+      if (cls) cls.style.display = disp;
     });
   });
   // Botón "Analizar" en filas sin análisis — W8: intercepta si server OFF
@@ -1985,6 +2009,10 @@ function joinFundsWithGroups(funds, groups) {
       geografia: g.geografia || '',
       estilo: g.estilo || '',
       categoria_morningstar: g.categoria_morningstar || '',
+      categoria_rf: g.categoria_rf || '',
+      plazo: g.plazo || '',
+      srri: g.srri,
+      caracteristicas_especiales: g.caracteristicas_especiales || [],
       // Cuantitativos del fondo
       aum_meur: g.aum_meur,
       num_participes: g.num_participes,
