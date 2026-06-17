@@ -2818,10 +2818,10 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
             result = recover_name_if_needed(output_data_nr, isin, log_fn=log)
             summary["name_recovery"] = result
             if result.get("applied"):
-                output_path_nr.write_text(
-                    json.dumps(output_data_nr, ensure_ascii=False, indent=2),
-                    encoding="utf-8",
-                )
+                # Audit ALTO #11: escritura ATÓMICA (.tmp→replace) vía save_output;
+                # un write_text directo corrompe output.json si muere el proceso.
+                from tools.output_merger import save_output as _save_atomic
+                _save_atomic(isin, output_data_nr)
     except Exception as exc:
         log("NAME_RECOVERY", "ERROR", f"falló inesperadamente: {exc}")
         summary["name_recovery"] = {"applied": False, "error": str(exc)}
@@ -2875,7 +2875,8 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
                     me = od.setdefault("_manual_edits", [])
                     if "gestora" not in me:
                         me.append("gestora")
-                    output_path_gr.write_text(json.dumps(od, ensure_ascii=False, indent=2), encoding="utf-8")
+                    from tools.output_merger import save_output as _save_atomic
+                    _save_atomic(isin, od)  # ALTO #11: atómico
                     log("GESTORA_RECOVERY", "OK", f"gestora recuperada: {recovered!r}")
                     summary["gestora_recovery"] = {"applied": True, "gestora": recovered}
                 else:
@@ -2900,7 +2901,8 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
                     me = od.setdefault("_manual_edits", [])
                     if "kpis.aum_actual_meur" not in me:
                         me.append("kpis.aum_actual_meur")
-                    output_path_au.write_text(json.dumps(od, ensure_ascii=False, indent=2), encoding="utf-8")
+                    from tools.output_merger import save_output as _save_atomic
+                    _save_atomic(isin, od)  # ALTO #11: atómico
                     log("AUM_RECOVERY", "OK", f"AUM recuperado de narrativa: {h[0]} M€")
                     summary["aum_recovery"] = {"applied": True, "meur": h[0]}
     except Exception as exc:
