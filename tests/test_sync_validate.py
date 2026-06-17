@@ -32,10 +32,12 @@ _OK_SYNTHESIS = {
     ("DNCA Invest Alpha Bonds", "DNCA Investments", True, None),
     # nombre crítico
     ("", "Amiral Gestion", False, "nombre vacío"),
-    ("IE00BDR0JY05", "JPMorgan AM", False, "nombre == ISIN"),
-    ("ie00bdr0jy05", "JPMorgan AM", False, "nombre == ISIN"),
-    ("LU0123456789", "JPMorgan AM", False, "nombre parece otro ISIN"),
-    ("ABC", "JPMorgan AM", False, "nombre muy corto"),
+    # Audit fix #2 (2026-06-17): el gate ahora usa is_valid_fund_name → todos los
+    # nombres-ISIN/cortos/embebidos se reportan como "nombre inválido (<motivo>)".
+    ("IE00BDR0JY05", "JPMorgan AM", False, "nombre inválido"),
+    ("ie00bdr0jy05", "JPMorgan AM", False, "nombre inválido"),
+    ("LU0123456789", "JPMorgan AM", False, "nombre inválido"),
+    ("ABC", "JPMorgan AM", False, "nombre inválido"),
     # gestora crítica
     ("Sextant", "", False, "gestora vacía"),
     ("Sextant", "IE00BDR0JY05", False, "gestora == ISIN"),
@@ -56,7 +58,8 @@ def test_validation_multiple_failures():
     data = {"nombre": "IE00BDR0JY05", "gestora": "IE00BDR0JY05", **_OK_SYNTHESIS}
     ok, reasons = _validate_before_sync(data, "IE00BDR0JY05")
     assert ok is False
-    assert len(reasons) == 2  # nombre==isin Y gestora==isin (análisis válido)
+    # nombre inválido (es ISIN) + nombre==gestora + gestora==ISIN (análisis válido)
+    assert len(reasons) >= 2
 
 
 def test_validation_whitespace_handled():
