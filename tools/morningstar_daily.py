@@ -71,6 +71,7 @@ def compute_metrics(isin: str) -> dict:
 
     vol = _vol(mret)
     vol_3y = _vol(mret[-36:])
+    vol_5y = _vol(mret[-60:])
     # CAGR desde inicio
     t0, v0 = s[0]; t1, v1 = s[-1]
     años = (t1 - t0) / (1000 * 86400 * 365.25)
@@ -95,7 +96,7 @@ def compute_metrics(isin: str) -> dict:
         "n_puntos": len(s),
         "rentabilidades_anuales": dict(sorted(anuales.items())),
         "cagr_desde_inicio": cagr,
-        "volatilidad": vol, "volatilidad_3a": vol_3y,
+        "volatilidad": vol, "volatilidad_3a": vol_3y, "volatilidad_5a": vol_5y,
         "max_drawdown": round(mdd * 100, 2),
         "peor_anio": round(min(anuales.values()), 2) if anuales else None,
         "mejor_anio": round(max(anuales.values()), 2) if anuales else None,

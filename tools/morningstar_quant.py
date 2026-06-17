@@ -145,6 +145,31 @@ def fetch_category(isin: str) -> dict:
     return out
 
 
+def fetch_rating(isin: str) -> dict:
+    """Rating Morningstar ligero (1 call): {estrellas 1-5, medalist Gold/Silver/Bronze}."""
+    isin = (isin or "").upper().strip()
+    if not _ISIN.match(isin):
+        return {}
+    dp = "%7C".join(["Name", "StarRatingM255", "Medalist_RatingNumber"])
+    url = (f"{_SCR}?page=1&pageSize=1&outputType=json&version=1"
+           f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
+    try:
+        r = httpx.get(url, headers=_UA, timeout=15, follow_redirects=True)
+        r.raise_for_status()
+        rows = r.json().get("rows") or []
+    except Exception:
+        return {}
+    if not rows:
+        return {}
+    med = rows[0].get("Medalist_RatingNumber")
+    out = {}
+    if rows[0].get("StarRatingM255") is not None:
+        out["estrellas"] = rows[0]["StarRatingM255"]
+    if med is not None:
+        out["medalist"] = _MEDALIST.get(med)
+    return out
+
+
 def fetch_nav(secid: str, start: str, end: str, freq: str = "monthly") -> list:
     """Serie NAV [[epoch_ms, valor], ...] del SecId (para gráfico/captura)."""
     if not secid:

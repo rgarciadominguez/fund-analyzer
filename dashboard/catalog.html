@@ -1002,8 +1002,11 @@
         <th class="sortable" data-sort="tipo_activo">Tipo activo</th>
         <th class="sortable" data-sort="geografia">Geografía</th>
         <th class="sortable" data-sort="estilo">Estilo</th>
+        <th class="sortable numeric" data-sort="años_antiguedad" title="Años activo (clase más antigua)">Años</th>
         <th class="sortable numeric" data-sort="aum_meur">AUM (M€)</th>
         <th class="sortable numeric" data-sort="ter_pct">TER %</th>
+        <th class="sortable" data-sort="distribucion" title="Acumulación / Reparto">Dist.</th>
+        <th class="sortable numeric" data-sort="rentab_5a" title="Rentabilidad anual / volatilidad — rolling 5 años (Morningstar daily)">5A R/V</th>
         <th>Brokers</th>
         <th class="sortable" data-sort="ultima_actualizacion" title="Fecha último análisis cualitativo">Última act.</th>
         <th class="sortable" data-sort="has_qualitative_analysis">Análisis</th>
@@ -1268,17 +1271,42 @@ function renderRow(fund) {
   const opChip = (fund.opinion || fund.encaje_texto)
     ? `<span class="op-chip" onclick="toggleOpinion(event,'${fund.isin}')" title="Ver opinión / encaje / características" style="margin-left:6px;font-size:9px;color:var(--navy,#003A75);cursor:pointer;white-space:nowrap;">💬 ▾</span>`
     : '';
+  // Rating Morningstar DEBAJO del nombre: estrellas + medalist
+  const ratingBelow = (() => {
+    const st = fund.ms_estrellas, med = fund.ms_medalist;
+    if (st == null && !med) return '';
+    const stars = (typeof st === 'number') ? '★'.repeat(st) + '☆'.repeat(5 - st) : '';
+    const medColor = { 'Gold': '#c8a23c', 'Silver': '#9aa6b4', 'Bronze': '#b08050' }[med] || 'var(--ink-3)';
+    return `<div style="margin-top:2px;font-size:10px;white-space:nowrap;">`
+      + (stars ? `<span style="color:#c8a23c;letter-spacing:1px;">${stars}</span>` : '')
+      + (med ? `<span style="color:${medColor};font-weight:700;margin-left:5px;">${escapeHtml(med)}</span>` : '')
+      + `</div>`;
+  })();
+  // Distribución compacta
+  const distCell = fund.distribucion === 'Acumulación' ? 'Acum.'
+    : (fund.distribucion === 'Reparto' ? 'Reparto' : '—');
+  // Rentab/Vol rolling 5A en una celda: "12.3% / 15.0%"
+  const c5a = (() => {
+    const r = fund.rentab_5a, v = fund.vol_5a;
+    if (r == null && v == null) return '—';
+    const rs = (typeof r === 'number') ? `<strong style="color:${r >= 0 ? 'var(--pos,#2e7d32)' : 'var(--neg,#c0392b)'};">${r.toFixed(1)}%</strong>` : '—';
+    const vs = (typeof v === 'number') ? `<span style="color:var(--ink-3);">${v.toFixed(1)}%</span>` : '—';
+    return `${rs} <span style="color:var(--ink-4);">/</span> ${vs}`;
+  })();
 
   return `
     <tr data-isin="${fund.isin}" ${dashboardLink ? `data-dashboard="${dashboardLink}"` : ''}>
       <td>${badgeClasificacion(fund)}</td>
       <td class="isin">${escapeHtml(fund.isin)}${chip ? '<br>' + chip : ''}</td>
-      <td class="nombre">${nombreCell}${opChip}</td>
+      <td class="nombre">${nombreCell}${opChip}${ratingBelow}</td>
       <td>${escapeHtml(fund.tipo_activo || '—')}</td>
       <td>${escapeHtml(fund.geografia || '—')}</td>
       <td>${escapeHtml(fund.estilo || '—')}</td>
+      <td class="numeric">${fund.años_antiguedad != null ? fund.años_antiguedad : '—'}</td>
       <td class="numeric">${fmtAum(fund.aum_meur)}</td>
       <td class="numeric">${fmtTer(fund.ter_pct)}</td>
+      <td>${distCell}</td>
+      <td class="numeric" style="font-size:11px;white-space:nowrap;">${c5a}</td>
       <td class="brokers-cell">${renderBrokerChips(fund.broker_disponible)}</td>
       <td class="fecha-cell">${fechaCell}</td>
       <td>${badgeAnalisis(fund)}</td>
@@ -1309,7 +1337,7 @@ function renderOpinionDetail(fund) {
     : '';
   return `
     <tr class="opinion-detail-row" id="op-${fund.isin}" style="display:none;">
-      <td colspan="11" style="background:var(--surface-2,#f4f7fa);padding:10px 16px;">
+      <td colspan="14" style="background:var(--surface-2,#f4f7fa);padding:10px 16px;">
         ${fund.gestora ? block('Gestora', fund.gestora) : ''}
         ${block('Opinión', fund.opinion)}
         ${block('Encaje', fund.encaje_texto)}
@@ -1340,7 +1368,7 @@ function renderClassesDetail(fund) {
       </tr>`).join('');
   return `
     <tr class="classes-detail-row" id="cls-${fund.isin}" style="display:none;">
-      <td colspan="11" style="background:var(--surface-2,#f4f7fa);padding:8px 14px;">
+      <td colspan="14" style="background:var(--surface-2,#f4f7fa);padding:8px 14px;">
         <div style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">
           Clases de <strong>${escapeHtml(fund.nombre || fund.isin)}</strong> — mismo análisis cualitativo, cuantitativos por clase
         </div>
@@ -2014,10 +2042,18 @@ function joinFundsWithGroups(funds, groups) {
       aum_meur: g.aum_meur,
       num_participes: g.num_participes,
       años_antiguedad: g.años_antiguedad,
+      // Rating Morningstar (screener; fallback al de MyInvestor) — debajo del nombre
+      ms_estrellas: ((g.portfolio_metrics_jsonb || {}).morningstar || {}).estrellas
+                    ?? ((g.portfolio_metrics_jsonb || {}).myinvestor || {}).mstar_rating ?? null,
+      ms_medalist: ((g.portfolio_metrics_jsonb || {}).morningstar || {}).medalist || '',
+      // Rentab/Vol rolling 5A (serie diaria Morningstar)
+      rentab_5a: (g.rendimiento_jsonb || {}).rentab_5a ?? null,
+      vol_5a: (g.rendimiento_jsonb || {}).volatilidad_5a ?? null,
       // Clase
       clase_comercial: f.clase_comercial || '',
       divisa: f.divisa || '',
       divisa_hedge_bool: f.divisa_hedge_bool || false,
+      distribucion: f.distribucion || '',
       ter_pct: f.ter_pct,
       comision_gestion_pct: f.comision_gestion_pct,
       anio_inicio_clase: f.fecha_creacion_clase ? String(f.fecha_creacion_clase).slice(0, 4) : '',
