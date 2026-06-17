@@ -2997,6 +2997,16 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
     except Exception as exc:
         log("DASHBOARD", "ERROR", f"falló: {exc}")
 
+    # Auto-agrupado de clases (2026-06-17, regla Rafa): en cuanto el análisis
+    # identifica este ISIN como el MISMO fondo que otro ya analizado (otra clase),
+    # AGRUPARLOS SIEMPRE — aunque ninguno esté aún en Supabase. Fuente de verdad =
+    # registro local class_links; propagación a Supabase best-effort.
+    try:
+        from tools.auto_group_classes import auto_group
+        summary["auto_group"] = auto_group(isin, log=log)
+    except Exception as exc:
+        log("AUTO_GROUP", "WARN", f"auto_group_classes falló: {exc}")
+
     # T3.8 (2026-05-28): verificar qué items del feedback quedaron resolved
     # tras todo el pipeline (post-name_recovery + post-validation + post-meta
     # + post-dashboard regen). Mark resolved_items en human_feedback.json.
