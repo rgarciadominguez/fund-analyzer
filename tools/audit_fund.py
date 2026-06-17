@@ -183,24 +183,41 @@ def _anchors(d):
 
 
 def chk_cross_fund(isin, d, checks):
-    anchors = _anchors(d)
-    if not anchors:
-        return checks.append(("CONTAMINACIÓN", "cartas/gestores", WARN, "sin anchors de nombre/gestora"))
-    # cartas
+    # Mismo detector que el guard del pipeline (tools.cross_fund) → auditoría y
+    # guard coinciden: caza contaminación por fondos YA analizados (hermanos de
+    # paraguas). La externa la maneja el prompt del analyst-cowork.
     letters = (_load_json(FUNDS_DIR / isin / "letters_data.json") or {})
-    cartas = letters.get("cartas") or letters.get("analisis_completos") or []
-    sosp = []
-    for c in cartas if isinstance(cartas, list) else []:
-        txt = json.dumps(c, ensure_ascii=False).lower()
-        if c.get("extracted_error"):
-            continue
-        if not any(a in txt for a in anchors):
-            sosp.append(c.get("periodo") or c.get("fecha") or c.get("titulo") or "?")
-    if sosp:
-        checks.append(("CONTAMINACIÓN", "cartas mencionan el fondo", WARN,
-                       f"{len(sosp)} carta(s) sin mención del fondo/gestora: {sosp[:4]}"))
-    else:
-        checks.append(("CONTAMINACIÓN", "cartas", OK, f"{len(cartas) if isinstance(cartas,list) else 0} cartas coherentes"))
+    cartas = letters.get("cartas") or letters.get("analisis") or []
+    if not isinstance(cartas, list) or not cartas:
+        return checks.append(("CONTAMINACIÓN", "cartas", OK, "sin cartas"))
+    try:
+        from tools.cross_fund import classify, load_known_fund_names, _carta_text
+        name = (d.get("nombre") or "").split(",")[0].strip()
+        known = load_known_fund_names(exclude_isin=isin)
+        hard, soft, ya = 0, 0, 0
+        for c in cartas:
+            if not isinstance(c, dict):
+                continue
+            if c.get("extracted_error"):
+                ya += 1
+                continue
+            lv, info = classify(_carta_text(c), name, isin, known,
+                                f"{c.get('url') or ''} {c.get('titulo') or ''}")
+            if lv == "hard":
+                hard += 1
+            elif lv == "soft":
+                soft += 1
+        if hard:
+            checks.append(("CONTAMINACIÓN", "cartas sin contaminar", FAIL,
+                           f"{hard} carta(s) de OTRO fondo no excluidas (corre el guard)"))
+        elif soft:
+            checks.append(("CONTAMINACIÓN", "cartas (revisar)", WARN,
+                           f"{soft} carta(s) sospechosas de otro fondo"))
+        else:
+            checks.append(("CONTAMINACIÓN", "cartas", OK,
+                           f"{len(cartas)} cartas coherentes ({ya} ya excluidas)"))
+    except Exception as e:
+        checks.append(("CONTAMINACIÓN", "cartas", WARN, f"no evaluable: {str(e)[:50]}"))
 
 
 def _load_json(p: Path):

@@ -2788,6 +2788,16 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
         log("CONSUME_LETTERS", "ERROR", f"falló: {exc}")
         summary["letters_extract"] = {"error": str(exc)}
 
+    # 3b. Audit ALTO #4 (2026-06-17): red anti-contaminación cross-fund en CARTAS.
+    # Antes solo existía en readings; una carta de OTRO fondo llegaba al analyst sin
+    # filtro. Marca extracted_error las cartas que hablan más de otro fondo conocido
+    # (conservador) ANTES de que el analyst-cowork las sintetice.
+    try:
+        from tools.cross_fund import flag_contaminated_letters
+        summary["contam_guard"] = flag_contaminated_letters(isin, log=log)
+    except Exception as exc:
+        log("CONTAM_GUARD", "WARN", f"flag_contaminated_letters falló: {exc}")
+
     # 4. Consume analyst-cowork (existing)
     try:
         summary["analyst"] = _consume_cowork_analyst(isin, fund_dir, log)
