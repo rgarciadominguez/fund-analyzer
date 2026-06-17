@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RENTA 4 MULTIGESTION, FI — Informe Analítico</title>
+<title>Numantia Patrimonio Global FI — Informe Analítico</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -164,10 +178,10 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="lh-top">
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
-      <div class="lh-fund">RENTA 4 MULTIGESTION, FI <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
+      <div class="lh-fund">Numantia Patrimonio Global FI <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
       <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>RENTA 4 GESTORA, S.G.I.I.C., S.A.</strong></div>
       <div class="lh-meta-line">Depositario: <strong>RENTA 4 BANCO, S.A.</strong></div>
-      <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0173311103</strong></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0173311103</strong> <span style='opacity:.55;font-size:10.5px;'>· Renta 4 Multigestión Numantia Patrimonio Global FI</span></div>
     </div>
 
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
@@ -218,13 +232,13 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr">El fondo BASURA NOMBRE FALSO TEST (ES0173311103), gestionado por BASURA GESTORA FALSA TEST, fue registrado el <strong>5 de septiembre de 2014</strong>. Aunque se clasifica como "Renta Fija Internacional" y presenta un perfil de riesgo <strong>2</strong>, su historial de rentabilidad y la estrategia descrita sugieren una vocación inversora significativamente más flexible y orientada a la renta variable. Actualmente, gestiona un patrimonio de <strong>5,875 M€</strong> distribuido entre <strong>72 partícipes</strong>.</p><p class="pr">Desde su registro en 2014, el fondo ha generado una rentabilidad acumulada del <strong>156,16%</strong>, llevando su valor liquidativo base 100 a <strong>256,16</strong> a finales de 2025, lo que se traduce en una Tasa de Crecimiento Anual Compuesto (CAGR) del <strong>8,05%</strong>. Esta evolución se ha producido con una volatilidad registrada del <strong>3,2%</strong>. No se dispone de información sobre su posición específica dentro de la categoría ni de un rating Morningstar.</p><p class="pr">La composición actual de la cartera no está detallada en términos de porcentajes exactos de renta variable, renta fija o liquidez, ni el número de posiciones. Sin embargo, la estrategia y los comentarios de la gestora apuntan a una exposición significativa a la renta variable global, con temáticas centradas en el sector tecnológico, la Inteligencia Artificial (IA), SaaS, banca, utilities y defensa. Geográficamente, la cartera mantiene una exposición diversificada entre <strong>EE.UU. y Europa</strong>, incluyendo mercados como el español (Ibex 35), británico (FTSE) y alemán (DAX).</p><p class="pr">El patrimonio gestionado se sitúa en <strong>5,875 M€</strong>, pero no se dispone de datos históricos para evaluar su crecimiento desde el inicio. En cuanto a la base de inversores, el fondo ha experimentado una ligera disminución, pasando de <strong>74 a 72 partícipes</strong>, lo que sugiere una estabilidad limitada o una cautela por parte de los inversores en el último periodo.</p>
+    <p class="pr">El fondo Numantia Patrimonio Global FI (ES0173311103), gestionado por Renta 4 Gestora, fue registrado el <strong>5 de septiembre de 2014</strong>. Aunque se clasifica como "Renta Fija Internacional" y presenta un perfil de riesgo <strong>2</strong>, su historial de rentabilidad y la estrategia descrita sugieren una vocación inversora significativamente más flexible y orientada a la renta variable. Actualmente, gestiona un patrimonio de <strong>5,875 M€</strong> distribuido entre <strong>72 partícipes</strong>.</p><p class="pr">Desde su registro en 2014, el fondo ha generado una rentabilidad acumulada del <strong>156,16%</strong>, llevando su valor liquidativo base 100 a <strong>256,16</strong> a finales de 2025, lo que se traduce en una Tasa de Crecimiento Anual Compuesto (CAGR) del <strong>8,05%</strong>. Esta evolución se ha producido con una volatilidad registrada del <strong>3,2%</strong>. No se dispone de información sobre su posición específica dentro de la categoría ni de un rating Morningstar.</p><p class="pr">La composición actual de la cartera no está detallada en términos de porcentajes exactos de renta variable, renta fija o liquidez, ni el número de posiciones. Sin embargo, la estrategia y los comentarios de la gestora apuntan a una exposición significativa a la renta variable global, con temáticas centradas en el sector tecnológico, la Inteligencia Artificial (IA), SaaS, banca, utilities y defensa. Geográficamente, la cartera mantiene una exposición diversificada entre <strong>EE.UU. y Europa</strong>, incluyendo mercados como el español (Ibex 35), británico (FTSE) y alemán (DAX).</p><p class="pr">El patrimonio gestionado se sitúa en <strong>5,875 M€</strong>, pero no se dispone de datos históricos para evaluar su crecimiento desde el inicio. En cuanto a la base de inversores, el fondo ha experimentado una ligera disminución, pasando de <strong>74 a 72 partícipes</strong>, lo que sugiere una estabilidad limitada o una cautela por parte de los inversores en el último periodo.</p>
   </div>
 
   <div class="col2 mb20">
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
-      <p class="pr">El fondo BASURA NOMBRE FALSO TEST, clasificado como <strong>Renta Fija Internacional</strong> con un perfil de riesgo <strong>2</strong>, basa su filosofía en la preservación de capital y la búsqueda de rentabilidad a través de una rigurosa selección de activos de <strong>calidad</strong>. Su enfoque combina un análisis <strong>bottom-up</strong> para identificar valores intrínsecamente sólidos con una perspectiva macroeconómica prudente. A pesar de su clasificación principal, la gestora ha mostrado un interés estratégico en el sector tecnológico, particularmente en modelos <strong>SaaS</strong> y <strong>Cloud Technology</strong>, buscando oportunidades de crecimiento en estas áreas.
+      <p class="pr">El fondo Numantia Patrimonio Global FI, clasificado como <strong>Renta Fija Internacional</strong> con un perfil de riesgo <strong>2</strong>, basa su filosofía en la preservación de capital y la búsqueda de rentabilidad a través de una rigurosa selección de activos de <strong>calidad</strong>. Su enfoque combina un análisis <strong>bottom-up</strong> para identificar valores intrínsecamente sólidos con una perspectiva macroeconómica prudente. A pesar de su clasificación principal, la gestora ha mostrado un interés estratégico en el sector tecnológico, particularmente en modelos <strong>SaaS</strong> y <strong>Cloud Technology</strong>, buscando oportunidades de crecimiento en estas áreas.
 
 La estrategia de inversión se distingue por una <strong>rotación de cartera extremadamente baja</strong>, registrando un <strong>0.0%</strong> en los últimos periodos, lo que indica un horizonte temporal de inversión a medio y largo plazo para sus posiciones principales. Esta estabilidad se complementa con la reinversión de vencimientos en activos de mayor calidad. El fondo ha demostrado capacidad de adaptación, modificando su vocación inversora en <strong>2012</strong> para incluir instrumentos financieros derivados, permitiendo una gestión más dinámica sin comprometer su principio de prudencia y calidad.</p>
     </div>
@@ -266,6 +280,8 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores con una tolerancia al riesgo moderada-alta que buscan una exposición a renta variable global con un enfoque en temáticas de crecimiento como tecnología e IA. Se recomienda un horizonte de inversión a medio-largo plazo. No es adecuado para inversores que busquen renta fija pura o que necesiten liquidez inmediata, dada la volatilidad inherente a las estrategias de renta variable.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Por lo tanto, no es posible evaluar el alineamiento de intereses a través de este mecanismo.</p></div></div>
 
+  
+
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 1,35%)</option><option value="P">P (cerrada)</option><option value="R">R (cerrada)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
@@ -276,7 +292,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Septiembre 2014 — presente</span></div>
 
   <div class="mb24">
-    <p class="pr">El fondo BASURA NOMBRE FALSO TEST (ES0173311103), gestionado por BASURA GESTORA FALSA TEST, tiene una historia que se remonta a su creación original en <strong>1999</strong>, aunque su configuración actual como compartimento de un fondo paraguas se formalizó significativamente más tarde. Durante sus primeros años como fondo de inversión independiente, la entidad mostró un comportamiento de patrimonio relativamente estable, comenzando el periodo de datos disponibles en <strong>2009</strong> con un patrimonio bajo gestión (AUM) de <strong>2.716 M€</strong> y <strong>101 partícipes</strong>. En esta fase inicial, el fondo experimentó un crecimiento orgánico moderado, alcanzando un AUM de <strong>3.146 M€</strong> en <strong>2012</strong> con <strong>107 partícipes</strong> en <strong>2011</strong>. Fue precisamente en <strong>2012</strong> cuando se produjo una modificación relevante en su vocación inversora y política de inversión, incorporando la operativa con instrumentos financieros derivados tanto en mercados organizados como no organizados, lo que marcó una primera evolución estratégica hacia una gestión potencialmente más activa y con un perfil de riesgo distinto, además de adecuarse al rating del Reino de España. Este periodo inicial, aunque con cambios operativos, sentó las bases para la posterior evolución del vehículo.</p><p class="pr">El año <strong>2014</strong> representó un punto de inflexión crítico y una transformación fundamental para el fondo. En este ejercicio, se produjo un evento de alto impacto con la <strong>pérdida total de valor de las acciones de Banco Espírito Santo</strong>, lo que afectó directamente al valor liquidativo del fondo. Simultáneamente, y de manera estructural, el fondo se transformó, pasando de ser un Fondo de Inversión (FI) independiente a convertirse en un compartimento integrado dentro del fondo paraguas RENTA 4 MULTIGESTION, FI. Esta reestructuración organizativa, junto con el impacto del evento de Banco Espírito Santo, se reflejó en una significativa contracción del patrimonio, que pasó de <strong>2.99 M€</strong> en <strong>2013</strong> a <strong>1.891 M€</strong> en <strong>2014</strong>. Esta fase marcó el inicio de la entidad tal como la conocemos hoy, operando bajo una estructura de compartimentos que, si bien ofrece flexibilidad, también puede implicar una mayor interdependencia con las decisiones y el rendimiento del fondo paraguas en su conjunto.</p><p class="pr">Los años siguientes, entre <strong>2015</strong> y <strong>2021</strong>, se caracterizaron por una notable volatilidad en el patrimonio y una serie de ajustes tanto internos como externos. Tras la transformación, el AUM continuó su descenso hasta los <strong>1.154 M€</strong> en <strong>2015</strong> y <strong>1.081 M€</strong> en <strong>2016</strong>, a pesar de un ligero aumento en el número de partícipes, que alcanzó los <strong>113</strong> en <strong>2016</strong>. En <strong>2018</strong>, el patrimonio tocó un mínimo de <strong>0.61 M€</strong>, coincidiendo con la disolución de otro compartimento dentro del fondo paraguas, lo que podría indicar una reevaluación de la oferta de productos de la gestora. Sin embargo, <strong>2019</strong> sorprendió con un <strong>espectacular repunte del AUM hasta los 3.903 M€</strong>, lo que representó un incremento de más del <strong>540%</strong> respecto al año anterior. Curiosamente, este crecimiento patrimonial masivo se produjo a la par de una drástica reducción en el número de partícipes, que cayeron de <strong>115</strong> a <strong>23</strong>, sugiriendo la entrada de uno o muy pocos inversores institucionales o de gran patrimonio. Esta tendencia de alta concentración se revirtió bruscamente en <strong>2020</strong>, cuando el AUM volvió a desplomarse hasta los <strong>0.675 M€</strong>, una caída de más del <strong>82%</strong>, aunque el número de partícipes se mantuvo relativamente estable en <strong>26</strong>. La estrategia de inversión, aunque no detallada anualmente, parece haber mantenido su enfoque en derivados y una gestión activa, adaptándose a los entornos de mercado volátiles, como se desprende de los informes anuales de la gestora que mencionan la situación macroeconómica y bursátil.</p><p class="pr">En el periodo más reciente, desde <strong>2022</strong> hasta las proyecciones para <strong>2025</strong>, el fondo ha experimentado una fase de recuperación y crecimiento sostenido del patrimonio. En <strong>2022</strong>, el AUM se disparó nuevamente hasta los <strong>5.985 M€</strong>, lo que representa un incremento de más del <strong>650%</strong> respecto al año anterior, consolidando una tendencia de atracción de capital significativa. Aunque los datos de partícipes para <strong>2022</strong> no están disponibles, en <strong>2023</strong> el fondo gestionaba <strong>5.405 M€</strong> con <strong>97 partícipes</strong>. Las proyecciones para <strong>2025</strong> sitúan el AUM en <strong>5.875 M€</strong>, con un número de partícipes que se estima en <strong>72</strong>. Esta evolución reciente sugiere una mayor estabilidad en la captación de capital, aunque el número de partícipes ha disminuido ligeramente en los últimos años, lo que podría indicar una base inversora más concentrada. Un hecho relevante a considerar para <strong>2025</strong> es la proyección de un <strong>endeudamiento de la IIC con obligaciones a terceros superior al 5%</strong>, lo que podría introducir un nuevo elemento de riesgo o una estrategia de apalancamiento en la gestión del compartimento.</p><p class="pr">En resumen, la historia de BASURA NOMBRE FALSO TEST es la de un vehículo que ha transitado desde su concepción inicial en <strong>1999</strong> como un fondo de inversión independiente, a través de una transformación crucial en <strong>2014</strong> para integrarse como compartimento en un fondo paraguas, y ha navegado por periodos de extrema volatilidad patrimonial, con entradas y salidas masivas de capital que han configurado una base de partícipes fluctuante y, en ocasiones, altamente concentrada. La estrategia, que incorporó el uso de derivados en <strong>2012</strong>, ha demostrado una capacidad para atraer grandes volúmenes de capital en ciertos momentos, aunque también ha sido susceptible a desinversiones significativas. Actualmente, el fondo se proyecta con un AUM de <strong>5.875 M€</strong> y <strong>72 partícipes</strong> para <strong>2025</strong>, enfrentando el potencial de un mayor endeudamiento. No obstante, para una evaluación completa de su posición actual, sería necesario disponer de datos sobre su <strong>rating</strong> y su <strong>posición relativa dentro de su categoría de inversión</strong>, información que no ha sido proporcionada en los datos disponibles.</p>
+    <p class="pr">El fondo Numantia Patrimonio Global FI (ES0173311103), gestionado por Renta 4 Gestora, tiene una historia que se remonta a su creación original en <strong>1999</strong>, aunque su configuración actual como compartimento de un fondo paraguas se formalizó significativamente más tarde. Durante sus primeros años como fondo de inversión independiente, la entidad mostró un comportamiento de patrimonio relativamente estable, comenzando el periodo de datos disponibles en <strong>2009</strong> con un patrimonio bajo gestión (AUM) de <strong>2.716 M€</strong> y <strong>101 partícipes</strong>. En esta fase inicial, el fondo experimentó un crecimiento orgánico moderado, alcanzando un AUM de <strong>3.146 M€</strong> en <strong>2012</strong> con <strong>107 partícipes</strong> en <strong>2011</strong>. Fue precisamente en <strong>2012</strong> cuando se produjo una modificación relevante en su vocación inversora y política de inversión, incorporando la operativa con instrumentos financieros derivados tanto en mercados organizados como no organizados, lo que marcó una primera evolución estratégica hacia una gestión potencialmente más activa y con un perfil de riesgo distinto, además de adecuarse al rating del Reino de España. Este periodo inicial, aunque con cambios operativos, sentó las bases para la posterior evolución del vehículo.</p><p class="pr">El año <strong>2014</strong> representó un punto de inflexión crítico y una transformación fundamental para el fondo. En este ejercicio, se produjo un evento de alto impacto con la <strong>pérdida total de valor de las acciones de Banco Espírito Santo</strong>, lo que afectó directamente al valor liquidativo del fondo. Simultáneamente, y de manera estructural, el fondo se transformó, pasando de ser un Fondo de Inversión (FI) independiente a convertirse en un compartimento integrado dentro del fondo paraguas RENTA 4 MULTIGESTION, FI. Esta reestructuración organizativa, junto con el impacto del evento de Banco Espírito Santo, se reflejó en una significativa contracción del patrimonio, que pasó de <strong>2.99 M€</strong> en <strong>2013</strong> a <strong>1.891 M€</strong> en <strong>2014</strong>. Esta fase marcó el inicio de la entidad tal como la conocemos hoy, operando bajo una estructura de compartimentos que, si bien ofrece flexibilidad, también puede implicar una mayor interdependencia con las decisiones y el rendimiento del fondo paraguas en su conjunto.</p><p class="pr">Los años siguientes, entre <strong>2015</strong> y <strong>2021</strong>, se caracterizaron por una notable volatilidad en el patrimonio y una serie de ajustes tanto internos como externos. Tras la transformación, el AUM continuó su descenso hasta los <strong>1.154 M€</strong> en <strong>2015</strong> y <strong>1.081 M€</strong> en <strong>2016</strong>, a pesar de un ligero aumento en el número de partícipes, que alcanzó los <strong>113</strong> en <strong>2016</strong>. En <strong>2018</strong>, el patrimonio tocó un mínimo de <strong>0.61 M€</strong>, coincidiendo con la disolución de otro compartimento dentro del fondo paraguas, lo que podría indicar una reevaluación de la oferta de productos de la gestora. Sin embargo, <strong>2019</strong> sorprendió con un <strong>espectacular repunte del AUM hasta los 3.903 M€</strong>, lo que representó un incremento de más del <strong>540%</strong> respecto al año anterior. Curiosamente, este crecimiento patrimonial masivo se produjo a la par de una drástica reducción en el número de partícipes, que cayeron de <strong>115</strong> a <strong>23</strong>, sugiriendo la entrada de uno o muy pocos inversores institucionales o de gran patrimonio. Esta tendencia de alta concentración se revirtió bruscamente en <strong>2020</strong>, cuando el AUM volvió a desplomarse hasta los <strong>0.675 M€</strong>, una caída de más del <strong>82%</strong>, aunque el número de partícipes se mantuvo relativamente estable en <strong>26</strong>. La estrategia de inversión, aunque no detallada anualmente, parece haber mantenido su enfoque en derivados y una gestión activa, adaptándose a los entornos de mercado volátiles, como se desprende de los informes anuales de la gestora que mencionan la situación macroeconómica y bursátil.</p><p class="pr">En el periodo más reciente, desde <strong>2022</strong> hasta las proyecciones para <strong>2025</strong>, el fondo ha experimentado una fase de recuperación y crecimiento sostenido del patrimonio. En <strong>2022</strong>, el AUM se disparó nuevamente hasta los <strong>5.985 M€</strong>, lo que representa un incremento de más del <strong>650%</strong> respecto al año anterior, consolidando una tendencia de atracción de capital significativa. Aunque los datos de partícipes para <strong>2022</strong> no están disponibles, en <strong>2023</strong> el fondo gestionaba <strong>5.405 M€</strong> con <strong>97 partícipes</strong>. Las proyecciones para <strong>2025</strong> sitúan el AUM en <strong>5.875 M€</strong>, con un número de partícipes que se estima en <strong>72</strong>. Esta evolución reciente sugiere una mayor estabilidad en la captación de capital, aunque el número de partícipes ha disminuido ligeramente en los últimos años, lo que podría indicar una base inversora más concentrada. Un hecho relevante a considerar para <strong>2025</strong> es la proyección de un <strong>endeudamiento de la IIC con obligaciones a terceros superior al 5%</strong>, lo que podría introducir un nuevo elemento de riesgo o una estrategia de apalancamiento en la gestión del compartimento.</p><p class="pr">En resumen, la historia de Numantia Patrimonio Global FI es la de un vehículo que ha transitado desde su concepción inicial en <strong>1999</strong> como un fondo de inversión independiente, a través de una transformación crucial en <strong>2014</strong> para integrarse como compartimento en un fondo paraguas, y ha navegado por periodos de extrema volatilidad patrimonial, con entradas y salidas masivas de capital que han configurado una base de partícipes fluctuante y, en ocasiones, altamente concentrada. La estrategia, que incorporó el uso de derivados en <strong>2012</strong>, ha demostrado una capacidad para atraer grandes volúmenes de capital en ciertos momentos, aunque también ha sido susceptible a desinversiones significativas. Actualmente, el fondo se proyecta con un AUM de <strong>5.875 M€</strong> y <strong>72 partícipes</strong> para <strong>2025</strong>, enfrentando el potencial de un mayor endeudamiento. No obstante, para una evaluación completa de su posición actual, sería necesario disponer de datos sobre su <strong>rating</strong> y su <strong>posición relativa dentro de su categoría de inversión</strong>, información que no ha sido proporcionada en los datos disponibles.</p>
   </div>
 
   <div class="kpi-row">
@@ -413,7 +429,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  <div class="mb24"><p class="pr">El fondo BASURA NOMBRE FALSO TEST opera bajo el paraguas de Renta 4 Gestora, una entidad con una trayectoria consolidada desde <strong>1989</strong> y que gestiona un patrimonio superior a los <strong>1.200 millones de euros</strong> a través de 36 fondos de inversión y 57 SICAVs. Esta estructura institucional proporciona un marco de experiencia y recursos significativos, beneficiándose de la independencia y los más de <strong>40 años de experiencia</strong> del Grupo Renta 4 en el sector financiero.</p><p class="pr">No obstante, la información disponible no detalla la composición específica del equipo gestor asignado directamente al fondo BASURA NOMBRE FALSO TEST. No se identifican el número de personas, quién lidera la estrategia de inversión, ni los roles clave dentro de este equipo particular. Esta ausencia de datos impide evaluar la estabilidad del equipo, la existencia de cambios recientes, o la complementariedad de perfiles que sustenten una filosofía de inversión compartida para este producto concreto.</p><p class="pr">Por tanto, no es posible determinar las fortalezas intrínsecas del equipo gestor de este fondo ni identificar riesgos específicos, como una potencial dependencia de una persona clave. Para una evaluación completa, sería fundamental disponer de información detallada sobre los profesionales directamente responsables de la toma de decisiones de inversión del fondo, incluyendo su experiencia individual y la cohesión de su enfoque.</p><p class="subsec">Informe Ejecutivo para el Comité de Inversión: Análisis del Fondo BASURA NOMBRE FALSO TEST (ES0173311103)</p></div>
+  <div class="mb24"><p class="pr">El fondo Numantia Patrimonio Global FI opera bajo el paraguas de Renta 4 Gestora, una entidad con una trayectoria consolidada desde <strong>1989</strong> y que gestiona un patrimonio superior a los <strong>1.200 millones de euros</strong> a través de 36 fondos de inversión y 57 SICAVs. Esta estructura institucional proporciona un marco de experiencia y recursos significativos, beneficiándose de la independencia y los más de <strong>40 años de experiencia</strong> del Grupo Renta 4 en el sector financiero.</p><p class="pr">No obstante, la información disponible no detalla la composición específica del equipo gestor asignado directamente al fondo Numantia Patrimonio Global FI. No se identifican el número de personas, quién lidera la estrategia de inversión, ni los roles clave dentro de este equipo particular. Esta ausencia de datos impide evaluar la estabilidad del equipo, la existencia de cambios recientes, o la complementariedad de perfiles que sustenten una filosofía de inversión compartida para este producto concreto.</p><p class="pr">Por tanto, no es posible determinar las fortalezas intrínsecas del equipo gestor de este fondo ni identificar riesgos específicos, como una potencial dependencia de una persona clave. Para una evaluación completa, sería fundamental disponer de información detallada sobre los profesionales directamente responsables de la toma de decisiones de inversión del fondo, incluyendo su experiencia individual y la cohesión de su enfoque.</p></div>
 
   
     <div class="mgr">
@@ -490,10 +506,10 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">El fondo BASURA NOMBRE FALSO TEST (ES0173311103), gestionado por BASURA GESTORA FALSA TEST, opera bajo una filosofía de inversión que, si bien no se articula explícitamente con un estilo definido como *value* o *growth* en la documentación disponible, se infiere como una aproximación <strong>macro-driven y flexible</strong>. Su universo elegible parece ser global, con menciones recurrentes a índices como el <strong>MSCI World</strong>, <strong>S&P</strong>, <strong>Nasdaq</strong>, <strong>Eurostoxx 50</strong>, <strong>Dax</strong> e <strong>Ibex 35</strong>, lo que sugiere una exposición diversificada geográficamente en renta variable. La gestora enfatiza en sus informes periódicos la "Visión de la gestora sobre la situación de los mercados", centrándose en indicadores macroeconómicos, políticas de bancos centrales y eventos geopolíticos, lo que posiciona su proceso de inversión como uno que prioriza la asignación de activos táctica en función de las perspectivas económicas globales. El horizonte temporal no se especifica, pero la naturaleza de un fondo de inversión de estas características suele implicar un enfoque de medio a largo plazo, aunque con una clara capacidad de adaptación a ciclos de mercado más cortos.</p><p class="pr">Lo que distingue a este fondo de muchos de sus competidores es su <strong>marcada agilidad táctica</strong> en la asignación de activos, que va más allá de los ajustes marginales. La gestora no parece depender de un *edge* informacional propietario, sino de una interpretación activa de las tendencias macroeconómicas globales, lo que se refleja en sus comentarios sobre la inflación, los tipos de interés y las políticas monetarias. Un rasgo distintivo y crucial es el uso de <strong>derivados para apalancamiento</strong>, evidenciado por exposiciones a renta variable que superan el 100%, como el <strong>103.21% de RV registrado en 2018</strong>. Esta capacidad de tomar posiciones apalancadas no es común en todos los fondos y confiere al gestor una herramienta adicional para amplificar retornos (o pérdidas), lo que implica una mayor tolerancia al riesgo que la de un fondo puramente direccional sin apalancamiento.</p><p class="pr">La evolución del enfoque del fondo ha sido notablemente dinámica desde su inicio. Tras un periodo inicial con una exposición equilibrada entre renta variable y renta fija (aproximadamente <strong>65-68% RV y 25-34% RF entre 2009 y 2011</strong>), la gestora realizó un ajuste drástico en respuesta a las turbulencias del mercado. El año <strong>2011 fue "uno de los años más duros y difíciles de gestionar"</strong>, con el fondo obteniendo una rentabilidad del <strong>6.29%</strong> frente a un <strong>13.1% del Ibex 35</strong> y un <strong>17.1% del Euro Stoxx 50</strong>, lo que pudo haber impulsado una reevaluación. A partir de <strong>2012</strong>, y en un contexto de "perspectivas negativas en Europa", la asignación de activos viró hacia una postura defensiva, reduciendo la renta variable a <strong>26.84%</strong> y aumentando la renta fija hasta el <strong>68.54%</strong>. Esta tendencia se mantuvo hasta <strong>2015</strong>, cuando la RV llegó a un mínimo del <strong>14.58%</strong> y la RF al <strong>36.33%</strong>, coincidiendo con el anuncio del QE de Draghi. Posteriormente, el enfoque cambió radicalmente hacia una <strong>exposición casi total a renta variable</strong>, superando el <strong>94% a partir de 2017</strong> y manteniéndose en niveles cercanos al <strong>98-99% hasta 2025</strong>, lo que demuestra una adaptación explícita a los ciclos de mercado y las políticas monetarias.</p><p class="pr">La coherencia entre el discurso de la gestora y sus acciones ha sido, en general, alta en términos de su <strong>flexibilidad táctica y su enfoque macroeconómico</strong>. Los informes anuales reflejan una constante preocupación por el entorno global (inflación, tipos, geopolítica), y las rotaciones de cartera y asignaciones de activos se alinean con estas visiones. Por ejemplo, la reducción drástica de la exposición a renta variable a <strong>14.58% en 2015</strong> y el aumento de la renta fija a <strong>60.32% en 2013</strong> se corresponde con un periodo de incertidumbre en Europa. Sin embargo, la posterior y sostenida exposición a renta variable cercana al <strong>100% (99.57% en 2022, 98.24% en 2025)</strong>, incluso en años de "retornos negativos en renta variable global y renta fija" como <strong>2022</strong>, sugiere una fuerte convicción en la recuperación o en la capacidad de selección de valores, o bien una tolerancia al riesgo elevada que podría no ser explícitamente comunicada en su totalidad. La utilización de apalancamiento, como el <strong>103.21% de RV en 2018</strong>, es una acción concreta que subraya esta tolerancia al riesgo, aunque el discurso no siempre enfatice el nivel de volatilidad inherente a tales estrategias.</p><p class="pr">Analizando tres momentos clave de decisión, el primero se sitúa en el periodo <strong>2011-2012</strong>. Tras un <strong>2011 "duro y difícil"</strong> donde el fondo subestimó a los índices de referencia, la gestora adoptó una tesis defensiva ante las "perspectivas negativas en Europa" en <strong>2012</strong>. La acción fue una drástica reducción de la exposición a renta variable del <strong>68.98% en 2011</strong> al <strong>26.84% en 2012</strong>, incrementando la renta fija al <strong>68.54%</strong>. Este movimiento, aunque pudo haber limitado el *upside* en una eventual recuperación, probablemente protegió el capital en un entorno de alta incertidumbre. Un segundo momento crucial fue la <strong>re-risking a partir de 2015</strong>, tras el anuncio del QE de Draghi. La tesis era que el estímulo monetario impulsaría los mercados de renta variable. La acción fue un rápido incremento de la RV desde el <strong>14.58% en 2015</strong> hasta el <strong>94.2% en 2017</strong>, lo que permitió al fondo capitalizar un año "positivo para la renta variable" donde el <strong>MSCI mundial se revalorizó un 21.6%</strong>. Finalmente, el tercer momento relevante es la decisión de mantener una exposición apalancada a renta variable del <strong>103.21% en 2018</strong>, a pesar de que la gestora reconocía que fue "un año negativo para el ahorro" y que "pocos activos se han revalorizado". Esta acción, en un contexto adverso, sugiere una fuerte convicción en posiciones específicas o una estrategia de *market timing* agresiva, aunque sin datos de rentabilidad específicos para ese año, es difícil cuantificar el resultado directo de esta decisión.</p><p class="pr">La evolución del mix de activos del fondo ha sido un reflejo directo de la visión macroeconómica de la gestora y su disposición a realizar cambios significativos. Desde una asignación inicial más equilibrada con un <strong>65.23% en RV y 34.39% en RF en 2009</strong>, el fondo experimentó una rotación defensiva hacia la renta fija, alcanzando un <strong>68.54% en RF en 2012</strong> y un mínimo de <strong>14.58% en RV en 2015</strong>, en un periodo marcado por la crisis de deuda europea y la cautela. Esta decisión se alinea con la tesis de la gestora de que las perspectivas eran "negativas en Europa". Posteriormente, con el inicio de políticas monetarias expansivas como el QE, el fondo realizó un giro agresivo hacia la renta variable, alcanzando un <strong>94.2% en RV en 2017</strong> y manteniéndose en niveles cercanos al <strong>98-99% hasta 2025</strong>, con la renta fija prácticamente desaparecida. Esta rotación demuestra una gestión altamente activa y táctica, que busca posicionar el fondo para capitalizar los ciclos de mercado, y el uso de derivados para apalancamiento (como el <strong>103.21% de RV en 2018</strong>) es una herramienta clave en esta estrategia.</p><p class="pr">En cuanto al patrón de aciertos y errores, la gestora ha demostrado una capacidad notable para realizar <strong>giros tácticos significativos</strong> que han coincidido con cambios importantes en el ciclo económico. La desinversión en renta variable durante el periodo de incertidumbre europea (2012-2015) y la posterior reinversión masiva en renta variable a partir de 2017, coincidiendo con un mercado alcista, sugieren una habilidad para identificar y actuar sobre las grandes tendencias macro. Sin embargo, el fondo también ha mostrado sesgos o decisiones cuestionables, como la <strong>subestimación del mercado en 2011</strong> (rentabilidad del <strong>6.29%</strong> frente a índices superiores) y la decisión de mantener una posición apalancada del <strong>103.21% en RV en 2018</strong>, un año que la propia gestora calificó de "negativo para el ahorro". La <strong>rotación de cartera ha sido históricamente muy alta</strong> en algunos años (<strong>350% en 2013, 660% en 2016, 553% en 2018</strong>), lo que podría implicar costes de transacción elevados y una gestión muy activa, aunque los datos recientes muestran una <strong>rotación del 0% en 2021, 2024 y 2025</strong>, lo cual es una anomalía que requiere mayor investigación para entender si es un cambio de estrategia o una limitación en los datos reportados.</p><p class="pr">En conclusión, el fondo BASURA NOMBRE FALSO TEST es apropiado para <strong>inversores con una alta tolerancia al riesgo</strong> que buscan una gestión activa y discrecional, basada en una interpretación macroeconómica del mercado. Este perfil de inversor debe estar cómodo con <strong>cambios drásticos en la asignación de activos</strong> y con el potencial uso de <strong>apalancamiento</strong>. En ciclos alcistas, el fondo tiene el potencial de **capturar un *upside* significativo<strong>, gracias a su alta exposición a renta variable y su capacidad táctica. Sin embargo, en ciclos bajistas, la misma estrategia, especialmente el uso de apalancamiento y la actual alta concentración en renta variable (cercana al </strong>98%<strong>), podría llevar a </strong>pérdidas amplificadas**. Las principales *red flags* incluyen la falta de una filosofía de inversión explícita y detallada más allá de la visión macro, la <strong>extrema volatilidad en la estrategia de asignación de activos</strong> a lo largo de su historia, y la <strong>inconsistencia en los niveles de rotación de cartera</strong> reportados en los últimos años, que contrastan con su naturaleza táctica y requieren una clarificación por parte de la gestora.</p>
+    <p class="pr">La estrategia del fondo ha consistido en una gestión activa adaptándose a los diferentes ciclos de mercado, desde la recuperación post-crisis hasta entornos de alta volatilidad y políticas monetarias expansivas. Se ha buscado capitalizar las oportunidades generadas por los estímulos económicos y la recuperación global, gestionando el riesgo en periodos de incertidumbre.</p>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2019 ha sido un año positivo para el ahorro, con muy buen comportamiento y retornos en prácticamente todos los activos.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2019</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El ejercicio 2022 cierra con retornos negativos en renta variable global y renta fija, deteniendo el progreso observado en los activos de riesgo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2022</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El ejercicio 2023 ha cerrado con subidas significativas en renta variable global (MSCI World +21,8% en US...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2023</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2019 ha sido un año positivo para el ahorro, con muy buen comportamiento y retornos en prácticamente todos los activos.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2019</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El ejercicio 2022 cierra con retornos negativos en renta variable global y renta fija, deteniendo el progreso observado en los activos de riesgo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2022</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El ejercicio 2023 ha cerrado con subidas significativas en renta variable global (MSCI World +21,8% en US...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora, Informe periódico 2023</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -566,13 +582,16 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2016</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">660%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2017</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:5%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">35%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2018</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:84%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">553%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2019</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:3%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">22%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:10%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">63%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:7%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">44%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:3%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">13%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 199%/año · baja rotación = enfoque a largo plazo.</div></div></div></div>
+
   <div class="sr">Todas las posiciones (28)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="Brookfield Corp">Brookfield Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:59px;background:#0c2340;"></div>7,4%</div></td>
@@ -581,6 +600,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Georgia Capital PLC">Georgia Capital PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:57px;background:#0c2340;"></div>7,1%</div></td>
@@ -589,6 +609,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Tesla Inc">Tesla Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:53px;background:#0c2340;"></div>6,7%</div></td>
@@ -597,6 +618,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="FRP Holdings Inc">FRP Holdings Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:51px;background:#0c2340;"></div>6,4%</div></td>
@@ -605,6 +627,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Secure Waste Infrastructure Co">Secure Waste Infrastructure Co</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:43px;background:#0c2340;"></div>5,4%</div></td>
@@ -613,6 +636,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="St Joe Co/The">St Joe Co/The</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,5%</div></td>
@@ -621,6 +645,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="AMAZON.COM INC">AMAZON.COM INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
@@ -629,6 +654,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="CAMDEN PROPERTY TRUST">Camden Property Trust</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,1%</div></td>
@@ -637,6 +663,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="GXO Logistics Inc">GXO Logistics Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>4,0%</div></td>
@@ -645,6 +672,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="AST SpaceMobile Inc">AST SpaceMobile Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>4,0%</div></td>
@@ -653,6 +681,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="FAIRFAX FINL HLDGS LTD">Fairfax Finl Hldgs Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
@@ -661,6 +690,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Carlisle Cos Inc">Carlisle Cos Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
@@ -669,6 +699,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Watches of Switzerland Group P">Watches of Switzerland Group P</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,5%</div></td>
@@ -677,6 +708,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Facebook Inc">Facebook Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,2%</div></td>
@@ -685,6 +717,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Canadian Natural Resources Ltd">Canadian Natural Resources Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
@@ -693,6 +726,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Red Rock Resorts Inc">Red Rock Resorts Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
@@ -701,6 +735,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Veris Residential Inc">Veris Residential Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
@@ -709,6 +744,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="API Group Corp">API Group Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
@@ -717,6 +753,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="CANADIAN NATL RAILWAY">Canadian Natl Railway</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -725,6 +762,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Canadian Pacific Kansas City L">Canadian Pacific Kansas City L</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,6%</div></td>
@@ -733,6 +771,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Sky Harbour Group Corp">Sky Harbour Group Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
@@ -741,6 +780,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="EUROFINS SCIENTIFIC SE">Eurofins Scientific Se</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
@@ -749,6 +789,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Chubb Ltd">Chubb Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
@@ -757,6 +798,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Amrize Ltd">Amrize Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -765,6 +807,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="Apollo Global Management Inc">Apollo Global Management Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -773,6 +816,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="ZOETIS INC">ZOETIS INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -781,6 +825,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="INTERNATIONAL PETROLEUM">International Petroleum</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -789,6 +834,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 </tr><tr>
   <td title="MERCADOLIBRE INC">Mercadolibre Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -957,7 +1003,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
     <div class="chat-header">
       <h1>Chat con los documentos del fondo</h1>
       <p>Asistente que responde basandose UNICAMENTE en los documentos analizados de
-         RENTA 4 MULTIGESTION, FI (ES0173311103): informes CNMV, cartas del gestor, lecturas externas y perfiles
+         Numantia Patrimonio Global FI (ES0173311103): informes CNMV, cartas del gestor, lecturas externas y perfiles
          de gestores. No consulta fuentes externas ni inventa datos.</p>
       <div class="chat-status">
         <div class="dot" id="chatDot"></div>
@@ -986,7 +1032,11 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0173311103';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -1003,16 +1053,21 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0173311103';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -1051,7 +1106,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0173311103', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -1064,33 +1119,21 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -1103,9 +1146,9 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -1219,7 +1262,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 
 <div id="fb-modal-bg" class="fb-modal-bg">
   <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
-    <h2 id="fb-modal-title">📝 Mejorar análisis: RENTA 4 MULTIGESTION, FI</h2>
+    <h2 id="fb-modal-title">📝 Mejorar análisis: Numantia Patrimonio Global FI</h2>
     <div class="fb-sub">ISIN: <code>ES0173311103</code> · RENTA 4 GESTORA, S.G.I.I.C., S.A.</div>
 
     <label for="fb-text">¿Qué hay que mejorar?</label>
@@ -1253,7 +1296,7 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
 <script>
 (function() {
   const ISIN = 'ES0173311103';
-  const FUND_NAME = 'RENTA 4 MULTIGESTION, FI';
+  const FUND_NAME = 'Numantia Patrimonio Global FI';
   const GESTORA = 'RENTA 4 GESTORA, S.G.I.I.C., S.A.';
   // API_BASE: localStorage o relativo. Igual que catalog.html.
   let API_BASE = localStorage.getItem('fa_api_base') || '';
@@ -1442,16 +1485,54 @@ La estrategia de inversión se distingue por una <strong>rotación de cartera ex
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
