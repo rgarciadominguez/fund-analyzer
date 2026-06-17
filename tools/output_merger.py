@@ -116,6 +116,13 @@ def load_output(isin: str) -> dict:
 def save_output(isin: str, output: dict, atomic: bool = True) -> None:
     """Guarda output.json con write atómico (.tmp → rename)."""
     isin = isin.strip().upper()
+    # Garantiza kpis.anio_creacion desde la fecha de inicio del análisis (fallo
+    # común: venía la fecha pero no se calculaba el KPI). Idempotente.
+    try:
+        from tools.anios_antiguedad import ensure_anio_creacion
+        ensure_anio_creacion(output)
+    except Exception:
+        pass
     fd = ROOT / "data" / "funds" / isin
     fd.mkdir(parents=True, exist_ok=True)
     out_path = fd / "output.json"

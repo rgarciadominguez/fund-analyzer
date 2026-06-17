@@ -47,6 +47,22 @@ def extract_start_year(data: dict, rendimiento: dict | None = None) -> int | Non
     return None
 
 
+def ensure_anio_creacion(data: dict) -> bool:
+    """Rellena kpis.anio_creacion desde la fecha de inicio disponible si falta.
+    Devuelve True si lo modificó. Idempotente — no pisa un valor ya presente."""
+    if not isinstance(data, dict):
+        return False
+    kpis = data.setdefault("kpis", {})
+    if kpis.get("anio_creacion") and _year(kpis.get("anio_creacion")):
+        return False
+    globals()["_THIS_YEAR"] = datetime.now(timezone.utc).year
+    sy = extract_start_year(data)
+    if sy:
+        kpis["anio_creacion"] = sy
+        return True
+    return False
+
+
 def fill_anios(client, isin: str, output_data: dict | None = None, log=None) -> int | None:
     """Rellena fund_groups.años_antiguedad (+ fecha_creacion_fondo si falta) si está
     vacío y hay año de inicio. Devuelve los años calculados o None."""
