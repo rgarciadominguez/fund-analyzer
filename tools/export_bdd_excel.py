@@ -52,7 +52,11 @@ def main():
         ("Mejor año %", lambda f, g: (g.get("rendimiento_jsonb") or {}).get("mejor_anio")),
         ("Rent. 3A anual %", lambda f, g: (g.get("rendimiento_jsonb") or {}).get("rentab_3a")),
         ("Rent. 5A anual %", lambda f, g: (g.get("rendimiento_jsonb") or {}).get("rentab_5a")),
+        ("% RV", lambda f, g: (((g.get("portfolio_metrics_jsonb") or {}).get("myinvestor") or {}).get("asset_allocation") or {}).get("equity")),
+        ("% RF", lambda f, g: (((g.get("portfolio_metrics_jsonb") or {}).get("myinvestor") or {}).get("asset_allocation") or {}).get("bond")),
+        ("% Liquidez", lambda f, g: (((g.get("portfolio_metrics_jsonb") or {}).get("myinvestor") or {}).get("asset_allocation") or {}).get("cash")),
         ("Análisis", lambda f, g: "Sí" if f.get("has_qualitative_analysis") else "No"),
+        ("Disp. MyInvestor", lambda f, g: "Sí" if "MyInvestor" in (f.get("broker_disponible") or []) else "No"),
         ("Brokers", lambda f, g: ", ".join(f.get("broker_disponible") or [])),
         ("fund_group_id", lambda f, g: f.get("fund_group_id")),
     ]

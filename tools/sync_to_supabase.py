@@ -466,6 +466,14 @@ def sync_fund(
     except Exception as _e:
         log(f"[SYNC] populate_fund_classes falló (no crítico): {str(_e)[:80]}")
 
+    # Taxonomía derivada (tipo/geo/categoria_rf/srri/tags) de Morningstar+MyInvestor
+    # para fondos nuevos — rellena SOLO campos vacíos (no pisa lo curado del Excel).
+    try:
+        from tools.derive_taxonomy import derive_and_fill
+        derive_and_fill(client, isin, log=log)
+    except Exception as _e:
+        log(f"[SYNC] derive_taxonomy falló (no crítico): {str(_e)[:80]}")
+
     # Quant desde la serie diaria de Morningstar (consistente con fund-dashboard).
     try:
         from tools.morningstar_daily import compute_metrics as _ms_daily
