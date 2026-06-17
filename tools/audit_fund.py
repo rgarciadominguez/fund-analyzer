@@ -113,6 +113,21 @@ def chk_quality(isin, d, checks):
         checks.append(("ANÁLISIS", "calidad", WARN, f"no evaluable: {str(e)[:60]}"))
 
 
+def chk_grounding(isin, d, checks):
+    """Gestores del análisis que NO aparecen en ninguna fuente cruda (posible
+    invención). WARN (no bloquea: algunos son reales pero sin fuente capturada)."""
+    try:
+        from tools.grounding import ungrounded_gestores
+        ung = ungrounded_gestores(isin, d)
+        if ung:
+            checks.append(("ANÁLISIS", "gestores con fuente", WARN,
+                           f"{len(ung)} gestor(es) sin aparecer en fuentes crudas: {ung}"))
+        else:
+            checks.append(("ANÁLISIS", "gestores grounded", OK, "todos en fuentes"))
+    except Exception as e:
+        checks.append(("ANÁLISIS", "grounding gestores", WARN, f"no evaluable: {str(e)[:50]}"))
+
+
 def chk_drift(isin, d, checks):
     try:
         from tools.output_accessor import detect_drift
@@ -293,6 +308,7 @@ def audit_fund(isin: str) -> dict:
     chk_placeholder(isin, d, checks)
     chk_analyst_present(isin, d, checks)
     chk_quality(isin, d, checks)
+    chk_grounding(isin, d, checks)
     chk_drift(isin, d, checks)
     chk_aum(isin, d, checks)
     chk_antiguedad(isin, d, checks)
