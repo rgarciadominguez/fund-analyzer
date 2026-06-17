@@ -141,6 +141,29 @@ def _validate_before_sync(output_data: dict, isin: str) -> tuple[bool, list[str]
     for b in quality["blockers"]:
         reasons.append(f"análisis: {b}")
 
+    # Audit ALTO #5 (2026-06-17): drift de IDENTIDAD (nombre/gestora/isin incoherente
+    # entre top-level y analyst_synthesis) ahora BLOQUEA. Antes detect_drift solo se
+    # registraba en meta_report.json y se publicaba igual.
+    try:
+        from tools.output_accessor import detect_drift
+        for dr in (detect_drift(output_data) or []):
+            if isinstance(dr, dict) and dr.get("field") in ("nombre", "gestora", "isin"):
+                reasons.append(
+                    f"drift de identidad en {dr['field']}: top={dr.get('top_level')!r} "
+                    f"vs analyst={dr.get('analyst_synthesis')!r}")
+    except Exception:
+        pass
+
+    # Audit ALTO #9 (2026-06-17): AUM por error de unidades (€/M€) o suma del paraguas.
+    # Cota conservadora: >€500.000M es físicamente imposible para un fondo del catálogo
+    # (un cap a €50B bloquearía índices iShares legítimos → eso es WARN en audit_fund).
+    aum = (output_data.get("kpis") or {}).get("aum_actual_meur")
+    try:
+        if aum is not None and float(aum) > 500000:
+            reasons.append(f"AUM imposible ({aum} M€ > €500.000M): error de unidades o paraguas")
+    except (TypeError, ValueError):
+        pass
+
     return (len(reasons) == 0, reasons)
 
 

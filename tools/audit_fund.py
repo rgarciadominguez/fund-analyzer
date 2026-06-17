@@ -135,9 +135,12 @@ def chk_aum(isin, d, checks):
     aum = (d.get("kpis") or {}).get("aum_actual_meur")
     if aum is None:
         checks.append(("CUANTITATIVO", "AUM presente", WARN, "AUM None (puede ser legítimo)"))
+    elif isinstance(aum, (int, float)) and aum > 500000:
+        checks.append(("CUANTITATIVO", "AUM imposible", FAIL,
+                       f"{aum} M€ > €500.000M → error de unidades/paraguas"))
     elif isinstance(aum, (int, float)) and aum > 50000:
-        checks.append(("CUANTITATIVO", "AUM razonable", FAIL,
-                       f"{aum} M€ > 50.000 → probable AUM de paraguas, no del sub-fondo"))
+        checks.append(("CUANTITATIVO", "AUM (revisar)", WARN,
+                       f"{aum} M€ > €50.000M → revisar si es del sub-fondo o del paraguas"))
     else:
         checks.append(("CUANTITATIVO", "AUM ok", OK, f"{aum} M€"))
 
