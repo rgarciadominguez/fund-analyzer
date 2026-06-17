@@ -193,7 +193,57 @@ def _upload_file_to_storage(client, bucket: str, dest_path: str, local_path: Pat
         return None
 
 
+SYNC_STATUS_PATH = Path(__file__).resolve().parent.parent / "data" / "sync_status.json"
+
+
+def _record_sync_status(isin: str, status: str, reasons: list | None = None) -> None:
+    """Persiste el último resultado del sync por ISIN (audit trail local).
+
+    Permite responder 'qué fondos analizados NO están publicados y por qué' sin
+    depender de leer la consola del run. Best-effort (no rompe el sync si falla)."""
+    try:
+        from datetime import datetime, timezone
+        data = {}
+        if SYNC_STATUS_PATH.exists():
+            try:
+                data = json.loads(SYNC_STATUS_PATH.read_text(encoding="utf-8")) or {}
+            except Exception:
+                data = {}
+        data[(isin or "").upper()] = {
+            "status": status,
+            "reasons": reasons or [],
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
+        SYNC_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp = SYNC_STATUS_PATH.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.replace(SYNC_STATUS_PATH)
+    except Exception:
+        pass
+
+
 def sync_fund(
+    isin: str,
+    dry_run: bool = False,
+    verbose: bool = True,
+    force: bool = False,
+) -> dict:
+    """Wrapper de _sync_fund_impl que PERSISTE el estado del sync (ok/aborted/error)
+    en data/sync_status.json. Así `tools/audit_sync.py` puede listar en cualquier
+    momento los fondos analizados que NO llegaron al catálogo y por qué."""
+    try:
+        res = _sync_fund_impl(isin, dry_run=dry_run, verbose=verbose, force=force)
+    except Exception as e:
+        if not dry_run:
+            _record_sync_status(isin, "error", [str(e)[:200]])
+        raise
+    if not dry_run:
+        _record_sync_status(isin, "aborted" if res.get("aborted") else "ok",
+                            res.get("reasons") or [])
+    return res
+
+
+def _sync_fund_impl(
     isin: str,
     dry_run: bool = False,
     verbose: bool = True,
