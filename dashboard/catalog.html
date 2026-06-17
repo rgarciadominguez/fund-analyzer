@@ -999,16 +999,14 @@
         <th class="sortable" data-sort="clasificacion_user">Clasif.</th>
         <th class="sortable" data-sort="isin">ISIN</th>
         <th class="sortable" data-sort="nombre">Nombre del fondo</th>
-        <th class="sortable" data-sort="gestora">Gestora</th>
         <th class="sortable" data-sort="tipo_activo">Tipo activo</th>
         <th class="sortable" data-sort="geografia">Geografía</th>
         <th class="sortable" data-sort="estilo">Estilo</th>
         <th class="sortable numeric" data-sort="aum_meur">AUM (M€)</th>
         <th class="sortable numeric" data-sort="ter_pct">TER %</th>
         <th>Brokers</th>
-        <th class="sortable" data-sort="has_qualitative_analysis">Análisis</th>
-        <th class="sortable numeric" data-sort="completitud_pct">Compl.</th>
         <th class="sortable" data-sort="ultima_actualizacion" title="Fecha último análisis cualitativo">Última act.</th>
+        <th class="sortable" data-sort="has_qualitative_analysis">Análisis</th>
       </tr>
     </thead>
     <tbody id="catalog-body"></tbody>
@@ -1261,11 +1259,11 @@ function renderRow(fund) {
 
   const nClases = fund._classes ? fund._classes.length : 0;
   const chip = nClases
-    ? `<span class="classes-chip" onclick="toggleClasses(event,'${fund.isin}')" title="Ver las ${nClases + 1} clases de este fondo" style="margin-left:6px;font-size:9px;background:var(--navy,#003A75);color:#fff;padding:1px 6px;border-radius:8px;white-space:nowrap;cursor:pointer;">+${nClases} ${nClases === 1 ? 'clase' : 'clases'} ▾</span>`
+    ? `<span class="classes-chip" onclick="toggleClasses(event,'${fund.isin}')" title="Ver las ${nClases + 1} clases de este fondo" style="display:inline-block;margin-top:3px;font-size:9px;background:var(--navy,#003A75);color:#fff;padding:1px 6px;border-radius:8px;white-space:nowrap;cursor:pointer;">+${nClases} ${nClases === 1 ? 'clase' : 'clases'} ▾</span>`
     : '';
 
   // Desplegable de opinión/encaje/características (sustituye a la columna Opinión).
-  const hasOp = !!(fund.opinion || fund.encaje_texto || (fund.caracteristicas_especiales || []).length
+  const hasOp = !!(fund.gestora || fund.opinion || fund.encaje_texto || (fund.caracteristicas_especiales || []).length
                    || fund.categoria_rf || fund.plazo || fund.srri != null);
   const opChip = (fund.opinion || fund.encaje_texto)
     ? `<span class="op-chip" onclick="toggleOpinion(event,'${fund.isin}')" title="Ver opinión / encaje / características" style="margin-left:6px;font-size:9px;color:var(--navy,#003A75);cursor:pointer;white-space:nowrap;">💬 ▾</span>`
@@ -1274,18 +1272,16 @@ function renderRow(fund) {
   return `
     <tr data-isin="${fund.isin}" ${dashboardLink ? `data-dashboard="${dashboardLink}"` : ''}>
       <td>${badgeClasificacion(fund)}</td>
-      <td class="isin">${escapeHtml(fund.isin)}${chip}</td>
+      <td class="isin">${escapeHtml(fund.isin)}${chip ? '<br>' + chip : ''}</td>
       <td class="nombre">${nombreCell}${opChip}</td>
-      <td class="gestora">${escapeHtml(fund.gestora || '—')}</td>
       <td>${escapeHtml(fund.tipo_activo || '—')}</td>
       <td>${escapeHtml(fund.geografia || '—')}</td>
       <td>${escapeHtml(fund.estilo || '—')}</td>
       <td class="numeric">${fmtAum(fund.aum_meur)}</td>
       <td class="numeric">${fmtTer(fund.ter_pct)}</td>
       <td class="brokers-cell">${renderBrokerChips(fund.broker_disponible)}</td>
-      <td>${badgeAnalisis(fund)}</td>
-      <td class="numeric">${fund.has_qualitative_analysis ? completitudBar(fund.completitud_pct) : '<span style="color:var(--ink-3);font-size:10px;">—</span>'}</td>
       <td class="fecha-cell">${fechaCell}</td>
+      <td>${badgeAnalisis(fund)}</td>
     </tr>
     ${hasOp ? renderOpinionDetail(fund) : ''}
     ${nClases ? renderClassesDetail(fund) : ''}
@@ -1313,7 +1309,8 @@ function renderOpinionDetail(fund) {
     : '';
   return `
     <tr class="opinion-detail-row" id="op-${fund.isin}" style="display:none;">
-      <td colspan="13" style="background:var(--surface-2,#f4f7fa);padding:10px 16px;">
+      <td colspan="11" style="background:var(--surface-2,#f4f7fa);padding:10px 16px;">
+        ${fund.gestora ? block('Gestora', fund.gestora) : ''}
         ${block('Opinión', fund.opinion)}
         ${block('Encaje', fund.encaje_texto)}
         ${caracBlock}
@@ -1343,7 +1340,7 @@ function renderClassesDetail(fund) {
       </tr>`).join('');
   return `
     <tr class="classes-detail-row" id="cls-${fund.isin}" style="display:none;">
-      <td colspan="13" style="background:var(--surface-2,#f4f7fa);padding:8px 14px;">
+      <td colspan="11" style="background:var(--surface-2,#f4f7fa);padding:8px 14px;">
         <div style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">
           Clases de <strong>${escapeHtml(fund.nombre || fund.isin)}</strong> — mismo análisis cualitativo, cuantitativos por clase
         </div>
