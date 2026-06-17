@@ -358,7 +358,8 @@ def make_app(cold_start: bool = True) -> Flask:
             return jsonify({"ok": False, "error": str(e)}), 500
 
     def _start_analysis_for_isin(
-        isin: str, force_cold: bool, apply_feedback: bool = False
+        isin: str, force_cold: bool, apply_feedback: bool = False,
+        relaunch: bool = False,
     ) -> tuple[dict, int]:
         """Helper compartido por /api/analyze (single) y el worker de la cola.
 
@@ -410,7 +411,11 @@ def make_app(cold_start: bool = True) -> Flask:
         #   skip los pasos cuyos outputs ya existen. Requiere fund_dir presente
         #   con al menos cnmv_data.json o intl_data.json (sino bat aborta exit 3).
         bat_argv = [str(bat_path), isin]
-        if not force_cold:
+        if relaunch:
+            # Relaunch (corte a mitad, server vivo): re-ejecuta TODO el LLM desde
+            # cero conservando descargas. No es --resume (que reusaría salidas LLM).
+            bat_argv.append("--relaunch")
+        elif not force_cold:
             bat_argv.append("--resume")
             # T3.5: añadir --apply-feedback si el caller lo pidió
             if apply_feedback:
@@ -891,10 +896,37 @@ def make_app(cold_start: bool = True) -> Flask:
                 traceback.print_exc()
             time.sleep(WATCHDOG_INTERVAL_S)
 
+    MAX_AUTO_RELAUNCH = 2  # auto-relanzamientos antes de dejarlo manual (anti-bucle)
+
+    def _requeue_for_relaunch(it):
+        """Re-encola un fondo interrumpido para RELANZARLO automáticamente. Solo lo
+        llama el WATCHDOG (server vivo = corte pequeño → auto). El arranque del server
+        tras una caída (corte grande) NO lo llama → queda manual. El relaunch reusa
+        descargas y re-ejecuta el LLM desde cero. Límite anti-bucle: MAX_AUTO_RELAUNCH."""
+        global QUEUE_WORKER
+        rc = int(it.get("relaunch_count", 0))
+        isin = it.get("isin", "")
+        if rc >= MAX_AUTO_RELAUNCH:
+            print(f"[WATCHDOG] {isin}: {rc} relanzamientos auto agotados → queda interrupted (manual)")
+            return
+        new_item = {
+            "isin": isin, "status": "queued", "relaunch": True,
+            "relaunch_count": rc + 1, "cold_start": False,
+            "queued_at": datetime.now(timezone.utc).isoformat(),
+            "_auto_relaunch_of": it.get("run_id"),
+        }
+        with QUEUE_LOCK:
+            QUEUE.append(new_item)
+            if QUEUE_WORKER is None or not QUEUE_WORKER.is_alive():
+                QUEUE_WORKER = threading.Thread(target=_queue_worker, daemon=True)
+                QUEUE_WORKER.start()
+        _save_queue_state()
+        print(f"[WATCHDOG] {isin} re-encolado para RELAUNCH auto (intento {rc + 1}/{MAX_AUTO_RELAUNCH})")
+
     def _watchdog_tick():
         """Una iteración del watchdog. Detecta:
-        1. Items running con PID que ya no existe → mark interrupted
-        2. Items running cuyo log no ha crecido en WATCHDOG_LOG_STALE_MIN min → mark interrupted
+        1. Items running con PID que ya no existe → mark interrupted + auto-relaunch
+        2. Items running cuyo log no ha crecido en WATCHDOG_LOG_STALE_MIN min → mark interrupted + auto-relaunch
         3. Items running cuyo proc.returncode != None pero status no fue actualizado → reclasificar
         """
         with QUEUE_LOCK:
@@ -924,6 +956,7 @@ def make_app(cold_start: bool = True) -> Flask:
                     RUNS[run_id]["status"] = "interrupted"
                     RUNS[run_id]["end_time"] = it["finished_at"]
                 changes_made = True
+                _requeue_for_relaunch(it)   # server vivo → auto-relanzar
                 continue
 
             # W2: staleness sobre TODO el footprint del run (log principal +
@@ -955,6 +988,7 @@ def make_app(cold_start: bool = True) -> Flask:
                         print(f"[WATCHDOG] proceso PID={pid} matado por staleness")
                     except Exception as e:
                         print(f"[WATCHDOG] no se pudo matar PID={pid}: {e}")
+                _requeue_for_relaunch(it)   # server vivo → auto-relanzar
                 continue
 
             # W3b: proc.returncode no None pero status del item sigue running
@@ -1051,8 +1085,11 @@ def make_app(cold_start: bool = True) -> Flask:
                 isin = next_item["isin"]
                 force_cold = next_item.get("cold_start", True)
                 apply_feedback = bool(next_item.get("apply_feedback", False))
+                relaunch = bool(next_item.get("relaunch", False))
+                if relaunch:
+                    force_cold = False  # relaunch reusa descargas, no es cold-start
                 payload, status = _start_analysis_for_isin(
-                    isin, force_cold, apply_feedback=apply_feedback,
+                    isin, force_cold, apply_feedback=apply_feedback, relaunch=relaunch,
                 )
                 if status != 200:
                     next_item["status"] = "failed"

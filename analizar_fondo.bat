@@ -34,9 +34,10 @@ set ALLOW_FALLBACK=
 set FAILED_STEPS=
 set RESUME_MODE=
 set APPLY_FEEDBACK=
+set RELAUNCH_MODE=
 
 if "%ISIN%"=="" (
-    echo Uso: analizar_fondo.bat ^<ISIN^> [--allow-api-fallback] [--resume] [--apply-feedback]
+    echo Uso: analizar_fondo.bat ^<ISIN^> [--allow-api-fallback] [--resume] [--relaunch] [--apply-feedback]
     echo Ejemplo: analizar_fondo.bat ES0112231008
     exit /b 1
 )
@@ -49,6 +50,12 @@ REM T3.5 (2026-05-28): --apply-feedback se pasa al consume-all-cowork del paso 6
 if "%2"=="--apply-feedback" set APPLY_FEEDBACK=--apply-feedback
 if "%3"=="--apply-feedback" set APPLY_FEEDBACK=--apply-feedback
 if "%4"=="--apply-feedback" set APPLY_FEEDBACK=--apply-feedback
+REM --relaunch (corte a mitad): re-ejecuta TODO el LLM desde cero conservando
+REM descargas. NO activa RESUME_MODE (los SKIP de LLM se gatean por RESUME_MODE,
+REM así re-ejecutan); el prep se salta aparte si la descarga ya está (ver abajo).
+if "%2"=="--relaunch" set RELAUNCH_MODE=1
+if "%3"=="--relaunch" set RELAUNCH_MODE=1
+if "%4"=="--relaunch" set RELAUNCH_MODE=1
 
 REM ====================================================================
 REM Modelos por skill (calidad-primero, 2026-06-08).
@@ -127,6 +134,18 @@ echo.
 :skip_resume_preflight
 
 REM ----------------------------------------------------------------------
+REM Relaunch (corte a mitad): re-ejecutar TODO el LLM desde cero, conservar descargas.
+REM Borra las salidas LLM (posiblemente PARCIALES si se cortó a mitad de escritura)
+REM para que se rehagan limpias; las descargas (cnmv_data/intl_data/XMLs/PDFs) se
+REM conservan y el prep se salta abajo. Así nunca se reusa una salida a medias.
+if defined RELAUNCH_MODE (
+    echo [RELAUNCH] Corte detectado: re-ejecutando LLM desde cero, conservando descargas
+    if exist "data\funds\%ISIN%\extracted" rmdir /s /q "data\funds\%ISIN%\extracted"
+    if exist "data\funds\%ISIN%\manager_profile.json" del /q "data\funds\%ISIN%\manager_profile.json"
+    if exist "data\funds\%ISIN%\letters_data.json" del /q "data\funds\%ISIN%\letters_data.json"
+    if exist "data\funds\%ISIN%\analyst_synthesis_cowork.json" del /q "data\funds\%ISIN%\analyst_synthesis_cowork.json"
+)
+
 REM N5 resume: skip prep si los 4 outputs principales ya estan
 set SKIP_PREP=
 if defined RESUME_MODE (
@@ -137,6 +156,13 @@ if defined RESUME_MODE (
             )
         )
     )
+)
+REM Relaunch: saltar prep (reusar descargas) si la salida DETERMINISTA del prep ya
+REM existe (cnmv_data para ES, intl_data para INT). Si el corte fue durante el prep,
+REM no existirá → el prep re-corre y vuelve a descargar (correcto).
+if defined RELAUNCH_MODE (
+    if exist "data\funds\%ISIN%\cnmv_data.json" set SKIP_PREP=1
+    if exist "data\funds\%ISIN%\intl_data.json" set SKIP_PREP=1
 )
 if defined SKIP_PREP (
     echo === Paso 1/6: [RESUME-SKIP] prep ya hecho ^(4 outputs presentes^) ===
