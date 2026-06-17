@@ -11,8 +11,32 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
+# Ruta por defecto del Excel espejo (OneDrive BDD).
+DEFAULT_OUT = (Path(r"C:\Users\RafaelGarcía\OneDrive - Nazca\Rafa\Personal"
+                    r"\Asesoría Financiera\Operativa\BDD")
+               / "20260617_BDD Fondos v2 (espejo Supabase).xlsx")
 
-def main():
+
+def regenerate(out: str | None = None, quiet: bool = False) -> str | None:
+    """Regenera el Excel espejo desde Supabase. Devuelve la ruta o None si falla.
+
+    Best-effort: NO lanza si Supabase no está o el fichero está bloqueado (Excel
+    abierto) — devuelve None y, si quiet=False, imprime el motivo. Pensado para
+    llamarse tras cada categorización (web_server) y al final del pipeline.
+    """
+    try:
+        return _build(out, quiet)
+    except PermissionError:
+        if not quiet:
+            print("[WARN] Excel espejo bloqueado (¿abierto en Excel?). No se regeneró.")
+        return None
+    except Exception as e:
+        if not quiet:
+            print(f"[WARN] No se pudo regenerar el Excel espejo: {str(e)[:160]}")
+        return None
+
+
+def _build(out: str | None = None, quiet: bool = False) -> str:
     from dotenv import load_dotenv
     load_dotenv(Path(__file__).resolve().parent.parent / ".env")
     from tools.supabase_client import get_client
@@ -85,12 +109,16 @@ def main():
     for j, w in enumerate(widths, 1):
         ws.column_dimensions[get_column_letter(j)].width = w
 
-    out = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else None
-    if not out:
-        bdd = Path(r"C:\Users\RafaelGarcía\OneDrive - Nazca\Rafa\Personal\Asesoría Financiera\Operativa\BDD")
-        out = str(bdd / "20260617_BDD Fondos v2 (espejo Supabase).xlsx")
+    out = out or str(DEFAULT_OUT)
     wb.save(out)
-    print(f"Excel v2 generado: {out}  ({len(funds)} filas)")
+    if not quiet:
+        print(f"Excel v2 generado: {out}  ({len(funds)} filas)")
+    return out
+
+
+def main():
+    out = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else None
+    regenerate(out)
 
 
 if __name__ == "__main__":

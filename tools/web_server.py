@@ -191,6 +191,16 @@ def make_app(cold_start: bool = True) -> Flask:
         static_folder=str(DASHBOARD_DIR),
         static_url_path="/dashboard",
     )
+    # Registrado ANTES de CORS para que corra EL ÚLTIMO (after_request se ejecuta
+    # en orden inverso de registro) y tenga la última palabra sobre esta cabecera.
+    @app.after_request
+    def _allow_private_network(resp):
+        # Permite que una página https (github.io) llame a este server en localhost
+        # (Chrome Private Network Access exige esta cabecera en el preflight).
+        if request.headers.get("Access-Control-Request-Private-Network"):
+            resp.headers["Access-Control-Allow-Private-Network"] = "true"
+        return resp
+
     CORS(app)
     app.config["FUND_COLD_START"] = cold_start
 
@@ -1578,6 +1588,43 @@ def make_app(cold_start: bool = True) -> Flask:
             }), 404
         return jsonify({"ok": True})
 
+    @app.route("/api/index/resolve", methods=["GET"])
+    def api_index_resolve():
+        """Busca un índice en Investing por nombre. ?q=MSCI India
+        Devuelve candidatos {pair_id, symbol, exchange} para que el user elija."""
+        q = (request.args.get("q") or "").strip()
+        if len(q) < 2:
+            return jsonify({"error": "query muy corto"}), 400
+        try:
+            from tools.investing_downloader import resolve as inv_resolve
+            cands = inv_resolve(q)
+            # prioriza los de exchange tipo índice
+            cands.sort(key=lambda c: 0 if "index" in str(c.get("exchange", "")).lower() else 1)
+            return jsonify({"ok": True, "query": q, "candidates": cands})
+        except Exception as e:  # noqa: BLE001
+            return jsonify({"ok": False, "error": str(e)[:200]}), 502
+
+    @app.route("/api/index/add", methods=["POST"])
+    def api_index_add():
+        """Añade un índice nuevo: descarga histórico de Investing, lo registra y lo
+        sube a Supabase (aparece en el dashboard). Body:
+        {name, pair_id, fx?(1=EUR/USD), symbol?, subdir?}"""
+        from tools.investing_downloader import add_index
+        data = request.get_json(silent=True) or {}
+        name = (data.get("name") or "").strip()
+        pair_id = data.get("pair_id")
+        if not name or not pair_id:
+            return jsonify({"ok": False, "error": "name y pair_id requeridos"}), 400
+        try:
+            fx = int(data["fx"]) if data.get("fx") else None
+            r = add_index(name, int(pair_id), fx=fx, symbol=data.get("symbol"),
+                          csv_name=data.get("csv_name") or name,
+                          subdir=(data.get("subdir") or "Renta Variable"),
+                          upload=True)
+            return jsonify(r), (200 if r.get("ok") else 400)
+        except Exception as e:  # noqa: BLE001
+            return jsonify({"ok": False, "error": str(e)[:200]}), 500
+
     @app.route("/api/runs")
     def api_runs():
         """Lista runs (activos + recientes)."""
@@ -1856,6 +1903,17 @@ def make_app(cold_start: bool = True) -> Flask:
                 fd_pushed = True
             except Exception as e:
                 print(f"[WARN] funddash push falló para {isin}: {e}")
+
+        # Espejo Excel: regenerar SIEMPRE que se categoriza (best-effort, en
+        # background para no bloquear la respuesta). Supabase = fuente de verdad;
+        # el Excel queda al día solo tras cada cambio de categorización.
+        try:
+            import threading
+            from tools.export_bdd_excel import regenerate as _regen_excel
+            threading.Thread(target=lambda: _regen_excel(quiet=True),
+                             daemon=True).start()
+        except Exception as e:
+            print(f"[WARN] no se pudo lanzar regen del Excel espejo: {e}")
 
         return jsonify({
             "ok": True,

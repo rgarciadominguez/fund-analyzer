@@ -412,6 +412,18 @@ if exist "dashboard\fund-%ISIN%.html" (
 echo.
 
 REM ----------------------------------------------------------------------
+REM Paso 7.6/7: Regenerar el Excel espejo (BDD) desde Supabase, para que refleje
+REM el fondo recien sincronizado/categorizado. Best-effort: si el Excel esta
+REM abierto o Supabase falla, avisa y sigue (no bloquea ni cambia el exit code).
+echo === Paso 7.6/7: Regenerar Excel espejo ^(BDD desde Supabase^) ===
+call python -m tools.export_bdd_excel
+if errorlevel 1 (
+    echo [WARN] Regen del Excel espejo fallo. Reintenta: python -m tools.export_bdd_excel
+    set FAILED_STEPS=!FAILED_STEPS! excel-mirror
+)
+echo.
+
+REM ----------------------------------------------------------------------
 REM G12 (2026-05-19, branch v2-cowork): clasificar exit code en 3 niveles para
 REM que web_server.py pueda distinguir done / completed_with_warnings / failed.
 REM
