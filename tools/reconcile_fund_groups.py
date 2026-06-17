@@ -86,11 +86,17 @@ def detect(funds: list, groups: dict):
 
 
 def _primary(members: list) -> dict:
-    """Primario = con análisis cualitativo > con dashboard > grupo más poblado > isin."""
-    def score(m):
-        return ((1 if m.get("has_qualitative_analysis") else 0),
-                (1 if m.get("dashboard_storage_path") else 0))
-    return sorted(members, key=lambda m: (score(m), m.get("isin", "")), reverse=True)[0]
+    """Primario — criterio UNIFICADO con el catálogo (collapseByFundGroup) y con
+    auto_group: análisis cualitativo > con dashboard > MÁS TRACK-RECORD (clase más
+    antigua: fecha_creacion_clase asc) > isin. Audit ALTO #7/#8 (2026-06-17): antes
+    desempataba por isin desc, divergiendo del catálogo (años) → fila cabecera
+    inconsistente entre mecanismos."""
+    return sorted(members, key=lambda m: (
+        -(1 if m.get("has_qualitative_analysis") else 0),
+        -(1 if m.get("dashboard_storage_path") else 0),
+        str(m.get("fecha_creacion_clase") or "9999")[:10],   # más antigua = primaria
+        m.get("isin", ""),
+    ))[0]
 
 
 _ISIN_RE = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
@@ -390,7 +396,7 @@ def main():
 
     print(">>> MODO NOMBRE (heurístico, frágil — puede fusionar fondos paraguas distintos)\n")
     funds = client.table("funds").select(
-        "isin,nombre_clase,fund_group_id,has_qualitative_analysis,dashboard_storage_path"
+        "isin,nombre_clase,fund_group_id,has_qualitative_analysis,dashboard_storage_path,fecha_creacion_clase"
     ).limit(5000).execute().data
     groups = {g["fund_group_id"]: g for g in client.table("fund_groups").select(
         "fund_group_id,nombre_base,gestora").limit(5000).execute().data}
