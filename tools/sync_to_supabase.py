@@ -559,6 +559,12 @@ def _sync_fund_impl(
         import re as _re
         sibs = sorted({(c.get("isin") or "").upper() for c in (output_data.get("clases") or [])
                        if _re.match(r"^[A-Z]{2}[A-Z0-9]{10}$", (c.get("isin") or "").upper())})
+        # Audit MEDIO (2026-06-17): la lista clases[].isin debe incluir el PROPIO
+        # ISIN; si no, es sospechosa (posible contaminación cross-fund) y NO se vuelca
+        # a class_isins_known (que es append-only → contaminaría el grupo para siempre).
+        if sibs and isin.upper() not in sibs:
+            log(f"[SYNC] clases[].isin no incluye {isin} → NO se vuelca a class_isins_known (sospechoso)")
+            sibs = []
         if len(sibs) > 1:
             r_g = client.table("funds").select("fund_group_id").eq("isin", isin).execute()
             if r_g.data and r_g.data[0].get("fund_group_id"):
