@@ -317,6 +317,20 @@ if defined SKIP_ANALYST (
 )
 
 REM ----------------------------------------------------------------------
+REM Paso 5.5/6: Skill myinvestor-enrich (Claude Max) — el conector MyInvestor
+REM SOLO es accesible desde claude -p (cowork), no desde el pipeline Python.
+REM Best-effort: si el fondo no esta en MyInvestor, no pasa nada (Morningstar cubre).
+REM ----------------------------------------------------------------------
+echo === Paso 5.5/6: Skill myinvestor-enrich ^(Claude Max^) ===
+call claude -p "myinvestor enrich %ISIN%" --allowedTools "Read,Write,Bash,Edit,Glob,Grep,mcp__claude_ai_MyInvestor__search_funds" > "logs\skill_myinvestor_%ISIN%.log" 2>&1
+if errorlevel 1 (
+    echo [WARN] Skill myinvestor-enrich fallo ^(no critico^). Ver logs\skill_myinvestor_%ISIN%.log
+) else (
+    echo [OK] Skill myinvestor-enrich OK.
+)
+echo.
+
+REM ----------------------------------------------------------------------
 REM Paso 6/6: backup defensivo + consume-all-cowork (integra analyst +
 REM validation + meta + dashboard regen). NO tira quality_loop legacy.
 echo === Paso 6/6: Backup defensivo + consume + dashboard (Python sin LLM) ===
