@@ -466,6 +466,14 @@ def sync_fund(
     except Exception as _e:
         log(f"[SYNC] populate_fund_classes falló (no crítico): {str(_e)[:80]}")
 
+    # Consumir myinvestor_data.json (creado por la skill cowork myinvestor-enrich)
+    # → Supabase (distribución robusta, broker MyInvestor, allocation/sectores/docs).
+    try:
+        from tools.myinvestor_consume import consume as _mi_consume
+        _mi_consume(isin, client=client, log=log)
+    except Exception as _e:
+        log(f"[SYNC] myinvestor_consume falló (no crítico): {str(_e)[:80]}")
+
     # Taxonomía derivada (tipo/geo/categoria_rf/srri/tags) de Morningstar+MyInvestor
     # para fondos nuevos — rellena SOLO campos vacíos (no pisa lo curado del Excel).
     try:

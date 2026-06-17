@@ -23,31 +23,30 @@ def _num(v):
     return float(m.group(0)) if m else None
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("uso: python -m tools.myinvestor_consume <ISIN>")
-        return
-    isin = sys.argv[1].upper().strip()
+def consume(isin: str, client=None, log=None) -> dict:
+    """Vuelca myinvestor_data.json del ISIN a Supabase. Devuelve dict de cambios."""
+    isin = (isin or "").upper().strip()
     root = Path(__file__).resolve().parent.parent
     jp = root / "data" / "funds" / isin / "myinvestor_data.json"
     if not jp.exists():
-        print(f"no existe {jp}")
-        return
-    d = json.loads(jp.read_text(encoding="utf-8"))
-    from dotenv import load_dotenv
-    load_dotenv(root / ".env")
-    from tools.supabase_client import get_client
-    c = get_client()
-
+        return {}
+    try:
+        d = json.loads(jp.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if client is None:
+        from dotenv import load_dotenv
+        load_dotenv(root / ".env")
+        from tools.supabase_client import get_client
+        client = get_client()
+    c = client
     if not d.get("disponible_myinvestor"):
-        print(f"{isin}: no disponible en MyInvestor (nada que volcar)")
-        return
+        return {}
 
     # --- funds (clase) ---
     fu = c.table("funds").select("broker_disponible,distribucion,fund_group_id").eq("isin", isin).execute().data
     if not fu:
-        print(f"{isin}: no está en funds")
-        return
+        return {}
     f0 = fu[0]
     fupd = {}
     if d.get("distribucion"):
@@ -72,9 +71,16 @@ def main():
                             if d.get(k) not in (None, {}, [])}
         c.table("fund_groups").update({"portfolio_metrics_jsonb": pm}).eq("fund_group_id", gid).execute()
 
-    print(f"{isin}: MyInvestor volcado (distrib={fupd.get('distribucion')}, broker+MyInvestor, "
-          f"min={fupd.get('importe_minimo_eur')}, allocation/sectores/docs en grupo)")
+    msg = (f"{isin}: MyInvestor volcado (distrib={fupd.get('distribucion')}, broker+MyInvestor, "
+           f"min={fupd.get('importe_minimo_eur')}, allocation/sectores/docs en grupo)")
+    if log:
+        log(msg)
+    return {"funds": fupd, "grupo_myinvestor": True}
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("Uso: python -m tools.myinvestor_consume <ISIN>")
+        sys.exit(1)
+    r = consume(sys.argv[1])
+    print(f"{sys.argv[1].upper()}: {'volcado' if r else 'no disponible / sin json'}")
