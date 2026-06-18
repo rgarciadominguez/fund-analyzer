@@ -128,9 +128,46 @@ async def find_official_site(isin: str, name: str = "", gestora: str = "",
     best_dom = max(candidates, key=lambda d: candidates[d][0])
     sc, url = candidates[best_dom]
     res = {"domain": best_dom, "url": f"https://www.{best_dom}", "score": sc}
+    # Cachear en gestoras_registry → los fondos HERMANOS de esta gestora reusan la
+    # web con 0 Serper (Robeco ×4 clases comparten web, etc.).
+    _cache_to_registry(gestora, best_dom, res["url"])
     if log:
         log(f"[SITE_FINDER] {isin}: web oficial = {best_dom} (score {sc})")
     return res
+
+
+def _cache_to_registry(gestora: str, domain: str, url: str) -> None:
+    """Guarda la web encontrada en gestoras_registry.json (no pisa una web ya puesta).
+    Así un fondo hermano de la misma gestora la reusa por registro (0 Serper)."""
+    import sys, json
+    from pathlib import Path
+    if "pytest" in sys.modules:   # no contaminar el registro real desde tests
+        return
+    gestora = (gestora or "").strip()
+    if not gestora or len(gestora) < 4 or not domain:
+        return
+    path = Path(__file__).resolve().parent.parent / "data" / "gestoras_registry.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except Exception:
+        return
+    gestoras = data.setdefault("gestoras", {})
+    gl = gestora.lower()
+    key = next((k for k in gestoras if k.lower() == gl), None)
+    if key:
+        if gestoras[key].get("web"):
+            return  # ya tiene web → no pisar
+        gestoras[key]["web"] = url
+        gestoras[key].setdefault("_web_source", "fund_site_finder")
+    else:
+        gestoras[gestora] = {"web": url, "_web_source": "fund_site_finder",
+                             "letters_pages": [], "successful_pdf_urls": []}
+    try:
+        tmp = path.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.replace(path)
+    except Exception:
+        pass
 
 
 def find_official_site_sync(isin: str, name: str = "", gestora: str = "", log=None) -> dict:
