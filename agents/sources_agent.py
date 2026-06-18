@@ -283,15 +283,28 @@ class SourcesAgent:
         return ""
 
     def _resolve_gestora_web_url(self) -> str:
-        """Get full URL for gestora website. Audit fix: gestora vacía/trivial → ''
+        """URL de la web oficial del gestor/fondo. (1) registro; (2) BÚSQUEDA DIRIGIDA
+        por nombre/gestora (Serper, filtra agregadores). Audit fix: gestora vacía → ''
         (evita el match con string vacío que devolvía la 1ª gestora del registro)."""
         gestora_lower = (self.gestora or "").strip().lower()
-        if len(gestora_lower) < 4:
-            return ""
-        for name, info in self._gestoras_registry.items():
-            nl = name.lower()
-            if nl in gestora_lower or gestora_lower in nl:
-                return info.get("web", "")
+        # (1) registro — solo con gestora real (evita el match con string vacío que
+        #     devolvía la 1ª gestora = avantage).
+        if len(gestora_lower) >= 4:
+            for name, info in self._gestoras_registry.items():
+                nl = name.lower()
+                if nl in gestora_lower or gestora_lower in nl:
+                    return info.get("web", "")
+        # (2) BÚSQUEDA DIRIGIDA por ISIN/nombre/gestora — saca la web oficial real
+        #     (Rafa 2026-06-18). Funciona aunque la gestora venga vacía: el finder
+        #     resuelve nombre/gestora desde Morningstar por ISIN. Respeta el cap Serper.
+        try:
+            from tools.fund_site_finder import find_official_site_sync
+            r = find_official_site_sync(self.isin, self.fund_name or "", self.gestora or "")
+            if r.get("url"):
+                self._log("INFO", f"web gestora por búsqueda dirigida: {r['domain']}")
+                return r["url"]
+        except Exception as e:
+            self._log("WARN", f"búsqueda dirigida de web falló: {str(e)[:60]}")
         return ""
 
     def _load_gestoras_registry(self):
