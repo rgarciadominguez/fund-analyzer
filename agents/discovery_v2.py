@@ -1265,6 +1265,23 @@ class DiscoveryV2:
                 except Exception as e:
                     console.log(f"[yellow]prestep: {e}")
             websites = self._resolve_websites(c)
+            # Búsqueda dirigida de la web OFICIAL (Rafa 2026-06-18): casi toda la info
+            # buena —cartas, annual reports, PPTs, bios— está en la web de la gestora.
+            # La ponemos PRIMERA para harvestarla a fondo (gratis); 1-2 búsquedas Serper
+            # << 35 dispersas. Auto-resuelve nombre/gestora por ISIN si faltan.
+            try:
+                from tools.fund_site_finder import find_official_site
+                _ds = await find_official_site(
+                    self.isin,
+                    self.identity.get("nombre") or self.identity.get("fund_name") or "",
+                    self.identity.get("gestora_oficial") or "",
+                )
+                if _ds.get("url"):
+                    self.identity.setdefault("_gestora_website", _ds["url"])
+                    websites = [_ds["url"]] + [w for w in websites if _ds["domain"] not in w]
+                    console.log(f"[green]web oficial (búsqueda dirigida): {_ds['domain']}")
+            except Exception as e:
+                console.log(f"[yellow]búsqueda dirigida web: {e}")
             websites = await self._probe_websites(c, websites)
             console.log(f"[blue]websites confirmados: {websites}")
 

@@ -504,7 +504,10 @@ class LettersCollector:
             ])
 
         queries = list(dict.fromkeys(queries))
-        results = await search.search_multiple(queries[:15], num_per_query=3,
+        # Eficiencia (Rafa 2026-06-18): la web de la gestora (harvestada gratis por
+        # discovery) ya trae la mayoría de cartas/comentarios → recortamos las
+        # búsquedas Serper dispersas (15→8) sin perder lo importante.
+        results = await search.search_multiple(queries[:8], num_per_query=3,
                                                 agent="letters_global")
         self._log("INFO", f"Cartas globales: {len(results)} resultados de "
                   f"{min(len(queries),15)} queries")
@@ -1176,9 +1179,11 @@ class LettersCollector:
         # Dedup queries
         queries = list(dict.fromkeys(queries))
 
-        results = await search.search_multiple(queries[:20], num_per_query=3,
+        # Eficiencia (Rafa 2026-06-18): web gestora harvestada gratis cubre la mayoría
+        # → recortamos las búsquedas Serper (20→10).
+        results = await search.search_multiple(queries[:10], num_per_query=3,
                                                 agent="letters_collector")
-        self._log("INFO", f"Web search: {len(results)} resultados de {min(len(queries),20)} queries")
+        self._log("INFO", f"Web search: {len(results)} resultados de {min(len(queries),10)} queries")
 
         # Fetch y extraer
         seen_urls: set[str] = set()
