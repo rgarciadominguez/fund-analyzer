@@ -2858,6 +2858,17 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
                                     break
                             except Exception:
                                 pass
+                # 2.5) Morningstar por ISIN (autoritativo) antes del último recurso:
+                #     da la gestora/ManCo real (Waystone, Sifter, Natixis…) en vez de
+                #     derivarla del nombre-paraguas. Saca la info BUENA, no solo evita error.
+                if not recovered or recovered.upper() == isin_up:
+                    try:
+                        from tools.morningstar_quant import fetch_identity
+                        cand = (fetch_identity(isin) or {}).get("gestora", "").strip()
+                        if cand and cand.upper() != isin_up:
+                            recovered = cand
+                    except Exception:
+                        pass
                 # 3) ÚLTIMO recurso: derivar del nombre-paraguas (parte antes de
                 #    " - "). Evita que el sync ABORTE por "gestora vacía" cuando ni
                 #    manager_profile ni el regulador la traen (caso Vontobel). Mejor

@@ -156,6 +156,35 @@ def fetch_category(isin: str) -> dict:
     return out
 
 
+def fetch_identity(isin: str) -> dict:
+    """Identidad AUTORITATIVA del fondo desde Morningstar (por ISIN, validado): nombre
+    limpio + gestora (BrandingCompanyName). Fuente fiable para rellenar nombre/gestora
+    cuando la extracción del pipeline falla o queda vacía. {} si no se encuentra."""
+    isin = (isin or "").upper().strip()
+    if not _ISIN.match(isin):
+        return {}
+    dp = "%7C".join(["Name", "Isin", "BrandingCompanyName"])
+    url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
+           f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
+    try:
+        r = httpx.get(url, headers=_UA, timeout=15, follow_redirects=True)
+        r.raise_for_status()
+        rows = r.json().get("rows") or []
+    except Exception:
+        return {}
+    row = _row_for_isin(rows, isin)   # valida que la fila es del ISIN pedido
+    if not row:
+        return {}
+    out = {}
+    nm = (row.get("Name") or "").strip()
+    g = (row.get("BrandingCompanyName") or "").strip()
+    if nm:
+        out["name"] = nm
+    if g:
+        out["gestora"] = g
+    return out
+
+
 def fetch_rating(isin: str) -> dict:
     """Rating Morningstar ligero (1 call): {estrellas 1-5, medalist Gold/Silver/Bronze}."""
     isin = (isin or "").upper().strip()

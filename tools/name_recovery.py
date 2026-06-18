@@ -215,11 +215,27 @@ def recover_name_if_needed(
                f"nombre='{nombre_actual}' inválido para {isin}, "
                f"intentando recuperar de {len(texts)} textos…")
 
-    # A) regex local
-    name = _extract_via_regex(texts, isin)
-    method = "regex" if name else None
+    # A) Morningstar por ISIN — fuente AUTORITATIVA y fiable (nombre oficial del
+    # fondo, validado por ISIN). PRIMERO: la extracción de la narrativa (regex)
+    # coge títulos de sección/gráfico ("Fondo vs mercado año a año", "Origen: …"),
+    # así que solo es fallback cuando Morningstar no cubre el fondo.
+    name = None
+    method = None
+    try:
+        from tools.morningstar_quant import fetch_identity
+        mn = (fetch_identity(isin) or {}).get("name", "").strip()
+        if mn and _candidate_is_valid(mn, isin):
+            name = mn
+            method = "morningstar"
+    except Exception:
+        pass
 
-    # B) fallback Haiku si A no encontró
+    # B) regex local (validado) si Morningstar no cubre el fondo
+    if not name:
+        name = _extract_via_regex(texts, isin)
+        method = "regex" if name else None
+
+    # C) fallback Haiku
     if not name:
         gestora = (output_data.get("gestora") or "").strip()
         name = _extract_via_haiku(texts, isin, gestora)
