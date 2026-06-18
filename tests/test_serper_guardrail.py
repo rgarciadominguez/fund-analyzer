@@ -34,9 +34,9 @@ def test_reserve_increments_and_persists(isolated_usage):
     assert gs._reserve_usage(1) == 1
     assert gs._reserve_usage(5) == 6
     assert gs._usage_this_month() == 6
-    # persistido en disco
+    # persistido en disco (formato nuevo multi-proveedor: {provider: {mes: count}})
     data = json.loads((isolated_usage / "serper_usage.json").read_text(encoding="utf-8"))
-    assert data[gs._month_key()] == 6
+    assert data["serper"][gs._month_key()] == 6
 
 
 def test_disabled_blocks_search(isolated_usage, monkeypatch):

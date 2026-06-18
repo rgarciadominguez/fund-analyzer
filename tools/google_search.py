@@ -82,27 +82,73 @@ def _serper_disabled() -> bool:
 
 
 def _load_usage() -> dict:
+    """Uso por proveedor: {provider: {period_key: count}}. Migra el formato viejo
+    {YYYY-MM: int} (solo Serper) → {"serper": {YYYY-MM: int}}."""
     try:
-        return json.loads(_USAGE_PATH.read_text(encoding="utf-8"))
+        u = json.loads(_USAGE_PATH.read_text(encoding="utf-8"))
     except Exception:
         return {}
+    if u and all(isinstance(v, int) for v in u.values()):
+        u = {"serper": u}
+    return u
 
 
-def _usage_this_month() -> int:
-    return int(_load_usage().get(_month_key(), 0))
+# ── Proveedores de búsqueda: Brave (free renovable) → Google CSE → Serper ─────
+# Mismo interfaz para el pipeline. Si solo hay SERPER_API_KEY, se comporta como antes.
+_PROVIDER_CAP_ENV = {"brave": ("BRAVE_MONTHLY_CAP", 2000),
+                     "google": ("GOOGLE_DAILY_CAP", 100),
+                     "serper": ("SERPER_MONTHLY_CAP", 2000)}
+_PROVIDER_KEY_ENV = {"brave": "BRAVE_API_KEY", "google": "GOOGLE_CSE_API_KEY",
+                     "serper": "SERPER_API_KEY"}
 
 
-def _reserve_usage(n: int = 1) -> int:
-    """Incrementa (reserva) el contador del mes de forma atómica. Se llama ANTES
-    del POST para garantizar que nunca se superan `cap` llamadas reales."""
+def _provider_period_key(provider: str) -> str:
+    # Google CSE free es por DÍA (100/día); Brave/Serper por MES.
+    return datetime.now().strftime("%Y-%m-%d" if provider == "google" else "%Y-%m")
+
+
+def _provider_cap(provider: str) -> int:
+    env, default = _PROVIDER_CAP_ENV.get(provider, ("", 0))
+    try:
+        return int(os.getenv(env, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _env_or_dotenv(name: str) -> str:
+    if not name:
+        return ""
+    v = os.getenv(name, "")
+    if not v:
+        from dotenv import load_dotenv
+        load_dotenv(Path(__file__).parent.parent / ".env")
+        v = os.getenv(name, "")
+    return v
+
+
+def _provider_key(provider: str) -> str:
+    return _env_or_dotenv(_PROVIDER_KEY_ENV.get(provider, ""))
+
+
+def _google_cx() -> str:
+    return _env_or_dotenv("GOOGLE_CSE_CX")
+
+
+def _usage_count(provider: str) -> int:
+    return int(_load_usage().get(provider, {}).get(_provider_period_key(provider), 0))
+
+
+def _reserve(provider: str, n: int = 1) -> int:
+    """Reserva n usos del proveedor en su periodo (mes/día). Atómico. Se llama ANTES
+    de la llamada para garantizar que nunca se supera el tope del proveedor."""
     with _usage_lock:
         u = _load_usage()
-        mk = _month_key()
-        u[mk] = int(u.get(mk, 0)) + n
-        # Poda meses viejos (deja últimos 12).
-        if len(u) > 12:
-            for k in sorted(u)[:-12]:
-                u.pop(k, None)
+        pk = _provider_period_key(provider)
+        pu = u.setdefault(provider, {})
+        pu[pk] = int(pu.get(pk, 0)) + n
+        if len(pu) > 60:                       # poda periodos viejos
+            for k in sorted(pu)[:-60]:
+                pu.pop(k, None)
         try:
             _USAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
             tmp = _USAGE_PATH.with_suffix(".tmp")
@@ -110,41 +156,67 @@ def _reserve_usage(n: int = 1) -> int:
             tmp.replace(_USAGE_PATH)
         except Exception:
             pass
-        return u[mk]
+        return pu[pk]
+
+
+def _provider_order() -> list:
+    raw = os.getenv("SEARCH_PROVIDER_ORDER", "brave,google,serper")
+    return [p.strip().lower() for p in raw.split(",") if p.strip()]
+
+
+def _provider_available(provider: str) -> bool:
+    """True si el proveedor tiene key/cx, no está disabled y está bajo su tope."""
+    if provider == "serper" and _serper_disabled():
+        return False
+    if not _provider_key(provider):
+        return False
+    if provider == "google" and not _google_cx():
+        return False
+    if _usage_count(provider) >= _provider_cap(provider):
+        _log_once(f"{provider}: tope alcanzado ({_provider_cap(provider)}, "
+                  f"{_provider_period_key(provider)}) — se prueba el siguiente proveedor")
+        return False
+    return True
+
+
+# ── Back-compat: funciones serper_* (callsites que llaman a Serper directo) ───
+def _reserve_usage(n: int = 1) -> int:
+    return _reserve("serper", n)
+
+
+def _usage_this_month() -> int:
+    return _usage_count("serper")
 
 
 def serper_allowed_and_reserve() -> bool:
-    """Guardrail para callsites que llaman a Serper DIRECTAMENTE (no vía SearchEngine).
-
-    Devuelve True y reserva 1 crédito del tope mensual si la búsqueda se permite;
-    False si está bloqueada (SERPER_DISABLED o tope alcanzado). Los callsites deben
-    chequear esto ANTES de su POST a serper.dev y, si False, degradar (DDG / []).
-    """
-    if _serper_disabled():
-        _log_once("SERPER_DISABLED=1 — búsqueda directa omitida (coste 0)")
+    """Guardrail para callsites que llaman a Serper DIRECTAMENTE (no vía SearchEngine)."""
+    if not _provider_available("serper"):
         return False
-    if _usage_this_month() >= _serper_cap():
-        _log_once(
-            f"Tope mensual Serper alcanzado ({_serper_cap()}, {_month_key()}) "
-            f"— búsqueda directa omitida (coste 0)"
-        )
-        return False
-    _reserve_usage(1)
+    _reserve("serper", 1)
     return True
 
 
 def serper_usage_status() -> dict:
-    """Estado del guardrail Serper: mes, usadas, tope, restantes, disabled."""
-    used = _usage_this_month()
-    cap = _serper_cap()
+    """Estado del guardrail Serper (back-compat)."""
+    used = _usage_count("serper")
+    cap = _provider_cap("serper")
     return {
-        "month": _month_key(),
+        "month": _provider_period_key("serper"),
         "used": used,
         "cap": cap,
         "remaining": max(0, cap - used),
         "disabled": _serper_disabled(),
         "blocked": _serper_disabled() or used >= cap,
     }
+
+
+def search_usage_status() -> dict:
+    """Estado de TODOS los proveedores de búsqueda (brave/google/serper)."""
+    return {p: {"period": _provider_period_key(p), "used": _usage_count(p),
+                "cap": _provider_cap(p),
+                "remaining": max(0, _provider_cap(p) - _usage_count(p)),
+                "has_key": bool(_provider_key(p))}
+            for p in ("brave", "google", "serper")}
 
 # Keywords que indican relevancia para cada agente
 _AGENT_KEYWORDS = {
@@ -227,60 +299,76 @@ class SearchEngine:
     # ── Public API ───────────────────────────────────────────────────────────
 
     async def search(self, query: str, num: int = 5, agent: str = "") -> list[dict]:
-        """
-        Search Google. Returns cached results if query already done.
-        Returns: [{"title": str, "url": str, "snippet": str}]
+        """Búsqueda web MULTI-PROVEEDOR: Brave → Google CSE → Serper (fallback).
+        Mismo retorno [{title,url,snippet}]. Los cache hits NO cuentan. Cada proveedor
+        tiene su key + tope; si uno no tiene key/está al tope/devuelve vacío, se prueba
+        el siguiente. Si SOLO hay SERPER_API_KEY, se comporta EXACTAMENTE como antes.
         """
         # Check cache first (los cache hits NO cuentan para el tope)
         if self._is_cached(query):
             return self._get_cached(query)
 
-        # ── Guardrail de coste Serper ─────────────────────────────────────────
-        if _serper_disabled():
-            _log_once("SERPER_DISABLED=1 — búsquedas Google desactivadas (coste 0)")
-            return []
-        if _usage_this_month() >= _serper_cap():
-            _log_once(
-                f"Tope mensual Serper alcanzado ({_serper_cap()} búsquedas, {_month_key()}) "
-                f"— búsquedas omitidas hasta el mes que viene (coste 0)"
-            )
-            return []
-
         global _last_search_time
-        key = _get_serper_key()
-        if not key:
-            return []
+        for provider in _provider_order():
+            if not _provider_available(provider):
+                continue
+            _reserve(provider, 1)   # reserva ANTES → nunca se supera el tope
+            # Rate limit (global entre llamadas reales)
+            now = asyncio.get_event_loop().time()
+            wait = _RATE_LIMIT_SECONDS - (now - _last_search_time)
+            if wait > 0:
+                await asyncio.sleep(wait)
+            try:
+                results = await self._call_provider(provider, query, num)
+                _last_search_time = asyncio.get_event_loop().time()
+            except Exception as exc:
+                print(f"[SEARCH] {provider} error: {str(exc)[:80]}")
+                results = []
+            if results:
+                self._store_results(query, results, agent)
+                return results
+            # vacío/error → probar el siguiente proveedor (fallback de cobertura)
+        return []
 
-        # Reserva 1 crédito ANTES de la llamada → nunca se supera el tope.
-        _reserve_usage(1)
+    async def _call_provider(self, provider: str, query: str, num: int) -> list[dict]:
+        if provider == "brave":
+            return await self._search_brave(query, num)
+        if provider == "google":
+            return await self._search_google(query, num)
+        return await self._search_serper(query, num)
 
-        # Rate limit
-        now = asyncio.get_event_loop().time()
-        wait = _RATE_LIMIT_SECONDS - (now - _last_search_time)
-        if wait > 0:
-            await asyncio.sleep(wait)
+    async def _search_brave(self, query: str, num: int) -> list[dict]:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(
+                "https://api.search.brave.com/res/v1/web/search",
+                params={"q": query, "count": min(num, 20)},
+                headers={"X-Subscription-Token": _provider_key("brave"),
+                         "Accept": "application/json"})
+        resp.raise_for_status()
+        return [{"title": it.get("title", ""), "url": it.get("url", ""),
+                 "snippet": it.get("description", "")}
+                for it in (resp.json().get("web", {}) or {}).get("results", [])]
 
-        try:
-            async with httpx.AsyncClient(timeout=15) as client:
-                resp = await client.post(
-                    _SERPER_URL,
-                    headers={"X-API-KEY": key, "Content-Type": "application/json"},
-                    json={"q": query, "num": num, "gl": "es", "hl": "es"},
-                )
-            _last_search_time = asyncio.get_event_loop().time()
-            data = resp.json()
-            results = []
-            for item in data.get("organic", []):
-                results.append({
-                    "title": item.get("title", ""),
-                    "url": item.get("link", ""),
-                    "snippet": item.get("snippet", ""),
-                })
-            self._store_results(query, results, agent)
-            return results
-        except Exception as exc:
-            print(f"[SEARCH] Error: {exc}")
-            return []
+    async def _search_google(self, query: str, num: int) -> list[dict]:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(
+                "https://www.googleapis.com/customsearch/v1",
+                params={"key": _provider_key("google"), "cx": _google_cx(),
+                        "q": query, "num": min(num, 10)})
+        resp.raise_for_status()
+        return [{"title": it.get("title", ""), "url": it.get("link", ""),
+                 "snippet": it.get("snippet", "")}
+                for it in resp.json().get("items", [])]
+
+    async def _search_serper(self, query: str, num: int) -> list[dict]:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                _SERPER_URL,
+                headers={"X-API-KEY": _provider_key("serper"), "Content-Type": "application/json"},
+                json={"q": query, "num": num, "gl": "es", "hl": "es"})
+        return [{"title": it.get("title", ""), "url": it.get("link", ""),
+                 "snippet": it.get("snippet", "")}
+                for it in resp.json().get("organic", [])]
 
     async def search_multiple(self, queries: list[str], num_per_query: int = 3,
                                agent: str = "") -> list[dict]:
