@@ -102,6 +102,14 @@ def is_valid_fund_name(name: str, isin: str = "") -> tuple[bool, str]:
     first2 = " ".join(words[:2]).lower().rstrip(",.;:")
     if first1 in _CONNECTOR_STARTS or first2 in _CONNECTOR_STARTS:
         return False, "empieza_conector_prosa"
+    # Cabecera de sección / prosa: "Origen: una boutique...", "Resumen: el fondo..."
+    # (un nombre PUEDE llevar ':' pero no seguido de minúscula). Audit 2026-06-18:
+    # name_recovery extrajo la 1ª frase de la sección historia como nombre y se publicó.
+    if re.match(r"^\S+:\s+[a-záéíóúñ]", n):
+        return False, "prosa_cabecera_seccion"
+    # Frases delatoras de prosa que NO aparecen en nombres de fondo legítimos.
+    if re.search(r"\b(?:una|unos|unas|se trata|es un|es una|porque|mientras|aunque)\b", nl):
+        return False, "prosa_frase"
     return True, "ok"
 
 
