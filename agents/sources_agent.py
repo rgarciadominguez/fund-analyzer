@@ -258,16 +258,24 @@ class SourcesAgent:
         if self.gestora_domain:
             return self.gestora_domain
 
+        # Audit fix (2026-06-18): una gestora VACÍA/trivial nunca debe resolver una
+        # web. El bug era `gestora_lower in name.lower()` con gestora_lower="" → ''
+        # está en TODO → matcheaba la 1ª gestora del registro (Avantage, fondo de
+        # test) y filtraba avantagecapital.com a fondos ajenos (cross-fund). Mejor
+        # sin web (el discovery la saca del KID/prospecto y el analyst la busca).
+        gestora_lower = (self.gestora or "").strip().lower()
+        if len(gestora_lower) < 4:
+            return ""
+
         # Check gestoras_registry.json
         for name, info in self._gestoras_registry.items():
-            gestora_lower = (self.gestora or "").lower()
-            if name.lower() in gestora_lower or gestora_lower in name.lower():
+            nl = name.lower()
+            if nl in gestora_lower or gestora_lower in nl:
                 web = info.get("web", "")
                 if web:
                     return self._extract_domain(web)
 
         # Fallback: hardcoded known domains
-        gestora_lower = (self.gestora or "").lower()
         for keyword, domain in KNOWN_GESTORA_DOMAINS.items():
             if keyword in gestora_lower:
                 return domain
@@ -275,10 +283,14 @@ class SourcesAgent:
         return ""
 
     def _resolve_gestora_web_url(self) -> str:
-        """Get full URL for gestora website."""
+        """Get full URL for gestora website. Audit fix: gestora vacía/trivial → ''
+        (evita el match con string vacío que devolvía la 1ª gestora del registro)."""
+        gestora_lower = (self.gestora or "").strip().lower()
+        if len(gestora_lower) < 4:
+            return ""
         for name, info in self._gestoras_registry.items():
-            gestora_lower = (self.gestora or "").lower()
-            if name.lower() in gestora_lower or gestora_lower in name.lower():
+            nl = name.lower()
+            if nl in gestora_lower or gestora_lower in nl:
                 return info.get("web", "")
         return ""
 
