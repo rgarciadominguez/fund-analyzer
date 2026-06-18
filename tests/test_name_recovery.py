@@ -161,6 +161,8 @@ def test_recover_applies_via_regex(monkeypatch):
             },
         },
     }
+    # Morningstar va primero ahora; lo vaciamos para probar el camino REGEX.
+    monkeypatch.setattr("tools.morningstar_quant.fetch_identity", lambda isin: {})
     result = recover_name_if_needed(output_data, "IE00BDR0JY05")
     assert result["applied"] is True
     assert result["method"] == "regex"
@@ -168,6 +170,21 @@ def test_recover_applies_via_regex(monkeypatch):
     assert output_data["nombre"] == result["to"]
     # Marcado como manual edit
     assert "nombre" in (output_data.get("_manual_edits") or [])
+
+
+def test_recover_via_morningstar_first(monkeypatch):
+    """Morningstar (autoritativo) va PRIMERO: nombre oficial limpio, antes que regex."""
+    monkeypatch.setattr("tools.morningstar_quant.fetch_identity",
+                        lambda isin: {"name": "Sifter Fund - Global RA", "gestora": "Sifter"})
+    output_data = {
+        "isin": "LU2905591629",
+        "nombre": "Origen: una boutique de crédito",  # prosa rota
+        "analyst_synthesis": {"resumen": {"texto": "Fondo vs mercado año a año, etc."}},
+    }
+    result = recover_name_if_needed(output_data, "LU2905591629")
+    assert result["applied"] is True
+    assert result["method"] == "morningstar"
+    assert result["to"] == "Sifter Fund - Global RA"
 
 
 def test_recover_via_haiku_fallback(monkeypatch):
@@ -183,6 +200,8 @@ def test_recover_via_haiku_fallback(monkeypatch):
             },
         },
     }
+    # Morningstar va primero; vaciarlo para forzar el camino Haiku.
+    monkeypatch.setattr("tools.morningstar_quant.fetch_identity", lambda isin: {})
     # Force ANTHROPIC_API_KEY for the check inside _extract_via_haiku
     monkeypatch.setenv("ANTHROPIC_API_KEY", "dummy")
 
