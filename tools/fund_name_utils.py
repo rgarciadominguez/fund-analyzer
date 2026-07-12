@@ -90,9 +90,13 @@ def is_valid_fund_name(name: str, isin: str = "") -> tuple[bool, str]:
     words = n.split()
     if len(words) > 16:
         return False, "prosa_demasiadas_palabras"
-    if n[0].islower():
+    # Empieza en minúscula → prosa, SALVO marcas camelCase legítimas (iShares,
+    # eShares): minúscula seguida de mayúscula (2026-07-12).
+    if n[0].islower() and not (len(n) > 1 and n[1].isupper()):
         return False, "empieza_minuscula"
-    if ". " in n:  # varias frases → prosa (no "S.A." que no lleva espacio)
+    # ". " solo delata prosa (varias frases) si el nombre es LARGO. Nombres cortos
+    # con abreviaturas (U.S., U.K., Int., S.A.) son legítimos (2026-07-12).
+    if ". " in n and len(words) > 8:
         return False, "prosa_varias_frases"
     if sum(c.isalpha() for c in n) < 3:
         return False, "sin_letras"
