@@ -112,6 +112,9 @@ def run(fix: bool = True) -> dict:
     return report
 
 
+_MARKER = ROOT / "data" / "HEALTHCHECK_FAIL.txt"   # marcador visible si hay fallo
+
+
 def _write(report: dict):
     # último estado + log rotativo (últimas 60 líneas)
     (ROOT / "data" / "healthcheck_last.json").write_text(
@@ -123,10 +126,67 @@ def _write(report: dict):
     logp.write_text("\n".join(prev + [line.rstrip()]) + "\n", encoding="utf-8")
 
 
+def _alert_if_fail(report: dict):
+    """Aviso VISIBLE en Windows si hay FAIL (cuadro de diálogo, sin instalar nada) +
+    marcador en disco. Si vuelve a estar sano, borra el marcador."""
+    if report["verdict"] != "FAIL":
+        try:
+            _MARKER.unlink(missing_ok=True)
+        except Exception:
+            pass
+        return
+    fails = [c for c in report["checks"] if c["nivel"] == "FAIL"]
+    detalle = "; ".join(f"{c['check']}: {c['detalle']}" for c in fails)[:400]
+    _MARKER.write_text(f"{report['ts']}\nFAIL ({report['n_fail']})\n{detalle}\n", encoding="utf-8")
+    msg = f"fund-analyzer: CHEQUEO FALLIDO ({report['n_fail']}). {detalle[:200]}"
+    try:                       # cuadro de diálogo de Windows (built-in en Pro)
+        import subprocess
+        subprocess.run(["msg", "*", "/TIME:900", msg], timeout=15, capture_output=True)
+    except Exception:
+        pass
+
+
+def status():
+    """¿Está corriendo el chequeo y todo bien? Un vistazo."""
+    from datetime import timedelta
+    rep_p = ROOT / "data" / "healthcheck_last.json"
+    if not rep_p.exists():
+        print("✗ Nunca ha corrido (sin data/healthcheck_last.json)")
+        return 1
+    rep = json.loads(rep_p.read_text(encoding="utf-8"))
+    ts = datetime.fromisoformat(rep["ts"])
+    age = datetime.now(timezone.utc) - ts
+    fresh = age < timedelta(hours=36)          # debe correr 1x/día
+    icon = {"OK": "✓", "WARN": "⚠", "FAIL": "✗"}
+    print("\n=== ESTADO DEL CHEQUEO DIARIO ===")
+    print(f"  ¿Está corriendo?  {'✓ SÍ' if fresh else '✗ NO — lleva ' + str(age).split('.')[0] + ' sin correr'}"
+          f"   (última: {ts.astimezone().strftime('%Y-%m-%d %H:%M')}, hace {str(age).split('.')[0]})")
+    print(f"  Último veredicto: {icon.get(rep['verdict'],'?')} {rep['verdict']} "
+          f"({rep['n_fail']} fallos, {rep['n_warn']} avisos, {rep['n_fix']} auto-arreglos)")
+    if rep["verdict"] != "OK":
+        for c in rep["checks"]:
+            if c["nivel"] in ("FAIL", "WARN"):
+                print(f"      → {c['check']}: {c['detalle']}")
+    # estado de la tarea de Windows
+    try:
+        import subprocess
+        out = subprocess.run(["schtasks", "/query", "/tn", "healthcheck-fund-analyzer", "/fo", "LIST"],
+                             capture_output=True, text=True, timeout=15).stdout
+        st = next((l.split(":", 1)[1].strip() for l in out.splitlines()
+                   if l.lower().startswith(("estado", "status"))), "?")
+        print(f"  Tarea Windows:    healthcheck-fund-analyzer — {st}")
+    except Exception:
+        print("  Tarea Windows:    (no consultable)")
+    return 0 if (fresh and rep["verdict"] != "FAIL") else 1
+
+
 def main():
+    if "--status" in sys.argv:            # ¿está corriendo y todo bien?
+        sys.exit(status())
     fix = "--no-fix" not in sys.argv
     report = run(fix=fix)
     _write(report)
+    _alert_if_fail(report)                # aviso visible si hay FAIL
     icon = {"OK": "✓", "WARN": "⚠", "FAIL": "✗", "FIX": "🔧"}
     print(f"\n=== CHEQUEO DIARIO fund-analyzer — {report['verdict']} ===")
     for ch in report["checks"]:
