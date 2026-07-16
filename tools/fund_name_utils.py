@@ -94,9 +94,12 @@ def is_valid_fund_name(name: str, isin: str = "") -> tuple[bool, str]:
     # eShares): minúscula seguida de mayúscula (2026-07-12).
     if n[0].islower() and not (len(n) > 1 and n[1].isupper()):
         return False, "empieza_minuscula"
-    # ". " solo delata prosa (varias frases) si el nombre es LARGO. Nombres cortos
-    # con abreviaturas (U.S., U.K., Int., S.A.) son legítimos (2026-07-12).
-    if ". " in n and len(words) > 8:
+    # ". " solo delata prosa si cierra una PALABRA de verdad. Las abreviaturas
+    # (U.S., U.K., Int., S.A., Cía.) son legítimas en nombres largos y no cortan
+    # frase — regla anterior tumbaba "Vanguard U.K. Government Bond Index Fund
+    # EUR Hedged Acc" (2026-07-16).
+    if any(len(re.sub(r"[^A-Za-zÁÉÍÓÚÑáéíóúñ]", "", m)) >= 4
+           for m in re.findall(r"(\S+)\.\s", n)):
         return False, "prosa_varias_frases"
     if sum(c.isalpha() for c in n) < 3:
         return False, "sin_letras"

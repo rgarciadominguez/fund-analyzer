@@ -40,7 +40,7 @@ SB_KEY = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6
 
 def _geo(name: str) -> str:
     n = name.lower()
-    if any(k in n for k in ("emerging", " em ", "em gross", "emergent")):
+    if any(k in n for k in ("emerging", " em ", "em gross", "emergent", "india", "china", "brazil", "brasil", "latam")):
         return "Emergentes"
     if any(k in n for k in ("world", "acwi", "global", "developed")):
         return "Global"
@@ -153,9 +153,13 @@ def _repo_isins() -> set:
 
 def iter_csvs(benchmark_only: bool):
     for p in sorted((BDIR / "Benchmark").rglob("*.csv")):
+        if ".auto" in p.name:  # ficheros de validación del investing_downloader
+            continue
         yield p, False
     if not benchmark_only:
         for p in sorted((BDIR / "Indexados").rglob("*.csv")):
+            if ".auto" in p.name:
+                continue
             yield p, True
 
 

@@ -93,18 +93,22 @@ def _load_usage() -> dict:
     return u
 
 
-# ── Proveedores de búsqueda: Brave (free renovable) → Google CSE → Serper ─────
+# ── Proveedores de búsqueda: Brave (gratis $5/mes) → DDG (gratis) → Serper ────
 # Mismo interfaz para el pipeline. Si solo hay SERPER_API_KEY, se comporta como antes.
-_PROVIDER_CAP_ENV = {"brave": ("BRAVE_MONTHLY_CAP", 2000),
+# - Brave: $5 crédito gratis/mes ≈ 1000 búsquedas a $5/1k → tope 1000 = NUNCA paga.
+# - DDG: gratis total sin tarjeta (scraping html.duckduckgo.com), frágil → desborde.
+# - Google CSE: de pago (se descartó) → no en el orden por defecto.
+_PROVIDER_CAP_ENV = {"brave": ("BRAVE_MONTHLY_CAP", 1000),
+                     "ddg": ("DDG_DAILY_CAP", 2000),
                      "google": ("GOOGLE_DAILY_CAP", 100),
                      "serper": ("SERPER_MONTHLY_CAP", 2000)}
 _PROVIDER_KEY_ENV = {"brave": "BRAVE_API_KEY", "google": "GOOGLE_CSE_API_KEY",
-                     "serper": "SERPER_API_KEY"}
+                     "serper": "SERPER_API_KEY"}   # ddg no necesita key
 
 
 def _provider_period_key(provider: str) -> str:
-    # Google CSE free es por DÍA (100/día); Brave/Serper por MES.
-    return datetime.now().strftime("%Y-%m-%d" if provider == "google" else "%Y-%m")
+    # Google CSE y DDG cuentan por DÍA; Brave/Serper por MES.
+    return datetime.now().strftime("%Y-%m-%d" if provider in ("google", "ddg") else "%Y-%m")
 
 
 def _provider_cap(provider: str) -> int:

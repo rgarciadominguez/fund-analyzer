@@ -242,6 +242,33 @@ def _num(v):
         return None
 
 
+_BARE_CLASS_RE = re.compile(
+    r"^(?:clase|class|classe|participaciones?|serie|share\s*class|cat(?:egor[ií]a)?)\b[\s:.\-]*"
+    r"[A-Z0-9]{0,4}\s*$", re.IGNORECASE)
+
+
+def _class_display_name(label: str, base_name: str, isin: str) -> str:
+    """Nombre publicable de una clase.
+
+    CNMV devuelve la denominación como etiqueta suelta ("CLASE I"), que NO es un
+    nombre de fondo: en el catálogo (y en el portal) sale una fila llamada
+    "CLASE I" sin decir de qué fondo. Se compone con el nombre del fondo base.
+    """
+    label = (label or "").strip()
+    base = (base_name or "").strip()
+    if not label:
+        return base or isin
+    if not base:
+        return label
+    if _BARE_CLASS_RE.match(label):
+        # "CLASE RD" → "Clase RD" (la letra de clase se queda en mayúscula)
+        w = label.split()
+        pretty = " ".join([w[0].capitalize()] + [x.upper() for x in w[1:]])
+        return f"{base} {pretty}".strip()
+    # La etiqueta ya nombra el fondo (folleto INT: "Trojan Fund O EUR Acc")
+    return label
+
+
 def populate_fund_classes(client, primary_isin: str, clases: list, apply: bool = False,
                           fund_name: str = "") -> int:
     """Inserta/actualiza las clases del folleto como filas `funds`, compartiendo
@@ -253,6 +280,16 @@ def populate_fund_classes(client, primary_isin: str, clases: list, apply: bool =
     if not pf or not pf[0].get("fund_group_id"):
         return 0
     gid = pf[0]["fund_group_id"]
+    # Nombre del fondo base, para componer el de las clases ("CLASE I" → "Dunas
+    # Valor Equilibrio Clase I"). Prioriza el que pase el pipeline.
+    base_name = (fund_name or "").strip()
+    if not base_name:
+        try:
+            g = client.table("fund_groups").select("nombre_base").eq(
+                "fund_group_id", gid).execute().data
+            base_name = (g[0].get("nombre_base") or "").strip() if g else ""
+        except Exception:
+            base_name = ""
     existing = {f["isin"].upper(): f for f in client.table("funds").select(
         "isin,has_qualitative_analysis,dashboard_storage_path").limit(5000).execute().data}
     n = 0
@@ -270,7 +307,7 @@ def populate_fund_classes(client, primary_isin: str, clases: list, apply: bool =
         row = {
             "isin": iv,
             "fund_group_id": gid,
-            "nombre_clase": label or iv,
+            "nombre_clase": _class_display_name(label, base_name, iv),
             "divisa": (c.get("divisa") or "").upper()[:8] or None,
             "comision_gestion_pct": _num(c.get("comision_gestion_pct")),
             "ter_pct": _num(c.get("ter_pct")),

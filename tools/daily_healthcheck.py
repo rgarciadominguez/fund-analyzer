@@ -75,6 +75,16 @@ def run(fix: bool = True) -> dict:
     checks.append(("FAIL" if malos else "OK", "nombres de analizados válidos",
                    f"{len(malos)} rotos: {malos[:5]}" if malos else "todos válidos"))
 
+    # 3b) Filas de CLASE con nombre-etiqueta ("CLASE I") — no dicen de qué fondo son.
+    # Se publican al catálogo Y al portal, así que se miran en TODAS las filas, no
+    # solo en las analizadas (2026-07-16: 23 filas así llevaban tiempo publicadas).
+    from tools.reconcile_fund_groups import _BARE_CLASS_RE
+    etiqueta = [f["isin"] for f in funds
+                if _BARE_CLASS_RE.match((f.get("nombre_clase") or "").strip())]
+    checks.append(("FAIL" if etiqueta else "OK", "clases con nombre de fondo",
+                   f"{len(etiqueta)} solo-etiqueta: {etiqueta[:5]}" if etiqueta
+                   else "ninguna con nombre-etiqueta"))
+
     # 4) Nombres de grupo duplicados
     from collections import Counter
     names = Counter((g.get("nombre_base") or "").strip().lower() for g in groups.values() if g.get("nombre_base"))
