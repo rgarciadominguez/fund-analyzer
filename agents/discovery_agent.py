@@ -93,8 +93,13 @@ async def _ddg_search(query: str, num: int = 8) -> list[dict]:
             resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
         results = []
+        from tools.google_search import SearchEngine
         for a in soup.select(".result__a")[:num]:
-            href = a.get("href", "")
+            # DDG devuelve un redirect propio (//duckduckgo.com/l/?uddg=...): hay que
+            # desenvolverlo o el dominio de TODO resultado parece duckduckgo.com.
+            href = SearchEngine._ddg_unwrap(a.get("href", ""))
+            if not href.startswith("http"):
+                continue
             title = a.get_text(strip=True)
             snippet_el = a.find_parent("div", class_="result")
             snippet = ""

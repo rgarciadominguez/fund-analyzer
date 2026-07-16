@@ -164,7 +164,9 @@ def _reserve(provider: str, n: int = 1) -> int:
 
 
 def _provider_order() -> list:
-    raw = os.getenv("SEARCH_PROVIDER_ORDER", "brave,google,serper")
+    # Por defecto NO se usa Google CSE: es de pago (decisión de Rafa, 2026-07).
+    # Para activarlo hay que pedirlo explícitamente en SEARCH_PROVIDER_ORDER.
+    raw = os.getenv("SEARCH_PROVIDER_ORDER", "brave,ddg,serper")
     return [p.strip().lower() for p in raw.split(",") if p.strip()]
 
 
@@ -172,7 +174,7 @@ def _provider_available(provider: str) -> bool:
     """True si el proveedor tiene key/cx, no está disabled y está bajo su tope."""
     if provider == "serper" and _serper_disabled():
         return False
-    if not _provider_key(provider):
+    if provider != "ddg" and not _provider_key(provider):   # ddg no lleva key
         return False
     if provider == "google" and not _google_cx():
         return False
@@ -215,12 +217,13 @@ def serper_usage_status() -> dict:
 
 
 def search_usage_status() -> dict:
-    """Estado de TODOS los proveedores de búsqueda (brave/google/serper)."""
+    """Estado de TODOS los proveedores de búsqueda, en el orden en que se usan."""
     return {p: {"period": _provider_period_key(p), "used": _usage_count(p),
                 "cap": _provider_cap(p),
                 "remaining": max(0, _provider_cap(p) - _usage_count(p)),
-                "has_key": bool(_provider_key(p))}
-            for p in ("brave", "google", "serper")}
+                "has_key": True if p == "ddg" else bool(_provider_key(p)),
+                "en_uso": p in _provider_order() and _provider_available(p)}
+            for p in ("brave", "ddg", "google", "serper")}
 
 # Keywords que indican relevancia para cada agente
 _AGENT_KEYWORDS = {
@@ -337,6 +340,8 @@ class SearchEngine:
     async def _call_provider(self, provider: str, query: str, num: int) -> list[dict]:
         if provider == "brave":
             return await self._search_brave(query, num)
+        if provider == "ddg":
+            return await self._search_ddg(query, num)
         if provider == "google":
             return await self._search_google(query, num)
         return await self._search_serper(query, num)
@@ -352,6 +357,50 @@ class SearchEngine:
         return [{"title": it.get("title", ""), "url": it.get("url", ""),
                  "snippet": it.get("description", "")}
                 for it in (resp.json().get("web", {}) or {}).get("results", [])]
+
+    @staticmethod
+    def _ddg_unwrap(href: str) -> str:
+        """DDG no da la URL real, da un redirect propio:
+            //duckduckgo.com/l/?uddg=https%3A%2F%2Fvanguard.com%2F...&rut=...
+        Hay que sacar `uddg`. Sin esto TODO resultado parece del dominio
+        duckduckgo.com y se rompe la detección de web de gestora (2026-07-16)."""
+        from urllib.parse import parse_qs, unquote, urlparse
+        if not href:
+            return ""
+        if href.startswith("//"):
+            href = "https:" + href
+        try:
+            u = urlparse(href)
+            if "duckduckgo.com" in (u.netloc or "") and u.path.startswith("/l/"):
+                real = parse_qs(u.query).get("uddg", [""])[0]
+                return unquote(real) if real else ""
+        except Exception:
+            return href
+        return href
+
+    async def _search_ddg(self, query: str, num: int) -> list[dict]:
+        """DuckDuckGo por scraping del HTML. Gratis y sin key, pero frágil (puede
+        devolver 0 sin error) → nunca va el último: detrás queda Serper."""
+        from bs4 import BeautifulSoup
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            resp = await client.get(
+                "https://html.duckduckgo.com/html/", params={"q": query},
+                headers={"User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                        "Chrome/120.0.0.0 Safari/537.36"),
+                         "Accept-Language": "es-ES,es;q=0.9"})
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+        out = []
+        for a in soup.select(".result__a")[:num]:
+            href, title = self._ddg_unwrap(a.get("href", "")), a.get_text(strip=True)
+            if not (href and title) or not href.startswith("http"):
+                continue
+            parent = a.find_parent("div", class_="result")
+            sn = parent.select_one(".result__snippet") if parent else None
+            out.append({"title": title, "url": href,
+                        "snippet": sn.get_text(strip=True) if sn else ""})
+        return out
 
     async def _search_google(self, query: str, num: int) -> list[dict]:
         async with httpx.AsyncClient(timeout=15) as client:

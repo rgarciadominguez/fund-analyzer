@@ -73,6 +73,8 @@ def test_cache_hit_skips_providers(monkeypatch):
 
 def test_usage_status_all_providers():
     st = gs.search_usage_status()
-    assert set(st.keys()) == {"brave", "google", "serper"}
+    # ddg entra en el backend multi-proveedor (2026-07). google sigue reportado
+    # aunque NO esté en el orden por defecto: si alguien lo activa, se ve el gasto.
+    assert set(st.keys()) == {"brave", "ddg", "google", "serper"}
     for p in st.values():
-        assert "remaining" in p and "has_key" in p
+        assert "remaining" in p and "has_key" in p and "en_uso" in p
