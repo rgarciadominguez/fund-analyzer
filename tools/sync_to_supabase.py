@@ -688,6 +688,65 @@ def _sync_fund_impl(
     except Exception as _e:
         log(f"[SYNC] años_antiguedad falló (no crítico): {str(_e)[:80]}")
 
+    # ---- Campos del contrato con Horizonte Financiero (cruce por ISIN) -------------
+    # Objetivo: que todo fondo analizado salga YA con estos campos y Rafa no los escriba
+    # a mano. Todo es fill-if-empty: lo que Horizonte haya escrito NUNCA se pisa.
+    # `kid` y `comision_suscripcion` NO se hacen aquí: salen del conector MyInvestor,
+    # que solo alcanza el paso cowork (`myinvestor-enrich`), no el pipeline Python.
+    try:
+        from tools.catalog_fees_stars import _r2
+        from tools.morningstar_quant import fetch_quant
+        cur = client.table("funds").select(
+            "estrellas,ter_pct,comision_gestion_pct").eq("isin", isin).execute().data
+        c0 = cur[0] if cur else {}
+        q = fetch_quant(isin) or {}
+        com = q.get("comisiones") or {}
+        upd = {}
+        if q.get("rating_estrellas") is not None:
+            upd["estrellas"] = int(q["rating_estrellas"])   # null si <3 años: correcto
+        if c0.get("ter_pct") is None and _r2(com.get("ter_pct")) is not None:
+            upd["ter_pct"] = _r2(com.get("ter_pct"))
+        if c0.get("comision_gestion_pct") is None and _r2(com.get("comision_gestion_pct")) is not None:
+            upd["comision_gestion_pct"] = _r2(com.get("comision_gestion_pct"))
+        if upd:
+            client.table("funds").update(upd).eq("isin", isin).execute()
+            log(f"[SYNC] horfin fees/estrellas: {upd}")
+    except Exception as _e:
+        log(f"[SYNC] horfin fees/estrellas falló (no crítico): {str(_e)[:80]}")
+
+    try:
+        cur = client.table("funds").select("benchmark").eq("isin", isin).execute().data
+        if cur and not (cur[0].get("benchmark") or "").strip():
+            from tools.benchmark_classifier import build_ficha_one, classify_one
+            b = classify_one(build_ficha_one(isin, client))
+            if b.get("benchmark"):
+                client.table("funds").update({"benchmark": b["benchmark"]}).eq("isin", isin).execute()
+                log(f"[SYNC] benchmark: {b['benchmark']} ({b.get('confianza')})")
+    except Exception as _e:
+        log(f"[SYNC] benchmark falló (no crítico): {str(_e)[:80]}")
+
+    try:
+        from tools.horfin_texts import build_ficha, generate
+        cur = client.table("funds").select(
+            "descripcion,opinion_user,encaje_texto").eq("isin", isin).execute().data
+        c0 = cur[0] if cur else {}
+        faltan = [k for k in ("descripcion", "opinion_user", "encaje_texto")
+                  if not (c0.get(k) or "").strip()]
+        if faltan:
+            g = generate(build_ficha(isin, client=client))
+            upd = {}
+            if "descripcion" in faltan and g.get("descripcion"):
+                upd["descripcion"] = g["descripcion"]
+            if "opinion_user" in faltan and g.get("opinion"):
+                upd["opinion_user"] = g["opinion"]
+            if "encaje_texto" in faltan and g.get("encaje"):
+                upd["encaje_texto"] = g["encaje"]
+            if upd:
+                client.table("funds").update(upd).eq("isin", isin).execute()
+                log(f"[SYNC] horfin textos generados: {list(upd)}")
+    except Exception as _e:
+        log(f"[SYNC] horfin textos falló (no crítico): {str(_e)[:80]}")
+
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
 
     return {
