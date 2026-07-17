@@ -1,0 +1,161 @@
+{
+  "_meta": {
+    "que_es": "Contrato de sincronizacion activos <-> Supabase (fund-analyzer). Fuente unica de verdad del vocabulario de cada campo compartido. LOS DOS LADOS validan contra este fichero: fund-analyzer antes de exportar, transformar.py al importar. Un valor fuera de lista NO se emite: se deja null y se avisa. Asi las dos BDD no pueden divergir.",
+    "version": 1,
+    "fecha": "2026-07-17",
+    "regla_de_oro": "Si un fondo necesita un valor que no esta en la lista de su campo, se emite null y se reporta en la respuesta para acordarlo. NUNCA se inventa un valor nuevo.",
+    "cruce": "siempre por ISIN, nunca por nombre"
+  },
+  "campos": {
+    "tipo_activo": {
+      "dueno": "Supabase emite el vocabulario de Rafa (camino A)",
+      "tipo": "enum",
+      "nota": "Supabase compone su clasificacion gruesa + plazo + caracteristicas en el valor granular de Rafa. RF+plazo Medio -> 'Fondo RF Medio Plazo'. Solo fondos; los no-fondos (cuentas, cripto) los pone Rafa a mano y nunca vienen de aqui.",
+      "valores": [
+        "Fondo RV",
+        "ETF RV",
+        "Acciones",
+        "Fondo RF Corto Plazo",
+        "Fondo RF Medio Plazo",
+        "Fondo RF Largo Plazo",
+        "Fondo RF High Yield",
+        "Fondo RF Floating Rate",
+        "Fondo Mixto",
+        "Fondo Monetario",
+        "ETF REITs",
+        "REITs",
+        "ETF Oro",
+        "Materias primas",
+        "Alternativos"
+      ]
+    },
+    "categoria_activo": {
+      "dueno": "BLINDADO: lo de Rafa manda, Supabase rellena huecos",
+      "tipo": "enum",
+      "valores": [
+        "Indexado",
+        "Gestionado",
+        "Hedgefund"
+      ]
+    },
+    "region": {
+      "dueno": "Supabase emite el vocabulario acordado",
+      "tipo": "enum",
+      "nota": "Global y World colapsan en ACWI. Emergentes es Emerging.",
+      "valores": [
+        "ACWI",
+        "Developed",
+        "Emerging",
+        "Europa",
+        "USA",
+        "España",
+        "Nordics",
+        "Japon",
+        "UK",
+        "Pacifico"
+      ]
+    },
+    "estilo": {
+      "dueno": "Supabase (Rafa no tiene este campo)",
+      "tipo": "enum",
+      "nota": "Dedupe: 'Divisa cubierta' es 'Cubre divisa'. 'Indexado' NO es estilo (es categoria_activo): fuera de aqui.",
+      "valores": [
+        "Value",
+        "Blend",
+        "Growth",
+        "Quality",
+        "Momentum",
+        "SmallCaps",
+        "Retorno absoluto",
+        "Sector financiero",
+        "Floating rate",
+        "Cubre divisa",
+        "Apalancado"
+      ]
+    },
+    "plazo": {
+      "dueno": "Supabase",
+      "tipo": "enum",
+      "valores": [
+        "Corto",
+        "Medio",
+        "Largo"
+      ]
+    },
+    "categoria_rf": {
+      "dueno": "Supabase",
+      "tipo": "enum",
+      "valores": [
+        "Flexible/Diversificada",
+        "Corporativa",
+        "Gubernamental"
+      ]
+    },
+    "distribucion": {
+      "dueno": "Supabase emite el vocabulario acordado",
+      "tipo": "enum",
+      "nota": "'Reparto' se emite como 'Distribucion'.",
+      "valores": [
+        "Acumulación",
+        "Distribución"
+      ]
+    },
+    "moneda": {
+      "dueno": "Supabase",
+      "tipo": "enum",
+      "valores": [
+        "EUR",
+        "USD",
+        "GBP"
+      ]
+    },
+    "estrellas": {
+      "dueno": "Supabase (Morningstar)",
+      "tipo": "entero",
+      "min": 1,
+      "max": 5,
+      "null_si": "el fondo no llega a 3 anios"
+    },
+    "riesgo_ucits": {
+      "dueno": "Supabase (srri)",
+      "tipo": "entero",
+      "min": 1,
+      "max": 7
+    },
+    "comision_suscripcion": {
+      "dueno": "Supabase (MyInvestor)",
+      "tipo": "booleano",
+      "nota": "true/false/null. null = no esta en MyInvestor (no se sabe)."
+    },
+    "ter": {
+      "dueno": "Supabase",
+      "tipo": "numero",
+      "formato": "porcentaje, 2 decimales. 0.7 = 0,7%"
+    },
+    "comision_gestion_pct": {
+      "dueno": "Supabase",
+      "tipo": "numero",
+      "formato": "porcentaje, 2 decimales"
+    },
+    "benchmark": {
+      "dueno": "Supabase (rellena huecos; los 114 de Rafa mandan)",
+      "tipo": "texto_normalizado",
+      "nota": "Un solo indice, escrito siempre igual. Nunca una categoria (eso es tipo_activo). null si el fondo no se compara con un indice."
+    },
+    "descripcion": {
+      "dueno": "BLINDADO: lo de Rafa manda, Supabase rellena huecos y fondos nuevos",
+      "tipo": "texto",
+      "nota": "QUE ES el fondo. Objetivo, sin juicio."
+    },
+    "opinion": {
+      "dueno": "BLINDADO: lo de Rafa manda (campo opinion_user en Supabase)",
+      "tipo": "texto",
+      "nota": "QUE NOS PARECE. Juicio: costes, exposicion, AUM."
+    },
+    "encaje": {
+      "dueno": "Supabase puro (no viaja de vuelta)",
+      "tipo": "texto",
+      "nota": "A QUIEN LE SIRVE."
+    }
+  }
+}

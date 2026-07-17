@@ -156,5 +156,58 @@ def test_redondeo_2_decimales_y_null_no_cero():
     assert _r2(0) == 0                # 0 significa "no la tiene": se respeta
 
 
+def test_contract_transforms_vocabulario():
+    """Global→ACWI, Reparto→Distribución, estilo Indexado fuera, Divisa cubierta→Cubre divisa."""
+    from tools.contract_sync import apply_contract
+    rows = [
+        {"isin": "X1", "geografia": "Global", "distribucion": "Reparto", "estilo": "Indexado",
+         "tipo_activo": "RV", "caracteristicas_especiales": None, "nombre": "X", "benchmark": None},
+        {"isin": "X2", "geografia": "World", "estilo": "Divisa cubierta",
+         "tipo_activo": "Monetario", "nombre": "Y", "benchmark": None},
+    ]
+    out, rep = apply_contract(rows)
+    assert out[0]["geografia"] == "ACWI"
+    assert out[0]["distribucion"] == "Distribución"
+    assert out[0]["estilo"] is None            # Indexado no es estilo
+    assert out[1]["geografia"] == "ACWI"        # World → ACWI
+    assert out[1]["estilo"] == "Cubre divisa"
+    assert rep["valores_puestos_a_null_por_fuera_de_contrato"] == {}
+
+
+def test_contract_tipo_activo_granular():
+    """Compone el vocabulario granular del contrato (camino A)."""
+    from tools.contract_sync import apply_contract
+    rows = [
+        {"isin": "RV1", "tipo_activo": "RV", "nombre": "Fondo X", "benchmark": "MSCI World"},
+        {"isin": "ETF1", "tipo_activo": "RV", "nombre": "iShares Core MSCI World UCITS ETF",
+         "caracteristicas_especiales": ["Indexado/ETF"], "benchmark": "MSCI World"},
+        {"isin": "RF1", "tipo_activo": "RF", "benchmark": "Renta Fija Medio Plazo", "nombre": "B"},
+        {"isin": "RF2", "tipo_activo": "RF", "caracteristicas_especiales": ["High Yield"],
+         "benchmark": "Renta Fija High Yield", "nombre": "C"},
+        {"isin": "MON", "tipo_activo": "Monetario", "nombre": "D", "benchmark": "Euribor"},
+        {"isin": "ILS", "tipo_activo": "RF", "caracteristicas_especiales": ["ILS/Catástrofe"],
+         "benchmark": "Bonos Catástrofe", "nombre": "E"},
+    ]
+    out, rep = apply_contract(rows)
+    by = {r["isin"]: r["tipo_activo"] for r in out}
+    assert by["RV1"] == "Fondo RV"
+    assert by["ETF1"] == "ETF RV"
+    assert by["RF1"] == "Fondo RF Medio Plazo"
+    assert by["RF2"] == "Fondo RF High Yield"
+    assert by["MON"] == "Fondo Monetario"
+    assert by["ILS"] is None                    # sin valor en contrato → null + propuesta
+    assert any("ILS" in p["motivo"] for p in rep["propuestas_valor_nuevo"])
+
+
+def test_contract_out_of_enum_goes_null():
+    """Un valor fuera de la lista se pone null y se reporta (regla de oro)."""
+    from tools.contract_sync import apply_contract
+    rows = [{"isin": "Z", "geografia": "Marte", "tipo_activo": "RV", "nombre": "Z",
+             "benchmark": None}]
+    out, rep = apply_contract(rows)
+    assert out[0]["geografia"] is None
+    assert "geografia='Marte'" in rep["valores_puestos_a_null_por_fuera_de_contrato"]
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

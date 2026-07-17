@@ -158,13 +158,24 @@ def build() -> dict:
 
     print(f"filas: {len(old_rows)} refrescadas + {nuevas} nuevas = {len(activos)}")
 
+    # --- conformar al contrato_sync.json (transforma vocabulario + valida enums) ---
+    from tools.contract_sync import apply_contract, load_contract
+    contract_version = load_contract().get("_meta", {}).get("version")
+    activos, contract_report = apply_contract(activos)
+    (Path(r"C:\Users\RafaelGarcía\horizonte-datos") / "contrato_validacion.json").write_text(
+        json.dumps(contract_report, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"contrato v{contract_version}: "
+          f"{len(contract_report['valores_puestos_a_null_por_fuera_de_contrato'])} tipos fuera→null, "
+          f"{len(contract_report['propuestas_valor_nuevo'])} propuestas")
+
     # métricas honestas
     def filled(k):
         return sum(1 for a in activos if a.get(k) not in (None, "", [], {}))
     meta = {
         "generado": datetime.now(timezone.utc).isoformat(),
         "fuente": "supabase catalogo (funds x fund_groups) — fund-analyzer",
-        "version": 3,
+        "version": 4,
+        "contrato_version": contract_version,
         "n_filas": len(activos),
         "n_con_horfin_id": filled("horfin_id"),
         "n_benchmark": filled("benchmark"),
