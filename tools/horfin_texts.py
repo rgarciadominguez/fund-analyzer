@@ -63,18 +63,41 @@ REGLAS DURAS:
 - Si te falta base para un campo, devuelve null en ese campo. Un hueco se gestiona;
   un dato inventado rompe una decisión de inversión.
 - No copies el nombre del fondo como descripcion.
+- Los TRES campos son obligatorios salvo que de verdad te falte base. En particular
+  "encaje" NO se omite: si sabes el tipo de activo y el riesgo, sabes a quién le sirve.
 
 Devuelve SOLO JSON, sin markdown:
 {"descripcion":"..."|null,"opinion":"..."|null,"encaje":"..."|null,"omitido":"<motivo si algún campo es null>"}"""
 
 
-def _fewshot(n: int = 6) -> list[dict]:
-    """Ejemplos reales del aporte de Horizonte (estilo de referencia)."""
-    if not APORTE.exists():
-        return []
-    acts = json.loads(APORTE.read_text(encoding="utf-8"))["activos"]
-    ok = [a for a in acts if (a.get("descripcion") or "").strip() and (a.get("opinion") or "").strip()]
-    return [{"descripcion": a["descripcion"], "opinion": a["opinion"]} for a in ok[:n]]
+def _fewshot(n: int = 6, client=None) -> list[dict]:
+    """Ejemplos reales de Horizonte (estilo de referencia).
+
+    El aporte NO trae `encaje` (solo descripcion/opinion). Si el few-shot solo enseña dos
+    campos, el modelo se deja el tercero: pasó de verdad en la validación end-to-end
+    (encaje volvía null). Por eso los ejemplos de encaje se sacan de los `encaje_texto`
+    que Rafa ya escribió en Supabase.
+    """
+    out = []
+    if APORTE.exists():
+        acts = json.loads(APORTE.read_text(encoding="utf-8"))["activos"]
+        ok = [a for a in acts
+              if (a.get("descripcion") or "").strip() and (a.get("opinion") or "").strip()]
+        out = [{"descripcion": a["descripcion"], "opinion": a["opinion"]} for a in ok[:n]]
+    try:
+        from tools.supabase_client import get_client
+        c = client or get_client()
+        rows = c.table("funds").select("encaje_texto").not_.is_("encaje_texto", "null") \
+            .limit(n).execute().data
+        ej = [(r.get("encaje_texto") or "").strip() for r in rows]
+        for i, e in enumerate(x for x in ej if x):
+            if i < len(out):
+                out[i]["encaje"] = e
+            else:
+                out.append({"encaje": e})
+    except Exception:
+        pass
+    return out
 
 
 def build_ficha(isin: str, client=None) -> dict:
@@ -149,10 +172,11 @@ def build_ficha(isin: str, client=None) -> dict:
     }
 
 
-def generate(ficha: dict) -> dict:
+def generate(ficha: dict, _fs_client=None) -> dict:
     from anthropic import Anthropic
     cli = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    payload = {"EJEMPLOS_DE_ESTILO_HORIZONTE": _fewshot(), "FICHA_DEL_FONDO": ficha}
+    payload = {"EJEMPLOS_DE_ESTILO_HORIZONTE": _fewshot(client=_fs_client),
+               "FICHA_DEL_FONDO": ficha}
     msg = cli.messages.create(
         model=MODEL, max_tokens=900, temperature=0,
         system=[{"type": "text", "text": _SYSTEM, "cache_control": {"type": "ephemeral"}}],
