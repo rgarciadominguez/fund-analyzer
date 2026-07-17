@@ -1,7 +1,7 @@
 {
   "_meta": {
     "que_es": "Contrato de sincronizacion activos <-> Supabase (fund-analyzer). Fuente unica de verdad del vocabulario de cada campo compartido. LOS DOS LADOS validan contra este fichero: fund-analyzer antes de exportar, transformar.py al importar. Un valor fuera de lista NO se emite: se deja null y se avisa. Asi las dos BDD no pueden divergir.",
-    "version": 1,
+    "version": 2,
     "fecha": "2026-07-17",
     "regla_de_oro": "Si un fondo necesita un valor que no esta en la lista de su campo, se emite null y se reporta en la respuesta para acordarlo. NUNCA se inventa un valor nuevo.",
     "cruce": "siempre por ISIN, nunca por nombre"
@@ -140,7 +140,7 @@
     "benchmark": {
       "dueno": "Supabase (rellena huecos; los 114 de Rafa mandan)",
       "tipo": "texto_normalizado",
-      "nota": "Un solo indice, escrito siempre igual. Nunca una categoria (eso es tipo_activo). null si el fondo no se compara con un indice."
+      "nota": "La REFERENCIA del fondo. Para fondos direccionales: un indice de mercado (SP500, MSCI World, Euribor...), escrito siempre igual. Para fondos MIXTOS se admite la asignacion/estrategia como referencia (Cartera Permanente, '40% RV y 60% RF', '75% RV y 25% RF'). Se NULIFICA solo lo que ya es redundante con tipo_activo o region: 'Renta Fija Corto/Medio/Largo Plazo', 'Renta Fija High Yield', 'REITs', o etiquetas de solo-region ('RV UK'). null si el fondo no tiene referencia."
     },
     "descripcion": {
       "dueno": "BLINDADO: lo de Rafa manda, Supabase rellena huecos y fondos nuevos",

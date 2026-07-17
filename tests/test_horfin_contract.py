@@ -195,8 +195,32 @@ def test_contract_tipo_activo_granular():
     assert by["RF1"] == "Fondo RF Medio Plazo"
     assert by["RF2"] == "Fondo RF High Yield"
     assert by["MON"] == "Fondo Monetario"
-    assert by["ILS"] is None                    # sin valor en contrato → null + propuesta
-    assert any("ILS" in p["motivo"] for p in rep["propuestas_valor_nuevo"])
+    assert by["ILS"] == "Alternativos"          # decisión cierre v2: ILS → Alternativos
+
+
+def test_contract_benchmark_nulifica_redundante_conserva_mixtos():
+    """v2: nulifica RF-term/HY/REITs; conserva índices y asignación de mixtos."""
+    from tools.contract_sync import apply_contract
+    rows = [
+        {"isin": "A", "tipo_activo": "RF", "benchmark": "Renta Fija Medio Plazo", "nombre": "A"},
+        {"isin": "B", "tipo_activo": "RV", "benchmark": "MSCI World", "nombre": "B"},
+        {"isin": "C", "tipo_activo": "Mixtos", "benchmark": "Cartera Permanente", "nombre": "C"},
+        {"isin": "D", "tipo_activo": "Mixtos", "benchmark": "40% RV y 60% RF", "nombre": "D"},
+    ]
+    out, rep = apply_contract(rows)
+    by = {r["isin"]: r["benchmark"] for r in out}
+    assert by["A"] is None                       # redundante con tipo_activo → null
+    assert by["B"] == "MSCI World"               # índice real → se conserva
+    assert by["C"] == "Cartera Permanente"       # asignación de mixto → se conserva
+    assert by["D"] == "40% RV y 60% RF"          # asignación de mixto → se conserva
+
+
+def test_fund_estado_default():
+    from tools.fund_estado import default_estado
+    assert default_estado({"has_qualitative_analysis": True}) == "cerrado"
+    assert default_estado({"grupo_analizado": True}) == "cerrado"
+    assert default_estado({"has_qualitative_analysis": False}) == "pendiente"
+    assert default_estado({}) == "pendiente"
 
 
 def test_contract_out_of_enum_goes_null():

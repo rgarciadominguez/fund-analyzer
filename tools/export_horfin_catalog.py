@@ -113,16 +113,30 @@ def build() -> dict:
     old_rows = {r["isin"]: r for r in old.get("activos", [])}
 
     funds = {r["isin"]: r for r in _fetch_all(c, "funds")}
-    print(f"funds en Supabase: {len(funds)} | filas en export viejo: {len(old_rows)}")
+    groups = {g["fund_group_id"]: g for g in _fetch_all(c, "fund_groups")}
+    print(f"funds en Supabase: {len(funds)} | grupos: {len(groups)} | filas viejas: {len(old_rows)}")
+
+    # Inputs de compose/transform: se RE-SOURCEAN de la fuente coarse (fund_groups/funds)
+    # en CADA run, no del export viejo. Así el export es idempotente y aplica reglas nuevas
+    # (p.ej. ILS→Alternativos): si leyera su propio output ya conformado, compose fallaría.
+    GROUP_COARSE = ["tipo_activo", "geografia", "plazo", "categoria_rf", "estilo",
+                    "caracteristicas_especiales", "srri", "categoria_morningstar", "gestora"]
 
     activos = []
     # 1) todas las filas del export viejo, refrescadas
     for isin, base in old_rows.items():
         row = {k: base.get(k) for k in FIELDS_34}
         f = funds.get(isin, {})
+        g = groups.get(f.get("fund_group_id") or base.get("fund_group_id"), {})
         # nombre: refresco desde funds (corrige cruces ISIN<->nombre erróneos como IE0007987708)
         if f.get("nombre_clase"):
             row["nombre"] = f["nombre_clase"]
+        # re-source coarse desde fund_groups (idempotencia + reglas nuevas)
+        for k in GROUP_COARSE:
+            if k in g:
+                row[k] = g.get(k)
+        if f.get("distribucion") is not None:
+            row["distribucion"] = f.get("distribucion")
         # refresco dato propietario
         for k in REFRESH_FROM_FUNDS:
             if k in ("ter_pct", "comision_gestion_pct"):
@@ -158,6 +172,12 @@ def build() -> dict:
 
     print(f"filas: {len(old_rows)} refrescadas + {nuevas} nuevas = {len(activos)}")
 
+    # --- estado cerrado/pendiente (contrato v2): expuesto para que Rafa vea sobre qué revisa ---
+    from tools.fund_estado import get_estado, seed_from_rows
+    seed_from_rows(activos)
+    for a in activos:
+        a["estado"] = get_estado(a["isin"], a)
+
     # --- conformar al contrato_sync.json (transforma vocabulario + valida enums) ---
     from tools.contract_sync import apply_contract, load_contract
     contract_version = load_contract().get("_meta", {}).get("version")
@@ -174,7 +194,7 @@ def build() -> dict:
     meta = {
         "generado": datetime.now(timezone.utc).isoformat(),
         "fuente": "supabase catalogo (funds x fund_groups) — fund-analyzer",
-        "version": 4,
+        "version": 5,
         "contrato_version": contract_version,
         "n_filas": len(activos),
         "n_con_horfin_id": filled("horfin_id"),

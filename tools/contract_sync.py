@@ -33,8 +33,16 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CONTRACT = Path(r"C:\Users\RafaelGarcía\horizonte-datos\contrato_sync.json")
+CONTRACT_EXT = Path(r"C:\Users\RafaelGarcía\horizonte-datos\contrato_sync.json")
+CONTRACT_REPO = ROOT / "data" / "contrato_sync.json"
 EXPORT = Path(r"C:\Users\RafaelGarcía\horizonte-datos\catalogo_supabase.json")
+
+# benchmark: valores que SE NULIFICAN por redundantes con tipo_activo/region (contrato v2).
+# Se CONSERVAN los índices reales y la asignación de mixtos (Cartera Permanente, 40/60...).
+_BENCH_NULIFICAR = {
+    "Renta Fija Corto Plazo", "Renta Fija Medio Plazo", "Renta Fija Largo Plazo",
+    "Renta Fija High Yield", "REITs", "RV UK",
+}
 
 # campo del export -> campo del contrato (los enum se validan por este mapeo)
 FIELD_MAP = {
@@ -53,17 +61,12 @@ FIELD_MAP = {
     "comision_suscripcion": "comision_suscripcion",
 }
 
-# benchmarks míos que son CATEGORÍAS, no índices (el contrato: benchmark = índice, nunca
-# categoría). No los toco (son de Rafa / blindado-ish), solo los REPORTO.
-_BENCH_CATEGORIA = {
-    "Renta Fija Corto Plazo", "Renta Fija Medio Plazo", "Renta Fija Largo Plazo",
-    "Renta Fija High Yield", "Renta Fija Nórdica", "Cartera Permanente", "Mixto Flexible",
-    "REITs", "Bonos Catástrofe", "40% RV y 60% RF", "75% RV y 25% RF", "25% RV y 75% RF",
-}
-
-
 def load_contract() -> dict:
-    return json.loads(CONTRACT.read_text(encoding="utf-8"))
+    """Lee el contrato de la carpeta de Horizonte; cae al copia del repo si no hay acceso."""
+    for p in (CONTRACT_EXT, CONTRACT_REPO):
+        if p.exists():
+            return json.loads(p.read_text(encoding="utf-8"))
+    raise FileNotFoundError("contrato_sync.json no encontrado (ni externo ni en repo)")
 
 
 def _as_list(v):
@@ -124,8 +127,9 @@ def compose_tipo_activo(row, report_new):
 
     if coarse == "RF":
         if _has(chars, "ILS", "Catástrofe", "Catastrofe"):
-            report_new.append((row["isin"], "tipo_activo", "ILS/Catástrofe (cat bonds) — no hay valor RF de catástrofe en el contrato"))
-            return None, "ILS/Catástrofe"
+            # decisión Rafa (cierre v2): ILS/catástrofe → Alternativos (no valor nuevo).
+            # El detalle queda en caracteristicas + benchmark 'Bonos Catástrofe'.
+            return "Alternativos", None
         if _has(chars, "Floating") or estilo == "Floating rate":
             return "Fondo RF Floating Rate", None
         if _has(chars, "High Yield") or bench == "Renta Fija High Yield":
@@ -185,13 +189,17 @@ def apply_contract(activos: list) -> tuple[list, dict]:
             if p:
                 r["plazo"] = p
 
-        # tipo_activo granular (compone; puede dejar null + propuesta)
-        granular, prop = compose_tipo_activo(r, propuestas)
-        r["tipo_activo"] = granular
+        # tipo_activo granular (compone). Idempotente: si ya es un valor granular válido
+        # (p.ej. re-exportando sin grupo del que re-sourcear), se deja tal cual.
+        if r.get("tipo_activo") not in enums["tipo_activo"]:
+            granular, prop = compose_tipo_activo(r, propuestas)
+            r["tipo_activo"] = granular
 
-        # benchmark categoría (solo report, no se toca)
-        if r.get("benchmark") in _BENCH_CATEGORIA:
+        # benchmark: nulifica lo redundante con tipo_activo/region (contrato v2).
+        # Conserva índices reales + asignación de mixtos (Cartera Permanente, 40/60...).
+        if r.get("benchmark") in _BENCH_NULIFICAR:
             bench_categoria[r["benchmark"]] += 1
+            r["benchmark"] = None
 
         # --- validación enum: fuera de lista → null + report ---
         for ex_field, co_field in FIELD_MAP.items():
@@ -214,7 +222,7 @@ def apply_contract(activos: list) -> tuple[list, dict]:
         "propuestas_valor_nuevo": [
             {"isin": i, "campo": c, "motivo": m} for i, c, m in propuestas
         ],
-        "benchmark_categoria_no_indice": dict(bench_categoria),
+        "benchmark_nulificado_redundante": dict(bench_categoria),
         "tipo_activo_resultante": dict(Counter(x.get("tipo_activo") for x in out)),
         "plazo_relleno": sum(1 for x in out if x.get("plazo")),
     }
