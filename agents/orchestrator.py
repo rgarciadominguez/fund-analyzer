@@ -631,18 +631,22 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
         progress.update(main_task, description="Sources Agent")
         log("ORCHESTRATOR", "START", "Paso 2: Sources Agent")
 
-        try:
-            from agents.sources_agent import SourcesAgent
-            sources = SourcesAgent(
-                isin, fund_name=fund_name_hint,
-                gestora=gestora_hint, gestores=gestores_hint,
-            )
-            results["sources"] = await sources.run()
-            n_sources = len(results["sources"].get("sources", []))
-            log("SOURCES", "OK", f"{n_sources} fuentes descubiertas")
-        except Exception as exc:
-            log("SOURCES", "ERROR", f"Sources falló: {exc}")
+        if os.environ.get("FUND_LEAN") == "1":
+            log("SOURCES", "SKIP", "FUND_LEAN=1 → sin discovery web (CNMV+Morningstar bastan)")
             results["sources"] = {}
+        else:
+            try:
+                from agents.sources_agent import SourcesAgent
+                sources = SourcesAgent(
+                    isin, fund_name=fund_name_hint,
+                    gestora=gestora_hint, gestores=gestores_hint,
+                )
+                results["sources"] = await sources.run()
+                n_sources = len(results["sources"].get("sources", []))
+                log("SOURCES", "OK", f"{n_sources} fuentes descubiertas")
+            except Exception as exc:
+                log("SOURCES", "ERROR", f"Sources falló: {exc}")
+                results["sources"] = {}
 
         progress.advance(main_task)
 
@@ -651,6 +655,8 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
         log("ORCHESTRATOR", "START", "Paso 3: Letters + Readings + Manager (paralelo)")
 
         async def _run_letters():
+            if os.environ.get("FUND_LEAN") == "1":
+                return {}
             try:
                 from agents.letters_collector import LettersCollector
                 letters = LettersCollector(
@@ -676,6 +682,8 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
                 return {}
 
         async def _run_manager_deep():
+            if os.environ.get("FUND_LEAN") == "1":
+                return {}
             # F6: si el cache F6 copió manager_profile.json, no re-correr profiler
             if "manager_profile.json" in fg_cache_hits:
                 mp_path = fund_dir / "manager_profile.json"
@@ -703,6 +711,8 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
             Deriva el dominio de gestora_hint usando KNOWN_GESTORA_DOMAINS de
             sources_agent. Si no hay match, skip silencioso (no rompe pipeline).
             """
+            if os.environ.get("FUND_LEAN") == "1":
+                return {}
             try:
                 from agents.sources_agent import KNOWN_GESTORA_DOMAINS
                 from agents.gestora_resources_extractor import GestoraResourcesExtractor
@@ -765,6 +775,8 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
             except Exception as exc:
                 log("READINGS", "WARN", f"cache F6 ilegible, corriendo collector: {exc}")
                 readings_result = None
+        if os.environ.get("FUND_LEAN") == "1":
+            readings_result = readings_result or {}
         if readings_result is None:
             try:
                 from agents.readings_collector import ReadingsCollector
