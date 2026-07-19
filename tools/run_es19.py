@@ -36,9 +36,13 @@ def _save_state(s: dict) -> None:
 
 
 def _run(cmd: list[str], timeout: int) -> tuple[int, str]:
+    import os
+    env = dict(os.environ)
+    env["FUND_LEAN"] = "1"              # sin discovery/gestores/cartas/lecturas (rápido + red-light)
+    env["QUALITY_LOOP_MAX_ITER"] = "0"  # sin retry loop
     try:
         p = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True,
-                           timeout=timeout, encoding="utf-8", errors="replace")
+                           timeout=timeout, encoding="utf-8", errors="replace", env=env)
         return p.returncode, (p.stdout or "")[-1500:] + (p.stderr or "")[-800:]
     except subprocess.TimeoutExpired:
         return 124, "TIMEOUT"
@@ -49,7 +53,7 @@ def _run(cmd: list[str], timeout: int) -> tuple[int, str]:
 def analyze_one(isin: str) -> dict:
     out = {"isin": isin, "steps": {}}
     outp = ROOT / "data" / "funds" / isin / "output.json"
-    # 1) pipeline CNMV + analyst (salta si ya hay output.json → reanudable)
+    # 1) pipeline CNMV + analyst LEAN (salta si ya hay output.json → reanudable)
     if outp.exists():
         out["steps"]["orchestrator"] = "skip(existe)"
     else:
@@ -60,8 +64,9 @@ def analyze_one(isin: str) -> dict:
         out["error"] = "sin output.json"
         out["log"] = log[-600:]
         return out
-    # 2) sync a Supabase (crea fila + enrichment del contrato)
-    rc, log = _run([sys.executable, "-m", "tools.sync_to_supabase", isin], 600)
+    # 2) sync a Supabase (--force: el output lean no tiene secciones cualitativas, es
+    #    intencionado; los campos del contrato se generan en el enrichment del sync)
+    rc, log = _run([sys.executable, "-m", "tools.sync_to_supabase", isin, "--force"], 600)
     out["steps"]["sync"] = rc
     # 3) estado pendiente (no se auto-aprueba)
     try:
