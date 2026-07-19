@@ -48,19 +48,39 @@ def _run(cmd: list[str], timeout: int) -> tuple[int, str]:
         return 1, f"{type(e).__name__}: {e}"
 
 
+def _output_completo(outp) -> bool:
+    """True si output.json tiene análisis real (≥1 sección con contenido). Un output
+    fino de un run interrumpido NO cuenta → hay que reanalizar."""
+    try:
+        d = json.loads(outp.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    a = d.get("analyst_synthesis") or {}
+    for k, v in a.items():
+        if isinstance(v, dict) and (str(v.get("texto") or "").strip() or v.get("perfiles")):
+            return True
+    return False
+
+
 def analyze_one(isin: str) -> dict:
     out = {"isin": isin, "steps": {}}
     outp = ROOT / "data" / "funds" / isin / "output.json"
-    # 1) pipeline CNMV + analyst COMPLETO (salta si ya hay output.json → reanudable).
-    #    Timeout amplio (60 min) para absorber la lentitud del discovery y los cortes de red.
-    if outp.exists():
-        out["steps"]["orchestrator"] = "skip(existe)"
+    log = ""
+    # 1) pipeline CNMV + analyst COMPLETO. Salta SOLO si el output ya está completo
+    #    (un output fino de un run cortado se reanaliza). Timeout amplio (60 min).
+    if outp.exists() and _output_completo(outp):
+        out["steps"]["orchestrator"] = "skip(completo)"
     else:
+        if outp.exists():                       # output fino de run cortado → fuera
+            try:
+                outp.unlink()
+            except Exception:
+                pass
         rc, log = _run([sys.executable, "-m", "agents.orchestrator", "--isin", isin, "--auto"], 3600)
         out["steps"]["orchestrator"] = rc
-    out["output_json"] = outp.exists()
-    if not outp.exists():
-        out["error"] = "sin output.json"
+    out["output_json"] = outp.exists() and _output_completo(outp)
+    if not out["output_json"]:
+        out["error"] = "sin output.json completo"
         out["log"] = log[-600:]
         return out
     # 2) sync a Supabase (crea fila + enrichment del contrato)
