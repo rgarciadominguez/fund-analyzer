@@ -64,6 +64,16 @@ def is_cerrado(isin: str, row: dict | None = None) -> bool:
     return get_estado(isin, row) == "cerrado"
 
 
+def is_cerrado_explicit(isin: str) -> bool:
+    """True SOLO si el registro marca 'cerrado' explícitamente.
+
+    Para el GUARD del sync: un fondo nuevo (no en el registro) o marcado 'pendiente'
+    debe poder enriquecerse en su PRIMER análisis. Solo se salta si Rafa/seed lo cerró.
+    Distinto de is_cerrado(), que aplica el default analizado→cerrado (para el export).
+    """
+    return _load().get(isin) == "cerrado"
+
+
 def set_estado(isin: str, estado: str) -> None:
     assert estado in ("cerrado", "pendiente"), estado
     reg = _load()

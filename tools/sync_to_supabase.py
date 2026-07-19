@@ -698,8 +698,10 @@ def _sync_fund_impl(
     # Un reanálisis general NO cambia clasificación/textos/benchmark de un fondo cerrado.
     # Solo Rafa reabre un fondo marcándolo `pendiente` en data/fund_estado.json.
     try:
-        from tools.fund_estado import is_cerrado
-        _cerrado = is_cerrado(isin, {"has_qualitative_analysis": True})
+        from tools.fund_estado import is_cerrado_explicit
+        # Solo se salta si el registro CIERRA el fondo explícitamente. Un fondo nuevo
+        # (no en el registro) o 'pendiente' SÍ se enriquece en su primer análisis.
+        _cerrado = is_cerrado_explicit(isin)
     except Exception:
         _cerrado = False
     if _cerrado:
