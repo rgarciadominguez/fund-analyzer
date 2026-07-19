@@ -36,13 +36,11 @@ def _save_state(s: dict) -> None:
 
 
 def _run(cmd: list[str], timeout: int) -> tuple[int, str]:
-    import os
-    env = dict(os.environ)
-    env["FUND_LEAN"] = "1"              # sin discovery/gestores/cartas/lecturas (rápido + red-light)
-    env["QUALITY_LOOP_MAX_ITER"] = "0"  # sin retry loop
+    # Análisis COMPLETO (no lean): perfiles de gestores, cartas, lecturas, síntesis rica.
+    # Los ES tienen la mejor fuente (CNMV) y merecen el análisis entero.
     try:
         p = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True,
-                           timeout=timeout, encoding="utf-8", errors="replace", env=env)
+                           timeout=timeout, encoding="utf-8", errors="replace")
         return p.returncode, (p.stdout or "")[-1500:] + (p.stderr or "")[-800:]
     except subprocess.TimeoutExpired:
         return 124, "TIMEOUT"
@@ -53,20 +51,20 @@ def _run(cmd: list[str], timeout: int) -> tuple[int, str]:
 def analyze_one(isin: str) -> dict:
     out = {"isin": isin, "steps": {}}
     outp = ROOT / "data" / "funds" / isin / "output.json"
-    # 1) pipeline CNMV + analyst LEAN (salta si ya hay output.json → reanudable)
+    # 1) pipeline CNMV + analyst COMPLETO (salta si ya hay output.json → reanudable).
+    #    Timeout amplio (60 min) para absorber la lentitud del discovery y los cortes de red.
     if outp.exists():
         out["steps"]["orchestrator"] = "skip(existe)"
     else:
-        rc, log = _run([sys.executable, "-m", "agents.orchestrator", "--isin", isin, "--auto"], 900)
+        rc, log = _run([sys.executable, "-m", "agents.orchestrator", "--isin", isin, "--auto"], 3600)
         out["steps"]["orchestrator"] = rc
     out["output_json"] = outp.exists()
     if not outp.exists():
         out["error"] = "sin output.json"
         out["log"] = log[-600:]
         return out
-    # 2) sync a Supabase (--force: el output lean no tiene secciones cualitativas, es
-    #    intencionado; los campos del contrato se generan en el enrichment del sync)
-    rc, log = _run([sys.executable, "-m", "tools.sync_to_supabase", isin, "--force"], 600)
+    # 2) sync a Supabase (crea fila + enrichment del contrato)
+    rc, log = _run([sys.executable, "-m", "tools.sync_to_supabase", isin], 600)
     out["steps"]["sync"] = rc
     # 3) estado pendiente (no se auto-aprueba)
     try:
