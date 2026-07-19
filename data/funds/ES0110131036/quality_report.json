@@ -1,0 +1,121 @@
+{
+  "fund": "ES0110131036",
+  "nombre": "BBVA AHORRO CORTO PLAZO II, FI",
+  "fallos": [
+    {
+      "regla_id": "fuentes_min_opiniones",
+      "seccion": "fuentes_externas",
+      "fail_type": "scarcity",
+      "problema": "Solo 3 opiniones externas (mínimo 8).",
+      "agente_responsable": "readings_agent",
+      "accion": "Re-ejecutar readings_agent con más queries y fuentes."
+    },
+    {
+      "regla_id": "historia_no_headers",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Historia tiene 4 subsecciones — debe ser 3-5 parrafos fluidos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia como narrativa pura sin headers."
+    },
+    {
+      "regla_id": "cuant_serie_vl_valid",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "estructura",
+      "problema": "Serie VL corrupta (primer_vl_anomalo): VL inicial=793.7544. No refleja VLs reales del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar extraccion de VL en cnmv_agent. Puede estar leyendo AUM, numero de participes u otro campo como VL."
+    },
+    {
+      "regla_id": "historia_kpis_match_data",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 22745 partícipes, KPI real 179564 (87% drift); texto dice 2114.0 M€ AUM, KPI real 7069.159 (70% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
+    },
+    {
+      "regla_id": "aum_jump_alert",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Salto AUM >50% año a año detectado (saltos_aum_>50%): 2009→2010: 2114→855 M€ (-60%); 2014→2015: 416→1404 M€ (+238%); 2021→2022: 438→902 M€ (+106%). Posible bug extracción cnmv_agent o cambio real de mercado.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/120 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "cartera_posiciones_historicas_cobertura",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones historicas incompletas (cobertura_insuficiente): 9/17 años (53%) - faltan: ['2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018']",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent solo tiene top10 para algunos años. Extraer top10 de cada FONDCART_YYYYMM.xml (uno por semestre/anio) para completar la serie historica."
+    },
+    {
+      "regla_id": "cuant_serie_clases_info_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_clases_info vacia: no se identifican las clases del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+    },
+    {
+      "regla_id": "hitos_historia_percentages_verifiable",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2014: hito dice 10.0%, real 0.0% | 2023: hito dice 75.0%, real 2.7% | 2024: hito dice 78.0%, real 3.1%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    },
+    {
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (7/7). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta todo (perfil_riesgo no existe).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    }
+  ],
+  "fallos_estructura": 4,
+  "fallos_scarcity": 5,
+  "total_reglas": 103,
+  "reglas_ok": 91,
+  "aceptable": false,
+  "score_display": "91/103 reglas OK (5 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-07-19T13:06:00.673232",
+  "human_feedback_pending": [],
+  "n_human_feedback_pending": 0
+}
