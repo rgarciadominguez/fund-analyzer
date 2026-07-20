@@ -763,6 +763,14 @@ def _sync_fund_impl(
         except Exception as _e:
             log(f"[SYNC] horfin textos falló (no crítico): {str(_e)[:80]}")
 
+    # Coste del análisis de este fondo → Supabase (para el panel admin en la web pública).
+    # Best-effort: si las tablas cost_* no existen aún (DDL manual), no rompe el sync.
+    try:
+        from tools.cost_sync import sync_fund_cost
+        sync_fund_cost(isin)
+    except Exception as _e:
+        log(f"[SYNC] cost_sync falló (no crítico): {str(_e)[:80]}")
+
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
 
     return {

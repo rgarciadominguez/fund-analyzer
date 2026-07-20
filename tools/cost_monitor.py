@@ -247,12 +247,59 @@ def summary_by_category(days: int = 30) -> dict:
     }
 
 
+def by_month(months: int = 12) -> list[dict]:
+    """Coste por mes natural (todos los meses del log), con desglose por categoría.
+    Nivel MENSUAL que pide el admin."""
+    entries = _read_entries()
+    agg = defaultdict(lambda: {"cost_usd": 0.0, "n_calls": 0,
+                               "cat": defaultdict(float)})
+    for e in entries:
+        mes = (e.get("date") or "")[:7]  # YYYY-MM
+        if not mes:
+            continue
+        agg[mes]["cost_usd"] += e["cost_usd"]
+        agg[mes]["n_calls"] += 1
+        agg[mes]["cat"][e.get("categoria") or CAT_ANALISIS] += e["cost_usd"]
+    out = [{"mes": m,
+            "cost_usd": round(v["cost_usd"], 4),
+            "cost_eur": round(v["cost_usd"] * EUR_USD_RATIO, 4),
+            "n_calls": v["n_calls"],
+            "por_categoria": {k: round(c, 4) for k, c in v["cat"].items()}}
+           for m, v in agg.items()]
+    return sorted(out, key=lambda x: x["mes"], reverse=True)[:months]
+
+
+def by_fund(limit: int | None = None) -> list[dict]:
+    """Coste acumulado (de por vida) por fondo. Nivel ANÁLISIS DE FONDO que pide el admin."""
+    entries = _read_entries()
+    agg = defaultdict(lambda: {"cost_usd": 0.0, "n_calls": 0, "tokens": 0,
+                               "cat": defaultdict(float)})
+    for e in entries:
+        isin = (e.get("isin") or "").strip()
+        if not isin:
+            continue
+        agg[isin]["cost_usd"] += e["cost_usd"]
+        agg[isin]["n_calls"] += 1
+        agg[isin]["tokens"] += e.get("input_tok", 0) + e.get("output_tok", 0)
+        agg[isin]["cat"][e.get("categoria") or CAT_ANALISIS] += e["cost_usd"]
+    out = [{"isin": i,
+            "cost_usd": round(v["cost_usd"], 4),
+            "cost_eur": round(v["cost_usd"] * EUR_USD_RATIO, 4),
+            "n_calls": v["n_calls"], "tokens": v["tokens"],
+            "por_categoria": {k: round(c, 4) for k, c in v["cat"].items()}}
+           for i, v in agg.items()]
+    out.sort(key=lambda x: -x["cost_usd"])
+    return out[:limit] if limit else out
+
+
 def admin_overview(days: int = 30) -> dict:
     """Vista única para el panel admin: categorías + agentes + modelos + hoy/mes."""
     return {
         "por_categoria": summary_by_category(days),
         "por_agente": summary_by_agent(days)[:15],
         "por_modelo": summary_by_model(days),
+        "por_mes": by_month(12),
+        "por_fondo": by_fund(limit=25),
         "hoy": summary_today(),
         "mes": summary_month(),
         "aviso_tracking": "Incluye solo llamadas instrumentadas. El saldo real está en console.anthropic.com.",

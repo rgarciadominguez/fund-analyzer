@@ -35,6 +35,12 @@
 
   <div class="cards" id="cards"></div>
 
+  <h2>Por mes</h2>
+  <table id="tbl-month"><thead><tr><th>Mes</th><th class="num">USD</th><th class="num">EUR</th><th class="num">Análisis</th><th class="num">Imágenes</th><th class="num">Llamadas</th></tr></thead><tbody></tbody></table>
+
+  <h2>Por fondo (coste de análisis por ISIN)</h2>
+  <table id="tbl-fund"><thead><tr><th>ISIN</th><th class="num">USD</th><th class="num">EUR</th><th class="num">Llamadas</th></tr></thead><tbody></tbody></table>
+
   <h2>Por categoría</h2>
   <table id="tbl-cat"><thead><tr><th>Categoría</th><th class="num">USD</th><th class="num">EUR</th><th class="num">Llamadas</th><th class="num">%</th></tr></thead><tbody></tbody></table>
 
@@ -49,25 +55,50 @@
 
 <script>
 const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:5000';
+const SUPABASE_URL = 'https://mfbtebngddjjuwfaelat.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mYnRlYm5nZGRqanV3ZmFlbGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzY1NjQsImV4cCI6MjA5NDI1MjU2NH0.ebb82XiocFQx5YtFSFkFnRaaIfetu3QI3rlMca4yeoM';
 const LABELS = {analisis_fondos:'Análisis de fondos', procesar_imagenes:'Procesar imágenes', otros:'Otros'};
 
 function fmt(n){return '$'+(Number(n||0)).toFixed(2)}
 function eur(n){return (Number(n||0)).toFixed(2)+'€'}
 
+// Lee de Supabase (web pública, sin servidor). Reconstruye la forma de admin_overview.
+async function fromSupabase(){
+  const h = {apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+SUPABASE_ANON_KEY};
+  const [fr, mr] = await Promise.all([
+    fetch(`${SUPABASE_URL}/rest/v1/cost_fund?select=*&order=cost_usd.desc&limit=25`, {headers:h}),
+    fetch(`${SUPABASE_URL}/rest/v1/cost_month?select=*`, {headers:h}),
+  ]);
+  if(!fr.ok || !mr.ok) throw new Error('supabase');
+  const funds = await fr.json(), months = await mr.json();
+  // meses: agrupar categoria → una fila por mes
+  const mmap = {};
+  for(const r of months){ (mmap[r.mes] ||= {mes:r.mes, cost_usd:0, n_calls:0, por_categoria:{}}); mmap[r.mes].cost_usd+=+r.cost_usd; mmap[r.mes].n_calls=r.n_calls; mmap[r.mes].por_categoria[r.categoria]=+r.cost_usd; }
+  const por_mes = Object.values(mmap).map(m=>({...m, cost_eur:m.cost_usd*0.92})).sort((a,b)=>b.mes.localeCompare(a.mes));
+  const por_fondo = funds.map(f=>({isin:f.isin, cost_usd:+f.cost_usd, cost_eur:+f.cost_usd*0.92, n_calls:f.n_calls,
+                                   por_categoria:{analisis_fondos:+f.cost_analisis_usd, procesar_imagenes:+f.cost_imagenes_usd}}));
+  const catAgg={}; for(const m of por_mes) for(const [k,v] of Object.entries(m.por_categoria)) catAgg[k]=(catAgg[k]||0)+v;
+  const totC=Object.values(catAgg).reduce((a,b)=>a+b,0);
+  return {_supabase:true, por_mes, por_fondo, por_agente:[], por_modelo:[],
+    hoy:{total_usd:0}, mes:{projection_usd:0},
+    por_categoria:{total_usd:totC, total_eur:totC*0.92,
+      categorias:Object.fromEntries(Object.entries(catAgg).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,{cost_usd:v,cost_eur:v*0.92,n_calls:0,pct:totC?Math.round(1000*v/totC)/10:0}]))}};
+}
+
 async function load(){
   const days = document.getElementById('days').value;
   const st = document.getElementById('status');
   st.textContent = 'cargando…';
-  let d;
+  let d, src='local';
   try{
     const r = await fetch(`${API_BASE}/api/admin/costs?days=${days}`);
     d = await r.json();
     if(d.error) throw new Error(d.error);
   }catch(e){
-    st.innerHTML = '<span class="bad">Sin servidor local ('+API_BASE+'). Arranca web_server.py.</span>';
-    return;
+    try{ d = await fromSupabase(); src='supabase'; }
+    catch(e2){ st.innerHTML = '<span class="bad">Sin servidor local y sin datos en Supabase. Arranca web_server.py o corre cost_sync --apply.</span>'; return; }
   }
-  st.textContent = '';
+  st.textContent = src==='supabase' ? 'datos de Supabase (web pública)' : 'datos del servidor local';
   const cat = d.por_categoria || {categorias:{},total_usd:0};
 
   // cards: total + una por categoría
@@ -79,6 +110,12 @@ async function load(){
   cards += `<div class="card"><div class="k">Mes (proyección)</div><div class="v">${fmt(d.mes?.projection_usd)}</div></div>`;
   document.getElementById('cards').innerHTML = cards;
 
+  fill('tbl-month', (d.por_mes||[]).map(m=>{
+    const c=m.por_categoria||{};
+    return `<td>${m.mes}</td><td class="num">${fmt(m.cost_usd)}</td><td class="num">${eur(m.cost_eur)}</td><td class="num">${fmt(c.analisis_fondos||0)}</td><td class="num">${fmt(c.procesar_imagenes||0)}</td><td class="num">${m.n_calls||''}</td>`;
+  }));
+  fill('tbl-fund', (d.por_fondo||[]).map(f=>
+    `<td>${f.isin}</td><td class="num">${fmt(f.cost_usd)}</td><td class="num">${eur(f.cost_eur)}</td><td class="num">${f.n_calls}</td>`));
   fill('tbl-cat', Object.entries(cat.categorias||{}).map(([k,v])=>
     `<td>${LABELS[k]||k}</td><td class="num">${fmt(v.cost_usd)}</td><td class="num">${eur(v.cost_eur)}</td><td class="num">${v.n_calls}</td><td class="num">${v.pct}%</td>`));
   fill('tbl-agent', (d.por_agente||[]).map(a=>
