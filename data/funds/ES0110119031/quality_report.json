@@ -3,156 +3,28 @@
   "nombre": "QUALITY MEJORES IDEAS, FI",
   "fallos": [
     {
-      "regla_id": "resumen_mentions_fund_name",
-      "seccion": "resumen",
-      "fail_type": "content",
-      "problema": "Resumen no menciona el nombre del fondo 'QUALITY MEJORES IDEAS, FI' — posible texto genérico",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar: el texto debe ser específico de este fondo, no genérico."
-    },
-    {
-      "regla_id": "resumen_has_cifras",
-      "seccion": "resumen",
-      "fail_type": "content",
-      "problema": "Resumen con pocas cifras concretas (0 encontradas, mínimo 5). Parece genérico.",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar: incluir cifras de AUM, partícipes, rentabilidad, volatilidad."
-    },
-    {
-      "regla_id": "resumen_min_fortalezas",
-      "seccion": "resumen",
-      "fail_type": "estructura",
-      "problema": "Solo 0 fortalezas (mínimo 4)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar con al menos 4 fortalezas específicas del fondo."
-    },
-    {
-      "regla_id": "resumen_min_riesgos",
-      "seccion": "resumen",
-      "fail_type": "estructura",
-      "problema": "Solo 0 riesgos (mínimo 3)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar con al menos 3 riesgos específicos del fondo."
-    },
-    {
-      "regla_id": "resumen_has_para_quien",
-      "seccion": "resumen",
-      "fail_type": "estructura",
-      "problema": "Resumen sin campo 'para_quien_es' — falta perfil del inversor adecuado",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar incluyendo el perfil de inversor para el que el fondo es adecuado."
-    },
-    {
-      "regla_id": "resumen_has_signal",
-      "seccion": "resumen",
-      "fail_type": "estructura",
-      "problema": "Resumen sin campo 'signal' (POSITIVO/NEUTRAL/NEGATIVO)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar incluyendo signal de evaluación."
-    },
-    {
-      "regla_id": "historia_has_cifras",
-      "seccion": "historia",
-      "fail_type": "content",
-      "problema": "Historia con pocas cifras concretas (0). Parece genérica.",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar incluyendo cifras concretas: AUM, partícipes, rentabilidad anual, fechas."
-    },
-    {
-      "regla_id": "gestores_lead_has_filosofia",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal 'Quality Mejores Ideas' sin filosofía de inversión.",
-      "agente_responsable": "manager_deep_agent",
-      "accion": "Buscar filosofía en web de gestora, cartas, entrevistas."
-    },
-    {
-      "regla_id": "gestores_lead_has_decisiones",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal sin decisiones_clave documentadas.",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar gestores extrayendo decisiones clave del lead manager."
-    },
-    {
-      "regla_id": "estrategia_min_hitos",
-      "seccion": "estrategia",
-      "fail_type": "scarcity",
-      "problema": "Solo 0 hitos estratégicos (mínimo 3).",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar estrategia con hitos por periodo. Usar datos de timeline + mix_activos."
-    },
-    {
-      "regla_id": "estrategia_has_cifras",
-      "seccion": "estrategia",
-      "fail_type": "content",
-      "problema": "Estrategia con pocas cifras (0). Parece genérica.",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar incluyendo % de exposición, AUM, rentabilidades concretas por fase."
-    },
-    {
       "regla_id": "fuentes_min_opiniones",
       "seccion": "fuentes_externas",
       "fail_type": "scarcity",
-      "problema": "Solo 0 opiniones externas (mínimo 8).",
+      "problema": "Solo 4 opiniones externas (mínimo 8).",
       "agente_responsable": "readings_agent",
       "accion": "Re-ejecutar readings_agent con más queries y fuentes."
     },
     {
-      "regla_id": "resumen_has_filosofia",
-      "seccion": "resumen",
-      "fail_type": "estructura",
-      "problema": "Resumen sin campo filosofia_inversion",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar con filosofia_inversion como campo separado (2-3 parrafos)."
-    },
-    {
-      "regla_id": "resumen_has_criterios",
-      "seccion": "resumen",
-      "fail_type": "estructura",
-      "problema": "Solo 0 criterios de inversion (minimo 3 numerados)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar con 3 criterios de inversion numerados (titulo + descripcion)."
-    },
-    {
-      "regla_id": "historia_min_hitos_7",
+      "regla_id": "historia_no_headers",
       "seccion": "historia",
       "fail_type": "estructura",
-      "problema": "Solo 0 hitos en cronologia (minimo 7)",
+      "problema": "Historia tiene 3 subsecciones — debe ser 3-5 parrafos fluidos",
       "agente_responsable": "analyst_agent",
-      "accion": "Re-generar con minimo 7 hitos con anio, titulo, evento, tipo."
+      "accion": "Re-generar historia como narrativa pura sin headers."
     },
     {
-      "regla_id": "historia_hitos_have_titulo",
+      "regla_id": "historia_kpis_match_data",
       "seccion": "historia",
-      "fail_type": "estructura",
-      "problema": "Solo 0 hitos con titulo (minimo 5)",
+      "fail_type": "content",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 8571 partícipes, KPI real 74287 (88% drift); texto dice 217.3 M€ AUM, KPI real 1840.484 (88% drift)",
       "agente_responsable": "analyst_agent",
-      "accion": "Cada hito debe tener campo titulo descriptivo."
-    },
-    {
-      "regla_id": "gestores_lead_cv_bullets",
-      "seccion": "gestores",
-      "fail_type": "estructura",
-      "problema": "Gestor principal con 0 CV bullets (minimo 4)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar perfiles con 4-6 CV bullets cortos por gestor."
-    },
-    {
-      "regla_id": "estrategia_has_quotes",
-      "seccion": "estrategia",
-      "fail_type": "estructura",
-      "problema": "Estrategia sin quotes del gestor (0 encontradas)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar con 2-3 citas/frases representativas del gestor."
-    },
-    {
-      "regla_id": "estrategia_matrix_4col",
-      "seccion": "estrategia",
-      "fail_type": "estructura",
-      "problema": "Solo 0 hitos con columnas completas (minimo 3)",
-      "agente_responsable": "analyst_agent",
-      "accion": "Re-generar hitos con campos: periodo, contexto_mercado, decisiones, resultado."
+      "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
     },
     {
       "regla_id": "aum_jump_alert",
@@ -195,12 +67,20 @@
       "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
     },
     {
-      "regla_id": "evolucion_drawdown_con_fecha",
-      "seccion": "datos_cuantitativos",
-      "fail_type": "scarcity",
-      "problema": "Drawdown incompleto (datos_drawdown_incompletos): Faltan: ['valor_pct', 'fecha_min', 'duracion']. Debe incluir valor, fecha del minimo y duracion.",
+      "regla_id": "hitos_historia_percentages_verifiable",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2011: hito dice 0.5%, real -3.2% | 2015: hito dice 58.0%, real 4.2% | 2017: hito dice 3.6%, real 7.1%",
       "agente_responsable": "analyst_agent",
-      "accion": "analyst_agent debe calcular drawdown maximo a partir de serie_vl_base100: valor_pct, fecha_min (periodo del minimo), duracion_meses (de pico a recuperacion). Guardar en analyst_synthesis.evolucion.datos_graficos.drawdown."
+      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    },
+    {
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (4/4). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
     },
     {
       "regla_id": "perfil_riesgo_present",
@@ -219,12 +99,12 @@
       "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
     }
   ],
-  "fallos_estructura": 17,
-  "fallos_scarcity": 8,
+  "fallos_estructura": 3,
+  "fallos_scarcity": 6,
   "total_reglas": 104,
-  "reglas_ok": 77,
+  "reglas_ok": 92,
   "aceptable": false,
-  "score_display": "77/104 reglas OK (8 pendientes de datos)",
+  "score_display": "92/104 reglas OK (6 pendientes de datos)",
   "secciones_evaluadas": [
     "resumen",
     "historia",
@@ -235,7 +115,7 @@
     "datos_cuantitativos",
     "header"
   ],
-  "evaluado_at": "2026-07-20T10:17:21.932867",
+  "evaluado_at": "2026-07-20T16:10:11.533803",
   "human_feedback_pending": [],
   "n_human_feedback_pending": 0
 }
