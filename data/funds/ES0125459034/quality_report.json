@@ -1,0 +1,137 @@
+{
+  "fund": "ES0125459034",
+  "nombre": "BBVA BOLSA DESARROLLO SOSTENIBLE, FI",
+  "fallos": [
+    {
+      "regla_id": "fuentes_min_opiniones",
+      "seccion": "fuentes_externas",
+      "fail_type": "scarcity",
+      "problema": "Solo 2 opiniones externas (mínimo 8).",
+      "agente_responsable": "readings_agent",
+      "accion": "Re-ejecutar readings_agent con más queries y fuentes."
+    },
+    {
+      "regla_id": "historia_no_headers",
+      "seccion": "historia",
+      "fail_type": "estructura",
+      "problema": "Historia tiene 4 subsecciones — debe ser 3-5 parrafos fluidos",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia como narrativa pura sin headers."
+    },
+    {
+      "regla_id": "estrategia_no_headers",
+      "seccion": "estrategia",
+      "fail_type": "estructura",
+      "problema": "Estrategia tiene 4 subsecciones — debe ser parrafos evaluativos sin headers",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia como narrativa evaluativa pura."
+    },
+    {
+      "regla_id": "resumen_kpis_match_data",
+      "seccion": "resumen",
+      "fail_type": "content",
+      "problema": "Resumen tiene cifras de partícipes/AUM que no cuadran con KPIs reales (cifras_kpi_no_coinciden): texto dice 801 partícipes, KPI real 28747 (97% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar resumen usando SOLO data.kpis para num_participes y aum_actual_meur. Nunca tomar cifras del texto del PDF (gestores a veces escriben mal)."
+    },
+    {
+      "regla_id": "historia_kpis_match_data",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia tiene cifras de partícipes/AUM que no cuadran con KPIs (cifras_kpi_no_coinciden): texto dice 4414 partícipes, KPI real 28747 (85% drift); texto dice 13.8 M€ AUM, KPI real 762.74 (98% drift)",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia usando SOLO data.kpis y series oficiales. Texto del gestor en PDF no es fuente fiable."
+    },
+    {
+      "regla_id": "aum_jump_alert",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "Salto AUM >50% año a año detectado (saltos_aum_>50%): 2009→2010: 14→27 M€ (+92%); 2018→2019: 50→182 M€ (+267%); 2020→2021: 248→686 M€ (+177%). Posible bug extracción cnmv_agent o cambio real de mercado.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "Revisar PDF semestral del fondo. Verificar contra serie histórica de Morningstar/Finect. Si bug extracción, comprobar regex Format A/B/C en cnmv_agent."
+    },
+    {
+      "regla_id": "historia_returns_match_data",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Historia contiene rentabilidades que no coinciden con datos reales (rentabilidades_inventadas): 2011: texto dice 15.0%, real -4.3%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia indicando al analyst que SOLO use cifras de serie_rentabilidad o serie_vl_base100 reales, sin inventar porcentajes anuales."
+    },
+    {
+      "regla_id": "cartera_posiciones_sectores",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones sin sector (sectores_ausentes): 0/203 (0%) con sector. Minimo 60% deben tener sector.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe inferir sector desde tipo de activo (RF corporativa → sector emisor, RV → sector ICB). Si no se puede desde XML, enriquecer con fuente externa (ISIN lookup)."
+    },
+    {
+      "regla_id": "cartera_posiciones_historicas_cobertura",
+      "seccion": "cartera",
+      "fail_type": "scarcity",
+      "problema": "Posiciones historicas incompletas (cobertura_insuficiente): 9/17 años (53%) - faltan: ['2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018']",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent solo tiene top10 para algunos años. Extraer top10 de cada FONDCART_YYYYMM.xml (uno por semestre/anio) para completar la serie historica."
+    },
+    {
+      "regla_id": "cuant_serie_clases_info_presente",
+      "seccion": "datos_cuantitativos",
+      "fail_type": "scarcity",
+      "problema": "serie_clases_info vacia: no se identifican las clases del fondo.",
+      "agente_responsable": "cnmv_agent",
+      "accion": "cnmv_agent debe poblar serie_clases_info con datos de cada clase detectada (clase, isin, inicio, activa) en los XMLs FONDREGISTRO."
+    },
+    {
+      "regla_id": "hitos_historia_percentages_verifiable",
+      "seccion": "historia",
+      "fail_type": "content",
+      "problema": "Hitos de historia con porcentajes no verificables (porcentajes_no_verificables): 2018: hito dice 1.55%, real -10.9%",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar historia: cada % en hitos debe cuadrar con serie_rentabilidad o base100 real (+/- 3pp). No inventar cifras de rentabilidad anual."
+    },
+    {
+      "regla_id": "hitos_estrategia_have_driver",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Hitos sin driver explicativo (5/5). Cada resultado debe llevar 'cifra — driver' (por qué subió/bajó).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia: cada hito debe tener resultado con formato '+X.XX% vs benchmark — DRIVER concreto'. Driver = evento/decisión que explica el resultado."
+    },
+    {
+      "regla_id": "perfil_riesgo_present",
+      "seccion": "estrategia",
+      "fail_type": "completitud",
+      "problema": "Perfil de riesgo de la estrategia incompleto: falta todo (perfil_riesgo no existe).",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia rellenando perfil_riesgo: tipo_activo_principal + ≥3 riesgos_especificos + escenarios_adversos + protecciones + liquidez_estructura."
+    },
+    {
+      "regla_id": "desglose_exposicion_present",
+      "seccion": "cartera",
+      "fail_type": "completitud",
+      "problema": "Desglose de exposición incompleto: 0 filas (mínimo 2). Cada fila necesita dimension + detalle + comentario.",
+      "agente_responsable": "analyst_agent",
+      "accion": "Re-generar estrategia/perfil_riesgo: desglose_exposicion debe tener ≥2 filas con la granularidad relevante al tipo de fondo (peril/región para cat bonds; país para EM; rating/sector para HY; etc.)."
+    }
+  ],
+  "fallos_estructura": 6,
+  "fallos_scarcity": 5,
+  "total_reglas": 103,
+  "reglas_ok": 89,
+  "aceptable": false,
+  "score_display": "89/103 reglas OK (5 pendientes de datos)",
+  "secciones_evaluadas": [
+    "resumen",
+    "historia",
+    "gestores",
+    "estrategia",
+    "cartera",
+    "fuentes_externas",
+    "datos_cuantitativos",
+    "header"
+  ],
+  "evaluado_at": "2026-07-20T18:44:35.238730",
+  "human_feedback_pending": [],
+  "n_human_feedback_pending": 0
+}
