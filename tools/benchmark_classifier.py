@@ -186,6 +186,13 @@ def _call(fichas: list[dict], vocab: list[str]) -> list[dict]:
         system=[{"type": "text", "text": _SYSTEM, "cache_control": {"type": "ephemeral"}}],
         messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
     )
+    try:
+        from tools.cost_monitor import track_anthropic, CAT_ANALISIS
+        track_anthropic("benchmark_classifier", MODEL, msg,
+                        isin=(fichas[0].get("isin", "") if len(fichas) == 1 else ""),
+                        categoria=CAT_ANALISIS)
+    except Exception:
+        pass
     txt = msg.content[0].text.strip()
     txt = re.sub(r"^```(?:json)?|```$", "", txt, flags=re.M).strip()
     m = re.search(r"\[.*\]", txt, re.S)

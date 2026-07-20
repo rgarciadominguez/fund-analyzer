@@ -1,0 +1,95 @@
+<!-- Panel admin — coste LLM. Consume /api/admin/costs del web_server local. -->
+<meta charset="utf-8">
+<title>Admin · Coste LLM · fund-analyzer</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#0f1420;color:#e6edf3}
+  .wrap{max-width:900px;margin:0 auto;padding:24px}
+  h1{font-size:20px;margin:0 0 4px} .sub{color:#8b98a9;font-size:13px;margin-bottom:20px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:22px}
+  .card{background:#182030;border:1px solid #263041;border-radius:10px;padding:16px}
+  .card .k{color:#8b98a9;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  .card .v{font-size:26px;font-weight:600;margin-top:6px}
+  .card .v small{font-size:14px;color:#8b98a9;font-weight:400}
+  .cat-analisis{border-left:3px solid #3b82f6} .cat-imagenes{border-left:3px solid #a855f7} .cat-otros{border-left:3px solid #64748b}
+  table{width:100%;border-collapse:collapse;margin:10px 0 26px;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #212a3a}
+  th{color:#8b98a9;font-weight:500;font-size:11px;text-transform:uppercase}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  h2{font-size:14px;color:#c9d4e0;margin:24px 0 4px}
+  .note{background:#1a2233;border:1px solid #2a3547;border-radius:8px;padding:12px 14px;font-size:12.5px;color:#aeb9c9;line-height:1.5}
+  .bad{color:#f87171} .controls{margin-bottom:16px} select,button{background:#182030;color:#e6edf3;border:1px solid #2a3547;border-radius:6px;padding:6px 10px;font-size:13px}
+</style>
+<div class="wrap">
+  <h1>Coste LLM — panel admin</h1>
+  <div class="sub">fund-analyzer · gasto del pipeline (crédito API de Anthropic)</div>
+
+  <div class="controls">
+    Periodo:
+    <select id="days" onchange="load()">
+      <option value="1">Hoy</option><option value="7">7 días</option>
+      <option value="30" selected>30 días</option><option value="3650">Todo</option>
+    </select>
+    <button onclick="load()">↻ Recargar</button>
+    <span id="status" style="color:#8b98a9;font-size:12px;margin-left:10px"></span>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <h2>Por categoría</h2>
+  <table id="tbl-cat"><thead><tr><th>Categoría</th><th class="num">USD</th><th class="num">EUR</th><th class="num">Llamadas</th><th class="num">%</th></tr></thead><tbody></tbody></table>
+
+  <h2>Por agente (qué parte del pipeline)</h2>
+  <table id="tbl-agent"><thead><tr><th>Agente</th><th class="num">USD</th><th class="num">Llamadas</th><th class="num">Tokens</th></tr></thead><tbody></tbody></table>
+
+  <h2>Por modelo</h2>
+  <table id="tbl-model"><thead><tr><th>Modelo</th><th class="num">USD</th><th class="num">Llamadas</th></tr></thead><tbody></tbody></table>
+
+  <div class="note" id="note"></div>
+</div>
+
+<script>
+const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:5000';
+const LABELS = {analisis_fondos:'Análisis de fondos', procesar_imagenes:'Procesar imágenes', otros:'Otros'};
+
+function fmt(n){return '$'+(Number(n||0)).toFixed(2)}
+function eur(n){return (Number(n||0)).toFixed(2)+'€'}
+
+async function load(){
+  const days = document.getElementById('days').value;
+  const st = document.getElementById('status');
+  st.textContent = 'cargando…';
+  let d;
+  try{
+    const r = await fetch(`${API_BASE}/api/admin/costs?days=${days}`);
+    d = await r.json();
+    if(d.error) throw new Error(d.error);
+  }catch(e){
+    st.innerHTML = '<span class="bad">Sin servidor local ('+API_BASE+'). Arranca web_server.py.</span>';
+    return;
+  }
+  st.textContent = '';
+  const cat = d.por_categoria || {categorias:{},total_usd:0};
+
+  // cards: total + una por categoría
+  let cards = `<div class="card"><div class="k">Total trackeado</div><div class="v">${fmt(cat.total_usd)} <small>${eur(cat.total_eur)}</small></div></div>`;
+  for(const [k,v] of Object.entries(cat.categorias||{})){
+    cards += `<div class="card cat-${k}"><div class="k">${LABELS[k]||k}</div><div class="v">${fmt(v.cost_usd)} <small>${v.pct}%</small></div></div>`;
+  }
+  cards += `<div class="card"><div class="k">Hoy</div><div class="v">${fmt(d.hoy?.total_usd)}</div></div>`;
+  cards += `<div class="card"><div class="k">Mes (proyección)</div><div class="v">${fmt(d.mes?.projection_usd)}</div></div>`;
+  document.getElementById('cards').innerHTML = cards;
+
+  fill('tbl-cat', Object.entries(cat.categorias||{}).map(([k,v])=>
+    `<td>${LABELS[k]||k}</td><td class="num">${fmt(v.cost_usd)}</td><td class="num">${eur(v.cost_eur)}</td><td class="num">${v.n_calls}</td><td class="num">${v.pct}%</td>`));
+  fill('tbl-agent', (d.por_agente||[]).map(a=>
+    `<td>${a.agent}</td><td class="num">${fmt(a.cost_usd)}</td><td class="num">${a.n_calls}</td><td class="num">${(a.tokens||0).toLocaleString()}</td>`));
+  fill('tbl-model', (d.por_modelo||[]).map(m=>
+    `<td>${m.model}</td><td class="num">${fmt(m.cost_usd)}</td><td class="num">${m.n_calls}</td>`));
+
+  document.getElementById('note').innerHTML =
+    '⚠️ Esto solo cuenta las llamadas <b>instrumentadas del pipeline Python</b> (crédito API de Anthropic). '+
+    'El <b>procesado de imágenes de PDFs</b> corre en las skills cowork (<code>claude -p</code>) y factura a <b>Claude Max</b>, no a este crédito. '+
+    'El saldo real y autoritativo está en <b>console.anthropic.com → Usage</b>.';
+}
+load();
+</script>

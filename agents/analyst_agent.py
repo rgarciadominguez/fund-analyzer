@@ -1229,6 +1229,7 @@ class AnalystAgent:
                 log_call(
                     agent=agent_label, model=model, isin=self.isin,
                     input_tokens=inp, output_tokens=out, cost_usd=cost_usd,
+                    categoria="analisis_fondos",
                 )
         except Exception:
             pass  # tracker NUNCA debe romper

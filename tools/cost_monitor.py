@@ -45,9 +45,32 @@ WARN_DAY_USD = 3.0
 WARN_MONTH_USD = 50.0
 
 
+# Categorías de gasto (para el admin: separar análisis de fondos vs imágenes).
+CAT_ANALISIS = "analisis_fondos"      # síntesis/extracción/enriquecimiento de texto
+CAT_IMAGENES = "procesar_imagenes"    # visión sobre PDFs/imágenes
+CAT_OTROS = "otros"
+
+# Precio USD por 1M tokens (input, output). Actualizar si cambian tarifas.
+PRICING = {
+    "claude-haiku-4-5-20251001": (1.0, 5.0),
+    "claude-haiku-4-5": (1.0, 5.0),
+    "claude-sonnet-4-5": (3.0, 15.0),
+    "claude-sonnet-4-5-20241022": (3.0, 15.0),
+    "claude-opus-4-8": (15.0, 75.0),
+    "claude-opus-4-7": (15.0, 75.0),
+}
+
+
+def cost_from_usage(model: str, input_tokens: int, output_tokens: int) -> float:
+    """Coste USD desde tokens según PRICING. 0 si el modelo no está tarifado."""
+    pin, pout = PRICING.get(model, (0.0, 0.0))
+    return (input_tokens * pin + output_tokens * pout) / 1_000_000
+
+
 def log_call(agent: str, model: str, isin: str = "",
              input_tokens: int = 0, output_tokens: int = 0,
-             cost_usd: float = 0.0, cached: bool = False) -> None:
+             cost_usd: float = 0.0, cached: bool = False,
+             categoria: str = CAT_ANALISIS) -> None:
     """Append entry al log global. Idempotente y bajo overhead.
 
     Args:
@@ -58,6 +81,7 @@ def log_call(agent: str, model: str, isin: str = "",
         output_tokens: tokens generados
         cost_usd: coste en USD (calcular antes de pasar)
         cached: True si fue un cache hit (cost=0 implícito)
+        categoria: analisis_fondos | procesar_imagenes | otros (para el admin)
     """
     try:
         entry = {
@@ -66,6 +90,7 @@ def log_call(agent: str, model: str, isin: str = "",
             "agent": agent,
             "model": model,
             "isin": isin,
+            "categoria": categoria,
             "input_tok": input_tokens,
             "output_tok": output_tokens,
             "cost_usd": round(cost_usd, 6),
@@ -75,6 +100,25 @@ def log_call(agent: str, model: str, isin: str = "",
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     except Exception:
         pass  # log failure no debe romper pipeline
+
+
+def track_anthropic(agent: str, model: str, response, isin: str = "",
+                    categoria: str = CAT_ANALISIS, has_images: bool = False) -> float:
+    """Loguea el coste de una respuesta del SDK de Anthropic leyendo response.usage.
+
+    Devuelve el coste USD. `has_images=True` fuerza la categoría procesar_imagenes.
+    Best-effort: nunca rompe el flujo del que llama.
+    """
+    try:
+        u = getattr(response, "usage", None)
+        it = int(getattr(u, "input_tokens", 0) or 0)
+        ot = int(getattr(u, "output_tokens", 0) or 0)
+        cost = cost_from_usage(model, it, ot)
+        log_call(agent, model, isin=isin, input_tokens=it, output_tokens=ot,
+                 cost_usd=cost, categoria=(CAT_IMAGENES if has_images else categoria))
+        return cost
+    except Exception:
+        return 0.0
 
 
 def _read_entries(since: date | None = None) -> list[dict]:
@@ -178,6 +222,43 @@ def summary_by_model(days: int = 30) -> list[dict]:
     )
 
 
+def summary_by_category(days: int = 30) -> dict:
+    """Breakdown por categoría de gasto (análisis de fondos vs imágenes) para el admin."""
+    since = date.today() - timedelta(days=days)
+    entries = _read_entries(since=since)
+    agg = defaultdict(lambda: {"cost_usd": 0.0, "n_calls": 0, "tokens": 0})
+    for e in entries:
+        cat = e.get("categoria") or CAT_ANALISIS
+        agg[cat]["cost_usd"] += e["cost_usd"]
+        agg[cat]["n_calls"] += 1
+        agg[cat]["tokens"] += e.get("input_tok", 0) + e.get("output_tok", 0)
+    total = sum(v["cost_usd"] for v in agg.values())
+    return {
+        "days": days,
+        "total_usd": round(total, 4),
+        "total_eur": round(total * EUR_USD_RATIO, 4),
+        "categorias": {
+            k: {"cost_usd": round(v["cost_usd"], 4),
+                "cost_eur": round(v["cost_usd"] * EUR_USD_RATIO, 4),
+                "n_calls": v["n_calls"], "tokens": v["tokens"],
+                "pct": round(100 * v["cost_usd"] / total, 1) if total else 0}
+            for k, v in sorted(agg.items(), key=lambda x: -x[1]["cost_usd"])
+        },
+    }
+
+
+def admin_overview(days: int = 30) -> dict:
+    """Vista única para el panel admin: categorías + agentes + modelos + hoy/mes."""
+    return {
+        "por_categoria": summary_by_category(days),
+        "por_agente": summary_by_agent(days)[:15],
+        "por_modelo": summary_by_model(days),
+        "hoy": summary_today(),
+        "mes": summary_month(),
+        "aviso_tracking": "Incluye solo llamadas instrumentadas. El saldo real está en console.anthropic.com.",
+    }
+
+
 def top_funds(n: int = 10, days: int = 30) -> list[dict]:
     """Top N fondos por coste acumulado."""
     since = date.today() - timedelta(days=days)
@@ -266,6 +347,16 @@ def _main():
         rows = summary_by_model(days=days)
         _print_table(rows, ["model", "cost_usd", "n_calls", "tokens"],
                      title=f"Breakdown por modelo ({days}d)")
+    elif args[0] == "--by-category":
+        days = int(args[1]) if len(args) > 1 else 30
+        s = summary_by_category(days=days)
+        rows = [{"categoria": k, **{kk: vv for kk, vv in v.items() if kk in ("cost_usd", "cost_eur", "n_calls", "pct")}}
+                for k, v in s["categorias"].items()]
+        _print_table(rows, ["categoria", "cost_usd", "cost_eur", "n_calls", "pct"],
+                     title=f"Coste por categoría ({days}d) — total ${s['total_usd']}")
+    elif args[0] == "--admin":
+        print(json.dumps(admin_overview(days=int(args[1]) if len(args) > 1 else 30),
+                         ensure_ascii=False, indent=2))
     elif args[0] == "--top-funds":
         n = int(args[1]) if len(args) > 1 else 10
         rows = top_funds(n=n)

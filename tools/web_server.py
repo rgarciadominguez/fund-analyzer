@@ -1265,6 +1265,22 @@ def make_app(cold_start: bool = True) -> Flask:
             "queue_size": len(QUEUE),
         })
 
+    @app.route("/api/admin/costs", methods=["GET"])
+    def api_admin_costs():
+        """Panel admin: coste LLM por categoría (análisis de fondos vs procesar imágenes),
+        por agente y por modelo. `?days=N` (default 30).
+
+        NOTA: solo llamadas instrumentadas del pipeline Python (API key). El procesado de
+        imágenes de PDFs corre en las skills cowork (claude -p) y factura a Claude Max, no
+        a este crédito. El saldo autoritativo está en console.anthropic.com.
+        """
+        try:
+            from tools.cost_monitor import admin_overview
+            days = int(request.args.get("days", 30))
+            return jsonify(admin_overview(days=days))
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
     @app.route("/api/status", methods=["GET"])
     def api_status():
         """W7 (2026-05-21): health check completo del sistema para monitor permanente.

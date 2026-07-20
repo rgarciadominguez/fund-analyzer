@@ -182,6 +182,12 @@ def generate(ficha: dict, _fs_client=None) -> dict:
         system=[{"type": "text", "text": _SYSTEM, "cache_control": {"type": "ephemeral"}}],
         messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
     )
+    try:
+        from tools.cost_monitor import track_anthropic, CAT_ANALISIS
+        track_anthropic("horfin_texts", MODEL, msg,
+                        isin=ficha.get("isin", ""), categoria=CAT_ANALISIS)
+    except Exception:
+        pass
     txt = re.sub(r"^```(?:json)?|```$", "", msg.content[0].text.strip(), flags=re.M).strip()
     m = re.search(r"\{.*\}", txt, re.S)
     return json.loads(m.group(0)) if m else {}
