@@ -36,8 +36,23 @@ def run(fix: bool = True) -> dict:
         from tools.audit_sync import audit
         a = audit()
         np, zomb = a.get("not_published", []), a.get("zombies", [])
-        checks.append(("FAIL" if np else "OK", "analizados publicados",
-                       f"{len(np)} sin publicar" if np else f"{a.get('n_local')} analizados, todos publicados"))
+        # Distinguir: un análisis BUENO que no logró publicarse (fallo real de sync)
+        # vs. uno RETENIDO por el gate de calidad porque está vacío (comportamiento
+        # correcto, no un fallo del sistema). Sin esto el chequeo gritaba FAIL por
+        # lotes que el gate rechaza bien → cría-lobo y se ignora (2026-07-20).
+        atascados = [f for f in np if f.get("pasaria_ahora")]
+        retenidos = [f for f in np if not f.get("pasaria_ahora")]
+        if atascados:
+            checks.append(("FAIL", "analizados publicados",
+                           f"{len(atascados)} buenos SIN publicar: "
+                           f"{[f['isin'] for f in atascados][:5]}"))
+        elif retenidos:
+            checks.append(("WARN", "analizados publicados",
+                           f"{len(retenidos)} retenidos por el gate (análisis vacío, "
+                           f"no es fallo): {[f['isin'] for f in retenidos][:5]}"))
+        else:
+            checks.append(("OK", "analizados publicados",
+                           f"{a.get('n_local')} analizados, todos publicados"))
         checks.append(("FAIL" if zomb else "OK", "sin filas zombi",
                        f"{len(zomb)} zombis: {zomb[:5]}" if zomb else "0 zombis"))
     except Exception as e:

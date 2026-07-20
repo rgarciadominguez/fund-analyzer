@@ -384,9 +384,13 @@ def _sync_fund_impl(
                 uploaded[key] = result
                 log(f"[SYNC] [{'OK' if result else 'FAIL'}] {dest} ({local.stat().st_size} bytes)")
 
-    # Construir update para tabla `funds`
+    # Construir update para tabla `funds`.
+    # has_qualitative_analysis se ata a que el output se HAYA SUBIDO de verdad: si la
+    # subida falló (o el análisis nunca produjo output), NO se puede afirmar que el
+    # fondo está analizado. Escribirlo incondicionalmente dejaba zombis: fila
+    # analyzed=true con storage vacío y nombre=ISIN (caso ES0110122001, 2026-07-19).
     funds_update = {
-        "has_qualitative_analysis": True,
+        "has_qualitative_analysis": bool(uploaded.get("output")),
         "dashboard_storage_path": storage_paths["dashboard"] if uploaded.get("dashboard") else None,
         "output_json_storage_path": storage_paths["output"] if uploaded.get("output") else None,
         "cnmv_data_storage_path": storage_paths["cnmv"] if uploaded.get("cnmv") else None,
