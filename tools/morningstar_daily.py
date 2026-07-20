@@ -82,9 +82,15 @@ def compute_metrics(isin: str) -> dict:
         peak = max(peak, v)
         if peak > 0:
             mdd = min(mdd, v / peak - 1)
-    # Rentab. anualizada por plazo
+    # Rentab. anualizada por plazo. Solo si la serie CUBRE la ventana: si el fondo
+    # empezó hace 7 años, rentab_10a debe ser None, no anualizar 7 años como 10
+    # (infravaloraba el dato y descuadraba la validación del portal, 2026-07-20).
+    tol = int(35 * 86400 * 1000)   # 35 días de holgura (arranque/festivos)
+
     def _ret_period(years):
         cut = t1 - int(years * 365.25 * 86400 * 1000)
+        if t0 > cut + tol:                       # no hay histórico suficiente
+            return None
         base = next((v for ts, v in s if ts >= cut), None)
         if base and base > 0:
             return round(((v1 / base) ** (1 / years) - 1) * 100, 2)
