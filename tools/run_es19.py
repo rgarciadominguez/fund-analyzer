@@ -49,17 +49,18 @@ def _run(cmd: list[str], timeout: int) -> tuple[int, str]:
 
 
 def _output_completo(outp) -> bool:
-    """True si output.json tiene análisis real (≥1 sección con contenido). Un output
-    fino de un run interrumpido NO cuenta → hay que reanalizar."""
+    """True si output.json tiene análisis REAL: ≥2 secciones con texto narrativo (>50c).
+    Un output hueco (las llamadas LLM narrativas fallaron → solo secciones estructurales,
+    0 texto) NO cuenta como completo aunque el analyst 'corriera' → hay que reanalizar.
+    Alinea con la validación del sync (que exige ≥2 secciones con contenido real)."""
     try:
         d = json.loads(outp.read_text(encoding="utf-8"))
     except Exception:
         return False
     a = d.get("analyst_synthesis") or {}
-    for k, v in a.items():
-        if isinstance(v, dict) and (str(v.get("texto") or "").strip() or v.get("perfiles")):
-            return True
-    return False
+    reales = sum(1 for v in a.values()
+                 if isinstance(v, dict) and len(str(v.get("texto") or "").strip()) > 50)
+    return reales >= 2
 
 
 def analyze_one(isin: str) -> dict:
