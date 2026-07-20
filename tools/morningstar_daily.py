@@ -41,11 +41,33 @@ def _ym(ts):
     return d.year, d.month
 
 
-def compute_metrics(isin: str) -> dict:
+def monthly_returns_by_ym(s: list) -> dict:
+    """Retornos mensuales {(año, mes): retorno} desde el último NAV de cada mes.
+    Clave usada para alinear un fondo con el rf mes a mes (para el Sharpe)."""
+    s = sorted(s)
+    month_last = {}
+    for ts, v in s:
+        month_last[_ym(ts)] = v
+    keys = sorted(month_last)
+    out = {}
+    for i in range(1, len(keys)):
+        prev = month_last[keys[i - 1]]
+        if prev:
+            out[keys[i]] = month_last[keys[i]] / prev - 1
+    return out
+
+
+def compute_metrics(isin: str, rf_monthly: dict | None = None) -> dict:
+    """Métricas desde la serie diaria. Si `rf_monthly` ({(año,mes): ret} de un
+    monetario), añade sharpe_Na por exceso sobre ese rf en la ventana de cada plazo."""
     s = fetch_series(isin)
+    return metrics_from_series(s, rf_monthly=rf_monthly)
+
+
+def metrics_from_series(s: list, rf_monthly: dict | None = None) -> dict:
     if len(s) < 30:
         return {}
-    s.sort()
+    s = sorted(s)
     # Rentabilidad por año natural (primer vs último NAV del año)
     byyear = defaultdict(list)
     for ts, v in s:
@@ -56,11 +78,9 @@ def compute_metrics(isin: str) -> dict:
         if len(pts) >= 2 and pts[0][1]:
             anuales[str(y)] = round((pts[-1][1] / pts[0][1] - 1) * 100, 2)
     # Volatilidad anualizada desde retornos MENSUALES (metodología Morningstar/Finect)
-    month_last = {}
-    for ts, v in s:
-        month_last[_ym(ts)] = (ts, v)
-    monthly = [month_last[k][1] for k in sorted(month_last)]
-    mret = [monthly[i] / monthly[i - 1] - 1 for i in range(1, len(monthly)) if monthly[i - 1]]
+    mbym = monthly_returns_by_ym(s)
+    ym_keys = sorted(mbym)
+    mret = [mbym[k] for k in ym_keys]
 
     def _vol(rets):
         if len(rets) < 6:
@@ -76,12 +96,18 @@ def compute_metrics(isin: str) -> dict:
     t0, v0 = s[0]; t1, v1 = s[-1]
     años = (t1 - t0) / (1000 * 86400 * 365.25)
     cagr = round(((v1 / v0) ** (1 / años) - 1) * 100, 2) if años > 0.5 and v0 else None
-    # Max drawdown (diario)
-    peak = -1e9; mdd = 0.0
+    # Max drawdown (diario) + underwater (días por debajo del máximo previo)
+    peak = -1e9; mdd = 0.0; uw_dias = 0; uw_racha = 0; uw_max = 0
     for _, v in s:
         peak = max(peak, v)
         if peak > 0:
             mdd = min(mdd, v / peak - 1)
+        if v < peak - 1e-12:
+            uw_dias += 1; uw_racha += 1; uw_max = max(uw_max, uw_racha)
+        else:
+            uw_racha = 0
+    underwater = {"dias_bajo_agua": uw_dias, "racha_max_bajo_agua_dias": uw_max,
+                  "pct_tiempo_bajo_agua": round(100 * uw_dias / len(s), 1) if s else None}
     # Rentab. anualizada por plazo. Solo si la serie CUBRE la ventana: si el fondo
     # empezó hace 7 años, rentab_10a debe ser None, no anualizar 7 años como 10
     # (infravaloraba el dato y descuadraba la validación del portal, 2026-07-20).
@@ -96,19 +122,47 @@ def compute_metrics(isin: str) -> dict:
             return round(((v1 / base) ** (1 / years) - 1) * 100, 2)
         return None
 
-    vals = [v for _, v in anuales.items()]
-    return {
+    # Sharpe por plazo = exceso sobre el rf (monetario EUR) en la MISMA ventana.
+    # Se alinea mes a mes con el rf: excess = ret_fondo - ret_rf de los meses comunes
+    # de la ventana; sharpe = media(excess)/desv(excess)·√12. None si faltan datos del
+    # fondo O del rf en esa ventana (2026-07-20, rf = FR0000989626 por defecto).
+    def _sharpe(years):
+        if not rf_monthly or t0 > _ret_cut(years) + tol:
+            return None
+        n = years * 12
+        win = ym_keys[-n:] if len(ym_keys) >= 6 else ym_keys
+        excess = [mbym[k] - rf_monthly[k] for k in win if k in rf_monthly]
+        if len(excess) < 6:
+            return None
+        m = sum(excess) / len(excess)
+        var = sum((x - m) ** 2 for x in excess) / (len(excess) - 1)
+        sd = math.sqrt(var)
+        if sd == 0:
+            return None
+        return round((m / sd) * math.sqrt(12), 2)
+
+    def _ret_cut(years):
+        return t1 - int(years * 365.25 * 86400 * 1000)
+
+    out = {
         "_fuente": "morningstar_daily",
         "n_puntos": len(s),
         "rentabilidades_anuales": dict(sorted(anuales.items())),
         "cagr_desde_inicio": cagr,
         "volatilidad": vol, "volatilidad_3a": vol_3y, "volatilidad_5a": vol_5y,
         "max_drawdown": round(mdd * 100, 2),
+        "underwater": underwater,
         "peor_anio": round(min(anuales.values()), 2) if anuales else None,
         "mejor_anio": round(max(anuales.values()), 2) if anuales else None,
         "rentab_1a": _ret_period(1), "rentab_3a": _ret_period(3),
         "rentab_5a": _ret_period(5), "rentab_10a": _ret_period(10),
     }
+    if rf_monthly:
+        out["sharpe_1a"] = _sharpe(1)
+        out["sharpe_3a"] = _sharpe(3)
+        out["sharpe_5a"] = _sharpe(5)
+        out["sharpe_10a"] = _sharpe(10)
+    return out
 
 
 def main():
