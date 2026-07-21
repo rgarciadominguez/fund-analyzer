@@ -74,6 +74,13 @@ def _get_anthropic_client():
     return _get_anthropic_client._client
 
 
+def _current_isin() -> str:
+    """ISIN del fondo en curso para atribuir coste (lo fija el orchestrator).
+    Vacío si no se ha fijado → el coste cuenta en el total pero no por fondo."""
+    import os
+    return os.environ.get("FUND_CURRENT_ISIN", "")
+
+
 def claude_text_fallback(prompt: str, max_tokens: int = 8000, retries: int = 2) -> str:
     """Reemplazo de `_gemini_text` usando Haiku 4.5.
 
@@ -94,6 +101,12 @@ def claude_text_fallback(prompt: str, max_tokens: int = 8000, retries: int = 2) 
                 max_tokens=max_tokens,
                 messages=[{"role": "user", "content": prompt}],
             )
+            try:
+                from tools.cost_monitor import track_anthropic
+                track_anthropic("killswitch_haiku_text", _HAIKU_MODEL, resp,
+                                isin=_current_isin())
+            except Exception:
+                pass
             text = resp.content[0].text.strip() if resp.content else ""
             if not text:
                 raise ValueError("Empty Haiku response")
@@ -132,6 +145,12 @@ def claude_json_fallback(prompt: str, max_tokens: int = 8000, retries: int = 2) 
                 max_tokens=max_tokens,
                 messages=[{"role": "user", "content": json_prompt}],
             )
+            try:
+                from tools.cost_monitor import track_anthropic
+                track_anthropic("killswitch_haiku_json", _HAIKU_MODEL, resp,
+                                isin=_current_isin())
+            except Exception:
+                pass
             raw = resp.content[0].text.strip() if resp.content else ""
             if not raw:
                 raise ValueError("Empty Haiku response")

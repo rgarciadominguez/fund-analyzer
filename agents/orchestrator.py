@@ -3117,6 +3117,11 @@ def main():
 
     args = parser.parse_args()
 
+    # Atribución de coste por fondo: fija el ISIN en curso para que el killswitch
+    # (y cualquier fallback a Haiku) loguee el coste bajo este ISIN.
+    if getattr(args, "isin", None):
+        os.environ["FUND_CURRENT_ISIN"] = args.isin
+
     # Set FUND_ANALYZER_MODE BEFORE any agent import (lazy import order matters
     # for the `is_cowork_mode()` gating in agents/*.py).
     if args.api_fallback:
