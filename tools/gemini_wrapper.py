@@ -73,11 +73,18 @@ def extract_fast(
     Returns:
         dict o list según el schema. ValueError si JSON inválido.
     """
-    # Kill switch (2026-05-28): si GEMINI_DISABLED=1, redirigir a Claude Haiku.
-    from tools.gemini_killswitch import is_gemini_disabled, claude_json_fallback_with_schema
-    if is_gemini_disabled():
-        console.log(f"[cyan][KillSwitch] Gemini OFF → Claude Haiku ({context[:40]}...)")
-        return claude_json_fallback_with_schema(text, schema, context=context, max_tokens=32768)
+    # Routing coste (2026-07-20): Gemini Flash para extracción SI está activado + hay
+    # GOOGLE_API_KEY + bajo el tope mensual; si no, Claude Haiku. El tope auto-revierte
+    # a Haiku si el gasto Gemini se dispara ("si no es como dices, volver atrás").
+    import os as _os
+    from tools.gemini_killswitch import claude_json_fallback_with_schema
+    from tools.gemini_budget import use_gemini_for_extraction
+    if not use_gemini_for_extraction():
+        # Haiku: cap de texto MUCHO menor (Haiku es caro por token; no mandar el
+        # documento entero — solo lo necesario para el schema).
+        haiku_cap = int(_os.environ.get("HAIKU_EXTRACT_MAX_CHARS", "120000"))
+        return claude_json_fallback_with_schema(
+            text[:haiku_cap], schema, context=context, max_tokens=32768)
 
     client = _get_client()
 

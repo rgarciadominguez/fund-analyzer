@@ -94,6 +94,15 @@ def claude_text_fallback(prompt: str, max_tokens: int = 8000, retries: int = 2) 
         console.log(f"[red][KillSwitch] Anthropic init falló: {exc}")
         return ""
 
+    # Dedup: texto idéntico ya generado → gratis (no re-pagar duplicados).
+    try:
+        from tools.llm_cache import get_cached
+        _hit = get_cached(_HAIKU_MODEL, prompt, "text")
+        if isinstance(_hit, str) and _hit:
+            return _hit
+    except Exception:
+        pass
+
     for attempt in range(retries + 1):
         try:
             resp = client.messages.create(
@@ -110,6 +119,11 @@ def claude_text_fallback(prompt: str, max_tokens: int = 8000, retries: int = 2) 
             text = resp.content[0].text.strip() if resp.content else ""
             if not text:
                 raise ValueError("Empty Haiku response")
+            try:
+                from tools.llm_cache import set_cached
+                set_cached(_HAIKU_MODEL, prompt, "text", text)
+            except Exception:
+                pass
             return text
         except Exception as exc:
             if attempt < retries:
@@ -138,6 +152,16 @@ def claude_json_fallback(prompt: str, max_tokens: int = 8000, retries: int = 2) 
         "sin markdown, sin texto adicional, sin ```json fences."
     )
 
+    # Dedup: una extracción IDÉNTICA (mismo prompt) no se vuelve a pagar. Ataca
+    # directamente "no sacar info duplicada" — si el pipeline repite una llamada, gratis.
+    try:
+        from tools.llm_cache import get_cached
+        _hit = get_cached(_HAIKU_MODEL, json_prompt, "json")
+        if _hit is not None:
+            return _hit
+    except Exception:
+        pass
+
     for attempt in range(retries + 1):
         try:
             resp = client.messages.create(
@@ -159,15 +183,22 @@ def claude_json_fallback(prompt: str, max_tokens: int = 8000, retries: int = 2) 
                 raw = raw.strip("`")
                 if raw.startswith("json"):
                     raw = raw[4:].strip()
+            def _cache_and_return(_obj):
+                try:
+                    from tools.llm_cache import set_cached
+                    set_cached(_HAIKU_MODEL, json_prompt, "json", _obj)
+                except Exception:
+                    pass
+                return _obj
             try:
-                return json.loads(raw)
+                return _cache_and_return(json.loads(raw))
             except json.JSONDecodeError:
                 # Reparación simple
                 import re
                 m = re.search(r"\{[\s\S]+\}", raw)
                 if m:
                     try:
-                        return json.loads(m.group(0))
+                        return _cache_and_return(json.loads(m.group(0)))
                     except json.JSONDecodeError:
                         pass
                 if attempt < retries:
