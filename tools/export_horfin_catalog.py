@@ -55,6 +55,9 @@ NEW_6 = ["benchmark", "estrellas", "comision_suscripcion", "descripcion", "categ
 REFRESH_FROM_FUNDS = [
     "opinion_user", "encaje_texto", "ter_pct", "comision_gestion_pct",
     "benchmark", "estrellas", "comision_suscripcion", "descripcion", "categoria_activo", "kid",
+    # clasificacion_user: propietario de Rafa (herencia de grupo, Magallanes=Top, etc.).
+    # Era un olvido — sin esto el export ignoraba cambios de clasificación en Supabase.
+    "clasificacion_user",
 ]
 
 # Semántica de vacío: null. NUNCA "" ni "n.a." (rompería el sync de Horizonte).
