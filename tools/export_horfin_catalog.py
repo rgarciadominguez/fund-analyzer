@@ -55,10 +55,9 @@ NEW_6 = ["benchmark", "estrellas", "comision_suscripcion", "descripcion", "categ
 REFRESH_FROM_FUNDS = [
     "opinion_user", "encaje_texto", "ter_pct", "comision_gestion_pct",
     "benchmark", "estrellas", "comision_suscripcion", "descripcion", "categoria_activo", "kid",
-    # clasificacion_user: propietario de Rafa (herencia de grupo, Magallanes=Top, etc.).
-    # Era un olvido — sin esto el export ignoraba cambios de clasificación en Supabase.
-    "clasificacion_user",
 ]
+# clasificacion_user: la lleva RAFA en el portal (decisión definitiva 2026-07-23).
+# fund-analyzer DEJA DE CLASIFICAR (ni asignar ni propagar) → el export NO la emite.
 
 # Semántica de vacío: null. NUNCA "" ni "n.a." (rompería el sync de Horizonte).
 _EMPTY = {"", "n.a.", "N.A.", "na", "NA", "null", "None", "-"}
@@ -146,10 +145,9 @@ def build() -> dict:
                 continue
             if k in f:
                 row[k] = f.get(k)
-        # clasificacion_user: SOLO calidad (Top/Bueno/Medio/Malo). Clase_similar/Clase_sucia
-        # ya no son clasificación → null (la relación de clase vive en fund_group_id).
-        if row.get("clasificacion_user") not in ("Top", "Bueno", "Medio", "Malo", None):
-            row["clasificacion_user"] = None
+        # La clasificación de calidad la lleva Rafa en el portal → NO la emitimos.
+        row["clasificacion_user"] = None
+        row["clasificacion_origen"] = None
         row["ter_pct"] = r2(f.get("ter_pct", base.get("ter_pct")))
         row["comision_gestion_pct"] = r2(f.get("comision_gestion_pct", base.get("comision_gestion_pct")))
         # 6 nuevas
