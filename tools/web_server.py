@@ -1900,7 +1900,9 @@ def make_app(cold_start: bool = True) -> Flask:
             "categoria", "tipo_activo", "geografia", "divisa",
             "issuer", "estilo", "clase_comercial", "gestora",
         }
-        ALLOWED_CLASIF = {"Top", "Bueno", "Medio", "Clase_similar", "Clase_sucia", None}
+        # Solo CALIDAD (decisión de Rafa a nivel grupo). Clase_similar/Clase_sucia YA NO
+        # son clasificación (la relación de clase vive en fund_group_id/class_isins).
+        ALLOWED_CLASIF = {"Top", "Bueno", "Medio", "Malo", None}
 
         update_dict: dict = {}
         tax_dict: dict = {}

@@ -146,6 +146,10 @@ def build() -> dict:
                 continue
             if k in f:
                 row[k] = f.get(k)
+        # clasificacion_user: SOLO calidad (Top/Bueno/Medio/Malo). Clase_similar/Clase_sucia
+        # ya no son clasificación → null (la relación de clase vive en fund_group_id).
+        if row.get("clasificacion_user") not in ("Top", "Bueno", "Medio", "Malo", None):
+            row["clasificacion_user"] = None
         row["ter_pct"] = r2(f.get("ter_pct", base.get("ter_pct")))
         row["comision_gestion_pct"] = r2(f.get("comision_gestion_pct", base.get("comision_gestion_pct")))
         # 6 nuevas

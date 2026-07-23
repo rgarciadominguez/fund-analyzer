@@ -745,27 +745,19 @@ def _sync_fund_impl(
         except Exception as _e:
             log(f"[SYNC] benchmark falló (no crítico): {str(_e)[:80]}")
 
+        # SOLO descripcion (default, fill-if-empty). opinion_user y encaje_texto son de
+        # Rafa: NO se auto-generan (el portal los ignora en la sync y ahorra LLM).
         try:
             from tools.horfin_texts import build_ficha, generate
-            cur = client.table("funds").select(
-                "descripcion,opinion_user,encaje_texto").eq("isin", isin).execute().data
+            cur = client.table("funds").select("descripcion").eq("isin", isin).execute().data
             c0 = cur[0] if cur else {}
-            faltan = [k for k in ("descripcion", "opinion_user", "encaje_texto")
-                      if not (c0.get(k) or "").strip()]
-            if faltan:
+            if not (c0.get("descripcion") or "").strip():
                 g = generate(build_ficha(isin, client=client))
-                upd = {}
-                if "descripcion" in faltan and g.get("descripcion"):
-                    upd["descripcion"] = g["descripcion"]
-                if "opinion_user" in faltan and g.get("opinion"):
-                    upd["opinion_user"] = g["opinion"]
-                if "encaje_texto" in faltan and g.get("encaje"):
-                    upd["encaje_texto"] = g["encaje"]
-                if upd:
-                    client.table("funds").update(upd).eq("isin", isin).execute()
-                    log(f"[SYNC] horfin textos generados: {list(upd)}")
+                if g.get("descripcion"):
+                    client.table("funds").update({"descripcion": g["descripcion"]}).eq("isin", isin).execute()
+                    log("[SYNC] descripcion generada (opinion/encaje son de Rafa, no se generan)")
         except Exception as _e:
-            log(f"[SYNC] horfin textos falló (no crítico): {str(_e)[:80]}")
+            log(f"[SYNC] descripcion falló (no crítico): {str(_e)[:80]}")
 
     # Coste del análisis de este fondo → Supabase (para el panel admin en la web pública).
     # Best-effort: si las tablas cost_* no existen aún (DDL manual), no rompe el sync.
