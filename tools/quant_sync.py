@@ -100,12 +100,26 @@ def build_per_isin(client, want_prices: bool = False):
     metricas_json = {}
     sin_metrica = []
     n_serie = 0
+    # circuit-breaker: si el endpoint de serie está caído (rate-limit/301), tras N fallos
+    # seguidos dejamos de intentarlo (cada intento reintenta con backoff → muy lento).
+    serie_ok = want_prices  # con --prices sí interesa insistir; sin, corta rápido
+    serie_fallos = 0
+    SERIE_CORTA = 12
     for k, isin in enumerate(isins, 1):
         # --- serie diaria (mejor: da anuales + underwater); best-effort ---
-        try:
-            s = fetch_series(isin)
-        except Exception:
-            s = []
+        s = []
+        if serie_ok or serie_fallos < SERIE_CORTA:
+            try:
+                s = fetch_series(isin)
+            except Exception:
+                s = []
+            if s:
+                serie_fallos = 0
+            else:
+                serie_fallos += 1
+                if serie_fallos == SERIE_CORTA and not want_prices:
+                    print(f"  [circuit-breaker] serie diaria caída ({SERIE_CORTA} fallos) → "
+                          f"solo screener el resto del run")
         m = metrics_from_series(s) if s and len(s) >= 30 else {}
         if m:
             n_serie += 1
@@ -208,7 +222,7 @@ def sync(apply: bool = False, prices: bool = False) -> dict:
                 client.table("hf_asset_prices").upsert(price[i:i+500], on_conflict="isin,fecha").execute()
             print(f"upsert precios: {len(price)} puntos")
     return {"metrics": len(met), "anual": len(ann), "prices": len(price),
-            "sin_serie": len(sin_serie), "apply": apply}
+            "sin_metrica": len(sin_metrica), "apply": apply}
 
 
 if __name__ == "__main__":
