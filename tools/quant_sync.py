@@ -164,9 +164,20 @@ def build_per_isin(client, want_prices: bool = False):
             "fuente": "morningstar_daily+screener" if m else "screener",
             "updated_at": _now(),
         }
-        # ¿tiene ALGUNA métrica útil? (rentab por clase). Si no, se reporta.
+        # ¿tiene ALGUNA métrica útil? (rentab por clase). Si no: upsert con NAV-metrics NULL
+        # para LIMPIAR posibles valores viejos de grupo (Bug B residual) y reportarlo.
         if row["rentab_3a"] is None and row["rentab_5a"] is None and row["rentab_1a"] is None:
             sin_metrica.append(isin)
+            met_rows.append({
+                "isin": isin,
+                "cagr_desde_inicio": None, "rentab_1a": None, "rentab_3a": None,
+                "rentab_5a": None, "rentab_10a": None, "volatilidad": None,
+                "volatilidad_3a": None, "volatilidad_5a": None, "max_drawdown": None,
+                "peor_anio": None, "mejor_anio": None,
+                "estrellas": row.get("estrellas"), "medalist": row.get("medalist"),
+                "srri": row.get("srri"), "mstar_rating": row.get("mstar_rating"),
+                "fuente": "sin_datos", "updated_at": _now(),
+            })
             continue
         # Omitir underwater/n_puntos si son null (serie bloqueada) → el upsert corre
         # aunque el ALTER de esas columnas aún no esté aplicado. Se rellenan cuando la
