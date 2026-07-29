@@ -81,14 +81,20 @@ def fetch_quant(isin: str) -> dict:
     if not _ISIN.match(isin):
         return {}
     dp = "%7C".join(_DP)
-    url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
-           f"&universeIds=FOALL%24%24ALL&securityDataPoints={dp}&term={isin}")
-    try:
-        from tools.http_retry import get_json
-        rows = get_json(url, headers=_UA, timeout=20).get("rows") or []
-    except Exception:
-        return {}
-    row = _row_for_isin(rows, isin)
+    # FOALL = fondos open-end; ETALL = ETF/ETC; CEALL = cerrados. Los ETF (Vanguard,
+    # iShares, Invesco Gold...) no están en FOALL → probamos varios universos por ISIN.
+    from tools.http_retry import get_json
+    row = None
+    for uni in ("FOALL%24%24ALL", "ETALL%24%24ALL", "CEALL%24%24ALL"):
+        url = (f"{_SCR}?page=1&pageSize=5&outputType=json&version=1"
+               f"&universeIds={uni}&securityDataPoints={dp}&term={isin}")
+        try:
+            rows = get_json(url, headers=_UA, timeout=20).get("rows") or []
+        except Exception:
+            rows = []
+        row = _row_for_isin(rows, isin)
+        if row:
+            break
     if not row:
         return {}
     med = row.get("Medalist_RatingNumber")
