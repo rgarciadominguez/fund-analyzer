@@ -1,98 +1,181 @@
 """
-quant_sync.py — Aplana el quant (JSONB por grupo) a tablas POR ISIN para la web pública.
+quant_sync.py — Métricas cuantitativas POR ISIN (cada clase su NAV → sus métricas).
 
-PROBLEMA: el quant (rendimientos anuales, métricas) vive en `fund_groups` como JSONB y por
-`fund_group_id`, NO por ISIN. Vuestra conexión viva cruza por ISIN y quiere tablas
-normalizadas (`hf_asset_*`). Este sync hace el puente, igual que cost_sync:
+FIX 2026-07-23 (Bug A + Bug B, feedback portal):
+  Antes esto copiaba el JSONB de GRUPO (`fund_groups.rendimiento_jsonb`) a todas las clases
+  → métricas idénticas entre clases del mismo fondo. MAL: cada share class tiene su propio NAV
+  y, con distintas comisiones, distinta rentabilidad neta — es EL dato para elegir clase.
 
-  hf_asset_annual_returns  (isin, anio, rentab_pct)      ← rendimiento_jsonb.rentabilidades_anuales
-  hf_asset_metrics         (isin, cagr, vol, maxdd, ...)  ← rendimiento_jsonb + portfolio_metrics_jsonb
-  hf_asset_prices          (isin, fecha, nav)             ← serie diaria Morningstar (opcional, --prices)
+  Ahora: por CADA ISIN del catálogo (TODAS las clases de cada fund_group_id, no solo la
+  principal) se baja su serie NAV de Morningstar y se computan SUS métricas
+  (`morningstar_daily.metrics_from_series`), incluido underwater (dias_bajo_agua,
+  racha_max_bajo_agua_dias, pct_tiempo_bajo_agua). Join por ISIN, nunca por grupo.
 
-CRUCE: cada ISIN del grupo (funds.isin del grupo + fund_groups.class_isins_known) hereda el
-quant del grupo. Todas las clases de un fondo comparten métricas de grupo (salvo precio, que
-es por ISIN real de Morningstar).
+Salidas:
+  hf_asset_metrics         1 fila por ISIN con SUS métricas (+ underwater)
+  hf_asset_annual_returns  1 fila por (ISIN, año) con SU rentab
+  hf_asset_prices          serie diaria por ISIN (--prices)
+  metricas.json            fichero per-ISIN (para la carga del portal)
 
-DDL: data/migrations/2026-07-23_hf_asset_tables.sql
+DDL: data/migrations/2026-07-23_hf_asset_tables.sql (+ columnas underwater).
 
 CLI:
-    python -m tools.quant_sync --apply            # métricas + rendimientos (barato, del JSONB)
-    python -m tools.quant_sync --prices --apply    # + serie diaria (baja de Morningstar por ISIN)
+    python -m tools.quant_sync --apply            # métricas + rendimientos por ISIN
+    python -m tools.quant_sync --prices --apply    # + serie diaria
     python -m tools.quant_sync --dry-run
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+METRICAS_JSON = Path(r"C:\Users\RafaelGarcía\horizonte-datos\metricas.json")
 
 
 def _now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def _isins_of_group(funds_rows: list, group_ids: set, known: list) -> dict:
-    """{fund_group_id: [isin,...]} uniendo funds.isin del grupo + class_isins_known."""
-    from collections import defaultdict
-    out = defaultdict(set)
-    for f in funds_rows:
-        g = f.get("fund_group_id")
-        if g:
-            out[g].add(f["isin"])
-    for g, isins in known.items():
-        for i in (isins or []):
-            out[g].add(i)
-    return {g: sorted(v) for g, v in out.items()}
+def _catalog_isins(client) -> list[str]:
+    """TODOS los ISIN del catálogo (todas las clases de todos los grupos)."""
+    isins = set()
+    off = 0
+    while True:
+        b = client.table("funds").select("isin").range(off, off + 999).execute().data
+        if not b:
+            break
+        isins.update(r["isin"] for r in b)
+        off += 1000
+        if off > 20000:
+            break
+    return sorted(isins)
 
 
-def build_rollups(client):
-    groups = client.table("fund_groups").select(
-        "fund_group_id,rendimiento_jsonb,portfolio_metrics_jsonb,class_isins_known").execute().data
-    funds = client.table("funds").select("isin,fund_group_id").execute().data
-    known = {g["fund_group_id"]: g.get("class_isins_known") for g in groups}
-    by_group = _isins_of_group(funds, {g["fund_group_id"] for g in groups}, known)
+def _group_rating(client) -> dict:
+    """estrellas/medalist/srri por ISIN, heredados del grupo (no son NAV-derivados)."""
+    groups = {g["fund_group_id"]: g for g in
+              client.table("fund_groups").select(
+                  "fund_group_id,portfolio_metrics_jsonb").execute().data}
+    out = {}
+    off = 0
+    while True:
+        b = client.table("funds").select("isin,fund_group_id").range(off, off + 999).execute().data
+        if not b:
+            break
+        for f in b:
+            g = groups.get(f.get("fund_group_id")) or {}
+            pm = g.get("portfolio_metrics_jsonb") or {}
+            ms = pm.get("morningstar") or {}
+            mi = pm.get("myinvestor") or {}
+            out[f["isin"]] = {"estrellas": ms.get("estrellas"), "medalist": ms.get("medalist"),
+                              "srri": mi.get("srri"), "mstar_rating": mi.get("mstar_rating")}
+        off += 1000
+        if off > 20000:
+            break
+    return out
 
-    ann_rows, met_rows = [], []
-    for g in groups:
-        gid = g["fund_group_id"]
-        isins = by_group.get(gid, [])
-        if not isins:
+
+def build_per_isin(client, want_prices: bool = False):
+    """Por cada ISIN sus PROPIAS métricas (difieren por clase). HÍBRIDO:
+      - screener Morningstar (lt.morningstar.com, por SecId/clase): trailing rentab/vol/maxDD
+        → SIEMPRE disponible, difiere por clase (fuente primaria).
+      - serie diaria (tools.morningstar.es): rentab por año natural + UNDERWATER + vol/cagr
+        de por vida → cuando el endpoint responde (a veces rate-limita); si no, esos campos null.
+    Devuelve (met_rows, ann_rows, price_rows, metricas_json, sin_metrica)."""
+    from tools.morningstar_daily import fetch_series, metrics_from_series
+    from tools.morningstar_quant import fetch_quant
+    from datetime import datetime as _dt, timezone as _tz
+
+    isins = _catalog_isins(client)
+    rating = _group_rating(client)
+    print(f"ISIN del catálogo (todas las clases): {len(isins)}")
+
+    met_rows, ann_rows, price_rows = [], [], []
+    metricas_json = {}
+    sin_metrica = []
+    n_serie = 0
+    for k, isin in enumerate(isins, 1):
+        # --- serie diaria (mejor: da anuales + underwater); best-effort ---
+        try:
+            s = fetch_series(isin)
+        except Exception:
+            s = []
+        m = metrics_from_series(s) if s and len(s) >= 30 else {}
+        if m:
+            n_serie += 1
+        uw = m.get("underwater") or {}
+        # --- screener por clase (siempre; rellena lo que la serie no dé) ---
+        try:
+            q = fetch_quant(isin) or {}
+        except Exception:
+            q = {}
+        qr = q.get("rentabilidades") or {}
+        risk = q.get("riesgo") or {}
+        r3, r5 = (risk.get("3a") or {}), (risk.get("5a") or {})
+        # max_drawdown: preferimos el de por vida (serie); si no, el de 5a/3a del screener
+        maxdd = m.get("max_drawdown")
+        if maxdd is None:
+            maxdd = r5.get("max_drawdown") if r5.get("max_drawdown") is not None else r3.get("max_drawdown")
+
+        def pick(serie_v, screener_v):
+            return serie_v if serie_v is not None else screener_v
+
+        row = {
+            "isin": isin,
+            "cagr_desde_inicio": m.get("cagr_desde_inicio"),
+            "rentab_1a": pick(m.get("rentab_1a"), qr.get("1a")),
+            "rentab_3a": pick(m.get("rentab_3a"), qr.get("3a")),
+            "rentab_5a": pick(m.get("rentab_5a"), qr.get("5a")),
+            "rentab_10a": pick(m.get("rentab_10a"), qr.get("10a")),
+            "volatilidad": m.get("volatilidad"),
+            "volatilidad_3a": pick(m.get("volatilidad_3a"), r3.get("volatilidad")),
+            "volatilidad_5a": pick(m.get("volatilidad_5a"), r5.get("volatilidad")),
+            "max_drawdown": maxdd,
+            "peor_anio": m.get("peor_anio"), "mejor_anio": m.get("mejor_anio"),
+            "dias_bajo_agua": uw.get("dias_bajo_agua"),
+            "racha_max_bajo_agua_dias": uw.get("racha_max_bajo_agua_dias"),
+            "pct_tiempo_bajo_agua": uw.get("pct_tiempo_bajo_agua"),
+            "estrellas": (rating.get(isin, {}).get("estrellas") if rating.get(isin, {}).get("estrellas") is not None
+                          else q.get("rating_estrellas")),
+            "medalist": rating.get(isin, {}).get("medalist") or q.get("medalist_rating"),
+            "srri": rating.get(isin, {}).get("srri"),
+            "mstar_rating": rating.get(isin, {}).get("mstar_rating"),
+            "n_puntos": m.get("n_puntos"),
+            "fuente": "morningstar_daily+screener" if m else "screener",
+            "updated_at": _now(),
+        }
+        # ¿tiene ALGUNA métrica útil? (rentab por clase). Si no, se reporta.
+        if row["rentab_3a"] is None and row["rentab_5a"] is None and row["rentab_1a"] is None:
+            sin_metrica.append(isin)
             continue
-        rend = g.get("rendimiento_jsonb") or {}
-        pm = g.get("portfolio_metrics_jsonb") or {}
-        ms = (pm.get("morningstar") or {})
-        mi = (pm.get("myinvestor") or {})
-        anuales = rend.get("rentabilidades_anuales") or {}
-
-        for isin in isins:
-            # rendimientos anuales: una fila por (isin, año)
-            for anio, pct in anuales.items():
-                if pct is None:
-                    continue
+        # Omitir underwater/n_puntos si son null (serie bloqueada) → el upsert corre
+        # aunque el ALTER de esas columnas aún no esté aplicado. Se rellenan cuando la
+        # serie diaria vuelva + ALTER hecho.
+        for _k in ("dias_bajo_agua", "racha_max_bajo_agua_dias", "pct_tiempo_bajo_agua", "n_puntos"):
+            if row.get(_k) is None:
+                row.pop(_k, None)
+        met_rows.append(row)
+        for anio, pct in (m.get("rentabilidades_anuales") or {}).items():
+            if pct is not None:
                 ann_rows.append({"isin": isin, "anio": int(anio),
                                  "rentab_pct": round(float(pct), 4), "updated_at": _now()})
-            # métricas: una fila por isin
-            met_rows.append({
-                "isin": isin,
-                "cagr_desde_inicio": rend.get("cagr_desde_inicio"),
-                "rentab_1a": rend.get("rentab_1a"), "rentab_3a": rend.get("rentab_3a"),
-                "rentab_5a": rend.get("rentab_5a"), "rentab_10a": rend.get("rentab_10a"),
-                "volatilidad": rend.get("volatilidad"),
-                "volatilidad_3a": rend.get("volatilidad_3a"),
-                "volatilidad_5a": rend.get("volatilidad_5a"),
-                "max_drawdown": rend.get("max_drawdown"),
-                "peor_anio": rend.get("peor_anio"), "mejor_anio": rend.get("mejor_anio"),
-                "estrellas": ms.get("estrellas"), "medalist": ms.get("medalist"),
-                "srri": mi.get("srri"), "mstar_rating": mi.get("mstar_rating"),
-                "fuente": rend.get("_fuente") or "morningstar_daily",
-                "updated_at": _now(),
-            })
-    return ann_rows, met_rows
+        metricas_json[isin] = {kk: vv for kk, vv in row.items() if kk != "updated_at"}
+        metricas_json[isin]["rentabilidades_anuales"] = m.get("rentabilidades_anuales") or {}
+        if want_prices and s:
+            for ts, v in s:
+                price_rows.append({"isin": isin,
+                                   "fecha": _dt.fromtimestamp(ts/1000, _tz.utc).date().isoformat(),
+                                   "nav": round(float(v), 6)})
+        if k % 25 == 0:
+            print(f"  {k}/{len(isins)} | con métrica {len(met_rows)} | con serie diaria {n_serie} | sin métrica {len(sin_metrica)}")
+    print(f"  serie diaria disponible en {n_serie}/{len(isins)} (el resto, métricas del screener)")
+    return met_rows, ann_rows, price_rows, metricas_json, sin_metrica
 
 
 def sync(apply: bool = False, prices: bool = False) -> dict:
@@ -101,51 +184,31 @@ def sync(apply: bool = False, prices: bool = False) -> dict:
     from tools.supabase_client import get_client
     client = get_client()
 
-    ann, met = build_rollups(client)
-    print(f"rendimientos anuales: {len(ann)} filas | métricas: {len(met)} filas")
+    met, ann, price, mjson, sin_metrica = build_per_isin(client, want_prices=prices)
+    print(f"\nmétricas POR ISIN: {len(met)} | rendimientos: {len(ann)} | "
+          f"precios: {len(price)} | SIN métrica: {len(sin_metrica)}")
+    if sin_metrica:
+        print(f"  ISIN sin métrica en Morningstar (revisar): {sin_metrica[:20]}"
+              f"{' …' if len(sin_metrica) > 20 else ''}")
+
+    # metricas.json (para la carga del portal)
+    METRICAS_JSON.write_text(json.dumps(
+        {"generado": _now(), "n": len(mjson), "sin_metrica": sin_metrica, "metricas": mjson},
+        ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"escrito {METRICAS_JSON} ({len(mjson)} ISIN)")
 
     if apply:
-        for i in range(0, len(met), 200):
-            client.table("hf_asset_metrics").upsert(met[i:i+200], on_conflict="isin").execute()
-        # anual: borrar+insert por simplicidad (idempotente por (isin,anio))
+        for i in range(0, len(met), 100):
+            client.table("hf_asset_metrics").upsert(met[i:i+100], on_conflict="isin").execute()
         for i in range(0, len(ann), 200):
-            client.table("hf_asset_annual_returns").upsert(
-                ann[i:i+200], on_conflict="isin,anio").execute()
-        print(f"upsert: {len(met)} métricas + {len(ann)} rendimientos")
-
-    n_prices = 0
-    if prices:
-        n_prices = sync_prices(client, apply=apply)
-
-    return {"anual": len(ann), "metrics": len(met), "prices": n_prices, "apply": apply}
-
-
-def sync_prices(client, apply: bool = False) -> int:
-    """Serie diaria por ISIN desde Morningstar → hf_asset_prices. Pesado (una llamada/ISIN)."""
-    from tools.morningstar_daily import fetch_series
-    from datetime import datetime as _dt, timezone as _tz
-    isins = sorted({f["isin"] for f in client.table("funds").select("isin").execute().data})
-    print(f"precios: bajando serie de {len(isins)} ISIN de Morningstar...")
-    total = 0
-    for k, isin in enumerate(isins, 1):
-        try:
-            s = fetch_series(isin)  # [(ts_ms, nav), ...]
-        except Exception:
-            s = []
-        if not s:
-            continue
-        rows = [{"isin": isin,
-                 "fecha": _dt.fromtimestamp(ts/1000, _tz.utc).date().isoformat(),
-                 "nav": round(float(v), 6)} for ts, v in s]
-        if apply:
-            for i in range(0, len(rows), 500):
-                client.table("hf_asset_prices").upsert(
-                    rows[i:i+500], on_conflict="isin,fecha").execute()
-        total += len(rows)
-        if k % 25 == 0:
-            print(f"  {k}/{len(isins)} | {total} puntos")
-    print(f"precios: {total} puntos de {len(isins)} ISIN")
-    return total
+            client.table("hf_asset_annual_returns").upsert(ann[i:i+200], on_conflict="isin,anio").execute()
+        print(f"upsert: {len(met)} métricas + {len(ann)} rendimientos (por ISIN)")
+        if prices:
+            for i in range(0, len(price), 500):
+                client.table("hf_asset_prices").upsert(price[i:i+500], on_conflict="isin,fecha").execute()
+            print(f"upsert precios: {len(price)} puntos")
+    return {"metrics": len(met), "anual": len(ann), "prices": len(price),
+            "sin_serie": len(sin_serie), "apply": apply}
 
 
 if __name__ == "__main__":
