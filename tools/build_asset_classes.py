@@ -43,7 +43,7 @@ def build() -> dict:
     while True:
         b = c.table("funds").select(
             "isin,nombre_clase,fund_group_id,divisa,ter_pct,comision_gestion_pct,"
-            "fecha_creacion_clase,importe_minimo_eur,distribucion").range(off, off + 999).execute().data
+            "fecha_creacion_clase,importe_minimo_eur,distribucion,broker_disponible,kid").range(off, off + 999).execute().data
         if not b:
             break
         funds += b
@@ -81,6 +81,9 @@ def build() -> dict:
             "distribucion": f.get("distribucion"),
             "fecha_creacion_clase": f.get("fecha_creacion_clase"),
             "importe_minimo_eur": f.get("importe_minimo_eur"),
+            # broker: EL dato de la clase (cambia por clase). Lista de brokers donde está.
+            "broker": f.get("broker_disponible") or [],
+            "kid": f.get("kid"),
             "clases_hermanas": hermanas,
         }
     return {"generado": datetime.now(timezone.utc).isoformat(), "n": len(clases), "clases": clases}
