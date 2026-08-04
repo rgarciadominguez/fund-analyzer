@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -265,6 +279,8 @@ El universo de inversión es global, con un sesgo hacia el "value", validado por
   <p style="font-size:10px;color:var(--ink-4);margin-top:4px;font-style:italic;">* Estructura: parámetro fijo del fondo que define el máximo aplicable. Último año aplicado (2025): <strong>0,6%</strong> s/patrimonio cobrado.</p>
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores con una tolerancia al riesgo moderada que buscan una inversión diversificada en renta variable y crédito, con un horizonte temporal a medio-largo plazo. El inversor ideal valora la estabilidad y prefiere un enfoque de inversión en valor, sin esperar rentabilidades extraordinarias ni estar excesivamente preocupado por las fluctuaciones a corto plazo del mercado.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Por lo tanto, no es posible evaluar el alineamiento de intereses a través de este mecanismo.</p></div></div>
+
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.63%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.65%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">6.000 €</td></tr></tbody></table>
 
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,65%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
@@ -487,10 +503,10 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">El fondo CARTESIO X, FI, se posiciona como una propuesta de inversión con una filosofía de <strong>retorno absoluto</strong> y <strong>preservación de capital</strong>, buscando superar la rentabilidad de la deuda pública a largo plazo de la Eurozona, como lo demuestra su referencia constante al <strong>Bloomberg EFFA Euro Gov Bond 7-10yr</strong> o <strong>Bloomberg Barclays Series-E Euro Govt 7-10 Yr Bond Index</strong>. Su universo elegible es amplio, abarcando tanto renta variable como renta fija, con una clara preferencia por la <strong>flexibilidad en la asignación de activos</strong>. El estilo de inversión parece ser una combinación de <strong>value</strong> en la selección de renta variable, complementado con una gestión activa de la <strong>duración</strong> y el <strong>crédito</strong> en renta fija. La tolerancia al riesgo es notablemente baja, evidenciada por una volatilidad histórica que rara vez supera el <strong>4%</strong>, como el <strong>2.8%</strong> en 2009 o el <strong>3.16%</strong> en 2011, lo que sugiere un horizonte temporal de inversión a medio-largo plazo, priorizando la estabilidad sobre la maximización de ganancias a corto plazo.</p><p class="pr">La principal diferenciación de Cartesio X reside en su <strong>gestión activa y descorrelacionada</strong> de los índices de renta variable tradicionales, lo que le permite mantener una baja volatilidad y una exposición dinámica al riesgo. A diferencia de muchos competidores que se adhieren a mandatos de asignación de activos más rígidos, Cartesio X exhibe una <strong>libertad considerable</strong> para ajustar su mix de activos, lo que constituye su principal "edge" analítico. No se observa un sesgo sectorial o geográfico explícito en los datos, sino más bien una aproximación <strong>bottom-up</strong> en la selección de activos de renta variable y una visión <strong>top-down</strong> macroeconómica para la asignación global. El uso de derivados, aunque no cuantificado explícitamente en los datos proporcionados, es inferible por la capacidad de la gestora para mantener una exposición a renta fija superior al 100% en varios periodos, como el <strong>159.06%</strong> en 2025, lo que sugiere un uso sofisticado para la gestión de la duración, la cobertura o, potencialmente, un apalancamiento controlado.</p><p class="pr">La filosofía de inversión de Cartesio X ha demostrado una notable capacidad de adaptación a lo largo de su trayectoria. Tras la crisis financiera de 2008, el fondo mostró una recuperación robusta con un <strong>8.47%</strong> de rentabilidad en 2009, manteniendo una exposición a renta variable relativamente baja del <strong>6.55%</strong>, lo que sugiere una gestión cautelosa. Durante la crisis de deuda soberana europea en 2011, el fondo cerró con una ligera caída del <strong>0.83%</strong>, con una volatilidad del <strong>3.16%</strong>, lo que valida su enfoque defensivo. La gestora ha ajustado explícitamente su política en respuesta a eventos macroeconómicos, como se evidencia en 2020, donde, tras el "mercado de renta variable bajista más rápido de la historia", incrementó su exposición a renta variable del <strong>41.82%</strong> en 2019 al <strong>64.9%</strong>, capturando la subsiguiente recuperación. De manera similar, en 2022, ante la "desinflación de varias burbujas del mercado", redujo la exposición a renta variable del <strong>70.18%</strong> en 2021 al <strong>55.46%</strong>, demostrando una gestión proactiva del riesgo.</p><p class="pr">La coherencia entre el discurso de la gestora y sus acciones es un pilar fundamental en la evaluación de Cartesio X. El compromiso declarado con la baja volatilidad y la preservación de capital se ha mantenido consistentemente a lo largo de los años, con cifras de volatilidad anual que rara vez superan el <strong>4%</strong>, como el <strong>4.2%</strong> en 2014, y que se han mantenido en rangos como el <strong>1%</strong> en 2017 o el <strong>2.5%</strong> en 2018. Esta métrica respalda la promesa de un perfil de riesgo conservador. La flexibilidad en la asignación de activos, que es central en su filosofía, se refleja en las variaciones significativas de la exposición a renta variable, que ha oscilado desde un mínimo del <strong>6.55%</strong> en 2009 hasta un máximo del <strong>70.18%</strong> en 2021, para luego ajustarse al <strong>30.38%</strong> en 2025. Estas rotaciones demuestran una gestión activa y una adaptación a las condiciones de mercado, alineándose con la narrativa de un fondo que busca proteger el capital en entornos adversos y participar selectivamente en los alcistas.</p><p class="pr">Un primer momento clave de decisión se observa en el periodo <strong>post-crisis de 2008</strong>. Con un mercado global en recuperación, la gestora mantuvo una postura cautelosa, con una exposición a renta variable del <strong>6.55%</strong> en 2009, mientras el fondo lograba una rentabilidad del <strong>8.47%</strong>. Esta decisión, probablemente basada en una tesis de valoración atractiva en renta fija o una recuperación incipiente y volátil en renta variable, permitió al fondo capturar retornos positivos con un riesgo controlado, evidenciando una gestión prudente en la fase inicial de un nuevo ciclo. Un segundo momento crítico fue la <strong>crisis de deuda soberana europea en 2011</strong>. Ante la incertidumbre, Cartesio X redujo su exposición a renta variable del <strong>22.46%</strong> en 2011 al <strong>14.34%</strong> en 2012, logrando limitar la caída a un <strong>-0.83%</strong> en 2011 y recuperándose con un <strong>10.8%</strong> en 2012. Esta acción demuestra una capacidad de reacción defensiva y una tesis macroeconómica que priorizó la protección del capital. Finalmente, la <strong>volatilidad generada por la pandemia de COVID-19 en 2020</strong> y la posterior recuperación marcó un tercer punto de inflexión. La gestora incrementó la exposición a renta variable del <strong>41.82%</strong> en 2019 al <strong>64.9%</strong> en 2020 y hasta el <strong>70.18%</strong> en 2021, aprovechando la rápida recuperación del mercado, para luego reducirla al <strong>55.46%</strong> en 2022 ante la "desinflación de varias burbujas", lo que subraya una gestión táctica y ágil para capitalizar oportunidades y mitigar riesgos.</p><p class="pr">La evolución del mix de activos de Cartesio X revela una estrategia de asignación dinámica que se ajusta a las percepciones de la gestora sobre el ciclo económico y las valoraciones de mercado. La exposición a renta variable ha fluctuado drásticamente, desde un mínimo del <strong>6.55%</strong> en 2009, reflejando una cautela post-crisis, hasta un pico del <strong>70.18%</strong> en 2021, capitalizando la recuperación post-pandemia y el entorno de tipos bajos. Paralelamente, la renta fija ha sido el ancla del fondo, con exposiciones que han llegado al <strong>159.06%</strong> en 2025, lo que sugiere un uso intensivo de instrumentos de deuda y, posiblemente, derivados para gestionar la duración o el apalancamiento. Esta rotación, como la reducción de RV del <strong>70.18%</strong> en 2021 al <strong>55.46%</strong> en 2022 y al <strong>30.38%</strong> en 2025, junto con el aumento simultáneo de RF, es coherente con la filosofía declarada de protección de capital y adaptación a un entorno macroeconómico cambiante, especialmente ante la "mayor burbuja de tipos de interés de la historia" que se pinchó en 2022-2023.</p><p class="pr">El patrón de aciertos de Cartesio X se ha manifestado consistentemente en su capacidad para <strong>proteger el capital en entornos bajistas</strong> y de alta volatilidad, como se observó en 2011 con una caída mínima del <strong>0.83%</strong> o en 2018 con una bajada del <strong>2.1%</strong> en el cuarto trimestre, mientras que la renta fija de la Eurozona subía. También ha demostrado habilidad para <strong>participar en recuperaciones de mercado</strong>, como el incremento de exposición a renta variable en 2020-2021. Sin embargo, la estrategia de baja volatilidad y alta flexibilidad puede implicar un <strong>sesgo recurrente hacia la cautela</strong>, lo que podría llevar a una subcaptura de los mercados alcistas más explosivos, aunque los datos no permiten cuantificar esta "oportunidad perdida" de forma directa. La elevada rotación de cartera, con valores como el <strong>103%</strong> en 2022 y el <strong>101%</strong> en 2025, sugiere un equipo que aprende y se adapta tácticamente, pero también implica un riesgo de <strong>costes de transacción</strong> y la posibilidad de "whipsaws" si las decisiones de mercado no son perfectamente sincronizadas. No se identifican errores sistemáticos graves que comprometan la filosofía de preservación de capital.</p><p class="pr">En conclusión, Cartesio X, FI, es un fondo apropiado para un inversor con un perfil de riesgo <strong>conservador a moderado</strong>, que prioriza la <strong>preservación del capital</strong> y la <strong>baja volatilidad</strong> sobre la maximización de retornos en mercados alcistas. Es ideal para aquellos que buscan una gestión activa y flexible que se adapte a los ciclos económicos, con una referencia clara a la rentabilidad de la deuda pública. En ciclos alcistas, es probable que el fondo <strong>rezague a los índices de renta variable puros</strong>, dada su significativa exposición a renta fija y su enfoque en la gestión del riesgo, aunque buscará ofrecer retornos positivos. En ciclos bajistas, se espera que el fondo demuestre su valor a través de una <strong>protección superior del capital</strong>, como ha hecho históricamente. Las principales "red flags" incluyen la potencial <strong>subcaptura de mercados alcistas muy fuertes</strong> debido a su sesgo defensivo y la <strong>dependencia de la habilidad de la gestora</strong> para realizar rotaciones de activos exitosas, lo que se refleja en una alta rotación de cartera que podría generar costes. La falta de datos sobre AUM y número de partícipes impide evaluar la escalabilidad y la base de inversores del fondo.</p>
+    <p class="pr">La estrategia del fondo se ha caracterizado por una gestión activa y adaptable a los ciclos de mercado, buscando rentabilidad en entornos diversos. Se observa una tendencia a mantener una rotación de cartera significativa, especialmente en periodos de mayor volatilidad o recuperación.</p>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;2019 ha sido un año que podríamos calificar casi como espectacular para los mercados financieros.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo (Cartesio X), Informe periódico 2019</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;2020 ha sido un año para no olvidar el mercado de renta variable bajista más rápido de la historia, seguido de una fuerte recuperación.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo (Cartesio X), Informe periódico 2020</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;A lo largo de 2022 hemos visto desinflarse varias burbujas del mercado.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo (Cartesio X), Informe periódico 2022</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;2019 ha sido un año que podríamos calificar casi como espectacular para los mercados financieros.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo (Cartesio X), Informe periódico 2019</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;2020 ha sido un año para no olvidar el mercado de renta variable bajista más rápido de la historia, seguido de una fuerte recuperación.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo (Cartesio X), Informe periódico 2020</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;A lo largo de 2022 hemos visto desinflarse varias burbujas del mercado.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo (Cartesio X), Informe periódico 2022</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -565,13 +581,16 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">10 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.6</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">5.7</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">6.9</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.99</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.36</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.45</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.56</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.52</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.70</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.76</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.72</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.88</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.52</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.92</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.91</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-4.0</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-9.8</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-15.1</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">7.6%</strong> · 3A <strong style="color:var(--ink);">9.0%</strong> · 5A <strong style="color:var(--ink);">5.3%</strong> · 10A <strong style="color:var(--ink);">4.6%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Large · Value</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:var(--ink-2);line-height:1.1;">—</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★★★</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">5 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">EUR Cautious Allocation</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">13.73</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">24.36</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">1.37</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.90</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.73</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.98</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">6.99</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">17.26</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">22.6 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:11%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.84%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.63%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:5%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-0.41%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:45%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.49%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 14% · caídas 16% · ratio 0.86</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2019</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:66%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">68%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:41%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">42%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:41%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">42%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">103%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:34%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">35%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:64%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">66%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:98%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">101%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 65%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">14%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:14%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">16%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:16%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:58%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:48%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">18.1% <span style="color:var(--navy);">(+3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:44%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:35%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">13.9% <span style="color:var(--navy);">(+3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo defensivo</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:41%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:16%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">12.8% <span style="color:var(--navy);">(+8)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Materiales básicos</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:40%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:10%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">12.5% <span style="color:var(--navy);">(+9)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:40%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:29%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">12.4% <span style="color:var(--navy);">(+3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:28%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:29%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">8.7% <span style="color:#c0552e;">(-0)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Energía</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:22%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:12%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.8% <span style="color:var(--navy);">(+3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Inmobiliario</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:21%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:5%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.5% <span style="color:var(--navy);">(+5)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> MSCI World · (dif. en pp)</div></div></div></div>
+
   <div class="sr">Todas las posiciones (116)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="Bonos|ENEL SPA|6,625|2049-07-16">Bonos|ENEL SPA|6,625|2049-07-16</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -580,6 +599,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|ABERTIS INFRAESTRUCT|4,875|2049-02-28">Bonos|ABERTIS INFRAESTRUCT|4,875|2049-02-28</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -588,6 +608,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|STELLANTIS NV|3,875|2031-06-06">Bonos|STELLANTIS NV|3,875|2031-06-06</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -596,6 +617,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|REPSOL INTL FINANCE|4,500|2049-06-26">Bonos|REPSOL INTL FINANCE|4,500|2049-06-26</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -604,6 +626,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BANCO SANTANDER SA|1,500|2049-10-02">Bonos|BANCO SANTANDER SA|1,500|2049-10-02</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -612,6 +635,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BANCO BILBAO VIZCAYA|1,406|2049-02-11">Bonos|BANCO BILBAO VIZCAYA|1,406|2049-02-11</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -620,6 +644,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|UNIBAIL-RODAMCO-WEST|4,750|2049-09-11">Bonos|UNIBAIL-RODAMCO-WEST|4,750|2049-09-11</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
@@ -628,6 +653,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|LAGARDERE SCA|4,750|2030-06-12">Bonos|LAGARDERE SCA|4,750|2030-06-12</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -636,6 +662,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Obligaciones|ELECTRICITE DE FRANC|4,375|2049-04">Obligaciones|ELECTRICITE DE FRANC|4,375|2049-04</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -644,6 +671,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|PRYSMIAN SPA|5,250|2049-08-21">Bonos|PRYSMIAN SPA|5,250|2049-08-21</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -652,6 +680,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|VOLKSWAGEN INTL FIN|7,875|2049-09-06">Bonos|VOLKSWAGEN INTL FIN|7,875|2049-09-06</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -660,6 +689,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|DEUTSCHE EUROSHOP|4,500|2030-10-15">Bonos|DEUTSCHE EUROSHOP|4,500|2030-10-15</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -668,6 +698,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|AUTOSTRADE PER L'ITA|4,250|2032-06-28">Bonos|AUTOSTRADE PER L'ITA|4,250|2032-06-28</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -676,6 +707,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|CREDIT AGRICOLE SA|3,125|2049-12-17">Bonos|CREDIT AGRICOLE SA|3,125|2049-12-17</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -684,6 +716,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BANCO DE SABADELL SA|1,625|2049-08-20">Bonos|BANCO DE SABADELL SA|1,625|2049-08-20</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -692,6 +725,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BANKINTER SA|1,500|2042-12-30">Bonos|BANKINTER SA|1,500|2042-12-30</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -700,6 +734,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|AIR FRANCE-KLM|5,750|2049-05-21">Bonos|AIR FRANCE-KLM|5,750|2049-05-21</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -708,6 +743,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|EDP -ENERGIAS DE POR|4,500|2055-05-27">Bonos|EDP -ENERGIAS DE POR|4,500|2055-05-27</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -716,6 +752,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|CAISSE NAT REASSURAN|3,250|2049-07-16">Bonos|CAISSE NAT REASSURAN|3,250|2049-07-16</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -724,6 +761,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|CREDIT AGRICOLE SA|1,468|2049-09-23">Bonos|CREDIT AGRICOLE SA|1,468|2049-09-23</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -732,6 +770,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|SCANDINAVIAN TOBACCO|4,875|2029-09-12">Bonos|SCANDINAVIAN TOBACCO|4,875|2029-09-12</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -740,6 +779,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|ORSTED A/S|5,125|3024-03-14">Bonos|ORSTED A/S|5,125|3024-03-14</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -748,6 +788,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|LOTTOMATICA|2,437|2031-01-31">Bonos|LOTTOMATICA|2,437|2031-01-31</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -756,6 +797,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|FORD MOTOR CREDIT CO|4,448|2032-09-16">Bonos|FORD MOTOR CREDIT CO|4,448|2032-09-16</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -764,6 +806,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|TELEFONICA EUROPE BV|6,750|2049-09-07">Bonos|TELEFONICA EUROPE BV|6,750|2049-09-07</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -772,6 +815,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|CANAL PLUS SA|4,625|2030-12-03">Bonos|CANAL PLUS SA|4,625|2030-12-03</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -780,6 +824,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|WPP FINANCE SA|3,625|2031-06-09">Bonos|WPP FINANCE SA|3,625|2031-06-09</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -788,6 +833,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Obligaciones|ABANCA CORPORACION B|1,531|2049-12">Obligaciones|ABANCA CORPORACION B|1,531|2049-12</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
@@ -796,6 +842,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|UNICREDIT SPA|3,250|2049-12-03">Bonos|UNICREDIT SPA|3,250|2049-12-03</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
@@ -804,6 +851,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BANK OF IRELAND GROU|3,062|2049-03-18">Bonos|BANK OF IRELAND GROU|3,062|2049-03-18</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
@@ -812,6 +860,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|EVONIK INDUSTRIES AG|4,250|2055-09-09">Bonos|EVONIK INDUSTRIES AG|4,250|2055-09-09</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -820,6 +869,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|TELEPERFORMANCE|5,750|2031-11-22">Bonos|TELEPERFORMANCE|5,750|2031-11-22</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -828,6 +878,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|VALEO SE|4,625|2032-03-23">Bonos|VALEO SE|4,625|2032-03-23</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -836,6 +887,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|VERALLIA SA|3,500|2029-11-14">Bonos|VERALLIA SA|3,500|2029-11-14</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -844,6 +896,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|ACS ACTIVIDADES DE C|3,750|2030-06-11">Bonos|ACS ACTIVIDADES DE C|3,750|2030-06-11</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -852,6 +905,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|ITV PLC|4,250|2032-06-19">Bonos|ITV PLC|4,250|2032-06-19</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -860,6 +914,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|ENI SPA|4,500|2049-04-21">Bonos|ENI SPA|4,500|2049-04-21</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -868,6 +923,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|SCHAEFFLER AG|4,500|2030-03-28">Bonos|SCHAEFFLER AG|4,500|2030-03-28</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -876,6 +932,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|CEPSA FINANCE SA|4,125|2031-04-11">Bonos|CEPSA FINANCE SA|4,125|2031-04-11</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -884,6 +941,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|AVIVA PLC|3,875|2049-03-31">Bonos|AVIVA PLC|3,875|2049-03-31</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -892,6 +950,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|DANONE SA|3,950|2049-09-08">Bonos|DANONE SA|3,950|2049-09-08</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -900,6 +959,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|AXA SA|3,187|2049-01-16">Bonos|AXA SA|3,187|2049-01-16</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -908,6 +968,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|LENZING AG|4,500|2049-07-09">Bonos|LENZING AG|4,500|2049-07-09</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -916,6 +977,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BRITISH AMERICAN TOB|4,200|2049-01-30">Bonos|BRITISH AMERICAN TOB|4,200|2049-01-30</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -924,6 +986,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|JT INTL FIN SERVICES|3,870|2055-09-04">Bonos|JT INTL FIN SERVICES|3,870|2055-09-04</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -932,6 +995,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|RCI BANQUE SA|3,062|2049-09-24">Bonos|RCI BANQUE SA|3,062|2049-09-24</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -940,6 +1004,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|NEINOR HOMES SLU|2,937|2030-02-15">Bonos|NEINOR HOMES SLU|2,937|2030-02-15</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -948,6 +1013,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|ARCELORMITTAL SA|3,500|2031-12-13">Bonos|ARCELORMITTAL SA|3,500|2031-12-13</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -956,6 +1022,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|SCOR SE|3,000|2049-12-20">Bonos|SCOR SE|3,000|2049-12-20</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -964,6 +1031,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|FCC AQUALIA SA|3,750|2032-06-11">Bonos|FCC AQUALIA SA|3,750|2032-06-11</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -972,6 +1040,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|BCA MONTE DEI PASCHI DI S">Acciones|BCA MONTE DEI PASCHI DI S</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -980,6 +1049,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|KBC GROEP NV|3,125|2049-09-17">Bonos|KBC GROEP NV|3,125|2049-09-17</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -988,6 +1058,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|VODAFONE GROUP PLC|4,125|2055-09-12">Bonos|VODAFONE GROUP PLC|4,125|2055-09-12</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -996,6 +1067,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BPCE ASSURANCES SA|2,875|2049-10-22">Bonos|BPCE ASSURANCES SA|2,875|2049-10-22</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1004,6 +1076,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|INTESA SANPAOLO SPA|3,850|2032-09-16">Bonos|INTESA SANPAOLO SPA|3,850|2032-09-16</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1012,6 +1085,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|OPTICS BIDCO SPA|3,937|2028-07-31">Bonos|OPTICS BIDCO SPA|3,937|2028-07-31</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1020,6 +1094,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|LLOYDS BANKING GROUP|1,875|2049-06-27">Bonos|LLOYDS BANKING GROUP|1,875|2049-06-27</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1028,6 +1103,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|MERLIN PROPERTIES SOCIMI">Acciones|MERLIN PROPERTIES SOCIMI</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1036,6 +1112,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|FNAC DARTY SA|2,375|2032-04-01">Bonos|FNAC DARTY SA|2,375|2032-04-01</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -1044,6 +1121,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|GESTAMP AUTOMOCION S|2,187|2030-10-15">Bonos|GESTAMP AUTOMOCION S|2,187|2030-10-15</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1052,6 +1130,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|AROUNDTOWN FINANCE S|5,000|2049-07-16">Bonos|AROUNDTOWN FINANCE S|5,000|2049-07-16</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1060,6 +1139,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|AXA SA|0,274|2049-10-29">Bonos|AXA SA|0,274|2049-10-29</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1068,6 +1148,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|IMPERIAL BRANDS FIN|5,250|2031-02-15">Bonos|IMPERIAL BRANDS FIN|5,250|2031-02-15</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1076,6 +1157,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|NN GROUP NV|3,187|2049-03-12">Bonos|NN GROUP NV|3,187|2049-03-12</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1084,6 +1166,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Obligaciones|EL CORTE INGLES|4,250|2031-06-26">Obligaciones|EL CORTE INGLES|4,250|2031-06-26</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1092,6 +1175,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BANCO DE SABADELL SA|3,375|2033-02-18">Bonos|BANCO DE SABADELL SA|3,375|2033-02-18</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1100,6 +1184,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Obligaciones|BPER BANCA|2,937|2049-03-19">Obligaciones|BPER BANCA|2,937|2049-03-19</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -1108,6 +1193,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BAYER AG|2,375|2082-03-25">Bonos|BAYER AG|2,375|2082-03-25</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -1116,6 +1202,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|MANPOWERGROUP INC|3,750|2030-12-13">Bonos|MANPOWERGROUP INC|3,750|2030-12-13</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -1124,6 +1211,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|VAR ENERGI ASA|5,500|2029-05-04">Bonos|VAR ENERGI ASA|5,500|2029-05-04</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1132,6 +1220,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Obligaciones|ENGIE SA|4,000|2049-04-13">Obligaciones|ENGIE SA|4,000|2049-04-13</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1140,6 +1229,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|GLENCORE PLC">Acciones|GLENCORE PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1148,6 +1238,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Obligaciones|CNP ASSURANCES|2,750|2049-07-02">Obligaciones|CNP ASSURANCES|2,750|2049-07-02</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1156,6 +1247,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|SERVICIOS MEDIO AMBI|5,250|2029-10-30">Bonos|SERVICIOS MEDIO AMBI|5,250|2029-10-30</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1164,6 +1256,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|POSTNL NV|4,000|2030-10-02">Bonos|POSTNL NV|4,000|2030-10-02</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1172,6 +1265,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|AXA SA">Acciones|AXA SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1180,6 +1274,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|TOTALENERGIES SE">Acciones|TOTALENERGIES SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1188,6 +1283,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|PUBLICIS GROUPE SA">Acciones|PUBLICIS GROUPE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1196,6 +1292,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|UNIPOL GRUPPO SPA">Acciones|UNIPOL GRUPPO SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1204,6 +1301,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|ITV PLC">Acciones|ITV PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1212,6 +1310,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|REPSOL INTL FINANCE|4,197|2049-02-19">Bonos|REPSOL INTL FINANCE|4,197|2049-02-19</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1220,6 +1319,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|HENKEL AG & CO KGAA">Acciones|HENKEL AG & CO KGAA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1228,6 +1328,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|BRITISH AMERICAN TOBACCO PLC">Acciones|BRITISH AMERICAN TOBACCO PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1236,6 +1337,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|REPSOL SA">Acciones|REPSOL SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1244,6 +1346,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|CARREFOUR SA">Acciones|CARREFOUR SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1252,6 +1355,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|CARLSBERG BREWERIES A/S">Acciones|CARLSBERG BREWERIES A/S</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>DKK</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1260,6 +1364,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|UPM KYMMENE">Acciones|UPM KYMMENE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1268,6 +1373,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|KION GROUP AG|4,000|2029-11-20">Bonos|KION GROUP AG|4,000|2029-11-20</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1276,6 +1382,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|BANCO SANTANDER SA|5,625|2030-04-27">Bonos|BANCO SANTANDER SA|5,625|2030-04-27</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1284,6 +1391,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|ROCHE HOLDING AG">Acciones|ROCHE HOLDING AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CHF</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1292,6 +1400,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|BARRATT DEVELOPMENTS">Acciones|BARRATT DEVELOPMENTS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1300,6 +1409,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|TENCENT HOLDINGS LTD">Acciones|TENCENT HOLDINGS LTD</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1308,6 +1418,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|ACERINOX SA">Acciones|ACERINOX SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1316,6 +1427,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|RIO TINTO PLC">Acciones|RIO TINTO PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1324,6 +1436,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|TELEPERFORMANCE">Acciones|TELEPERFORMANCE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1332,6 +1445,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|MICHELIN">Acciones|MICHELIN</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1340,6 +1454,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|ALPHABET INC">Acciones|ALPHABET INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1348,6 +1463,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|BANCO SANTANDER SA">Acciones|BANCO SANTANDER SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1356,6 +1472,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|OBRASCON HUARTE LAIN|3,300|2029-12-31">Bonos|OBRASCON HUARTE LAIN|3,300|2029-12-31</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1364,6 +1481,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|UNIQA INSURANCE GROUP AG">Acciones|UNIQA INSURANCE GROUP AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1372,6 +1490,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|ENEL SPA">Acciones|ENEL SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1380,6 +1499,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|ENGIE SA">Acciones|ENGIE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1388,6 +1508,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|SIGNIFY NV">Acciones|SIGNIFY NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1396,6 +1517,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|SELP FINANCE SARL|3,750|2032-01-16">Bonos|SELP FINANCE SARL|3,750|2032-01-16</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1404,6 +1526,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|ORANGE SA|3,875|2049-06-24">Bonos|ORANGE SA|3,875|2049-06-24</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1412,6 +1535,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|EIFFAGE SA">Acciones|EIFFAGE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1420,6 +1544,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|JUNGHEINRICH">Acciones|JUNGHEINRICH</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1428,6 +1553,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|VINCI SA">Acciones|VINCI SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1436,6 +1562,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|UNICAJA|3,500|2031-06-30">Bonos|UNICAJA|3,500|2031-06-30</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1444,6 +1571,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|SWATCH GROUP AG/THE">Acciones|SWATCH GROUP AG/THE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CHF</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1452,6 +1580,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|IPSOS">Acciones|IPSOS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1460,6 +1589,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|UNIBAIL-RODAMCO SE">Acciones|UNIBAIL-RODAMCO SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1468,6 +1598,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|BAYERISCHE MOTOREN WERKE AG">Acciones|BAYERISCHE MOTOREN WERKE AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1476,6 +1607,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|SES SA|5,500|2054-09-12">Bonos|SES SA|5,500|2054-09-12</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1484,6 +1616,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Acciones|STRABAG SE">Acciones|STRABAG SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1492,6 +1625,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 </tr><tr>
   <td title="Bonos|PETROFAC LTD|4,875|2026-11-15">Bonos|PETROFAC LTD|4,875|2026-11-15</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1819,7 +1953,11 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0116567035';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -1836,16 +1974,21 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0116567035';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -1884,7 +2027,7 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0116567035', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -1897,33 +2040,21 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -1936,9 +2067,9 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -2275,16 +2406,54 @@ Un ejemplo notable de la perspicacia de **Álvaro Martínez** fue su inversión 
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -2487,7 +2656,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

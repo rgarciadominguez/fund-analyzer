@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -264,6 +278,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con horizonte mínimo recomendado de 5-10 años, tolerancia a volatilidad media-alta (perfil 4/7, 11,56% volatilidad anualizada actual), y convencimiento de la filosofía value clásica. Útil como bloque core para exposición ibérica diferencial respecto al IBEX 35, especialmente en carteras donde se busque small/mid cap, sesgo industrial y exportador, y descorrelación parcial frente al peso financiero/utility del índice. No apto para inversores que prioricen seguir benchmark de cerca o que necesiten liquidez inferior a 3 años.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Alineación de intereses muy alta: el 20% de los activos bajo gestión del grupo Magallanes corresponde a patrimonio interno de socios y empleados (Funds Society, 2026-02-26). Iván Martín y Blanca Hernández son socios fundadores y siguen ocupando los dos primeros puestos ejecutivos tras el intercambio de roles de febrero de 2026. La gestora declara públicamente que la prioridad actual es proteger el patrimonio y asegurar la excelencia del servicio sobre el puro crecimiento de activos.</p></div></div>
 
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.80%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.75%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1 €</td></tr></tbody></table>
+
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="P" selected>P (TER 1,3%)</option><option value="E">E (TER 0,55%)</option><option value="F">F (TER 0,03%)</option><option value="M">M (TER 1,8%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
@@ -274,7 +290,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Enero 2015 — presente</span></div>
 
   <div class="mb24">
-    <p class="pr">Magallanes Iberian Equity FI nace dentro del proyecto fundacional de Magallanes Value Investors SGIIC, gestora independiente española creada en 2014 por Iván Martín Aránguez (CFA, ex-Santander AM, Aviva Gestión y Sabadell Gestión) y Blanca Hernández (socia fundadora y consejera delegada en sus primeros años). El fondo recibe el número de registro 4840 en el Registro Administrativo de Fondos de Inversión de carácter financiero de CNMV con fecha de alta 09/01/2015, y la clase minorista M empieza a comercializarse el 30/01/2015 (Funds Society, web oficial, fundspeople). Su lanzamiento formó parte del trío de fondos UCITS originarios de Magallanes (Iberian Equity, European Equity y, posteriormente, Microcaps), pensados para ser vehículos de alta convicción siguiendo la filosofía value clásica que Iván Martín había desarrollado en sus dos décadas previas en gestión de bolsa española.</p><p class="subsec">Etapa de arranque y crecimiento (2015-2018)</p><p class="pr">El fondo arrancó con 73,6 millones de euros y 758 partícipes a cierre de 2015 (XML CNMV FONDMENS Diciembre 2015). En 2016 el patrimonio crece hasta 127,8 M€ y los partícipes hasta 2.446, en lo que es el primer salto cualitativo de la base inversora; el VL liquidativo cierra 2016 en 131,8 € por participación. Durante 2017 sigue la inercia positiva con 187,5 M€ y 2.779 partícipes a cierre, alcanzando un VL de 154,1 €. Es la fase en la que medios especializados como FundsPeople ya consagran al fondo como «un referente de estilo», describiendo una cartera de aproximadamente 30 compañías españolas y portuguesas, predominantemente pequeñas y medianas, familiares, con balances saneados y posición de tesorería neta positiva (FundsPeople 2017-12-12). El equipo de análisis está formado por Iván Martín como líder y Diogo Pimentel y Otto Kdolsky como analistas senior. En 2018 el fondo pasa por su primera corrección significativa cerrando con 213,7 M€ y 4.015 partícipes (máximo de partícipes histórico hasta hoy) pero un VL en retroceso a 141,6 €, equivalente a una caída anual de la clase M del −9,21% según la ficha de la web oficial. La cartera mantiene una exposición a renta variable del 95,08% con liquidez del 3,95%.</p><p class="subsec">Crisis COVID, recuperación y rotación de partícipes (2019-2021)</p><p class="pr">Durante 2019 el patrimonio se modera hasta 173,4 M€ con 3.416 partícipes, y la entidad depositaria experimenta su único cambio histórico relevante: la CNMV inscribe el 27/12/2019 el cambio en el grupo de la depositaria, pasando de Banco Santander a Crédit Agricole (hechos relevantes 2019). En 2020 el patrimonio cae hasta 126,9 M€ y los partícipes hasta 2.818, con un VL liquidativo de 134,1 €, lo que supone una rentabilidad anual de la clase M del −12,92% (web oficial). Iván Martín ha calificado posteriormente el COVID como «posiblemente el peor momento por la magnitud y la celeridad en las caídas» pero también recuerda que las correcciones masivas son las épocas en las que se disparan las oportunidades de inversión (Funds Society 2025-08-19). El fondo no realiza cambios estructurales y mantiene la exposición a RV en torno al 96-98%. En 2021 hay rebote con patrimonio en 141,2 M€ y 2.571 partícipes, con un VL de 161,1 € que supera por primera vez el rango pre-COVID; este año marca también la decisión que el gestor identifica posteriormente como una de las mejores históricas de Magallanes: la entrada en banca europea con un binomio beneficio-riesgo claramente desequilibrado a favor del primero, posición que generaría plusvalías de varias veces el dinero invertido en los años siguientes.</p><p class="subsec">Volatilidad de tipos y macro adversa (2022-2023)</p><p class="pr">El primer trimestre de 2022 (carta trimestral 1T 2022 disponible en archivo) está dominado por el inicio de la guerra de Ucrania y el cambio de régimen monetario hacia política restrictiva. En este contexto el fondo sube exposición a Inditex (tras una caída de un tercio de su valor desde finales de 2021), Caixabank, Bankinter, IAG, Gestamp y Applus, y reduce parcialmente Sonae y Repsol. La carta resume la regla del fondo: «primero el balance y luego la cuenta de resultados, en ese orden». A cierre del año el patrimonio queda en 137,2 M€ y los partícipes en 2.447, con un VL de 160,2 €. En el plano administrativo, en 2022 se registra formalmente la actualización del nombre de la gestora en CNMV (de Magallanes Value Investors SA SGIIC a la misma denominación, cambio meramente formal). Durante 2023 el patrimonio se recupera hasta 148,6 M€ con 2.400 partícipes y el VL salta a 183,8 €, alimentado por la fortaleza relativa de las small/mid cap ibéricas y la repreciación del sector financiero.</p><p class="subsec">Actualización de folleto, nueva clase F y año récord (2024-2025)</p><p class="pr">En 2024 la CNMV verifica y registra la actualización del folleto a solicitud de la gestora con dos fines: (i) modificar las condiciones para aplicar el volumen máximo de participaciones por partícipe e (ii) inscribir en el registro de la IIC la nueva clase F (número de registro 309440), pensada para inversores institucionales muy grandes con TER del 0,03% (hechos relevantes 2024). También en este año se inicia el procedimiento extraordinario de reclamación de retenciones soportadas en Portugal. El depositario pasa formalmente a CACEIS Bank Spain SA tras la integración corporativa del negocio depositaria de Crédit Agricole. El patrimonio cierra en 162,7 M€ y los partícipes en 2.365 (mínimo del periodo 2018-2025), con un VL de 220,3 €.</p><p class="pr"><strong>2025</strong>: año excelente para el fondo con un crecimiento de patrimonio del +88% hasta 306,2 M€ y un repunte de partícipes hasta 3.110 (+31,5%), impulsado por la rentabilidad acumulada del año (+44,53% clase M, +46,34% clase E, +45,25% clase P) y el rally del IBEX 35 (+49,3%). En H2 2025 entran en cartera EBRO EV Motors y Befesa SA y se incrementan Colonial, Gestamp, Meliá Hotels, Repsol y Prosegur Cash; en el lado vendedor destaca la salida total de Banco Sabadell tras la fuerte revalorización del sector bancario, y reducciones marginales en Mapfre, Atalaya Mining e IAG (sección 9, informe semestral 2025). La rentabilidad acumulada desde inicio asciende a +182,25% frente al +115,42% del benchmark.</p><p class="subsec">Cambio de roles directivos (2026)</p><p class="pr">En febrero de 2026, en un movimiento que la gestora explica por la prioridad de proteger el patrimonio y asegurar la excelencia del servicio sobre el puro crecimiento, Blanca Hernández y Iván Martín intercambian sus puestos: Hernández pasa a la presidencia (rol institucional y de buen gobierno) y Martín asume el cargo de CEO conservando la dirección de Inversiones, mientras Roberto Sobrino accede al puesto de director general (Funds Society, 2026-02-26). El movimiento mantiene íntegra la responsabilidad de gestión sobre Iván Martín pero acerca al gestor a la dirección ejecutiva del negocio.</p>
+    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Etapa de arranque y crecim…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">Crisis COVID, recuperación…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Volatilidad de tipos y mac…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',4)">Actualización de folleto,…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',5)">Cambio de roles directivos</button></div><div class="subtab-panel active"><p class="pr">Magallanes Iberian Equity FI nace dentro del proyecto fundacional de Magallanes Value Investors SGIIC, gestora independiente española creada en 2014 por Iván Martín Aránguez (CFA, ex-Santander AM, Aviva Gestión y Sabadell Gestión) y Blanca Hernández (socia fundadora y consejera delegada en sus primeros años). El fondo recibe el número de registro 4840 en el Registro Administrativo de Fondos de Inversión de carácter financiero de CNMV con fecha de alta 09/01/2015, y la clase minorista M empieza a comercializarse el 30/01/2015 (Funds Society, web oficial, fundspeople). Su lanzamiento formó parte del trío de fondos UCITS originarios de Magallanes (Iberian Equity, European Equity y, posteriormente, Microcaps), pensados para ser vehículos de alta convicción siguiendo la filosofía value clásica que Iván Martín había desarrollado en sus dos décadas previas en gestión de bolsa española.</p></div><div class="subtab-panel"><p class="pr">El fondo arrancó con 73,6 millones de euros y 758 partícipes a cierre de 2015 (XML CNMV FONDMENS Diciembre 2015). En 2016 el patrimonio crece hasta 127,8 M€ y los partícipes hasta 2.446, en lo que es el primer salto cualitativo de la base inversora; el VL liquidativo cierra 2016 en 131,8 € por participación. Durante 2017 sigue la inercia positiva con 187,5 M€ y 2.779 partícipes a cierre, alcanzando un VL de 154,1 €. Es la fase en la que medios especializados como FundsPeople ya consagran al fondo como «un referente de estilo», describiendo una cartera de aproximadamente 30 compañías españolas y portuguesas, predominantemente pequeñas y medianas, familiares, con balances saneados y posición de tesorería neta positiva (FundsPeople 2017-12-12). El equipo de análisis está formado por Iván Martín como líder y Diogo Pimentel y Otto Kdolsky como analistas senior. En 2018 el fondo pasa por su primera corrección significativa cerrando con 213,7 M€ y 4.015 partícipes (máximo de partícipes histórico hasta hoy) pero un VL en retroceso a 141,6 €, equivalente a una caída anual de la clase M del −9,21% según la ficha de la web oficial. La cartera mantiene una exposición a renta variable del 95,08% con liquidez del 3,95%.</p></div><div class="subtab-panel"><p class="pr">Durante 2019 el patrimonio se modera hasta 173,4 M€ con 3.416 partícipes, y la entidad depositaria experimenta su único cambio histórico relevante: la CNMV inscribe el 27/12/2019 el cambio en el grupo de la depositaria, pasando de Banco Santander a Crédit Agricole (hechos relevantes 2019). En 2020 el patrimonio cae hasta 126,9 M€ y los partícipes hasta 2.818, con un VL liquidativo de 134,1 €, lo que supone una rentabilidad anual de la clase M del −12,92% (web oficial). Iván Martín ha calificado posteriormente el COVID como «posiblemente el peor momento por la magnitud y la celeridad en las caídas» pero también recuerda que las correcciones masivas son las épocas en las que se disparan las oportunidades de inversión (Funds Society 2025-08-19). El fondo no realiza cambios estructurales y mantiene la exposición a RV en torno al 96-98%. En 2021 hay rebote con patrimonio en 141,2 M€ y 2.571 partícipes, con un VL de 161,1 € que supera por primera vez el rango pre-COVID; este año marca también la decisión que el gestor identifica posteriormente como una de las mejores históricas de Magallanes: la entrada en banca europea con un binomio beneficio-riesgo claramente desequilibrado a favor del primero, posición que generaría plusvalías de varias veces el dinero invertido en los años siguientes.</p></div><div class="subtab-panel"><p class="pr">El primer trimestre de 2022 (carta trimestral 1T 2022 disponible en archivo) está dominado por el inicio de la guerra de Ucrania y el cambio de régimen monetario hacia política restrictiva. En este contexto el fondo sube exposición a Inditex (tras una caída de un tercio de su valor desde finales de 2021), Caixabank, Bankinter, IAG, Gestamp y Applus, y reduce parcialmente Sonae y Repsol. La carta resume la regla del fondo: «primero el balance y luego la cuenta de resultados, en ese orden». A cierre del año el patrimonio queda en 137,2 M€ y los partícipes en 2.447, con un VL de 160,2 €. En el plano administrativo, en 2022 se registra formalmente la actualización del nombre de la gestora en CNMV (de Magallanes Value Investors SA SGIIC a la misma denominación, cambio meramente formal). Durante 2023 el patrimonio se recupera hasta 148,6 M€ con 2.400 partícipes y el VL salta a 183,8 €, alimentado por la fortaleza relativa de las small/mid cap ibéricas y la repreciación del sector financiero.</p></div><div class="subtab-panel"><p class="pr">En 2024 la CNMV verifica y registra la actualización del folleto a solicitud de la gestora con dos fines: (i) modificar las condiciones para aplicar el volumen máximo de participaciones por partícipe e (ii) inscribir en el registro de la IIC la nueva clase F (número de registro 309440), pensada para inversores institucionales muy grandes con TER del 0,03% (hechos relevantes 2024). También en este año se inicia el procedimiento extraordinario de reclamación de retenciones soportadas en Portugal. El depositario pasa formalmente a CACEIS Bank Spain SA tras la integración corporativa del negocio depositaria de Crédit Agricole. El patrimonio cierra en 162,7 M€ y los partícipes en 2.365 (mínimo del periodo 2018-2025), con un VL de 220,3 €.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2025.</strong> año excelente para el fondo con un crecimiento de patrimonio del +88% hasta 306,2 M€ y un repunte de partícipes hasta 3.110 (+31,5%), impulsado por la rentabilidad acumulada del año (+44,53% clase M, +46,34% clase E, +45,25% clase P) y el rally del IBEX 35 (+49,3%). En H2 2025 entran en cartera EBRO EV Motors y Befesa SA y se incrementan Colonial, Gestamp, Meliá Hotels, Repsol y Prosegur Cash; en el lado vendedor destaca la salida total de Banco Sabadell tras la fuerte revalorización del sector bancario, y reducciones marginales en Mapfre, Atalaya Mining e IAG (sección 9, informe semestral 2025). La rentabilidad acumulada desde inicio asciende a +182,25% frente al +115,42% del benchmark.</p></div><div class="subtab-panel"><p class="pr">En febrero de 2026, en un movimiento que la gestora explica por la prioridad de proteger el patrimonio y asegurar la excelencia del servicio sobre el puro crecimiento, Blanca Hernández y Iván Martín intercambian sus puestos: Hernández pasa a la presidencia (rol institucional y de buen gobierno) y Martín asume el cargo de CEO conservando la dirección de Inversiones, mientras Roberto Sobrino accede al puesto de director general (Funds Society, 2026-02-26). El movimiento mantiene íntegra la responsabilidad de gestión sobre Iván Martín pero acerca al gestor a la dirección ejecutiva del negocio.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
   <div class="kpi-row">
@@ -483,10 +499,10 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="subsec">Mandato y restricciones del fondo</p><p class="pr">Magallanes Iberian Equity FI tiene un mandato muy preciso recogido en su folleto y en la sección 1 del informe semestral 2025. El fondo invierte como mínimo el 75% de la exposición total en renta variable; al menos el 60% de la exposición total en renta variable de la zona euro; y al menos el 75% de la parte de RV en emisores españoles y portugueses. El resto puede colocarse en RV de otros países OCDE. Los emisores pueden pertenecer a cualquier sector y ser de alta, media o baja capitalización (con la advertencia de que «la inversión en renta variable de baja capitalización puede influir negativamente en la liquidez del fondo»). La parte no invertida en RV se destina a renta fija pública o privada de zona euro/OCDE con calidad crediticia igual o superior a la del Reino de España y duración media entre 0 y 18 meses. La exposición al riesgo divisa máxima es del 30%. El fondo no hace uso de instrumentos derivados.</p><p class="subsec">Filosofía y proceso de selección</p><p class="pr">La filosofía es value investing clásico aplicado de forma idiosincrática. La regla práctica formulada por Iván Martín en la carta del 1T 2022 («primero el balance y luego la cuenta de resultados, en ese orden») prioriza la solidez financiera de las compañías sobre cualquier consideración de calidad de los beneficios. El equipo busca empresas con tres rasgos: (i) cotizando por debajo del valor real, intrínseco o fundamental que estiman internamente; (ii) con balances saneados (poco endeudamiento o caja neta positiva); (iii) con perspectivas de revalorización a medio y largo plazo. El proceso es netamente bottom-up y discrecional: no replica las ponderaciones del benchmark, no toma decisiones macro materiales y dedica «la mayor parte del tiempo al estudio de compañías, al entendimiento de sus modelos de negocio y al cálculo de su valor fundamental» (sección 9 informe 2025).</p><p class="subsec">Filtros ESG complementarios</p><p class="pr">La gestora opera con metodología propia de scoring ESG que se aplica como filtro complementario, no estructurador. El folleto exige que el 100% de las compañías de la cartera tengan una puntuación inferior a 7 sobre 10 en su scoring interno, condición cumplida según los informes recientes. El fondo se clasifica en la propia ficha de la web oficial como Artículo 8 SFDR. La postura del gestor sobre la ESG es explícitamente crítica con el dogmatismo del sector: «tiene cabida la inversión responsable, con cabeza y sentido común (...) los problemas vienen cuando algunas cosas se convierten en moda» (Funds Society 2025-08-19).</p><p class="subsec">Concentración y construcción de cartera</p><p class="pr">La cartera consta habitualmente de unas 30 compañías (29 en 2025, 30 en 2024). El top 5 representa aproximadamente el 26% del patrimonio (25,96% a cierre 2025) y el top 10 alrededor del 47% (47,16% a cierre 2025). Los pesos individuales rara vez superan el 6% del fondo, lo que combina concentración significativa por nombre con diversificación efectiva por riesgo. El gestor ha enfatizado que esta diversificación dirigida es central a la filosofía: «no se puede evitar una caída abultada (...) pero sí se puede trabajar en construir una cartera, en que dicha caída, cuando ocurra, no deje tras de sí taras irrecuperables de por vida» (carta 1T 2022).</p><p class="subsec">Estilo de actuación en momentos de mercado</p><p class="pr">La estrategia se distingue por una operativa contracíclica explícita. Iván Martín la formula así: «en el justo momento del anuncio de los aranceles, actuaríamos protegiendo nuestros fondos, cosa que hicimos comprando más de las compañías que nos gustaban y no vender. De esta manera aumentamos el potencial de nuestras carteras, el margen de seguridad, eso es lo que entendemos por proteger los fondos» (Funds Society 2025-08-19). Históricamente esto se ha visto en al menos cuatro ocasiones documentadas: durante el COVID 2020 (manteniendo la cartera y aprovechando para comprar en debilidad), durante la guerra de Ucrania en 1T 2022 (subida de Inditex, banca, IAG, Gestamp, Applus), durante la inversión contrarian en banca europea de 2021, y durante la corrección abril 2025 del Liberation Day (aumento de exposiciones existentes y nueva entrada en EBRO EV Motors).</p><p class="subsec">Visión actual y perspectivas (cierre 2025-2026)</p><p class="pr">En el comentario más reciente (sección 9 informe semestral 2025) la gestora describe un escenario macro de elevada incertidumbre para 2026: aranceles incorporándose gradualmente, OCDE proyectando desaceleración global del 3,2% al 2,9% y posterior recuperación al 3,1% en 2027; UE moderada pero resiliente con crecimiento del 1,3% en 2025, 1,2% en 2026 y 1,4% en 2027; inflación en zona euro en torno al 2% y BCE con tipo oficial al 2% tras 100 pb de bajadas en 2025; gasto fiscal alemán histórico (~850.000 M€ hasta 2029) y agenda Draghi en marcha. La gestora declara que «dada nuestra fuerte exposición a los sectores de servicios, industrial y financiero, cualquier normalización en la percepción de estos citados sectores podría traer consigo una apreciación en el valor del patrimonio del Fondo». Iván Martín ha cuantificado el potencial actual de las carteras en torno al 40% en el caso del Iberian (vs 60% en europeo y microcaps), señalando «las carteras tienen mimbres para que ese potencial se cumpla» (Funds Society 2025-05-20).</p>
+    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Mandato y restricciones de…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Filosofía y proceso de sel…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Filtros ESG complementario…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Concentración y construcci…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Estilo de actuación en mom…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',6)">Visión actual y perspectiv…</button></div><div class="subtab-panel active"><p class="pr">Cartera concentrada (29 posiciones, top 10 ~47%) de small/mid cap ibérica con sesgo industrial, materias primas y exportador, complementada con banca y aseguradoras seleccionadas. Posicionamiento contrarian post-Liberation Day: nuevas entradas en EBRO EV Motors y Befesa, refuerzo en Colonial, Gestamp, Meliá, Repsol y Prosegur Cash; salida total de Banco Sabadell tras materializar plusvalías de la apuesta bancaria de 2021. Potencial estimado por la gestora en torno al 40% para la cartera ibérica.</p></div><div class="subtab-panel"><p class="pr">Magallanes Iberian Equity FI tiene un mandato muy preciso recogido en su folleto y en la sección 1 del informe semestral 2025. El fondo invierte como mínimo el 75% de la exposición total en renta variable; al menos el 60% de la exposición total en renta variable de la zona euro; y al menos el 75% de la parte de RV en emisores españoles y portugueses. El resto puede colocarse en RV de otros países OCDE. Los emisores pueden pertenecer a cualquier sector y ser de alta, media o baja capitalización (con la advertencia de que «la inversión en renta variable de baja capitalización puede influir negativamente en la liquidez del fondo»). La parte no invertida en RV se destina a renta fija pública o privada de zona euro/OCDE con calidad crediticia igual o superior a la del Reino de España y duración media entre 0 y 18 meses. La exposición al riesgo divisa máxima es del 30%. El fondo no hace uso de instrumentos derivados.</p></div><div class="subtab-panel"><p class="pr">La filosofía es value investing clásico aplicado de forma idiosincrática. La regla práctica formulada por Iván Martín en la carta del 1T 2022 («primero el balance y luego la cuenta de resultados, en ese orden») prioriza la solidez financiera de las compañías sobre cualquier consideración de calidad de los beneficios. El equipo busca empresas con tres rasgos: (i) cotizando por debajo del valor real, intrínseco o fundamental que estiman internamente; (ii) con balances saneados (poco endeudamiento o caja neta positiva); (iii) con perspectivas de revalorización a medio y largo plazo. El proceso es netamente bottom-up y discrecional: no replica las ponderaciones del benchmark, no toma decisiones macro materiales y dedica «la mayor parte del tiempo al estudio de compañías, al entendimiento de sus modelos de negocio y al cálculo de su valor fundamental» (sección 9 informe 2025).</p></div><div class="subtab-panel"><p class="pr">La gestora opera con metodología propia de scoring ESG que se aplica como filtro complementario, no estructurador. El folleto exige que el 100% de las compañías de la cartera tengan una puntuación inferior a 7 sobre 10 en su scoring interno, condición cumplida según los informes recientes. El fondo se clasifica en la propia ficha de la web oficial como Artículo 8 SFDR. La postura del gestor sobre la ESG es explícitamente crítica con el dogmatismo del sector: «tiene cabida la inversión responsable, con cabeza y sentido común (...) los problemas vienen cuando algunas cosas se convierten en moda» (Funds Society 2025-08-19).</p></div><div class="subtab-panel"><p class="pr">La cartera consta habitualmente de unas 30 compañías (29 en 2025, 30 en 2024). El top 5 representa aproximadamente el 26% del patrimonio (25,96% a cierre 2025) y el top 10 alrededor del 47% (47,16% a cierre 2025). Los pesos individuales rara vez superan el 6% del fondo, lo que combina concentración significativa por nombre con diversificación efectiva por riesgo. El gestor ha enfatizado que esta diversificación dirigida es central a la filosofía: «no se puede evitar una caída abultada (...) pero sí se puede trabajar en construir una cartera, en que dicha caída, cuando ocurra, no deje tras de sí taras irrecuperables de por vida» (carta 1T 2022).</p></div><div class="subtab-panel"><p class="pr">La estrategia se distingue por una operativa contracíclica explícita. Iván Martín la formula así: «en el justo momento del anuncio de los aranceles, actuaríamos protegiendo nuestros fondos, cosa que hicimos comprando más de las compañías que nos gustaban y no vender. De esta manera aumentamos el potencial de nuestras carteras, el margen de seguridad, eso es lo que entendemos por proteger los fondos» (Funds Society 2025-08-19). Históricamente esto se ha visto en al menos cuatro ocasiones documentadas: durante el COVID 2020 (manteniendo la cartera y aprovechando para comprar en debilidad), durante la guerra de Ucrania en 1T 2022 (subida de Inditex, banca, IAG, Gestamp, Applus), durante la inversión contrarian en banca europea de 2021, y durante la corrección abril 2025 del Liberation Day (aumento de exposiciones existentes y nueva entrada en EBRO EV Motors).</p></div><div class="subtab-panel"><p class="pr">En el comentario más reciente (sección 9 informe semestral 2025) la gestora describe un escenario macro de elevada incertidumbre para 2026: aranceles incorporándose gradualmente, OCDE proyectando desaceleración global del 3,2% al 2,9% y posterior recuperación al 3,1% en 2027; UE moderada pero resiliente con crecimiento del 1,3% en 2025, 1,2% en 2026 y 1,4% en 2027; inflación en zona euro en torno al 2% y BCE con tipo oficial al 2% tras 100 pb de bajadas en 2025; gasto fiscal alemán histórico (~850.000 M€ hasta 2029) y agenda Draghi en marcha. La gestora declara que «dada nuestra fuerte exposición a los sectores de servicios, industrial y financiero, cualquier normalización en la percepción de estos citados sectores podría traer consigo una apreciación en el valor del patrimonio del Fondo». Iván Martín ha cuantificado el potencial actual de las carteras en torno al 40% en el caso del Iberian (vs 60% en europeo y microcaps), señalando «las carteras tienen mimbres para que ese potencial se cumpla» (Funds Society 2025-05-20).</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Primero el balance y luego la cuenta de resultados, en ese orden.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Iván Martín, Carta Trimestral 1T 2022 — formulación icónica de la regla práctica del proceso</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Lo importante no es tanto la discusión sobre 'buenos' y 'malos' negocios, sino saber distinguir entre 'buenos' y 'malos' precios de entrada.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Iván Martín, Carta Trimestral 1T 2022 — racional de la subida de Inditex tras caída del 33%</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El valor fundamental de cada una de las compañías que forman parte de nuestros fondos sigue estando muy por encima de los actuales niveles de cotización.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Iván Martín, Carta Trimestral 1T 2022 — defensa del potencial estructural de la cartera</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Primero el balance y luego la cuenta de resultados, en ese orden.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Iván Martín, Carta Trimestral 1T 2022 — formulación icónica de la regla práctica del proceso</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Lo importante no es tanto la discusión sobre 'buenos' y 'malos' negocios, sino saber distinguir entre 'buenos' y 'malos' precios de entrada.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Iván Martín, Carta Trimestral 1T 2022 — racional de la subida de Inditex tras caída del 33%</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El valor fundamental de cada una de las compañías que forman parte de nuestros fondos sigue estando muy por encima de los actuales niveles de cotización.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Iván Martín, Carta Trimestral 1T 2022 — defensa del potencial estructural de la cartera</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -536,8 +552,6 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
   </div>
 
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Desglose de exposición al riesgo</div>
-  <div class="mb24"><p class="pr" style="font-size:12.5px;margin-bottom:10px;">Este desglose detalla <strong>a qué riesgos concretos</strong> está expuesta la cartera más allá de la lista de posiciones. Las dimensiones (peril, región, sector, rating, país…) se adaptan al tipo de fondo y permiten entender qué evento adverso específico impactaría el valor del fondo.</p><div><table class="pt pt-flex"><colgroup><col style="width:18%;"><col style="width:26%;"><col style="width:9%;"><col style="width:47%;"></colgroup><thead><tr><th>Dimensión</th><th>Detalle</th><th style="text-align:right;">Peso</th><th>Comentario · evento adverso relevante</th></tr></thead><tbody><tr><td>tipo de activo</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">93,79% renta variable, 5,62% liquidez, 0% renta fija, 0% derivados (datos a cierre 2025)</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>geografía</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Cartera ibérica con ~64% en emisores españoles y ~33% en emisores portugueses/internacionales (suma de pesos de Atalaya Mining, ArcelorMittal, Befesa, Semapa, Ibersol, NOS, CTT, Corticeira, Zegona). 80,06% Eurozona (FT, mayo 2026).</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>sectores</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Materiales básicos 27,02%, Consumo cíclico 20,43%, Industriales 18,28% (FT mayo 2026). Estructura sectorial más cíclica que el benchmark, con menor peso financiero y de utilities que el IBEX 35.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>capitalización</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Sesgo a small/mid cap ibérica con presencia de algunas grandes (Inditex, Repsol, Mapfre, ArcelorMittal). Estilo Morningstar: Value, Mid Cap (FT).</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr><tr><td>divisa</td><td style="font-size:12.5px;font-weight:500;color:var(--ink);">Predominio de EUR (>90%); GBP residual vía Atalaya Mining y Zegona Communications. Exposición divisa máxima permitida del 30% según folleto.</td><td class="num">—</td><td style="font-size:12px;color:var(--ink-3);"></td></tr></tbody></table></div></div>
 
   <div class="kpi-row">
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">29</div><div class="kpi-sub">vs media hist. 30</div></div>
@@ -551,13 +565,16 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">10 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">10.5</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">11.8</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">16.0</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.86</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.08</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.66</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.54</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.84</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.02</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.64</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.74</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.81</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.65</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.22</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.33</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-10.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-17.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-46.9</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">33.1%</strong> · 3A <strong style="color:var(--ink);">25.5%</strong> · 5A <strong style="color:var(--ink);">16.2%</strong> · 10A <strong style="color:var(--ink);">11.9%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Mid · Value</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:var(--ink-2);line-height:1.1;">—</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★★☆</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">4 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Spain Equity</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">STOXX Europe 600</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">15.72</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">18.01</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">1.59</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.28</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.79</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">1.70</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">5.48</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">11.04</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">2.6 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:43%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.20%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.51%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:17%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-1.25%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:41%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.07%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 85% · caídas 51% · ratio 1.67</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:81%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">13%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:6%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">1%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">16%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:69%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">11%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 10%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">85%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:85%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">51%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:51%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Materiales básicos</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:19%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">29.5% <span style="color:var(--navy);">(+24)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:69%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:24%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">20.4% <span style="color:var(--navy);">(+13)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:62%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:68%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">18.1% <span style="color:#c0552e;">(-2)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:27%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:10%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">8.1% <span style="color:var(--navy);">(+5)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:23%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:81%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.7% <span style="color:#c0552e;">(-17)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Inmobiliario</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:22%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:4%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.5% <span style="color:var(--navy);">(+5)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Energía</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:20%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:18%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.0% <span style="color:var(--navy);">(+1)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:10%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:42%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">2.9% <span style="color:#c0552e;">(-10)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> STOXX Europe 600 · (dif. en pp)</div></div></div></div>
+
   <div class="sr">Todas las posiciones (29)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="ATALAYA MINING COPPER S.A">Atalaya Mining Copper S.a</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:48px;background:#0c2340;"></div>6,0%</div></td>
@@ -566,6 +583,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="REPSOL SA">REPSOL SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:42px;background:#0c2340;"></div>5,3%</div></td>
@@ -574,6 +592,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="SEMAPA SOCIEDADE DE INVESTIMENT">Semapa Sociedade De Investiment</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:40px;background:#0c2340;"></div>5,1%</div></td>
@@ -582,6 +601,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="EV MOTORS SA">EV MOTORS SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:38px;background:#0c2340;"></div>4,8%</div></td>
@@ -590,6 +610,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="ACERINOX SA">ACERINOX SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,6%</div></td>
@@ -598,6 +619,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="IBERSOL SGPS SA">IBERSOL SGPS SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,5%</div></td>
@@ -606,6 +628,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="ARCELORMITTAL">ARCELORMITTAL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,3%</div></td>
@@ -614,6 +637,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="CTT CORREIOS DE PORTUGAL SA">Ctt Correios De Portugal Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
@@ -622,6 +646,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="SOL MELIA">SOL MELIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,1%</div></td>
@@ -630,6 +655,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="GESTAMP AUTOMOCION SA">Gestamp Automocion Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,1%</div></td>
@@ -638,6 +664,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="MAPFRE">MAPFRE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
@@ -646,6 +673,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="ZEGONA COMMUNICATIONS PLC">Zegona Communications Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
@@ -654,6 +682,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="MIQUEL Y COSTAS AND MIQUEL SA">Miquel Y Costas And Miquel Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
@@ -662,6 +691,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="NOS SGPS">NOS SGPS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
@@ -670,6 +700,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="INTERNATIONAL CONSOLIDATED AIRL">International Consolidated Airl</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,2%</div></td>
@@ -678,6 +709,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="PROSEGUR CIA DE SEGURIDAD">Prosegur Cia De Seguridad</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:25px;background:#0c2340;"></div>3,1%</div></td>
@@ -686,6 +718,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="ALMIRALL SA">ALMIRALL SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
@@ -694,6 +727,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="PROSEGUR CASH SA">Prosegur Cash Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
@@ -702,6 +736,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="INMOBILIARIA COLONIAL SA">Inmobiliaria Colonial Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>3,0%</div></td>
@@ -710,6 +745,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="BEFESA MEDIO AMBIENTE S.A.">Befesa Medio Ambiente S.a.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -718,6 +754,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="METROVACESA">METROVACESA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -726,6 +763,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="INDITEX SA">INDITEX SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -734,6 +772,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="IBERPAPEL GESTION SA">Iberpapel Gestion Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
@@ -742,6 +781,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="BANCO SABADELL">BANCO SABADELL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -750,6 +790,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="AENA, S.M.E.,S.A.">Aena, S.m.e.,s.a.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
@@ -758,6 +799,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="LINEA DIRECTA ASEGURADORA SA">Linea Directa Aseguradora Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -766,6 +808,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="BANKINTER S.A">BANKINTER S.A</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -774,6 +817,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="CORTICEIRA AMORIM SGPS SA">Corticeira Amorim Sgps Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -782,6 +826,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 </tr><tr>
   <td title="LINGOTES ESPECIALES SA (EUR)">Lingotes Especiales Sa (eur)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1057,7 +1102,11 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0159201013';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -1074,16 +1123,21 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0159201013';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -1122,7 +1176,7 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0159201013', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -1135,33 +1189,21 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -1174,9 +1216,9 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -1513,16 +1555,54 @@ Iván Martín ha participado como ponente en algunos de los principales foros in
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -1725,7 +1805,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

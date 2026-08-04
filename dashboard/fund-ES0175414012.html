@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -265,6 +279,8 @@ La implementación de esta estrategia se caracteriza por una gestión activa, re
   <p style="font-size:10px;color:var(--ink-4);margin-top:4px;font-style:italic;">* Estructura: parámetro fijo del fondo que define el máximo aplicable. Último año aplicado (2025): <strong>0,0%</strong> s/patrimonio cobrado.</p>
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores con una tolerancia al riesgo baja o moderada que priorizan la preservación de capital sobre la búsqueda de altas rentabilidades. Es ideal para aquellos con un horizonte de inversión a medio o largo plazo que buscan una opción conservadora en mercados con activos caros. No se debe esperar una rentabilidad espectacular, sino una evolución estable y prudente.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Por lo tanto, no es posible evaluar el alineamiento de intereses a través de este mecanismo.</p></div></div>
+
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.19%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.20%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1 €</td></tr></tbody></table>
 
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="R" selected>R (TER 1,2%)</option><option value="D">D (TER 0,55%)</option><option value="G">G (TER 0,25%)</option><option value="I">I (TER 0,55%)</option><option value="A">A (cerrada)</option><option value="B">B (cerrada)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
@@ -494,10 +510,10 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">El análisis de la estrategia de inversión de <strong>DUNAS VALOR EQUILIBRADO FI</strong> (ES0175414012) revela un enfoque que, si bien no se detalla explícitamente en los documentos proporcionados en cuanto a su filosofía fundacional, se infiere consistentemente de su denominación y la evolución de su cartera. El nombre del fondo sugiere una <strong>filosofía de inversión orientada al valor</strong> dentro de un marco de <strong>asignación de activos equilibrada</strong>, lo que implica una búsqueda de activos infravalorados en un universo global y diversificado, con una tolerancia al riesgo moderada. Aunque no se especifica un benchmark formal, la naturaleza "equilibrada" apunta a una gestión activa que busca optimizar la relación riesgo-rentabilidad a través de diferentes ciclos de mercado, con un horizonte temporal presumiblemente de medio a largo plazo para permitir la materialización del valor. La ausencia de una declaración formal y detallada de su filosofía de inversión en los informes periódicos es una limitación para una evaluación más profunda.</p><p class="pr">La diferenciación del fondo en el competitivo panorama de la gestión de activos parece residir en su <strong>flexibilidad táctica</strong> y una aparente <strong>gestión activa del riesgo</strong> a través de la asignación de activos, más que en un "edge" informacional o analítico explícitamente declarado. A diferencia de muchos competidores que se adhieren rígidamente a un mandato de renta variable o renta fija, DUNAS VALOR EQUILIBRADO FI ha demostrado una capacidad para ajustar significativamente su exposición, como se observa en la evolución de su mix de activos. No se detecta un sesgo sectorial o geográfico característico y persistente en la información disponible, lo que sugiere una aproximación oportunista y global. Tampoco se detalla el uso de derivados para cobertura o apalancamiento, aunque la flexibilidad en la asignación podría implicar herramientas similares para la gestión de la volatilidad.</p><p class="pr">La evolución del enfoque del fondo ha estado marcada por una adaptación pragmática a los entornos macroeconómicos cambiantes, reflejando las lecciones aprendidas de diversas crisis. Si bien los documentos no detallan ajustes explícitos en la política de inversión, la gestora, inicialmente INVERSEGUROS GESTION y posteriormente <strong>DUNAS CAPITAL ASSET MANAGEMENT S.G.I.I.C., S.A.</strong>, ha modificado su posicionamiento. Por ejemplo, tras la crisis de deuda europea de 2012, donde Draghi pronunció su célebre "whatever it takes", el fondo mostró una rotación de cartera del <strong>246%</strong>, indicando una reevaluación significativa de su exposición. De manera similar, la pandemia de COVID-19 en 2020, descrita como el fin de un largo periodo expansivo, llevó a una rotación del <strong>233%</strong>, sugiriendo una respuesta activa a la disrupción del mercado. Estos movimientos implican una filosofía que prioriza la adaptabilidad sobre la rigidez.</p><p class="pr">La coherencia entre el discurso y la acción del fondo es un aspecto crucial a analizar, aunque la falta de declaraciones explícitas de la gestora dificulta una comparación directa. Sin embargo, podemos inferir la coherencia a partir de la evolución de la cartera. Si bien el nombre "Valor Equilibrado" sugiere una gestión de valor y un perfil de riesgo moderado, la exposición a renta variable ha fluctuado considerablemente. Por ejemplo, en 2019, la renta variable representaba el <strong>33.06%</strong> de la cartera, aumentando a <strong>44.92%</strong> en 2020, un movimiento que podría interpretarse como una postura oportunista en un mercado bajista. Posteriormente, en 2022, la exposición a renta variable se redujo drásticamente al <strong>18.2%</strong>, mientras que la renta fija alcanzó el <strong>143.6%</strong> (posiblemente incluyendo derivados o apalancamiento en RF), lo que indica una postura defensiva ante la inflación y la subida de tipos. Esta flexibilidad, aunque no siempre alineada con una "baja volatilidad" estricta, sí parece coherente con una gestión activa que busca el equilibrio dinámico.</p><p class="pr">Se pueden identificar al menos tres momentos clave de decisión, inferidos de la evolución de la cartera y el contexto de mercado. Primero, a finales de 2012, tras las declaraciones de Draghi que calmaron los mercados europeos, el fondo registró una rotación del <strong>246%</strong>, la más alta en el periodo analizado, con una exposición a renta fija del <strong>65.04%</strong>. La tesis del gestor probablemente fue la de reposicionar la cartera para capturar la recuperación de activos de riesgo, aunque manteniendo una base sólida en renta fija. Segundo, en 2020, en el contexto de la pandemia de COVID-19, el fondo incrementó su exposición a renta variable del <strong>33.06%</strong> al <strong>44.92%</strong>, mientras que la renta fija se mantuvo en torno al <strong>105.22%</strong>. Esta decisión sugiere una tesis de oportunidad en la caída del mercado, apostando por una recuperación rápida. Tercero, en 2022, ante la crisis energética y la inflación, el fondo redujo drásticamente su exposición a renta variable al <strong>18.2%</strong>, elevando la renta fija al <strong>143.6%</strong>. La tesis aquí fue claramente defensiva, buscando proteger el capital en un entorno de tipos al alza y alta incertidumbre.</p><p class="pr">La evolución del mix de activos del fondo ha sido notablemente dinámica, reflejando una gestión activa que se adapta a las condiciones macroeconómicas. En sus primeros años (2011-2016), la información disponible solo muestra la exposición a renta fija, que oscilaba entre el <strong>59.14%</strong> y el <strong>80.31%</strong>, sin datos de renta variable, lo que sugiere una fase inicial con un perfil conservador o una estructura de reporting diferente. A partir de 2017, la renta variable comienza a ser reportada, con un <strong>14.11%</strong> de exposición, que fue aumentando progresivamente hasta alcanzar un pico del <strong>44.92%</strong> en 2020, coincidiendo con la recuperación post-COVID. Posteriormente, se observa una reducción significativa de la renta variable hasta el <strong>18.2%</strong> en 2022 y el <strong>19.76%</strong> en 2025, mientras que la renta fija ha mantenido una presencia dominante, llegando a <strong>146.16%</strong> en 2025. Esta rotación constante, con una rotación anual que ha llegado al <strong>246%</strong> en 2012 y se ha mantenido por encima del <strong>100%</strong> en la mayoría de los años recientes, es coherente con una filosofía de gestión flexible y táctica, aunque la falta de datos de RV en los primeros años limita la visión completa.</p><p class="pr">Analizar el patrón de aciertos y errores sin datos de rentabilidad es un desafío, pero podemos inferir la naturaleza de la gestión. La alta rotación de cartera, como el <strong>246%</strong> en 2012 o el <strong>233%</strong> en 2020, sugiere un equipo que busca activamente reposicionar la cartera en respuesta a los cambios de mercado. La decisión de aumentar la exposición a renta variable en 2020, en plena crisis, podría haber sido un acierto si el mercado se recuperó rápidamente, lo que históricamente ocurrió. Sin embargo, la drástica reducción de RV en 2022, mientras la renta fija se disparaba, indica una postura defensiva que, dependiendo de la evolución de los tipos y la inflación, podría haber sido un acierto o un error relativo. El sesgo recurrente parece ser la <strong>flexibilidad en la asignación de activos</strong>, lo que implica que el equipo está dispuesto a tomar decisiones tácticas significativas. La consistencia en esta adaptabilidad sugiere un equipo que aprende y ajusta su estrategia, en lugar de repetir errores por inacción, aunque la efectividad de estas decisiones solo podría confirmarse con datos de rentabilidad.</p><p class="pr">En conclusión evaluativa, <strong>DUNAS VALOR EQUILIBRADO FI</strong> se perfila como un fondo adecuado para inversores que buscan una <strong>gestión activa y flexible</strong> en un marco de asignación equilibrada, y que valoran la capacidad de la gestora para adaptarse a diferentes entornos de mercado. Es apropiado para aquellos con un perfil de riesgo moderado que no esperan una exposición estática a los activos, sino una gestión dinámica que busca proteger el capital en fases bajistas y participar en las alcistas. En ciclos alcistas, su flexibilidad podría permitirle capturar oportunidades, mientras que en ciclos bajistas, su capacidad para reducir la exposición a renta variable y aumentar la renta fija, como se vio en 2022, podría mitigar las caídas. Las principales <strong>red flags</strong> incluyen la ausencia de una declaración explícita y detallada de su filosofía de inversión, lo que dificulta la evaluación de la coherencia a largo plazo, y la falta de datos de rentabilidad que permitan juzgar la efectividad de su gestión táctica. Además, la alta rotación de cartera, aunque indicativa de gestión activa, puede generar mayores costes transaccionales que podrían erosionar la rentabilidad si las decisiones no son consistentemente acertadas.</p>
+    <p class="pr">El fondo ha navegado por diversos ciclos de mercado, adaptándose a entornos de incertidumbre geopolítica, crisis económicas y pandemias. La estrategia ha implicado cambios de gestora y fluctuaciones en la rotación, buscando optimizar la rentabilidad en cada contexto.</p>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;2016 será recordado como el año en el que los acontecimientos políticos marcaron el devenir de los mercados financieros, pero en una dirección contraria a la que se podría prever a inicios del mismo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo, Informe periódico 2016</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El año 2017 se salda en positivo para prácticamente todos los activos de riesgo en un entorno con una volatilidad extremadamente baja a pesar de los distintos eventos políticos y elecciones.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo, Informe periódico 2017</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Los elevados tipos de interés van haciendo su trabajo reduciendo la oferta de crédito a familias y empresas.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo, Informe periódico 2023</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;2016 será recordado como el año en el que los acontecimientos políticos marcaron el devenir de los mercados financieros, pero en una dirección contraria a la que se podría prever a inicios del mismo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo, Informe periódico 2016</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El año 2017 se salda en positivo para prácticamente todos los activos de riesgo en un entorno con una volatilidad extremadamente baja a pesar de los distintos eventos políticos y elecciones.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo, Informe periódico 2017</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Los elevados tipos de interés van haciendo su trabajo reduciendo la oferta de crédito a familias y empresas.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor del Fondo, Informe periódico 2023</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -562,7 +578,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">176</div><div class="kpi-sub">vs media hist. 71</div></div>
     <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">16,8%</div><div class="kpi-sub">vs media hist. 32,7%</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">6,5%</div><div class="kpi-sub">vs media hist. 7,3%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">57,6%</div><div class="kpi-sub">Renta fija · Renta variable 21,8% · Otros 7,2%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">57,6%</div><div class="kpi-sub">Renta fija · Renta variable 29,0%</div></div>
   </div>
 
   <div class="col2 mb20">
@@ -570,13 +586,16 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.3</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.9</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.14</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.19</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.21</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.30</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.34</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.30</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.28</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">2.26</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.6</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-3.7</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">3.1%</strong> · 3A <strong style="color:var(--ink);">5.0%</strong> · 5A <strong style="color:var(--ink);">4.1%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Large · Value</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:var(--ink-2);line-height:1.1;">—</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★★☆</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">4 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Multistrategy EUR</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">STOXX Europe 600</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">15.83</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">18.01</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">1.55</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.28</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.85</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">1.70</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">6.59</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">11.04</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">29.8 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:8%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.61%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.51%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:1%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-0.07%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:41%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.07%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 10% · caídas 3% · ratio 3.19</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2019</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:53%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">124%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">233%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:48%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">113%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:51%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">118%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:63%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">146%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:62%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">145%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:54%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">126%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 144%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">10%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:10%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">3%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:3%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:93%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:84%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">22.3% <span style="color:var(--navy);">(+2)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:56%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:100%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">13.5% <span style="color:#c0552e;">(-10)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Utilities</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:55%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:19%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">13.2% <span style="color:var(--navy);">(+9)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:51%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:52%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">12.2% <span style="color:#c0552e;">(-0)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Tecnología</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:43%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:39%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">10.4% <span style="color:var(--navy);">(+1)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo defensivo</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:30%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:32%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">7.0% <span style="color:#c0552e;">(-1)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:28%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:29%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.6% <span style="color:#c0552e;">(-0)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Energía</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:27%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:22%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.4% <span style="color:var(--navy);">(+1)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> STOXX Europe 600 · (dif. en pp)</div></div></div></div>
+
   <div class="sr">Todas las posiciones (176)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="BANK OF NOVA SCOTIA">Bank Of Nova Scotia</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -585,6 +604,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BANCO CRED. COOP.">Banco Cred. Coop.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,9%</div></td>
@@ -593,6 +613,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="INTESA SANPAOLO">INTESA SANPAOLO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -601,6 +622,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="LEASYS">LEASYS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -609,6 +631,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CITIGROUP">CITIGROUP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -617,6 +640,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="US BANCORP">US BANCORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -624,7 +648,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="DV PRUDENTE FI">DV PRUDENTE FI</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -633,6 +658,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ESTADO RUMANIA">ESTADO RUMANIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
@@ -641,6 +667,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BARCLAYS">BARCLAYS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -649,6 +676,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CREDIT AGRICOLE">CREDIT AGRICOLE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -657,6 +685,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="NAT. BUILDING SOC.">Nat. Building Soc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -665,6 +694,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="HSBC HOLDINGS">HSBC HOLDINGS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -673,6 +703,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="SLOVENSKA SPORITELNA">Slovenska Sporitelna</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -681,6 +712,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CELLNEX TELECOM">CELLNEX TELECOM</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -689,6 +721,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="SOCIETE GENERALE">Societe Generale</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -697,6 +730,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BANK OF CANADA">BANK OF CANADA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -705,6 +739,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TECNICAS REUNIDAS">Tecnicas Reunidas</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -713,6 +748,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CAIXA MONTEPIO GERAL">Caixa Montepio Geral</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -721,6 +757,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="DIASORIN">DIASORIN</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -729,6 +766,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BANK MONTREAL">BANK MONTREAL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
@@ -737,6 +775,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="UBS GROUP">UBS GROUP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -745,6 +784,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="WELLS FARGO">WELLS FARGO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -753,6 +793,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CA AUTO BANK">CA AUTO BANK</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -761,6 +802,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="NORD. GIROZENTRALE">Nord. Girozentrale</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -769,6 +811,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ATHORA HOLDING">ATHORA HOLDING</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -777,6 +820,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CANADIAN I. BANK C.">Canadian I. Bank C.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -785,6 +829,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="PATENTES TALGO">PATENTES TALGO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -793,6 +838,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ESTADO: ITALIA">ESTADO: ITALIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -801,6 +847,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="JEFFERIES GMBH">JEFFERIES GMBH</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -809,6 +856,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="B.C.GENEVE">B.C.GENEVE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -817,6 +865,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MORGAN STANLEY.">MORGAN STANLEY.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -825,6 +874,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CMA CGM SA">CMA CGM SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -833,6 +883,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TRATON FINANCE LUX.">Traton Finance Lux.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -841,6 +892,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="E.ON">E.ON</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -849,6 +901,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="AIR FRANCE-KLM">AIR FRANCE-KLM</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -856,7 +909,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="CEPSA FINANCE">CEPSA FINANCE</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Obligacion</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -865,6 +919,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CAIXA MONTEPIO GERAL">Caixa Montepio Geral</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -873,6 +928,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="HIPOCAT 10 FTA">HIPOCAT 10 FTA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -881,6 +937,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BANCA SONDRIO">BANCA SONDRIO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -889,6 +946,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TRATON FINANCE LUX.">Traton Finance Lux.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -896,7 +954,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.10300000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,5%</span></td>
 </tr><tr>
   <td title="PRYCONSA">PRYCONSA</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -905,6 +964,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="RENAULT">RENAULT</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -913,6 +973,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="JYSKE BANK">JYSKE BANK</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -921,6 +982,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="VW FINANCIAL SERV.">Vw Financial Serv.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -929,6 +991,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="NN GROUP">NN GROUP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -937,6 +1000,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="PALLADIUM HOTEL">PALLADIUM HOTEL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -945,6 +1009,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ING GROEP">ING GROEP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -953,6 +1018,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="RURAL HIPOTECARIO 9">Rural Hipotecario 9</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -961,6 +1027,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="VOLKSWAGEN">VOLKSWAGEN</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -969,6 +1036,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BNP PARIBAS, SUC.ESP">Bnp Paribas, Suc.esp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -977,6 +1045,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="RENAULT">RENAULT</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -985,6 +1054,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="VINCI">VINCI</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -993,6 +1063,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TDAC CAM 9">TDAC CAM 9</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1001,6 +1072,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="STANDARD CHARTERED">Standard Chartered</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1009,6 +1081,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ANHEUSER-BUSCH INBEV">Anheuser-busch Inbev</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1017,6 +1090,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CAIXA CRED. AGRICOLA">Caixa Cred. Agricola</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1025,6 +1099,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ARLES I">ARLES I</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1033,6 +1108,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ANIMA HOLDING">ANIMA HOLDING</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1040,7 +1116,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.08750000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
 </tr><tr>
   <td title="MASORANGE SL">MASORANGE SL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1049,6 +1126,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CAF">CAF</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1057,6 +1135,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="SGL CARBON">SGL CARBON</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1065,6 +1144,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ERAMET">ERAMET</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1073,6 +1153,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MEDIOBANCA">MEDIOBANCA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1081,6 +1162,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="SAP">SAP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1089,6 +1171,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ORANGE">ORANGE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1097,6 +1180,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BANCO SABADELL">BANCO SABADELL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1105,6 +1189,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CAPGEMINI">CAPGEMINI</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1113,6 +1198,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BAY. LANDESBANK">BAY. LANDESBANK</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1121,6 +1207,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BAY. LANDESBANK">BAY. LANDESBANK</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1129,6 +1216,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="SATA AIR ACORES">SATA AIR ACORES</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1137,6 +1225,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="NOVO BANCO SA">NOVO BANCO SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1144,7 +1233,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="AMCHOR GAS II">AMCHOR GAS II</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1153,6 +1243,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ONTIME TRANSPORTE">Ontime Transporte</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1161,6 +1252,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="LOGISTA">LOGISTA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1169,6 +1261,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="INTESA SANPAOLO">INTESA SANPAOLO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1177,6 +1270,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="NOVA LJUBLJANSKA">Nova Ljubljanska</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1185,6 +1279,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="AYVENS">AYVENS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1193,6 +1288,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CANADIAN I. BANK C.">Canadian I. Bank C.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1201,6 +1297,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="REDEIA">REDEIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1209,6 +1306,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ESTADO RUMANIA">ESTADO RUMANIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1217,6 +1315,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TOTALENERGIES">TOTALENERGIES</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1225,6 +1324,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="iShares MSCI Europe">iShares MSCI Europe</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1232,7 +1332,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="AMUNDI STOXX600 HLT.">Amundi Stoxx600 Hlt.</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1241,6 +1342,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BARCLAYS">BARCLAYS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1249,6 +1351,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CREDIT AGRICOLE">CREDIT AGRICOLE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1256,7 +1359,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="AMUNDI MSCI EM.">AMUNDI MSCI EM.</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1265,6 +1369,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="FERTIBERIA CORPORATE">Fertiberia Corporate</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1273,6 +1378,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="SHELL">SHELL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1281,6 +1387,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="DIAGEO">DIAGEO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1289,6 +1396,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="FT SANTANDER">FT SANTANDER</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1297,6 +1405,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="NORDEA BANK">NORDEA BANK</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1305,6 +1414,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="AYVENS">AYVENS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1313,6 +1423,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BANCO SANTANDER">BANCO SANTANDER</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1321,6 +1432,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="GOLDMAN SACHS GROUP">Goldman Sachs Group</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1329,6 +1441,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="CA AUTO BANK">CA AUTO BANK</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1337,6 +1450,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="IBERDROLA">IBERDROLA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1345,6 +1459,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ERAMET">ERAMET</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1353,6 +1468,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BARCLAYS">BARCLAYS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1360,7 +1476,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(26,77,46,0.088);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
 </tr><tr>
   <td title="TUBACEX">TUBACEX</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1369,6 +1486,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ESTADO RUMANIA">ESTADO RUMANIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1377,6 +1495,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="EPH FIN INTERNATIONA">Eph Fin Internationa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1385,6 +1504,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ALPERIA">ALPERIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1393,6 +1513,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="HSBC HOLDINGS">HSBC HOLDINGS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1401,6 +1522,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ROYAL BANK OF CANADA">Royal Bank Of Canada</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1409,6 +1531,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TECNICAS REUNIDAS">Tecnicas Reunidas</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1417,6 +1540,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BLACKSTONE SECURED">Blackstone Secured</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1425,6 +1549,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ARES CAPITAL CORP">Ares Capital Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1433,6 +1558,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="UNICAJA BANCO">UNICAJA BANCO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1441,6 +1567,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BUREAU VERITAS">BUREAU VERITAS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1449,6 +1576,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="SOPRA STERIA GROUP">Sopra Steria Group</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1457,6 +1585,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="VERALLIA">VERALLIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1465,6 +1594,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MICHELIN">MICHELIN</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1473,6 +1603,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ICCREA BANCA">ICCREA BANCA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1480,7 +1611,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.0965);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
 </tr><tr>
   <td title="AGOTZAINA SL">AGOTZAINA SL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1489,6 +1621,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MORGAN STANLEY">MORGAN STANLEY</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1497,6 +1630,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="UBS GROUP">UBS GROUP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1505,6 +1639,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="THALES">THALES</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1513,6 +1648,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="RURAL HIPOTECARIO 9">Rural Hipotecario 9</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1521,6 +1657,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MAIRE">MAIRE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1529,6 +1666,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BANQUE AFRICAINE D.">Banque Africaine D.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Supranational</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1537,6 +1675,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MAIRE">MAIRE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1545,6 +1684,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ACCIONA FILIALES">Acciona Filiales</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1553,6 +1693,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="DEUTSCHE POST">DEUTSCHE POST</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1561,6 +1702,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="FT SANTANDER">FT SANTANDER</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1569,6 +1711,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MUENCHENER BANK">MUENCHENER BANK</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1577,6 +1720,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="GLOBAL DOMINION">GLOBAL DOMINION</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1585,6 +1729,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ONTIME TRANSPORTE">Ontime Transporte</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1592,7 +1737,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="ALTAMAR SEC. 5">ALTAMAR SEC. 5</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1601,6 +1747,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="RENAULT">RENAULT</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1609,6 +1756,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TDAC CAM 9">TDAC CAM 9</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1617,6 +1765,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ONTIME TRANSPORTE">Ontime Transporte</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1625,6 +1774,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BARCELO">BARCELO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1632,7 +1782,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(26,77,46,0.085);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
 </tr><tr>
   <td title="TUBACEX">TUBACEX</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1641,6 +1792,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MAIRE">MAIRE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1649,6 +1801,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MAIRE">MAIRE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1657,6 +1810,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BANCO CRED. COOP.">Banco Cred. Coop.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1665,6 +1819,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TECNICAS REUNIDAS">Tecnicas Reunidas</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1673,6 +1828,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="DEUTSCHE BOERSE">DEUTSCHE BOERSE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1681,6 +1837,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="PATENTES TALGO">PATENTES TALGO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1689,6 +1846,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="GLOBAL DOMINION">GLOBAL DOMINION</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1696,7 +1854,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(26,77,46,0.0835);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
 </tr><tr>
   <td title="AGOTZAINA SL">AGOTZAINA SL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1705,6 +1864,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ONTIME TRANSPORTE">Ontime Transporte</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1713,6 +1873,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="GLOBAL DOMINION">GLOBAL DOMINION</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1720,7 +1881,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(26,77,46,0.0835);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
 </tr><tr>
   <td title="TUBACEX">TUBACEX</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1729,6 +1891,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="BASF">BASF</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1737,6 +1900,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TRATON FINANCE LUX.">Traton Finance Lux.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1745,6 +1909,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="UBS GROUP">UBS GROUP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1753,6 +1918,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ING GROEP">ING GROEP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1760,7 +1926,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="ERAMET">ERAMET</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Obligacion</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1769,6 +1936,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="SLOVENSKA SPORITELNA">Slovenska Sporitelna</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1776,7 +1944,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.1035);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,5%</span></td>
 </tr><tr>
   <td title="BAYER">BAYER</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Obligacion</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1785,6 +1954,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="HIPOCAT 9">HIPOCAT 9</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1792,7 +1962,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="DUNAS CLEAN ENERGY">Dunas Clean Energy</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1800,7 +1971,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.0925);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
 </tr><tr>
   <td title="MCH BUYOUT STR. I">Mch Buyout Str. I</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1809,6 +1981,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ARKEMA">ARKEMA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1817,6 +1990,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="NAVIERA ELCANO">NAVIERA ELCANO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1825,6 +1999,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="EVONIK INDUSTRIES">Evonik Industries</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1833,6 +2008,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="MAIRE">MAIRE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1840,7 +2016,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.084);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
 </tr><tr>
   <td title="TUBACEX">TUBACEX</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1848,7 +2025,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.0885);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
 </tr><tr>
   <td title="TUBACEX">TUBACEX</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1857,6 +2035,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="VOLKSWAGEN FINANCIAL">Volkswagen Financial</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1864,7 +2043,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.094);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
 </tr><tr>
   <td title="DUNAS ABS. IMPACT">Dunas Abs. Impact</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1872,7 +2052,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.089);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
 </tr><tr>
   <td title="AGOTZAINA SL">AGOTZAINA SL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1881,6 +2062,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="ESTADO RUMANIA">ESTADO RUMANIA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1889,6 +2071,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="HIPOCAT 9">HIPOCAT 9</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1896,7 +2079,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.085);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
 </tr><tr>
   <td title="ALTAMAR SEC. 4">ALTAMAR SEC. 4</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1904,7 +2088,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.085);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
 </tr><tr>
   <td title="MCH REAL ASSET 1">Mch Real Asset 1</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1912,7 +2097,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="background:rgba(107,26,26,0.0855);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
 </tr><tr>
   <td title="AGOTZAINA SL">AGOTZAINA SL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1921,6 +2107,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="GLOBAL DOMINION">GLOBAL DOMINION</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1928,7 +2115,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="MCH BUYOUT STR. II">Mch Buyout Str. Ii</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1937,6 +2125,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TDAC CAM 8">TDAC CAM 8</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1945,6 +2134,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="RURAL HIPOTECARIO 9">Rural Hipotecario 9</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1953,6 +2143,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="GLOBAL DOMINION">GLOBAL DOMINION</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1960,7 +2151,8 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="DUNAS AVIATION">DUNAS AVIATION</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1969,6 +2161,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TORONTO-DOM. BANK">Toronto-dom. Bank</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1977,6 +2170,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 </tr><tr>
   <td title="TECNICAS REUNIDAS">Tecnicas Reunidas</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -2252,7 +2446,11 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0175414012';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -2269,16 +2467,21 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0175414012';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -2317,7 +2520,7 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0175414012', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -2330,33 +2533,21 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -2369,9 +2560,9 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -2708,16 +2899,54 @@ Un **rasgo diferencial** de Carlos Gutiérrez es su **visión a largo plazo** y 
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -2920,7 +3149,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

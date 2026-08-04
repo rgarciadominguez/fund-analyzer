@@ -555,6 +555,21 @@ def _sync_fund_impl(
         r_get = client.table("funds").select("fund_group_id").eq("isin", isin).execute()
         if r_get.data:
             fg_id = r_get.data[0]["fund_group_id"]
+            # FILL-IF-EMPTY: un re-análisis PARCIAL (p. ej. que no extrajo posiciones o
+            # perfiles) traería esos campos a None → un update ciego BORRARÍA el cualitativo
+            # bueno del catálogo. Regla universal: nunca escribir None/vacío sobre un valor
+            # existente. Los campos con dato fresco (aum, fecha) sí se actualizan.
+            try:
+                cur = client.table("fund_groups").select(
+                    "gestores_perfiles_json,top_holdings_json,filosofia,estrategia,historia,"
+                    "gestores_nombres,aum_meur,num_participes").eq("fund_group_id", fg_id).execute().data
+                cur = cur[0] if cur else {}
+                for k in list(fund_groups_update.keys()):
+                    v = fund_groups_update[k]
+                    if v in (None, [], "", {}) and cur.get(k) not in (None, [], "", {}):
+                        fund_groups_update.pop(k)  # no pisar lo bueno con vacío
+            except Exception:
+                pass
             client.table("fund_groups").update(fund_groups_update).eq("fund_group_id", fg_id).execute()
 
     # Volcar los ISINs de clase del folleto (clases[].isin) a class_isins_known

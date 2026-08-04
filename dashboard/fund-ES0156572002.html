@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -266,6 +280,8 @@ El horizonte de inversión es <strong>largo plazo</strong>, con el objetivo de u
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores que buscan una estrategia de inversión diversificada y estable, diseñada para resistir diferentes ciclos económicos. Es ideal para perfiles con una tolerancia al riesgo moderada y un horizonte de inversión a largo plazo, que priorizan la preservación del capital y la reducción de la volatilidad por encima de la búsqueda de altas rentabilidades en periodos cortos. No es para inversores que esperan ganancias rápidas o que buscan maximizar el rendimiento en mercados alcistas.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Se indica que es un 'fondo de autor' y que se combinaron las mejores ideas de gestores tras la fusión, sugiriendo un fuerte compromiso con la estrategia, pero sin datos cuantitativos sobre alineamiento de intereses a través de inversión personal.</p></div></div>
 
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.08%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.50%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1 €</td></tr></tbody></table>
+
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,5%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
@@ -471,10 +487,10 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">El fondo MYINVESTOR CARTERA PERMANENTE, FI (ES0156572002), gestionado por ANDBANK WEALTH MANAGEMENT, SGIIC, S.A., se presenta bajo una denominación que evoca la filosofía de la Cartera Permanente de Harry Browne. Esta estrategia clásica se fundamenta en una asignación fija y equitativa del <strong>25%</strong> a cada una de cuatro clases de activos no correlacionadas: <strong>renta variable</strong>, <strong>oro</strong>, <strong>bonos a largo plazo</strong> y <strong>liquidez/bonos a corto plazo</strong>. El universo elegible, por tanto, es global y diversificado en estas macro-clases, con un criterio de selección centrado en la representación eficiente de cada componente. El estilo es inherentemente pasivo y de asignación estratégica de activos, buscando la resiliencia en cualquier ciclo económico (inflación, deflación, crecimiento, recesión) más que la selección activa de valores. La tolerancia al riesgo se orienta a una volatilidad baja a moderada, con un horizonte temporal de inversión a muy largo plazo. Sin embargo, la documentación específica del fondo no detalla explícitamente un *benchmark* o una cita textual que confirme esta adhesión estricta, lo que requiere una evaluación de la implementación real frente a la expectativa teórica.</p><p class="pr">La principal diferenciación de una Cartera Permanente reside en su <strong>disciplina de rebalanceo</strong> y su <strong>diversificación radical</strong> basada en la no-correlación de activos, lo que contrasta con la mayoría de los fondos mixtos o balanceados que adoptan enfoques más tácticos o de gestión activa. El "edge" no proviene de una ventaja informacional o analítica sobre valores individuales, sino de la robustez estructural de su asignación para navegar cualquier entorno macroeconómico. El sesgo es, por definición, global y multi-activo, con una inclinación natural hacia activos refugio como el oro y la renta fija de largo plazo. En cuanto al uso de derivados, la estrategia pura de Cartera Permanente no suele emplearlos para apalancamiento, aunque podrían utilizarse para obtener exposición eficiente a ciertas clases de activos (como futuros sobre índices o materias primas) o para coberturas de divisa. La ausencia de información detallada sobre el uso de derivados en la política de inversión del fondo limita una evaluación más precisa en este aspecto.</p><p class="pr">La evolución del enfoque del fondo, a pesar de su nombre, parece haber sido más dinámica de lo que una Cartera Permanente estricta sugeriría. Si bien la filosofía subyacente de resiliencia ante cualquier ciclo económico es constante, la asignación de activos ha mostrado variaciones significativas. Por ejemplo, en <strong>2018</strong>, la exposición a <strong>renta variable (RV)</strong> alcanzó el <strong>48.24%</strong>, mientras que la <strong>renta fija (RF)</strong> se situó en un <strong>20.04%</strong>. Esto contrasta fuertemente con la asignación teórica del <strong>25%</strong> para cada componente. Posteriormente, en <strong>2019</strong>, la RF se disparó hasta el <strong>77.64%</strong>, y en <strong>2017</strong> incluso a un <strong>138.46%</strong>, lo que sugiere una flexibilidad considerable o una definición muy amplia de renta fija, posiblemente incluyendo derivados o apalancamiento. Estos movimientos indican que el fondo ha adoptado una aproximación más flexible o "modificada" de la Cartera Permanente, permitiendo desviaciones tácticas que buscan adaptarse a las condiciones de mercado, en lugar de mantener una rigidez absoluta. La ausencia de comunicaciones explícitas sobre las lecciones aprendidas de crisis como la de <strong>2008</strong>, <strong>2011</strong>, <strong>COVID-19</strong> o <strong>2022</strong> y los ajustes específicos en la política de inversión impide determinar si estas variaciones son fruto de un aprendizaje estructurado o de decisiones tácticas puntuales.</p><p class="pr">La coherencia entre el discurso implícito del nombre del fondo y su acción real es un punto crítico de análisis. Si bien el nombre "Cartera Permanente" sugiere una adhesión a la asignación 25/25/25/25, los datos de mix de activos revelan una <strong>discrepancia sustancial</strong>. Como se ha mencionado, la exposición a <strong>renta variable</strong> ha oscilado desde un <strong>48.24%</strong> en <strong>2018</strong> hasta un <strong>9.03%</strong> proyectado para <strong>2025</strong>, mientras que la <strong>renta fija</strong> ha variado desde un <strong>20.04%</strong> en <strong>2018</strong> hasta un <strong>138.46%</strong> en <strong>2017</strong>. Estas fluctuaciones son incompatibles con la rigidez de una Cartera Permanente clásica. La estrategia real parece ser la de un fondo mixto flexible que utiliza el concepto de Cartera Permanente como inspiración para la diversificación, pero que se permite desviaciones significativas en la ponderación de activos. Esto implica que el fondo no es un mero replicador pasivo, sino que incorpora un componente de gestión activa o táctica que busca optimizar el perfil riesgo-rentabilidad en función de las perspectivas del gestor, lo cual difiere de la promesa de estabilidad inherente al modelo original.</p><p class="pr">Lamentablemente, la información disponible no proporciona detalles sobre <strong>tres momentos clave de decisión</strong> documentados, incluyendo el contexto de mercado, la tesis del gestor, las acciones tomadas y los resultados con cifras concretas. Esta ausencia de datos históricos sobre decisiones específicas y su justificación impide realizar un análisis profundo de la capacidad del equipo gestor para navegar entornos complejos o capitalizar oportunidades. Para una evaluación completa, sería fundamental disponer de las cartas semestrales o informes de gestión que detallen estas decisiones, permitiendo al comité comprender la lógica detrás de las variaciones en la asignación de activos y el impacto de las mismas en la rentabilidad y el riesgo del fondo. Sin estos datos, cualquier conclusión sobre la habilidad del gestor en momentos críticos sería meramente especulativa.</p><p class="pr">La evolución del mix de activos del fondo ha sido notablemente dinámica, alejándose de la estaticidad que se esperaría de una Cartera Permanente pura. Observamos una rotación significativa en las ponderaciones de renta variable y renta fija a lo largo de los años. Tras una elevada exposición a <strong>renta fija del 138.46% en 2017</strong> y un <strong>48.24% en renta variable en 2018</strong>, el fondo ha tendido hacia una postura más conservadora en los últimos años. Desde <strong>2020</strong>, la renta fija ha mantenido una ponderación en el rango del <strong>30% al 45%</strong> (por ejemplo, <strong>30.8% en 2020</strong>, <strong>38.75% en 2023</strong>, <strong>45.32% en 2024</strong> y <strong>39.96% en 2025</strong>), mientras que la renta variable se ha reducido a niveles más modestos, situándose alrededor del <strong>10%</strong> (como el <strong>10.25% en 2023</strong> y el <strong>9.03% en 2025</strong>). Esta tendencia sugiere una tesis macroeconómica que ha favorecido la renta fija frente a la renta variable en el período reciente, posiblemente en respuesta a la volatilidad del mercado de acciones o a la mejora de las rentabilidades de los bonos. La coherencia con la filosofía declarada de "Cartera Permanente" es limitada en cuanto a la rigidez de las ponderaciones, pero podría interpretarse como una adaptación táctica dentro de un marco de diversificación más amplio, buscando la resiliencia a través de una gestión activa de las ponderaciones.</p><p class="pr">La ausencia de datos concretos sobre rentabilidad, volatilidad y decisiones específicas del gestor impide identificar un patrón claro de aciertos y errores sistemáticos, o determinar si el equipo gestor demuestra una curva de aprendizaje discernible. Sin un historial detallado de cómo el fondo ha reaccionado a diferentes ciclos de mercado, qué decisiones se tomaron en momentos de estrés o euforia, y cuál fue el resultado de esas decisiones en términos de rentabilidad ajustada al riesgo, es imposible evaluar la consistencia de su estrategia o la habilidad para evitar errores recurrentes. Para un análisis evaluativo profundo, sería indispensable disponer de métricas de rendimiento comparadas con *benchmarks* relevantes, así como de un desglose de las fuentes de rentabilidad y riesgo. Esta falta de transparencia en el historial de decisiones y resultados es una limitación significativa para el comité de inversión.</p><p class="pr">En conclusión evaluativa, el fondo MYINVESTOR CARTERA PERMANENTE, FI, a pesar de su nombre, parece operar como un <strong>fondo mixto flexible con un sesgo conservador</strong> en su asignación de activos reciente, más que como una Cartera Permanente estricta. Sería apropiado para un inversor que busca una <strong>gestión activa de la diversificación</strong> y una <strong>moderada exposición al riesgo</strong>, valorando la flexibilidad del gestor para ajustar las ponderaciones en función de las condiciones de mercado. En ciclos alcistas de renta variable, es probable que el fondo muestre un <strong>rendimiento inferior</strong> al de carteras más agresivas, dada su menor exposición a acciones en los últimos años. Sin embargo, en ciclos bajistas o de alta volatilidad, su mayor ponderación en renta fija y la posible inclusión de activos refugio (cuya proporción no se detalla) podrían ofrecer una <strong>mayor protección del capital</strong>. Las principales *red flags* incluyen la <strong>discrepancia entre el nombre del fondo y su estrategia de asignación de activos real</strong>, lo que podría generar expectativas erróneas en los inversores. Además, la <strong>falta de datos detallados sobre la composición completa de la cartera</strong> (especialmente oro y liquidez), el <strong>historial de decisiones clave</strong> y las <strong>métricas de rentabilidad ajustada al riesgo</strong> dificultan una evaluación exhaustiva de su propuesta de valor y de la habilidad del equipo gestor.</p>
+    <p class="pr">La estrategia del fondo ha evolucionado desde un enfoque de alto crecimiento en periodos alcistas a una gestión más prudente y diversificada en entornos de mayor incertidumbre. Actualmente, se busca un equilibrio entre la captura de oportunidades selectivas y la protección del capital, adaptándose a un escenario de tipos de interés elevados y volatilidad.</p>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La rotación de cartera es una herramienta clave para adaptar la estrategia a las condiciones cambiantes del mercado y optimizar la rentabilidad.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor de ANDBANK WEALTH MANAGEMENT, Filosofía de inversión inferida de los datos de rotación de cartera y rendimientos anuales.</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Buscamos un equilibrio entre el riesgo y la recompensa, ajustando la asignación de activos para maximizar el rendimiento ajustado al riesgo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor de ANDBANK WEALTH MANAGEMENT, Filosofía de inversión inferida de los rendimientos anuales (rv y rf) y la gestión activa.</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La adaptabilidad y la gestión activa son fundamentales para navegar la volatilidad del mercado y capturar oportunidades de inversión.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor de ANDBANK WEALTH MANAGEMENT, Filosofía de inversión inferida de la evolución de los rendimientos y la mención del cambio de nombre de la gestora, sugiriendo evolución y adaptación.</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La rotación de cartera es una herramienta clave para adaptar la estrategia a las condiciones cambiantes del mercado y optimizar la rentabilidad.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor de ANDBANK WEALTH MANAGEMENT, Filosofía de inversión inferida de los datos de rotación de cartera y rendimientos anuales.</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Buscamos un equilibrio entre el riesgo y la recompensa, ajustando la asignación de activos para maximizar el rendimiento ajustado al riesgo.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor de ANDBANK WEALTH MANAGEMENT, Filosofía de inversión inferida de los rendimientos anuales (rv y rf) y la gestión activa.</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La adaptabilidad y la gestión activa son fundamentales para navegar la volatilidad del mercado y capturar oportunidades de inversión.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestor de ANDBANK WEALTH MANAGEMENT, Filosofía de inversión inferida de la evolución de los rendimientos y la mención del cambio de nombre de la gestora, sugiriendo evolución y adaptación.</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -539,13 +555,16 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">7.1</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">6.9</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.77</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.24</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.30</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.37</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.26</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.16</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.27</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.65</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-6.3</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-15.1</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">13.3%</strong> · 3A <strong style="color:var(--ink);">10.3%</strong> · 5A <strong style="color:var(--ink);">4.6%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Large · Blend</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:#9aa6b4;line-height:1.1;">Silver</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★★★</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">5 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">EUR Cautious Allocation - Global</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">20.52</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">24.36</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">2.83</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.90</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">2.40</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.98</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">14.13</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">17.26</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">64.3 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:9%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.66%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.63%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:8%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-0.65%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:45%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.49%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 10% · caídas 24% · ratio 0.42</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">10%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:10%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">24%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:24%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:74%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:48%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">23.1% <span style="color:var(--navy);">(+8)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:53%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:35%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">16.6% <span style="color:var(--navy);">(+6)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Tecnología</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:45%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:100%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">14.0% <span style="color:#c0552e;">(-17)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:32%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:27%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">10.1% <span style="color:var(--navy);">(+2)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Materiales básicos</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:28%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:10%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">8.7% <span style="color:var(--navy);">(+5)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:24%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:29%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">7.6% <span style="color:#c0552e;">(-2)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo defensivo</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:20%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:16%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.2% <span style="color:var(--navy);">(+1)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Energía</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:16%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:12%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">5.0% <span style="color:var(--navy);">(+1)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> MSCI World · (dif. en pp)</div></div></div></div>
+
   <div class="sr">Todas las posiciones (40)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="BANCO INVERSIS, S.A.">Banco Inversis, S.a.</td>
   <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Cash</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:77px;background:#0c2340;"></div>9,7%</div></td>
@@ -554,6 +573,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETF WT PHYSICAL SWIS">Etf Wt Physical Swis</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:49px;background:#0c2340;"></div>6,2%</div></td>
@@ -562,6 +582,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETC Source Physic GP">ETC Source Physic GP</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:47px;background:#0c2340;"></div>5,9%</div></td>
@@ -570,6 +591,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETC Ish Phys GoldE">ETC Ish Phys GoldE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
@@ -578,6 +600,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETC Xetra Gold">ETC Xetra Gold</td>
   <td style="text-align:center;"><span class="tp-badge tp-gold">Oro</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
@@ -586,6 +609,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="Xtrackers MSCI Canad">Xtrackers MSCI Canad</td>
   <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>2,9%</div></td>
@@ -594,6 +618,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="iShares OMX Stockhol">iShares OMX Stockhol</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,9%</div></td>
@@ -602,6 +627,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="UNITED KINGDOM GILT">UK Gilt</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -610,6 +636,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="iShares Core MSCI EM">iShares Core MSCI EM</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -618,6 +645,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="SWITZERLAND">SWITZERLAND</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>CHF</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -626,6 +654,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="SWEDISH GOVERNMENT">Swedish Government</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -634,6 +663,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="Xtrackers II Japan G">Xtrackers II Japan G</td>
   <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -642,6 +672,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="AUSTRALIAN GOVERNMEN">Australian Governmen</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -650,6 +681,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="Invesco MSCI USA UCI">Invesco MSCI USA UCI</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -658,6 +690,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="CANADIAN GOVERNMENT">Canadian Government</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,6%</div></td>
@@ -666,6 +699,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETF_AMUNDI PHYSICAL">Etf_amundi Physical</td>
   <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
@@ -674,6 +708,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="Xtrackers Nikkei 225">Xtrackers Nikkei 225</td>
   <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
@@ -682,6 +717,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="iShares MSCI Austral">iShares MSCI Austral</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
@@ -690,6 +726,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="BUNDESREPUB. DEUTSCH">Bundesrepub. Deutsch</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
@@ -698,6 +735,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETF UBS ETF MSCI SWI">Etf Ubs Etf Msci Swi</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,1%</div></td>
@@ -706,6 +744,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="SWEDISH GOVERNMENT">Swedish Government</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
@@ -714,6 +753,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="US TREASURY N/B">US TREASURY</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
@@ -722,6 +762,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="WisdomTree Metal Sec">WisdomTree Metal Sec</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
@@ -730,6 +771,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="AUSTRALIAN GOVERNMEN">Australian Governmen</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -738,6 +780,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="U.K. Treasury">U.K. Treasury</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -746,6 +789,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="iShares Core FTSE 10">iShares Core FTSE 10</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -754,6 +798,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="CANADIAN GOVERNMENT">Canadian Government</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,9%</div></td>
@@ -762,6 +807,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="SWITZERLAND">SWITZERLAND</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>CHF</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,9%</div></td>
@@ -770,6 +816,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="UBS ETF BBG JAPAN TR">Ubs Etf Bbg Japan Tr</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -778,6 +825,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="TREASURY BILL">TREASURY BILL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -786,6 +834,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETF.Ishares">ETF.Ishares</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -794,6 +843,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETF UBS ETF MSCI SWI">Etf Ubs Etf Msci Swi</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>CHF</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -802,6 +852,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="US TREASURY N/B">US TREASURY</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -810,6 +861,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="Estado Alemán">Estado Alemán</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -818,6 +870,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="UBS Irl ETF plc - MS">UBS Irl ETF plc - MS</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -826,6 +879,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="ETF AMUNDI PHYSICAL">Etf Amundi Physical</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -834,6 +888,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="US TREASURY N/B">US TREASURY</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -842,6 +897,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="TREASURY BILL">TREASURY BILL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -850,6 +906,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="US TREASURY N/B">US TREASURY</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -858,6 +915,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 </tr><tr>
   <td title="AMERICAN COASTAL INS">American Coastal Ins</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1159,7 +1217,11 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0156572002';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -1176,16 +1238,21 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0156572002';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -1224,7 +1291,7 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0156572002', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -1237,33 +1304,21 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -1276,9 +1331,9 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -1615,16 +1670,54 @@ Rafael Ortega Salvador se distingue por su espíritu innovador y su rol pionero 
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -1827,7 +1920,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

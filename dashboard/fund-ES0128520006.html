@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -167,7 +181,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
       <div class="lh-fund">RENTA 4 RENTA FIJA 6 MESES, FI </div>
       <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>RENTA 4 GESTORA, S.G.I.I.C., S.A.</strong></div>
       <div class="lh-meta-line">Depositario: <strong>RENTA 4 BANCO, S.A.</strong></div>
-      <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0128520006</strong> <span style='opacity:.55;font-size:10.5px;'>· Renta 4 Renta Fija 6 Meses FI</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>ES0137896009</strong> <span style='opacity:.55;font-size:10.5px;'>· Caixabank Renta Fija Corporativa Extra FI</span></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>ES0128520006</strong> <span style='opacity:.55;font-size:10.5px;'>· Renta 4 Renta Fija 6 Meses FI</span></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>ES0137979003</strong> <span style='opacity:.55;font-size:10.5px;'>· Caixabank Renta Fija Corporativa Duracion Cubierta Estánd...</span></div>
     </div>
 
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
@@ -265,6 +279,8 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores conservadores que buscan preservar capital y obtener una rentabilidad modesta y estable a corto plazo. Es ideal para quienes tienen un horizonte temporal corto o medio y desean minimizar el riesgo de fluctuaciones del mercado. No es apropiado para inversores que buscan altos rendimientos o un crecimiento agresivo de su patrimonio.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Por lo tanto, no se puede evaluar el alineamiento de intereses a través de este mecanismo.</p></div></div>
+
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.31%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.20%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">10 €</td></tr></tbody></table>
 
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,2%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
@@ -441,10 +457,10 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">El análisis de la estrategia de inversión del fondo RENTA 4 RENTA FIJA 6 MESES, FI (ES0128520006) revela una evolución significativa en su enfoque, partiendo de un mandato inicialmente conservador para adaptarse a entornos de mercado cambiantes, aunque con implicaciones notables en su perfil de riesgo.</p><p class="pr">La filosofía de inversión declarada del fondo, tal como se articulaba en <strong>2009</strong>, posicionaba a Renta 4 Monetario FI como un vehículo cuyo objetivo era "ofrecer un rendimiento superior al del mercado monetario español a un año". Para lograrlo, su proceso se centraba en la búsqueda de activos rentables con un plazo inferior o igual a <strong>18 meses</strong>. Esta orientación se consolidó en <strong>2010</strong>, cuando se especificó que la cartera mantendría "tan solo depósitos bancarios, bonos a corto plazo y repo de deuda pública española", con una duración media inferior a <strong>seis meses</strong> y una rentabilidad esperada para un año en torno al <strong>3%</strong>. En <strong>2011</strong>, el vencimiento máximo de los bonos se extendió a "inferior a los dos años", manteniendo la duración media por debajo de los <strong>seis meses</strong>, lo que subraya un estilo de gestión de renta fija de muy corto plazo, con un claro sesgo hacia la preservación del capital y la liquidez, y una tolerancia al riesgo inherentemente baja, buscando superar un *benchmark* monetario.</p><p class="pr">En cuanto a su diferenciación, el fondo se ha distinguido históricamente por su estricto control de la duración media de la cartera, manteniéndola consistentemente por debajo de los <strong>seis meses</strong>. Esta disciplina, combinada con una asignación explícita a depósitos bancarios, bonos a corto plazo y repos de deuda pública española, le confería un perfil de riesgo-recompensa muy específico, centrado en la estabilidad y la liquidez, que no todos los competidores en el segmento de renta fija a corto plazo replican con la misma rigidez. Si bien la información disponible no detalla un "edge informacional o analítico" explícito o un sesgo geográfico más allá del mercado español para la deuda pública, la simplicidad y transparencia de su universo de inversión y su enfoque en la liquidez han sido sus principales características distintivas frente a fondos con mandatos más amplios o complejos.</p><p class="pr">La evolución del enfoque del fondo muestra una adaptación a las condiciones macroeconómicas, aunque con un cambio de estrategia más pronunciado en los últimos años. Inicialmente, la política de inversión se mantuvo relativamente estable, con ajustes menores en el vencimiento máximo de los activos elegibles (de <strong>18 meses</strong> a <strong>dos años</strong> entre 2009 y 2011), pero siempre respetando la duración media de <strong>seis meses</strong>. Las crisis como la de <strong>2008</strong> o la de deuda soberana en <strong>2011</strong> no parecen haber provocado cambios drásticos en la política declarada, sino más bien una reafirmación de su mandato conservador. Sin embargo, a partir de <strong>2020</strong>, en el contexto de la crisis del COVID-19 y la posterior volatilidad de los tipos de interés, se observa una transformación sustancial en la implementación de la estrategia, que merece un análisis detallado.</p><p class="pr">La coherencia entre el discurso y la acción del fondo ha experimentado una divergencia notable en los últimos años. Mientras que la filosofía inicial prometía un perfil de bajo riesgo y duración ultracorta, la exposición a renta fija (RF) ha superado el <strong>100%</strong> del patrimonio en varios periodos recientes, alcanzando, por ejemplo, el <strong>137.12%</strong> en <strong>2020</strong>, el <strong>192.52%</strong> en <strong>2022</strong>, y llegando a <strong>196.0%</strong> en <strong>2024</strong> y <strong>193.7%</strong> en <strong>2025</strong>. Esta exposición superior al patrimonio neto sugiere un uso significativo de apalancamiento o derivados para amplificar la exposición a la renta fija, lo cual contrasta con la imagen de un fondo monetario o de renta fija de muy corto plazo y bajo riesgo. La rotación de la cartera, que era prácticamente nula hasta <strong>2019</strong>, se disparó a <strong>75.0%</strong> en <strong>2020</strong>, <strong>103.0%</strong> en <strong>2022</strong>, y alcanzó picos de <strong>364.0%</strong> en <strong>2023</strong> y <strong>249.0%</strong> en <strong>2024</strong>, indicando una gestión extremadamente activa que no se alinea con la pasividad implícita en un fondo de duración tan corta y un objetivo de rendimiento monetario.</p><p class="pr">Analizando tres momentos clave de decisión, podemos observar esta evolución. Primero, durante el periodo de tipos de interés cercanos a cero y el inicio del QE del BCE en <strong>2015</strong>, la exposición a renta fija del fondo era relativamente baja, en torno al <strong>8.66%</strong> en 2015 y <strong>3.72%</strong> en 2014. Esto sugiere una postura muy cautelosa, posiblemente manteniendo una alta liquidez en un entorno de baja rentabilidad, lo cual era coherente con su mandato de preservación de capital. Segundo, en <strong>2020</strong>, con la irrupción del COVID-19 y la subsiguiente volatilidad, el fondo incrementó drásticamente su exposición a renta fija hasta el <strong>137.12%</strong>, al tiempo que su rotación de cartera se elevó a <strong>75.0%</strong>. Esta decisión, en un contexto de incertidumbre, indica una tesis de gestor que buscaba capturar oportunidades en el mercado de deuda, posiblemente anticipando el apoyo de los bancos centrales, pero asumiendo un riesgo de apalancamiento considerable. Finalmente, en <strong>2022</strong>, un año caracterizado por retornos negativos en renta fija global debido a la subida de tipos, el fondo mantuvo una exposición extremadamente alta del <strong>192.52%</strong> a renta fija y una rotación del <strong>103.0%</strong>. Esta persistencia en el apalancamiento y la alta actividad en un entorno adverso para la renta fija sugiere una convicción fuerte en la capacidad de la gestora para navegar la volatilidad y generar alfa, aunque con un perfil de riesgo significativamente elevado respecto a su mandato original.</p><p class="pr">La evolución del mix de activos, aunque limitada a la categoría de renta fija en los datos proporcionados, es el aspecto más revelador de la transformación estratégica del fondo. Desde una exposición modesta a renta fija en los años de tipos bajos (por ejemplo, <strong>3.72%</strong> en <strong>2014</strong> y <strong>8.66%</strong> en <strong>2015</strong>), el fondo ha escalado su asignación de manera exponencial, superando el <strong>100%</strong> del patrimonio a partir de <strong>2020</strong> y manteniéndose en niveles cercanos al <strong>200%</strong> en los últimos años. Este cambio radical, que implica un uso intensivo de apalancamiento o derivados, no se explica únicamente por cambios en el ciclo macroeconómico, sino que denota una redefinición implícita de la tesis de inversión. La coherencia con la filosofía declarada de un "fondo monetario" o de "renta fija 6 meses" se ha visto comprometida, ya que el apalancamiento introduce un nivel de riesgo y volatilidad que excede con creces el perfil de un producto de preservación de capital.</p><p class="pr">El patrón de aciertos y errores, sin datos de rentabilidad específicos, debe inferirse de la estrategia implementada. El fondo parece haber transitado de un enfoque pasivo y conservador (rotación nula hasta <strong>2019</strong>) a una gestión extremadamente activa y apalancada a partir de <strong>2020</strong>. La decisión de apalancarse en renta fija en un entorno de tipos de interés crecientes y alta volatilidad (como en <strong>2022</strong> y <strong>2023</strong>) es una apuesta de alto riesgo. Si bien la alta rotación (<strong>364.0%</strong> en <strong>2023</strong>) podría indicar una gestión ágil para adaptarse a las fluctuaciones del mercado, también conlleva mayores costes de transacción y el riesgo de *timing*. La persistencia en el apalancamiento en un segmento de renta fija de corta duración, donde los márgenes son tradicionalmente estrechos, sugiere que el equipo gestor ha optado por una estrategia de mayor riesgo para buscar rendimientos superiores, lo que podría ser un acierto en mercados alcistas de bonos, pero un error significativo en mercados bajistas o volátiles.</p><p class="pr">En conclusión evaluativa, el fondo RENTA 4 RENTA FIJA 6 MESES, FI, ha evolucionado de un vehículo de inversión conservador, apropiado para inversores con baja tolerancia al riesgo y un horizonte temporal muy corto, a un producto con un perfil de riesgo significativamente más elevado debido a su estrategia de apalancamiento y alta rotación. Para el inversor que busca la estabilidad y la preservación de capital que su nombre sugiere, este fondo presenta <strong>red flags</strong> importantes, principalmente la <strong>exposición a renta fija superior al 100%</strong> y la <strong>elevada rotación de cartera</strong> en los últimos años. En ciclos alcistas para la renta fija, el apalancamiento podría amplificar los retornos, pero en ciclos bajistas o de alta volatilidad, el riesgo de pérdidas se incrementa sustancialmente, lo que lo hace menos adecuado para el perfil de inversor tradicionalmente asociado a un fondo de "renta fija 6 meses". Se requiere una comprensión profunda de esta estrategia de mayor riesgo antes de considerar su inclusión en una cartera.</p>
+    <p class="pr">El fondo Renta 4 Monetario FI busca superar al mercado monetario español invirtiendo en activos de renta fija a corto plazo. Su estrategia se ha caracterizado por una gestión conservadora en sus inicios, evolucionando hacia una mayor rotación de cartera en los últimos años para adaptarse a la volatilidad y las condiciones cambiantes del mercado.</p>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2019 ha sido un año positivo para el ahorro, con muy buen comportamiento y retornos en prácticamente todos los activos.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora Renta 4, Informe periódico 2019</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2018 ha sido un año negativo para el ahorro. Pocos activos se han revalorizado, y los beneficios históricos de la diversificación no han funcionado.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora Renta 4, Informe periódico 2018</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2017 ha sido un año positivo para la renta variable. El MSCI mundial se ha revalorizado un 21,6% en dólares en el año, destacando Estados Unidos.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora Renta 4, Informe periódico 2017</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2019 ha sido un año positivo para el ahorro, con muy buen comportamiento y retornos en prácticamente todos los activos.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora Renta 4, Informe periódico 2019</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2018 ha sido un año negativo para el ahorro. Pocos activos se han revalorizado, y los beneficios históricos de la diversificación no han funcionado.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora Renta 4, Informe periódico 2018</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El 2017 ha sido un año positivo para la renta variable. El MSCI mundial se ha revalorizado un 21,6% en dólares en el año, destacando Estados Unidos.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora Renta 4, Informe periódico 2017</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -511,7 +527,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">173</div><div class="kpi-sub">vs media hist. 47</div></div>
     <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">19,3%</div><div class="kpi-sub">vs media hist. 25,3%</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">1,1%</div><div class="kpi-sub">vs media hist. 2,6%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">91,2%</div><div class="kpi-sub">Renta fija · Renta variable 2,8% · Otros 1,5% · Liquidez 1,4%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">91,2%</div><div class="kpi-sub">Renta fija · Renta variable 4,3% · Liquidez 1,4%</div></div>
   </div>
 
   <div class="col2 mb20">
@@ -519,13 +535,16 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">10 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.3</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.0</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">5.9</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.41</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.33</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.07</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.55</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.44</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.11</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.0</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.1</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.6</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">3.8%</strong> · 3A <strong style="color:var(--ink);">3.4%</strong> · 5A <strong style="color:var(--ink);">2.0%</strong> · 10A <strong style="color:var(--ink);">1.8%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">STOXX Europe 600</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">18.01</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.28</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">1.70</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">11.04</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:3%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.19%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.51%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:2%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.12%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:41%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.07%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 3% · caídas -6% · ratio -0.54</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:21%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">75%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:3%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">4%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:28%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">103%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">364%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:68%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">249%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:59%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">216%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 168%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">3%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:3%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">-6%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:-6%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div></div>
+
   <div class="sr">Todas las posiciones (173)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="IBERCAJA BANCO SA">Ibercaja Banco Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
@@ -534,6 +553,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BNP PARIBAS">BNP PARIBAS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
@@ -542,6 +562,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CRL CREDITO AGRICOLA MUT">Crl Credito Agricola Mut</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
@@ -550,6 +571,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLKSWAGEN BANK GMBH">Volkswagen Bank Gmbh</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
@@ -558,6 +580,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANCO DE SABADELL SA">Banco De Sabadell Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
@@ -566,6 +589,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="RAIFFEISEN BANK INTL">Raiffeisen Bank Intl</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -574,6 +598,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="GLENCORE FINANCE EUROPE">Glencore Finance Europe</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -582,6 +607,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="GLENCORE FINANCE EUROPE">Glencore Finance Europe</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -590,6 +616,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DEUTSCHE BANK AG">Deutsche Bank Ag</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -598,6 +625,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="WELLS FARGO & COMPANY">Wells Fargo & Company</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -606,6 +634,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="JPMORGAN CHASE & CO">Jpmorgan Chase & Co</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -614,6 +643,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="KUTXABANK SA">KUTXABANK SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -622,6 +652,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BAYER CAPITAL CORP BV">Bayer Capital Corp Bv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -630,6 +661,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DANSKE BANK A/S">DANSKE BANK A/S</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -638,6 +670,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="SAGAX EURO MTN">SAGAX EURO MTN</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -646,6 +679,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="HAMBURG COMMERCIAL BANK">Hamburg Commercial Bank</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -654,6 +688,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="EURONET WORLDWIDE INC">Euronet Worldwide Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -662,6 +697,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AUTOSTRADE PER L'ITALIA">Autostrade Per L'italia</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -670,6 +706,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CANADIAN IMPERIAL BANK">Canadian Imperial Bank</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -678,6 +715,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AURIZON NETWORK PTY LTD">Aurizon Network Pty Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -686,6 +724,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TRATON FINANCE LUX SA">Traton Finance Lux Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -694,6 +733,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="LEASYS SPA">LEASYS SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -702,6 +742,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="LEASYS SPA">LEASYS SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -710,6 +751,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DEUTSCHE BANK AG">Deutsche Bank Ag</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -718,6 +760,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CRH SMW FINANCE DAC">Crh Smw Finance Dac</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -726,6 +769,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLVO TREASURY AB">Volvo Treasury Ab</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -734,6 +778,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="UBS GROUP AG">UBS GROUP AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -742,6 +787,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BMW FINANCE NV">BMW FINANCE NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -750,6 +796,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="HARLEY-DAVIDSON FINL SER">Harley-davidson Finl Ser</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -758,6 +805,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="RCI BANQUE SA">RCI BANQUE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -766,6 +814,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CA AUTOBANK SPA IE">Ca Autobank Spa Ie</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -774,6 +823,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="RAIFFEISEN BANK INTL">Raiffeisen Bank Intl</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -782,6 +832,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CEZ AS">CEZ AS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -790,6 +841,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="GENERAL MOTORS FINL CO">General Motors Finl Co</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -798,6 +850,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ARGENTA SPAARBANK">Argenta Spaarbank</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -806,6 +859,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="SHELL INTERNATIONAL FIN">Shell International Fin</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -814,6 +868,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TELEPERFORMANCE">TELEPERFORMANCE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -822,6 +877,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AT&T INC">AT&T INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -830,6 +886,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AP MOLLER-MAERSK A/S">Ap Moller-maersk A/s</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -838,6 +895,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLKSWAGEN FIN SERV NV">Volkswagen Fin Serv Nv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -846,6 +904,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="NATIONAL BANK OF CANADA">National Bank Of Canada</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -854,6 +913,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AON GLOBAL LTD">AON GLOBAL LTD</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -862,6 +922,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BNP PARIBAS">BNP PARIBAS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -870,6 +931,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="NATWEST MARKETS PLC">Natwest Markets Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -878,6 +940,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANCO BILBAO VIZCAYA ARG">Banco Bilbao Vizcaya Arg</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -886,6 +949,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VESTAS WIND SYSTEMS A/S">Vestas Wind Systems A/s</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -894,6 +958,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ATHENE GLOBAL FUNDING">Athene Global Funding</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -902,6 +967,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DEUTSCHE BANK AG">Deutsche Bank Ag</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -910,6 +976,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CAIXA GERAL DE DEPOSITOS">Caixa Geral De Depositos</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -918,6 +985,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="SNAM SPA">SNAM SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -926,6 +994,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DASSAULT SYSTEMES">Dassault Systemes</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -934,6 +1003,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BAYER AG">BAYER AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -942,6 +1012,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="INTESA SANPAOLO SPA">Intesa Sanpaolo Spa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -950,6 +1021,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BARCLAYS BANK IRELAND">Barclays Bank Ireland</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -958,6 +1030,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CENTRAL BANK OF SAVINGS">Central Bank Of Savings</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -966,6 +1039,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="P3 GROUP SARL">P3 GROUP SARL</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -974,6 +1048,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLVO TREASURY AB">Volvo Treasury Ab</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -982,6 +1057,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="MORGAN STANLEY">MORGAN STANLEY</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -990,6 +1066,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AMERICAN HONDA FINANCE">American Honda Finance</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -998,6 +1075,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="LEASYS SPA">LEASYS SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1006,6 +1084,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TOYOTA MOTOR FINANCE BV">Toyota Motor Finance Bv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1014,6 +1093,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="LYB INTERNATIONAL FINANC">Lyb International Financ</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1022,6 +1102,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AYVENS BANK NV">AYVENS BANK NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1030,6 +1111,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DEUTSCHE BANK AG">Deutsche Bank Ag</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1038,6 +1120,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ITALGAS RETI SPA">Italgas Reti Spa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -1046,6 +1129,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANKINTER SA">BANKINTER SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1054,6 +1138,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="UNICREDIT SPA">UNICREDIT SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1062,6 +1147,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CONTINENTAL AG">CONTINENTAL AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1070,6 +1156,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ORIX CORP">ORIX CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -1078,6 +1165,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="MACQUARIE BANK LTD">Macquarie Bank Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1086,6 +1174,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BMW FINANCE NV">BMW FINANCE NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1094,6 +1183,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TOYOTA FINANCE AUSTRALIA">Toyota Finance Australia</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1102,6 +1192,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BELFIUS BANK SA/NV">Belfius Bank Sa/nv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1110,6 +1201,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BNP PARIBAS">BNP PARIBAS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1118,6 +1210,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANQUE FED CRED MUTUEL">Banque Fed Cred Mutuel</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1126,6 +1219,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="COVESTRO AG">COVESTRO AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1134,6 +1228,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PHILIP MORRIS INTL INC">Philip Morris Intl Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -1142,6 +1237,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ARVAL SERVICE LEASE SA/F">Arval Service Lease Sa/f</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1150,6 +1246,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLVO TREASURY AB">Volvo Treasury Ab</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1158,6 +1255,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="OP CORPORATE BANK PLC">Op Corporate Bank Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1166,6 +1264,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CARLSBERG BREWERIES A/S">Carlsberg Breweries A/s</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1174,6 +1273,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TRATON FINANCE LUX SA">Traton Finance Lux Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1182,6 +1282,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ACCIONA FINANCIACION FIL">Acciona Financiacion Fil</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1190,6 +1291,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="NATIONAL BANK OF CANADA">National Bank Of Canada</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1198,6 +1300,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ARCELORMITTAL SA">Arcelormittal Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1205,7 +1308,8 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="ARCELORMITTAL SA">Arcelormittal Sa</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1213,7 +1317,8 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="ARCELORMITTAL SA">Arcelormittal Sa</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1222,6 +1327,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANCO BILBAO VIZCAYA ARG">Banco Bilbao Vizcaya Arg</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1230,6 +1336,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PROSEGUR CASH SA">Prosegur Cash Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1237,7 +1344,8 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="ARCELORMITTAL SA">Arcelormittal Sa</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1246,6 +1354,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PROSUS NV">PROSUS NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1254,6 +1363,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="SCHLUMBERGER FINANCE BV">Schlumberger Finance Bv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1262,6 +1372,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="GENERAL MILLS INC">General Mills Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -1270,6 +1381,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="MITSUBISHI HC CAP UK PLC">Mitsubishi Hc Cap UK Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1278,6 +1390,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANCO COMERC PORTUGUES">Banco Comerc Portugues</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1286,6 +1399,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="NYKREDIT REALKREDIT AS">Nykredit Realkredit As</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1294,6 +1408,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TORONTO-DOMINION BANK">Toronto-dominion Bank</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -1302,6 +1417,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CORNING INC">CORNING INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1310,6 +1426,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="WOLTERS KLUWER NV">Wolters Kluwer Nv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1318,6 +1435,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TOYOTA MOTOR FINANCE BV">Toyota Motor Finance Bv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1326,6 +1444,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ARVAL SERVICE LEASE SA/F">Arval Service Lease Sa/f</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1334,6 +1453,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BMW US CAPITAL LLC">Bmw US Capital Llc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1342,6 +1462,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="UBS AG LONDON">UBS AG LONDON</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1350,6 +1471,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AMERICAN HONDA FINANCE">American Honda Finance</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1358,6 +1480,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANCO SANTANDER SA">Banco Santander Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1366,6 +1489,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CESCE SA">CESCE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1374,6 +1498,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PROSEGUR CASH SA">Prosegur Cash Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1382,6 +1507,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="SWEDBANK AB">SWEDBANK AB</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1390,6 +1516,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANK OF AMERICA CORP">Bank Of America Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1398,6 +1525,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ACEA SPA">ACEA SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1406,6 +1534,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ABN AMRO BANK NV">Abn Amro Bank Nv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1414,6 +1543,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="WPC EUROBOND BV">WPC EUROBOND BV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1422,6 +1552,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="AMERICAN TOWER CORP">American Tower Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1430,6 +1561,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BMW FINANCE NV">BMW FINANCE NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1438,6 +1570,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLKSWAGEN BANK GMBH">Volkswagen Bank Gmbh</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1446,6 +1579,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="MERCEDES-BENZ INT FINCE">Mercedes-benz Int Fince</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1454,6 +1588,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANQUE INTERNATIONAL LUX">Banque International Lux</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1462,6 +1597,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="SANTANDER CONSUMER BANK">Santander Consumer Bank</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1470,6 +1606,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="RYANAIR DAC">RYANAIR DAC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1478,6 +1615,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ORANGE SA">ORANGE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1486,6 +1624,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="MAPFRE SA">MAPFRE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1494,6 +1633,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PROSEGUR CASH SA">Prosegur Cash Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1502,6 +1642,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VESTEDA FINANCE BV">Vesteda Finance Bv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1510,6 +1651,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="UBS AG LONDON">UBS AG LONDON</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1518,6 +1660,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="RWE AG">RWE AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1526,6 +1669,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="BANCO SANTANDER SA">Banco Santander Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1534,6 +1678,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="RCI BANQUE SA">RCI BANQUE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1542,6 +1687,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="STELLANTIS NV">STELLANTIS NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1550,6 +1696,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DSV FINANCE BV">DSV FINANCE BV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1558,6 +1705,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="NATWEST MARKETS PLC">Natwest Markets Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1566,6 +1714,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TENNET NET BV">TENNET NET BV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1573,7 +1722,8 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="ARCELORMITTAL SA">Arcelormittal Sa</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Pagare</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1582,6 +1732,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PROSEGUR CIA DE SEGURIDA">Prosegur Cia De Segurida</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1589,7 +1740,8 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   <td><span style="background:rgba(107,26,26,0.1);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,4%</span></td>
 </tr><tr>
   <td title="ARCESA SA">ARCESA SA</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1598,6 +1750,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PROSEGUR CASH SA">Prosegur Cash Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1606,6 +1759,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLKSWAGEN FINANCIAL SER">Volkswagen Financial Ser</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1614,6 +1768,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLKSWAGEN FINANCIAL SER">Volkswagen Financial Ser</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1622,6 +1777,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TORONTO-DOMINION BANK">Toronto-dominion Bank</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1630,6 +1786,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="RCI BANQUE SA">RCI BANQUE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1638,6 +1795,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TAKEDA PHARMACEUTICAL">Takeda Pharmaceutical</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1646,6 +1804,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="MERLIN PROPERTIES SOCIMI">Merlin Properties Socimi</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1654,6 +1813,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DH EUROPE FINANCE II">Dh Europe Finance Ii</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1662,6 +1822,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="SANOFI SA">SANOFI SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1670,6 +1831,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PROSEGUR CASH SA">Prosegur Cash Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1678,6 +1840,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="PROSEGUR CASH SA">Prosegur Cash Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1686,6 +1849,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="MET LIFE GLOB FUNDING I">Met Life Glob Funding I</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1694,6 +1858,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="NIBC BANK NV">NIBC BANK NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1702,6 +1867,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="IM SUMMA">IM SUMMA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1710,6 +1876,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CESCE SA">CESCE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1718,6 +1885,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="TRITAX EUROBOX PLC">Tritax Eurobox Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1726,6 +1894,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="INMOBILIARIA COLONIAL SO">Inmobiliaria Colonial So</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1734,6 +1903,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ARVAL SERVICE LEASE SA/F">Arval Service Lease Sa/f</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1742,6 +1912,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CESCE SA">CESCE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1750,6 +1921,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLKSWAGEN BANK GMBH">Volkswagen Bank Gmbh</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1758,6 +1930,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="Orsted AS">Orsted AS</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1766,6 +1939,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="EQUINOR ASA">EQUINOR ASA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1774,6 +1948,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="FERROVIAL EMISIONES SA">Ferrovial Emisiones Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1782,6 +1957,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="MET LIFE GLOB FUNDING I">Met Life Glob Funding I</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1790,6 +1966,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="STOCKLAND TRUST">STOCKLAND TRUST</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1798,6 +1975,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="VOLKSWAGEN INTL FIN NV">Volkswagen Intl Fin Nv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1806,6 +1984,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="ALFA LAVAL TREASURY INTL">Alfa Laval Treasury Intl</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1814,6 +1993,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="STELLANTIS NV">STELLANTIS NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1822,6 +2002,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="EATON CAPITAL ULC">Eaton Capital Ulc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1830,6 +2011,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="DANFOSS FIN I BV">Danfoss Fin I Bv</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1838,6 +2020,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="INSUMA">INSUMA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1846,6 +2029,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CESCE SA">CESCE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1854,6 +2038,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="CESCE SA">CESCE SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1862,6 +2047,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="COOPERATIEVE RABOBANK UA">Cooperatieve Rabobank Ua</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1870,6 +2056,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="KUTXABANK SA">KUTXABANK SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1878,6 +2065,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="IM SUMMA">IM SUMMA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1886,6 +2074,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="IM SUMMA">IM SUMMA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1894,6 +2083,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="IM SUMMA">IM SUMMA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1902,6 +2092,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 </tr><tr>
   <td title="INSUMA">INSUMA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -2190,7 +2381,11 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0128520006';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -2207,16 +2402,21 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0128520006';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -2255,7 +2455,7 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0128520006', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -2268,33 +2468,21 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -2307,9 +2495,9 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -2646,16 +2834,54 @@ La gestión del fondo incorpora un análisis macroeconómico de tipo top-down pa
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -2858,7 +3084,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

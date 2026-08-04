@@ -276,6 +276,8 @@ El modelo no intenta acertar grandes apuestas concentradas, sino <strong>captura
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor que busca exposición core y diversificada a renta variable de mercados emergentes a través de un proceso disciplinado y sistemático, con horizonte de largo plazo y tolerancia a la alta volatilidad y al riesgo divisa propios del activo. Es adecuado para quien prefiere un enfoque basado en reglas y batir al índice de forma incremental frente a apuestas concentradas de autor, y para quien valora la transparencia del proceso sobre la narrativa de un gestor estrella.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No consta en el bundle información sobre inversión propia del equipo en el fondo (skin in the game) ni sobre la estructura de propiedad ligada a los gestores. Al tratarse de un producto sistemático de una gran gestora institucional (Robeco), la alineación descansa más en el proceso y la reputación de la casa que en la propiedad personal de un gestor-fundador, a diferencia de los fondos de autor.</p></div></div>
 
+  
+
   <div class="sr">TER por clase (snapshot actual)</div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
@@ -311,7 +313,7 @@ El modelo no intenta acertar grandes apuestas concentradas, sino <strong>captura
   </div>
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">—</div><div class="kpi-sub">Enero 2008 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">18</div><div class="kpi-sub">Enero 2008 — presente</div></div>
     <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
     <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
     <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
@@ -593,6 +595,8 @@ Su credo profesional, recogido en cita directa, defiende un quant <strong>transp
     }
   })();
   </script>
+
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI Emerging Markets</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">18.10</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.34</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.02</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">12.73</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div></div></div></div>
 
   <div class="sr">Todas las posiciones (499)</div>
   <div class="pt-wrap">
@@ -5229,7 +5233,11 @@ Su credo profesional, recogido en cita directa, defiende un quant <strong>transp
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'LU0329355670';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -5246,16 +5254,21 @@ Su credo profesional, recogido en cita directa, defiende un quant <strong>transp
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py LU0329355670';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -5294,7 +5307,7 @@ Su credo profesional, recogido en cita directa, defiende un quant <strong>transp
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py LU0329355670', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -5307,33 +5320,21 @@ Su credo profesional, recogido en cita directa, defiende un quant <strong>transp
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -5346,9 +5347,9 @@ Su credo profesional, recogido en cita directa, defiende un quant <strong>transp
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -5935,7 +5936,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

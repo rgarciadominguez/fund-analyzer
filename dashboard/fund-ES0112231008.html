@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -272,6 +286,8 @@ Ese enfoque combinado — selección rigurosa de empresas de calidad + flexibili
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con horizonte temporal de <strong>5 años o más</strong> que busca participación en mercados globales sin asumir la volatilidad plena de un fondo 100% renta variable, valora la consistencia de resultados sobre rentabilidades extraordinarias puntuales, y aprecia un grado elevado de alineación gestor-partícipe verificable públicamente. El perfil de riesgo CNMV es 3 sobre 7. No es vehículo apropiado para horizontes inferiores a 3 años ni para inversores que requieran liquidez inmediata predecible. Adecuado tanto para inversores particulares con perfil moderado como para componentes core de carteras conservadoras.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Juan Gómez Bada tiene <strong>comprometido ante notario más del 50% de su patrimonio personal</strong> invertido en los tres vehículos asesorados por Avantage Capital (Avantage Fund, Avantage Pure Equity y Avantage Fund Plan de Pensiones), sin invertir en ningún otro producto financiero — un nivel de alineación verificable públicamente desde el inicio del fondo en 2014 (avantagecapital.com). El asesor cobra TER del 0,9% sin comisión de éxito, estructurando los ingresos para que dependan exclusivamente del crecimiento sostenido del patrimonio bajo gestión (CNMV).</p></div></div>
 
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.94%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.80%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.000 €</td></tr></tbody></table>
+
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,8%)</option><option value="B">B (TER 1,3%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
@@ -282,7 +298,7 @@ Ese enfoque combinado — selección rigurosa de empresas de calidad + flexibili
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Julio 2014 — presente</span></div>
 
   <div class="mb24">
-    <p class="pr"><strong>Avantage Fund, FI</strong> se constituyó el <strong>31 de julio de 2014</strong> como vehículo asesorado por <strong>Avantage Capital EAFN, S.L.</strong> —empresa de asesoramiento financiero nacional registrada con el número 34 en la CNMV— bajo gestión administrativa de <strong>Renta 4 Gestora</strong> y con depósito en <strong>Renta 4 Banco</strong> (CNMV). El compromiso fundacional de Juan Gómez Bada quedó formalizado ante notario: invertir más del 50% de su patrimonio personal en el fondo, una decisión documentada públicamente desde el inicio (avantagecapital.com).</p><p class="subsec">Primeros años (2014-2016): construcción del track record</p><p class="pr">El primer ejercicio fue accidentado. El 19 de agosto de 2014, apenas tres semanas después del lanzamiento, el patrimonio de la IIC sufrió una bajada superior al 20% (CNMV — hechos relevantes 2014). Esa volatilidad inicial reflejaba el reducido tamaño del fondo más que problemas de gestión, y se corrigió en los meses siguientes. Durante 2015 la CNMV procedió a una <strong>actualización de oficio del folleto y DFI</strong> del fondo como consecuencia de un cambio en la delegación de funciones de Renta 4 Gestora; en 2016 hubo un cambio en el consejo de la gestora — ambos hitos administrativos sin impacto material en la política de inversión (CNMV — hechos relevantes 2015-2016).</p><p class="subsec">Consolidación (2017-2019): primeros premios</p><p class="pr">En enero de 2017, en la primera carta semestral disponible, el fondo acumulaba una plusvalía del 18,8% en sus 2 años y 5 meses de vida, con un nivel de inversión neta en renta variable del 70-85% y volatilidad alrededor de la mitad de los índices Ibex 35 y Euro Stoxx 50 (Carta enero 2017). El gestor describía ya entonces los <strong>tres criterios de inversión</strong> que se han mantenido inalterados durante toda la vida del fondo. Durante este periodo se incorporaron a cartera valores como ENCE, Talgo y Banco Popular — esta última siguiendo el cambio de presidente promovido por accionistas en 2017 (Carta enero 2017). En 2018 el nivel de riesgo del fondo se redujo de 7 a 4 (CNMV — hechos relevantes 2018), reflejando la trayectoria de volatilidad menor que la inicialmente reportada.</p><p class="pr">A los <strong>3 años de vida (julio 2017)</strong>, Avantage Fund obtuvo por primera vez las 5 estrellas Morningstar — el rating máximo, otorgado al 10% de fondos con mejores resultados a largo plazo en su categoría (Carta julio 2025). En 2018 recibió simultáneamente el Lipper Leader en rentabilidad total, sostenida y gastos por estar en el 20% mejor de las tres clasificaciones, y el ranking AA de Citywire para Juan Gómez Bada por consistencia en sus retornos ajustados al riesgo (Carta enero 2018).</p><p class="subsec">Aceleración patrimonial (2020-2023): bola de nieve del interés compuesto</p><p class="pr">La pandemia y la posterior recuperación pusieron a prueba la flexibilidad del fondo, que demostró su capacidad de adaptación. En 2020 (impacto pandemia), 2021 (recuperación), 2022 (subidas de tipos y caídas en RV+RF) y 2023 (rebote tech), el fondo se mantuvo dentro del 10% mejor de su categoría — una hazaña que el gestor califica como "consistencia única" (Carta enero 2025). En 2021 la CNMV verificó la <strong>creación de la Clase B</strong> con sistema de comisiones diferenciado y volumen máximo por partícipe (CNMV — hechos relevantes 2021).</p><p class="subsec">Cumplimiento de los 10 años (julio 2024): triple rating Morningstar</p><p class="pr">El 31 de julio de 2024 Avantage Fund cumplió 10 años. La rentabilidad anualizada (CAGR) desde inicio hasta esa fecha era del <strong>9,3%</strong>, con la particularidad de que el rating de 5 estrellas Morningstar se había logrado en <strong>tres periodos plurianuales independientes y consecutivos</strong> que sumaban todo el histórico: los primeros 3 años (julio 2014 - julio 2017), los 5 siguientes (julio 2017 - julio 2022) y los últimos 3 (julio 2022 - julio 2025). Este reconocimiento sitúa al fondo en el 1% mejor de los fondos con más de 10 años de histórico que tienen 5 estrellas Morningstar (Carta julio 2024, julio 2025).</p><p class="pr">En enero de 2024 se lanzó <strong>Avantage Fund Plan de Pensiones</strong>, que cubre una demanda histórica de partícipes que querían exposición a la misma cartera dentro del envoltorio de plan de pensiones. La acogida fue extraordinaria: 5,5 millones de euros con 150 partícipes en menos de seis meses (Carta julio 2024).</p><p class="subsec">Año récord 2025: superación de los 100 M€</p><p class="pr">En 2024 el patrimonio conjunto de los vehículos asesorados por Avantage Capital superó los <strong>100 millones de euros</strong>, y en 2025 esa cifra se acercó a los <strong>150 millones</strong>, con Avantage Fund concentrando 151,6 M€ a cierre de año (CNMV). El número de partícipes alcanzó los 5.176, con un crecimiento del 36,7% respecto al año anterior. Esta aceleración patrimonial se explica por la combinación de buenos resultados acumulados, el efecto del interés compuesto sobre la base creciente, y un aumento orgánico de visibilidad mediática — el fondo es ahora citado regularmente en Cinco Días, Estrategias de Inversión, Capital Radio y blogs profesionales como Salud Financiera, Rankia y Astralis (readings.json).</p><p class="pr">A finales de 2025, <strong>Avantage Fund se sitúa por sexto año consecutivo dentro del 10% mejor</strong> de la categoría Mixto Flexible Global (Carta enero 2026), con CAGR del 10,1% desde inicio y una rentabilidad acumulada del 200,3%. La distancia a los principales índices de referencia es notable: en términos absolutos desde inicio, el Ibex 35 acumula +61,6%, el Euro Stoxx 50 +85,9%, y el Avantage Fund +200,3% — una evidencia del valor añadido del proceso de selección activa con baja volatilidad.</p>
+    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Primeros años</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">Consolidación</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Aceleración patrimonial</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',4)">Cumplimiento de los 10 año…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',5)">Año récord 2025</button></div><div class="subtab-panel active"><p class="pr"><strong>Avantage Fund, FI</strong> se constituyó el <strong>31 de julio de 2014</strong> como vehículo asesorado por <strong>Avantage Capital EAFN, S.L.</strong> —empresa de asesoramiento financiero nacional registrada con el número 34 en la CNMV— bajo gestión administrativa de <strong>Renta 4 Gestora</strong> y con depósito en <strong>Renta 4 Banco</strong> (CNMV). El compromiso fundacional de Juan Gómez Bada quedó formalizado ante notario: invertir más del 50% de su patrimonio personal en el fondo, una decisión documentada públicamente desde el inicio (avantagecapital.com).</p></div><div class="subtab-panel"><p class="pr">El primer ejercicio fue accidentado. El 19 de agosto de 2014, apenas tres semanas después del lanzamiento, el patrimonio de la IIC sufrió una bajada superior al 20% (CNMV — hechos relevantes 2014). Esa volatilidad inicial reflejaba el reducido tamaño del fondo más que problemas de gestión, y se corrigió en los meses siguientes. Durante 2015 la CNMV procedió a una <strong>actualización de oficio del folleto y DFI</strong> del fondo como consecuencia de un cambio en la delegación de funciones de Renta 4 Gestora; en 2016 hubo un cambio en el consejo de la gestora — ambos hitos administrativos sin impacto material en la política de inversión (CNMV — hechos relevantes 2015-2016).</p></div><div class="subtab-panel"><p class="pr">En enero de 2017, en la primera carta semestral disponible, el fondo acumulaba una plusvalía del 18,8% en sus 2 años y 5 meses de vida, con un nivel de inversión neta en renta variable del 70-85% y volatilidad alrededor de la mitad de los índices Ibex 35 y Euro Stoxx 50 (Carta enero 2017). El gestor describía ya entonces los <strong>tres criterios de inversión</strong> que se han mantenido inalterados durante toda la vida del fondo. Durante este periodo se incorporaron a cartera valores como ENCE, Talgo y Banco Popular — esta última siguiendo el cambio de presidente promovido por accionistas en 2017 (Carta enero 2017). En 2018 el nivel de riesgo del fondo se redujo de 7 a 4 (CNMV — hechos relevantes 2018), reflejando la trayectoria de volatilidad menor que la inicialmente reportada.</p><p class="pr">A los <strong>3 años de vida (julio 2017)</strong>, Avantage Fund obtuvo por primera vez las 5 estrellas Morningstar — el rating máximo, otorgado al 10% de fondos con mejores resultados a largo plazo en su categoría (Carta julio 2025). En 2018 recibió simultáneamente el Lipper Leader en rentabilidad total, sostenida y gastos por estar en el 20% mejor de las tres clasificaciones, y el ranking AA de Citywire para Juan Gómez Bada por consistencia en sus retornos ajustados al riesgo (Carta enero 2018).</p></div><div class="subtab-panel"><p class="pr">La pandemia y la posterior recuperación pusieron a prueba la flexibilidad del fondo, que demostró su capacidad de adaptación. En 2020 (impacto pandemia), 2021 (recuperación), 2022 (subidas de tipos y caídas en RV+RF) y 2023 (rebote tech), el fondo se mantuvo dentro del 10% mejor de su categoría — una hazaña que el gestor califica como "consistencia única" (Carta enero 2025). En 2021 la CNMV verificó la <strong>creación de la Clase B</strong> con sistema de comisiones diferenciado y volumen máximo por partícipe (CNMV — hechos relevantes 2021).</p></div><div class="subtab-panel"><p class="pr">El 31 de julio de 2024 Avantage Fund cumplió 10 años. La rentabilidad anualizada (CAGR) desde inicio hasta esa fecha era del <strong>9,3%</strong>, con la particularidad de que el rating de 5 estrellas Morningstar se había logrado en <strong>tres periodos plurianuales independientes y consecutivos</strong> que sumaban todo el histórico: los primeros 3 años (julio 2014 - julio 2017), los 5 siguientes (julio 2017 - julio 2022) y los últimos 3 (julio 2022 - julio 2025). Este reconocimiento sitúa al fondo en el 1% mejor de los fondos con más de 10 años de histórico que tienen 5 estrellas Morningstar (Carta julio 2024, julio 2025).</p><p class="pr">En enero de 2024 se lanzó <strong>Avantage Fund Plan de Pensiones</strong>, que cubre una demanda histórica de partícipes que querían exposición a la misma cartera dentro del envoltorio de plan de pensiones. La acogida fue extraordinaria: 5,5 millones de euros con 150 partícipes en menos de seis meses (Carta julio 2024).</p></div><div class="subtab-panel"><p class="pr">En 2024 el patrimonio conjunto de los vehículos asesorados por Avantage Capital superó los <strong>100 millones de euros</strong>, y en 2025 esa cifra se acercó a los <strong>150 millones</strong>, con Avantage Fund concentrando 151,6 M€ a cierre de año (CNMV). El número de partícipes alcanzó los 5.176, con un crecimiento del 36,7% respecto al año anterior. Esta aceleración patrimonial se explica por la combinación de buenos resultados acumulados, el efecto del interés compuesto sobre la base creciente, y un aumento orgánico de visibilidad mediática — el fondo es ahora citado regularmente en Cinco Días, Estrategias de Inversión, Capital Radio y blogs profesionales como Salud Financiera, Rankia y Astralis (readings.json).</p><p class="pr">A finales de 2025, <strong>Avantage Fund se sitúa por sexto año consecutivo dentro del 10% mejor</strong> de la categoría Mixto Flexible Global (Carta enero 2026), con CAGR del 10,1% desde inicio y una rentabilidad acumulada del 200,3%. La distancia a los principales índices de referencia es notable: en términos absolutos desde inicio, el Ibex 35 acumula +61,6%, el Euro Stoxx 50 +85,9%, y el Avantage Fund +200,3% — una evidencia del valor añadido del proceso de selección activa con baja volatilidad.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
   <div class="kpi-row">
@@ -565,10 +581,10 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">La estrategia de <strong>Avantage Fund</strong> se articula en torno a la <strong>selección bottom-up de empresas de calidad a precios razonables</strong> combinada con una <strong>flexibilidad total de asignación de activos</strong>. El fondo opera bajo categoría CNMV "Mixto Flexible Global" con un perfil de riesgo 3 sobre 7, y tiene capacidad de invertir entre el 0% y el 100% en renta variable según las oportunidades disponibles, sin restricciones geográficas ni sectoriales (CNMV).</p><p class="pr">A 31 de diciembre de 2025 la composición de la cartera era del <strong>80,29% en renta variable, 18,70% en renta fija y 1,01% en liquidez</strong> (CNMV). Esta asignación refleja un nivel de exposición a renta variable elevado pero por debajo del máximo permitido — el gestor mantiene reserva de capital en renta fija con cierta convicción de que las valoraciones de mercado están razonables pero no baratas, y que la renta fija ofrece rentabilidades absolutas atractivas con riesgo controlado en el contexto actual (Carta enero 2026).</p><p class="subsec">Proceso de selección de inversiones</p><p class="pr">La selección se basa en <strong>tres criterios duros e inamovibles</strong> que toda empresa en cartera debe cumplir simultáneamente: (i) <strong>alineación de intereses entre directivos y accionistas</strong> verificable en la estructura de capital y los pactos de socios; (ii) <strong>excelente modelo de negocio</strong> con al menos una ventaja competitiva sostenible (economías de escala, marcas, costes de cambio, efectos de red, ventajas regulatorias); y (iii) <strong>precio razonable</strong> comparado con la capacidad del negocio para generar resultados sostenibles. Cuando una empresa cumple los tres criterios, la posición se mantiene durante años con poca rotación; cuando alguno se debilita, se revisa críticamente (Cartas semestrales 2017-2026).</p><p class="pr">El gestor declara que <strong>la rotación de inversiones es muy baja por diseño</strong> porque los criterios solo aportan valor en plazos largos. Los datos lo confirman: rotación de cartera del <strong>39,0% en 2025</strong> vs 27,0% en el periodo anterior — niveles muy por debajo del 60-100% típico de la industria. Las posiciones se construyen con la intención de mantener durante 5+ años, salvo deterioro estructural de los criterios o aparición de oportunidades dramáticamente mejores.</p><p class="subsec">Asset allocation táctica</p><p class="pr">La asignación entre activos se complementa con <strong>uso táctico de derivados</strong> para modular la exposición neta sin liquidar posiciones subyacentes. Históricamente el fondo ha utilizado <strong>venta de futuros del Ibex 35 y Euro Stoxx 50</strong> cuando consideraba prudente reducir beta de mercado — por ejemplo, en enero de 2017 mantuvo coberturas próximas al 23% del patrimonio "para reducir la exposición a bolsa hasta el nivel deseado del 72%" (Carta enero 2017). También ha mantenido durante años una <strong>posición vendida de futuros sobre el bono alemán a 10 años</strong> por considerar que su rendimiento (cercano al 0,2% en 2017) no compensaba los riesgos de subidas de tipos (Carta enero 2017). Esta posición se materializó positivamente durante el ciclo de subidas de 2022-2023, demostrando el valor del enfoque flexible mixto.</p><p class="subsec">Coherencia y consistencia documentada por año</p><p class="pr">La hoja de ruta del fondo se documenta en cartas semestrales con análisis explícito del entorno macro, decisiones tomadas y resultados obtenidos. La consistencia es notable:</p><p class="pr"><strong>2017-2019</strong>: construcción del track record. Volatilidad reducida (50% de los índices) y rentabilidad acumulada alineada con la filosofía.</p><ul class="nl"><li><strong>2020 (pandemia)</strong>: el fondo se mantiene dentro del 10% mejor de su categoría. La flexibilidad mixto + las coberturas demostraron su valor en el momento de máxima volatilidad.</li><li><strong>2021 (recuperación post-pandemia)</strong>: top decil de su categoría. Buen comportamiento en el rebote.</li><li><strong>2022 (subidas de tipos, caídas RV+RF)</strong>: año récord para el enfoque — top decil con coberturas tipos generando alfa significativo. Es el año donde el fondo demostró el valor diferencial frente a los puros de RV.</li><li><strong>2023 (rebote tech)</strong>: top decil. Adaptación a un entorno de fuerte concentración del retorno en grandes tecnológicas.</li><li><strong>2024 (elecciones EEUU + bajadas de tipos)</strong>: +18,7% en el año (S1 +8,6% + S2 +10,1%). Top decil. Lanzamiento del Plan de Pensiones (enero 2024). 5 estrellas Morningstar consolidadas en todos los horizontes.</li><li><strong>2025 (guerra arancelaria + depreciación dólar)</strong>: +13,1% en el año (S1 +5,4% + S2 +7,3%). Top decil por sexto año consecutivo. Patrimonio supera los 150 M€.</li></ul><p class="subsec">Visión actual del mercado y posicionamiento</p><p class="pr">En la última carta semestral (enero 2026), el gestor describe un escenario de <strong>economía global resistente</strong> con crecimiento por encima del 3%, impulsada por políticas fiscales y monetarias expansivas — "<strong>solo Javier Milei en Argentina parece dispuesto a priorizar el equilibrio presupuestario</strong>" — mientras los bancos centrales mantienen tipos compatibles con inflación más elevada que hace una década, erosionando el poder adquisitivo de los activos en liquidez. La visión geopolítica es cautelosa: la ruptura de confianza entre EEUU y sus aliados de la OTAN por aranceles, Ucrania y Groenlandia introduce nueva incertidumbre estructural.</p><p class="pr">El posicionamiento responde a esta visión con <strong>flexibilidad geográfica y sectorial</strong> y un foco creciente en <strong>empresas con ventajas competitivas más protegidas que sus competidores ante la disrupción de la IA</strong>. En cartas recientes (febrero, marzo, abril 2026), tras una caída fuerte de empresas software en cartera (Craneware, Block, Microsoft), el gestor revisó exhaustivamente sus modelos de negocio y decidió mantener las posiciones, concluyendo que sus barreras competitivas están más protegidas que las de la mayoría (manager_profile.informacion_cartas).</p><p class="pr">La cartera mantiene una <strong>apuesta sostenida por Argentina</strong>, con aproximadamente el 16% concentrado en empresas y deuda soberana del país. La tesis se mantiene: mejora estructural del marco macroeconómico bajo Milei, estabilidad cambiaria creciente, descenso de impuestos a la importación y aprobación de la reforma laboral relevante (Carta febrero 2026, manager_profile.informacion_cartas). El gestor reconoce el riesgo país pero considera que los precios actuales descuentan en exceso las dificultades.</p><p class="subsec">Comportamiento esperado en distintos escenarios</p><p class="pr">El fondo está diseñado para tener <strong>mejor comportamiento relativo en mercados bajistas</strong> y <strong>comportamiento aceptable</strong> (no necesariamente líder) en mercados muy alcistas. Los cuatro motivos articulados por el gestor son: (i) inversión en empresas de calidad, (ii) a precios razonables, (iii) duración negativa en tipos vía coberturas cuando aplica, y (iv) cobertura parcial con futuros de índices bursátiles cuando se considera prudente. En entornos muy alcistas con expansión de múltiplos sin crecimiento de beneficios, el fondo tiende a quedarse algo rezagado por su disciplina valorativa (Carta enero 2018, julio 2024).</p>
+    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Estrategia y enfoque actua…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Proceso de selección de in…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Asset allocation táctica</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Coherencia y consistencia…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Visión actual del mercado…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',6)">Comportamiento esperado en…</button></div><div class="subtab-panel active"><p class="pr">Mixto flexible global con 80,29% RV / 18,70% RF / 1,01% liquidez (CNMV 31/12/25). Selección bottom-up con tres criterios duros: alineación intereses + ventaja competitiva sostenible + precio razonable. Rotación 39%. Apuesta sostenida por Argentina (~16% cartera) y posiciones core en software/tech con foco en barreras defensibles ante IA. Visión macro: economía global resistente con políticas expansivas, tipos compatibles con inflación elevada, ruptura de confianza geopolítica como factor de incertidumbre estructural.</p></div><div class="subtab-panel"><p class="pr">La estrategia de <strong>Avantage Fund</strong> se articula en torno a la <strong>selección bottom-up de empresas de calidad a precios razonables</strong> combinada con una <strong>flexibilidad total de asignación de activos</strong>. El fondo opera bajo categoría CNMV "Mixto Flexible Global" con un perfil de riesgo 3 sobre 7, y tiene capacidad de invertir entre el 0% y el 100% en renta variable según las oportunidades disponibles, sin restricciones geográficas ni sectoriales (CNMV).</p><p class="pr">A 31 de diciembre de 2025 la composición de la cartera era del <strong>80,29% en renta variable, 18,70% en renta fija y 1,01% en liquidez</strong> (CNMV). Esta asignación refleja un nivel de exposición a renta variable elevado pero por debajo del máximo permitido — el gestor mantiene reserva de capital en renta fija con cierta convicción de que las valoraciones de mercado están razonables pero no baratas, y que la renta fija ofrece rentabilidades absolutas atractivas con riesgo controlado en el contexto actual (Carta enero 2026).</p></div><div class="subtab-panel"><p class="pr">La selección se basa en <strong>tres criterios duros e inamovibles</strong> que toda empresa en cartera debe cumplir simultáneamente: (i) <strong>alineación de intereses entre directivos y accionistas</strong> verificable en la estructura de capital y los pactos de socios; (ii) <strong>excelente modelo de negocio</strong> con al menos una ventaja competitiva sostenible (economías de escala, marcas, costes de cambio, efectos de red, ventajas regulatorias); y (iii) <strong>precio razonable</strong> comparado con la capacidad del negocio para generar resultados sostenibles. Cuando una empresa cumple los tres criterios, la posición se mantiene durante años con poca rotación; cuando alguno se debilita, se revisa críticamente (Cartas semestrales 2017-2026).</p><p class="pr">El gestor declara que <strong>la rotación de inversiones es muy baja por diseño</strong> porque los criterios solo aportan valor en plazos largos. Los datos lo confirman: rotación de cartera del <strong>39,0% en 2025</strong> vs 27,0% en el periodo anterior — niveles muy por debajo del 60-100% típico de la industria. Las posiciones se construyen con la intención de mantener durante 5+ años, salvo deterioro estructural de los criterios o aparición de oportunidades dramáticamente mejores.</p></div><div class="subtab-panel"><p class="pr">La asignación entre activos se complementa con <strong>uso táctico de derivados</strong> para modular la exposición neta sin liquidar posiciones subyacentes. Históricamente el fondo ha utilizado <strong>venta de futuros del Ibex 35 y Euro Stoxx 50</strong> cuando consideraba prudente reducir beta de mercado — por ejemplo, en enero de 2017 mantuvo coberturas próximas al 23% del patrimonio "para reducir la exposición a bolsa hasta el nivel deseado del 72%" (Carta enero 2017). También ha mantenido durante años una <strong>posición vendida de futuros sobre el bono alemán a 10 años</strong> por considerar que su rendimiento (cercano al 0,2% en 2017) no compensaba los riesgos de subidas de tipos (Carta enero 2017). Esta posición se materializó positivamente durante el ciclo de subidas de 2022-2023, demostrando el valor del enfoque flexible mixto.</p></div><div class="subtab-panel"><p class="pr">La hoja de ruta del fondo se documenta en cartas semestrales con análisis explícito del entorno macro, decisiones tomadas y resultados obtenidos. La consistencia es notable:</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2017-2019.</strong> construcción del track record. Volatilidad reducida (50% de los índices) y rentabilidad acumulada alineada con la filosofía.</p><ul class="nl"><li><strong>2020 (pandemia)</strong>: el fondo se mantiene dentro del 10% mejor de su categoría. La flexibilidad mixto + las coberturas demostraron su valor en el momento de máxima volatilidad.</li><li><strong>2021 (recuperación post-pandemia)</strong>: top decil de su categoría. Buen comportamiento en el rebote.</li><li><strong>2022 (subidas de tipos, caídas RV+RF)</strong>: año récord para el enfoque — top decil con coberturas tipos generando alfa significativo. Es el año donde el fondo demostró el valor diferencial frente a los puros de RV.</li><li><strong>2023 (rebote tech)</strong>: top decil. Adaptación a un entorno de fuerte concentración del retorno en grandes tecnológicas.</li><li><strong>2024 (elecciones EEUU + bajadas de tipos)</strong>: +18,7% en el año (S1 +8,6% + S2 +10,1%). Top decil. Lanzamiento del Plan de Pensiones (enero 2024). 5 estrellas Morningstar consolidadas en todos los horizontes.</li><li><strong>2025 (guerra arancelaria + depreciación dólar)</strong>: +13,1% en el año (S1 +5,4% + S2 +7,3%). Top decil por sexto año consecutivo. Patrimonio supera los 150 M€.</li></ul></div><div class="subtab-panel"><p class="pr">En la última carta semestral (enero 2026), el gestor describe un escenario de <strong>economía global resistente</strong> con crecimiento por encima del 3%, impulsada por políticas fiscales y monetarias expansivas — "<strong>solo Javier Milei en Argentina parece dispuesto a priorizar el equilibrio presupuestario</strong>" — mientras los bancos centrales mantienen tipos compatibles con inflación más elevada que hace una década, erosionando el poder adquisitivo de los activos en liquidez. La visión geopolítica es cautelosa: la ruptura de confianza entre EEUU y sus aliados de la OTAN por aranceles, Ucrania y Groenlandia introduce nueva incertidumbre estructural.</p><p class="pr">El posicionamiento responde a esta visión con <strong>flexibilidad geográfica y sectorial</strong> y un foco creciente en <strong>empresas con ventajas competitivas más protegidas que sus competidores ante la disrupción de la IA</strong>. En cartas recientes (febrero, marzo, abril 2026), tras una caída fuerte de empresas software en cartera (Craneware, Block, Microsoft), el gestor revisó exhaustivamente sus modelos de negocio y decidió mantener las posiciones, concluyendo que sus barreras competitivas están más protegidas que las de la mayoría (manager_profile.informacion_cartas).</p><p class="pr">La cartera mantiene una <strong>apuesta sostenida por Argentina</strong>, con aproximadamente el 16% concentrado en empresas y deuda soberana del país. La tesis se mantiene: mejora estructural del marco macroeconómico bajo Milei, estabilidad cambiaria creciente, descenso de impuestos a la importación y aprobación de la reforma laboral relevante (Carta febrero 2026, manager_profile.informacion_cartas). El gestor reconoce el riesgo país pero considera que los precios actuales descuentan en exceso las dificultades.</p></div><div class="subtab-panel"><p class="pr">El fondo está diseñado para tener <strong>mejor comportamiento relativo en mercados bajistas</strong> y <strong>comportamiento aceptable</strong> (no necesariamente líder) en mercados muy alcistas. Los cuatro motivos articulados por el gestor son: (i) inversión en empresas de calidad, (ii) a precios razonables, (iii) duración negativa en tipos vía coberturas cuando aplica, y (iv) cobertura parcial con futuros de índices bursátiles cuando se considera prudente. En entornos muy alcistas con expansión de múltiplos sin crecimiento de beneficios, el fondo tiende a quedarse algo rezagado por su disciplina valorativa (Carta enero 2018, julio 2024).</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Avantage Fund se ha vuelto a situar dentro del 10% más rentable por sexto año consecutivo&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Juan Gómez Bada, Carta Semestral enero 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La rotación de las inversiones en cartera es muy baja porque los criterios utilizados son útiles solamente si se invierte a largo plazo&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Juan Gómez Bada, CNMV Anexo Sección 10 — Perspectivas 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Esta excepcional consistencia en sus resultados permite a Avantage Fund situarse dentro del 1% mejor de fondos tanto a 5 como a 10 años&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Juan Gómez Bada, Carta Semestral enero 2026</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Avantage Fund se ha vuelto a situar dentro del 10% más rentable por sexto año consecutivo&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Juan Gómez Bada, Carta Semestral enero 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La rotación de las inversiones en cartera es muy baja porque los criterios utilizados son útiles solamente si se invierte a largo plazo&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Juan Gómez Bada, CNMV Anexo Sección 10 — Perspectivas 2026</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Esta excepcional consistencia en sus resultados permite a Avantage Fund situarse dentro del 1% mejor de fondos tanto a 5 como a 10 años&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Juan Gómez Bada, Carta Semestral enero 2026</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -639,13 +655,16 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">10 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">8.7</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">8.9</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">10.6</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.07</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.95</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.91</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.93</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.77</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.64</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.02</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.76</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.08</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.85</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">6.99</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.12</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-14.1</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-14.1</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-29.6</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">12.5%</strong> · 3A <strong style="color:var(--ink);">13.5%</strong> · 5A <strong style="color:var(--ink);">11.7%</strong> · 10A <strong style="color:var(--ink);">11.6%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Mid · Blend</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:var(--ink-2);line-height:1.1;">—</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★★★</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">5 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">EUR Flexible Allocation - Global</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">15.87</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">24.36</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">2.28</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.90</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.85</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.98</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">7.89</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">17.26</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">6.0 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:14%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+1.07%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.63%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:8%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.62%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:45%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.49%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 18% · caídas -23% · ratio -0.76</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2019</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:18%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">7%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:69%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">27%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:67%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">26%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:97%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">38%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:59%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">23%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:69%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">27%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">39%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 27%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">18%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:18%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">-23%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:-23%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:77%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:29%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">24.2% <span style="color:var(--navy);">(+15)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:64%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:35%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">20.1% <span style="color:var(--navy);">(+9)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Tecnología</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:54%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:100%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">16.7% <span style="color:#c0552e;">(-15)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:37%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:48%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">11.6% <span style="color:#c0552e;">(-3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:34%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:27%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">10.6% <span style="color:var(--navy);">(+2)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Materiales básicos</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:21%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:10%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.6% <span style="color:var(--navy);">(+3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:16%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:29%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">4.9% <span style="color:#c0552e;">(-4)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Inmobiliario</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:10%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:5%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">3.1% <span style="color:var(--navy);">(+1)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> MSCI World · (dif. en pp)</div></div></div></div>
+
   <div class="sr">Todas las posiciones (46)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="INVERSIONES Y REPRESENTA">Inversiones Y Representa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:48px;background:#0c2340;"></div>6,0%</div></td>
@@ -654,6 +673,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="RENTA 4 BANCO, S.A.">Renta 4 Banco, S.a.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:36px;background:#0c2340;"></div>4,6%</div></td>
@@ -662,6 +682,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Tesla Inc">Tesla Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
@@ -670,6 +691,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="REPUBLIC OF ARGENTINA">Republic Of Argentina</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
@@ -678,6 +700,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="MERCADOLIBRE INC">Mercadolibre Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,4%</div></td>
@@ -686,6 +709,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="PAMPA ENERGIA SA">Pampa Energia Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
@@ -694,6 +718,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="BANCO MACRO SA">BANCO MACRO SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
@@ -702,6 +727,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Nagarro SE">Nagarro SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>2,9%</div></td>
@@ -710,6 +736,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Lumibird Lumibird">Lumibird Lumibird</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,6%</div></td>
@@ -718,6 +745,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Fluidra SA">Fluidra SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
@@ -726,6 +754,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Alantra Partners SA">Alantra Partners SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
@@ -734,6 +763,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="PROSEGUR CIA DE SEGURIDA">Prosegur Cia De Segurida</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
@@ -742,6 +772,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Irish Continental Group PLC">Irish Continental Group PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
@@ -750,6 +781,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="TRANSPORT DE GAS DEL SUR">Transport De Gas Del Sur</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
@@ -758,6 +790,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="AMAZON.COM INC">AMAZON.COM INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -766,6 +799,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Block Inc">Block Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -774,6 +808,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="NVIDIA CORP">NVIDIA CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
@@ -782,6 +817,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="INVERSIONES Y REPRESENTA">Inversiones Y Representa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
@@ -790,6 +826,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="NETFLIX INC">NETFLIX INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
@@ -798,6 +835,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="MICROSOFT CORP">MICROSOFT CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
@@ -806,6 +844,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="NATIONAL EXPRESS GROUP P">National Express Group P</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -814,6 +853,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Suzano SA">Suzano SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
@@ -822,6 +862,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Ebro Foods SA">Ebro Foods SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -830,6 +871,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Kingspan Group PLC">Kingspan Group PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -838,6 +880,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Global Dominion Access SA">Global Dominion Access SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -846,6 +889,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Cresud SACIF y A">Cresud SACIF y A</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -854,6 +898,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="ENCE ENERGIA Y CELULOSA">Ence Energia Y Celulosa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -862,6 +907,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="YPF SOCIEDAD ANONIMA">Ypf Sociedad Anonima</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -870,6 +916,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="MTY Food Group Inc">MTY Food Group Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
@@ -878,6 +925,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Medartis Holding AG">Medartis Holding AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CHF</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
@@ -886,6 +934,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Linea Directa Aseguradora SA C">Linea Directa Aseguradora SA C</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -894,6 +943,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Craneware PLC">Craneware PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -902,6 +952,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="CIE Automotive SA">CIE Automotive SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -910,6 +961,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Laboratorios Farmaceuticos Rov">Laboratorios Farmaceuticos Rov</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -918,6 +970,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Viscofan SA">Viscofan SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -926,6 +979,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Tessenderlo Group SA">Tessenderlo Group SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -934,6 +988,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Maire Tecnimont SpA">Maire Tecnimont SpA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
@@ -942,6 +997,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Zignago Vetro SpA">Zignago Vetro SpA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -950,6 +1006,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="ATRYS HEALTH SA">ATRYS HEALTH SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -958,6 +1015,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Vidrala SA">Vidrala SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -966,6 +1024,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Miquel y Costas & Miquel SA">Miquel y Costas & Miquel SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -974,6 +1033,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Azkoyen SA">Azkoyen SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -982,6 +1042,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="RENTA CORP REAL ESTATE S">Renta Corp Real Estate S</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f1f6e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Inmobiliario</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -990,6 +1051,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Logwin AG">Logwin AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -998,6 +1060,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="Palantir Technologies Inc">Palantir Technologies Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1006,6 +1069,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 </tr><tr>
   <td title="KINDER MORGAN INC">Kinder Morgan Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1281,7 +1345,11 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0112231008';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -1298,16 +1366,21 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0112231008';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -1346,7 +1419,7 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0112231008', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -1359,33 +1432,21 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -1398,9 +1459,9 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -1737,16 +1798,54 @@ Es la cara visible de la firma en programas de divulgación financiera, destacan
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -1949,7 +2048,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

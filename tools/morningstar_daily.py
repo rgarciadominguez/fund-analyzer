@@ -15,7 +15,10 @@ from datetime import datetime, timezone
 import httpx
 
 _UA = {"User-Agent": "Mozilla/5.0"}
-_URL = ("https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon"
+# 2026-07-30: el host `tools.morningstar.es` (key 2nhcdckzon) dejó de servir la serie diaria
+# (301 → homepage global). El endpoint timeseries_price se movió al host del screener
+# `lt.morningstar.com` con la key `klr5zyak8x` (la misma que ya usan clases y quant-screener).
+_URL = ("https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x"
         "?id={isin}&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON")
 _ISIN = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
 
@@ -28,7 +31,14 @@ def fetch_series(isin: str) -> list:
         from tools.http_retry import get_json
         data = get_json(_URL.format(isin=isin), headers=_UA, timeout=25)
         return [(int(t), float(v)) for t, v in data if v]
-    except Exception:
+    except Exception as _e:
+        # Devolvemos [] para no romper llamantes, pero NO en silencio: un fallo de red
+        # (429/timeout tras reintentos de http_retry) es distinto de "sin cobertura". Se
+        # loguea a stderr para que sea visible; el healthcheck/freshness_guard lo cazan a
+        # nivel sistema. (No es el bug de host muerto — el host está en _URL, verificable.)
+        import sys as _sys
+        print(f"[morningstar_daily] fetch_series({isin}) sin datos: {type(_e).__name__} "
+              f"{str(_e)[:80]}", file=_sys.stderr)
         return []
 
 

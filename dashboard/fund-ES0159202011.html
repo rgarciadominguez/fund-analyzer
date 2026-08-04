@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -266,6 +280,8 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores con una alta tolerancia al riesgo que buscan un crecimiento de capital significativo a largo plazo. El inversor debe estar preparado para una volatilidad considerable y no debe esperar rendimientos estables o predecibles, dado el enfoque en microcaps y la estrategia de valor.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se dispone de información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Por lo tanto, no se puede evaluar el alineamiento de intereses a través de este mecanismo.</p></div></div>
 
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.80%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.75%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1 €</td></tr></tbody></table>
+
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="C" selected>C (TER 2,05%)</option><option value="B">B (TER 1,8%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Datos excluidos si hay inconsistencia entre TER y comisión de gestión.</p>
@@ -434,10 +450,10 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">El fondo MAGALLANES MICROCAPS EUROPE, FI (ES0159202011), gestionado por MAGALLANES VALUE INVESTORS, S.A., SGIIC, se posiciona como una propuesta de inversión de valor profundo en el segmento de las microcapitalizaciones europeas. Su filosofía de inversión declarada se centra en la identificación de compañías infravaloradas con sólidos fundamentales, operando en un universo de mercado caracterizado por su ineficiencia y menor cobertura analítica. El gestor busca empresas con ventajas competitivas duraderas, balances saneados y equipos directivos competentes, aplicando un riguroso análisis fundamental de abajo hacia arriba. El estilo es puramente <strong>value</strong>, con un horizonte temporal de inversión a <strong>largo plazo</strong>, típicamente de <strong>tres a cinco años o más</strong>, buscando capitalizar la reversión a la media del valor intrínseco. La tolerancia al riesgo es inherentemente elevada debido a la volatilidad y menor liquidez de las microcaps, aunque se mitiga mediante un margen de seguridad significativo en la valoración. Si bien no se especifica un *benchmark* exacto en los datos proporcionados, su naturaleza sugiere una referencia contra índices de microcapitalizaciones europeas, como el MSCI Europe Micro Cap, para evaluar su desempeño relativo. La cartera suele mantener una concentración moderada, con posiciones individuales que raramente superan el <strong>5%</strong> del patrimonio y un número total de valores que oscila entre <strong>30 y 50</strong> compañías, buscando así diversificación dentro de su nicho.</p><p class="pr">Lo que distingue a Magallanes Microcaps Europe de muchos de sus competidores radica en su enfoque <strong>contrarian</strong> y su profunda inmersión en el segmento de mercado de las microcapitalizaciones, donde la información es menos accesible y el análisis institucional es escaso. Este "edge" informacional y analítico se construye a través de un trabajo de campo intensivo y un escrutinio detallado de los estados financieros, buscando oportunidades que el mercado generalista pasa por alto. A diferencia de fondos más grandes, que a menudo evitan la iliquidez inherente a este segmento, Magallanes la abraza como una fuente de <strong>prima de valor</strong>, apuntando a descuentos sobre el valor intrínseco que pueden superar el <strong>20%</strong>. El fondo mantiene un sesgo geográfico claro hacia Europa, y aunque no se detallan sesgos sectoriales específicos, la estrategia de valor tiende a encontrar oportunidades en sectores más maduros o cíclicos, como industriales, consumo discrecional o servicios, donde las valoraciones pueden ser más deprimidas. Es importante destacar que, según los datos disponibles, el fondo no parece hacer un uso significativo de derivados para cobertura o apalancamiento, manteniendo una exposición directa y elevada a la renta variable.</p><p class="pr">La evolución del enfoque del fondo desde su inicio en 2015 ha mostrado una coherencia notable con su filosofía de valor, aunque con ajustes tácticos en respuesta a los ciclos de mercado. Durante periodos de incertidumbre, como la corrección de mercado de <strong>2018</strong> o la crisis del <strong>COVID-19 en 2020</strong>, la gestora ha mantenido una alta convicción en su estrategia de renta variable. De hecho, tras el impacto inicial de la pandemia, la exposición a renta variable del fondo aumentó de un <strong>88.88%</strong> en 2019 a un <strong>96.05%</strong> en 2020, lo que sugiere una activa capitalización de las oportunidades de compra en momentos de pánico. Las lecciones aprendidas de estas crisis parecen haber reforzado la importancia de la solidez del balance y la capacidad de generación de caja de las empresas, elementos clave para la supervivencia y el crecimiento en entornos volátiles. La gestora ha demostrado una capacidad para mantener su rumbo, evitando la tentación de rotar hacia estilos de inversión más de moda, lo que es consistente con una estrategia de valor a largo plazo.</p><p class="pr">Analizando la coherencia entre el discurso y la acción, los datos de asignación de activos y rotación de cartera ofrecen una perspectiva interesante. La gestora ha mantenido consistentemente una alta exposición a renta variable, oscilando entre el <strong>87.12%</strong> en 2017 y el <strong>97.58%</strong> en 2025, lo que valida su compromiso con una estrategia de capitalización de acciones. Sin embargo, la tasa de rotación de la cartera, que se mantuvo en niveles muy bajos (entre <strong>0% y 3%</strong>) hasta 2020, experimentó un incremento significativo en los años posteriores, alcanzando un <strong>24%</strong> en 2021, un <strong>20%</strong> en 2022 y un <strong>19%</strong> en 2023. Este aumento en la rotación podría interpretarse de varias maneras: o bien la gestora identificó un mayor número de oportunidades de valor que alcanzaron su precio objetivo, o bien hubo una necesidad de ajustar la cartera ante un entorno macroeconómico cambiante (inflación, subida de tipos, conflicto en Ucrania). Aunque una rotación elevada podría, en teoría, contradecir un enfoque de "comprar y mantener" a ultralargo plazo, en el contexto de microcaps y un entorno volátil, podría ser una señal de gestión activa para proteger el capital o aprovechar ineficiencias, siempre que los costes de transacción no erosionen el alfa generado. La posterior reducción a un <strong>3%</strong> en 2024 y un <strong>13%</strong> en 2025 sugiere una adaptación a las condiciones de mercado y una vuelta a una menor actividad transaccional cuando las oportunidades no son tan claras o las valoraciones se ajustan.</p><p class="pr">Aunque los datos proporcionados no detallan decisiones de inversión específicas a nivel de compañía, podemos inferir tres momentos clave de decisión basados en la asignación de activos y la rotación de cartera en relación con el contexto de mercado. El primer momento se sitúa en <strong>2020</strong>, en el apogeo de la incertidumbre por el COVID-19. Mientras el mercado global se paralizaba, el fondo incrementó su exposición a renta variable del <strong>88.88%</strong> al <strong>96.05%</strong>, lo que indica una fuerte convicción en su tesis de valor y la capacidad de desplegar capital en un mercado bajista, anticipando una recuperación. El segundo momento clave se observa en el periodo <strong>2021-2023</strong>, marcado por la recuperación post-pandemia, el aumento de la inflación y la invasión de Ucrania. Durante estos años, la tasa de rotación de la cartera se disparó a <strong>24%, 20% y 19%</strong> respectivamente. Esto sugiere una gestión muy activa, probablemente desinvirtiendo en posiciones que habían alcanzado su valor intrínseco o ajustando la cartera para mitigar riesgos y aprovechar nuevas oportunidades en un entorno de mercado volátil y cambiante. Finalmente, el tercer momento se da en <strong>2024</strong>, donde la rotación cae drásticamente a un <strong>3%</strong>, a pesar de la "notable resiliencia" de la economía global. Esta baja rotación podría indicar que la gestora encontró menos oportunidades de valor convincentes o que las posiciones existentes aún no habían alcanzado su precio objetivo, optando por la paciencia y la estabilidad de la cartera.</p><p class="pr">La evolución del mix de activos del fondo revela una estrategia de alta convicción en la renta variable a lo largo de su historia. Desde un <strong>87.12%</strong> de exposición a renta variable en 2017, el porcentaje ha fluctuado, pero siempre manteniéndose en niveles muy elevados, alcanzando un máximo del <strong>97.58%</strong> en 2025. Esta consistencia subraya la naturaleza de capitalización de acciones del fondo y su compromiso con la búsqueda de valor en el mercado de microcaps. La porción restante del patrimonio, presumiblemente en liquidez o renta fija de muy corto plazo, ha sido marginal, lo que implica que la gestora prefiere mantener el capital invertido en sus mejores ideas de renta variable en lugar de mantener grandes colchones de liquidez. Los cambios en la asignación, como el aumento de la exposición a renta variable en <strong>2020</strong> o las ligeras reducciones en <strong>2019</strong> y <strong>2023</strong>, parecen ser decisiones tácticas para aprovechar las valoraciones o gestionar el riesgo en momentos puntuales, pero siempre dentro del marco de una estrategia predominantemente de renta variable. Esta coherencia con la filosofía declarada de un fondo de valor de microcaps es un punto fuerte, ya que los inversores saben exactamente qué esperar en términos de exposición al mercado.</p><p class="pr">En cuanto al patrón de aciertos y errores, la ausencia de datos de rentabilidad directa dificulta una evaluación concluyente. No obstante, podemos inferir ciertos patrones. El aumento de la exposición a renta variable en <strong>2020</strong> (del <strong>88.88%</strong> al <strong>96.05%</strong>) durante la caída del mercado por el COVID-19, si fue seguido por una recuperación de los activos, podría considerarse un acierto estratégico, demostrando la capacidad de la gestora para "comprar barato" cuando otros venden. Por otro lado, el periodo de alta rotación entre <strong>2021 y 2023</strong> (con tasas del <strong>24%, 20% y 19%</strong>) podría ser un arma de doble filo. Si estas rotaciones generaron un alfa significativo, indicarían una gran agilidad y capacidad de adaptación. Sin embargo, si no se tradujeron en un rendimiento superior, podrían señalar un sesgo hacia la sobreactividad o una dificultad para mantener posiciones a largo plazo en un entorno volátil, lo que podría erosionar el valor a través de los costes de transacción. La posterior reducción de la rotación en <strong>2024</strong> a un <strong>3%</strong> sugiere un equipo que aprende y ajusta su nivel de actividad en función de las oportunidades percibidas, lo que denota una gestión reflexiva y no meramente reactiva.</p><p class="pr">En conclusión evaluativa, el fondo MAGALLANES MICROCAPS EUROPE, FI es apropiado para inversores con un perfil de riesgo <strong>alto</strong> y un horizonte de inversión <strong>a muy largo plazo</strong>, que buscan exposición a un segmento de mercado menos eficiente y con potencial de crecimiento significativo. Es ideal para aquellos que valoran una estrategia de <strong>valor profundo</strong> y están dispuestos a tolerar la volatilidad inherente a las microcapitalizaciones. En ciclos alcistas, se esperaría que el fondo capture una parte significativa del upside, e incluso lo supere, dada su alta exposición a renta variable (consistentemente por encima del <strong>90%</strong>) y su enfoque en compañías infravaloradas. En ciclos bajistas, la naturaleza de microcaps y la alta beta podrían resultar en mayores caídas, aunque el margen de seguridad inherente a la estrategia de valor debería ofrecer cierta protección a largo plazo. Las principales "red flags" incluyen la <strong>alta concentración</strong> en renta variable sin un colchón significativo de liquidez o renta fija, lo que limita la flexibilidad en caídas severas, y la <strong>variabilidad en la rotación de cartera</strong>, que, si bien puede ser oportunista, requiere un escrutinio constante para asegurar que no se traduzca en costes excesivos o en una desviación de la filosofía de inversión a largo plazo. La falta de datos de rentabilidad específicos impide una evaluación cuantitativa completa de su historial de aciertos y errores, pero la consistencia en la asignación de activos sugiere una gestión disciplinada en su enfoque de valor.</p>
+    <p class="pr">La estrategia del fondo ha demostrado una notable resiliencia a lo largo de los años, adaptándose a diversos contextos de mercado. Se caracteriza por una gestión que combina estabilidad en las posiciones con ajustes selectivos, evidenciados por la rotación de cartera, logrando mantener un valor liquidativo consistentemente alto.</p>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;En los últimos años, la economía mundial ha demostrado una notable resiliencia a pesar de haber estado sujeta a grandes eventos negativos...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora del Fondo, Informe periódico 2024</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La economía mundial ha mostrado una resiliencia sorprendente en 2025, impulsada por la mejora de las condiciones financieras, las fuertes...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora del Fondo, Informe periódico 2025</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;2022 ha sido un año de eventos extraordinarios, claramente marcado por la invasión rusa de Ucrania y la tragedia humanitaria consecuencia...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora del Fondo, Informe periódico 2022</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;En los últimos años, la economía mundial ha demostrado una notable resiliencia a pesar de haber estado sujeta a grandes eventos negativos...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora del Fondo, Informe periódico 2024</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La economía mundial ha mostrado una resiliencia sorprendente en 2025, impulsada por la mejora de las condiciones financieras, las fuertes...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora del Fondo, Informe periódico 2025</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;2022 ha sido un año de eventos extraordinarios, claramente marcado por la invasión rusa de Ucrania y la tragedia humanitaria consecuencia...&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Gestora del Fondo, Informe periódico 2022</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -502,13 +518,16 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">10.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">11.5</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.60</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.39</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.86</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.54</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.64</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.65</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.40</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.64</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-12.6</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-21.4</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">9.8%</strong> · 3A <strong style="color:var(--ink);">10.2%</strong> · 5A <strong style="color:var(--ink);">7.1%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Small · Value</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:#9aa6b4;line-height:1.1;">Silver</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★★★</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">5 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Europe Small-Cap Equity</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">STOXX Europe 600</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">11.61</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">18.01</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.90</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.28</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.50</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">1.70</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">4.50</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">11.04</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">573 M€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:31%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+2.35%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.51%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:27%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-2.02%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:41%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.07%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 53% · caídas 74% · ratio 0.72</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2018</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:12%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">3%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">24%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:83%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">20%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:79%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">19%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:12%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">3%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:54%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">13%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 14%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">53%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:53%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">74%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:74%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:59%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">33.8% <span style="color:var(--navy);">(+14)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Materiales básicos</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:78%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:17%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">26.3% <span style="color:var(--navy);">(+21)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:55%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:21%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">18.6% <span style="color:var(--navy);">(+12)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo defensivo</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:23%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:23%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">7.9% <span style="color:var(--navy);">(+0)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:20%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:71%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.7% <span style="color:#c0552e;">(-17)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:13%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:9%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">4.3% <span style="color:var(--navy);">(+1)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:6%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:37%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">2.0% <span style="color:#c0552e;">(-10)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Inmobiliario</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:2%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:4%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">0.5% <span style="color:#c0552e;">(-1)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> STOXX Europe 600 · (dif. en pp)</div></div></div></div>
+
   <div class="sr">Todas las posiciones (42)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="ATALAYA MINING COPPER S.A">Atalaya Mining Copper S.a</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:49px;background:#0c2340;"></div>6,2%</div></td>
@@ -517,6 +536,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="IBERSOL SGPS SA">IBERSOL SGPS SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:47px;background:#0c2340;"></div>6,0%</div></td>
@@ -525,6 +545,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="INTERNATIONAL PETROLEUM CORP">International Petroleum Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:38px;background:#0c2340;"></div>4,8%</div></td>
@@ -533,6 +554,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="CEMENTIR HOLDING NV (CEM IM)">Cementir Holding Nv (cem Im)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,7%</div></td>
@@ -541,6 +563,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="KSB AG-VORZUG">KSB AG-VORZUG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:35px;background:#0c2340;"></div>4,5%</div></td>
@@ -549,6 +572,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="DEUTZ AG">DEUTZ AG</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>4,0%</div></td>
@@ -557,6 +581,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="SONAECOM SGPS SA">Sonaecom Sgps Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,7%</div></td>
@@ -565,6 +590,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="SOL SPA">SOL SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
@@ -573,6 +599,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="Cofide">Cofide</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
@@ -581,6 +608,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="ITALIAN WINE BRANDS SPA">Italian Wine Brands Spa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:23px;background:#0c2340;"></div>2,9%</div></td>
@@ -589,6 +617,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="MIQUEL Y COSTAS AND MIQUEL SA">Miquel Y Costas And Miquel Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -597,6 +626,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="TRAVIS PERKINS PLC">Travis Perkins Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -605,6 +635,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="PEUGEOT INVEST">PEUGEOT INVEST</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:21px;background:#0c2340;"></div>2,7%</div></td>
@@ -613,6 +644,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="PROSEGUR CASH SA">Prosegur Cash Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
@@ -621,6 +653,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="INCHCAPE PLC">INCHCAPE PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,5%</div></td>
@@ -629,6 +662,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="DEEP VALUE DRILLER AS(DVD NO)">Deep Value Driller As(dvd No)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>NOK</td>
   <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
@@ -637,6 +671,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="STABILUS SA">STABILUS SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -645,6 +680,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="C AND C GROUP PLC">C And C Group Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -653,6 +689,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="IBERPAPEL GESTION SA">Iberpapel Gestion Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
@@ -661,6 +698,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="BANCA SISTEMA SPA">Banca Sistema Spa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
@@ -669,6 +707,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="ASHMORE GROUP PLC">Ashmore Group Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
@@ -677,6 +716,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="Recticel SA">Recticel SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,1%</div></td>
@@ -685,6 +725,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="IBSTOCK PLC">IBSTOCK PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
@@ -693,6 +734,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="VETROPACK">VETROPACK</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CHF</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -701,6 +743,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="FNM SPA">FNM SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -709,6 +752,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="PRIM SA">PRIM SA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -717,6 +761,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="WUESTENROT & WUERTTEMBERG">Wuestenrot & Wuerttemberg</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -725,6 +770,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="CAMELLIA PLC">CAMELLIA PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -733,6 +779,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="FRANCOTYP-POSTALIA HOLDING AG">Francotyp-postalia Holding Ag</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -741,6 +788,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="STO SE & CO. KGAA-PREF SHRS">Sto Se & Co. Kgaa-pref Shrs</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -749,6 +797,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="Fleury Michon">Fleury Michon</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -757,6 +806,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="EDAG ENGINEERING GROUP AG">Edag Engineering Group Ag</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -765,6 +815,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="VILLEROY & BOCH AG -PREF">Villeroy & Boch Ag -pref</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -773,6 +824,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="ELICA SPA">ELICA SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -781,6 +833,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="FERRONORDIC MACHINES AB">Ferronordic Machines Ab</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -789,6 +842,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="ROTTNEROS AB (SEK)">Rottneros Ab (sek)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -797,6 +851,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="KONGSBERG AUTOMOTIVE ASA">Kongsberg Automotive Asa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>NOK</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -805,6 +860,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="CHARACTER GROUP PLC">Character Group Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -813,6 +869,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="KAPSCH TRAFFIC">KAPSCH TRAFFIC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -821,6 +878,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="RENTA CORP REAL ESTATE">Renta Corp Real Estate</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -829,6 +887,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="SHELF DRILLING LTD">Shelf Drilling Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>NOK</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -837,6 +896,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 </tr><tr>
   <td title="ROTTNEROS AB (SEK)">Rottneros Ab (sek)</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1138,7 +1198,11 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0159202011';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -1155,16 +1219,21 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0159202011';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -1203,7 +1272,7 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0159202011', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -1216,33 +1285,21 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -1255,9 +1312,9 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -1594,16 +1651,54 @@ Los criterios de selección priorizan negocios sólidos con ventajas competitiva
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -1806,7 +1901,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

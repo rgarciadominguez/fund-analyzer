@@ -278,6 +278,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor que busca exposición a renta variable europea de gran capitalización con gestión activa que ha demostrado batir al MSCI Europe de forma consistente, y que entiende y acepta la complejidad de una estrategia 130/30 con derivados y ventas en corto. Horizonte recomendado de 5 años. Dado el coste, es especialmente apto para quien pueda acceder a una clase institucional más barata; en la clase D (perf) el peaje de comisiones es difícil de justificar salvo convicción muy alta en el equipo.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No es un fondo de autor con propiedad personal: es un producto institucional de JPMorgan Asset Management gestionado por un equipo. La alineación proviene de la continuidad del equipo (Barakos desde el lanzamiento en 2007) y de la reputación y los recursos de research de la casa, no de skin-in-the-game personal documentado.</p></div></div>
 
+  
+
   <div class="sr">TER por clase (snapshot actual)</div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com-snap"></canvas></div>
     <p style="font-size:10px;color:var(--ink-4);margin-top:6px;font-style:italic;">* Solo TER disponible (gestora no publica descomposición).</p>
@@ -313,7 +315,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   </div>
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">—</div><div class="kpi-sub">Junio 2007 — presente</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">19</div><div class="kpi-sub">Junio 2007 — presente</div></div>
     <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
     <div class="kpi-cell"><div class="kpi-label">Peor año</div><div class="kpi-value neg" id="kpi-worst">—</div><div class="kpi-sub" id="kpi-worst-sub">Morningstar daily</div></div>
     <div class="kpi-cell"><div class="kpi-label">Mejor año</div><div class="kpi-value pos" id="kpi-best">—</div><div class="kpi-sub" id="kpi-best-sub">Morningstar daily</div></div>
@@ -851,7 +853,11 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'LU0289214628';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -868,16 +874,21 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py LU0289214628';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -916,7 +927,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py LU0289214628', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -929,33 +940,21 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -968,9 +967,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -1557,7 +1556,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

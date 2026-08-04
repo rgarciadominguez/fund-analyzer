@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -265,6 +279,8 @@ El fondo persigue oportunidades en un universo global, con una rotación de cart
   
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Este fondo es adecuado para inversores con una tolerancia al riesgo moderada-alta que buscan una exposición diversificada a renta variable internacional. Se recomienda un horizonte de inversión a medio-largo plazo para poder beneficiarse de la estrategia de valor y la gestión activa. Los inversores no deberían esperar rentabilidades garantizadas ni una estrategia de inversión conservadora, dado el enfoque en mercados con potencial de crecimiento y la volatilidad inherente a la renta variable.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No se proporciona información concreta sobre coinversión del gestor o porcentaje de capital propio invertido en el fondo. Se indica que la gestora AZVALOR ASSET MANAGEMENT, SGIIC, S.A. delega la selección de valores a diversos sub-asesores especializados, lo que sugiere un modelo de negocio centrado en la selección y supervisión de gestores externos.</p></div></div>
+
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">2.32%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">2.25%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">5.000 €</td></tr></tbody></table>
 
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 2,22%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
@@ -499,10 +515,10 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr">El fondo AZVALOR MANAGERS, FI, gestionado por AZVALOR ASSET MANAGEMENT, SGIIC, S.A., opera bajo una <strong>filosofía de inversión en valor</strong> profundamente arraigada, buscando compañías infravaloradas por el mercado con un significativo potencial de revalorización a largo plazo. Este enfoque se caracteriza por una perspectiva <strong>contrarian</strong>, invirtiendo en activos que el mercado ha penalizado o ignorado, pero que la gestora considera que poseen un valor intrínseco superior a su cotización actual. La tesis de inversión se centra en un análisis fundamental riguroso, priorizando la calidad del negocio, la solidez financiera y la capacidad de generación de caja, con un horizonte temporal de inversión que trasciende las fluctuaciones de corto plazo. La gestora ha enfatizado consistentemente la importancia de la paciencia y la convicción en sus tesis, incluso en periodos de bajo rendimiento relativo, como se observó en 2024, donde el enfoque de valor generó "retornos modestos" pero "construyó un potencial de revalorización" (Contexto Mercado 2024). La gestión del riesgo se integra mediante la diversificación de las fuentes de valor y la atención a los márgenes de seguridad en la valoración, incorporando herramientas de control de riesgo más explícitas, incluyendo consideraciones ESG, desde 2022 (Contexto Mercado 2022).</p><p class="pr">La <strong>diferenciación</strong> de AZVALOR MANAGERS, FI, respecto a sus pares reside en su aproximación global y flexible, sin ataduras a índices de referencia específicos, lo que le permite buscar oportunidades de valor en cualquier geografía o sector. Esta libertad se traduce en una cartera que puede presentar sesgos sectoriales o geográficos significativos, dependiendo de dónde la gestora identifique las mayores ineficiencias de valoración. El fondo mantiene una <strong>alta concentración en renta variable</strong>, con un <strong>85.39%</strong> en 2024 y <strong>76.14%</strong> en 2025, complementada con una porción de renta fija que ha oscilado entre el <strong>5.66%</strong> y el <strong>15.33%</strong> en los últimos años, utilizada probablemente para la gestión de liquidez o como refugio en momentos de incertidumbre. La rotación de la cartera, que ha sido notablemente activa en ciertos periodos, como el <strong>118%</strong> en 2023 y el <strong>84%</strong> en 2024, sugiere una gestión dinámica en la búsqueda de valor, aunque siempre bajo el paraguas de su filosofía de largo plazo.</p><p class="pr">La <strong>estrategia de inversión</strong> del fondo ha mostrado adaptabilidad a lo largo de diferentes ciclos de mercado, manteniendo siempre su núcleo de valor. Tras un periodo de volatilidad en 2018, que resultó en una rentabilidad del <strong>-5%</strong> (Anexo explicativo 2018), el fondo inició un viraje en su cartera. Entre <strong>2019 y 2020</strong>, se observó una entrada significativa en sectores cíclicos y de ocio, con incorporaciones como <strong>CINEPLEX INC (5.13%)</strong> y <strong>HAWAIIAN HOLDINGS INC (0.67%)</strong>, junto a empresas de energía como <strong>EQT CORPORATION (1.03%)</strong> y mineras como <strong>FREEPORT-MCMORAN INC (0.66%)</strong>. Este movimiento reflejó una tesis de recuperación post-crisis o de infravaloración en sectores sensibles al ciclo económico, desinvirtiendo simultáneamente en otras posiciones como <strong>VILLAGE ROADSHOW LTD (-1.46%)</strong> y <strong>APERGY CORP (-1.36%)</strong>.</p><p class="pr">Posteriormente, entre <strong>2020 y 2021</strong>, la estrategia se inclinó hacia temáticas específicas con alto potencial. La entrada de <strong>SPROTT PHYSICAL URANIUM TRUST (0.84%)</strong> y <strong>CIVITAS RESOURCES INC (2.04%)</strong> evidenció una apuesta por el sector energético y de materias primas, posiblemente anticipando un repunte de la demanda o una revalorización de estos activos. Este periodo también vio la entrada de <strong>AMA GROUP LTD (5.48%)</strong>, una posición significativa, mientras se reducían o eliminaban otras participaciones como <strong>JEFFERIES FINANCIAL GROUP INC (-1.53%)</strong>. Un cambio notable se produjo entre <strong>2021 y 2022</strong>, cuando el fondo incorporó <strong>GERMAN TREASURY BILL (5.66%)</strong> y un conjunto de mineras de oro como <strong>BARRICK GOLD CORPORATION (1.07%)</strong> y <strong>GOLD FIELDS LTD (0.83%)</strong>. Esta reorientación, que también incluyó la reducción de posiciones como <strong>AMA GROUP LTD (-55% de su peso anterior)</strong> y <strong>CINEPLEX INC (-55% de su peso anterior)</strong>, sugiere una postura más defensiva y una búsqueda de activos refugio en un entorno de mercado caracterizado por la volatilidad y la incertidumbre macroeconómica (Contexto Mercado 2022).</p><p class="pr">La <strong>estrategia actual</strong> del fondo, según los informes más recientes de 2024 y 2025, se mantiene fiel a su enfoque de valor en un entorno de mercado que la gestora percibe con <strong>altas valoraciones</strong>, especialmente en los principales índices estadounidenses, y una <strong>concentración sin precedentes</strong> en un número reducido de valores (Contexto Mercado 2025). Esta visión macroeconómica de cautela se traduce en un posicionamiento que busca activamente compañías con un "potencial de revalorización" significativo, evitando las áreas de burbuja o sobrevaloración (Contexto Mercado 2024). La cartera actual mantiene una exposición predominante a la renta variable, con un <strong>76.14%</strong> en 2025, pero también una asignación relevante a renta fija del <strong>12.95%</strong>, lo que podría indicar una estrategia de preservación de capital o de aprovechamiento de oportunidades en el mercado de deuda. Los movimientos recientes entre <strong>2024 y 2025</strong> incluyen la entrada de <strong>VALTERRA PLATINUM LIMITED (1.01%)</strong> y <strong>HAMILTON INSURANCE GROUP LTD (0.65%)</strong>, mientras se desinvierte en <strong>ALLEGIANT CO (-1.97%)</strong> y <strong>BARRICK GOLD CORPORATION (-1.93%)</strong>. Estos cambios sugieren una rotación dentro del sector de materias primas y la incorporación de nuevas tesis en el sector asegurador, buscando valor en segmentos específicos que aún no reflejan su potencial intrínseco, en línea con la visión contrarian de la gestora frente a las valoraciones generales del mercado. La gestora ha manifestado su preocupación por los riesgos asociados a la "burbuja de la IA" y las "cargas de la deuda soberana" (Contexto Mercado 2023), lo que refuerza su posicionamiento en activos con valor fundamental sólido y menor correlación con las tendencias de mercado dominantes.</p>
+    <p class="pr">El fondo Azvalor Managers FI se caracteriza por una estrategia de inversión en valor, buscando compañías infravaloradas con potencial de revalorización. A pesar de las altas valoraciones del mercado y la concentración en ciertos sectores, la gestora mantiene su enfoque, adaptándose a los cambios regulatorios y del entorno macroeconómico global.</p>
   </div>
 
-  <p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El enfoque de inversión en valor de Azvalor generó retornos modestos en 2024, pero construyó un potencial de revalorización.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Azvalor, Informe periódico 2024</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Los riesgos clave incluyen la dinámica de la burbuja de la IA, la concentración del índice y las cargas de la deuda soberana.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Azvalor, Informe periódico 2023</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La cartera ofrecía una oportunidad extraordinaria.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Azvalor, Informe periódico 2016</span></p>
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El enfoque de inversión en valor de Azvalor generó retornos modestos en 2024, pero construyó un potencial de revalorización.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Azvalor, Informe periódico 2024</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Los riesgos clave incluyen la dinámica de la burbuja de la IA, la concentración del índice y las cargas de la deuda soberana.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Azvalor, Informe periódico 2023</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La cartera ofrecía una oportunidad extraordinaria.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Azvalor, Informe periódico 2016</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
@@ -555,7 +571,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">167</div><div class="kpi-sub">vs media hist. 128</div></div>
     <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">34,5%</div><div class="kpi-sub">vs media hist. 30,9%</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">4,5%</div><div class="kpi-sub">vs media hist. 9,4%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">57,7%</div><div class="kpi-sub">Renta variable · Otros 19,3%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">77,0%</div><div class="kpi-sub">Renta variable</div></div>
   </div>
 
   <div class="col2 mb20">
@@ -563,13 +579,16 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">12.3</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">13.9</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.15</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.75</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">2.21</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.27</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.82</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.88</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">6.65</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">5.77</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-19.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-19.4</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">33.5%</strong> · 3A <strong style="color:var(--ink);">18.0%</strong> · 5A <strong style="color:var(--ink);">12.9%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Mid · Value</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:#9aa6b4;line-height:1.1;">Silver</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★★★</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">5 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Global Small/Mid-Cap Equity</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">10.15</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">24.36</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">1.15</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.90</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.95</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.98</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">6.33</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">17.26</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">3.4 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:26%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+1.98%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.63%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:1%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-0.07%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:45%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.49%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 38% · caídas 7% · ratio 5.69</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2019</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:17%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">20%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:25%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">29%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:16%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">19%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:3%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">1%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">118%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:71%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">84%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:68%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">80%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 50%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">38%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:38%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">7%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:7%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Materiales básicos</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:73%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:10%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">22.9% <span style="color:var(--navy);">(+20)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Energía</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:59%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:12%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">18.4% <span style="color:var(--navy);">(+15)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:46%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:35%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">14.3% <span style="color:var(--navy);">(+3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:45%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:29%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">13.9% <span style="color:var(--navy);">(+5)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:39%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:48%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">12.3% <span style="color:#c0552e;">(-3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Inmobiliario</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:24%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:5%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">7.4% <span style="color:var(--navy);">(+6)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Tecnología</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:11%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:100%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">3.4% <span style="color:#c0552e;">(-28)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo defensivo</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:9%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:16%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">2.9% <span style="color:#c0552e;">(-2)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> MSCI World · (dif. en pp)</div></div></div></div>
+
   <div class="sr">Todas las posiciones (167)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="RESTO RENTA VARIABLE EXTERIOR">Resto Renta Variable Exterior</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:138px;background:#0c2340;"></div>17,3%</div></td>
@@ -577,7 +596,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span style="background:rgba(26,77,46,0.22999999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+16,9%</span></td>
 </tr><tr>
   <td title="RESTO PARTICIPACIONES EXTERIOR">Resto Participaciones Exterior</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
@@ -585,7 +605,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span style="background:rgba(26,77,46,0.21299999999999997);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+2,7%</span></td>
 </tr><tr>
   <td title="RESTO PARTICIPACIONES EXTERIOR">Resto Participaciones Exterior</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Participaciones</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -593,7 +614,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span style="background:rgba(26,77,46,0.179);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+2,0%</span></td>
 </tr><tr>
   <td title="ESTADO ESPAÑOL">ESTADO ESPAÑOL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Bonos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -601,7 +623,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="ESTADO ESPAÑOL">ESTADO ESPAÑOL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Letras</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -609,7 +632,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="FEDERAL REPUBLIC OF">Federal Republic Of</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Bonos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -618,6 +642,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="RESTO RENTA VARIABLE EXTERIOR">Resto Renta Variable Exterior</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -625,7 +650,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span style="background:rgba(26,77,46,0.14250000000000002);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,2%</span></td>
 </tr><tr>
   <td title="ESTADO ESPAÑOL">ESTADO ESPAÑOL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Bonos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -633,7 +659,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="ESTADO ESPAÑOL">ESTADO ESPAÑOL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Bonos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -641,7 +668,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="FEDERAL REPUBLIC OF">Federal Republic Of</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Bonos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
@@ -650,6 +678,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="IAMGOLD CORP">IAMGOLD CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -658,6 +687,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="RESTO RENTA VARIABLE EXTERIOR">Resto Renta Variable Exterior</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -665,7 +695,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span style="background:rgba(26,77,46,0.124);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,9%</span></td>
 </tr><tr>
   <td title="ESTADO ESPAÑOL">ESTADO ESPAÑOL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Bonos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -673,7 +704,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="ESTADO ESPAÑOL">ESTADO ESPAÑOL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Letras</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -682,6 +714,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="VALTERRA PLATINUM LIMITED">Valterra Platinum Limited</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -690,6 +723,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="VALARIS LTD">VALARIS LTD</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -698,6 +732,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="M/I HOMES INC">M/I HOMES INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -706,6 +741,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="HARLEY-DAVIDSON FINL SER">Harley-davidson Finl Ser</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -714,6 +750,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="RLJ LODGING">RLJ LODGING</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
@@ -722,6 +759,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="CENTERRA GOLD INC">Centerra Gold Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
@@ -729,7 +767,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span style="background:rgba(26,77,46,0.11499999999999999);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,7%</span></td>
 </tr><tr>
   <td title="ESTADO ESPAÑOL">ESTADO ESPAÑOL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Bonos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -738,6 +777,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SEADRILL LTD">SEADRILL LTD</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
@@ -746,6 +786,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="GLOBAL SHIP LEASE INC">Global Ship Lease Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -754,6 +795,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="HAMILTON INSURANCE GROUP LTD">Hamilton Insurance Group Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
@@ -762,6 +804,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="RADIAN GROUP INC">Radian Group Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -770,6 +813,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="RYERSON HOLDING CORP">Ryerson Holding Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
@@ -778,6 +822,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="EQUINOX GOLD CORP">Equinox Gold Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -786,6 +831,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SIBANYE STILLWATER LTD">Sibanye Stillwater Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -793,7 +839,8 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   <td><span style="background:rgba(26,77,46,0.1035);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,5%</span></td>
 </tr><tr>
   <td title="ESTADO ESPAÑOL">ESTADO ESPAÑOL</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Letras</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
@@ -802,6 +849,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="CROMWELL PROPERTY GROUP">Cromwell Property Group</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -810,6 +858,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="DUNDEE CORP">DUNDEE CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -818,6 +867,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MOTORCAR PARTS OF AMERICA IN">Motorcar Parts Of America In</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -826,6 +876,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="IMPALA PLATINUM HOLDINGS">Impala Platinum Holdings</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -834,6 +885,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="HAMMERSON PLC">HAMMERSON PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -842,6 +894,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="RESTO RENTA VARIABLE EXTERIOR">Resto Renta Variable Exterior</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -850,6 +903,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BIRCHCLIFF ENERGY LTD">Birchcliff Energy Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
@@ -858,6 +912,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="KB HOME">KB HOME</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -866,6 +921,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="TERNIUM S.A.">TERNIUM S.A.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -874,6 +930,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="AKER ASA">AKER ASA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>NOK</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -882,6 +939,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ANTERO RESOURCES CORP">Antero Resources Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -890,6 +948,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="CENTRUS ENERGY CORP">Centrus Energy Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -898,6 +957,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="WEST FRASER TIMBER CO LTD">West Fraser Timber Co Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -906,6 +966,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ANGLO AMERICAN PLC">Anglo American Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -914,6 +975,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ANGLO AMERICAN PLATINUM LTD">Anglo American Platinum Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -922,6 +984,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="TSMC">TSMC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
@@ -930,6 +993,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="KASPI.KZ JSC">KASPI.KZ JSC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -938,6 +1002,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SUZANO PAPEL E CELULOSE SA">Suzano Papel E Celulose Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -946,6 +1011,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="FAIRFAX INDIA HOLDINGS CORPSVS">Fairfax India Holdings Corpsvs</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -954,6 +1020,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MAJOR DRILLING GROUP INTERNATI">Major Drilling Group Internati</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
@@ -962,6 +1029,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="HOWARD HUGHES HOLDINGS INC">Howard Hughes Holdings Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -970,6 +1038,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="TITAN INTERNATIONAL INC">Titan International Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -978,6 +1047,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="INTERNATIONAL PETROLEUM CORP/S">International Petroleum Corp/s</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -986,6 +1056,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SPROTT PHYSICAL URANIUM TRUST">Sprott Physical Uranium Trust</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
@@ -994,6 +1065,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ALAMOS GOLD INC">ALAMOS GOLD INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1002,6 +1074,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="CORE NATURAL RESOURCES INC">Core Natural Resources Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1010,6 +1083,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="RESTO RENTA VARIABLE EXTERIOR">Resto Renta Variable Exterior</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1018,6 +1092,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="TRAVIS PERKINS PLC">Travis Perkins Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1026,6 +1101,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="IVANHOE ELECTRIC INC / US">Ivanhoe Electric Inc / US</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1034,6 +1110,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="DOUGLAS ELLIMAN INC">Douglas Elliman Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1042,6 +1119,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="UNICREDIT SPA">UNICREDIT SPA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1050,6 +1128,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="FERROGLOBE PLC">FERROGLOBE PLC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1058,6 +1137,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="GREENFIRE RESOURCES LTD">Greenfire Resources Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1066,6 +1146,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="PINDUODUO INC">PINDUODUO INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1074,6 +1155,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="COOL CO LTD">COOL CO LTD</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1082,6 +1164,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="WESTAIM CORP/THE">Westaim Corp/the</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
@@ -1090,6 +1173,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="CIA. PARANAENSE DE ENERGIA">Cia. Paranaense De Energia</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1098,6 +1182,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="URANIUM ENERGY CORP">Uranium Energy Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1106,6 +1191,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="HOOKER FURNISHINGS CORP">Hooker Furnishings Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1114,6 +1200,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BANCO BRADESCO SA">Banco Bradesco Sa</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1122,6 +1209,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="FORAN MINING CORP">Foran Mining Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1130,6 +1218,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="NMI HOLDINGS INC">Nmi Holdings Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1138,6 +1227,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SCHLUMBERGER NV">SCHLUMBERGER NV</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1146,6 +1236,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="CHESAPEAKE ENERGY CORP">Chesapeake Energy Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1154,6 +1245,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ALPHA METALLURGICAL RESOURCES">Alpha Metallurgical Resources</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1162,6 +1254,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="D-MARKET ELEKTRONIK HIZMETLER">D-market Elektronik Hizmetler</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1170,6 +1263,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ENERGY FUELS INC/CANADA">Energy Fuels Inc/canada</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1178,6 +1272,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="HUDBAY MINERALS INC">Hudbay Minerals Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1186,6 +1281,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SOUTHWEST AIRLINES CO">Southwest Airlines Co</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1194,6 +1290,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ENDEAVOUR MINING CORP">Endeavour Mining Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1202,6 +1299,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="GUARDIAN METAL RESOURCES PLC">Guardian Metal Resources Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1210,6 +1308,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MATADOR RESOURCES">Matador Resources</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1218,6 +1317,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="DARLING INGREDIENTS INC">Darling Ingredients Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1226,6 +1326,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="COMSTOCK RESOURCES INC">Comstock Resources Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1234,6 +1335,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="G MINING VENTURES CORP">G Mining Ventures Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1242,6 +1344,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="METALLUS INC">METALLUS INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1250,6 +1353,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BROADRIDGE FINANCIAL SOLUTIONS">Broadridge Financial Solutions</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1258,6 +1362,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="NEXGEN ENERGY LTD">Nexgen Energy Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1266,6 +1371,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="IVANHOE MINES LTD">Ivanhoe Mines Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1274,6 +1380,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ALGOMA STEEL GROUP INC">Algoma Steel Group Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1282,6 +1389,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BRINK'S CO/THE">BRINK'S CO/THE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1290,6 +1398,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="API GROUP CORP">API GROUP CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1298,6 +1407,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="PALADIN ENERGY LTD">Paladin Energy Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1306,6 +1416,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SUNCOR ENERGY INC">Suncor Energy Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
@@ -1314,6 +1425,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="DIAMONDBACK ENERGY INC">Diamondback Energy Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1322,6 +1434,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ARTEMIS GOLD INC">Artemis Gold Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1330,6 +1443,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SKEENA RESOURCES LTD">Skeena Resources Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1338,6 +1452,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="US PHYSICAL THERAPY INC">US Physical Therapy Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1346,6 +1461,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MONTAGE GOLD CORP">Montage Gold Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1354,6 +1470,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="LUNDIN MINING CORP">Lundin Mining Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1362,6 +1479,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MURPHY USA INC">MURPHY USA INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1370,6 +1488,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="LOUISIANA-PACIFIC CORP">Louisiana-pacific Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1378,6 +1497,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BOOT BARN HOLDINGS INC">Boot Barn Holdings Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1386,6 +1506,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="VALMONT INDUSTRIES INC">Valmont Industries Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1394,6 +1515,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="FREEPORT-MCMORAN INC">Freeport-mcmoran Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1402,6 +1524,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="NAC KAZATOMPROM JSC">Nac Kazatomprom Jsc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1410,6 +1533,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ARMSTRONG WORLD INDUSTRIES INC">Armstrong World Industries Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1418,6 +1542,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BELDEN INC">BELDEN INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1426,6 +1551,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="HAIER SMART HOME CO LTD">Haier Smart Home Co Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1434,6 +1560,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MODINE MANUFACTURING CO">Modine Manufacturing Co</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1442,6 +1569,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="DEEP YELLOW LTD">DEEP YELLOW LTD</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1450,6 +1578,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="GENERAC HOLDINGS INC">Generac Holdings Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1458,6 +1587,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MOSAIC CO/THE">MOSAIC CO/THE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1466,6 +1596,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ORLA MINING LTD">ORLA MINING LTD</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1474,6 +1605,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="DENISON MINES CORP">Denison Mines Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1482,6 +1614,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SEI INVESTMENTS CO">Sei Investments Co</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1490,6 +1623,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="AUTOCANADA INC">AUTOCANADA INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1498,6 +1632,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="AMERIGO RESOURCES LTD">Amerigo Resources Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1506,6 +1641,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="WATSCO INC">WATSCO INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1514,6 +1650,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MSA SAFETY INC">MSA SAFETY INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1522,6 +1659,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="CRANE NXT CO">CRANE NXT CO</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1530,6 +1668,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="FIRST QUANTUM MINERALS LTD">First Quantum Minerals Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1538,6 +1677,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BANNERMAN ENERGY LTD">Bannerman Energy Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1546,6 +1686,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="OREZONE GOLD CORP">Orezone Gold Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1554,6 +1695,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="NOVAGOLD RESOURCES INC">Novagold Resources Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1562,6 +1704,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="AGCO CORP">AGCO CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1570,6 +1713,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ERDENE RESOURCE DEVELOPMENT CO">Erdene Resource Development Co</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1578,6 +1722,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="EXTREME NETWORKS INC">Extreme Networks Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1586,6 +1731,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="JAMES RIVER GROUP HOLDINGS INC">James River Group Holdings Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1594,6 +1740,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="PERMIAN RESOURCES CORP">Permian Resources Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1602,6 +1749,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="FLOOR & DECOR HOLDINGS INC">Floor & Decor Holdings Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1610,6 +1758,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="NEXXEN INTERNATIONAL LTD">Nexxen International Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1618,6 +1767,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="POWER METALLIC MINES INC">Power Metallic Mines Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1626,6 +1776,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="TRILOGY METALS INC">Trilogy Metals Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1634,6 +1785,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="INTREPID POTASH INC">Intrepid Potash Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1642,6 +1794,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="K92 MINING INC">K92 MINING INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1650,6 +1803,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="LONCOR GOLD INC">LONCOR GOLD INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1658,6 +1812,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="LIVE OAK BANCSHARES INC">Live Oak Bancshares Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1666,6 +1821,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="INGEVITY CORP">INGEVITY CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1674,6 +1830,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="GOGOLD RESOURCES INC">Gogold Resources Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1682,6 +1839,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BELLEVUE GOLD LTD">Bellevue Gold Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1690,6 +1848,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="THOR INDUSTRIES INC">Thor Industries Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1698,6 +1857,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="LUCKIN COFFEE INC">Luckin Coffee Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1706,6 +1866,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="UR-ENERGY INC">UR-ENERGY INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1714,6 +1875,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="CALEDONIA MINING CORP PLC">Caledonia Mining Corp Plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
@@ -1722,6 +1884,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MINERA ALAMOS INC">Minera Alamos Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1730,6 +1893,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ASANTE GOLD CORP">Asante Gold Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1738,6 +1902,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BOSTON BEER CO INC/THE">Boston Beer Co Inc/the</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1746,6 +1911,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BOSS ENERGY LTD">BOSS ENERGY LTD</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1754,6 +1920,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="OSHLOSH CORP">OSHLOSH CORP</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1762,6 +1929,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="TRIPLE FLAG PRECIOUS METALS CO">Triple Flag Precious Metals Co</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1770,6 +1938,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MAKO MINING CORP">Mako Mining Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1778,6 +1947,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="ENCORE ENERGY CORP">Encore Energy Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1786,6 +1956,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="HERCULES METALS CORP">Hercules Metals Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1794,6 +1965,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="PONY AI INC">PONY AI INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1802,6 +1974,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="WERIDE INC">WERIDE INC</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1810,6 +1983,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BRISTOW GROUP INC">Bristow Group Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1818,6 +1992,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="MINERA ALAMOS INC">Minera Alamos Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1826,6 +2001,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="LOS ANDES COPPER LTD">Los Andes Copper Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1834,6 +2010,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="FOUNDERS METALS INC">Founders Metals Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1842,6 +2019,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="OMAI GOLD MINES CORP">Omai Gold Mines Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1850,6 +2028,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="AFRICAN GOLD LTD">African Gold Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1858,6 +2037,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="SOUTH PACIFIC METALS CORP">South Pacific Metals Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1866,6 +2046,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="LOCKSLEY RESOURCES LTD">Locksley Resources Ltd</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>AUD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1874,6 +2055,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="AIR FRANCE-KLM">AIR FRANCE-KLM</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1882,6 +2064,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="BRIXTON METALS CORP">Brixton Metals Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1890,6 +2073,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="GREENHEART GOLD INC">Greenheart Gold Inc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -1898,6 +2082,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 </tr><tr>
   <td title="GUNNISON COPPER CORP">Gunnison Copper Corp</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>CAD</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
@@ -2386,7 +2571,11 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0112602000';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -2403,16 +2592,21 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0112602000';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -2451,7 +2645,7 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0112602000', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -2464,33 +2658,21 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -2503,9 +2685,9 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -2842,16 +3024,54 @@ Junto a <strong>Álvaro Guzmán de Lázaro</strong>, Fernando Bernad forma un t�
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -3054,7 +3274,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

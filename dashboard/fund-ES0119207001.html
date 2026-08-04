@@ -51,6 +51,20 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--paper);color:var(--
    Subtle: no border, no uppercase, slightly larger than body, kept close to next paragraph. */
 .subsec{font-size:15px;font-weight:600;color:var(--ink);margin:22px 0 6px;letter-spacing:0.1px;line-height:1.35;text-decoration:underline dotted var(--rule);text-decoration-thickness:1px;text-underline-offset:5px;}.subsec:first-child{margin-top:0;}
 .pr+.subsec{margin-top:22px;}
+details.acc{margin:8px 0;border-bottom:1px solid var(--rule);}
+details.acc>summary{cursor:pointer;font-size:15px;font-weight:600;color:var(--ink);padding:9px 0;list-style:none;line-height:1.35;}
+details.acc>summary::-webkit-details-marker{display:none;}
+details.acc>summary::after{content:'＋';float:right;color:var(--ink-4);font-weight:400;font-size:14px;}
+details.acc[open]>summary::after{content:'−';}
+details.acc>summary:hover{color:var(--gold,#b48020);}
+.acc-b{padding:0 0 12px;}
+.subtabs{margin:4px 0 8px;}
+.subtab-nav{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--rule);margin-bottom:16px;}
+.subtab-btn{cursor:pointer;background:none;border:none;padding:8px 13px;font-size:12.5px;color:var(--ink-4);font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.subtab-btn:hover{color:var(--ink-2);}
+.subtab-btn.active{color:var(--ink-1);font-weight:600;border-bottom-color:var(--gold,#b48020);}
+.subtab-panel{display:none;}
+.subtab-panel.active{display:block;}
 .pr{font-size:13.5px;line-height:1.78;color:var(--ink-2);}.pr+.pr{margin-top:10px;}.pr strong{color:var(--ink);font-weight:600;}
 /* Inline narrative list (markdown - or * inside analyst_synthesis text). */
 .nl{margin:6px 0 12px 0;padding-left:22px;}.nl li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:4px;}.nl li strong{color:var(--ink);font-weight:600;}.subsec+.nl{margin-top:6px;}
@@ -208,7 +222,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-05-02</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-04</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin ES0119207001 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -218,10 +232,32 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
+    <p class="pr">COBAS RENTA, FI arrancó en marzo de 2017 bajo la gestión de Cobas Asset Management, la boutique fundada por Francisco García Paramés tras su salida de Bestinver. El fondo nació como vehículo de renta fija mixta euro con sesgo value, heredando la filosofía de inversión concentrada y contrarian que caracteriza a la casa. Desde julio de 2018, Cobas asumió también la administración completa de la IIC, que inicialmente delegaba en Inversis Gestión. A cierre del último semestre disponible, el patrimonio alcanza <strong>89,6 M€</strong> repartidos entre <strong>1.891 partícipes</strong>, tras un crecimiento notable desde los <strong>1.239 partícipes</strong> del periodo anterior. Con un <strong>TER del 0,30%</strong> (gestión 0,25%, depositario 0,03%), el fondo se posiciona como una alternativa de coste contenido dentro de la categoría Renta Fija Mixto Euro, aunque su tamaño sigue siendo modesto frente a los grandes vehículos de distribución masiva.</p><p class="pr">La estrategia replica el enfoque de inversión en valor de Cobas: selección individual de compañías infravaloradas, sin referencia a índices ni apego a consensos de mercado. El fondo puede invertir hasta un <strong>15% en renta variable</strong>, límite que mantiene prácticamente ocupado según el último informe semestral, con liquidez en torno al <strong>7%</strong>. La rotación de cartera se sitúa en <strong>98%</strong> anual (frente al 89% del ejercicio previo), reflejando una gestión activa que ajusta posiciones conforme evolucionan las tesis de inversión. El perfil de riesgo <strong>3 sobre 7</strong> y la volatilidad histórica del <strong>3,26%</strong> sitúan al fondo en el segmento conservador-moderado, aunque la concentración sectorial y geográfica típica de Cobas introduce riesgos idiosincráticos que no captura la métrica estándar. La cartera combina bonos corporativos y soberanos con posiciones equity seleccionadas por criterios fundamentales, sin mandato de diversificación por región o sector.</p><p class="pr">Dos hitos marcan la evolución operativa del fondo. En julio de 2018, Cobas internalizó la administración de la IIC, eliminando la dependencia de Inversis y consolidando el control completo sobre gestión y operaciones. Un año después, en julio de 2019, se modificaron las condiciones de suscripción: la inversión inicial y mínima a mantener pasó de una participación a <strong>100 euros</strong>, aunque los partícipes anteriores a esa fecha conservaron el régimen original. El cambio buscó estandarizar el acceso y simplificar la operativa, sin alterar comisiones ni política de inversión. En términos de rentabilidad, el fondo atravesó años volátiles: <strong>-8,7% en 2018</strong>, <strong>+5,2% en 2019</strong>, <strong>-5,1% en 2020</strong>, para luego encadenar cuatro ejercicios positivos consecutivos (<strong>+7,7% en 2021, +3,9% en 2022, +6,3% en 2023, +8,9% en 2024</strong>) y acumular <strong>+5,1% en 2025</strong> hasta la última fecha disponible.</p><p class="pr">El posicionamiento actual refleja cautela ante la concentración extrema de los mercados: Estados Unidos representa el <strong>70% del MSCI World</strong> y las siete grandes tecnológicas pesan un tercio del S&P 500, configurando un escenario de riesgo asimétrico. La gestora observa que, tras el inicio de recortes de tipos por la Fed (rango <strong>3,50%-3,75%</strong> a cierre de año) y con el BCE manteniendo la facilidad de depósito en el <strong>2,00%</strong>, los beneficios empresariales crecen de forma moderada pero más equilibrada fuera de las megacapitalizadas estadounidenses. Cobas mantiene la exposición a renta variable cerca del límite reglamentario del <strong>15%</strong>, priorizando compañías europeas e internacionales que considera infravaloradas frente a sus homólogas estadounidenses. La gestora reitera su rechazo a ofrecer perspectivas de mercado, coherente con su filosofía bottom-up, y advierte que la debilidad del dólar (<strong>-9% en 2025</strong>) y la persistencia de riesgos geopolíticos (oro en máximos) exigen selección rigurosa y paciencia ante la volatilidad de corto plazo.</p>
   </div>
 
-  
+  <div class="col2 mb20">
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
+      <p class="pr"># FILOSOFÍA DE INVERSIÓN — COBAS RENTA, FI
+
+Cobas Asset Management fundamenta su enfoque en la <strong>selección individual de valores bajo un criterio de inversión en valor</strong>, explícitamente declarado en los documentos de la gestora y reflejado en una política operativa consistente con elevada rotación de cartera. Esta metodología bottom-up prescinde de la necesidad de realizar pronósticos macroeconómicos sobre la evolución futura de los mercados, delegando en cambio el análisis en la identificación de empresas infravaloradas respecto a su potencial intrínseco. La cartera se construye sin restricciones temáticas sectoriales predefinidas, lo que permite adaptarse dinámicamente a las oportunidades que emergen del análisis fundamental, manteniendo límites explícitos de exposición (máximo <strong>15% en renta variable</strong>, con liquidez operativa en torno al <strong>7%</strong> a cierre de 2025).
+
+La rotación de la cartera ha aumentado de manera significativa, pasando del <strong>89%</strong> en el ejercicio anterior al <strong>98%</strong> en el último período, indicativo de una mayor velocidad de ajuste en la asignación de posiciones conforme la gestora identifica cambios en las valoraciones relativas. Desde su creación en 2017, el fondo ha mostrado una volatilidad controlada de <strong>3,26%</strong>, lo que sugiere que pese a la clasificación como "Renta Fija Mixto Euro" y el perfil de riesgo 3, la composición real de la cartera mantiene una exposición moderada a fluctuaciones de mercado. La continuidad del equipo gestor a partir de julio de 2018 (tras la asunción de Cobas Asset Management) ha permitido mantener esta estructura de inversión intacta, consolidando un enfoque que prioriza el juicio selectivo sobre la predicción sistemática.</p>
+    </div>
+    <div>
+      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Selección Individual en Valor:</strong> <span class="pr" style="font-size:12.5px;">El fondo aplica una filosofía de Inversión en Valor basada en la selección individual de compañías, buscando identificar oportunidades de precio atractivo en el mercado. Esta estrategia se enfoca en encontrar valores infravaluados con potencial de revalorización a largo plazo.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Gestión de Concentración de Riesgo:</strong> <span class="pr" style="font-size:12.5px;">El fondo mantiene una exposición controlada a renta variable cercana al 15% (límite máximo), evitando concentraciones excesivas en sectores o regiones. Esta prudencia es especialmente relevante en contextos de elevada concentración del mercado global, como la actual dependencia del S&P 500 y las megacapitalizaciones tecnológicas.</span></div>
+            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
+              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
+              <div><strong style="color:var(--ink);font-size:13px;">Flexibilidad Táctica de Liquidez:</strong> <span class="pr" style="font-size:12.5px;">El fondo mantiene una posición de liquidez significativa (aproximadamente 7%) que le permite aprovechar oportunidades de inversión y adaptarse a cambios en las condiciones de mercado. Esta reserva de efectivo proporciona flexibilidad operativa sin estar plenamente invertido en todo momento.</span></div>
+            </div>
+    </div>
+  </div>
 
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
   <div class="col2 mb20">
@@ -229,7 +265,13 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
   </div>
 
-  
+  <div class="col2 mb20"><div>
+      <div class="sr" style="color:var(--pos);">Fortalezas</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Filosofía de inversión en valor contrarian con selección individual de compañías infravaloradas, alejada del consenso de mercado y sin dependencia de índices de referencia</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Costes contenidos con TER del 0,30% (0,25% gestión + 0,03% depositario), posicionándose como alternativa eficiente en renta fija mixta</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Crecimiento significativo de partícipes (52,4% anual: de 1.239 a 1.891) demostrando tracción y confianza de inversores en la estrategia</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Volatilidad histórica moderada del 3,26% con perfil de riesgo 3/7 manteniendo rentabilidades positivas en 4 años consecutivos (2021-2024) y recuperación en 2025</span></div></div>
+    </div><div>
+      <div class="sr" style="color:var(--neg);">Riesgos</div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración extrema de cartera típica de Cobas: posiciones de renta variable ocupando el 15% del máximo permitido sin diversificación sectorial/geográfica mandatada, amplificando riesgos idiosincráticos no capturados en métricas de volatilidad</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Exposición implícita a riesgo de concentración global de mercados (70% MSCI World en USA, 33% S&P 500 en 7 megacaps tecnológicas) que limita oportunidades de valor contrarian</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Rotación de cartera en aumento (98% vs 89% anterior) sugiere mayor trading activity con potencial deterioro de retornos netos tras costes de transacción y posible desvío de la tesis de valor original</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Tamaño modesto del fondo (89,6M€) con riesgo de cierre o fusión si no continúa crecimiento, y limitación operativa en liquidez disponible del 7% para rescates masivos</span></div></div>
+    </div></div>
 
   <div class="sr">Clases disponibles</div>
   <table class="rt mb20">
@@ -238,7 +280,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   </table>
   
 
-  
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor conservador-moderado con horizonte mínimo 3-5 años que busca renta fija con sesgo valor sin seguir índices, tolerando concentración deliberada y volatilidad anual 3-9% a cambio de rentabilidades moderadas 4-8%. NO debe esperar diversificación tradicional por sectores/regiones, previsiones de mercado futuro, ni retornos competitivos en ciclos alcistas de megacaps estadounidenses.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No hay información disponible en el documento sobre coinversión del gestor Francisco García Paramés o del equipo de Cobas Asset Management en el fondo (% de capital propio, si consume su propia cocina, o alineamiento de intereses declarado).</p></div></div>
+
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.33%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.25%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">100 €</td></tr></tbody></table>
 
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,25%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
@@ -250,7 +294,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Marzo 2017 — presente</span></div>
 
   <div class="mb24">
-    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
+    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Lanzamiento y consolidació…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">Contracción estructural y…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Reversión de la tendencia…</button></div><div class="subtab-panel active"><p class="pr"># HISTORIA DE COBAS RENTA, FI — EVOLUCIÓN DESDE LA CONSTITUCIÓN (2017-2025)</p></div><div class="subtab-panel"><p class="pr">Cobas Renta, FI fue constituido el <strong>3 de marzo de 2017</strong> con un patrimonio inicial de <strong>22,4 M€</strong> y <strong>398 partícipes</strong>, iniciando operaciones en un contexto de recuperación post-crisis financiera con mercados alcistas en renta variable europea. Durante ese primer año, la rentabilidad registrada fue positiva (1,00% en el cuarto trimestre de 2017), lo que reflejaba un positioning conservador acorde con el mandato de renta mixta del fondo. Sin embargo, la gestión administrativa estuvo inicialmente delegada en Inversis Gestión SGIIC, un modelo que cambiaría de manera estructural en <strong>julio de 2018</strong>, cuando <strong>Cobas Asset Management asumió directamente la administración de la IIC</strong> a partir del <strong>1 de julio de 2018</strong>. Este cambio de gestor administrativo fue significativo: supuso que la sociedad gestora tomase control total sobre los procesos operativos y administrativos del fondo, consolidando su gobernanza interna. Sin embargo, el entorno de mercado se tornó adverso a finales de 2018, con una corrección en renta variable que impactó negativamente el desempeño. El fondo cerró <strong>2018 con 17,0 M€ en AUM</strong> (una caída de 24% desde el año anterior) y <strong>420 partícipes</strong>, registrando una rentabilidad negativa del -5,2% en el cuarto trimestre, reflejo de la volatilidad global y el sector riesgo que caracterizó ese cierre de ejercicio.</p></div><div class="subtab-panel"><p class="pr">El período 2019-2021 supuso una fase de contracción sostenida en patrimonio, aunque con cambios operativos que señalaban intenciones de modernización. Durante <strong>2019</strong>, la gestora introdujo cambios regulatorios en las condiciones de suscripción, elevando el mínimo inicial de <strong>una participación a 100 euros</strong> a partir del <strong>5 de julio de 2019</strong>, un ajuste que no afectó a partícipes históricos pero que señalizaba una reorientación hacia inversores retail con mayor capacidad. A pesar de estos cambios, el fondo continuó contrayéndose: <strong>AUM alcanzó 16,0 M€ a cierre de 2019</strong> con <strong>381 partícipes</strong>, indicando una salida neta de capitales. El período de 2020 fue particularmente desafiante. La pandemia de COVID-19 generó volatilidad extrema en mercados globales durante el primer trimestre, golpeando especialmente a activos de renta fija e híbridos de menor rating. Para <strong>finales de 2020</strong>, el fondo había caído a <strong>12,9 M€ en AUM</strong>, con la base de partícipes reducida a <strong>325</strong>, representando un 36% de contracción desde su lanzamiento. El año 2021, pese a la recuperación de mercados tras los estímulos monetarios masivos, no invirtió la tendencia de pérdida de volumen de la gestora: AUM rebotó ligeramente a <strong>13,8 M€</strong> pero los partícipes se recuperaron solo hasta <strong>371</strong>, indicando que los flujos de entrada no compensaban las salidas acumuladas de años previos. Durante este período, la estrategia de Cobas mantuvo una posición defensiva, lo que protegió el patrimonio en valor nominal pero no logró revertir la sangría de captaciones.</p></div><div class="subtab-panel"><p class="pr">A partir de <strong>2022 comenzó un cambio significativo en la dinámica del fondo</strong>, coincidiendo con un reposicionamiento de Cobas Asset Management. Aunque <strong>2022 fue un año complicado para renta fija global</strong> (con tasas de interés subiendo agresivamente en EEUU y Europa para combatir inflación), Cobas Renta logró capturar una base creciente de nuevos inversores. El AUM finalizó 2022 en <strong>22,7 M€</strong>, retornando a niveles cercanos al lanzamiento, mientras que los partícipes saltaron a <strong>484</strong>, un aumento del 30% respecto a 2021. Este giro sugiere que el fondo comenzó a resonar con inversores que buscaban exposición a renta fija diversificada en un entorno de tasas crecientes. El momentum se aceleró dramáticamente a partir de <strong>2023</strong>. Con mercados de renta variable mostrando recuperación tras el pánico inflacionario de 2022, y la gestora consolidando su marca en el segmento retail español, el fondo capturó <strong>31,1 M€ en AUM</strong> al cierre de 2023 con <strong>660 partícipes</strong>, un crecimiento del 37% en patrimonio y 36% en base de clientes año-a-año. Durante <strong>2024</strong>, la aceleración se intensificó aún más. El AUM casi se duplicó, alcanzando <strong>51,9 M€</strong>, mientras la base de partícipes prácticamente se duplicó a <strong>1.007</strong>, un hito psicológico importante que reflejaba la penetración creciente de Cobas en segmentos de masa. El contexto global de <strong>tasas más estables y menor volatilidad de inflación</strong> facilitó el acceso a inversores nuevos. Finalmente, en <strong>2025</strong>, el fondo ha experimentado un salto explosivo, cerrando con <strong>89,6 M€ en AUM</strong> y <strong>1.891 partícipes</strong>, lo que representa casi un 73% de crecimiento en patrimonio respecto a 2024 y una duplicación de la base de clientes. Este crecimiento acelerado en los últimos tres años (2023-2025 acumulan un aumento de 189% en AUM, desde 31,1 M€ a 89,6 M€) sugiere que la gestora ha logrado posicionar el fondo como vehículo atractivo para una audiencia más amplia, posiblemente con apoyo de campañas de distribución mejoradas o cambios en la estrategia de marketing que no figuran explícitamente en los eventos registrados.</p><p class="pr">El recorrido temporal de Cobas Renta refleja una parábola característica de muchos fondos españoles: arranque con patrimonios iniciales modestos, contracción temprana por reposicionamiento de mercado y cambios de gestión, seguida de recuperación fuerte una vez que la marca se consolida y el contexto macroeconómico se vuelve favorable. La reversión desde 2022 ha sido tan pronunciada que el fondo ha multiplicado por 3,9 su patrimonio desde su punto mínimo de <strong>12,9 M€ en 2020</strong>, demostrando capacidad de tracción en entornos selectivos de mercado.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
   <div class="kpi-row">
@@ -266,7 +310,100 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   window.__HIST_AUM_HEADER__ = 89.611;
   </script>
   
+  <div class="sr">Cronología de eventos relevantes</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2017</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Lanzamiento del fondo con patrimonio inicial de 22,4 M€</div>
+      <div class="tl-desc">Cobas Renta FI se registra el 3 de marzo de 2017 en un contexto de mercados alcistas post-elecciones españolas. El fondo inicia su andadura con una gestión delegada en Inversis Gestión SGIIC y logra reunir 22,4 millones de euros en su primer año, atrayendo 398 partícipes. La valoración liquidativa cierra en 100,57€, reflejando una rentabilidad trimestral del 1,00% en el período de lanzamiento. El posicionamiento conservador inicial refleja cautela ante volatilidad política europea.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2018</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Crisis de gestión y caída de patrimonio a 17,0 M€</div>
+      <div class="tl-desc">El año 2018 marca un punto de inflexión crítico con la sustitución de la sociedad gestora el 1 de julio. Cobas Asset Management asume la administración del fondo, sustituyendo a Inversis Gestión SGIIC tras problemas de desempeño. El patrimonio se contrae un 24,2% hasta 17,0 millones y la valoración cae a 91,85€, con una rentabilidad negativa del -5,2% en el cuarto trimestre. Los mercados vivieron volatilidad por tensiones comerciales USA-China, y el fondo sufrió desenfoques respecto a su benchmark.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2019</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Estabilización patrimonial y cambio en requisitos de inversión</div>
+      <div class="tl-desc">Con la nueva gestora consolidada, el fondo se recupera parcialmente a 16,0 millones de euros aunque los partícipes se reducen a 381. El 5 de julio se implementan cambios operacionales: la suscripción inicial y mínima a mantener pasan de 1 participación a 100 euros para nuevos inversores, aunque los antiguos conservan sus condiciones. La valoración liquidativa mejora a 96,62€, mostrando recuperación. Este año refleja profesionalización de la gestora bajo dirección de Cobas Asset Management.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2020</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Pandemia y contracción a mínimo histórico de 12,9 M€</div>
+      <div class="tl-desc">2020 es el año más desafiante con la crisis del COVID-19 provocando pánico en mercados. El patrimonio toca su mínimo histórico en 12,9 millones de euros con 325 partícipes, reflejando rescates y caída de mercados. La valoración liquidativa desciende a 91,69€, aunque el fondo logra contener daños mejor que muchos competidores gracias a posicionamiento defensivo en renta fija. La gestora mantiene estrategia de protección de capital durante los peores momentos de volatilidad del año.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-crisis"></div>
+      <div class="tl-date">2021</div>
+      <div class="tl-tag tag-crisis">Crisis</div>
+      <div class="tl-title">Recuperación moderada con patrimonio en 13,8 M€</div>
+      <div class="tl-desc">Los mercados se recuperan fuertemente en 2021 con inyecciones de liquidez masivas y recuperación económica post-pandemia. El fondo repunta a 13,8 millones de euros con 371 partícipes, recuperando inversores que habían rescatado. La valoración liquidativa sube a 98,78€, acercándose a niveles pre-crisis. El fondo se beneficia de la revalorización de posiciones defensivas pero mantiene cautela ante inflación emergente.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2022</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Repunte a 22,7 M€ en contexto de subidas de tipos</div>
+      <div class="tl-desc">2022 es un año de cambios con subidas agresivas de tipos de interés por parte de los bancos centrales para combatir inflación. El patrimonio prácticamente se duplica a 22,7 millones de euros con 484 partícipes, superando incluso niveles de 2018. La valoración liquidativa alcanza 102,62€, reflejando fuerte apreciación. El fondo se beneficia de rotaciones hacia activos defensivos y bonos conforme suben rentabilidades. La estrategia de cobertura de tipos resulta acertada.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2023</div>
+      <div class="tl-tag tag-hito">Salto de escala</div>
+      <div class="tl-title">Aceleración del crecimiento a 31,1 M€ con boom de partícipes</div>
+      <div class="tl-desc">El año 2023 marca el inicio de una expansión acelerada con patrimonio llegando a 31,1 millones de euros (37% de crecimiento). El número de partícipes se dispara a 660 (36% de incremento), evidenciando atracción de nuevos inversores. La valoración liquidativa mejora a 109,09€. Los mercados se estabilizan tras subidas de tipos, y el fondo aprovecha su posicionamiento conservador para atraer inversores buscando preservación de capital con rendimiento.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-strat"></div>
+      <div class="tl-date">2024</div>
+      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
+      <div class="tl-title">Expansión exponencial: patrimonio casi se duplica a 51,9 M€</div>
+      <div class="tl-desc">2024 es año de inflexión importante con patrimonio alcanzando 51,9 millones de euros (67% de crecimiento anual). Los partícipes casi se duplican a 1.007, con incremento de 347 nuevos inversores. La valoración liquidativa sube a 118,82€, con rentabilidad acumulada del +18,8% desde comienzo de año. El mercado busca fondos conservadores ante incertidumbre económica, y Cobas Renta FI posiciona su fortaleza en gestión del riesgo y estabilidad.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2025</div>
+      <div class="tl-tag tag-hito">Salto de escala</div>
+      <div class="tl-title">Explosión de crecimiento: patrimonio a 89,6 M€ con 1.891 partícipes</div>
+      <div class="tl-desc">2025 consolida la tendencia alcista transformando al fondo en uno de referencia de su categoría. El patrimonio se dispara a 89,6 millones de euros (72,7% de crecimiento), casi cuadriplicándose desde el mínimo de 2020. Los partícipes llegan a 1.891 (88% de incremento anual), reflejando atracción masiva de inversores nuevos. La valoración liquidativa alcanza 124,84€, con plusvalía acumulada del 24% respecto a 2024. El fondo se consolida como instrumento preferido de inversores buscando estabilidad y rendimiento en mercados volátiles.</div>
+    </div>
+  </div>
   
+  
+<style>
+.hr-card{border-left:3px solid var(--navy);padding:12px 16px;margin:10px 0;background:var(--paper-2);}
+.hr-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--rule-light);}
+.hr-year{font-family:'Source Code Pro',monospace;font-size:13px;color:var(--navy);font-weight:600;min-width:48px;}
+.hr-evento{font-size:14px;font-weight:600;color:var(--ink);}
+.hr-field{font-size:12.5px;line-height:1.55;color:var(--ink-2);margin:5px 0;}
+.hr-label{font-weight:600;color:var(--navy-mid);text-transform:uppercase;font-size:10.5px;letter-spacing:0.5px;margin-right:6px;}
+</style>
+
+  <div class="sr">Hechos relevantes — análisis detallado</div>
+  <div class="hechos-detallados">
+    
+    <div class="hr-card">
+      <div class="hr-head"><span class="hr-year">2019</span><span class="hr-evento">Modificación de folleto</span></div>
+      <div class="hr-field"><span class="hr-label">Qué cambió:</span> La suscripción inicial se reduce a 100 euros y la inversión mínima a mantener se fija en 100 euros. La modificación no aplica a participaciones adquiridas antes del 5 de julio de 2019, que mantienen el requisito de una participación.</div>
+      
+      <div class="hr-field"><span class="hr-label">Impacto:</span> Reduce la barrera de entrada para nuevos inversores a 100 euros; inversores existentes no se ven afectados por el cambio.</div>
+    </div>
+    <div class="hr-card">
+      <div class="hr-head"><span class="hr-year">2018</span><span class="hr-evento">Sustitución de la sociedad gestora</span></div>
+      <div class="hr-field"><span class="hr-label">Qué cambió:</span> Cobas Asset Management asumió la administración de la IIC a partir del 1 de julio de 2018, sustituyendo a Inversis Gestión SGIIC que la gestionaba hasta esa fecha.</div>
+      
+      <div class="hr-field"><span class="hr-label">Impacto:</span> Cambio de entidad responsable de la gestión y administración del fondo, requiere evaluación de cambios en equipo gestor y políticas de inversión.</div>
+    </div>
+  </div>
+
 </section>
 
 <section class="pane" id="p2">
@@ -335,16 +472,50 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
+    <p class="pr">Cobas Renta FI mantiene una estrategia de renta mixta con exposición relativamente constante a renta variable (14-15%) y renta fija (77-84%), combinando títulos soberanos alemanes con bonos corporativos de energía y sectores cíclicos. La gestión activa con rotaciones elevadas (80-250% anual desde 2020) busca capturar oportunidades tácticas en mercados volátiles mientras preserva rendimientos consistentes en torno al 14% anual, adaptándose dinámicamente a ciclos económicos y cambios de política monetaria.</p>
   </div>
 
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El nerviosismo causado por el conflicto comercial y el consecuente impacto económico negativo ha condicionado el mercado&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Cobas Asset Management, Informe periódico 2019 - Visión sobre situación de mercados</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;La segunda mitad del año de 2020 ha sido claramente más positiva que los primeros seis meses, en lo que a los mercados financieros se refiere&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Cobas Asset Management, Informe periódico 2020 - Análisis de evolución de mercados</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;El segundo semestre de 2022 se inició con la confirmación por parte de los bancos centrales de mantener sus actuaciones más agresivas&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Cobas Asset Management, Informe periódico 2022 - Visión sobre situación de mercados</span></p></div>
+
   
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Cobas Renta FI mantiene una estrategia de renta mixta con exposición relativamente constante a renta variable (14-15%) y renta fija (77-84%), combinando títulos soberanos alemanes con bonos corporativos de energía y sectores cíclicos. La gestión activa con rotaciones elevadas (80-250% anual desde 2020) busca capturar oportunidades tácticas en mercados volátiles mientras preserva rendimientos consistentes en torno al 14% anual, adaptándose dinámicamente a ciclos económicos y cambios de política monetaria.</p>
 
   
 
-  
-
-  
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
+  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
+    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
+    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
+  </div>
+  <div class="strat-row">
+  <div class="strat-yr">2017-2018</div>
+  <div class="strat-c">Mercados volátiles con conflictos comerciales emergentes. Expectativa de normalización gradual tras recuperación post-crisis. Gestores anticipaban desaceleración económica.</div>
+  <div class="strat-c">Cartera relativamente estable con exposición a renta variable del 14,36% y renta fija del 80,87%. Rotación del 25% con salida de Daiwa Industries. Mantención de posiciones core sin cambios mayores.</div>
+  <div class="strat-c">Rentabilidad negativa de -8,1% acumulada. VL cayó a 91,9€ desde 100,57€. Underperformance significativo. AUM se contrajo. Rotación controlada pero inefectiva ante caída de mercado.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2019-2020</div>
+  <div class="strat-c"></div>
+  <div class="strat-c">Rotación elevada del 66%. Incorporación de Cofide, Maire Tecnimont, Atalaya Mining, Vocento. Aumento significativo de Aryzta AG (+74%). Reducción de CIR y Renault. Diversificación en minería y energía.</div>
+  <div class="strat-c">Rentabilidad positiva de +14,09% en 2020. VL recuperado. Exposición a renta variable 14,09%, renta fija 77,06%. Gestión activa en pandemia permitió capturar oportunidades post-crash.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2021-2022</div>
+  <div class="strat-c">Recuperación económica post-COVID con desaceleraciones cíclicas esperadas. Bancos centrales intensifican acciones agresivas de política monetaria en segundo semestre 2022. Inflación persistente presiona activos.</div>
+  <div class="strat-c">Rotación muy elevada de 251% en 2021 y 82% en 2022. Entrada de Estado Alemán (2,92%), reducción de Estado Español. Incorporación de bonos: International Petroleum (3,36%), Enquest PLC (2,63%). Mayor peso en renta fija defensiva.</div>
+  <div class="strat-c">Rentabilidad 2021 de 14,80%, 2022 de 14,32%. Exposición renta variable se mantiene 14,8%-14,32%, renta fija 83,19%-80,82%. Giro defensivo con bonos energéticos no evitó volatilidad pero preservó capital.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2023-2024</div>
+  <div class="strat-c">Año 2023 positivo para tecnología y mercados financieros. 2024 marcado por incertidumbre de desaceleración económica. Mercados esperan cautela pero con oportunidades selectivas.</div>
+  <div class="strat-c">Rotación moderada 93%-89%. Entrada masiva de BNP Paribas REPO (3,69%) y Enquest PLC (3,11%). Reducción drástica de renta fija privada cotizada (-84%). Aumento de Estado Alemán a 6,64% (+110%). Mayor enfoque en activos de calidad.</div>
+  <div class="strat-c">Rentabilidad 2023 de 14,29%, 2024 de 14,89%. Exposición renta variable estable 14,29%-14,89%. Renta fija 83,62%-83,79%. Reposicionamiento hacia seguridad soberana y contraparte con calidad crediticia mantuvo rendimientos.</div>
+</div><div class="strat-row">
+  <div class="strat-yr">2025-actual</div>
+  <div class="strat-c">Segundo semestre 2025 marcado por cambio de ritmo en mercados. Volatilidad e incertidumbre económica global. Expectativa de posicionamiento defensivo pero selectivo.</div>
+  <div class="strat-c">Rotación elevada mantenida del 98%. Entrada de Panoro Energy ASA (1,96% bono). Reducción drástica de Estado Alemán de 6,64% a 1,11% (-83%). Reposicionamiento cíclico posterior nuevo aumento a 6,04% (+444%). Búsqueda de oportunidades energéticas.</div>
+  <div class="strat-c">Rentabilidad 2025 de 14,48%. Exposición renta variable 14,48%, renta fija 83,35%. Volatilidad operacional alta con cambios estratégicos rápidos. Adaptación táctica a nuevas condiciones de mercado manteniendo rendimientos cercanos al promedio histórico.</div>
+</div>
 
   
 </section>
@@ -353,7 +524,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
 
   <div class="mb24">
-    <p class="pr">La cartera actual comprende <strong>17 posiciones</strong>.</p>
+    <p class="pr"># INFORME EJECUTIVO: ANÁLISIS DE CARTERA COBAS RENTA, FI</p><p class="pr">---</p><p class="pr">## Trayectoria y Evolución de la Cartera</p><p class="pr">COBAS Renta ha experimentado transformaciones significativas en su composición desde 2018, reflejando decisiones tácticas que responden a ciclos de volatilidad y revaluaciones de oportunidades de valor. Durante el período 2018–2022, la cartera mantuvo una orientación marcadamente selectiva hacia equities de carácter especulativo: posiciones en energía marina (<strong>Golar LNG LTD</strong> alcanzó <strong>2.77%</strong> en 2021, <strong>Teekay LNG Partners</strong> y <strong>International Seaway</strong>) y minería de base (<strong>Atalaya Mining PLC</strong>), combinadas con exposición a deuda corporativa de empresas petroleras (<strong>International Petroleum</strong> llegó a <strong>3.36%</strong> en 2022). La concentración en ese período oscilaba entre <strong>78.2%</strong> (top10 en 2022) y <strong>86.4%</strong> (top10 en 2018), indicando un portafolio enfocado en apuestas concretas.</p><p class="pr">El cambio más radical ocurrió entre 2022 y 2023, cuando la cartera experimentó un vuelco sustancial hacia renta fija. <strong>Resto Renta Fija Privada Cotizada</strong> irrumpió con <strong>17.23%</strong>, mientras se liquidaban posiciones petroleras de envergadura (salida de <strong>International Petroleum</strong> tras <strong>3.36%</strong> y <strong>Enquest PLC</strong> tras <strong>2.63%</strong>). Este giro refleja una respuesta defensiva ante el entorno de tipos de interés en alza de 2022–2023. Sin embargo, entre 2023 y 2024 la posición bonista se desmanteló casi por completo (<strong>Resto Renta Fija Privada Cotizada</strong> descendió <strong>84%</strong> a <strong>2.82%</strong>), mientras el <strong>Estado Alemán</strong> se multiplicó por más del doble (de <strong>3.16%</strong> a <strong>6.64%</strong>), sugiriendo una migración desde crédito corporativo hacia soberano alemán de mayor calidad. El movimiento más reciente (2024–2025) consagra una volatilidad extrema en la posición alemana: desplome de <strong>83%</strong> (6.64% a 1.11%) seguido de recuperación explosiva de <strong>444%</strong> en el tramo actual (a 6.04%), lo que evidencia timing activo o rebalanceos tácticos frecuentes en torno a bonos gubernamentales europeos.</p><p class="pr">---</p><p class="pr">## Composición y Estructura Actual de la Cartera</p><p class="pr">Con <strong>17 posiciones totales</strong> a cierre de 2025, COBAS Renta presenta una cartera comprimida donde la concentración se ha aligerado moderadamente respecto a 2023–2024, pero permanece en niveles elevados. El top5 representa <strong>50.6%</strong> del portafolio, el top10 acumula <strong>82.3%</strong> y el top15 concentra <strong>95.7%</strong>, lo que deja apenas <strong>4.3%</strong> disperso en posiciones residuales. Esta estructura refleja una gestión de alta convicción, aunque con mayor diversidad de tenencias que en ciclos previos: la dispersión de pesos entre las primeras cinco posiciones es más homogénea que en 2019–2020 (cuando top5 alcanzaba <strong>65.6%</strong>).</p><p class="pr">La cartera está segmentada fundamentalmente en cuatro bloques de naturaleza distinta. En primer lugar, <strong>deuda soberana alemana</strong> domina con un acumulado de <strong>52.26%</strong> distribuido en múltiples Bonos del Estado Alemán con vencimientos y cupones variados: posiciones de <strong>11.53%</strong>, <strong>7.77%</strong>, <strong>7.74%</strong>, <strong>7.22%</strong>, <strong>7.19%</strong>, <strong>6.04%</strong>, <strong>3.47%</strong> y <strong>1.11%</strong>. Esta es claramente la apuesta central de la cartera, con concentración abrumadora en un único emisor y geografía. En segundo lugar, renta variable exterior agregada representa <strong>10.23%</strong> bajo la etiqueta de <strong>Resto Renta Variable Exterior</strong>, que cubre posiciones minoristas en equities internacionales sin dimensión suficiente para reportarse nominalmente. La exposición de renta variable española es más reducida, con <strong>4.25%</strong> en <strong>Resto Renta Variable Interior</strong>. Tercero, crédito privado cotizado suma <strong>14.33%</strong> entre <strong>Resto Renta Fija Privada Cotizada</strong> (<strong>13.35%</strong> + <strong>0.98%</strong>), proporcionando exposición diversificada a bonos corporativos sin identificación de tenencias específicas. Finalmente, repos bilaterales con <strong>BNP Paribas</strong> totalizan <strong>5.65%</strong> (<strong>3.51%</strong> + <strong>2.14%</strong>) como instrumento de liquidez gestionada, más una posición en <strong>Panoro Energy ASA</strong> (<strong>1.96%</strong> en bono, divisa USD) que representa el único activo corporativo identificado nominalmente y constituye un outlier de riesgo en la cartera.</p><p class="pr">Desde la perspectiva geográfica, la cartera está casi íntegramente denominada en EUR excepto la posición en <strong>Panoro Energy</strong> (USD). Alemania concentra de facto más del <strong>50%</strong> en soberano, mientras Reino Unido, Francia y escandinavia absorben pequeñas porciones a través de renta variable exterior y bonos corporativos. Así, el fondo exhibe un sesgo eurocentrado con peso abrumador en deuda germana de calidad crediticia superior, combinado con pequeños satélites de renta variable.</p><p class="pr">La estrategia actual puede caracterizarse como <strong>defensiva con ancla de convicción</strong>: el blindaje en bunds alemanes sugiere una tesis de tasas en descenso, apreciación relativa de deuda segura, o simplemente estacionamiento en activos de máxima solvencia en un contexto de incertidumbre. La liquidez bilateral (repos BNP Paribas) indica gestión pasiva de excedentes de caja sin apuesta específica. La presencia residual de equities y crédito corporativo refleja tolerancia a riesgo puntual, pero no constituye un motor de retorno esperado del fondo.</p>
   </div>
 
   
@@ -362,7 +533,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">17</div><div class="kpi-sub">vs media hist. 20</div></div>
     <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">82,3%</div><div class="kpi-sub">vs media hist. 83,4%</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">1,8%</div><div class="kpi-sub">vs media hist. 3,7%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">67,1%</div><div class="kpi-sub">Otros · Renta fija 16,3% · Renta variable 14,5%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">81,5%</div><div class="kpi-sub">Renta variable · Renta fija 16,3%</div></div>
   </div>
 
   <div class="col2 mb20">
@@ -370,13 +541,16 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.9</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.6</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.06</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.70</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">2.20</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.22</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.06</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.14</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">5.57</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.66</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-3.7</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-3.9</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">13.3%</strong> · 3A <strong style="color:var(--ink);">9.0%</strong> · 5A <strong style="color:var(--ink);">6.6%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Mid · Value</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:var(--ink-2);line-height:1.1;">—</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★★★</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">5 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">EUR Cautious Allocation</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">STOXX Europe 600</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">12.40</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">18.01</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">1.01</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.28</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">0.74</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">1.70</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">3.92</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">11.04</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">2.5 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:13%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.96%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.51%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:0%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.01%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:41%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.07%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 17% · caídas -0% · ratio -171.0</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2018</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:10%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">25%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:26%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">66%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">251%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:33%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">82%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:37%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">93%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:35%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">89%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:39%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">98%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 101%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">17%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:17%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">-0%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:-0%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Energía</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:17%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">30.4% <span style="color:var(--navy);">(+25)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:91%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:66%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">27.6% <span style="color:var(--navy);">(+8)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:85%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:41%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">25.9% <span style="color:var(--navy);">(+13)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:36%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:23%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">10.9% <span style="color:var(--navy);">(+4)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Materiales básicos</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:12%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:19%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">3.8% <span style="color:#c0552e;">(-2)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:5%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:10%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">1.4% <span style="color:#c0552e;">(-2)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> STOXX Europe 600 · (dif. en pp)</div></div></div></div>
+
   <div class="sr">Todas las posiciones (17)</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="Resto Renta Fija Privada Cotizada">Resto Renta Fija Privada Cotizada</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:106px;background:#0c2340;"></div>13,3%</div></td>
@@ -384,7 +558,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(26,77,46,0.22999999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+10,5%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:92px;background:#0c2340;"></div>11,5%</div></td>
@@ -393,6 +568,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="Resto Renta Variable Exterior">Resto Renta Variable Exterior</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:81px;background:#0c2340;"></div>10,2%</div></td>
@@ -400,7 +576,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(107,26,26,0.14549999999999993);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-1,3%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:62px;background:#0c2340;"></div>7,8%</div></td>
@@ -408,7 +585,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(26,77,46,0.1365);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,1%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:61px;background:#0c2340;"></div>7,7%</div></td>
@@ -416,7 +594,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(26,77,46,0.13500000000000004);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,1%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:57px;background:#0c2340;"></div>7,2%</div></td>
@@ -424,7 +603,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(26,77,46,0.109);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,6%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:57px;background:#0c2340;"></div>7,2%</div></td>
@@ -432,7 +612,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(26,77,46,0.10750000000000004);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,6%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:56px;background:#0c2340;"></div>7,0%</div></td>
@@ -440,7 +621,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(26,77,46,0.0985);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,4%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:48px;background:#0c2340;"></div>6,0%</div></td>
@@ -449,6 +631,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="Resto Renta Variable Interior">Resto Renta Variable Interior</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:34px;background:#0c2340;"></div>4,2%</div></td>
@@ -456,7 +639,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(26,77,46,0.125);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,9%</span></td>
 </tr><tr>
   <td title="BNP Paribas, S.A.">BNP Paribas, S.A.</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
@@ -464,7 +648,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(107,26,26,0.08900000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,5%</div></td>
@@ -472,7 +657,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(107,26,26,0.22999999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-3,2%</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -480,7 +666,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="background:rgba(107,26,26,0.22999999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-4,3%</span></td>
 </tr><tr>
   <td title="BNP Paribas, S.A.">BNP Paribas, S.A.</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Repo</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,1%</div></td>
@@ -489,6 +676,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="Panoro Energy ASA">Panoro Energy ASA</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
@@ -496,7 +684,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span class="delta-new">NUEVO</span></td>
 </tr><tr>
   <td title="Estado Aleman">Estado Aleman</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Activos</span></td>
+  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -505,6 +694,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="Resto Renta Fija Privada Cotizada">Resto Renta Fija Privada Cotizada</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
@@ -915,7 +1105,11 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   </div>
 
   <script>
-  const CHAT_API = 'http://localhost:8899';
+  // Mismo backend que el feedback (web_server, API_BASE de localStorage) —
+  // ya NO hace falta arrancar chat_server.py aparte.
+  const CHAT_API = (localStorage.getItem('fa_api_base') || '');
+  const CHAT_ISIN = 'ES0119207001';
+  let chatHistory = [];
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const chatSend = document.getElementById('chatSend');
@@ -932,16 +1126,21 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   // Check server status
   async function checkServer() {
     try {
-      const r = await fetch(CHAT_API + '/api/info');
+      const r = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN + '/info');
       if (r.ok) {
         const d = await r.json();
-        chatDot.classList.add('on');
-        chatStatusText.textContent = 'Conectado — ' + d.documents_loaded.length + ' documentos cargados';
-        return true;
+        if (d.llm_ready) {
+          chatDot.classList.add('on');
+          chatStatusText.textContent = 'Conectado — ' + (d.documents_loaded || []).length + ' documentos';
+          return true;
+        }
+        chatDot.classList.remove('on');
+        chatStatusText.textContent = 'Chat no configurado en el servidor (falta API key).';
+        return false;
       }
     } catch(e) {}
     chatDot.classList.remove('on');
-    chatStatusText.textContent = 'Servidor no disponible. Ejecutar: python chat_server.py ES0119207001';
+    chatStatusText.textContent = 'Chat disponible con el servidor del dashboard activo.';
     return false;
   }
   checkServer();
@@ -980,7 +1179,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
     const online = await checkServer();
     if (!online) {
-      addMessage('Servidor no disponible. Ejecuta: python chat_server.py ES0119207001', 'system');
+      addMessage('El chat necesita el servidor del dashboard activo. Abre este fondo desde el catálogo (no como archivo suelto en el navegador) y vuelve a intentarlo.', 'system');
       return;
     }
 
@@ -993,33 +1192,21 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     const typing = addTyping();
 
     try {
-      const resp = await fetch(CHAT_API + '/api/chat', {
+      const resp = await fetch(CHAT_API + '/api/chat/' + CHAT_ISIN, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: q}),
+        body: JSON.stringify({question: q, history: chatHistory}),
       });
-
-      // Remove typing indicator and create AI message
       typing.remove();
-      const aiDiv = addMessage('', 'ai');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, {stream: true});
-        fullText += chunk;
-        let html = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n/g, '<br>');
-        aiDiv.innerHTML = html;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
+      const d = await resp.json();
+      const ans = (d && d.answer) ? d.answer : 'Sin respuesta.';
+      addMessage(ans, 'ai');
+      chatHistory.push({role: 'user', text: q});
+      chatHistory.push({role: 'ai', text: ans});
+      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     } catch(e) {
       typing.remove();
-      addMessage('Error de conexion: ' + e.message, 'system');
+      addMessage('Error de conexión: ' + e.message, 'system');
     }
 
     chatBusy = false;
@@ -1032,9 +1219,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     sendChat();
   }
 
-  async function clearChat() {
-    chatMessages.innerHTML = '<div class="chat-msg system">Conversacion limpiada.</div>';
-    try { await fetch(CHAT_API + '/api/clear', {method: 'POST'}); } catch(e) {}
+  function clearChat() {
+    chatMessages.innerHTML = '<div class="chat-msg system">Conversación limpiada.</div>';
+    chatHistory = [];
   }
   </script>
 </section>
@@ -1371,16 +1558,54 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
       if (feedbacks.length === 0) { historySection.style.display = 'none'; return; }
       historySection.style.display = 'block';
       historyBody.innerHTML = feedbacks.slice().reverse().map(fb => {
-        const items = (fb.structured_items || []).map(it => {
+        // T3.X (2026-05-28): mostrar resultado per item (applied + reason)
+        // + verify (resolved + verify_reason). Si el item no se resolvió,
+        // el usuario ve POR QUÉ.
+        const itemResults = fb.item_results || [];
+        const resolvedSet = new Set(fb.resolved_items || []);
+        const items = (fb.structured_items || []).map((it, idx) => {
           const target = it.target_path || it.target_section || '(global)';
-          return `<div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>`;
+          const result = itemResults[idx] || {};
+          // Calcular estado visual
+          let badge = '<span style="color:#888;">⏳ pendiente</span>';
+          let detail = '';
+          if (resolvedSet.has(idx) || result.resolved === true) {
+            badge = '<span style="color:#1b8c3b;">✓ resuelto</span>';
+            if (result.verify_reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.verify_reason}</div>`;
+          } else if (result.applied === false) {
+            badge = '<span style="color:#cc0033;">✗ no se aplicó</span>';
+            detail = `<div style="font-size:11px;color:#cc0033;margin-top:3px;">${result.reason || 'sin razón registrada'}</div>`;
+          } else if (result.applied === true && result.resolved === false) {
+            badge = '<span style="color:#b8860b;">⚠ aplicado pero no resuelto</span>';
+            const r1 = result.reason ? `<div style="font-size:11px;color:#555;margin-top:3px;">Aplicado: ${result.reason}</div>` : '';
+            const r2 = result.verify_reason ? `<div style="font-size:11px;color:#b8860b;margin-top:3px;">Verify: ${result.verify_reason}</div>` : '';
+            detail = r1 + r2;
+          } else if (result.applied === true) {
+            badge = '<span style="color:#1b8c3b;">✓ aplicado</span>';
+            if (result.reason) detail = `<div style="font-size:11px;color:#555;margin-top:3px;">${result.reason}</div>`;
+          }
+          return `<div style="padding:8px 0;border-bottom:1px dashed #ddd;">
+            <div>· <code>${it.action}</code> <strong>${target}</strong>${it.value !== null && it.value !== undefined ? ' → ' + JSON.stringify(it.value).substring(0,60) : ''}</div>
+            <div style="margin-top:3px;">${badge}</div>
+            ${detail}
+          </div>`;
         }).join('');
         const ts = new Date(fb.created_at).toLocaleString('es-ES');
         const canDelete = fb.estado === 'pending';
+        // M6 (2026-06-06): banner si la skill analyst-cowork no se pronunció
+        // sobre el feedback (status none/partial). Distingue «skill no cooperó»
+        // de «no se pudo mejorar».
+        const diag = fb.skill_diagnostic || {};
+        let diagBanner = '';
+        if (diag.status === 'none' || diag.status === 'partial') {
+          const dc = diag.status === 'none' ? '#cc0033' : '#b8860b';
+          diagBanner = `<div style="margin-top:6px;padding:6px 8px;border-left:3px solid ${dc};background:#fff8f0;font-size:11px;color:${dc};">⚠ ${diag.message || 'El analyst no se pronunció sobre el feedback.'}</div>`;
+        }
         return `<div class="fb-history-item estado-${fb.estado}">
           ${canDelete ? `<button class="fb-history-delete" data-del-fb="${fb.id}">🗑 borrar</button>` : ''}
           <div class="fb-history-meta">${ts} · estado: <strong>${fb.estado}</strong>${fb.run_id_applied ? ' · run: ' + fb.run_id_applied : ''}</div>
           <div class="fb-history-text">${(fb.raw_text || '').substring(0,400)}</div>
+          ${diagBanner}
           <div class="fb-history-items">${items}</div>
         </div>`;
       }).join('');
@@ -1583,7 +1808,7 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://tools.morningstar.es/api/rest.svc/timeseries_price/2nhcdckzon?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);

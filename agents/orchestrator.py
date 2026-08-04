@@ -896,9 +896,29 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
             log("ANALYST", "ERROR", f"Paso 3 falló: {exc}")
             import traceback
             log("ANALYST", "TRACE", traceback.format_exc()[:500])
-            output = {"isin": isin, "error": str(exc)}
+            # NO pisar un output.json bueno previo con un stub de error (pérdida de datos:
+            # un analyst que peta por saldo/timeout borraría el análisis entero del fondo).
+            # El error va a un sidecar; solo escribimos el stub si NO había análisis previo.
+            err = {"isin": isin, "error": str(exc)}
             out_path = fund_dir / "output.json"
-            out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
+            (fund_dir / "output.error.json").write_text(
+                json.dumps(err, ensure_ascii=False, indent=2), encoding="utf-8")
+            prev = None
+            if out_path.exists():
+                try:
+                    _p = json.loads(out_path.read_text(encoding="utf-8"))
+                    if _p.get("analyst_synthesis") or _p.get("nombre"):
+                        prev = _p
+                except Exception:
+                    prev = None
+            if prev is not None:
+                log("ANALYST", "WARN", "analyst falló → se PRESERVA el output.json previo bueno "
+                    "(error en output.error.json)")
+                output = prev
+            else:
+                out_path.write_text(json.dumps(err, ensure_ascii=False, indent=2), encoding="utf-8")
+                output = err
+            results["output"] = output
 
         progress.advance(main_task)
 
@@ -1407,7 +1427,14 @@ async def _run_quality_loop(
                 last_backup = iter_backups[-1]
                 if last_backup.exists():
                     try:
-                        output_path_for_backup.write_text(last_backup.read_text(encoding="utf-8"), encoding="utf-8")
+                        # Restauración ATÓMICA (os.replace): una copia interrumpida dejaba
+                        # output.json truncado a mitad (bug documentado). tmp + replace nunca
+                        # deja el fichero a medias.
+                        import os as _os
+                        _content = last_backup.read_text(encoding="utf-8")
+                        _tmp = output_path_for_backup.with_suffix(".json.tmp")
+                        _tmp.write_text(_content, encoding="utf-8")
+                        _os.replace(_tmp, output_path_for_backup)
                         log("QUALITY", "ROLLBACK", f"Restaurado output desde {last_backup.name} (iter {iteration} no mejoró)")
                     except Exception as exc:
                         log("QUALITY", "WARN", f"Rollback falló: {exc}")
