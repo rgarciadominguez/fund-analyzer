@@ -1265,6 +1265,29 @@ def make_app(cold_start: bool = True) -> Flask:
             "queue_size": len(QUEUE),
         })
 
+    @app.route("/api/admin/health", methods=["GET"])
+    def api_admin_health():
+        """Estado de los canarios de dependencias externas + warnings de frescura por fondo.
+        Para que el catálogo/admin muestre en ámbar/rojo cuando algo está roto (Morningstar
+        movió host, series congeladas, etc.). Lee los ficheros de estado que escribe el
+        healthcheck diario; opcionalmente re-corre en vivo con ?live=1."""
+        import json as _json
+        from pathlib import Path as _P
+        base = _P(__file__).resolve().parent.parent / "data"
+        out = {}
+        try:
+            if request.args.get("live") == "1":
+                from tools.healthcheck import run_all
+                out["salud"] = run_all()
+            else:
+                sf = base / "healthcheck_status.json"
+                out["salud"] = _json.loads(sf.read_text(encoding="utf-8")) if sf.exists() else None
+            wf = base / "analysis_warnings.json"
+            out["warnings_frescura"] = _json.loads(wf.read_text(encoding="utf-8")) if wf.exists() else {}
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        return jsonify(out)
+
     @app.route("/api/admin/costs", methods=["GET"])
     def api_admin_costs():
         """Panel admin: coste LLM por categoría (análisis de fondos vs procesar imágenes),
