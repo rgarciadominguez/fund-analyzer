@@ -223,8 +223,23 @@ def sync(apply: bool = False, prices: bool = False) -> dict:
     print(f"escrito {METRICAS_JSON} ({len(mjson)} ISIN)")
 
     if apply:
-        for i in range(0, len(met), 100):
-            client.table("hf_asset_metrics").upsert(met[i:i+100], on_conflict="isin").execute()
+        # Resiliente a columnas underwater ausentes: si nuestra hf_asset_metrics no tiene el
+        # ALTER (dias_bajo_agua...), NO fallar el sync entero — reintentar sin esas columnas.
+        # (Antes se omitían solo si null; con la serie viva salen con dato y rompían el upsert.)
+        _UW = ("dias_bajo_agua", "racha_max_bajo_agua_dias", "pct_tiempo_bajo_agua", "n_puntos")
+        try:
+            for i in range(0, len(met), 100):
+                client.table("hf_asset_metrics").upsert(met[i:i+100], on_conflict="isin").execute()
+        except Exception as _e:
+            if "Could not find" in str(_e) or "PGRST204" in str(_e):
+                print(f"  [aviso] hf_asset_metrics sin columnas underwater (falta ALTER) → "
+                      f"escribo sin ellas. Corre data/migrations/2026-07-23_metrics_underwater.sql "
+                      f"para tenerlas.")
+                met2 = [{k: v for k, v in r.items() if k not in _UW} for r in met]
+                for i in range(0, len(met2), 100):
+                    client.table("hf_asset_metrics").upsert(met2[i:i+100], on_conflict="isin").execute()
+            else:
+                raise
         for i in range(0, len(ann), 200):
             client.table("hf_asset_annual_returns").upsert(ann[i:i+200], on_conflict="isin,anio").execute()
         print(f"upsert: {len(met)} métricas + {len(ann)} rendimientos (por ISIN)")
