@@ -310,11 +310,36 @@ def run_all(only: str | None = None) -> dict:
     return resumen
 
 
+def precheck(criticos=("morningstar_serie", "morningstar_screener", "supabase")) -> tuple[bool, list]:
+    """Pre-check RÁPIDO antes de un análisis: solo los canarios críticos para no gastar el
+    pipeline si una dependencia clave está rota. Devuelve (ok, motivos_fallo)."""
+    fallos = []
+    for name in criticos:
+        try:
+            r = CANARIES[name]()
+            if not r["ok"]:
+                fallos.append(f"{name}: {r['status']} — {r['detalle']}")
+        except Exception as e:
+            fallos.append(f"{name}: EXCEPCION {str(e)[:60]}")
+    return (len(fallos) == 0, fallos)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--only")
+    ap.add_argument("--precheck", action="store_true",
+                    help="solo canarios críticos (pre-análisis); exit!=0 si alguno roto")
     a = ap.parse_args()
+    if a.precheck:
+        ok, fallos = precheck()
+        if ok:
+            print("[PRECHECK] dependencias críticas OK")
+            sys.exit(0)
+        print("[PRECHECK] DEPENDENCIA CRÍTICA ROTA — no arranques el pipeline:")
+        for f in fallos:
+            print(f"  XX {f}")
+        sys.exit(1)
     r = run_all(only=a.only)
     if a.json:
         print(json.dumps(r, ensure_ascii=False, indent=1))

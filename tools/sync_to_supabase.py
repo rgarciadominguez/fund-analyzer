@@ -767,6 +767,15 @@ def _sync_fund_impl(
     except Exception as _e:
         log(f"[SYNC] cost_sync falló (no crítico): {str(_e)[:80]}")
 
+    # Aserción de frescura: si el fondo está cubierto por Morningstar pero su serie NAV sale
+    # vacía/congelada, el run se marca completed_with_warnings (no "verde"). Formaliza el
+    # rows=0 que antes solo se logueaba — para que el bug de host muerto no pase en silencio.
+    try:
+        from tools.freshness_guard import check_and_record
+        check_and_record(isin, log=log)
+    except Exception as _e:
+        log(f"[SYNC] freshness_guard falló (no crítico): {str(_e)[:80]}")
+
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
 
     return {

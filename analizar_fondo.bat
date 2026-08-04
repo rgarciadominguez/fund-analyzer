@@ -42,6 +42,18 @@ if "%ISIN%"=="" (
     exit /b 1
 )
 
+REM Pre-check de dependencias criticas (Morningstar/Supabase) antes de gastar el pipeline.
+REM Si una esta rota, AVISA (no aborta salvo FUND_PRECHECK_STRICT=1) para no analizar a ciegas.
+python -m tools.healthcheck --precheck
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [AVISO] Una dependencia critica esta ROTA ^(ver arriba^). El analisis puede salir con
+    echo         datos vacios/congelados. Revisa data\healthcheck_status.json / corre dep_autocure.
+    if "%FUND_PRECHECK_STRICT%"=="1" ( echo Abortando ^(FUND_PRECHECK_STRICT=1^). & exit /b 2 )
+    echo         Continuando de todas formas ^(pon FUND_PRECHECK_STRICT=1 para abortar^)...
+    echo.
+)
+
 REM Parse flags (position-independent across args 2-4)
 if "%2"=="--resume" set RESUME_MODE=1
 if "%3"=="--resume" set RESUME_MODE=1
