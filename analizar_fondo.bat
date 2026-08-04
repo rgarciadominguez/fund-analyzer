@@ -43,16 +43,14 @@ if "%ISIN%"=="" (
 )
 
 REM Pre-check de dependencias criticas (Morningstar/Supabase) antes de gastar el pipeline.
-REM Si una esta rota, AVISA (no aborta salvo FUND_PRECHECK_STRICT=1) para no analizar a ciegas.
-python -m tools.healthcheck --precheck
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo [AVISO] Una dependencia critica esta ROTA ^(ver arriba^). El analisis puede salir con
-    echo         datos vacios/congelados. Revisa data\healthcheck_status.json / corre dep_autocure.
-    if "%FUND_PRECHECK_STRICT%"=="1" ( echo Abortando ^(FUND_PRECHECK_STRICT=1^). & exit /b 2 )
-    echo         Continuando de todas formas ^(pon FUND_PRECHECK_STRICT=1 para abortar^)...
-    echo.
-)
+REM Si una esta rota, AVISA (no aborta salvo FUND_PRECHECK_STRICT=1). En modo --resume se
+REM salta (no tiene sentido re-chequear red al reconsumir outputs ya en disco).
+REM Sin bloques () anidados: rompen el parseo del bat.
+set PRECHECK_RC=0
+echo %* | findstr /C:"--resume" >nul || python -m tools.healthcheck --precheck
+if errorlevel 1 set PRECHECK_RC=1
+if not "%PRECHECK_RC%"=="0" echo [AVISO] Dependencia critica ROTA: revisa data\healthcheck_status.json o corre "python -m tools.dep_autocure". Continuando (pon FUND_PRECHECK_STRICT=1 para abortar)...
+if not "%PRECHECK_RC%"=="0" if "%FUND_PRECHECK_STRICT%"=="1" exit /b 2
 
 REM Parse flags (position-independent across args 2-4)
 if "%2"=="--resume" set RESUME_MODE=1

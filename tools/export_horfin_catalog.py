@@ -57,7 +57,8 @@ REFRESH_FROM_FUNDS = [
     "benchmark", "estrellas", "comision_suscripcion", "descripcion", "categoria_activo", "kid",
 ]
 # clasificacion_user: la lleva RAFA en el portal (decisión definitiva 2026-07-23).
-# fund-analyzer DEJA DE CLASIFICAR (ni asignar ni propagar) → el export NO la emite.
+# fund-analyzer DEJA DE CLASIFICAR (ni asignar ni propagar) → el export la emite SIEMPRE null
+# (la columna sigue en FIELDS_34 por compatibilidad; el portal ya no la lee).
 
 # Semántica de vacío: null. NUNCA "" ni "n.a." (rompería el sync de Horizonte).
 _EMPTY = {"", "n.a.", "N.A.", "na", "NA", "null", "None", "-"}

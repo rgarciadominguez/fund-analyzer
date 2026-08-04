@@ -27,13 +27,27 @@ MIN_POINTS = 30
 def check_serie(isin: str) -> dict:
     """{ok, motivo, n_puntos, ultima}. ok=False SOLO si el fondo está cubierto por Morningstar
     (screener devuelve secid) pero la serie sale vacía/congelada — el bug real. Si no está
-    cubierto, ok=True (no es un fallo, es que Morningstar no lo tiene). Best-effort."""
+    cubierto, ok=True (no es un fallo, es que Morningstar no lo tiene). Best-effort.
+
+    OJO (2026-08-04): screener y serie pegan al MISMO host. Si el host cae, fetch_quant
+    devuelve {} SIN excepción → no podemos concluir 'no cubierto' (sería verde en falso, el
+    escenario exacto que este guard debe cazar). Por eso, si el screener del fondo sale vacío,
+    distinguimos con el activo-testigo: si el testigo TAMPOCO responde, el host está caído →
+    AVISO 'no verificable', nunca verde."""
+    from tools.morningstar_quant import fetch_quant
     try:
-        from tools.morningstar_quant import fetch_quant
         cubierto = bool((fetch_quant(isin) or {}).get("secid"))
     except Exception:
-        cubierto = True  # ante la duda, chequeamos (no silenciamos)
+        cubierto = True
     if not cubierto:
+        # ¿screener realmente sin este fondo, o host caído? Preguntar al testigo.
+        try:
+            testigo_ok = bool((fetch_quant("IE00B6T42S66") or {}).get("secid"))
+        except Exception:
+            testigo_ok = False
+        if not testigo_ok:
+            return {"ok": False, "motivo": "screener Morningstar caído (no verificable)",
+                    "n_puntos": 0, "ultima": None}
         return {"ok": True, "motivo": "no cubierto por Morningstar", "n_puntos": 0, "ultima": None}
     try:
         from tools.morningstar_daily import fetch_series

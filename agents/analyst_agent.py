@@ -4082,26 +4082,20 @@ class AnalystAgent:
                 return _json.loads(cache.read_text(encoding="utf-8"))
         except Exception:
             pass
+        # Serie NAV desde el fetcher canónico (host correcto lt.morningstar.com + key
+        # klr5zyak8x). NO hardcodear la URL aquí: si Morningstar mueve host otra vez, se
+        # arregla en un solo sitio (morningstar_daily) y este canario lo detecta.
         try:
-            import httpx
-            url = (f"https://tools.morningstar.es/api/rest.svc/timeseries_price/"
-                   f"2nhcdckzon?id={isin}&idtype=Isin&frequency=daily&"
-                   f"startDate=1900-01-01&outputType=compactJSON")
-            with httpx.Client(timeout=15, follow_redirects=True,
-                              headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}) as c:
-                r = c.get(url)
-                if r.status_code != 200:
-                    return {}
-                arr = r.json()
+            from tools.morningstar_daily import fetch_series
+            arr = fetch_series(isin)   # [(timestamp_ms, nav), ...]
         except Exception:
             return {}
-        if not isinstance(arr, list) or not arr:
+        if not arr:
             return {}
-        # arr es [[timestamp_ms, nav], ...]
         from datetime import datetime as _dt
         pts = []
         for it in arr:
-            if not isinstance(it, list) or len(it) < 2:
+            if not isinstance(it, (list, tuple)) or len(it) < 2:
                 continue
             try:
                 ts, v = float(it[0]), float(it[1])

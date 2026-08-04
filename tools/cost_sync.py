@@ -61,10 +61,12 @@ def rollup_months(client, apply: bool = False) -> int:
     from tools.cost_monitor import by_month
     n = 0
     for m in by_month(months=120):
+        calls_cat = m.get("n_calls_por_categoria") or {}
         for cat, cost in (m.get("por_categoria") or {}).items():
             rec = {
                 "mes": m["mes"], "categoria": cat,
-                "cost_usd": round(cost, 4), "n_calls": m["n_calls"],
+                "cost_usd": round(cost, 4),
+                "n_calls": calls_cat.get(cat, 0),   # n_calls DE ESA categoría, no el total del mes
                 "updated_at": _now(),
             }
             if apply:

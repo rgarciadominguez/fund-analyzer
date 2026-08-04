@@ -102,9 +102,20 @@ def test_canary_serie_fresca(monkeypatch):
 def test_freshness_no_cubierto_no_avisa(monkeypatch):
     import tools.freshness_guard as fg
     import tools.morningstar_quant as mq
-    monkeypatch.setattr(mq, "fetch_quant", lambda isin: {})            # sin secid = no cubierto
+    # testigo (Trojan) SÍ responde, el fondo NO → genuinamente no cubierto (no host caído)
+    monkeypatch.setattr(mq, "fetch_quant",
+                        lambda isin: {"secid": "TESTIGO"} if isin == "IE00B6T42S66" else {})
     r = fg.check_serie("ES9999999999")
     assert r["ok"] is True and "no cubierto" in r["motivo"]
+
+
+def test_freshness_host_caido_no_verde(monkeypatch):
+    import tools.freshness_guard as fg
+    import tools.morningstar_quant as mq
+    # ni el fondo ni el testigo responden → host caído → NO verde (el bug que debe cazar)
+    monkeypatch.setattr(mq, "fetch_quant", lambda isin: {})
+    r = fg.check_serie("ES9999999999")
+    assert r["ok"] is False and "caído" in r["motivo"]
 
 
 def test_freshness_cubierto_pero_vacio_avisa(monkeypatch):

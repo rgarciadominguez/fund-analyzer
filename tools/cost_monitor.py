@@ -251,20 +251,25 @@ def by_month(months: int = 12) -> list[dict]:
     """Coste por mes natural (todos los meses del log), con desglose por categoría.
     Nivel MENSUAL que pide el admin."""
     entries = _read_entries()
+    # por categoría guardamos coste Y n_calls (para que cost_month no duplique el total del
+    # mes en cada fila categoría → sumar por categorías daba doble/triple conteo).
     agg = defaultdict(lambda: {"cost_usd": 0.0, "n_calls": 0,
-                               "cat": defaultdict(float)})
+                               "cat_cost": defaultdict(float), "cat_calls": defaultdict(int)})
     for e in entries:
         mes = (e.get("date") or "")[:7]  # YYYY-MM
         if not mes:
             continue
+        cat = e.get("categoria") or CAT_ANALISIS
         agg[mes]["cost_usd"] += e["cost_usd"]
         agg[mes]["n_calls"] += 1
-        agg[mes]["cat"][e.get("categoria") or CAT_ANALISIS] += e["cost_usd"]
+        agg[mes]["cat_cost"][cat] += e["cost_usd"]
+        agg[mes]["cat_calls"][cat] += 1
     out = [{"mes": m,
             "cost_usd": round(v["cost_usd"], 4),
             "cost_eur": round(v["cost_usd"] * EUR_USD_RATIO, 4),
             "n_calls": v["n_calls"],
-            "por_categoria": {k: round(c, 4) for k, c in v["cat"].items()}}
+            "por_categoria": {k: round(c, 4) for k, c in v["cat_cost"].items()},
+            "n_calls_por_categoria": dict(v["cat_calls"])}
            for m, v in agg.items()]
     return sorted(out, key=lambda x: x["mes"], reverse=True)[:months]
 

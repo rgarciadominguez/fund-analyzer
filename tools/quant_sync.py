@@ -85,7 +85,7 @@ def build_per_isin(client, want_prices: bool = False):
     """Por cada ISIN sus PROPIAS métricas (difieren por clase). HÍBRIDO:
       - screener Morningstar (lt.morningstar.com, por SecId/clase): trailing rentab/vol/maxDD
         → SIEMPRE disponible, difiere por clase (fuente primaria).
-      - serie diaria (tools.morningstar.es): rentab por año natural + UNDERWATER + vol/cagr
+      - serie diaria (morningstar_daily.fetch_series, host lt.morningstar.com): rentab por año natural + UNDERWATER + vol/cagr
         de por vida → cuando el endpoint responde (a veces rate-limita); si no, esos campos null.
     Devuelve (met_rows, ann_rows, price_rows, metricas_json, sin_metrica)."""
     from tools.morningstar_daily import fetch_series, metrics_from_series
