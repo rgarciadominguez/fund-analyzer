@@ -139,6 +139,7 @@ Para tasks con `two_stage: true` → siempre Tipo B.
 - **Cifras literales**: AUM, TER, %, fechas, partícipes — copia desde el PDF, no inventes ni redondees.
 - **Anti-invención**: si un campo del schema NO está en el PDF, devuelve `null` o `""` (no hagas suposiciones).
 - **Sub-fondos vs umbrella SICAV**: si el PDF es de un SICAV-paraguas con sub-fondos, extrae datos del sub-fondo target indicado en `context`. NO sumes AUM agregados del paraguas.
+- **Cartera COMPLETA (crítico en renta fija)**: `posiciones` = la sección `Securities Portfolio`/`Schedule of Investments` ENTERA, no el `Top Ten Holdings`. En un fondo de bonos son 100-300+ líneas en 5-15 páginas: lee TODAS esas páginas (como imagen si el texto es CID/ilegible) y extrae CADA línea. Si terminas con ≤15 posiciones en un fondo de deuda, NO leíste la sección completa → vuelve y pagina por todo el portfolio. El `Top Ten` va SOLO en `top_10`. Para cada bono captura `emisor` y, si el AR trae columna de rating crediticio (Moody's/S&P/Fitch), el `rating` literal; si no hay columna de rating → `rating: null` (no lo inventes).
 - **Fechas**: formato ISO `YYYY-MM-DD` siempre que sea posible.
 - **Idiomas**: respeta el idioma original del PDF en cualitativo. NO traduzcas inglés→español ni viceversa.
 

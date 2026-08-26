@@ -1,6 +1,39 @@
 {
   "_doc": "AR oficiales verificados (URLs directas, completas, NO Wayback). Sourcing A.2 (2026-06-10). El downloader (tools/fetch_annual_report.py) y el discovery consultan esto antes de scrapear. Un AR de paraguas cubre todos los ISINs listados.",
   "umbrellas": {
+    "Alpha Fixed Income UCITS Fund": {
+      "isins": ["IE000Z9YV312", "IE000RDB0I49"],
+      "documents_page": "https://www.finect.com/fondos-inversion/IE000Z9YV312-alpha-fixed-income-ucits-fund",
+      "_nota": "MontLake UCITS Platform ICAV (Waystone). FY cierra 30 jun. AR REAL vía Finect doclegal por ISIN (investmentid Morningstar F00001LHAK=EUR / F00001JEOE=USD; misma cartera del sub-fondo). Verificado 2026-08-26: menciona Alpha Fixed/MontLake/Fortune/Waystone (4.75MB). OJO: swissfunddata anr-9360 NO es este fondo (es SC Modus Classic Defender) — descartado por anti-invención. Prosa en fuente CID → leer como imagen.",
+      "reports": [
+        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00001LHAK&documenttype=4&market=0&investmenttype=1&format=PDF&frame=0"}
+      ],
+      "semi_annual_reports": [
+        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00001LHAK&documenttype=5&market=0&investmenttype=1&format=PDF&frame=0"}
+      ]
+    },
+    "DNCA Invest Credit Conviction": {
+      "isins": ["LU0284393930"],
+      "documents_page": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930",
+      "_nota": "DNCA usa URLs download_doc_share por clase+tipo (AR/SAR). Verificadas 2026-08 (HTTP 200, application/pdf). Sirven el último; mismo patrón para otras clases/fondos DNCA Invest.",
+      "reports": [
+        {"year": "latest", "url": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930/AR-a-lu0284393930/download_doc_share?locale=en&country_code=INT"}
+      ],
+      "semi_annual_reports": [
+        {"year": "latest", "url": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930/SAR-a-lu0284393930/download_doc_share?locale=en&country_code=INT"}
+      ]
+    },
+    "Carmignac Portfolio Credit": {
+      "isins": ["LU1623762843"],
+      "documents_page": "https://www.carmignac.com/en/our-funds/carmignac-portfolio-credit-LU1623762843-a-eur-acc/documents",
+      "_nota": "AR/SAR por sub-fondo (no paraguas). URLs directas verificadas 2026-08 (HTTP 200, application/pdf). Se sirven con el último; históricos vía 'View archives' en la documents_page.",
+      "reports": [
+        {"year": "latest", "url": "https://www.carmignac.com/assets/yoda/AR_CCR_67_INT_en/Annual-Report_Carmignac-Portfolio-Credit_INTL_en.pdf"}
+      ],
+      "semi_annual_reports": [
+        {"year": "latest", "url": "https://www.carmignac.com/assets/yoda/SAR_CCR_67_INT_en/Semi-Annual-Report_Carmignac-Portfolio-Credit_INTL_en.pdf"}
+      ]
+    },
     "Robeco Capital Growth Funds": {
       "isins": ["LU0203975437", "LU0329355670", "LU1048590381", "LU1654173217"],
       "documents_page": "https://www.robeco.com/en-int/products/funds/isin-lu0203975437/robeco-bp-global-premium-equities-d-eur",
