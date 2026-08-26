@@ -418,7 +418,54 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
 <section class="pane" id="p3">
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
-  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
+
+  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
+
+  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
+
+  <div id="mst-evo-content" style="display:none;">
+    <!-- KPIs -->
+    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
+
+    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
+    </div>
+
+    <!-- Fila 2: Drawdown + Evolución histórica -->
+    <div class="col2 mb20">
+      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
+      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
+    </div>
+
+    <!-- Fila 3: Rolling dinámicos -->
+    <div class="col2 mb20">
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Rentabilidad rolling (anualizada)</span>
+          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12">1 año</option>
+            <option value="36" selected>3 años</option>
+            <option value="60">5 años</option>
+            <option value="120">10 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
+      </div>
+      <div class="ch-b">
+        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Volatilidad rolling</span>
+          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
+            <option value="12" selected>12 meses</option>
+            <option value="36">3 años</option>
+            <option value="60">5 años</option>
+          </select>
+        </div>
+        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="pane" id="p4">
@@ -465,10 +512,10 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">64</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">69</div><div class="kpi-sub">vs media hist. 0</div></div>
     <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">39,5%</div><div class="kpi-sub">—</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">96,0%</div><div class="kpi-sub">Renta fija · Liquidez 2,8% · Otros 1,0%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">84,4%</div><div class="kpi-sub">Renta fija · Liquidez 14,5%</div></div>
   </div>
 
   <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
@@ -477,7 +524,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     if (typeof Chart === 'undefined') return;
     const ctxMix = document.getElementById('c-mix');
     if (ctxMix) {
-      const tipos = [["RF", 96.0], ["CASH", 2.8], ["OTHER", 1.0]];
+      const tipos = [["RF", 84.4], ["CASH", 14.5]];
       new Chart(ctxMix, {
         type: 'doughnut',
         data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
@@ -497,14 +544,14 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.5</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.0</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.11</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.08</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.16</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.10</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.9</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-2.7</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">1.4%</strong> · 3A <strong style="color:var(--ink);">4.1%</strong> · 5A <strong style="color:var(--ink);">3.1%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Large · Value</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">23.04</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.86</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.96</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">16.70</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Renta fija</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">Calidad crediticia media</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">AA</td></tr></tbody></table></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:4%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.29%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.65%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:2%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.18%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:43%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.34%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 4% · caídas -7% · ratio -0.61</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">4%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:4%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">-7%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:-7%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Corporate Bonds</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">49.4%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Government Bonds</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:71%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">34.8%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Deposits</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:24%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">11.7%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Cash</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:6%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">2.8%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Otros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:2%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">1.0%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Derivatives</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:2%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">0.1%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Investment Funds</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:2%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">0.1%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> MSCI World · (dif. en pp)</div></div></div></div>
 
-  <div class="sr">Todas las posiciones (64)</div>
+  <div class="sr">Todas las posiciones (69)</div>
   <div class="pt-wrap">
     <table class="pt">
       <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th style="text-align:center;">Cupón</th><th style="text-align:center;">Venc.</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody><tr>
   <td title="1.500% United Kingdom Gilt 22/07/2026">1.500% UK Gilt 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">1.5%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-07-22</td>
@@ -514,7 +561,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.375% United Kingdom Gilt 07/03/2030">4.375% UK Gilt 2030</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.375%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2030-03-07</td>
@@ -524,8 +571,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.761% Bank of Nova Scotia 22/06/2026">4.761% Bank of Nova Scotia 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.761%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-06-22</td>
   <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
@@ -534,8 +581,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.573% Canadian Imperial Bank of Commerce 10/10/2029">4.573% Canadian Imperial Bank of Commerce 2029</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.573%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2029-10-10</td>
   <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,7%</div></td>
@@ -544,7 +591,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="0.100% Japan Government CPI Linked Bond 10/03/2027">0.100% Japan Government CPI Linked Bond 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.1%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-03-10</td>
@@ -554,8 +601,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.403% Royal Bank of Canada 18/03/2027">4.403% Royal Bank of Canada 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.403%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-03-18</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
@@ -563,18 +610,18 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="0.001% Goldman Sachs 23/02/2026">0.001% Goldman Sachs 2026</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Deposits</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
+  <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.001%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-02-23</td>
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>32%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Efectivo y equivalentes">Efectivo y equivalentes</td>
+  <td title="Cash and cash equivalents">Cash and cash equivalents</td>
   <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Cash</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">—</td>
@@ -584,7 +631,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.750% United Kingdom Gilt 22/10/2043">4.750% UK Gilt 2043</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.75%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2043-10-22</td>
@@ -594,7 +641,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="1.500% United Kingdom Gilt 31/07/2053">1.500% UK Gilt 2053</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">1.5%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2053-07-31</td>
@@ -604,8 +651,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.681% Royal Bank of Canada 18/01/2028">4.681% Royal Bank of Canada 2028</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.681%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2028-01-18</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -614,8 +661,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.317% United Overseas Bank Ltd 13/09/2027">4.317% United Overseas Bank Ltd 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Singapur</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.317%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-09-13</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
@@ -624,8 +671,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.464% TSB Bank Plc 14/02/2027">4.464% TSB Bank Plc 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.464%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-02-14</td>
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,2%</div></td>
@@ -633,9 +680,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="0.000% ANZ Banking Group Limited 06/11/2026">0.000% ANZ Banking Group Limited 2026</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Deposits</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
+  <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-11-06</td>
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
@@ -644,8 +691,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.690% Westpac Banking Corp 11/01/2028">4.690% Westpac Banking Corp 2028</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.69%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2028-01-11</td>
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
@@ -654,8 +701,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.491% Santander UK Plc 12/07/2027">4.491% Santander UK Plc 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.491%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-07-12</td>
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
@@ -664,8 +711,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.376% National Australia Bank Ltd 17/06/2026">4.376% National Australia Bank Ltd 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.376%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-06-17</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,9%</div></td>
@@ -674,7 +721,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="1.800% Japan Government Thirty Year Bond 20/03/2054">1.800% Japan Government Thirty Year Bond 2054</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">1.8%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2054-03-20</td>
@@ -683,9 +730,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="0.010% Lloyds Bank Plc 10/09/2026">0.010% Lloyds Bank Plc 2026</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Deposits</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.01%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-09-10</td>
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
@@ -693,9 +740,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.140% The Toronto Dominion Bank 21/07/2026">4.140% The Toronto Dominion Bank 2026</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Deposits</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.14%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-07-21</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
@@ -703,9 +750,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="0.010% Skandinaviska Enskilda Banken AB 09/09/2026">0.010% Skandinaviska Enskilda Banken AB 2026</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Deposits</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.01%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-09-09</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -713,9 +760,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="0.010% Macquarie Bank Limited 14/12/2026">0.010% Macquarie Bank Limited 2026</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Deposits</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
+  <td style="text-align:center;"><span class="tp-badge tp-cash">Liquidez</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.01%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-12-14</td>
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
@@ -724,7 +771,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="0.875% United Kingdom Gilt 31/07/2033">0.875% UK Gilt 2033</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.875%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2033-07-31</td>
@@ -734,8 +781,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.459% Commonwealth Bank of Australia 17/10/2027">4.459% Commonwealth Bank of Australia 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.459%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-10-17</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
@@ -744,8 +791,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.414% DBS Bank Ltd 14/05/2027">4.414% DBS Bank Ltd 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Singapur</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.414%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-05-14</td>
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
@@ -754,7 +801,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="0.125% United Kingdom Inflation-Linked Gilt 22/03/2051">0.125% United Kingdom Inflation-Linked Gilt 2051</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.125%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2051-03-22</td>
@@ -764,7 +811,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="0.750% United Kingdom Inflation-Linked Gilt 22/03/2034">0.750% United Kingdom Inflation-Linked Gilt 2034</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.75%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2034-03-22</td>
@@ -774,8 +821,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.888% National Bank of Canada 05/05/2026">4.888% National Bank of Canada 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.888%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-05-05</td>
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
@@ -784,8 +831,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.520% Nationwide Building Society 20/04/2026">4.520% Nationwide Building Society 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.52%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-04-20</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
@@ -794,7 +841,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="1.250% United Kingdom Gilt 31/07/2051">1.250% UK Gilt 2051</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">1.25%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2051-07-31</td>
@@ -804,8 +851,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.389% Santander UK Plc 12/05/2028">4.389% Santander UK Plc 2028</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.389%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2028-05-12</td>
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
@@ -814,7 +861,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="3.150% Spain Government Bond 30/04/2035">3.150% Spain Government Bond 2035</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">3.15%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2035-04-30</td>
@@ -824,8 +871,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.574% Federation des Caisses Desjardins du Quebec 15/07/2028">4.574% Federation des Caisses Desjardins du Quebec 2028</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.574%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2028-07-15</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -834,8 +881,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="6.625% Nat West Markets Plc 22/06/2026">6.625% Nat West Markets Plc 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">6.625%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-06-22</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -844,8 +891,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.287% Yorkshire Building Society 24/05/2029">4.287% Yorkshire Building Society 2029</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.287%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2029-05-24</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -854,8 +901,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.505% Skipton Building Society 22/10/2028">4.505% Skipton Building Society 2028</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.505%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2028-10-22</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
@@ -864,7 +911,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="1.750% Australia Government Bond 21/06/2051">1.750% Australia Government Bond 2051</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">1.75%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2051-06-21</td>
@@ -874,8 +921,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.320% United Overseas Bank Ltd 08/06/2029">4.320% United Overseas Bank Ltd 2029</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Singapur</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.32%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2029-06-08</td>
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
@@ -884,8 +931,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.381% Clydesdale Bank Plc 22/03/2026">4.381% Clydesdale Bank Plc 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.381%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-22</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -894,8 +941,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.744% PCL Funding IX Plc 16/07/2029">4.744% PCL Funding IX Plc 2029</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.744%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2029-07-16</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
@@ -904,8 +951,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.343% Westpac Banking Corp 03/07/2028">4.343% Westpac Banking Corp 2028</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.343%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2028-07-03</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -914,8 +961,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="5.000% Banque Federative du Credit Mutuel SA 19/01/2026">5.000% Banque Federative du Credit Mutuel SA 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">5%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-01-19</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
@@ -924,222 +971,272 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 </tr><tr>
   <td title="4.467% Federation des Caisses Desjardins du Quebec 30/11/2026">4.467% Federation des Caisses Desjardins du Quebec 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.467%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-11-30</td>
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Otros activos netos">Otros activos netos</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Otros</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Otros</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
-  <td>—</td>
-  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">—</td>
-  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
   <td title="4.603% Toronto-Dominion Bank 18/01/2027">4.603% Toronto-Dominion Bank 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.603%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-01-18</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.750% United Overseas Bank Ltd 21/09/2026">4.750% United Overseas Bank Ltd 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Singapur</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.75%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-09-21</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="5.500% Skandinaviska Enskilda Banken AB 01/06/2026">5.500% Skandinaviska Enskilda Banken AB 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">5.5%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-06-01</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.499% Deutsche Pfandbriefbank AG 01/09/2026">4.499% Deutsche Pfandbriefbank AG 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.499%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-09-01</td>
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.496% Santander UK Plc 12/12/2027">4.496% Santander UK Plc 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.496%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-12-12</td>
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="0.100% French Republic Government Bond OAT 25/07/2053">0.100% French Republic Government Bond OAT 2053</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.1%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2053-07-25</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="3.125% Nat West Group Plc 28/03/2027">3.125% Nat West Group Plc 2027</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">3.125%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2027-03-28</td>
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.321% Bank of Nova Scotia 15/09/2028">4.321% Bank of Nova Scotia 2028</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.321%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2028-09-15</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.377% DWR Cymru Financing UK Plc 31/03/2026">4.377% DWR Cymru Financing UK Plc 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.377%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-31</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>98%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="6.750% Heathrow Funding Ltd 03/12/2026">6.750% Heathrow Funding Ltd 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">6.75%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-12-03</td>
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>98%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.358% Leeds Building Society 15/08/2030">4.358% Leeds Building Society 2030</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.358%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2030-08-15</td>
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>98%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.621% Exmoor Funding 2024-1 Plc 25/03/2094">4.621% Exmoor Funding 2024-1 Plc 2094</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.621%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2094-03-25</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>98%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="0.100% Japan Government CPI Linked Bond 10/03/2026">0.100% Japan Government CPI Linked Bond 2026</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.1%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-10</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>100%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="4.419% OAK NO 5 Plc 28/07/2072">4.419% OAK NO 5 Plc 2072</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Corporate Bonds</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">4.419%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2072-07-28</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>100%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Interest Rate Swaps + Total Return Swaps + Forward FX">Interest Rate Swaps + Total Return Swaps + Forward FX</td>
+  <td style="text-align:center;"><span class="tp-badge tp-der">Forward</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">—</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="Royal London Sterling Liquidity Money Market Fund">Royal London Sterling Liquidity Money Market Fund</td>
   <td style="text-align:center;"><span class="tp-badge tp-etf">ETF / Fondo</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Investment Funds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">—</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>100%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Forward FX">Forward FX</td>
-  <td style="text-align:center;"><span class="tp-badge tp-der">Forward</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Derivatives</span></td>
+  <td title="US 10 Years Note Futures 20/03/2026">US 10 Years Note Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
-  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">—</td>
-  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>100%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Traded Futures">Traded Futures</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Future</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Derivatives</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
-  <td>—</td>
-  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">—</td>
-  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>100%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Total Return Swaps">Total Return Swaps</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Swap</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Derivatives</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
-  <td>—</td>
-  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-20</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>100%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="10 Years Bond Futures 13/03/2026">10 Years Bond Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-13</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Euro Buxl 30 Years Bond Futures 06/03/2026">Euro Buxl 30 Years Bond Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-06</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="AUD 10 Years Bond Futures 16/03/2026">AUD 10 Years Bond Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-16</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Euro Bund Futures 06/03/2026">Euro Bund Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-06</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Euro Oat Futures 06/03/2026">Euro Oat Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-06</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="Long Gilt Futures 27/03/2026">Long Gilt Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-27</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
+  <td><span style="color:var(--ink-5);">—</span></td>
+</tr><tr>
+  <td title="US 5 Years Note Futures 31/03/2026">US 5 Years Note Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
+  <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
+  <td>—</td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-31</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
   <td title="0.125% United Kingdom Inflation-Linked Gilt 22/03/2039">0.125% United Kingdom Inflation-Linked Gilt 2039</td>
   <td style="text-align:center;"><span class="tp-badge tp-rf">Renta fija</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Government Bonds</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   <td style="text-align:center;font-size:11px;">0.125%</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2039-03-22</td>
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>100%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Interest Rate Swaps">Interest Rate Swaps</td>
-  <td style="text-align:center;"><span class="tp-badge tp-otro">Swap</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Derivatives</span></td>
+  <td title="Euro Bobl Futures 06/03/2026">Euro Bobl Futures 2026</td>
+  <td style="text-align:center;"><span class="tp-badge tp-otro">Future</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">—</td>
   <td>—</td>
-  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">—</td>
-  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>-0,1%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>100%</div></td>
+  <td style="text-align:center;font-size:11px;">—</td><td style="text-align:center;font-size:11px;font-family:'Source Sans 3';">2026-03-06</td>
+  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>-0,0%</div></td>
+  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>99%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr></tbody>
     </table>
@@ -1830,7 +1927,7 @@ function fmtES(v,dec){
 function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
 const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
 const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
-const Y=[];
+const Y=["23", "24", "25"];
 // Anti-collision label helper for area/line charts with multiple series
 function drawAreaLabels(chart,colors,dec,minGap){
   const ctx=chart.ctx;
@@ -1891,7 +1988,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[1326.81, 1246.44, 887.73],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){
