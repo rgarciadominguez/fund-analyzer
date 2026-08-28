@@ -553,6 +553,20 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
             except Exception as exc:
                 log("CNMV_QUAL_EMIT", "WARN", f"no se pudo emitir tasks: {exc}")
 
+        # KB AR/SAR (no-ES): discovery NO consulta known_annual_reports, así que forzamos
+        # aquí el uso del AR/SAR OFICIAL de la gestora cuando existe en la KB → se registra
+        # en pending_extraction para que extract-pdfs saque la cartera COMPLETA con ratings
+        # (evita que un doc equivocado de Wayback deje solo un top-10). Lección Carmignac.
+        if not is_es:
+            try:
+                from tools.ensure_kb_ar import ensure as _ensure_kb_ar
+                _rkb = _ensure_kb_ar(isin, log=lambda m: log("KB_AR", "INFO", m))
+                if _rkb.get("registered"):
+                    log("KB_AR", "OK",
+                        f"{_rkb['registered']} docs oficiales de la KB añadidos a extracción")
+            except Exception as exc:
+                log("KB_AR", "WARN", f"ensure_kb_ar falló: {exc}")
+
         progress.advance(main_task)
 
         # ── Extract metadata from cnmv_data/intl_data for downstream agents ──
@@ -1901,6 +1915,14 @@ async def consume_cowork_pipeline(isin: str, log_path: Path) -> dict:
     else:
         config = {"objetivo": "1", "horizonte_historico": "1",
                   "fuentes": "1", "clase_accion": "todas", "contexto_adicional": ""}
+    # Modo UPDATE ANUAL: solo el delta del último año (lo consume la skill analyst-cowork
+    # leyendo config.json). Se expone en el entorno para pasos deterministas que lo miren.
+    if config.get("modo") == "annual_update":
+        import os as _os
+        _os.environ["FUND_SCOPE"] = "annual_update"
+        if config.get("since_date"):
+            _os.environ["FUND_SINCE_DATE"] = str(config["since_date"])
+        log("SCOPE", "OK", f"modo update anual (solo delta desde {config.get('since_date')})")
 
     # 3. Validation
     try:
@@ -2966,6 +2988,14 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
     else:
         config = {"objetivo": "1", "horizonte_historico": "1",
                   "fuentes": "1", "clase_accion": "todas", "contexto_adicional": ""}
+    # Modo UPDATE ANUAL: solo el delta del último año (lo consume la skill analyst-cowork
+    # leyendo config.json). Se expone en el entorno para pasos deterministas que lo miren.
+    if config.get("modo") == "annual_update":
+        import os as _os
+        _os.environ["FUND_SCOPE"] = "annual_update"
+        if config.get("since_date"):
+            _os.environ["FUND_SINCE_DATE"] = str(config["since_date"])
+        log("SCOPE", "OK", f"modo update anual (solo delta desde {config.get('since_date')})")
 
     output_path = fund_dir / "output.json"
     fund_name_hint = ""
@@ -3031,11 +3061,64 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
     # Enriquecimiento cuantitativo (Yahoo style box/valoración/riesgo + capture
     # ratios calculados). Pura Python, best-effort: si Yahoo no cubre el fondo o
     # falla la red, deja campos None y el panel se oculta.
+    # enrich_and_MERGE (fill-if-empty): NO pisa sectores de cartera ni bloque
+    # Morningstar previo (enrich_and_save sobreescribía todo → bug histórico).
+    # En modo UPDATE ANUAL la parte cuantitativa/gráficos SOBREESCRIBE (año nuevo), no
+    # rellena huecos: enrich_and_save (Yahoo overwrite) + cartera overwrite.
+    import os as _os_scope
+    _annual = _os_scope.environ.get("FUND_SCOPE") == "annual_update"
     try:
-        from tools.quant_enrichment import enrich_and_save
-        enrich_and_save(isin, log=log)
+        if _annual:
+            from tools.quant_enrichment import enrich_and_save
+            enrich_and_save(isin, log=log)      # refresca style_box/riesgo/sectores/capture
+        else:
+            from tools.quant_enrichment import enrich_and_merge
+            enrich_and_merge(isin, log=log)
     except Exception as exc:
         log("QUANT", "WARN", f"quant_enrichment: {exc}")
+
+    # Sectores + geografía DESDE las posiciones. fill-if-empty normal; en update anual
+    # OVERWRITE (refresca los gráficos de cartera/exposición con las posiciones nuevas).
+    # Parsear detalle de bonos (emisor/cupón/vencimiento del nombre) en fondos de deuda,
+    # y ordenar posiciones por peso desc. Antes del dashboard.
+    try:
+        from tools.parse_bond_positions import enrich_positions as _parse_bonds
+        _rb = _parse_bonds(isin, apply=True)
+        if _rb.get("n_rf"):
+            log("BONOS", "OK", f"{_rb['n_rf']} bonos: +cupón {_rb['cupon']} +venc {_rb['venc']}")
+    except Exception as exc:
+        log("BONOS", "WARN", f"parse_bond_positions: {exc}")
+
+    try:
+        from tools.build_cartera_breakdowns import build_for, apply_to_output, position_coverage
+        _bd = build_for(isin)
+        _w = apply_to_output(isin, _bd, overwrite=_annual)
+        if _w:
+            log("CARTERA", "OK", f"breakdowns: {_w}")
+        # Guard de cobertura de posiciones: avisar (no en silencio) si <50% / <75%.
+        _cov = position_coverage(isin)
+        if _cov is not None:
+            if _cov < 50:
+                log("COBERTURA", "WARN",
+                    f"posiciones cubren solo {_cov:.0f}% del peso (<50%): cartera parcial "
+                    f"— revisar descarga del AR / cartera completa")
+            elif _cov < 75:
+                log("COBERTURA", "WARN",
+                    f"posiciones cubren {_cov:.0f}% del peso (<75%): cartera incompleta")
+    except Exception as exc:
+        log("CARTERA", "WARN", f"build_cartera_breakdowns: {exc}")
+
+    # Histórico multi-año desde los extracts por-año del AR (posiciones.historicas +
+    # mix_activos/geografico_historico + serie_rentabilidad/aum). El consume-extracted solo
+    # conserva el año más reciente en actuales; esto recupera los años anteriores → el analyst
+    # de consistencia / cambios estructurales tiene combustible. Idempotente, best-effort.
+    try:
+        from tools.build_historical_series import apply_to_output as _hist_apply
+        _h = _hist_apply(isin, log=lambda m: log("HISTORICO", "OK", m))
+        if _h.get("changed"):
+            log("HISTORICO", "OK", f"multi-año: {_h['changed']} (años={_h.get('n_anios')})")
+    except Exception as exc:
+        log("HISTORICO", "WARN", f"build_historical_series: {exc}")
 
     try:
         from tools.publication_calendar import update_output_with_calendar

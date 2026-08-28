@@ -180,8 +180,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div class="lh-left">
       <div class="lh-fund">ROBECO CAPITAL GROWTH FUNDS - ROBECO BP GLOBAL PREMIUM EQUITIES <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★☆☆</span></div>
       <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Robeco / Boston Partners (sub-asesor)</strong></div>
-      <div class="lh-meta-line">Depositario: <strong>J.P. Morgan Bank Luxembourg S.A</strong></div>
-      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0203975437</strong></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>LU1277652605</strong> <span style='opacity:.55;font-size:10.5px;'>· Class es C EUR</span></div>
+      
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0203975437</strong></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>LU0891727132</strong> <span style='opacity:.55;font-size:10.5px;'>· Class C EUR</span></div>
     </div>
 
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
@@ -189,11 +189,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
       <div class="lh-aum">
         <div class="lh-aum-v">€7.580M</div>
         <div class="lh-aum-l">AUM</div>
-        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
-        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 4 / 7</span>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
       </div>
     </div>
 
@@ -219,6 +215,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
@@ -274,7 +271,7 @@ Lo diferencial es como traduce esa filosofia en construccion de cartera: en luga
   <div class="sr">Clases disponibles</div>
   <table class="rt mb20">
     <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
-    <tbody><tr><td><strong>Clase retail</strong></td><td>LU0203975437</td><td>—</td><td>1,5%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2004</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class es C EUR</strong></td><td>LU1277652605</td><td>—</td><td>1,5%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">None</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+    <tbody><tr><td><strong>Clase retail</strong></td><td>LU0203975437</td><td>—</td><td>1,5%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2004</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class C EUR</strong></td><td>LU0891727132</td><td>—</td><td>0,6%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2013</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
   </table>
   
 
@@ -293,8 +290,8 @@ Lo diferencial es como traduce esa filosofia en construccion de cartera: en luga
     if (!ctx) return;
     new Chart(ctx, {
       type: 'bar',
-      data: { labels: ["retail", "Class es C EUR"], datasets: [
-      {label:'TER (%)', data:[1.46, 1.46], backgroundColor:'rgba(12,35,64,0.85)'}
+      data: { labels: ["retail", "Class C EUR"], datasets: [
+      {label:'TER (%)', data:[1.46, 0.61], backgroundColor:'rgba(12,35,64,0.85)'}
     ] },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -628,7 +625,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <div class="kpi-row">
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">115</div><div class="kpi-sub">vs media hist. 0</div></div>
     <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">16,1%</div><div class="kpi-sub">—</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,5%</div><div class="kpi-sub">vs media hist. 2,3%</div></div>
     <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">97,0%</div><div class="kpi-sub">Renta variable</div></div>
   </div>
 
@@ -656,7 +653,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   })();
   </script>
 
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">10 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">9.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">10.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">12.7</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.19</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.79</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.75</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">2.01</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.28</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.14</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.03</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.04</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.07</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.03</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.02</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.41</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-13.7</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-13.7</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-38.4</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">21.5%</strong> · 3A <strong style="color:var(--ink);">16.0%</strong> · 5A <strong style="color:var(--ink);">11.9%</strong> · 10A <strong style="color:var(--ink);">11.4%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:#c8a23c;line-height:1.1;">Gold</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★☆☆</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">3 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Global Large-Cap Value Equity</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">12.59</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">24.36</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">1.96</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.90</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.98</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">17.26</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">25.2 B€</strong></div></div></div></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">10 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">9.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">10.4</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">12.7</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.19</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.79</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.75</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">2.01</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.28</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.14</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.03</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.04</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.07</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.03</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.02</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.41</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-13.7</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-13.7</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-38.4</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">21.5%</strong> · 3A <strong style="color:var(--ink);">16.0%</strong> · 5A <strong style="color:var(--ink);">11.9%</strong> · 10A <strong style="color:var(--ink);">11.4%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:#c8a23c;line-height:1.1;">Gold</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★☆☆</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">3 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Global Large-Cap Value Equity</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">12.59</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">24.36</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">1.96</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.90</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.98</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">17.26</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">25.2 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios Financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:85%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">26.5%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:60%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">18.6%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:50%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">15.8%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo Defensivo</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:22%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.8%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Materiales</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:22%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.8%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Tecnología</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:21%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.7%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Energía</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:20%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.3%</strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:14%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">4.4%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> MSCI World · (dif. en pp)</div></div></div></div>
 
   <div class="sr">Todas las posiciones (115)</div>
   <div class="pt-wrap">
@@ -668,6 +665,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>2%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -677,6 +675,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>4%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -686,6 +685,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>5%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -695,6 +695,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>7%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -704,6 +705,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>9%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -713,6 +715,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Finlandia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:4px;background:var(--ink-3);"></div>10%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -722,6 +725,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:4px;background:var(--ink-3);"></div>12%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -731,6 +735,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:5px;background:var(--ink-3);"></div>13%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -740,6 +745,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:5px;background:var(--ink-3);"></div>15%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -749,6 +755,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>16%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -758,6 +765,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>17%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -767,6 +775,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:7px;background:var(--ink-3);"></div>19%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -776,6 +785,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>20%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -785,6 +795,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>22%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -794,6 +805,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>23%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -803,6 +815,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:9px;background:var(--ink-3);"></div>24%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -812,6 +825,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:10px;background:var(--ink-3);"></div>26%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -821,6 +835,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:10px;background:var(--ink-3);"></div>27%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -830,6 +845,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>28%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -839,6 +855,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>29%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -848,6 +865,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>30%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -857,6 +875,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:12px;background:var(--ink-3);"></div>32%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -866,6 +885,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>33%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -875,6 +895,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>34%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -884,6 +905,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>35%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -893,6 +915,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>36%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -902,6 +925,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>37%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -911,6 +935,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>38%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -920,6 +945,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>39%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -929,6 +955,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>40%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -938,6 +965,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>41%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -947,6 +975,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>42%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -956,6 +985,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>43%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -965,6 +995,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>44%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -974,6 +1005,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>45%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -983,6 +1015,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Bermudas</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>46%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -992,6 +1025,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>47%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1001,6 +1035,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>48%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1010,6 +1045,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>49%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1019,6 +1055,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>50%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1028,6 +1065,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>51%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1037,6 +1075,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>52%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1046,6 +1085,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>53%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1055,6 +1095,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>54%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1064,6 +1105,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Jersey</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>55%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1073,6 +1115,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>56%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1082,6 +1125,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>56%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1091,6 +1135,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>57%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1100,6 +1145,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Suiza</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>58%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1109,6 +1155,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>59%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1118,6 +1165,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>60%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1127,6 +1175,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>61%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1136,6 +1185,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>61%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1145,6 +1195,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>62%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1154,6 +1205,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>63%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1163,6 +1215,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>64%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1172,6 +1225,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>65%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1181,6 +1235,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>65%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1190,6 +1245,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>66%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1199,6 +1255,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>67%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1208,6 +1265,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>68%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1217,6 +1275,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>68%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1226,6 +1285,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Bermudas</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1235,6 +1295,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>70%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1244,6 +1305,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>70%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1253,6 +1315,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1262,6 +1325,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>72%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1271,6 +1335,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1280,6 +1345,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Curazao</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1289,6 +1355,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>74%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1298,6 +1365,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>75%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1307,6 +1375,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>75%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1316,6 +1385,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1325,6 +1395,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1334,6 +1405,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1343,6 +1415,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>78%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1352,6 +1425,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Bermudas</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1361,6 +1435,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1370,6 +1445,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>80%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1379,6 +1455,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1388,6 +1465,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1397,6 +1475,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1406,6 +1485,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1415,6 +1495,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1424,6 +1505,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1433,6 +1515,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1442,6 +1525,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Corea del Sur</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>85%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1451,6 +1535,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>85%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1460,6 +1545,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1469,6 +1555,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1478,6 +1565,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1487,6 +1575,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1496,6 +1585,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1505,6 +1595,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Jersey</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1514,6 +1605,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1523,6 +1615,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>90%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1532,6 +1625,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>90%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1541,6 +1635,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1550,6 +1645,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1559,6 +1655,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1568,6 +1665,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Corea del Sur</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>92%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1577,6 +1675,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Corea del Sur</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1586,6 +1685,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1595,6 +1695,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1604,6 +1705,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Corea del Sur</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1613,6 +1715,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1622,6 +1725,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1631,6 +1735,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>95%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1640,6 +1745,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1649,6 +1755,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f0ecf8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo defensivo</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1658,6 +1765,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1667,6 +1775,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1676,6 +1785,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1685,6 +1795,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Japón</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1694,6 +1805,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1828,6 +1940,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <div class="doc-grp">Fuentes externas (8)</div>
   <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — christopher hart boston partners robeco no tengo una accion favor</span><a href="https://fundspeople.com/es/christopher-hart-boston-partners-robeco-no-tengo-una-accion-favorita-tengo-80-que-creo-que-pueden-funcionar/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — performance</span><a href="https://markets.ft.com/data/funds/tearsheet/performance?s=LU0203975437:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0951559797:usd" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu1260070781:usd" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">moclano.substack.com — comments</span><a href="https://moclano.substack.com/p/quijote-y-sancho-panza/comments" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">saludfinanciera.substack.com — fdv 30</span><a href="https://saludfinanciera.substack.com/p/fdv-30" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">saludfinanciera.substack.com — fdv 32</span><a href="https://saludfinanciera.substack.com/p/fdv-32" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">rankia.com — 7262309 tienes fondos inversion cartera no sabes si son mas adecu</span><a href="https://www.rankia.com/blog/consulae/7262309-tienes-fondos-inversion-cartera-no-sabes-si-son-mas-adecuados-consultorio-26-03-2026-consulae-eaf" target="_blank" class="doc-a">↗ Abrir</a></div>
 </section>
+<section class="pane" id="p9"></section>
 
 <section class="pane" id="p8">
   <style>
@@ -2545,7 +2658,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[2203.03, 1953.37, 1942.82, 3847.36, 4684.51, 4807.87, 4734.6, 7580.26],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[2203.0261, 1953.37, 1942.82, 3847.36, 4684.51, 4807.87, 4734.6, 7580.26],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){
