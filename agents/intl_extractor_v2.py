@@ -1482,20 +1482,44 @@ Devuelve SOLO el JSON. Nada más."""
             # (data/known_annual_reports.json), descargarlo a discovery antes de
             # escanear. Resuelve el caso INT donde el discovery automatico no
             # encuentra el AR del sub-fondo (o coge Wayback truncado).
+            # Sourcing anclado también en la CLASE MÁS ANTIGUA del fondo. Se analiza una
+            # clase (quizá nueva), pero para los documentos/años anteriores la clase veterana
+            # del mismo grupo tiene más histórico y a veces la nueva ni está en Finect/Morningstar.
+            # Se prueba la clase analizada PRIMERO (su AR más reciente) y la veterana como
+            # refuerzo/fallback. Mismo criterio que el track-record cuantitativo.
+            try:
+                from tools.track_record_isin import oldest_class_isins
+                _cls = oldest_class_isins(self.isin)   # veterana(s) del grupo, misma divisa primero
+            except Exception:
+                _cls = []
+            _seen, _doc_isins = set(), []
+            for _i in [self.isin] + (_cls or []):
+                _iu = (_i or "").upper().strip()
+                if _iu and _iu not in _seen:
+                    _seen.add(_iu); _doc_isins.append(_iu)
             try:
                 from tools.fetch_annual_report import run as _fetch_ar
-                _fetch_ar(isin_filter=self.isin)
+                for _di in _doc_isins:
+                    if any(discovery_dir.glob("annual_report_*.pdf")):
+                        break   # la KB cubre todas las clases del paraguas
+                    _fetch_ar(isin_filter=_di)
             except Exception as exc:
                 console.log(f"[dim]fetch_annual_report KB skip: {exc}")
             # Canal Finect (generico por ISIN): AR si la KB no aporto ninguno +
-            # SAR (semestral, que la KB no cubre). Solo descarga si falta.
+            # SAR (semestral, que la KB no cubre). Solo descarga si falta. Prueba cada
+            # clase (analizada -> veterana) hasta cubrir AR y SAR.
             try:
                 from tools.finect_sourcing import finect_report_urls, _download_verify
-                _urls = finect_report_urls(self.isin)
-                if _urls.get("annual_report") and not any(discovery_dir.glob("annual_report_*.pdf")):
-                    _download_verify(_urls["annual_report"], discovery_dir / "annual_report_finect.pdf")
-                if _urls.get("semi_annual_report") and not any(discovery_dir.glob("semi_annual_*.pdf")):
-                    _download_verify(_urls["semi_annual_report"], discovery_dir / "semi_annual_finect.pdf")
+                for _di in _doc_isins:
+                    _have_ar = any(discovery_dir.glob("annual_report_*.pdf"))
+                    _have_sar = any(discovery_dir.glob("semi_annual_*.pdf"))
+                    if _have_ar and _have_sar:
+                        break
+                    _urls = finect_report_urls(_di)
+                    if _urls.get("annual_report") and not _have_ar:
+                        _download_verify(_urls["annual_report"], discovery_dir / "annual_report_finect.pdf")
+                    if _urls.get("semi_annual_report") and not _have_sar:
+                        _download_verify(_urls["semi_annual_report"], discovery_dir / "semi_annual_finect.pdf")
             except Exception as exc:
                 console.log(f"[dim]finect sourcing skip: {exc}")
             pdfs = sorted(discovery_dir.glob("*.pdf")) if discovery_dir.exists() else []
