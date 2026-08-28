@@ -2978,6 +2978,7 @@ def build_header(data):
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    {'<button class="tb" onclick="goTab(9,this)">Glosario</button>' if ((data.get('analyst_synthesis') or {}).get('glosario')) else ''}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
@@ -4897,6 +4898,22 @@ def build_tab_cartera(data):
         pass
     sorted_pos = sorted(pos_actual, key=lambda x: x.get("peso_pct",0) or 0, reverse=True)
 
+    # Fondo de deuda: si hay bonos, la tabla muestra Cupón + Vencimiento (datos clave del bono).
+    _has_bonds = any(isinstance(p, dict) and p.get("tipo") == "RF" for p in sorted_pos)
+
+    def _bond_cells(p):
+        if not _has_bonds:
+            return ""
+        cup = p.get("cupon")
+        venc = p.get("vencimiento")
+        cup_s = f"{cup:g}%" if isinstance(cup, (int, float)) else ("Flot." if p.get("es_flotante") else "—")
+        venc_s = venc if venc else "—"
+        return (f'<td style="text-align:center;font-size:11px;">{cup_s}</td>'
+                f'<td style="text-align:center;font-size:11px;font-family:\'Source Sans 3\';">{venc_s}</td>')
+
+    _bond_headers = ('<th style="text-align:center;">Cupón</th>'
+                     '<th style="text-align:center;">Venc.</th>') if _has_bonds else ""
+
     # Inferir tipos de activo que faltan y calcular tipos dominantes
     tipos_weights = {}
     for pos in sorted_pos:
@@ -4997,6 +5014,7 @@ def build_tab_cartera(data):
   {_sector_cell(pos.get('sector'))}
   <td style="font-family:'Source Sans 3';font-size:11px;">{_canon_pais(pos.get('pais'))}</td>
   <td>{pos.get('divisa','—')}</td>
+  {_bond_cells(pos)}
   <td><div class="wbar"><div class="wfill" style="width:{bar_w}px;background:#0c2340;"></div>{f(w,1)}%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:{cum_bar_w}px;background:var(--ink-3);"></div>{f(cum,0)}%</div></td>
   <td>{delta_html}</td>
@@ -5133,17 +5151,22 @@ def build_tab_cartera(data):
 
     desglose_expo_html = _build_desglose_exposicion_html(data)
 
-    # Evolución de pesos por geografía / sector a lo largo de los años (de los AR).
+    # Evolución de pesos por tipo de activo / geografía / sector a lo largo de los años (de los AR).
+    _asset_evo = build_allocation_evolution_chart(
+        data.get("asset_allocation_history"), "tipos",
+        "Evolución por tipo de activo (% sobre patrimonio)", "c-asset-evo")
     _geo_evo = build_allocation_evolution_chart(
         data.get("geographic_allocation_history"), "zonas",
         "Evolución por geografía (% sobre patrimonio)", "c-geo-evo")
     _sec_evo = build_allocation_evolution_chart(
         data.get("sector_allocation_history"), "sectores",
         "Evolución por sector (% sobre patrimonio)", "c-sec-evo")
+    _evos = [c for c in (_asset_evo, _geo_evo, _sec_evo) if c]
     evo_alloc_html = ""
-    if _geo_evo or _sec_evo:
-        _cls = "col2" if (_geo_evo and _sec_evo) else "col1"
-        evo_alloc_html = f'<div class="{_cls} mb20">{_geo_evo}{_sec_evo}</div>'
+    if _evos:
+        _cls = {1: "col1", 2: "col2"}.get(len(_evos), "col2")
+        evo_alloc_html = (f'<div class="section-title mb12">Evolución de la exposición ({len(_evos)})</div>'
+                          f'<div class="{_cls} mb20">{"".join(_evos)}</div>')
 
     return f"""
 <section class="pane" id="p5">
@@ -5169,7 +5192,7 @@ def build_tab_cartera(data):
   <div class="sr">Todas las posiciones ({len(sorted_pos)})</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th>{_bond_headers}<th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody>{rows}</tbody>
     </table>
   </div>
@@ -5404,6 +5427,43 @@ def render_recursos_oficiales(recursos: list) -> str:
 # ═══════════════════════════════════════════════════════════════
 # TAB 8: DOCUMENTOS
 # ═══════════════════════════════════════════════════════════════
+
+def build_tab_glosario(data):
+    """Pestaña 'Glosario financiero' (p9) — solo para fondos con estrategias especializadas.
+    Renderiza analyst_synthesis.glosario = [{termino, definicion, ejemplo_fondo}]. Pane vacío
+    si no hay glosario (la pestaña tampoco se muestra en el nav)."""
+    gl = ((data.get("analyst_synthesis") or {}).get("glosario")) or []
+    if not isinstance(gl, list) or not gl:
+        return '<section class="pane" id="p9"></section>'
+    import html as _html
+    import re as _re
+
+    def _e(t):
+        t = _html.escape(str(t or ""))
+        return _re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)   # markdown **bold**
+
+    cards = ""
+    for item in gl:
+        if not isinstance(item, dict):
+            continue
+        term = _e(item.get("termino", ""))
+        defi = _e(item.get("definicion", ""))
+        ej = item.get("ejemplo_fondo") or ""
+        ej_html = (f'<div style="margin-top:10px;padding:10px 12px;background:var(--navy-pale);'
+                   f'border-left:3px solid var(--gold,#b48020);font-size:12.5px;color:var(--ink-2);">'
+                   f'<strong style="color:var(--ink-1);">En este fondo:</strong> {_e(ej)}</div>') if ej else ""
+        cards += (f'<div class="gl-card" style="border:1px solid var(--rule-light);border-radius:6px;'
+                  f'padding:16px 18px;margin-bottom:14px;background:var(--card,#fff);">'
+                  f'<div style="font-size:15px;font-weight:600;color:var(--ink-1);margin-bottom:6px;">{term}</div>'
+                  f'<div style="font-size:13px;color:var(--ink-2);line-height:1.55;">{defi}</div>'
+                  f'{ej_html}</div>')
+    return f"""
+<section class="pane" id="p9">
+  <div class="pane-header"><h1 class="pane-h1">Glosario financiero</h1>
+    <span class="pane-dl">Estrategias y términos de este fondo, con ejemplo práctico</span></div>
+  <div class="mb24" style="max-width:820px;">{cards}</div>
+</section>"""
+
 
 def build_tab_documentos(data):
     s = get_documentos(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("documentos", {})
@@ -7019,6 +7079,7 @@ def generate():
 {build_tab_cartera(data)}
 {build_tab_fuentes(data)}
 {build_tab_documentos(data)}
+{build_tab_glosario(data)}
 {build_tab_chat(data)}
 </main>
 {build_feedback_widget(data)}

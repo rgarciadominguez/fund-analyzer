@@ -68,6 +68,59 @@ def _norm_geo(geo: list) -> dict:
         return out
 
 
+# Clasificación de tipo de activo (sin excesivo detalle, capturando lo posible). Se mapea el
+# `tipo` de cada holding a un bucket legible. SOLO por `tipo` (NO por nombre: "Barrick Gold"
+# es una acción, no materias primas — usar el nombre misclasificaba).
+def _asset_bucket(tipo: str) -> str:
+    t = str(tipo or "").lower().strip()
+    if not t:
+        return "Otros"
+    if any(k in t for k in ("materia", "commodit", "gold", "oro", "silver", "plata")):
+        return "Materias primas"
+    if any(k in t for k in ("liquid", "cash", "repo", "monetar", "efectivo", "letras")):
+        return "Monetario/Liquidez"
+    if any(k in t for k in ("forward", "future", "futur", "option", "opcion", "swap", "warrant", "derivad", "cds")):
+        return "Derivados"
+    if any(k in t for k in ("fondo", "fund", "etf", "sicav", "ucits")):
+        return "Fondos/ETF"
+    if any(k in t for k in ("rf", "bond", "bono", "note", "debt", "deuda", "obligac", "fija", "fixed", "cédula", "cedula", "papel")):
+        return "Renta fija"
+    if any(k in t for k in ("rv", "equit", "share", "accion", "acción", "stock", "variable")):
+        return "Renta variable"
+    return "Otros"
+
+
+def _asset_mix_from_holdings(holdings: list) -> dict:
+    """{bucket: peso_pct} agregando los holdings por `tipo`. Solo fiable si los holdings traen
+    `tipo` poblado (fondos de RF/mixtos sí; equity puro a menudo no → cae a asset_allocation)."""
+    out: dict = {}
+    n_tipado = 0
+    for h in (holdings or []):
+        if not isinstance(h, dict):
+            continue
+        w = h.get("peso_pct")
+        if not w:
+            continue
+        if h.get("tipo"):
+            n_tipado += 1
+        b = _asset_bucket(h.get("tipo"))
+        out[b] = round(out.get(b, 0) + w, 2)
+    # Si casi nada tenía tipo → todo cae en "Otros", inútil: mejor devolver vacío y usar
+    # el asset_allocation del AR (limpio).
+    if n_tipado < max(3, 0.5 * len([h for h in holdings if isinstance(h, dict) and h.get("peso_pct")])):
+        return {}
+    return out
+
+
+def _asset_mix_from_allocation(aa: dict) -> dict:
+    """{bucket: pct} desde el asset_allocation del AR (equity/bonds/cash/otros)."""
+    if not isinstance(aa, dict):
+        return {}
+    m = {"Renta variable": aa.get("equity_pct"), "Renta fija": aa.get("bonds_pct"),
+         "Monetario/Liquidez": aa.get("cash_pct"), "Otros": aa.get("otros_pct")}
+    return {k: v for k, v in m.items() if v}
+
+
 def _compact_holdings(pos: list, limit: int = 200) -> list:
     """Holdings compactos para comparación año-a-año (nombre + peso + sector + país)."""
     out = []
@@ -92,6 +145,8 @@ def build(isin: str) -> dict:
     hist_by_per: dict[str, dict] = {}
     mix_act_by_per: dict[str, dict] = {}
     mix_geo_by_per: dict[str, dict] = {}
+    sector_by_per: dict[str, dict] = {}
+    asset_hist_by_per: dict[str, dict] = {}
     rent_by_key: dict[tuple, dict] = {}
     aum_by_per: dict[str, float] = {}
 
@@ -134,6 +189,20 @@ def build(isin: str) -> dict:
         if zonas and yr not in mix_geo_by_per:
             mix_geo_by_per[yr] = {"periodo": yr, "zonas": zonas}
 
+        # sector_allocation_history (para el gráfico de evolución por sector)
+        secs = {it.get("sector"): it.get("peso_pct")
+                for it in (data.get("sector_allocation") or [])
+                if isinstance(it, dict) and it.get("sector") and it.get("peso_pct")}
+        if secs and yr not in sector_by_per:
+            sector_by_per[yr] = {"periodo": yr, "sectores": secs}
+
+        # asset_allocation_history (tipo de activo): PRIMERO el asset_allocation del AR (limpio,
+        # equity/bonds/cash/otros); si el AR no lo trae, agrega holdings por tipo (solo si vienen
+        # tipados). Para el gráfico de evolución por tipo de activo.
+        tipos = _asset_mix_from_allocation(aa) or _asset_mix_from_holdings(pos)
+        if tipos and yr not in asset_hist_by_per:
+            asset_hist_by_per[yr] = {"periodo": yr, "tipos": tipos}
+
         # serie_rentabilidad (tabla performance: puede haber varias clases/año)
         for pr in (data.get("performance") or []):
             if not isinstance(pr, dict):
@@ -160,12 +229,18 @@ def build(isin: str) -> dict:
     def _sorted(d):
         return [d[k] for k in sorted(d.keys())]
 
+    geo_hist = _sorted(mix_geo_by_per)
     return {
         "posiciones_historicas": [hist_by_per[k] for k in sorted(hist_by_per.keys())],
         "mix_activos_historico": _sorted(mix_act_by_per),
-        "mix_geografico_historico": _sorted(mix_geo_by_per),
+        "mix_geografico_historico": geo_hist,
         "serie_rentabilidad": [rent_by_key[k] for k in sorted(rent_by_key.keys())],
         "serie_aum": [{"periodo": k, "valor_meur": aum_by_per[k]} for k in sorted(aum_by_per.keys())],
+        # Claves que consume el dashboard (build_allocation_evolution_chart) para los gráficos
+        # de evolución de exposición en la pestaña Cartera:
+        "geographic_allocation_history": geo_hist,               # subkey "zonas"
+        "sector_allocation_history": _sorted(sector_by_per),     # subkey "sectores"
+        "asset_allocation_history": _sorted(asset_hist_by_per),  # subkey "tipos"
         "n_anios": len(hist_by_per),
     }
 
@@ -202,6 +277,12 @@ def _apply_to_file(p: Path, isin: str, built: dict, log=print) -> dict:
         if built[src] and f"cuantitativo.{key}" not in manual:
             cuant[key] = _upsert_by_periodo(cuant.get(key), built[src])
             changed.append(f"{key}={len(cuant[key])}")
+    # Claves top-level que consume el dashboard para los gráficos de evolución de exposición.
+    for key in ("geographic_allocation_history", "sector_allocation_history",
+                "asset_allocation_history"):
+        if built.get(key) and key not in manual:
+            d[key] = _upsert_by_periodo(d.get(key), built[key])
+            changed.append(f"{key}={len(d[key])}")
 
     if not changed:
         return {"ok": True, "changed": [], "n_anios": built["n_anios"]}
