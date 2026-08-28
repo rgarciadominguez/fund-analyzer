@@ -13,6 +13,44 @@ Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bl
 
 **v2.3 (2026-05-04)**: reglas estrictas de formato en `texto` para evitar headers disruptivos y listas inline apelmazadas (feedback visual usuario).
 
+## GLOSARIO FINANCIERO (fondos especialistas / renta fija compleja)
+
+Para fondos con estrategias que un inversor no experto no entendería de un vistazo (crédito,
+retorno absoluto, derivados, CLO/estructurados, market-neutral, ILS/cat bonds, quant…), añade
+`analyst_synthesis.glosario` = `[{termino, definicion, ejemplo_fondo}]` (3-6 entradas). Cada una:
+- `termino`: la estrategia/concepto (ej. "Carry", "CDS", "CLO y bonos estructurados", "Bono perpetuo/AT1", "Market-neutral", "Cat bond/ILS").
+- `definicion`: explicación BREVE y clara para no-experto (2-4 frases), sin jerga innecesaria; usa `**negrita**` para el término clave.
+- `ejemplo_fondo`: cómo lo aplica ESTE fondo en concreto, anclado en datos reales de la cartera/cartas (posiciones, % derivados, emisores concretos). NO inventes; si no hay evidencia del uso, no incluyas el término.
+
+El dashboard pinta una pestaña "Glosario" solo si esta sección existe. Para fondos plain-vanilla
+(RV diversificada, indexados simples) NO hace falta glosario — omítelo.
+
+## MODO UPDATE ANUAL (v2.5 — solo el delta del último año)
+
+**Antes de generar nada, lee `data/funds/{ISIN}/config.json`. Si `modo == "annual_update"`, NO rehagas el análisis desde cero: actualiza el existente solo con el delta del último año.**
+
+En ese modo:
+
+1. **Punto de partida**: carga el `analyst_synthesis` YA EXISTENTE de `output.json` y el `since_date` del config (= `fecha_ultimo_analisis`; si falta, últimos 12 meses). Todo lo anterior a esa fecha SE DA POR INCORPORADO — no lo re-mires ni lo reescribas.
+
+2. **Mira SOLO lo nuevo** (desde `since_date`): informe anual/semianual más reciente, cartas/comentarios del gestor del último año, cambios de cartera (altas/bajas/rotación) y de exposición (sector, geografía, divisa, duración, crédito), cambios de equipo gestor, comisiones (TER), tamaño (AUM) y política de la clase. Las fuentes nuevas están en el bundle/prep (docs con fecha posterior a `since_date`).
+
+3. **INTEGRA, no reescribas** (regla de oro: si algo ya estaba y no ha cambiado este año, no lo toques):
+   - Conserva VERBATIM las secciones y párrafos del `analyst_synthesis` previo que no hayan cambiado.
+   - **Primero, FUNDE las Novedades del año ANTERIOR en la narrativa base**: si el `texto` previo ya tenía un bloque `**Novedades {año-1}**`, intégralo en el cuerpo del análisis (reescríbelo como parte del relato, ya está revisado y aplicado) y ELIMINA ese header de año anterior. Así no se apilan bloques "Novedades 2026", "Novedades 2027"… y las novedades de este año se comparan contra lo ya aplicado.
+   - **Luego añade** a las secciones relevantes (resumen/estrategia/cartera/gestores/evolución) un ÚNICO bloque **`**Novedades {año actual}**`** al final del `texto`, explicando QUÉ ha cambiado este año y QUÉ implica (2-6 frases). Mantén el histórico intacto encima.
+   - Actualiza los campos estructurados (KPIs, top_posiciones, perfil_riesgo, comisiones…) SOLO donde el dato nuevo difiera del anterior.
+   - Si un dato no ha cambiado, déjalo idéntico.
+   - Si NO hay novedades reales en una sección, no inventes un "Novedades {año}" vacío — omítelo.
+
+4. **Cuantitativo**: lo refresca el pipeline Python (NAV → métricas → sync-metricas). Tú solo comentas el delta cualitativo en el bloque Novedades.
+
+5. **Emite** el `analyst_synthesis` completo (histórico preservado + Novedades del año). El cierre (rodar `fecha_proximo_analisis` +1 año, limpiar la tarea de vencido, volver a "Categorizar") lo hace el worker Python — tú no lo tocas.
+
+**Sin novedades**: mira `data/funds/{ISIN}/intl_discovery_data.json` → `annual_update.sin_novedades`. Si es `true` (discovery no encontró NINGÚN AR/SAR/carta posterior a `since_date`), NO reescribas nada: emite el `analyst_synthesis` previo TAL CUAL (sin bloque Novedades). El cierre solo rodará la fecha. No inventes cambios que no hay.
+
+Si `modo != "annual_update"` (o no hay config), genera el análisis COMPLETO como siempre (resto de esta skill).
+
 ## REGLAS DE FORMATO en `texto` fields (críticas — v2.4)
 
 Las siguientes pautas aplican a TODOS los campos `texto` y `trayectoria`/`filosofia` largos. **Asume que el dashboard renderiza `**Header**\n\n` como sub-header sutil** (font-size 15px, bold, sin border horizontal, sin caps). Si tu instalación del dashboard aún tiene el render antiguo con border + caps, deja headers en línea con `—` como fallback (versión v2.3).
@@ -208,6 +246,26 @@ Campo histórico (todos los periodos):
 4. **Diferenciación ES vs INT**:
    - ES: estos campos vienen de PDFs semestrales CNMV (sección 9, sección 10 perspectivas).
    - INT: estos campos pueden venir de annual reports / factsheets / commentaries del sub-fondo. Mismo schema, distinta procedencia.
+
+## Histórico ESTRUCTURADO multi-año (cartera/exposición año a año) — CRÍTICO para consistencia
+
+Además del `_historico` cualitativo, el bundle trae el histórico CUANTITATIVO reconstruido de los
+Annual Reports de VARIOS años (no solo el último). **DEBES analizarlo y COMENTARLO** — es lo que
+permite ver si el fondo/equipo es consistente o ha virado. Campos en `fund_data`:
+
+- `fund_data.posiciones.historicas[]` = una entrada por año: `{periodo, top10, holdings[], num_posiciones, aum_meur}`. `holdings` es la cartera de ESE año (nombre, peso_pct, sector, país).
+- `fund_data.cuantitativo.mix_activos_historico[]` = `{periodo, renta_variable_pct, renta_fija_pct, liquidez_pct, otros_pct}` por año.
+- `fund_data.cuantitativo.mix_geografico_historico[]` = `{periodo, zonas:{región:pct}}` por año.
+- `fund_data.cuantitativo.serie_rentabilidad[]` = `{periodo, clase, rentabilidad_pct, benchmark_pct}` por año.
+
+**Cómo usarlo (compara año-1 vs año, no describas solo el último):**
+- `historia.texto`: narra la EVOLUCIÓN real de la cartera y la exposición a lo largo de los años, con cifras (ej. "la exposición a EE.UU. bajó del 40% en 2020 al 24% en 2024 y repuntó al 31% en 2025"). Convierte los cambios en `historia.hitos[]` (`tipo: "cambio_cartera"` / `"rotacion_geografica"` / `"cambio_estrategia"`).
+- `estrategia.texto`: valora la **CONSISTENCIA** — ¿la cartera y el estilo confirman la tesis declarada a lo largo del tiempo, o ha habido deriva de estilo (style drift)? Cita nombres que entraron/salieron y rotaciones sectoriales concretas.
+- `cartera.texto`: **cambios estructurales de cartera** — compara los `holdings`/`top10` actuales con los de años anteriores: qué posiciones son de convicción persistente (aparecen varios años), cuáles rotaron, cambios de concentración (`num_posiciones`), giros sectoriales/geográficos. Con periodos y % concretos.
+- `evolucion.texto`: hila AUM + rentabilidad vs benchmark por año (`serie_rentabilidad`) con el mix histórico — comportamiento en mercados alcistas/bajistas (ej. protección en el año de caída), y si el resultado es coherente con la estrategia.
+- `gestores.texto`: si el histórico revela que el equipo ha mantenido (o no) el proceso a lo largo de los años, coméntalo como evidencia de disciplina/consistencia del equipo.
+
+**Reglas**: cita SIEMPRE el periodo y la cifra; NO inventes (si solo hay 1 año de histórico, dilo y no fuerces comparaciones); prioriza los cambios ESTRUCTURALES y significativos sobre el ruido año a año. Este análisis histórico es una de las partes de MÁS valor del informe — no lo omitas si hay `posiciones.historicas` con ≥2 años.
 
 ## Schema EXACTO del output (no inventes nombres de campos)
 

@@ -181,13 +181,11 @@ def _upsert_by_periodo(existing: list, nuevos: list) -> list:
     return [by[k] for k in sorted(by.keys())]
 
 
-def apply_to_output(isin: str, built: dict | None = None, log=print) -> dict:
-    """Escribe las estructuras históricas en output.json (upsert por periodo). Best-effort."""
-    fd = ROOT / "data" / "funds" / isin.upper()
-    p = fd / "output.json"
+def _apply_to_file(p: Path, isin: str, built: dict, log=print) -> dict:
+    """Upsert de las estructuras históricas en un fichero (output.json o intl_data.json).
+    Mismo schema (posiciones.historicas + cuantitativo.*). Best-effort."""
     if not p.exists():
-        return {"ok": False, "error": "sin output.json"}
-    built = built or build(isin)
+        return {"ok": False, "error": f"sin {p.name}"}
     d = _load(p)
     manual = set(d.get("_manual_edits") or [])
     pos = d.setdefault("posiciones", {})
@@ -210,8 +208,22 @@ def apply_to_output(isin: str, built: dict | None = None, log=print) -> dict:
     tmp = p.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(p)
-    log(f"[HIST] {isin}: {', '.join(changed)} (años={built['n_anios']})")
+    log(f"[HIST] {isin} ({p.name}): {', '.join(changed)} (años={built['n_anios']})")
     return {"ok": True, "changed": changed, "n_anios": built["n_anios"]}
+
+
+def apply_to_output(isin: str, built: dict | None = None, log=print) -> dict:
+    """Escribe el histórico en output.json (para dashboard + persistencia). Best-effort."""
+    fd = ROOT / "data" / "funds" / isin.upper()
+    return _apply_to_file(fd / "output.json", isin, built or build(isin), log=log)
+
+
+def apply_to_intl_data(isin: str, built: dict | None = None, log=print) -> dict:
+    """Escribe el histórico en intl_data.json → el bundle_exporter lo copia a fund_data.json
+    (lo que lee la skill analyst-cowork) → el analyst puede narrar la evolución/consistencia
+    en el MISMO run. Se llama en _consume_extracted, ANTES de la re-exportación del bundle."""
+    fd = ROOT / "data" / "funds" / isin.upper()
+    return _apply_to_file(fd / "intl_data.json", isin, built or build(isin), log=log)
 
 
 def main(argv=None) -> int:

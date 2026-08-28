@@ -2448,6 +2448,19 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
         _save(intl_path, intl_data)
         log("CONSUME", "OK", f"intl_data.json actualizado")
 
+    # Histórico multi-año → intl_data.json ANTES de la re-exportación del bundle (Paso 4.5),
+    # para que la skill analyst-cowork (que lee fund_data.json = intl_data) pueda narrar la
+    # evolución/consistencia/cambios estructurales sobre TODOS los años en el MISMO run.
+    # No-op para ES (no hay extracts annual_subfund). Idempotente, best-effort.
+    if intl_path.exists():
+        try:
+            from tools.build_historical_series import apply_to_intl_data as _hist_intl
+            _hi = _hist_intl(isin, log=lambda m: log("HISTORICO", "OK", m))
+            if _hi.get("changed"):
+                log("HISTORICO", "OK", f"intl_data multi-año: {_hi['changed']}")
+        except Exception as exc:
+            log("HISTORICO", "WARN", f"build_historical_series(intl): {exc}")
+
     # Mark integrated paths as manual edits in output.json so future runs preserve them
     output_path = fund_dir / "output.json"
     if output_path.exists():
