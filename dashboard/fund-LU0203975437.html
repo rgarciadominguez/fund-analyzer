@@ -180,8 +180,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div class="lh-left">
       <div class="lh-fund">ROBECO CAPITAL GROWTH FUNDS - ROBECO BP GLOBAL PREMIUM EQUITIES <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★☆☆</span></div>
       <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Robeco / Boston Partners (sub-asesor)</strong></div>
-      
-      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0203975437</strong></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>LU0891727132</strong> <span style='opacity:.55;font-size:10.5px;'>· Class C EUR</span></div>
+      <div class="lh-meta-line">Depositario: <strong>J.P. Morgan Bank Luxembourg S.A</strong></div>
+      <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0203975437</strong></div><div class='lh-meta-line'>ISIN limpia EUR: <strong>LU1277652605</strong> <span style='opacity:.55;font-size:10.5px;'>· Class es C EUR</span></div>
     </div>
 
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
@@ -189,7 +189,11 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
       <div class="lh-aum">
         <div class="lh-aum-v">€7.580M</div>
         <div class="lh-aum-l">AUM</div>
-        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Carta)</span></div></div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-06</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2026-06 (Informe)</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 4 / 7</span>
       </div>
     </div>
 
@@ -197,7 +201,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Diciembre 2004</span></div>
       <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Global</span></div>
-      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Christopher Hart</strong> <span style='opacity:.7;'>(lead)</span> · Joshua Jones <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Christopher Hart</strong> <span style='opacity:.7;'>(lead)</span> · Joshua Jones <span style='opacity:.6;font-size:9px;'>(co)</span> · Soyoun Song <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
       <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
     </div>
 
@@ -219,7 +223,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-10</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-08-28</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0203975437 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -271,7 +275,7 @@ Lo diferencial es como traduce esa filosofia en construccion de cartera: en luga
   <div class="sr">Clases disponibles</div>
   <table class="rt mb20">
     <thead><tr><th>Clase</th><th>ISIN</th><th>Com. Gestión</th><th>TER</th><th>Com. Éxito</th><th>Inicio</th><th>Estado</th></tr></thead>
-    <tbody><tr><td><strong>Clase retail</strong></td><td>LU0203975437</td><td>—</td><td>1,5%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2004</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class C EUR</strong></td><td>LU0891727132</td><td>—</td><td>0,6%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2013</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
+    <tbody><tr><td><strong>Clase retail</strong></td><td>LU0203975437</td><td>—</td><td>1,5%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">2004</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr><tr><td><strong>Class es C EUR</strong></td><td>LU1277652605</td><td>—</td><td>1,5%</td><td style="font-family:'Source Sans 3';font-size:12px;"><span style="color:var(--pos);">No cobra</span></td><td style="font-family:'Source Code Pro';font-size:11px;">None</td><td><span style="color:var(--pos);font-size:10px;">Activa</span></td></tr></tbody>
   </table>
   
 
@@ -290,8 +294,8 @@ Lo diferencial es como traduce esa filosofia en construccion de cartera: en luga
     if (!ctx) return;
     new Chart(ctx, {
       type: 'bar',
-      data: { labels: ["retail", "Class C EUR"], datasets: [
-      {label:'TER (%)', data:[1.46, 0.61], backgroundColor:'rgba(12,35,64,0.85)'}
+      data: { labels: ["retail", "Class es C EUR"], datasets: [
+      {label:'TER (%)', data:[1.46, 1.46], backgroundColor:'rgba(12,35,64,0.85)'}
     ] },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -617,7 +621,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
   scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div><div class="ch-b"><div class="ch-l">Evolución por sector (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-sec-evo"></canvas></div>
   <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-sec-evo'); if(!ctx)return;
-  new Chart(ctx,{type:'line',data:{labels:["2020", "2021", "2022", "2023", "2024", "2025"],datasets:[{"label": "Servicios financieros", "data": [8.17, 16.84, 10.49, 16.83, 25.08, 26.48], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Industria", "data": [3.91, 18.19, 8.75, 11.76, 12.67, 18.63], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Salud", "data": [3.73, 14.63, 12.09, 4.14, 8.28, 15.76], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Materiales", "data": [4.96, 7.81, 4.55, 5.55, 4.11, 6.76], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Tecnolog\u00eda", "data": [1.85, 12.2, 3.4, 4.31, 4.29, 6.71], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [76.1, 29.74, 56.16, 55.39, 42.73, 22.63], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  new Chart(ctx,{type:'line',data:{labels:["2020", "2021", "2022", "2023", "2024", "2025"],datasets:[{"label": "Servicios financieros", "data": [10.25, 16.84, 11.72, 19.31, 26.83, 26.48], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Industria", "data": [5.29, 18.19, 10.21, 13.22, 13.6, 18.63], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Salud", "data": [7.08, 14.63, 15.48, 4.14, 8.28, 15.76], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Tecnolog\u00eda", "data": [5.14, 12.2, 4.42, 6.95, 5.63, 6.71], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Materiales", "data": [5.69, 7.81, 4.55, 6.02, 4.11, 6.76], "borderColor": "#3d5a80", "backgroundColor": "rgba(61,90,128,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Otros", "data": [65.27, 29.74, 49.06, 48.34, 38.71, 22.63], "borderColor": "#94a3b8", "backgroundColor": "rgba(148,163,184,0.45)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
   options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
   plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
   scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div></div>
@@ -680,7 +684,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>4%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="AstraZeneca plc">AstraZeneca plc</td>
+  <td title="Astra Zeneca plc">Astra Zeneca plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
@@ -700,7 +704,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>7%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="NatWest Group plc">NatWest Group plc</td>
+  <td title="Nat West Group plc">Nat West Group plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
@@ -800,7 +804,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>22%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="JPMorgan Chase & Co.">JPMorgan Chase & Co.</td>
+  <td title="JP Morgan Chase & Co.">JP Morgan Chase & Co.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
@@ -850,7 +854,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>28%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Goldman Sachs Group, Inc. (The)">Goldman Sachs Group, Inc. (The)</td>
+  <td title="Goldman Sachs Group, Inc.">Goldman Sachs Group, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
@@ -890,9 +894,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>33%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Enel SpA">Enel SpA</td>
+  <td title="Enel Sp A">Enel Sp A</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
   
@@ -930,7 +934,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>37%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="TotalEnergies SE">TotalEnergies SE</td>
+  <td title="Total Energies SE">Total Energies SE</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
@@ -940,7 +944,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>38%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Walt Disney Co. (The)">Walt Disney Co. (The)</td>
+  <td title="Walt Disney Co.">Walt Disney Co.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
@@ -980,7 +984,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>42%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Weir Group plc (The)">Weir Group plc (The)</td>
+  <td title="Weir Group plc">Weir Group plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
@@ -990,9 +994,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>43%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Freeport-McMoRan, Inc.">Freeport-McMoRan, Inc.</td>
+  <td title="Freeport-Mc Mo Ran, Inc.">Freeport-Mc Mo Ran, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   
@@ -1080,7 +1084,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>52%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Allstate Corp. (The)">Allstate Corp. (The)</td>
+  <td title="Allstate Corp.">Allstate Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
@@ -1170,9 +1174,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>60%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="FedEx Corp.">FedEx Corp.</td>
+  <td title="Fed Ex Corp.">Fed Ex Corp.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   
@@ -1230,9 +1234,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>65%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="GE HealthCare Technologies, Inc.">GE HealthCare Technologies, Inc.</td>
+  <td title="GE Health Care Technologies, Inc.">GE Health Care Technologies, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   
@@ -1280,9 +1284,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>68%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="RenaissanceRe Holdings Ltd.">RenaissanceRe Holdings Ltd.</td>
+  <td title="Renaissance Re Holdings Ltd.">Renaissance Re Holdings Ltd.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Bermudas</td>
   <td>—</td>
   
@@ -1320,9 +1324,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="SSE plc">SSE plc</td>
+  <td title="S SE plc">S SE plc</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
   <td>—</td>
   
@@ -1330,7 +1334,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>72%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Cigna Group (The)">Cigna Group (The)</td>
+  <td title="Cigna Group">Cigna Group</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
@@ -1370,9 +1374,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>75%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Saipem SpA">Saipem SpA</td>
+  <td title="Saipem Sp A">Saipem Sp A</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
   
@@ -1390,9 +1394,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Merck KGaA">Merck KGaA</td>
+  <td title="Merck K Ga A">Merck K Ga A</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
   <td>—</td>
   
@@ -1480,7 +1484,7 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="AbbVie, Inc.">AbbVie, Inc.</td>
+  <td title="Abb Vie, Inc.">Abb Vie, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
@@ -1490,9 +1494,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="ConocoPhillips">ConocoPhillips</td>
+  <td title="Conoco Phillips">Conoco Phillips</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   
@@ -1510,9 +1514,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="Italgas SpA">Italgas SpA</td>
+  <td title="Italgas Sp A">Italgas Sp A</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbe9f1;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios públicos</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
   <td>—</td>
   
@@ -1560,9 +1564,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="NetApp, Inc.">NetApp, Inc.</td>
+  <td title="Net App, Inc.">Net App, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   
@@ -1650,9 +1654,9 @@ Antes de su rol actual fue <strong>analista de research</strong> especializado e
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
 </tr><tr>
-  <td title="DuPont de Nemours, Inc.">DuPont de Nemours, Inc.</td>
+  <td title="Du Pont de Nemours, Inc.">Du Pont de Nemours, Inc.</td>
   <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
+  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
   <td>—</td>
   
