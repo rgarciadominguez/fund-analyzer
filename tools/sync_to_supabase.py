@@ -384,6 +384,23 @@ def _sync_fund_impl(
                 uploaded[key] = result
                 log(f"[SYNC] [{'OK' if result else 'FAIL'}] {dest} ({local.stat().st_size} bytes)")
 
+        # DOCS CLAVE → Storage (LEAN): solo el último AR/SAR/KID/folleto/factsheet +
+        # cartas recientes (no versiones viejas ni fragmentos ni JSONs). Publica un
+        # manifiesto en fund_groups.portfolio_metrics_jsonb.documentos para que el portal
+        # los liste. Eficiente en coste (evita subir los ~3,75GB de todo).
+        try:
+            from tools.archive_docs import archive as _archive_docs
+            _archive_docs(isin, client=client, log=lambda m: log(f"[SYNC] {m}"))
+            # archive_docs vuelca los docs archivados (con URLs de Storage) a
+            # output.json → analyst_synthesis.documentos. output.json ya se subió arriba,
+            # así que hay que RE-SUBIRLO para que el portal liste los AR/SAR/cartas.
+            if output_json_path.exists():
+                _r = _upload_file_to_storage(client, BUCKET_NAME, storage_paths["output"],
+                                             output_json_path, "application/json")
+                log(f"[SYNC] [{'OK' if _r else 'FAIL'}] re-subido output.json con documentos archivados")
+        except Exception as _e:
+            log(f"[SYNC] archive_docs falló (no crítico): {str(_e)[:80]}")
+
     # Construir update para tabla `funds`.
     # has_qualitative_analysis se ata a que el output se HAYA SUBIDO de verdad: si la
     # subida falló (o el análisis nunca produjo output), NO se puede afirmar que el
@@ -628,18 +645,31 @@ def _sync_fund_impl(
     except Exception as _e:
         log(f"[SYNC] derive_taxonomy falló (no crítico): {str(_e)[:80]}")
 
-    # Quant desde la serie diaria de Morningstar (consistente con fund-dashboard).
+    # Cartera derivada (sectores/geografía/cobertura de posiciones) → Supabase
+    # (portfolio_metrics_jsonb.cartera). Antes era dashboard-only; ahora se sincroniza.
     try:
-        from tools.morningstar_daily import compute_metrics as _ms_daily
-        r_g = client.table("funds").select("fund_group_id").eq("isin", isin).execute()
-        fgid = r_g.data[0]["fund_group_id"] if r_g.data else None
-        if fgid:
-            m = _ms_daily(isin)
-            if m:
-                client.table("fund_groups").update({"rendimiento_jsonb": m}).eq("fund_group_id", fgid).execute()
-                log(f"[SYNC] quant diario Morningstar: cagr={m.get('cagr_desde_inicio')} vol={m.get('volatilidad')}")
+        from tools.sync_cartera_metrics import sync_cartera_metrics
+        sync_cartera_metrics(client, isin, log=log)
     except Exception as _e:
-        log(f"[SYNC] quant diario falló (no crítico): {str(_e)[:80]}")
+        log(f"[SYNC] sync_cartera_metrics falló (no crítico): {str(_e)[:80]}")
+
+    # Fecha del próximo análisis (cuándo saldrá el próximo AR/carta anual + 1 mes de
+    # margen). Update separado y resiliente: si la columna no existe aún (DDL pendiente),
+    # no rompe el sync. También lo deja en output.json.
+    try:
+        from tools.next_analysis_date import compute as _nad_compute, apply_to_output as _nad_apply, \
+            sync_to_supabase as _nad_sync
+        _nad = _nad_compute(isin)
+        if _nad.get("fecha_proximo_analisis"):
+            _nad_apply(isin, _nad)
+            _nad_sync(client, isin, _nad, log=lambda m: log(f"[SYNC] {m}"))
+            log(f"[SYNC] próximo análisis: {_nad['fecha_proximo_analisis']}"
+                f"{' [VENCIDO]' if _nad.get('vencido') else ''}")
+    except Exception as _e:
+        log(f"[SYNC] next_analysis_date falló (no crítico): {str(_e)[:80]}")
+
+    # (El quant de grupo `rendimiento_jsonb` se calcula MÁS ABAJO, tras poblar las
+    # clases y fill_anios, para que el track record se ancle en la clase más antigua.)
 
     # Categoría Morningstar (+ estilo inferido) en el grupo, si falta.
     try:
@@ -706,6 +736,26 @@ def _sync_fund_impl(
         fill_anios(client, isin, output_data=output_data, log=log)
     except Exception as _e:
         log(f"[SYNC] años_antiguedad falló (no crítico): {str(_e)[:80]}")
+
+    # Quant de grupo `rendimiento_jsonb` desde la serie diaria de Morningstar.
+    # AQUÍ (tras poblar clases + fill_anios): el TRACK RECORD se ancla en la clase con
+    # más histórico del grupo (misma divisa preferida) vía resolve_track_record, no en
+    # el ISIN analizado (que puede ser una clase nueva). Métricas por-clase → quant_sync.
+    try:
+        from tools.morningstar_daily import metrics_from_series as _ms_from_series
+        from tools.track_record_isin import resolve_track_record
+        r_g = client.table("funds").select("fund_group_id").eq("isin", isin).execute()
+        fgid = r_g.data[0]["fund_group_id"] if r_g.data else None
+        if fgid:
+            tr_isin, serie = resolve_track_record(client, isin, log=lambda s: log(f"[SYNC] {s}"))
+            m = _ms_from_series(serie)
+            if m:
+                client.table("fund_groups").update({"rendimiento_jsonb": m}).eq("fund_group_id", fgid).execute()
+                log(f"[SYNC] quant diario Morningstar (track-record {tr_isin}): "
+                    f"cagr={m.get('cagr_desde_inicio')} vol={m.get('volatilidad')} "
+                    f"años={len(m.get('rentabilidades_anuales', {}))}")
+    except Exception as _e:
+        log(f"[SYNC] quant diario falló (no crítico): {str(_e)[:80]}")
 
     # ---- Campos del contrato con Horizonte Financiero (cruce por ISIN) -------------
     # Objetivo: que todo fondo analizado salga YA con estos campos y Rafa no los escriba

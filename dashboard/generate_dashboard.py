@@ -5523,8 +5523,9 @@ def build_tab_documentos(data):
         for item in items[:max_n]:
             if isinstance(item, dict):
                 archivo = item.get("archivo", "")
-                name = archivo or str(item)
-                url = _resolve_local_pdf(archivo, icon)
+                name = item.get("nombre") or archivo or str(item)
+                # Preferir la URL de Storage (funciona en el portal remoto); si no, local file://
+                url = item.get("url") or _resolve_local_pdf(archivo, icon)
             else:
                 url = str(item) if str(item).startswith("http") else "#"
                 name = url_to_name(str(item)) if url != "#" else str(item)[:60]

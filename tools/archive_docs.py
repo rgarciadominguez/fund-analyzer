@@ -181,8 +181,54 @@ def archive(isin: str, client=None, log=print) -> list[dict]:
                     "fund_group_id", fgid).execute()
         except Exception as e:
             log(f"[DOCS] manifiesto no escrito: {str(e)[:70]}")
+    # Volcar el manifiesto (con URLs de Storage) a output.json → analyst_synthesis.documentos
+    # para que el DASHBOARD y el PORTAL listen los AR/SAR/cartas archivados (antes informes_pdf
+    # quedaba vacío y no se veían los docs descargados).
+    try:
+        _merge_into_output_documentos(isin, manifest, log=log)
+    except Exception as e:
+        log(f"[DOCS] no volcado a output.json: {str(e)[:70]}")
     log(f"[DOCS] {isin}: {len(manifest)} docs clave archivados")
     return manifest
+
+
+_TIPO_LABEL_ES = {"annual_report": "Informe anual", "semi_annual_report": "Informe semestral",
+                  "kid": "KID", "prospectus": "Folleto", "factsheet": "Factsheet"}
+
+
+def _merge_into_output_documentos(isin: str, manifest: list[dict], log=print) -> bool:
+    """Escribe los docs archivados (AR/SAR/KID/folleto → informes_pdf; cartas → cartas_urls) en
+    output.json → analyst_synthesis.documentos, con las URLs de Storage. Preserva lo que ya haya
+    (fuentes externas del analyst). Cada informe: {tipo, periodo, nombre, url, archivo}."""
+    p = ROOT / "data" / "funds" / isin.upper() / "output.json"
+    if not p.exists() or not manifest:
+        return False
+    d = json.loads(p.read_text(encoding="utf-8"))
+    syn = d.setdefault("analyst_synthesis", {})
+    docs = syn.setdefault("documentos", {})
+    if not isinstance(docs, dict):
+        docs = {}; syn["documentos"] = docs
+    informes, cartas = [], list(docs.get("cartas_urls") or [])
+    # AR/SAR más nuevo primero
+    for m in sorted(manifest, key=lambda x: str(x.get("periodo") or ""), reverse=True):
+        tipo = m.get("tipo")
+        if tipo in ("annual_report", "semi_annual_report", "kid", "prospectus", "factsheet"):
+            etq = _TIPO_LABEL_ES.get(tipo, "Documento")
+            per = str(m.get("periodo") or "").strip()
+            per = per[:4] if per and per[:4].isdigit() else ""
+            informes.append({"tipo": tipo, "periodo": per,
+                             "nombre": f"{etq}{(' ' + per) if per else ''}",
+                             "url": m.get("url"), "archivo": m.get("nombre")})
+        elif tipo in ("carta_gestor", "quarterly_letter") and m.get("url") and m["url"] not in cartas:
+            cartas.append(m["url"])
+    if informes:
+        docs["informes_pdf"] = informes
+    docs["cartas_urls"] = cartas
+    tmp = p.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(p)
+    log(f"[DOCS] output.json.documentos: {len(informes)} informes + {len(cartas)} cartas")
+    return True
 
 
 def main():
