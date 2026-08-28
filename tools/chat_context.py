@@ -131,6 +131,26 @@ def build_system_prompt(ctx: dict) -> str:
     if cnmv_cual_text:
         sections.append(f"=== CNMV CUALITATIVO ===\n{cnmv_cual_text}")
 
+    # Mensaje del gestor AÑO A AÑO (histórico cualitativo) → responde preguntas sobre
+    # CAMBIOS en el mensaje/tesis/decisiones del management a lo largo del tiempo. Vive en
+    # cualitativo._historico {periodo: {contexto_mercado, decisiones_tomadas, tesis_gestora, perspectivas}}.
+    histo = (cual.get("_historico") or (output.get("cualitativo") or {}).get("_historico") or {})
+    if isinstance(histo, dict) and histo:
+        msg_text = ""
+        for per in sorted(histo.keys()):
+            snap = histo.get(per)
+            if not isinstance(snap, dict):
+                continue
+            partes = []
+            for campo, etq in (("contexto_mercado", "Contexto"), ("tesis_gestora", "Tesis"),
+                               ("decisiones_tomadas", "Decisiones"), ("perspectivas", "Perspectivas")):
+                if snap.get(campo):
+                    partes.append(f"  [{etq}] {snap[campo]}")
+            if partes:
+                msg_text += f"\n--- {per} ---\n" + "\n".join(partes) + "\n"
+        if msg_text:
+            sections.append(f"=== MENSAJE DEL GESTOR POR PERIODO (histórico) ===\n{msg_text}")
+
     manager = ctx.get("manager_profile", {}) or {}
     manager_text = ""
     profiles = (manager.get("profiles", []) or manager.get("perfiles", [])
