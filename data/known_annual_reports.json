@@ -2,153 +2,334 @@
   "_doc": "AR oficiales verificados (URLs directas, completas, NO Wayback). Sourcing A.2 (2026-06-10). El downloader (tools/fetch_annual_report.py) y el discovery consultan esto antes de scrapear. Un AR de paraguas cubre todos los ISINs listados.",
   "umbrellas": {
     "Jupiter Merian Global Equity Absolute Return": {
-      "isins": ["IE00BLP5S791"],
+      "isins": [
+        "IE00BLP5S791"
+      ],
       "documents_page": "https://www.finect.com/fondos-inversion/IE00BLP5S791",
-      "_nota": "Jupiter/Merian (Systematic Equities). Global Equity Absolute Return (GEAR) — market-neutral cuantitativo, libro long/short amplio (el fondo publica pocas posiciones top). AR REAL vía Finect doclegal (investmentid F00000TG3G, paraguas Jupiter/Merian). Verificado 2026-08-28: menciona Jupiter/Merian (6.2MB). OJO: manager_profiler crasheaba (IndexError); web bloqueada; cartas contaminadas (Jupiter plc corp + iShares).",
+      "_nota": "Jupiter/Merian (Systematic Equities). Global Equity Absolute Return (GEAR) — market-neutral cuantitativo, libro long/short amplio (el fondo publica pocas posiciones top). AR REAL vía Finect doclegal (investmentid F00000TG3G, paraguas Jupiter/Merian). Verificado 2026-08-28: menciona Jupiter/Merian (6.2MB). OJO: manager_profiler crasheaba (IndexError); web bloqueada; cartas contaminadas (Jupiter plc corp + iShares). | Multi-año 2026-08-29: solo 2019 (Merian swissfunddata) + 2025 (Jupiter CaixaBank, slot inestable se sobrescribe); 2020-2024 no recuperables.",
       "reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000TG3G&documenttype=4&market=1440&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www2.caixabank.es/apl/fondos/Images/26/IIC_301_94.pdf"
+        },
+        {
+          "year": "2019",
+          "url": "https://swissfunddata.ch/sfdpub/docs/anr-101700_01_12-20191231-en.pdf"
+        }
       ],
       "semi_annual_reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000TG3G&documenttype=5&market=1440&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000TG3G&documenttype=5&market=1440&investmenttype=1&format=PDF&frame=0"
+        }
       ]
     },
     "Trojan Fund (Ireland)": {
-      "isins": ["IE00B6T42S66"],
+      "isins": [
+        "IE00B6T42S66"
+      ],
       "documents_page": "https://www.finect.com/fondos-inversion/IE00B6T42S66",
-      "_nota": "Troy Asset Management. Trojan Fund (Ireland) — multi-activo defensivo (RV calidad + RF + oro + liquidez; >10% RF → entra en batch RF). AR REAL vía Finect doclegal (investmentid F00000NPYO). Verificado 2026-08-26: menciona Trojan/Troy/multi (1.76MB). En baseline tests/test_int_no_regression.py.",
+      "_nota": "Troy Asset Management. Trojan Fund (Ireland) — multi-activo defensivo (RV calidad + RF + oro + liquidez; >10% RF → entra en batch RF). AR REAL vía Finect doclegal (investmentid F00000NPYO). Verificado 2026-08-26: menciona Trojan/Troy/multi (1.76MB). En baseline tests/test_int_no_regression.py. | Multi-año 2026-08-29 (subagente): taml.co.uk (2025/2026 live, 2021/2022 Wayback id_); FY cierra 31-ene; 2023 trunc/2024 no hallado.",
       "reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000NPYO&documenttype=4&market=1440&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2026",
+          "url": "https://www.taml.co.uk/wp-content/uploads/2022/07/Trojan-Funds-Ireland-Annual-Report-31-January-2026.pdf"
+        },
+        {
+          "year": "2025",
+          "url": "https://www.taml.co.uk/wp-content/uploads/2025/05/Trojan-Funds-Ireland-Annual-Report-31-January-2025.pdf"
+        },
+        {
+          "year": "2022",
+          "url": "https://web.archive.org/web/20221222121924id_/https://www.taml.co.uk/wp-content/uploads/2022/07/Trojan-Funds-Ireland-Annual-Report-January-2022.pdf"
+        },
+        {
+          "year": "2021",
+          "url": "https://web.archive.org/web/20221222122032id_/https://www.taml.co.uk/wp-content/uploads/2022/07/Trojan-Funds-Ireland-Annual-Report-January-2021.pdf"
+        }
       ],
       "semi_annual_reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000NPYO&documenttype=5&market=1440&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000NPYO&documenttype=5&market=1440&investmenttype=1&format=PDF&frame=0"
+        }
       ]
     },
     "Royal London Absolute Return Government Bond": {
-      "isins": ["IE00BP3QZS27", "IE000K7H1E84"],
+      "isins": [
+        "IE00BP3QZS27",
+        "IE000K7H1E84"
+      ],
       "documents_page": "https://www.finect.com/fondos-inversion/IE00BP3QZS27",
-      "_nota": "Royal London (RLAM). Absolute Return Government Bond, base GBP (AUM en £, no €). Clase IE00BP3QZS27 = Z EUR Hedged; IE000K7H1E84 = hermana. AR REAL vía Finect doclegal (investmentid F0000139HN). Verificado 2026-08-26: menciona Royal London/absolute return/government bond (2.74MB). OJO: discovery contaminado (La Poste/iShares/Victory RS) — usar SOLO este AR; el ISIN no se imprime en el AR.",
+      "_nota": "Royal London (RLAM). Absolute Return Government Bond, base GBP (AUM en £, no €). Clase IE00BP3QZS27 = Z EUR Hedged; IE000K7H1E84 = hermana. AR REAL vía Finect doclegal (investmentid F0000139HN). Verificado 2026-08-26: menciona Royal London/absolute return/government bond (2.74MB). OJO: discovery contaminado (La Poste/iShares/Victory RS) — usar SOLO este AR; el ISIN no se imprime en el AR. | Multi-año 2026-08-29: FY2024 full umbrella (royallondon.ie); resto tras tokens FundsLibrary expirables.",
       "reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F0000139HN&documenttype=4&market=1440&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www.finect.com/doclegal?language=451&investmentid=F0000139HN&documenttype=4&market=1440&investmenttype=1&format=PDF&frame=0"
+        },
+        {
+          "year": "2024",
+          "url": "https://www.royallondon.ie/siteassets/site-docs/pensions/brochure/annex-docs-added-dec-2024/rlam-fund-annual-report-june-2024.pdf"
+        }
       ],
       "semi_annual_reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F0000139HN&documenttype=5&market=1440&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www.finect.com/doclegal?language=451&investmentid=F0000139HN&documenttype=5&market=1440&investmenttype=1&format=PDF&frame=0"
+        }
       ]
     },
     "BNY Mellon Global Funds plc - Global Short-Dated High Yield Bond": {
-      "isins": ["IE00BD5CTX77", "IE00BD5CV310"],
+      "isins": [
+        "IE00BD5CTX77",
+        "IE00BD5CV310"
+      ],
       "documents_page": "https://www.finect.com/fondos-inversion/IE00BD5CTX77",
       "_nota": "BNY Mellon Global Funds plc (paraguas irlandés, gestor Insight Investment). Sub-fondo Global Short-Dated High Yield Bond. AR REAL vía Finect doclegal por ISIN (investmentid F00000Y8ZP / F00000Y8ZQ, market=1440). Verificado 2026-08-26: menciona BNY Mellon/short-dated/high yield/Insight (15MB). OJO: el discovery trae presentaciones de resultados del banco BNY (ticker BK), NO del fondo — usar SOLO este AR.",
       "reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000Y8ZP&documenttype=4&market=1440&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000Y8ZP&documenttype=4&market=1440&investmenttype=1&format=PDF&frame=0"
+        }
       ],
       "semi_annual_reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000Y8ZP&documenttype=5&market=1440&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www.finect.com/doclegal?language=451&investmentid=F00000Y8ZP&documenttype=5&market=1440&investmenttype=1&format=PDF&frame=0"
+        }
       ]
     },
     "Alpha Fixed Income UCITS Fund": {
-      "isins": ["IE000Z9YV312", "IE000RDB0I49"],
+      "isins": [
+        "IE000Z9YV312",
+        "IE000RDB0I49"
+      ],
       "documents_page": "https://www.finect.com/fondos-inversion/IE000Z9YV312-alpha-fixed-income-ucits-fund",
       "_nota": "MontLake UCITS Platform ICAV (Waystone). FY cierra 30 jun. AR REAL vía Finect doclegal por ISIN (investmentid Morningstar F00001LHAK=EUR / F00001JEOE=USD; misma cartera del sub-fondo). Verificado 2026-08-26: menciona Alpha Fixed/MontLake/Fortune/Waystone (4.75MB). OJO: swissfunddata anr-9360 NO es este fondo (es SC Modus Classic Defender) — descartado por anti-invención. Prosa en fuente CID → leer como imagen.",
       "reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00001LHAK&documenttype=4&market=0&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www.finect.com/doclegal?language=451&investmentid=F00001LHAK&documenttype=4&market=0&investmenttype=1&format=PDF&frame=0"
+        }
       ],
       "semi_annual_reports": [
-        {"year": "2025", "url": "https://www.finect.com/doclegal?language=451&investmentid=F00001LHAK&documenttype=5&market=0&investmenttype=1&format=PDF&frame=0"}
+        {
+          "year": "2025",
+          "url": "https://www.finect.com/doclegal?language=451&investmentid=F00001LHAK&documenttype=5&market=0&investmenttype=1&format=PDF&frame=0"
+        }
       ]
     },
     "DNCA Invest Credit Conviction": {
-      "isins": ["LU0284393930"],
+      "isins": [
+        "LU0284393930"
+      ],
       "documents_page": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930",
-      "_nota": "DNCA usa URLs download_doc_share por clase+tipo (AR/SAR). Verificadas 2026-08 (HTTP 200, application/pdf). Sirven el último; mismo patrón para otras clases/fondos DNCA Invest.",
+      "_nota": "DNCA usa URLs download_doc_share por clase+tipo (AR/SAR). Verificadas 2026-08 (HTTP 200, application/pdf). Sirven el último; mismo patrón para otras clases/fondos DNCA Invest. | Multi-año 2026-08-29: AR completo Natixis 2023/2024 (el swissfunddata anr-9435 es abreviado y NO trae Credit Conviction).",
       "reports": [
-        {"year": "latest", "url": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930/AR-a-lu0284393930/download_doc_share?locale=en&country_code=INT"}
+        {
+          "year": "2024",
+          "url": "https://www.im.natixis.com/content/dam/natixis/products/international/fund-documents/intl/en/ANNREP-EN-EN-1-DNCA%20Invest-31122024.pdf"
+        },
+        {
+          "year": "2023",
+          "url": "https://www.im.natixis.com/content/dam/natixis/products/international/fund-documents/intl/en/ANNREP-EN-EN-1-DNCA%20Invest-31122023.pdf"
+        }
       ],
       "semi_annual_reports": [
-        {"year": "latest", "url": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930/SAR-a-lu0284393930/download_doc_share?locale=en&country_code=INT"}
+        {
+          "year": "latest",
+          "url": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930/SAR-a-lu0284393930/download_doc_share?locale=en&country_code=INT"
+        }
       ]
     },
     "Carmignac Portfolio Credit": {
-      "isins": ["LU1623762843"],
+      "isins": [
+        "LU1623762843"
+      ],
       "documents_page": "https://www.carmignac.com/en/our-funds/carmignac-portfolio-credit-LU1623762843-a-eur-acc/documents",
       "_nota": "AR/SAR por sub-fondo (no paraguas). URLs directas verificadas 2026-08 (HTTP 200, application/pdf). Se sirven con el último; históricos vía 'View archives' en la documents_page.",
       "reports": [
-        {"year": "latest", "url": "https://www.carmignac.com/assets/yoda/AR_CCR_67_INT_en/Annual-Report_Carmignac-Portfolio-Credit_INTL_en.pdf"}
+        {
+          "year": "latest",
+          "url": "https://www.carmignac.com/assets/yoda/AR_CCR_67_INT_en/Annual-Report_Carmignac-Portfolio-Credit_INTL_en.pdf"
+        }
       ],
       "semi_annual_reports": [
-        {"year": "latest", "url": "https://www.carmignac.com/assets/yoda/SAR_CCR_67_INT_en/Semi-Annual-Report_Carmignac-Portfolio-Credit_INTL_en.pdf"}
+        {
+          "year": "latest",
+          "url": "https://www.carmignac.com/assets/yoda/SAR_CCR_67_INT_en/Semi-Annual-Report_Carmignac-Portfolio-Credit_INTL_en.pdf"
+        }
       ]
     },
     "Robeco Capital Growth Funds": {
-      "isins": ["LU0203975437", "LU0329355670", "LU1048590381", "LU1654173217"],
+      "isins": [
+        "LU0203975437",
+        "LU0329355670",
+        "LU1048590381",
+        "LU1654173217"
+      ],
       "documents_page": "https://www.robeco.com/en-int/products/funds/isin-lu0203975437/robeco-bp-global-premium-equities-d-eur",
       "reports": [
-        {"year": "2025", "url": "https://www.robeco.com/files/docm/annu-2025-robeco-capital-growth-funds-en.pdf"},
-        {"year": "2024", "url": "https://www.robeco.com/files/docm/annu-2024-robeco-capital-growth-funds-en.pdf"},
-        {"year": "2023", "url": "https://www.robeco.com/files/docm/annu-2023-robeco-capital-growth-funds-en.pdf"},
-        {"year": "2022", "url": "https://web.archive.org/web/20230729063503id_/https://www.robeco.com/files/docm/annu-2022-cgf-general.pdf"},
-        {"year": "2021", "url": "https://web.archive.org/web/20230729063531id_/https://www.robeco.com/files/docm/annu-2021-cgf-general.pdf"},
-        {"year": "2020", "url": "https://web.archive.org/web/20230729122108id_/https://www.robeco.com/files/docm/annu-2020-cgf-general.pdf"}
+        {
+          "year": "2025",
+          "url": "https://www.robeco.com/files/docm/annu-2025-robeco-capital-growth-funds-en.pdf"
+        },
+        {
+          "year": "2024",
+          "url": "https://www.robeco.com/files/docm/annu-2024-robeco-capital-growth-funds-en.pdf"
+        },
+        {
+          "year": "2023",
+          "url": "https://www.robeco.com/files/docm/annu-2023-robeco-capital-growth-funds-en.pdf"
+        },
+        {
+          "year": "2022",
+          "url": "https://web.archive.org/web/20230729063503id_/https://www.robeco.com/files/docm/annu-2022-cgf-general.pdf"
+        },
+        {
+          "year": "2021",
+          "url": "https://web.archive.org/web/20230729063531id_/https://www.robeco.com/files/docm/annu-2021-cgf-general.pdf"
+        },
+        {
+          "year": "2020",
+          "url": "https://web.archive.org/web/20230729122108id_/https://www.robeco.com/files/docm/annu-2020-cgf-general.pdf"
+        }
       ]
     },
     "Goldman Sachs Funds": {
-      "isins": ["LU0234681749"],
+      "isins": [
+        "LU0234681749"
+      ],
       "documents_page": "https://www.gsam.com/en/sicav/annual-report",
       "_nota": "ar_sicav_en.pdf se sobreescribe cada año (sirve el último). Históricos vía Wayback id_ (completos) + am.gs.com UUID + mirror. FY2021/2020 no recuperables (captura Wayback truncada a 1MB).",
       "reports": [
-        {"year": "2025", "url": "https://am.gs.com/public-assets/documents/b7ddad07-7cd2-11f0-bdbd-69d906e2ad8f?view=true"},
-        {"year": "2024", "url": "https://www.gsam.com/content/dam/gsam/pdfs/international/en/prospectus-and-regulatory/annual-financial-statement/ar_sicav_en.pdf"},
-        {"year": "2023", "url": "https://web.archive.org/web/20240719003230id_/https://www.gsam.com/content/dam/gsam/pdfs/international/en/prospectus-and-regulatory/annual-financial-statement/ar_sicav_en.pdf?sa=n&rd=n"},
-        {"year": "2022", "url": "https://web.archive.org/web/20230802020313id_/https://www.gsam.com/content/dam/gsam/pdfs/international/en/prospectus-and-regulatory/annual-financial-statement/ar_sicav_en.pdf?sa=n&rd=n"},
-        {"year": "2016", "url": "https://sfiles.cnyes.cool/funds/files/prod/0P00000L2R/annualReport.pdf"}
+        {
+          "year": "2025",
+          "url": "https://am.gs.com/public-assets/documents/b7ddad07-7cd2-11f0-bdbd-69d906e2ad8f?view=true"
+        },
+        {
+          "year": "2024",
+          "url": "https://www.gsam.com/content/dam/gsam/pdfs/international/en/prospectus-and-regulatory/annual-financial-statement/ar_sicav_en.pdf"
+        },
+        {
+          "year": "2023",
+          "url": "https://web.archive.org/web/20240719003230id_/https://www.gsam.com/content/dam/gsam/pdfs/international/en/prospectus-and-regulatory/annual-financial-statement/ar_sicav_en.pdf?sa=n&rd=n"
+        },
+        {
+          "year": "2022",
+          "url": "https://web.archive.org/web/20230802020313id_/https://www.gsam.com/content/dam/gsam/pdfs/international/en/prospectus-and-regulatory/annual-financial-statement/ar_sicav_en.pdf?sa=n&rd=n"
+        },
+        {
+          "year": "2016",
+          "url": "https://sfiles.cnyes.cool/funds/files/prod/0P00000L2R/annualReport.pdf"
+        }
       ]
     },
     "Vontobel Fund": {
-      "isins": ["LU0153585137"],
+      "isins": [
+        "LU0153585137"
+      ],
       "documents_page": "https://am.vontobel.com/en/view/LU0153585137/vontobel-fund-european-equity",
       "reports": [
-        {"year": "2025", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20250831-en.pdf"},
-        {"year": "2024", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20240831-en.pdf"},
-        {"year": "2023", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20230831-en.pdf"},
-        {"year": "2022", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20220831-en.pdf"},
-        {"year": "2021", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20210831-en.pdf"}
+        {
+          "year": "2025",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20250831-en.pdf"
+        },
+        {
+          "year": "2024",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20240831-en.pdf"
+        },
+        {
+          "year": "2023",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20230831-en.pdf"
+        },
+        {
+          "year": "2022",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20220831-en.pdf"
+        },
+        {
+          "year": "2021",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-1860-20210831-en.pdf"
+        }
       ]
     },
     "HAMCO SICAV": {
-      "isins": ["LU3038481936"],
+      "isins": [
+        "LU3038481936"
+      ],
       "documents_page": "https://www.andbank.com/luxembourg/en/gestion-dactifs/nos-fonds/",
       "reports": [
-        {"year": "2025", "url": "https://www.andbank.com/funds/luxemburg/pdf/ff_000000000045_fin_12m_en_202605051232.pdf"}
+        {
+          "year": "2025",
+          "url": "https://www.andbank.com/funds/luxemburg/pdf/ff_000000000045_fin_12m_en_202605051232.pdf"
+        }
       ]
     },
     "Wellington Management Funds (Ireland) plc": {
-      "isins": ["IE00B8BPMF80"],
+      "isins": [
+        "IE00B8BPMF80"
+      ],
       "documents_page": "https://www.swissfunddata.ch/sfdpub/funds?company=8501",
       "_nota": "swissfunddata: HEAD devuelve stub, GET devuelve el PDF (el downloader usa GET).",
       "reports": [
-        {"year": "2025", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20251231-en.pdf"},
-        {"year": "2024", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20241231-en.pdf"},
-        {"year": "2023", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20231231-en.pdf"},
-        {"year": "2022", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20221231-en.pdf"},
-        {"year": "2021", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20211231-en.pdf"},
-        {"year": "2020", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20201231-en.pdf"}
+        {
+          "year": "2025",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20251231-en.pdf"
+        },
+        {
+          "year": "2024",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20241231-en.pdf"
+        },
+        {
+          "year": "2023",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20231231-en.pdf"
+        },
+        {
+          "year": "2022",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20221231-en.pdf"
+        },
+        {
+          "year": "2021",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20211231-en.pdf"
+        },
+        {
+          "year": "2020",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-8501_15_14-20201231-en.pdf"
+        }
       ]
     },
     "GAM Star Fund plc": {
-      "isins": ["IE00BF5GGB04"],
+      "isins": [
+        "IE00BF5GGB04"
+      ],
       "documents_page": "https://www.gam.com/en/documents",
       "_nota": "FY-end 30 junio. FY2024 en FSC Bulgaria (regulador), FY2023 en swissfunddata.",
       "reports": [
-        {"year": "2024", "url": "https://www.fsc.bg/wp-content/uploads/2024/11/1-gam-star-fund-plc-30.06.2024.pdf"},
-        {"year": "2023", "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-3241_47_02-20230630-en.pdf"}
+        {
+          "year": "2024",
+          "url": "https://www.fsc.bg/wp-content/uploads/2024/11/1-gam-star-fund-plc-30.06.2024.pdf"
+        },
+        {
+          "year": "2023",
+          "url": "https://www.swissfunddata.ch/sfdpub/docs/anr-3241_47_02-20230630-en.pdf"
+        }
       ]
     },
     "Ashoka WhiteOak ICAV": {
-      "isins": ["IE00BDR0JY05"],
+      "isins": [
+        "IE00BDR0JY05"
+      ],
       "documents_page": "https://www.whiteoakcapitalpartners.com/ucits.php",
       "_nota": "URL fundslibrary con tokens firmados que pueden CADUCAR; el AR ya descargado persiste en raw/discovery. Históricos bajo nombre antiguo 'India Acorn ICAV' (portal Carne JS-gated).",
       "reports": [
-        {"year": "2024", "url": "https://www.fundslibrary.co.uk/FundsLibrary.DataRetrieval/Documents.aspx/?type=packet_fund_doc_reports_and_accounts&docid=295a9023-1dec-4999-bd16-99648ac81ca9&user=tbWlNaMtBU9Y4RTo08a%2F1NW5TLT1ViKMLlz0ufR7yoU%3D&language=en-GB&track1=lzGMNKxfme9S2jZog0uzX%2BpGtVZmF0IVx8zXrCgcTkGmbvpgTK7Etvejn1VDrCn3pbxYiEaeQ8XS8OFh4%2B9zVw%3D%3D&track2=1xmpUavs7iF4WHR9benbqVNd9nEbZNG8emMIi9VCrTQ%3D&r=1"},
-        {"year": "2021", "url": "https://doc.morningstar.com/Document/5f067b1e67b700bd3dee0f368b28611a.msdoc?clientid=euretailsite&key=9ab7c1c01e51bcec"}
+        {
+          "year": "2024",
+          "url": "https://www.fundslibrary.co.uk/FundsLibrary.DataRetrieval/Documents.aspx/?type=packet_fund_doc_reports_and_accounts&docid=295a9023-1dec-4999-bd16-99648ac81ca9&user=tbWlNaMtBU9Y4RTo08a%2F1NW5TLT1ViKMLlz0ufR7yoU%3D&language=en-GB&track1=lzGMNKxfme9S2jZog0uzX%2BpGtVZmF0IVx8zXrCgcTkGmbvpgTK7Etvejn1VDrCn3pbxYiEaeQ8XS8OFh4%2B9zVw%3D%3D&track2=1xmpUavs7iF4WHR9benbqVNd9nEbZNG8emMIi9VCrTQ%3D&r=1"
+        },
+        {
+          "year": "2021",
+          "url": "https://doc.morningstar.com/Document/5f067b1e67b700bd3dee0f368b28611a.msdoc?clientid=euretailsite&key=9ab7c1c01e51bcec"
+        }
       ]
     }
   }
