@@ -121,6 +121,55 @@ def _asset_mix_from_allocation(aa: dict) -> dict:
     return {k: v for k, v in m.items() if v}
 
 
+def _geo_from_holdings(holdings: list) -> dict:
+    """{region: peso_pct} agregando holdings por país (normalizado a región/país). Fallback
+    cuando el AR no trae tabla de geografía. Solo si ≥30% del peso tiene país resoluble."""
+    if not holdings:
+        return {}
+    try:
+        from tools.region_normalizer import aggregate_by_country
+    except Exception:
+        aggregate_by_country = None
+    raw, cubierto = {}, 0.0
+    for h in holdings:
+        if not isinstance(h, dict):
+            continue
+        w = h.get("peso_pct")
+        pais = (h.get("pais") or "").strip()
+        if not w or not pais or pais.lower() in ("internacional", "n/a", "-", "varios", "global"):
+            continue
+        raw[pais] = raw.get(pais, 0) + w
+        cubierto += w
+    if cubierto < 25:                       # muy poca cobertura → no fiable
+        return {}
+    if aggregate_by_country:
+        try:
+            return {k: round(v, 2) for k, v in aggregate_by_country(raw).items()}
+        except Exception:
+            pass
+    return {k: round(v, 2) for k, v in raw.items()}
+
+
+def _sector_from_holdings(holdings: list) -> dict:
+    """{sector: peso_pct} agregando holdings por sector. Fallback cuando el AR no trae tabla
+    de sectores. Solo si ≥25% del peso tiene sector."""
+    if not holdings:
+        return {}
+    raw, cubierto = {}, 0.0
+    for h in holdings:
+        if not isinstance(h, dict):
+            continue
+        w = h.get("peso_pct")
+        sec = (h.get("sector") or "").strip()
+        if not w or not sec or sec.lower() in ("n/a", "-", "otros", "otro"):
+            continue
+        raw[sec] = raw.get(sec, 0) + w
+        cubierto += w
+    if cubierto < 25:
+        return {}
+    return {k: round(v, 2) for k, v in raw.items()}
+
+
 def _compact_holdings(pos: list, limit: int = 200) -> list:
     """Holdings compactos para comparación año-a-año (nombre + peso + sector + país)."""
     out = []
@@ -184,15 +233,17 @@ def build(isin: str) -> dict:
                 "otros_pct": aa.get("otros_pct"),
             }
 
-        # mix_geografico_historico
-        zonas = _norm_geo(data.get("geographic_allocation") or [])
+        # mix_geografico_historico: tabla del AR primero; si no, derivar de los holdings del año.
+        zonas = _norm_geo(data.get("geographic_allocation") or []) or _geo_from_holdings(pos)
         if zonas and yr not in mix_geo_by_per:
             mix_geo_by_per[yr] = {"periodo": yr, "zonas": zonas}
 
-        # sector_allocation_history (para el gráfico de evolución por sector)
+        # sector_allocation_history: tabla del AR primero; si no, derivar de los holdings.
         secs = {it.get("sector"): it.get("peso_pct")
                 for it in (data.get("sector_allocation") or [])
                 if isinstance(it, dict) and it.get("sector") and it.get("peso_pct")}
+        if not secs:
+            secs = _sector_from_holdings(pos)
         if secs and yr not in sector_by_per:
             sector_by_per[yr] = {"periodo": yr, "sectores": secs}
 
