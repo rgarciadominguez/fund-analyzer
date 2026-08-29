@@ -4854,8 +4854,15 @@ def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=5):
             if v is not None:
                 agg[k] = agg.get(k, 0) + (v or 0)
     # 'Otros'/'Liquidez' nunca van al top: son siempre el bucket de resto
-    _resto = {"Otros", "Liquidez", "Cash"}
+    _resto = {"Otros", "Liquidez", "Cash", "Monetario/Liquidez"}
     top = [k for k, _ in sorted(agg.items(), key=lambda x: -x[1]) if k not in _resto][:top_n]
+    # OMITIR gráficos triviales/sin valor: si solo hay 1 categoría con peso significativo
+    # (≥8% en algún año), el fondo es esencialmente mono-categoría (p.ej. RV 97% plano, o cat
+    # bonds 100% RF) → la evolución es una línea plana que no aporta. Mejor no pintarlo.
+    _meaningful = [k for k in agg if k not in _resto
+                   and max((h.get(subkey, {}).get(k) or 0) for h in hist) >= 8]
+    if len(_meaningful) < 2:
+        return ""
     # paleta con alpha para área
     base = ["#0c2340", "#b48020", "#1b8a3d", "#6b3fa0", "#3d5a80", "#0891b2"]
     def _rgba(hexc, a):
