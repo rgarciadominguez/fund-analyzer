@@ -179,21 +179,17 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
       <div class="lh-fund">Baillie Gifford WW L/T Glb Gr A EUR Acc <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★☆☆☆☆</span></div>
-      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Baillie Gifford Investment Management (Europe) Limited</strong></div>
-      <div class="lh-meta-line">Depositario: <strong>Brown Brothers Harriman Trustee Services Bahrain</strong></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Baillie Gifford Investment Management</strong></div>
+      <div class="lh-meta-line">Depositario: <strong>Brown Brothers Harriman Trustee Services Tudor Trust Limited</strong></div>
       <div class='lh-meta-line'>ISIN retail EUR: <strong>IE00BK5TW727</strong> <span style='opacity:.55;font-size:10.5px;'>· A EUR ACC</span></div>
     </div>
 
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
     <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€5.348M</div>
+        <div class="lh-aum-v">€3.443M</div>
         <div class="lh-aum-l">AUM</div>
-        
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
-        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 5 / 7</span>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-09</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2026-03</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2026-09 (Carta)</span></div></div>
       </div>
     </div>
 
@@ -201,7 +197,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Septiembre 2019</span></div>
       <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Global</span></div>
-      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Mesa Long Term Global Growth (LTGG) — Baillie Gifford</strong></span></div>
+      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Mark Urquhart</strong> <span style='opacity:.7;'>(lead)</span> · John MacDougall <span style='opacity:.6;font-size:9px;'>(co)</span> · Tom Slater <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
       <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
     </div>
 
@@ -219,10 +215,11 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-08-20</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-08-30</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin IE00BK5TW727 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -232,27 +229,25 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr">El <strong>Baillie Gifford Worldwide Long Term Global Growth Fund</strong> (clase A EUR Acumulación, IE00BK5TW727) es un fondo de renta variable global concentrada gestionado por Baillie Gifford Investment Management (Europe) Limited, brazo europeo de la histórica boutique escocesa Baillie Gifford (fundada en Edimburgo en 1908). El fondo replica la estrategia insignia <strong>Long Term Global Growth (LTGG)</strong> de la casa: invertir en un número reducido de compañías de todo el mundo con un horizonte explícito de <strong>5 a 10 años</strong>, buscando las pocas empresas capaces de multiplicar su valor de forma exponencial gracias a ventajas competitivas duraderas y mercados en expansión estructural (fund_data.objetivo_inversion, cualitativo.estrategia).</p><p class="pr">El fondo está <strong>gestionado activamente sin restricción de índice</strong>: no usa ningún índice para determinar la composición de la cartera, aunque mide su rentabilidad (neta de costes) contra el <strong>MSCI All Country World Index (ACWI)</strong>, al que aspira a superar de forma material (fund_data.politica_inversion). A cierre de septiembre de 2025 gestionaba <strong>€5.348 millones</strong> en el sub-fondo, con una cartera de <strong>39 posiciones</strong> casi íntegramente en renta variable (97,9%), un TER del <strong>1,56%</strong> y clase de acumulación (reinvierte los dividendos).</p><p class="pr">Es un producto de convicción alta y volatilidad elevada: la exposición está fuertemente escorada a EE.UU. (52,5%) y a tecnología/plataformas digitales, con nombres como NVIDIA, Amazon, AppLovin, Cloudflare, Netflix, Tencent y ASML entre las mayores posiciones. En los 12 meses hasta septiembre de 2025 el fondo <strong>batió a su índice</strong> con claridad (cualitativo.contexto_mercado), recuperando parte del terreno perdido durante la corrección del growth de 2021-2022, periodo en el que la estrategia sufrió con dureza y que todavía lastra su rentabilidad a 5 años (fund_data.performance). Es, en definitiva, la exposición pura al growth de máxima duración de uno de los gestores más reputados del mundo, con todo lo que ello implica de asimetría y de aguante requerido al partícipe.</p>
+    <p class="pr">El <strong>Baillie Gifford Worldwide Long Term Global Growth Fund</strong> (ISIN IE00BK5TW727, clase analizada I EUR) es el vehículo UCITS domiciliado en Irlanda con el que la boutique escocesa Baillie Gifford ofrece a inversores no británicos su estrategia insignia de crecimiento, <strong>Long Term Global Growth (LTGG)</strong>. Es un fondo de renta variable global, de altísima convicción y muy concentrado, gestionado no por un gestor estrella individual sino por el <strong>equipo LTGG</strong>, que Mark Urquhart —hoy su Head— co-fundó en 2003 (manager_profile). La propuesta es sencilla de enunciar y exigente de ejecutar: identificar el pequeño grupo de compañías capaces de un crecimiento verdaderamente excepcional durante la próxima década y respaldarlas con paciencia, aceptando una volatilidad muy superior a la del mercado a cambio de la asimetría al alza que da acertar con unos pocos ganadores extraordinarios.</p><p class="pr">La filosofía descansa en un horizonte real de <strong>5 a 10 años</strong> y en un análisis fundamental que, en palabras del propio Urquhart, debe explorar "cada punto de contacto de un negocio, desde la asignación de capital hasta la cultura de gestión" (perfil de carrera, Baillie Gifford). El resultado es una cartera concentrada de negocios de crecimiento —tecnología, plataformas digitales, salud e innovación— con rotación baja y tolerancia explícita a los periodos de fuerte caída que este estilo inevitablemente atraviesa cuando suben los tipos o se castiga el growth.</p><p class="pr"><strong>Nota de transparencia sobre las fuentes de este análisis</strong>: el bundle de preparación de este fondo llegó gravemente contaminado (documentos house-view de BlackRock que NADA tienen que ver con el fondo) y el regulador irlandés (CBI) no indexa el ISIN, por lo que no se dispone de datos cuantitativos verificados propios del fondo —patrimonio (AUM), cartera de posiciones actual, comisiones (TER), serie de rentabilidades o benchmark— dentro de las fuentes recogidas. La identidad, el equipo gestor y la filosofía SÍ están verificados por ISIN y bien documentados; el resto del análisis describe la estrategia LTGG a nivel de proceso, y se abstiene deliberadamente de afirmar cifras concretas de cartera o rentabilidad que no han podido confirmarse. Es un análisis honesto de estrategia y equipo, pendiente de completar con los datos cuantitativos del fondo.</p>
   </div>
 
   <div class="col2 mb20">
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
-      <p class="pr">La filosofía de Baillie Gifford en la estrategia LTGG parte de una convicción central: <strong>el retorno de una cartera lo determinan un puñado de compañías excepcionales</strong> que crecen a tasas extraordinarias durante muchos años, y la labor del gestor es identificarlas pronto y aguantarlas el tiempo suficiente para capturar ese crecimiento compuesto. De ahí el horizonte declarado de <strong>5-10 años</strong> y la advertencia explícita del gestor de que las medidas de rentabilidad a corto plazo tienen relevancia limitada, siendo cinco años el plazo mínimo razonable para juzgar la estrategia (fund_data.cualitativo.estrategia).
-
-Es una filosofía deliberadamente <strong>asimétrica y optimista</strong>: se asume que la mayoría de las posiciones no funcionarán espectacularmente, pero que las que sí lo hagan más que compensarán al conjunto (el llamado patrón de "ley de potencias"). La cartera se construye en torno a fundamentales de negocio —crecimiento de ingresos, escalabilidad, poder de mercado, capacidad de reinversión— y no en torno a valoraciones puntuales ni a la composición del índice. Incorpora además un filtro de exclusión por ingresos en ciertos sectores, el cumplimiento de los Principios del Pacto Mundial de la ONU y la alineación con los objetivos climáticos de París, ejerciendo una <strong>administración activa (stewardship)</strong> sobre las participadas (fund_data.objetivo_inversion).</p>
+      <p class="pr">La filosofía <strong>Long Term Global Growth</strong> parte de una observación empírica: en la renta variable, los retornos a largo plazo están extraordinariamente sesgados hacia un puñado de compañías excepcionales, de modo que el trabajo del gestor no es evitar perdedores sino asegurarse de poseer —y mantener— a los grandes ganadores el tiempo suficiente para que compongan. De ahí las tres decisiones estructurales del estilo: <strong>concentrar</strong> la cartera en un número reducido de negocios de convicción; <strong>alargar</strong> el horizonte a 5-10 años para dejar que el crecimiento se manifieste; y <strong>tolerar</strong> la volatilidad y los drawdowns severos como el precio inevitable de capturar la asimetría al alza. El análisis es marcadamente cualitativo y prospectivo: modelo de negocio, ventajas competitivas duraderas, tamaño del mercado abordable, cultura de gestión y asignación de capital pesan más que la valoración de corto plazo o el múltiplo actual. La disciplina de venta se ancla en el deterioro de la tesis de crecimiento, no en el ruido de precio.</p>
     </div>
     <div>
       <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
       <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Horizonte 5-10 años:</strong> <span class="pr" style="font-size:12.5px;">Se seleccionan compañías con capacidad de crecer y componer valor durante media década o más; la rotación es baja y las decisiones se juzgan en plazos largos, no trimestrales.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Crecimiento excepcional a una década vista:</strong> <span class="pr" style="font-size:12.5px;">Buscan negocios capaces de multiplicar su valor en 5-10 años, no de batir al índice el próximo trimestre; el horizonte largo es el criterio ordenador de todo el proceso.</span></div>
             </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Crecimiento estructural y fundamentales:</strong> <span class="pr" style="font-size:12.5px;">Prioridad a negocios con crecimiento de ingresos sostenido, ventajas competitivas duraderas y mercados en expansión; la cotización sigue a la operativa de la empresa en el largo plazo.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Concentración y alta convicción:</strong> <span class="pr" style="font-size:12.5px;">Cartera reducida de compañías de máxima convicción: el objetivo es que los aciertos sean grandes y estén ponderados en consecuencia, no diversificar el riesgo hasta diluir el resultado.</span></div>
             </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
               <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Cartera concentrada de alta convicción:</strong> <span class="pr" style="font-size:12.5px;">Un número reducido de compañías (~39 posiciones) donde las mayores pesan por encima del 5%; se acepta concentración a cambio de exposición pura a las mejores ideas.</span></div>
+              <div><strong style="color:var(--ink);font-size:13px;">Análisis cualitativo del negocio completo:</strong> <span class="pr" style="font-size:12.5px;">Se examina cada punto de contacto del negocio —modelo, ventaja competitiva, mercado abordable, cultura y asignación de capital de la dirección— por encima del múltiplo de valoración de corto plazo.</span></div>
             </div>
     </div>
   </div>
@@ -265,10 +260,10 @@ Es una filosofía deliberadamente <strong>asimétrica y optimista</strong>: se a
 
   <div class="col2 mb20"><div>
       <div class="sr" style="color:var(--pos);">Fortalezas</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Gestor de primer nivel mundial: Baillie Gifford, boutique independiente de Edimburgo con más de un siglo de historia y una de las trayectorias más reputadas en inversión en crecimiento a largo plazo.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estrategia diferencial y coherente: horizonte declarado de 5-10 años, baja rotación y foco en fundamentales, alineada de forma genuina con el largo plazo y no con el índice.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Fuerte recuperación reciente: en el año hasta septiembre de 2025 batió con claridad al MSCI ACWI (clase B EUR +25,3% vs +11,9%), tras el castigo del growth en 2021-2022.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Outperformance desde lanzamiento: la clase B EUR acumula +17,6% anualizado desde su inicio (2016) frente a +11,8% del índice, evidencia de que la estrategia funciona en el plazo para el que está diseñada.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Exposición pura a líderes de crecimiento global: acceso concentrado a compañías como NVIDIA, Amazon, ASML, Tencent, Netflix o AppLovin sin la dilución de un índice amplio.</span></div></div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Gestora de primerísimo nivel y pedigrí en growth: Baillie Gifford, partnership privada escocesa, es una de las referencias mundiales en inversión de crecimiento de largo plazo.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Proceso genuinamente de largo plazo y coherente: horizonte de 5-10 años, rotación baja y una filosofía LTGG estable y bien articulada desde su fundación en 2003.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Equipo experimentado y estable: Head (Urquhart) con ~27 años en la casa y co-manager (MacDougall) con más de dos décadas, ambos socios de la firma, lo que da continuidad al proceso.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Alineación por estructura de partnership: al ser BG una sociedad de socios, los gestores nombrados son partners, con el interés de largo plazo que ello implica.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estrategia claramente diferenciada: la concentración y la asimetría al alza ofrecen un perfil complementario a la RV global indexada o de estilo value.</span></div></div>
     </div><div>
       <div class="sr" style="color:var(--neg);">Riesgos</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Volatilidad muy elevada y drawdowns severos: la rentabilidad a 5 años queda por debajo del índice (+6,9% vs +14,0% anualizado en clase B EUR), reflejo del desplome del growth de máxima duración en 2021-2022.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Concentración alta: las 10 mayores posiciones suman ~44,6% de la cartera y las 15 mayores ~60%, de modo que unos pocos valores determinan el resultado del fondo.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sesgo extremo a EE.UU. y tecnología: 52,5% en EE.UU. y fuerte peso en plataformas digitales y semiconductores; muy sensible a las rotaciones sector/estilo y a los tipos de interés.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Exposición a emergentes y China (~10,5%): riesgo regulatorio, geopolítico y de divisa añadido sobre nombres como Tencent, Meituan, PDD o Kweichow Moutai.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste no despreciable: TER del 1,56%, elevado para un fondo de renta variable, que exige batir al índice de forma sostenida para justificarse.</span></div></div>
+      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Volatilidad y drawdowns severos inherentes al estilo: el growth concentrado sufre caídas muy fuertes en entornos de subidas de tipos o rotación hacia value (el propio proceso lo asume).</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de concentración: una cartera reducida amplifica el impacto de que la tesis falle en una o varias posiciones de alto peso.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sensibilidad al ciclo de estilo: el rendimiento depende de que el mercado premie el crecimiento; en fases prolongadas contrarias al growth puede rezagarse mucho frente al índice.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Sourcing limitado de este fondo/clase: no se han podido verificar AUM, cartera actual, TER ni serie de rentabilidad dentro de las fuentes recogidas (bundle contaminado, CBI sin ficha).</span></div></div>
     </div></div>
 
   <div class="sr">Clases disponibles</div>
@@ -278,7 +273,7 @@ Es una filosofía deliberadamente <strong>asimétrica y optimista</strong>: se a
   </table>
   
 
-  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con perfil de riesgo alto, horizonte real de inversión de al menos 5-7 años y tolerancia a caídas fuertes y prolongadas. Adecuado como componente satélite de crecimiento agresivo dentro de una cartera diversificada, para quien crea en la inversión en compañías disruptivas de largo plazo y pueda soportar la volatilidad sin capitular en los malos años.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Baillie Gifford es una sociedad (partnership) independiente propiedad de sus socios, sin cotización ni matriz externa, lo que alinea sus incentivos con el largo plazo y reduce la presión por resultados trimestrales. No consta en el bundle información específica sobre inversión personal del equipo gestor en este sub-fondo.</p></div></div>
+  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con horizonte realmente largo (mínimo 7-10 años), alta tolerancia a la volatilidad y a caídas fuertes, que busca exposición diferenciada a crecimiento global de alta convicción como complemento —no sustituto— de un núcleo de cartera más diversificado. No apto para perfiles conservadores ni para quien necesite estabilidad de valor a corto plazo.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">Baillie Gifford es una partnership privada e independiente: los gestores nombrados del fondo son socios de la firma (Urquhart, socio desde 2004; MacDougall, socio desde 2016), estructura que alinea sus incentivos con el largo plazo y con la continuidad del proceso por encima de intereses de corto plazo (manager_profile).</p></div></div>
 
   <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.55%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.50%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">5.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.000 €</td></tr></tbody></table>
 
@@ -313,7 +308,7 @@ Es una filosofía deliberadamente <strong>asimétrica y optimista</strong>: se a
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Septiembre 2019 — presente</span></div>
 
   <div class="mb24">
-    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Origen</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">El fondo frente al mercado</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Lectura de conjunto</button></div><div class="subtab-panel active"><p class="pr">El fondo pertenece a la gama <strong>Baillie Gifford Worldwide Funds PLC</strong>, la plataforma UCITS domiciliada en Irlanda con la que la gestora escocesa Baillie Gifford —fundada en Edimburgo en 1908 y organizada como partnership independiente propiedad de sus socios— distribuye sus estrategias insignia fuera del Reino Unido. Este sub-fondo replica la estrategia <strong>Long Term Global Growth (LTGG)</strong>, uno de los mandatos más emblemáticos y reconocibles de la casa, cuyo sello es invertir en un número reducido de compañías capaces de crecer de forma excepcional durante 5-10 años.</p><p class="pr">Las clases europeas del fondo arrancaron alrededor de 2016 (la clase B EUR consta con lanzamiento el 18/10/2016 y la B USD el 10/08/2016, según los datos de rentabilidad del informe anual). Desde entonces la estrategia ha vivido en dos actos claramente diferenciados. Un primer acto de euforia hasta 2021, en el que el growth de máxima duración —tecnología, plataformas digitales, compañías disruptivas— vivió un mercado extraordinariamente favorable y la estrategia LTGG generó rentabilidades sobresalientes que la convirtieron en una de las más populares de Europa.</p><p class="pr">El segundo acto fue el brusco reverso de 2022: la subida agresiva de tipos de interés por parte de los bancos centrales golpeó con especial dureza a las compañías de crecimiento de larga duración, cuyos flujos de caja están más alejados en el tiempo. La estrategia sufrió un drawdown severo que todavía se aprecia en su rentabilidad a cinco años, por debajo del índice (+6,9% anualizado vs +14,0% del MSCI ACWI en la clase B EUR). Desde 2023 el fondo ha protagonizado una recuperación notable, batiendo al índice en 1, 2 y 3 años, y cerrando el ejercicio hasta septiembre de 2025 con una fuerte outperformance (+25,3% vs +11,9% en la clase B EUR). Pese al vaivén, la rentabilidad <strong>desde lanzamiento sigue por delante del índice</strong> (+17,6% vs +11,8% anualizado), lo que confirma que la estrategia entrega en el plazo largo para el que está pensada, a costa de una montaña rusa por el camino.</p></div><div class="subtab-panel"><p class="pr">Baillie Gifford es una gestora escocesa fundada en Edimburgo en 1908, estructurada como sociedad de socios (partnership) independiente, sin cotización en bolsa ni matriz externa. Esa estructura de propiedad es central en su identidad: permite gestionar con horizontes deliberadamente largos, sin la presión de resultados trimestrales que sufren las gestoras cotizadas. La estrategia <strong>Long Term Global Growth (LTGG)</strong> es una de sus señas de identidad: una cartera global, concentrada y de altísima convicción, orientada a capturar el crecimiento compuesto de un puñado de compañías excepcionales a lo largo de 5-10 años.</p><p class="pr">Este sub-fondo es el vehículo UCITS con el que esa estrategia se distribuye a inversores europeos a través de la plataforma irlandesa Baillie Gifford Worldwide Funds PLC, gestionada por Baillie Gifford Investment Management (Europe) Limited. Las clases europeas constan con lanzamiento en torno a 2016 (clase B EUR el 18/10/2016).</p></div><div class="subtab-panel"><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2016-2021 — auge del growth.</strong> aunque el bundle no contiene la serie de rentabilidad año a año de este periodo, el contexto es conocido: la estrategia LTGG vivió un mercado extraordinariamente favorable para las compañías de crecimiento disruptivo, con rentabilidades muy elevadas que la convirtieron en una de las estrategias más demandadas de Europa. El gestor mantuvo su tesis de largo plazo sobre plataformas tecnológicas y compañías innovadoras.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2022 — el gran reverso.</strong> la subida agresiva de tipos de interés castigó con especial virulencia al growth de máxima duración, cuyo valor depende de flujos de caja lejanos en el tiempo. La estrategia sufrió un drawdown severo. La huella de ese golpe sigue visible en las cifras a cinco años del fondo, que a septiembre de 2025 quedan por debajo del índice (+6,9% anualizado en clase B EUR frente a +14,0% del MSCI ACWI).</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2023-2024 — recuperación.</strong> el fondo recuperó tracción a medida que el mercado volvió a premiar el crecimiento y varias de sus grandes convicciones (AppLovin, Cloudflare, Roblox) se revalorizaron con fuerza. El patrimonio del sub-fondo pasó de €3.223M (2023) a €4.380M (2024).</p><p class="pr"><strong>Año hasta septiembre de 2025 — fuerte outperformance:</strong> el fondo batió al índice con claridad (clase B EUR +25,3% vs +11,9% del ACWI). Según el informe del gestor, las mayores contribuciones vinieron de <strong>AppLovin, Cloudflare y Roblox</strong>, mientras que los mayores detractores fueron <strong>The Trade Desk, Meituan y Enphase Energy</strong>. El gestor rotó la cartera de forma significativa: reconstruyó una posición grande en <strong>Taiwan Semiconductor</strong> (nueva, hasta 2,83%), reforzó Tencent, AppLovin, NU Holdings y Reddit, e incorporó nombres como <strong>Rocket Lab</strong>; en el lado de las ventas, recortó NVIDIA, <strong>salió por completo de Tesla, Workday, AMD, HDFC Bank, Moderna y Enphase</strong>, y aligeró Shopify, Cloudflare e Intuitive Surgical. El patrimonio subió a €5.348M. (fund_data.cualitativo.decisiones_periodo, contexto_mercado)</p></div><div class="subtab-panel"><p class="pr">La historia del fondo es la de una estrategia de crecimiento de máxima convicción que amplifica los ciclos del estilo growth: sobresaliente cuando el mercado premia el crecimiento, muy castigada cuando los tipos suben y el mercado exige beneficios a corto. Su virtud es la consistencia de proceso —el gestor no ha abandonado su tesis de largo plazo pese al castigo de 2022— y el resultado es una rentabilidad desde lanzamiento que sigue por delante del índice (+17,6% vs +11,8% anualizado). Para el partícipe, la lección es que este es un fondo que exige aguante y un horizonte real de varios años.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
+    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Origen</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">Fondo frente a mercado</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Consolidación del equipo</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',4)">Lectura de conjunto</button></div><div class="subtab-panel active"><p class="pr">La historia de este fondo es, en esencia, la historia de una estrategia: <strong>Long Term Global Growth (LTGG)</strong>, la aproximación de crecimiento de muy largo plazo que Mark Urquhart co-fundó dentro de Baillie Gifford en 2003. El fondo Worldwide LTGG es el envoltorio UCITS irlandés con el que la gestora lleva esa estrategia a inversores de fuera del Reino Unido; comparte proceso, equipo y filosofía con el resto de vehículos LTGG de la casa (incluida su expresión más conocida en el trust cotizado Scottish Mortgage, gestionado por figuras del mismo entorno de crecimiento global).</p><p class="pr">Desde su origen, la propuesta ha sido deliberadamente estable: concentrar la cartera en un grupo reducido de compañías de crecimiento excepcional y mantenerlas durante años, aceptando que el camino sería accidentado. Ese diseño explica el patrón de comportamiento que la estrategia ha mostrado a lo largo del tiempo —fases de fuerte revalorización cuando el mercado premia el crecimiento y la innovación, y caídas severas cuando suben los tipos o se produce una rotación hacia value—. Es el ADN del estilo, no una desviación de él.</p><p class="pr">El equipo ha ganado profundidad con los años sin romper la continuidad: a Urquhart se sumaron gestores como John MacDougall (al equipo LTGG en 2015), Gemma Barkhuizen y Michael Pye (2017), reforzando el modelo de decisión colectiva. Debe señalarse con claridad que, para ESTE fondo y clase, no se dispone en las fuentes recogidas de una serie cuantitativa verificada (AUM, rentabilidad año a año, cartera histórica), por lo que la cronología detallada de performance no puede reconstruirse aquí sin incurrir en invención; lo que sigue se ancla en los hitos de equipo y estrategia que sí están documentados.</p></div><div class="subtab-panel"><p class="pr">La estrategia nace en 2003, cuando Mark Urquhart co-funda dentro de Baillie Gifford el equipo Long Term Global Growth. Urquhart se había incorporado a la firma en 1996 como investment trainee y había rotado por los equipos de renta variable de EE.UU., Reino Unido y Japón antes de dar forma a una manera propia de invertir en crecimiento global a muy largo plazo. En 2004 fue nombrado socio de la firma (manager_profile). El fondo Worldwide LTGG es la versión UCITS —domiciliada en Irlanda— de esa estrategia, pensada para inversores internacionales.</p></div><div class="subtab-panel"><p class="pr">No se dispone en las fuentes de este bundle de la serie de rentabilidades del fondo frente a su índice año a año, de modo que no se afirman cifras concretas. Sí es un hecho estructural del estilo LTGG —reconocido por el propio equipo— que la cartera, por su concentración en crecimiento, tiende a comportarse muy bien en mercados que premian la innovación y a sufrir caídas notablemente más profundas que el mercado en episodios de subida de tipos o rotación hacia value. Cualquier lectura de resultados de este fondo debe hacerse con ese marco: la volatilidad y los drawdowns fuertes son una consecuencia buscada del diseño, no una anomalía.</p></div><div class="subtab-panel"><p class="pr">La segunda mitad de la historia es la de un equipo que se ensancha manteniendo el proceso: John MacDougall se une al equipo LTGG en 2015 y es nombrado socio en 2016; Gemma Barkhuizen y Michael Pye se incorporan al equipo en 2017. Este refuerzo, con decisiones tomadas de forma colegiada en el portfolio construction group, es coherente con la voluntad de la casa de que la estrategia no dependa de una sola persona.</p></div><div class="subtab-panel"><p class="pr">El fondo debe entenderse como el acceso UCITS a una de las estrategias de crecimiento de largo plazo más reconocidas del mundo, con un proceso estable y un equipo continuista. La principal limitación de este informe no es sobre la estrategia sino sobre los datos disponibles: falta la capa cuantitativa propia del fondo (AUM, cartera, comisiones, rentabilidad), que deberá completarse con las fuentes oficiales de Baillie Gifford.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
   <div class="kpi-row">
@@ -326,52 +321,59 @@ Es una filosofía deliberadamente <strong>asimétrica y optimista</strong>: se a
   <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 5348.22;
+  window.__HIST_AUM_HEADER__ = 3442.8;
   </script>
   
   <div class="sr">Cronología de eventos relevantes</div>
   <div class="timeline">
     <div class="tl-item">
       <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2016</div>
+      <div class="tl-date">2003</div>
       <div class="tl-tag tag-strat">Decisión estratégica</div>
-      <div class="tl-title">Lanzamiento de las clases europeas</div>
-      <div class="tl-desc">Arrancan las clases del sub-fondo dentro de Baillie Gifford Worldwide Funds PLC (clase B EUR el 18/10/2016, clase B USD el 10/08/2016), llevando la estrategia LTGG al inversor UCITS europeo.</div>
+      <div class="tl-title">Fundación del equipo Long Term Global Growth</div>
+      <div class="tl-desc">Mark Urquhart co-funda el equipo LTGG dentro de Baillie Gifford, origen de la estrategia que sigue este fondo.</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2021</div>
-      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
-      <div class="tl-title">Cima del ciclo growth</div>
-      <div class="tl-desc">Culminación del mercado favorable al crecimiento disruptivo que impulsó la estrategia LTGG a rentabilidades sobresalientes y máxima popularidad.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-crisis"></div>
-      <div class="tl-date">2022</div>
-      <div class="tl-tag tag-crisis">Crisis</div>
-      <div class="tl-title">Drawdown severo por subida de tipos</div>
-      <div class="tl-desc">La subida agresiva de tipos golpea al growth de larga duración; la estrategia sufre una fuerte caída cuya huella aún lastra la rentabilidad a 5 años.</div>
+      <div class="tl-date">2004</div>
+      <div class="tl-tag tag-strat">Decisión estratégica</div>
+      <div class="tl-title">Urquhart, nombrado socio de Baillie Gifford</div>
+      <div class="tl-desc">El líder de la estrategia pasa a ser partner de la firma, reforzando la alineación de largo plazo.</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2023</div>
-      <div class="tl-tag tag-hito">Salto de escala</div>
-      <div class="tl-title">Inicio de la recuperación y crecimiento de AUM</div>
-      <div class="tl-desc">El patrimonio del sub-fondo asciende a €3.223M y el fondo recupera tracción frente al índice.</div>
+      <div class="tl-date">2015</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">John MacDougall se incorpora al equipo LTGG</div>
+      <div class="tl-desc">Suma como gestor y decision-maker del equipo tras pasar por los equipos norteamericano, japonés y Global Discovery.</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2024</div>
-      <div class="tl-tag tag-hito">Salto de escala</div>
-      <div class="tl-title">Consolidación de la recuperación</div>
-      <div class="tl-desc">El AUM crece hasta €4.380M al calor de la revalorización de grandes convicciones tecnológicas.</div>
+      <div class="tl-date">2016</div>
+      <div class="tl-tag tag-hito">Hecho_relevante</div>
+      <div class="tl-title">MacDougall, nombrado socio</div>
+      <div class="tl-desc">El co-manager pasa a partner de la firma.</div>
     </div>
     <div class="tl-item">
-      <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2025</div>
-      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
-      <div class="tl-title">Fuerte outperformance y rotación de cartera</div>
-      <div class="tl-desc">En el año hasta septiembre bate al índice (clase B EUR +25,3% vs +11,9%); reconstruye TSMC, sale de Tesla/Workday/AMD/HDFC Bank/Moderna/Enphase; AUM sube a €5.348M.</div>
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2017</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Entran Gemma Barkhuizen y Michael Pye al equipo</div>
+      <div class="tl-desc">Ampliación del banco de decision-makers del equipo LTGG.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2020-2022</div>
+      <div class="tl-tag tag-hito">Hecho_relevante</div>
+      <div class="tl-title">Asignación de MacDougall a Shanghái</div>
+      <div class="tl-desc">El co-manager preside dos años la oficina de BG en Shanghái, reflejo del foco de la casa en China/growth global; regresa a Edimburgo en enero de 2022.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-hito"></div>
+      <div class="tl-date">2026</div>
+      <div class="tl-tag tag-hito">Equipo</div>
+      <div class="tl-title">Barkhuizen, nombrada socia</div>
+      <div class="tl-desc">La gestora del equipo es nombrada partner de la firma en abril de 2026.</div>
     </div>
   </div>
   
@@ -380,27 +382,81 @@ Es una filosofía deliberadamente <strong>asimétrica y optimista</strong>: se a
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  
+  <div class="mb24"><p class="pr">El fondo NO está gestionado por un gestor estrella individual, sino por el <strong>equipo Long Term Global Growth (LTGG)</strong> de Baillie Gifford, un rasgo deliberado de la casa: las decisiones se toman de forma colegiada en el portfolio construction group para que el proceso perdure por encima de cualquier persona. Dentro de ese equipo, el liderazgo está claramente sourced en <strong>Mark Urquhart</strong>, Head del equipo LTGG que él mismo co-fundó en 2003, con <strong>John MacDougall</strong> como co-manager de mayor señority en el fondo. Completan el banco de decision-makers <strong>Tom Slater</strong> —figura sénior de crecimiento global de la firma, vinculado también a Scottish Mortgage—, <strong>Gemma Barkhuizen</strong> y <strong>Michael Pye</strong>.</p><p class="pr">La solidez de este apartado contrasta con el resto del análisis: mientras la cartera y los cuantitativos del fondo no han podido verificarse en el bundle, los perfiles del equipo sí están bien documentados (verificados por ISIN y recuperados de biografías oficiales de Baillie Gifford y agregadores fiables tras el bloqueo anti-bot del sitio de la gestora). A continuación se detalla la trayectoria de cada miembro, priorizando su recorrido profesional —incorporación a la firma, equipos previos, formación y años de experiencia— sobre la filosofía del fondo, que se trata en su sección propia.</p></div>
 
   
     <div class="mgr">
       <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">ML</div>
-        <div class="mgr-nm">Mesa Long Term Global Growth (LTGG) — Baillie Gifford<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#1e5a8a;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerDeep</span></div>
-        <div class="mgr-rl">Equipo gestor colegiado del fondo</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Gestión: mesa Long Term Global Growth (LTGG) de Baillie Gifford — equipo colegiado, no gestor individual</li><li style="margin-bottom:3px;">Gestora: Baillie Gifford & Co, fundada en Edimburgo en 1908; partnership independiente propiedad de sus socios</li><li style="margin-bottom:3px;">Vehículo europeo gestionado por Baillie Gifford Investment Management (Europe) Limited</li><li style="margin-bottom:3px;">Nombres de gestores individuales: no confirmables con fuente citable en esta ejecución (acceso web bloqueado)</li><li style="margin-bottom:3px;">Confianza sobre gestor líder: baja (manager_profile._opus_lead_confidence)</li></ul>
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">MU</div>
+        <div class="mgr-nm">Mark Urquhart<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#1e5a8a;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerDeep</span></div>
+        <div class="mgr-rl">Head of Long Term Global Growth Team (Lead Manager)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Formación: PhD en Politics por la University of Edinburgh (1993-1996).</li><li style="margin-bottom:3px;">Incorporación a Baillie Gifford: 1996, como investment trainee.</li><li style="margin-bottom:3px;">Experiencia previa dentro de BG: equipos de renta variable de EE.UU., Reino Unido y Japón (analista y gestor).</li><li style="margin-bottom:3px;">Co-fundador del equipo Long Term Global Growth en 2003; hoy su Head.</li><li style="margin-bottom:3px;">Nombrado socio (partner) de Baillie Gifford en 2004.</li><li style="margin-bottom:3px;">~27 años de carrera en la firma (a 2023), gestor nombrado del fondo.</li></ul>
       </div>
       <div class="mgr-b">
-        <p class="pr" style="font-size:13px;">El fondo está gestionado por la <strong>mesa de inversión Long Term Global Growth (LTGG)</strong> de Baillie Gifford, una de las estrategias insignia de la firma escocesa. La gestión es <strong>colegiada y de equipo</strong>: ni el KIID ni el informe anual del Baillie Gifford Worldwide Fund nombran gestores individuales responsables de este sub-fondo, refiriéndose al gestor con lenguaje de equipo (manager_profile._manager_deep_meta).
+        <p class="pr" style="font-size:13px;"><strong>Head y co-fundador de la estrategia.</strong> Mark Urquhart es el Head del equipo Long Term Global Growth de Baillie Gifford, que <strong>co-fundó en 2003</strong>, y gestor nombrado de este fondo (ISIN IE00BK5TW727).
 
-<strong>No hay datos públicos citables sobre los nombres de los gestores individuales de la mesa LTGG en esta ejecución.</strong> El acceso a las fuentes habituales (web de la gestora, FT, Morningstar, Trustnet) fue bloqueado (403/CAPTCHA), por lo que no se pueden atribuir nombres de lead/co-manager sin riesgo de invención o contaminación. La confianza sobre el gestor líder queda marcada como baja en el perfil de origen (manager_profile._opus_lead_confidence = 'low').
+<strong>Formación</strong>: PhD en Politics por la University of Edinburgh (1993-1996), un perfil académico atípico en la gestión que la propia BG reivindica como parte de su diversidad de pensamiento.
 
-Lo verificable es la <strong>estructura</strong>: Baillie Gifford & Co, gestora fundada en Edimburgo en 1908 y organizada como partnership independiente propiedad de sus socios, ejecuta la estrategia a través de su filial europea Baillie Gifford Investment Management (Europe) Limited. El proceso de inversión de la firma es característicamente de equipo, con debate colegiado de las tesis y horizontes de 5-10 años.</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">La mesa LTGG aplica una filosofía de crecimiento de máxima convicción y muy largo plazo: identificar el reducido grupo de compañías capaces de crecer de forma excepcional durante 5-10 años y aguantarlas para capturar su crecimiento compuesto, asumiendo que unas pocas ganadoras compensan con creces al resto de la cartera. Prioriza fundamentales de negocio sobre valoración puntual e ignora deliberadamente la composición del índice.</p>
+<strong>Incorporación y recorrido en la firma</strong>: se unió a Baillie Gifford en <strong>1996 como investment trainee</strong>. Antes de crear el equipo LTGG rotó como analista y gestor por los equipos de renta variable de <strong>Estados Unidos, Reino Unido y Japón</strong>, experiencia global que dio forma a su enfoque de crecimiento de largo plazo. En <strong>2004 fue nombrado socio (partner)</strong> de la firma.
+
+<strong>Track record y experiencia</strong>: a 2023 acumulaba aproximadamente <strong>27 años de carrera</strong> íntegramente en Baillie Gifford, todos ellos en inversión en renta variable de crecimiento. Su filosofía, en sus propias palabras, es que "la valoración de un activo debe explorar cada punto de contacto de un negocio, desde la asignación de capital hasta la cultura de gestión".</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Growth investing de muy largo plazo: concentración en un número reducido de compañías de crecimiento excepcional, horizonte de 5-10 años y tolerancia explícita a la volatilidad a cambio de la asimetría al alza. Insiste en el análisis cualitativo integral del negocio (modelo, cultura, asignación de capital) por encima de la valoración de corto plazo.</p>
         
         
         <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Mantener la tesis de largo plazo sobre el growth disruptivo pese al severo drawdown de 2022, sin abandonar el proceso (evidenciado por la recuperación posterior).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Reconstruir en el año hasta septiembre de 2025 una posición grande en Taiwan Semiconductor (nueva, hasta 2,83%) e incorporar Rocket Lab, reforzando la apuesta por semiconductores y espacio.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Salir por completo de Tesla, Workday, AMD, HDFC Bank, Moderna y Enphase Energy durante el ejercicio, esta última por presiones estructurales (tipos altos, cambios en incentivos solares en EE.UU., competencia).</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Gestión de equipo genuina —no dependiente de un gestor estrella— dentro de una de las boutiques de crecimiento más reputadas del mundo, con una estructura de partnership independiente que permite horizontes de inversión de una década sin presión de resultados a corto.</p></div>
+        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Co-fundación del equipo LTGG (2003): institucionalizar una estrategia de crecimiento a 5-10 años dentro de BG, base de este fondo.</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Consolidación de un modelo de decisión de equipo (portfolio construction group) para dar continuidad al proceso más allá del gestor individual.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Perfil académico no financiero (PhD en Politics) y visión de negocio a muy largo plazo; combina convicción concentrada con paciencia extrema y tolerancia declarada a la volatilidad.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">JM</div>
+        <div class="mgr-nm">John MacDougall<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#1e5a8a;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerDeep</span></div>
+        <div class="mgr-rl">Investment Manager & decision-maker, Long Term Global Growth Team (Co-Manager)</div>
+        <ul class="mgr-cv"><li style="margin-bottom:3px;">Formación: MA en Ancient & Modern History, University of Oxford (2000); CFA Charterholder.</li><li style="margin-bottom:3px;">Incorporación a Baillie Gifford: 2000 (departamento norteamericano).</li><li style="margin-bottom:3px;">Equipos previos: Japón y Global Discovery; cogestión de Edinburgh Worldwide (EWI).</li><li style="margin-bottom:3px;">Al equipo LTGG en 2015; nombrado socio (partner) en 2016.</li><li style="margin-bottom:3px;">Chairman de la oficina de BG en Shanghái (2020-2022).</li><li style="margin-bottom:3px;">~23 años de experiencia en la industria.</li></ul>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:13px;"><strong>Co-manager de mayor señority en el fondo.</strong> Gestor y decision-maker del equipo Long Term Global Growth.
+
+<strong>Formación</strong>: MA en Ancient & Modern History por la University of Oxford (2000) y <strong>CFA Charterholder</strong>.
+
+<strong>Incorporación y recorrido</strong>: se unió a <strong>Baillie Gifford en 2000</strong>, comenzando en el departamento norteamericano, y trabajó después en los equipos de <strong>Japón y Global Discovery</strong>. <strong>Se incorporó al equipo LTGG en 2015</strong> y fue <strong>nombrado socio (partner) en 2016</strong>. Entre <strong>2020 y 2022</strong> desempeñó una asignación de dos años como Chairman de la oficina de BG en <strong>Shanghái</strong>, regresando a Edimburgo en enero de 2022. Anteriormente ayudó a gestionar <strong>Edinburgh Worldwide (EWI)</strong>, un investment trust de compañías globales de pequeña capitalización.
+
+<strong>Otros roles y experiencia</strong>: es miembro del Discovery Portfolio Construction Group y del China A Share Portfolio Construction Group, y cuenta con unos <strong>23 años de experiencia</strong> en la industria.</p>
+        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Comparte el marco LTGG de crecimiento global de largo plazo. Su paso por Global Discovery y Edinburgh Worldwide aporta al equipo sensibilidad hacia compañías de menor capitalización y en fases tempranas de crecimiento, y su etapa en Shanghái refuerza la mirada sobre China como fuente de crecimiento estructural.</p>
+        
+        
+        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
+        <div id="mgr-extra-1" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Traslado de dos años a Shanghái (2020-2022) para liderar la presencia de BG en China, alineado con el foco de la estrategia en crecimiento asiático.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Experiencia en small caps globales (EWI/Global Discovery) y conocimiento directo del mercado chino, dos vetas de crecimiento relevantes para la cartera LTGG.</p></div>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:linear-gradient(135deg,#2c6e49,#4ecf99);">TS</div>
+        <div class="mgr-nm">Tom Slater<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Partner; miembro del entorno LTGG (gestor de Scottish Mortgage)</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Figura sénior de crecimiento global de Baillie Gifford, vinculada a la estrategia Long Term Global Growth. Se incorporó a la firma en **2000** y fue nombrado **socio en 2012**. Es Deputy Manager del Scottish Mortgage Investment Trust desde 2009 y **gestor principal desde 2015**, el vehículo cotizado más conocido de la casa en crecimiento global de largo plazo. No hay más datos públicos de recorrido previo en las fuentes recogidas.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:#3d5a80;">GB</div>
+        <div class="mgr-nm">Gemma Barkhuizen<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Investment Manager & decision-maker, Long Term Global Growth Team</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Gestora y decision-maker del equipo Long Term Global Growth. Se incorporó a **Baillie Gifford en septiembre de 2017** y fue **nombrada socia (partner) en abril de 2026**. Además es co-gestora de la estrategia Global Outliers y asesora de la estrategia Global Alpha. No constan datos públicos sobre su experiencia previa a BG en las fuentes recogidas.</p>
+      </div>
+    </div>
+    <div class="mgr">
+      <div class="mgr-s">
+        <div class="mgr-av" style="background:#5c5850;">MP</div>
+        <div class="mgr-nm">Michael Pye<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#5c5850;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">ManagerProfiler</span></div>
+        <div class="mgr-rl">Investment Manager, Long Term Global Growth Team</div>
+      </div>
+      <div class="mgr-b">
+        <p class="pr" style="font-size:12.5px;">Gestor del equipo Long Term Global Growth, al que se **unió en 2017**. Se incorporó a **Baillie Gifford en 2013** y anteriormente trabajó en los equipos de Reino Unido, Multi Asset y EE.UU. Es **CFA Charterholder**. Formación: MA en Classics por la University of Cambridge (2007) y PhD en International Relations por la University of St Andrews (2013).</p>
       </div>
     </div>
 
@@ -409,101 +465,27 @@ Lo verificable es la <strong>estructura</strong>: Baillie Gifford & Co, gestora 
 
 <section class="pane" id="p3">
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
-
-  <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
-
-  <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
-
-  <div id="mst-evo-content" style="display:none;">
-    <!-- KPIs -->
-    <div id="mst-evo-kpis" class="kpi-row mb20"></div>
-
-    <!-- Fila 1: Rentabilidad + Volatilidad anuales -->
-    <div class="col2 mb20">
-      <div class="ch-b"><div class="ch-l">Rentabilidad anual</div><div class="ch-hm"><canvas id="mst-evo-ret"></canvas></div></div>
-      <div class="ch-b"><div class="ch-l">Volatilidad positiva / negativa anual</div><div class="ch-hm"><canvas id="mst-evo-vol"></canvas></div></div>
-    </div>
-
-    <!-- Fila 2: Drawdown + Evolución histórica -->
-    <div class="col2 mb20">
-      <div class="ch-b"><div class="ch-l">Drawdown desde máximos (diario)</div><div class="ch-hm"><canvas id="mst-dd"></canvas></div></div>
-      <div class="ch-b"><div class="ch-l">Evolución histórica — Base 100</div><div class="ch-hm"><canvas id="mst-growth"></canvas></div></div>
-    </div>
-
-    <!-- Fila 3: Rolling dinámicos -->
-    <div class="col2 mb20">
-      <div class="ch-b">
-        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Rentabilidad rolling (anualizada)</span>
-          <select id="mst-roll-ret-sel" onchange="updateRollingRet()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
-            <option value="12">1 año</option>
-            <option value="36" selected>3 años</option>
-            <option value="60">5 años</option>
-            <option value="120">10 años</option>
-          </select>
-        </div>
-        <div class="ch-hm"><canvas id="mst-roll-ret"></canvas></div>
-      </div>
-      <div class="ch-b">
-        <div class="ch-l" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Volatilidad rolling</span>
-          <select id="mst-roll-vol-sel" onchange="updateRollingVol()" style="font-size:10px;padding:2px 6px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:'Source Sans 3';">
-            <option value="12" selected>12 meses</option>
-            <option value="36">3 años</option>
-            <option value="60">5 años</option>
-          </select>
-        </div>
-        <div class="ch-hm"><canvas id="mst-roll-vol"></canvas></div>
-      </div>
-    </div>
-  </div>
+  <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
 </section>
 
 <section class="pane" id="p4">
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Objetivo del fondo</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Benchmark</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Universo de inversión y ra…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Estilo de inversión</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Fondo gestionado por equip…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',6)">Cuantitativo vs cualitativ…</button></div><div class="subtab-panel active"><p class="pr">La estrategia del <strong>Baillie Gifford Worldwide Long Term Global Growth Fund</strong> puede resumirse en una idea: concentrar el capital en el reducido grupo de compañías de todo el mundo capaces de crecer de forma excepcional durante 5 a 10 años, y tener la paciencia y la disciplina para aguantarlas mientras ese crecimiento se materializa. Es una réplica UCITS de la estrategia insignia <strong>Long Term Global Growth (LTGG)</strong> de Baillie Gifford, y todo en el fondo está subordinado a esa tesis.</p><p class="pr">Su <strong>objetivo</strong> declarado es generar fuertes retornos de capital a largo plazo invirtiendo en un número reducido de compañías cotizadas de todo el mundo. Aunque el fondo se gestiona <strong>de forma activa y sin que ningún índice restrinja la composición de la cartera</strong>, mide su rentabilidad neta de costes contra el <strong>MSCI All Country World Index (ACWI)</strong>, al que aspira a superar de forma material. No es, por tanto, un fondo que busque parecerse al índice: lo usa solo como vara de medir.</p><p class="pr">El <strong>universo de inversión</strong> es genuinamente global y de renta variable (97,9% en acciones a septiembre de 2025), sin restricción geográfica ni sectorial más allá de un filtro de exclusión por ingresos en determinados sectores, el cumplimiento de los Principios del Pacto Mundial de la ONU y la alineación con los Objetivos climáticos de París. En la práctica, la cartera está muy escorada a EE.UU. (52,5%) y a plataformas tecnológicas y de crecimiento disruptivo, con exposición relevante a China y emergentes (~10,5%).</p><p class="pr">Su <strong>estilo</strong> es growth en su expresión más pura: crecimiento de larga duración, alta convicción y baja preocupación por la valoración puntual. La cartera es concentrada (~39 posiciones, top-10 ~44,6%). En cuanto a autoría, es un fondo <strong>gestionado por equipo</strong> —la mesa LTGG de Baillie Gifford, no un gestor estrella individual—, dentro de una gestora estructurada como partnership independiente que puede permitirse horizontes largos.</p><p class="pr">El proceso combina un fuerte componente <strong>cualitativo y fundamental</strong> —análisis del modelo de negocio, ventajas competitivas, tamaño del mercado y capacidad de reinversión— con una disposición pragmática a rotar la cartera cuando el régimen de mercado cambia o una tesis se deteriora estructuralmente, como evidenció la intensa rotación del ejercicio 2025 (reconstrucción de TSMC, salidas completas de Tesla, AMD o Enphase). Es, en suma, una apuesta de convicción por el crecimiento global de máxima duración, con la volatilidad y la asimetría que ello conlleva.</p></div><div class="subtab-panel"><p class="pr">El fondo busca <strong>fuertes retornos de capital a largo plazo</strong> invirtiendo principalmente en acciones de un número reducido de compañías de todo el mundo (fund_data.objetivo_inversion). No persigue rentas ni preservación de capital a corto: es un vehículo de crecimiento agresivo orientado a un inversor que comparta el horizonte de 5-10 años del gestor. La clase de este ISIN es de <strong>acumulación</strong>, por lo que las rentas se reinvierten automáticamente.</p></div><div class="subtab-panel"><p class="pr">El fondo se gestiona de forma <strong>activa y sin índice de referencia que restrinja la composición de la cartera</strong>. No obstante, mide su rentabilidad (neta de costes) contra el <strong>MSCI All Country World Index (ACWI)</strong>, al que aspira a superar de forma material (fund_data.politica_inversion, cualitativo.estrategia). Es una distinción importante: el índice es la vara de medir, no la guía de construcción. El gestor puede —y lo hace— apartarse radicalmente de la composición del ACWI, lo que explica su elevado active share implícito y su comportamiento muy distinto al del índice en distintos ciclos.</p></div><div class="subtab-panel"><p class="pr">El universo es la renta variable global cotizada, sin restricción geográfica ni sectorial predefinida. A septiembre de 2025 la cartera estaba invertida un <strong>97,9% en renta variable</strong>, con un 2,1% en otros/liquidez, sin renta fija. Geográficamente domina EE.UU. (52,5%), seguido de China (10,5%), Países Bajos (6,2%), Singapur, Suecia, Irlanda, Brasil y una cola de mercados desarrollados y emergentes. Las restricciones no son de asignación sino de <strong>exclusión sostenible</strong>: un filtro por ingresos que excluye compañías con cierto nivel de actividad en determinados sectores, el cumplimiento de los Principios del Pacto Mundial de la ONU y la alineación con los Objetivos de París, con administración activa (stewardship) sobre las participadas (fund_data.objetivo_inversion). El folleto advierte explícitamente de los riesgos elevados por exposición a emergentes (incluida China), divisas extranjeras y cartera concentrada.</p></div><div class="subtab-panel"><p class="pr">El estilo es <strong>growth de larga duración en su forma más pura</strong>. El gestor busca las pocas compañías capaces de crecer de forma exponencial durante muchos años, priorizando el potencial de crecimiento y la fortaleza del modelo de negocio sobre la valoración puntual. La convicción de fondo es que <strong>la cotización sigue a la operativa del negocio en el largo plazo</strong>, por lo que las oscilaciones de precio a corto plazo tienen relevancia limitada (fund_data.cualitativo.estrategia). Este estilo amplifica los ciclos: brilla cuando el mercado premia el crecimiento y sufre cuando suben los tipos o rota hacia value.</p></div><div class="subtab-panel"><p class="pr">A diferencia de los fondos de "gestor estrella", este es un producto <strong>gestionado por equipo</strong>: la mesa Long Term Global Growth de Baillie Gifford, con decisiones colegiadas y sin un gestor individual identificado como autor en la documentación oficial (manager_profile._manager_deep_meta.team_note). La gestora, Baillie Gifford, es una sociedad de socios (partnership) independiente propiedad de sus socios, estructura que refuerza el compromiso con horizontes largos frente a la presión de resultados a corto.</p></div><div class="subtab-panel"><p class="pr">El proceso es marcadamente <strong>cualitativo y fundamental</strong>, no cuantitativo ni sistemático. La selección se basa en el análisis en profundidad de cada compañía —modelo de negocio, ventajas competitivas duraderas, tamaño y crecimiento del mercado direccionable, calidad de la gestión y capacidad de reinvertir con altos retornos— con el objetivo de encontrar las candidatas a multiplicar su valor a lo largo de una década. La "fórmula" no es una pantalla de ratios sino un marco de convicción de largo plazo, complementado por criterios de sostenibilidad (exclusiones por ingresos, Pacto Mundial ONU, alineación con París).</p><p class="pr">La gestión, sin embargo, no es dogmáticamente inmovilista: el ejercicio hasta septiembre de 2025 mostró una <strong>rotación considerable</strong>. El gestor reconstruyó Taiwan Semiconductor como nueva gran posición, reforzó Tencent, AppLovin y NU Holdings, e incorporó Rocket Lab; y salió por completo de Tesla, Workday, AMD, HDFC Bank, Moderna y Enphase Energy. El caso de Enphase es ilustrativo del criterio de venta: se abandonó por <strong>presiones estructurales fuera del control de la compañía</strong> (tipos altos, cambios en los incentivos solares de EE.UU., competencia creciente), no por ruido de corto plazo (fund_data.cualitativo.outlook, decisiones_periodo). El gestor corta una tesis cuando el fundamento de largo plazo se rompe, no cuando el precio cae temporalmente.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
+    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Objetivo del fondo</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Benchmark y forma de medir…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Universo de inversión y ra…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Estilo de inversión</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Fondo de autor vs gestiona…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',6)">Cuantitativo vs cualitativ…</button></div><div class="subtab-panel active"><p class="pr">La estrategia de este fondo es la aplicación en formato UCITS de <strong>Long Term Global Growth (LTGG)</strong>, el enfoque insignia de crecimiento de muy largo plazo de Baillie Gifford. Su <strong>objetivo</strong> es maximizar el crecimiento del capital a largo plazo invirtiendo en renta variable global; está pensado para el inversor con horizonte real de 5-10 años y alta tolerancia a la volatilidad, no para quien busca estabilidad o rentas.</p><p class="pr">En cuanto al <strong>benchmark</strong>, LTGG se gestiona con mentalidad de retorno absoluto de largo plazo más que de seguimiento estrecho de un índice; en las fuentes de este bundle no se ha podido confirmar el índice de referencia oficial de esta clase, por lo que no se afirma una cifra concreta —la estrategia se mide, en la práctica, contra la renta variable global amplia—. El <strong>universo de inversión</strong> es la renta variable global, sin restricción geográfica ni sectorial relevante más allá de la búsqueda de crecimiento excepcional; la cartera resultante es muy <strong>concentrada</strong> y con <strong>rotación baja</strong>. No se han verificado en las fuentes los rangos exactos del folleto (límites por posición, liquidez), por lo que no se detallan cifras.</p><p class="pr">El <strong>estilo</strong> es inequívocamente growth de largo plazo y alta convicción. En el eje <strong>autor vs gestionado</strong>, se trata de un producto gestionado por <strong>equipo</strong> —el equipo LTGG, con decisiones colegiadas en el portfolio construction group—, no de la gestión personalista de un autor único, aunque el liderazgo de Mark Urquhart es claro. Y en el eje <strong>cuantitativo vs cualitativo</strong>, el proceso es marcadamente <strong>cualitativo y prospectivo</strong>: la "fórmula" no es un cribado de ratios, sino un análisis profundo del negocio a futuro —modelo, ventaja competitiva duradera, tamaño del mercado abordable, cultura y asignación de capital de la dirección—, con la valoración de corto plazo en un papel secundario. La disciplina de venta se ancla en el deterioro de la tesis de crecimiento. Es una estrategia coherente y diferenciada, cuyo principal riesgo es el propio de su diseño: volatilidad y drawdowns severos en las fases del mercado contrarias al crecimiento.</p></div><div class="subtab-panel"><p class="pr">Maximizar el crecimiento del capital a largo plazo mediante una cartera global de renta variable de compañías con potencial de crecimiento excepcional. Es un producto de acumulación de capital orientado al muy largo plazo, no de rentas ni de preservación; su encaje natural es como satélite de crecimiento dentro de una cartera diversificada.</p></div><div class="subtab-panel"><p class="pr">La filosofía LTGG se gestiona con mentalidad de crecimiento absoluto a 5-10 años y con baja atadura al índice (active share típicamente alto por la concentración). En las fuentes recogidas de este fondo no consta de forma verificada el índice de referencia oficial de la clase I EUR, por lo que no se cita una cifra concreta para no inducir a error; en la práctica, el marco de comparación relevante para el inversor es la renta variable global amplia a lo largo de ciclos completos.</p></div><div class="subtab-panel"><p class="pr">El universo es la renta variable global cotizada, sin sesgo geográfico o sectorial impuesto: la cartera se forma de abajo arriba buscando negocios de crecimiento excepcional allá donde estén (con presencia habitual de EE.UU., Asia/China y Europa, y peso relevante de tecnología, plataformas digitales, salud e innovación). El resultado es una cartera <strong>concentrada</strong> de alta convicción con <strong>rotación baja</strong>. Los límites exactos del folleto (peso máximo por posición, liquidez, uso de derivados) no han podido verificarse en las fuentes de este bundle y no se detallan para evitar cifras inventadas.</p></div><div class="subtab-panel"><p class="pr">Growth de largo plazo puro. La tesis central es que los retornos de la RV están muy sesgados hacia un puñado de compañías excepcionales, de modo que el valor se crea poseyéndolas y manteniéndolas años, tolerando la volatilidad del camino. No es value, ni blend, ni un enfoque de rotación táctica: es convicción concentrada en crecimiento estructural.</p></div><div class="subtab-panel"><p class="pr">Es un producto <strong>gestionado por equipo</strong>. Baillie Gifford ha institucionalizado LTGG como estrategia de equipo con decisiones colegiadas en un portfolio construction group, precisamente para que el proceso perviva por encima de cualquier individuo. Existe un liderazgo claro (Urquhart, Head y co-fundador) y un co-manager sénior (MacDougall), pero el diseño evita la dependencia de un único gestor estrella —a diferencia de las boutiques de autor.</p></div><div class="subtab-panel"><p class="pr">El proceso es esencialmente <strong>cualitativo y prospectivo</strong>. La selección no descansa en un cribado de ratios baratos, sino en un análisis a fondo del negocio a 5-10 años: ¿puede esta compañía crecer de forma excepcional y sostenida? Para responderlo, el equipo examina —en palabras de Urquhart— "cada punto de contacto del negocio, desde la asignación de capital hasta la cultura de gestión": tamaño y penetración del mercado abordable, ventajas competitivas duraderas, calidad y alineación del equipo directivo, y capacidad de reinvertir con altos retornos. La valoración de corto plazo es un input, no el criterio ordenador. La venta se dispara cuando la tesis de crecimiento se deteriora, no cuando el precio se mueve. Esta primacía de lo cualitativo y del largo plazo es, junto con la concentración, el rasgo más diferencial de la estrategia.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
   </div>
 
-  
+  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;asset valuation must explore every touchpoint of a business, from capital allocation to management culture&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— Mark Urquhart, Perfil de carrera / filosofía LTGG (Baillie Gifford)</span></p></div>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
-  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Renta variable global concentrada de estilo growth de larga duración, gestionada activamente por la mesa LTGG de Baillie Gifford contra el MSCI ACWI, con ~39 posiciones muy escoradas a EE.UU. y tecnología, y horizonte declarado de 5-10 años.</p>
+  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">Renta variable global de crecimiento excepcional, muy concentrada y de horizonte 5-10 años, gestionada por el equipo LTGG de Baillie Gifford con proceso cualitativo y rotación baja. Alta convicción, alta volatilidad.</p>
 
   
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Global (growth concentrado)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de estilo/duración: fuerte sensibilidad a subidas de tipos por el sesgo growth de larga duración</li><li style="margin-bottom:4px;">Riesgo de concentración: top-10 ~44,6% y top-15 ~60% de la cartera</li><li style="margin-bottom:4px;">Riesgo geográfico y de divisa: 52,5% EE.UU. y ~10,5% China/emergentes, con exposición regulatoria y cambiaria</li></ul></div>
+  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Global (crecimiento / growth, alta convicción)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Volatilidad muy elevada y drawdowns severos propios del growth concentrado.</li><li style="margin-bottom:4px;">Riesgo de concentración en pocas posiciones de alto peso.</li><li style="margin-bottom:4px;">Riesgo de estilo: dependencia de que el mercado premie el crecimiento; rezago prolongado posible en fases value.</li><li style="margin-bottom:4px;">Riesgo divisa en la clase EUR (cartera global no necesariamente cubierta) — no verificado en fuentes.</li></ul></div>
 
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
-  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
-    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
-  </div>
-  <div class="strat-row">
-  <div class="strat-yr">Desde lanzamiento (2016) anualizado</div>
-  <div class="strat-c">Ciclo completo que abarca el auge del growth hasta 2021, el desplome de 2022 y la recuperación posterior — el horizonte largo para el que la estrategia está diseñada.</div>
-  <div class="strat-c">Consistencia de proceso a lo largo de todo el ciclo: convicción en crecimiento global de larga duración, cartera concentrada y baja preocupación por el índice.</div>
-  <div class="strat-c">+17,6% anualizado (clase B EUR) vs +11,8% del índice — a pesar de la montaña rusa, la estrategia supera al ACWI en casi 6 puntos anuales en el plazo largo.</div>
-</div><div class="strat-row">
-  <div class="strat-yr">Año hasta septiembre 2025</div>
-  <div class="strat-c">Pese a las tensiones macroeconómicas y geopolíticas, los mercados de renta variable global siguieron mostrando fortaleza. El gestor mantuvo el foco en el horizonte de 5-10 años y en los fundamentales de las compañías, destacando que las participadas de la estrategia LTGG continuaron mostrando fundamentales muy sólidos (fund_data.cualitativo.contexto_mercado).</div>
-  <div class="strat-c">Rotación significativa: reconstrucción de Taiwan Semiconductor como nueva gran posición (hasta 2,83%), refuerzo de Tencent, AppLovin, NU Holdings y Reddit, e incorporación de Rocket Lab. En el lado vendedor, salidas completas de Tesla, Workday, AMD, HDFC Bank, Moderna y Enphase Energy, y recortes en NVIDIA, Shopify, Cloudflare e Intuitive Surgical.</div>
-  <div class="strat-c">+25,3% (clase B EUR) vs +11,9% del MSCI ACWI — outperformance impulsada por las mayores contribuciones de AppLovin, Cloudflare y Roblox, parcialmente compensadas por los detractores The Trade Desk, Meituan y Enphase Energy.</div>
-</div><div class="strat-row">
-  <div class="strat-yr">3 años anualizado (a sep-2025)</div>
-  <div class="strat-c">Ventana que arranca tras el desplome del growth de 2022 y captura la recuperación posterior a medida que el mercado volvió a premiar el crecimiento de calidad.</div>
-  <div class="strat-c">Mantenimiento de la tesis de largo plazo sobre plataformas tecnológicas y compañías disruptivas, sin abandonar el proceso pese al castigo previo.</div>
-  <div class="strat-c">+22,0% anualizado (clase B EUR) vs +16,4% del índice — el fondo bate al ACWI con holgura una vez superado lo peor de 2022.</div>
-</div><div class="strat-row">
-  <div class="strat-yr">5 años anualizado (a sep-2025)</div>
-  <div class="strat-c">Ventana que todavía incluye la corrección severa del growth de máxima duración de 2021-2022, cuando la subida agresiva de tipos golpeó a las compañías de crecimiento de larga duración.</div>
-  <div class="strat-c">El gestor no capituló su estilo pese al drawdown, manteniendo el sesgo a crecimiento disruptivo de larga duración.</div>
-  <div class="strat-c">+6,9% anualizado (clase B EUR) vs +14,0% del índice — el fondo queda claramente por detrás por el arrastre del desplome de 2022.</div>
-</div>
+  
 
   
 </section>
@@ -512,25 +494,25 @@ Lo verificable es la <strong>estructura</strong>: Baillie Gifford & Co, gestora 
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
 
   <div class="mb24">
-    <p class="subsec">Cómo se construye la cartera</p><p class="pr">La cartera del fondo es la expresión directa de su filosofía: <strong>concentrada, de alta convicción y global</strong>. A septiembre de 2025 estaba formada por <strong>39 posiciones</strong>, casi íntegramente en renta variable (97,9%), sin renta fija y con una pequeña bolsa de otros/liquidez (2,1%). No hay un número de posiciones-objetivo fijo publicado en el bundle, pero el rango de ~30-40 valores es coherente con la estrategia LTGG de la gestora, que busca deliberadamente una cartera reducida donde cada idea tenga peso suficiente para mover el resultado. La construcción no parte del índice ni de límites de asignación por región o sector, sino de la convicción bottom-up sobre cada compañía; las restricciones son de sostenibilidad (exclusiones por ingresos, Pacto Mundial ONU, alineación con los Objetivos de París) más que de peso.</p><p class="pr">El resultado es una <strong>concentración elevada</strong>: las 5 mayores posiciones suman el 25,8% del patrimonio, las 10 mayores el 44,6% y las 15 mayores el 60,1%. Las posiciones más grandes rondan o superan el 5% (NVIDIA 5,73%, Amazon 5,65%, AppLovin 5,34%), mientras que la cola de la cartera incluye apuestas más pequeñas y de mayor riesgo (Duolingo 0,41%, Horizon Robotics 0,90%, Rivian 0,95%).</p><p class="subsec">Cómo han evolucionado los pesos y por qué</p><p class="pr">Lejos del cliché de que una estrategia a 5-10 años apenas toca la cartera, el ejercicio hasta septiembre de 2025 mostró una <strong>rotación considerable</strong> que revela cómo el gestor ajusta el sesgo de la cartera a un régimen de mercado cambiante (fund_data.cualitativo.decisiones_periodo). Por el lado de las incorporaciones y refuerzos, el gestor <strong>reconstruyó Taiwan Semiconductor</strong> como una de las grandes posiciones nuevas y reforzó con fuerza semiconductores y plataformas asiáticas (Tencent, NU Holdings, Reddit, PDD), sumando además apuestas emergentes de nueva economía como <strong>Rocket Lab</strong> y Horizon Robotics. Por el lado vendedor, ejecutó <strong>salidas completas de Tesla, Workday, AMD, HDFC Bank, Moderna y Enphase Energy</strong>, y recortó NVIDIA, Shopify, Cloudflare e Intuitive Surgical. El sentido de estos movimientos es doble: recoger beneficios en ganadores muy revalorizados (NVIDIA) y, sobre todo, <strong>cortar tesis que se han roto estructuralmente</strong> —el caso paradigmático es Enphase, abandonada por presiones fuera del control de la compañía (tipos altos, cambios en los incentivos solares en EE.UU., competencia). Es una gestión activa que combina paciencia con disciplina de venta.</p><p class="subsec">Posiciones de alta convicción</p><p class="pr">El núcleo de convicción del fondo se concentra en un puñado de plataformas tecnológicas y compañías de crecimiento de calidad. Entre las mayores apuestas destacan <strong>NVIDIA</strong> y <strong>Amazon</strong> (~5,7% cada una), <strong>AppLovin</strong> (5,34%, uno de los mayores contribuidores del año), <strong>Cloudflare</strong> (4,64%, del que el gestor espera captura de cuota en gasto empresarial de TI), <strong>Netflix</strong> (4,43%) y, en Asia, <strong>Tencent</strong> (4,04%) y <strong>Sea Ltd</strong> (3,99%). Estas posiciones representan las convicciones de largo plazo de la mesa LTGG sobre plataformas digitales dominantes con capacidad de compounding. El gestor las mantiene mientras el fundamento de crecimiento estructural siga intacto, con nombres como Roblox (3,54%) o Meituan (2,12%) sostenidos por tesis explícitas de monetización y engagement crecientes (fund_data.cualitativo.outlook).</p><p class="subsec">Composición actual y racional</p><p class="pr">La cartera es <strong>100% internacional</strong> y de renta variable, con un fuerte sesgo a EE.UU. (<strong>52,5%</strong>), seguido a distancia por China (<strong>10,5%</strong>, vía Tencent, Meituan, PDD, Kweichow Moutai, CATL y Horizon Robotics), Países Bajos (6,2%, ASML y Adyen), Singapur (Sea, 4,0%), Suecia (Spotify, 3,7%), Brasil (NU Holdings, 3,0%) y Uruguay (MercadoLibre, 2,85%). Sectorialmente, la información disponible clasifica una parte relevante como "Otros" (70,2%, por falta de etiquetado sectorial en la fuente), con Tecnología (12,1%), Comunicación (8,5%) y Consumo cíclico (7,2%) como categorías identificadas; en la práctica, la cartera está dominada por tecnología, plataformas digitales, semiconductores y consumo discrecional de crecimiento. El racional global es claro: capturar el crecimiento estructural de las compañías líderes de la economía digital y de mercados en expansión, aceptando a cambio una concentración y una exposición a EE.UU./tecnología que hacen del fondo un vehículo de riesgo alto y comportamiento muy dependiente del ciclo de estilo.</p>
+    <p class="pr"><strong>Advertencia de datos (crítica en esta sección)</strong>: para este fondo no se dispone en las fuentes recogidas de la cartera de posiciones —ni de los nombres, ni de los pesos, ni de la concentración, ni de la distribución por activo/geografía/sector—. El regulador irlandés no indexa el ISIN y el bundle llegó contaminado con documentos de BlackRock. Por coherencia con la regla de no invención, <strong>esta sección NO enumera posiciones ni cifras de cartera que no puedan verificarse</strong>; describe únicamente, de forma cualitativa, cómo se construye la cartera según el proceso documentado de la estrategia LTGG.</p><p class="subsec">Cómo se construye la cartera</p><p class="pr">La cartera LTGG es, por diseño, <strong>concentrada y de alta convicción</strong>: un número reducido de compañías de crecimiento excepcional, seleccionadas de abajo arriba y mantenidas durante años. La construcción prioriza la convicción sobre la diversificación: las mejores ideas reciben peso significativo, y la rotación es baja porque la tesis se juega a 5-10 años. La gestión del riesgo no se hace tanto por límites mecánicos como por la propia calidad y diversidad de los motores de crecimiento de las posiciones.</p><p class="subsec">Sesgos habituales de la estrategia</p><p class="pr">Sin afirmar pesos concretos de este fondo, el estilo LTGG tiende estructuralmente a un sesgo hacia tecnología, plataformas digitales, salud e innovación, y a una exposición global repartida entre EE.UU., Asia (con presencia relevante de China) y Europa. Son rasgos del proceso, no una foto verificada de la cartera actual de este vehículo.</p><p class="subsec">Posiciones de convicción</p><p class="pr">El núcleo de la propuesta son las compañías de crecimiento estructural que el equipo mantiene durante años. No obstante, dado que la cartera concreta de este fondo no consta en las fuentes recogidas, <strong>no se nombran valores ni se atribuyen pesos</strong>: hacerlo sin la fuente sería inventar. Este apartado deberá completarse con el informe/factsheet oficial de Baillie Gifford para el fondo.</p><p class="subsec">Composición actual</p><p class="pr">No disponible/verificada en el bundle. Se recomienda incorporar desde las fuentes oficiales la cartera top-10, la concentración (top-5/10/15), la distribución por activo, geografía y sector, y el AUM, para cerrar esta sección con datos reales.</p>
   </div>
 
   
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">39</div><div class="kpi-sub">vs media hist. 0</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">44,6%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">0</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">0,0%</div><div class="kpi-sub">—</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">97,9%</div><div class="kpi-sub">Renta variable</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">—</div><div class="kpi-sub">—</div></div>
   </div>
 
-  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
+  
   <script>
   (function(){
     if (typeof Chart === 'undefined') return;
     const ctxMix = document.getElementById('c-mix');
     if (ctxMix) {
-      const tipos = [["RV", 97.9]];
+      const tipos = [];
       new Chart(ctxMix, {
         type: 'doughnut',
         data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
@@ -541,371 +523,20 @@ Lo verificable es la <strong>estructura</strong>: Baillie Gifford & Co, gestora 
     if (ctxC) {
       new Chart(ctxC, {
         type: 'bar',
-        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [25.8, 44.6, 60.1], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [0, 0, 0], backgroundColor:'rgba(12,35,64,0.85)' }] },
         options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
       });
     }
   })();
   </script>
 
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">20.6</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">23.2</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.28</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.10</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.42</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.13</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.18</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.20</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-8.00</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-10.37</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-33.1</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-51.8</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">-7.1%</strong> · 3A <strong style="color:var(--ink);">13.5%</strong> · 5A <strong style="color:var(--ink);">-1.0%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Large · Growth</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:var(--ink-2);line-height:1.1;">—</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★☆☆☆☆</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">1 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Global Large-Cap Growth Equity</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">STOXX Europe 600</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">30.68</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">17.85</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">7.19</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.37</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">5.31</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">1.75</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">20.81</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">10.96</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">121.5 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:34%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+2.47%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:45%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.31%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.45%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:39%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-2.83%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 57% · caídas 119% · ratio 0.48</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">57%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:48%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:84%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">119%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:100%;height:15px;background:#c0552e;border-radius:3px;"></div><div style="position:absolute;left:84%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Tecnología</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:26%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">33.5% <span style="color:var(--navy);">(+25)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:77%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:20%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">25.6% <span style="color:var(--navy);">(+19)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:52%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:8%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">17.3% <span style="color:var(--navy);">(+15)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:34%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:58%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">11.4% <span style="color:#c0552e;">(-8)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:19%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:37%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.2% <span style="color:#c0552e;">(-6)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:9%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:76%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">3.2% <span style="color:#c0552e;">(-22)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo defensivo</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:8%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:24%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">2.8% <span style="color:#c0552e;">(-5)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> STOXX Europe 600 · (dif. en pp)</div></div></div></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">20.6</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">23.2</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.28</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.10</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.42</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.13</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.18</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.20</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-8.00</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-10.37</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-33.1</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-51.8</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">-6.3%</strong> · 3A <strong style="color:var(--ink);">12.6%</strong> · 5A <strong style="color:var(--ink);">-1.6%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Large · Growth</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:var(--ink-2);line-height:1.1;">—</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★☆☆☆☆</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">1 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Global Large-Cap Growth Equity</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">30.68</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">23.04</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">7.19</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.86</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">5.31</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.96</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">20.81</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">16.70</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">121.5 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:11%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.86%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.67%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:27%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-2.10%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:43%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.34%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 10% · caídas 77% · ratio 0.14</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">10%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:10%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">77%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:77%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Tecnología</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:88%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">33.5% <span style="color:var(--navy);">(+4)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:77%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:27%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">25.6% <span style="color:var(--navy);">(+17)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:52%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:25%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">17.3% <span style="color:var(--navy);">(+9)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:34%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:33%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">11.4% <span style="color:var(--navy);">(+0)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Salud</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:19%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:27%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">6.2% <span style="color:#c0552e;">(-3)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:9%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:49%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">3.2% <span style="color:#c0552e;">(-13)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo defensivo</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:8%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:15%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">2.8% <span style="color:#c0552e;">(-2)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> MSCI World · (dif. en pp)</div></div></div></div>
 
-  <div class="sr">Todas las posiciones (39)</div>
+  <div class="sr">Todas las posiciones (0)</div>
   <div class="pt-wrap">
     <table class="pt">
       <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
-      <tbody><tr>
-  <td title="NVIDIA Corp">NVIDIA Corp</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:45px;background:#0c2340;"></div>5,7%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>6%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Amazon.com Inc">Amazon.com Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:45px;background:#0c2340;"></div>5,7%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:4px;background:var(--ink-3);"></div>11%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="App Lovin Corp Class A">App Lovin Corp Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:42px;background:#0c2340;"></div>5,3%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>17%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Cloudflare Inc Class A">Cloudflare Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>21%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Netflix Inc">Netflix Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:35px;background:#0c2340;"></div>4,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:10px;background:var(--ink-3);"></div>26%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Tencent Holdings Ltd">Tencent Holdings Ltd</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">China</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>30%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Sea Ltd -">Sea Ltd -</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Singapur</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>4,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>34%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Spotify Technology SA">Spotify Technology SA</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Suecia</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:14px;background:var(--ink-3);"></div>37%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Coupang Inc Class A">Coupang Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>41%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="ASML Holding NV">ASML Holding NV</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>45%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="ROBLOX Corp Class A">ROBLOX Corp Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>48%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="PDD Holdings Inc -">PDD Holdings Inc -</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Irlanda</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>51%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="NU Holdings Ltd Class A">NU Holdings Ltd Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Brasil</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>54%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Mercado Libre Inc">Mercado Libre Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Uruguay</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,9%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>57%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Taiwan Semiconductor Manufacturing Co Ltd">Taiwan Semiconductor Manufacturing Co Ltd</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Taiwán</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>60%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Adyen NV">Adyen NV</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>63%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Reddit Inc Class A">Reddit Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>65%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Shopify Inc Class A">Shopify Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Canadá</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>67%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Samsara Inc Class A">Samsara Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>70%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Meituan Class B">Meituan Class B</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">China</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>72%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Be One Medicines Ltd Class H">Be One Medicines Ltd Class H</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>2,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>74%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Intuitive Surgical Inc">Intuitive Surgical Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Contemporary Amperex Technology Co Ltd Class A">Contemporary Amperex Technology Co Ltd Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">China</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>78%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Datadog Inc Class A">Datadog Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Atlassian Corp Class A">Atlassian Corp Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Australia</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="elf Beauty Inc">elf Beauty Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Dexcom Inc">Dexcom Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,6%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Trade Desk Inc Class A">Trade Desk Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Hermes International SCA">Hermes International SCA</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Francia</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Kweichow Moutai Co Ltd Class A">Kweichow Moutai Co Ltd Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">China</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>89%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Moncler Sp A">Moncler Sp A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Italia</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>90%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Titan Co Ltd">Titan Co Ltd</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">India</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>91%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Symbotic Inc Class A">Symbotic Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>93%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Bio N Tech SE -">Bio N Tech SE -</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,1%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Joby Aviation Inc">Joby Aviation Inc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>95%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Rocket Lab Corp">Rocket Lab Corp</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>1,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>96%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Rivian Automotive Inc Class A">Rivian Automotive Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Horizon Robotics Class B">Horizon Robotics Class B</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">China</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>98%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Duolingo Inc Class A">Duolingo Inc Class A</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Estados Unidos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:39px;background:var(--ink-3);"></div>98%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr></tbody>
+      <tbody></tbody>
     </table>
   </div>
 </section>
@@ -930,8 +561,9 @@ Lo verificable es la <strong>estructura</strong>: Baillie Gifford & Co, gestora 
   
 
   <div class="doc-grp">Fuentes externas (1)</div>
-  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">docs.publifund.com — en IE</span><a href="https://docs.publifund.com/kideu/IE00BK5TW727/en_IE" target="_blank" class="doc-a">↗ Abrir</a></div>
+  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">bailliegifford.com — baillie gifford worldwide long term global growth fund</span><a href="https://www.bailliegifford.com/en/uk/individual-investors/funds/baillie-gifford-worldwide-long-term-global-growth-fund/" target="_blank" class="doc-a">↗ Abrir</a></div>
 </section>
+<section class="pane" id="p9"></section>
 
 <section class="pane" id="p8">
   <style>
@@ -1276,7 +908,7 @@ Lo verificable es la <strong>estructura</strong>: Baillie Gifford & Co, gestora 
 <div id="fb-modal-bg" class="fb-modal-bg">
   <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
     <h2 id="fb-modal-title">📝 Mejorar análisis: Baillie Gifford WW L/T Glb Gr A EUR Acc</h2>
-    <div class="fb-sub">ISIN: <code>IE00BK5TW727</code> · Baillie Gifford Investment Management (Europe) Limited</div>
+    <div class="fb-sub">ISIN: <code>IE00BK5TW727</code> · Baillie Gifford</div>
 
     <label for="fb-text">¿Qué hay que mejorar?</label>
     <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
@@ -1310,7 +942,7 @@ Lo verificable es la <strong>estructura</strong>: Baillie Gifford & Co, gestora 
 (function() {
   const ISIN = 'IE00BK5TW727';
   const FUND_NAME = 'Baillie Gifford WW L/T Glb Gr A EUR Acc';
-  const GESTORA = 'Baillie Gifford Investment Management (Europe) Limited';
+  const GESTORA = 'Baillie Gifford';
   // API_BASE: localStorage o relativo. Igual que catalog.html.
   let API_BASE = localStorage.getItem('fa_api_base') || '';
   function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
@@ -1588,7 +1220,7 @@ function fmtES(v,dec){
 function mk(id,cfg){if(CI[id])CI[id].destroy();const c=document.getElementById(id);if(!c)return;CI[id]=new Chart(c,cfg);}
 const sc=(mn,mx)=>({x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},y:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v);}},... (mn!=null?{min:mn}:{}),...(mx!=null?{max:mx}:{})}});
 const opt=(leg)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!leg,position:'bottom',labels:{color:TC(),font:{size:9,family:'Source Code Pro'},boxWidth:8,padding:8}}}});
-const Y=["23", "24", "25"];
+const Y=[];
 // Anti-collision label helper for area/line charts with multiple series
 function drawAreaLabels(chart,colors,dec,minGap){
   const ctx=chart.ctx;
@@ -1649,7 +1281,7 @@ const valPlugin={
   }
 };
 function buildCharts(){
-  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[3222.91, 4379.94, 5348.22],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
+  mk('c-aum',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A1()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   mk('c-part',{type:'bar',data:{labels:Y,datasets:[{data:[],backgroundColor:A2()+'99'}]},options:{...opt(),scales:sc(0)},plugins:[valPlugin]});
   const vlCorrupta=false;
   if(vlCorrupta){
