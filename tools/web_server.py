@@ -359,7 +359,7 @@ def make_app(cold_start: bool = True) -> Flask:
 
     def _start_analysis_for_isin(
         isin: str, force_cold: bool, apply_feedback: bool = False,
-        relaunch: bool = False,
+        relaunch: bool = False, scope: str = "full",
     ) -> tuple[dict, int]:
         """Helper compartido por /api/analyze (single) y el worker de la cola.
 
@@ -373,6 +373,26 @@ def make_app(cold_start: bool = True) -> Flask:
         """
         if not ISIN_REGEX.match(isin):
             return {"error": f"ISIN inválido: '{isin}'"}, 400
+
+        # scope="annual_update" (botón "Actualizar análisis"): integrar SOLO el delta del
+        # último año sobre el análisis previo (buscar docs nuevos desde el último análisis).
+        # NO cold-start (se conserva/baja el previo). annual_update.prepare() escribe la señal
+        # en config.json (modo + since_date) y baja el análisis previo de Storage si falta local.
+        # Si no hay análisis previo → prepare cae a "full" (primer análisis del fondo).
+        annual = (scope or "full").strip().lower() == "annual_update"
+        if annual:
+            force_cold = False
+            apply_feedback = False
+            try:
+                from tools.annual_update import prepare as _au_prepare
+                _cfg = _au_prepare(isin)
+                annual = (_cfg.get("modo") == "annual_update")
+                print(f"[ANALYZE {isin}] scope=annual_update → "
+                      + ("delta desde " + str(_cfg.get("since_date")) if annual
+                         else f"sin previo ({_cfg.get('motivo','')}) → full"))
+            except Exception as e:  # noqa: BLE001
+                print(f"[ANALYZE {isin}] annual_update.prepare falló: {e} → full")
+                annual = False
 
         # Evitar relanzar si ya hay run activo para este ISIN
         for rid, r in RUNS.items():
@@ -415,6 +435,12 @@ def make_app(cold_start: bool = True) -> Flask:
             # Relaunch (corte a mitad, server vivo): re-ejecuta TODO el LLM desde
             # cero conservando descargas. No es --resume (que reusaría salidas LLM).
             bat_argv.append("--relaunch")
+        elif annual:
+            # annual_update: bat completo SIN --resume (que saltaría el discovery de docs
+            # nuevos) y SIN cold-start (se conserva el previo). La señal annual_update en
+            # config.json hace que discovery busque solo docs desde since_date y el analyst
+            # integre el delta preservando el histórico. bat_argv queda [bat, isin].
+            pass
         elif not force_cold:
             bat_argv.append("--resume")
             # T3.5: añadir --apply-feedback si el caller lo pidió
@@ -506,12 +532,24 @@ def make_app(cold_start: bool = True) -> Flask:
         """
         data = request.get_json(silent=True) or {}
         isin = (data.get("isin") or "").strip().upper()
+        scope = (data.get("scope") or "full").strip().lower()
         force_cold = data.get("cold_start", app.config["FUND_COLD_START"])
         apply_feedback = bool(data.get("apply_feedback", False))
         payload, status = _start_analysis_for_isin(
-            isin, bool(force_cold), apply_feedback=apply_feedback,
+            isin, bool(force_cold), apply_feedback=apply_feedback, scope=scope,
         )
         return jsonify(payload), status
+
+    @app.route("/api/historico-gap/<isin>", methods=["GET"])
+    def api_historico_gap(isin):
+        """¿El fondo tiene un GAP claro de histórico? El portal lo consulta al mostrar el
+        fondo / antes de "Actualizar": si `sugerir_mejora` es True, puede PREGUNTAR si se
+        quiere mejorar el histórico (re-análisis full multi-año) en vez del delta anual."""
+        try:
+            from tools.historico_gap import detect
+            return jsonify(detect((isin or "").strip().upper())), 200
+        except Exception as e:  # noqa: BLE001
+            return jsonify({"error": str(e)[:120], "sugerir_mejora": False}), 200
 
     # ─────────────────────────────────────────────────────────────────────
     # Cola multi-ISIN (ejecución secuencial)
@@ -1086,10 +1124,12 @@ def make_app(cold_start: bool = True) -> Flask:
                 force_cold = next_item.get("cold_start", True)
                 apply_feedback = bool(next_item.get("apply_feedback", False))
                 relaunch = bool(next_item.get("relaunch", False))
+                scope = (next_item.get("scope") or "full").strip().lower()
                 if relaunch:
                     force_cold = False  # relaunch reusa descargas, no es cold-start
                 payload, status = _start_analysis_for_isin(
                     isin, force_cold, apply_feedback=apply_feedback, relaunch=relaunch,
+                    scope=scope,
                 )
                 if status != 200:
                     next_item["status"] = "failed"
@@ -1193,6 +1233,9 @@ def make_app(cold_start: bool = True) -> Flask:
         force_cold = bool(data.get("cold_start", app.config["FUND_COLD_START"]))
         # T3.5: apply_feedback en el batch (carry-through al worker)
         apply_feedback = bool(data.get("apply_feedback", False))
+        # scope="annual_update" (botón "Actualizar análisis") → delta del último año;
+        # "full" (default, "Análisis de fondo nuevo") → re-análisis completo con cold-start.
+        scope = (data.get("scope") or "full").strip().lower()
 
         # Normalizar + deduplicar + validar
         seen = set()
@@ -1243,6 +1286,7 @@ def make_app(cold_start: bool = True) -> Flask:
                     "status": "queued",
                     "cold_start": force_cold,
                     "apply_feedback": apply_feedback,
+                    "scope": scope,
                 }
                 QUEUE.append(item)
                 added.append(item)
@@ -1313,7 +1357,21 @@ def make_app(cold_start: bool = True) -> Flask:
 
         El frontend lo polea cada 10s y muestra un strip verde/amarillo/rojo.
         """
-        worker_alive = QUEUE_WORKER is not None and QUEUE_WORKER.is_alive()
+        worker_alive_internal = QUEUE_WORKER is not None and QUEUE_WORKER.is_alive()
+        # Worker EXTERNO (poller portal_analyze_worker.py): heartbeat en disco → cuenta como "worker
+        # vivo" aunque el hilo interno del web_server esté parado o se acabe de reiniciar. Así el
+        # dashboard NO dice "OFF" mientras el poller analiza un fondo.
+        _ext = None
+        try:
+            _hbp = Path(__file__).resolve().parent.parent / "data" / "worker_heartbeat.json"
+            if _hbp.exists():
+                _ext = json.loads(_hbp.read_text(encoding="utf-8"))
+        except Exception:
+            _ext = None
+        ext_alive = bool(_ext and (time.time() - float(_ext.get("ts", 0)) < 90))
+        ext_isin = (_ext or {}).get("isin") or ""
+        ext_fase = (_ext or {}).get("fase") or ""
+        worker_alive = worker_alive_internal or ext_alive
         watchdog_alive = WATCHDOG_THREAD is not None and WATCHDOG_THREAD.is_alive()
         tokens_alive = QUEUE_TOKENS_MONITOR is not None and QUEUE_TOKENS_MONITOR.is_alive()
 
@@ -1359,11 +1417,12 @@ def make_app(cold_start: bool = True) -> Flask:
         elif n_paused > 0:
             global_status = "warn"
             global_msg = f"{n_paused} item(s) pausado(s) por tokens"
-        elif n_running > 0:
+        elif n_running > 0 or (ext_alive and ext_isin):
             global_status = "running"
-            global_msg = f"Analizando {running_isins[0] if running_isins else ''}" + (
-                f" (+{n_running-1} más)" if n_running > 1 else ""
-            )
+            _cur = running_isins[0] if running_isins else ext_isin
+            global_msg = f"Analizando {_cur}" + (
+                f" · {ext_fase}" if (ext_fase and ext_fase != "idle") else "") + (
+                f" (+{n_running-1} más)" if n_running > 1 else "")
         elif n_queued > 0:
             global_status = "running"
             global_msg = f"{n_queued} pendientes en cola"
@@ -1389,6 +1448,7 @@ def make_app(cold_start: bool = True) -> Flask:
                 "done": n_done,
             },
             "running_isins": running_isins,
+            "external_worker": {"alive": ext_alive, "isin": ext_isin, "fase": ext_fase, "pid": (_ext or {}).get("pid")},
             "stale_running": stale_running,
             "min_activity_min": last_activity,
             "tokens_blocked_until": QUEUE_TOKENS_BLOCKED_UNTIL,
@@ -1399,7 +1459,25 @@ def make_app(cold_start: bool = True) -> Flask:
     def api_queue():
         """Estado actual de la cola."""
         items = _queue_snapshot()
-        worker_alive = QUEUE_WORKER is not None and QUEUE_WORKER.is_alive()
+        # Inyecta el análisis EN CURSO del worker EXTERNO (heartbeat en disco) si el snapshot en
+        # memoria no lo tiene → robusto ante reinicios del web_server, que pierden RUNS en memoria.
+        # Así el dashboard muestra lo que se analiza venga de donde venga el lanzamiento (portal o local).
+        ext_alive = False
+        try:
+            _hbp = Path(__file__).resolve().parent.parent / "data" / "worker_heartbeat.json"
+            if _hbp.exists():
+                _hb = json.loads(_hbp.read_text(encoding="utf-8"))
+                ext_alive = (time.time() - float(_hb.get("ts", 0))) < 90
+                _iz = (_hb.get("isin") or "").upper()
+                if ext_alive and _iz:
+                    _has = any((it.get("isin") or "").upper() == _iz and it.get("status") == "running" for it in items)
+                    if not _has:
+                        items = [it for it in items if (it.get("isin") or "").upper() != _iz]
+                        items.insert(0, {"isin": _iz, "status": "running", "fase": _hb.get("fase"),
+                                         "run_id": None, "source": "worker_externo", "log_last_activity_min": 0.0})
+        except Exception:
+            pass
+        worker_alive = (QUEUE_WORKER is not None and QUEUE_WORKER.is_alive()) or ext_alive
         tokens_monitor_alive = QUEUE_TOKENS_MONITOR is not None and QUEUE_TOKENS_MONITOR.is_alive()
         return jsonify({
             "items": items,
