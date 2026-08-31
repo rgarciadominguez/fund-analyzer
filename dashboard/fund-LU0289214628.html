@@ -179,7 +179,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
       <div class="lh-fund">JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★★</span></div>
-      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>JPMorgan Asset Management (Europe) S.a.r.l.</strong></div>
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>JPMorgan Asset Management</strong></div>
       <div class="lh-meta-line">Depositario: <strong>J.P. Morgan SE - Luxembourg Branch</strong></div>
       <div class='lh-meta-line'>ISIN retail EUR: <strong>LU0289214628</strong> <span style='opacity:.55;font-size:10.5px;'>· Europe Equity Plus Fund D (perf) (acc) EUR</span></div>
     </div>
@@ -187,9 +187,9 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 2: AUM + Publication calendar + Riesgo UCITS (SRRI solo si es real) -->
     <div style="display:flex;align-items:flex-start;gap:28px;padding:14px 32px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-aum">
-        <div class="lh-aum-v">€2.006M</div>
+        <div class="lh-aum-v">€6.897M</div>
         <div class="lh-aum-l">AUM</div>
-        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2026-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2027-12 (Carta)</span></div></div>
+        <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2026-06</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2025-12</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-next">2026-12 (Informe)</span></div></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
         <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
@@ -201,7 +201,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:14px 28px;border-left:1px solid rgba(255,255,255,0.08);">
       <div class="lh-cv"><span class="lh-cl">Inicio</span> <span style="color:rgba(255,255,255,0.80);">Junio 2007</span></div>
       <div class="lh-cv"><span class="lh-cl">Categoría</span> <span style="color:rgba(255,255,255,0.80);">Renta Variable Europea</span></div>
-      <div class="lh-cv"><span class="lh-cl">Gestores</span> <span style="color:rgba(255,255,255,0.80);"><strong>Michael Barakos</strong> <span style='opacity:.7;'>(lead)</span> · Nicholas Horne <span style='opacity:.6;font-size:9px;'>(co)</span> · Ben Stapley <span style='opacity:.6;font-size:9px;'>(co)</span></span></div>
+      
       <div class="lh-cv"><span class="lh-cl">Divisa</span> <span style="color:rgba(255,255,255,0.80);">EUR</span></div>
     </div>
 
@@ -219,10 +219,11 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-06-15</strong></span>
+    <span>Datos actualizados a: <strong style="color:var(--ink-3);">2026-09-01</strong></span>
     <button onclick="alert('Para actualizar, ejecutar:\npython -m agents.orchestrator --isin LU0289214628 --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>
@@ -232,28 +233,10 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
   <div class="mb24">
-    <p class="pr">El JPMorgan Funds – Europe Equity Plus Fund (LU0289214628, clase D (perf) acc EUR) es un fondo de renta variable europea de gran capitalización gestionado por JPMorgan Asset Management (Europe) S.à r.l. desde su lanzamiento el 25 de junio de 2007. Su rasgo distintivo es que no es un long-only convencional: aplica un enfoque <strong>"active extension" 130/30</strong>, manteniendo posiciones largas equivalentes a ~130% del patrimonio y posiciones cortas (vía derivados) de ~30%, de modo que la exposición neta al mercado se mantiene en torno al 100% —comparable a un fondo tradicional— pero con un mayor margen para que las convicciones del equipo se traduzcan en alfa, tanto comprando lo atractivo como vendiendo en corto lo poco interesante (ficha FT; KIID; FundsPeople 2019).</p><p class="pr">El proceso combina <strong>análisis fundamental y cuantitativo</strong> en una selección bottom-up disciplinada sobre el universo de renta variable europea, con el MSCI Europe Index (Total Return Net) como índice de referencia para comparación, cálculo de VaR relativo y comisión de éxito. El fondo está clasificado como <strong>Artículo 8 SFDR</strong>: integra análisis ESG en al menos el 90% de los títulos comprados, exige que un mínimo del 51% de las posiciones largas tengan características ESG positivas y que al menos el 20% sean inversiones sostenibles (KID PRIIPs; KIID).</p><p class="pr">El historial de resultados es sólido y consistente frente a su índice: según el comentario oficial del fondo (abril 2026), bate al MSCI Europe a 1, 3, 5 y 10 años —+24,75% vs +18,44% a 1 año, +18,68% vs +12,02% anualizado a 3 años, +13,84% vs +9,89% a 5 años— y entregó +17,24% en 2024 (vs +8,59% del índice) y +27,69% en 2025 (vs +19,39%). Las métricas de riesgo de la ficha FT lo confirman: alfa positivo a 1/3/5 años (+4,46/+6,68/+3,77), beta por debajo de 1 e information ratio elevado (1,93 a 1 año, 1,82 a 3 años).</p><p class="pr">El gran matiz es el <strong>coste de esta clase concreta</strong>: la clase D (perf) soporta una comisión de gestión del 2,71%–2,73% anual más comisión de éxito sobre el MSCI Europe, además de comisiones de entrada (hasta 5%) y salida (0,5%). Es una de las clases retail más caras de la gama; el diferencial de rentabilidad entre la clase "limpia" del comentario (+24,75% a 1 año) y la clase D que reporta FT (+17,16% a 1 año) ilustra cuánto erosiona el coste el resultado para el inversor final. El patrimonio total del fondo ronda los £5,4 mil millones (abr-2026), con la clase D en torno a £353 millones (FT).</p>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
-  <div class="col2 mb20">
-    <div>
-      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Filosofía de inversión</div>
-      <p class="pr">La filosofía parte de una idea académica concreta: relajar la restricción de no poder vender en corto eleva el "coeficiente de transferencia" (la eficiencia con la que las convicciones del gestor se convierten en apuestas reales de cartera) y, por tanto, el information ratio para un mismo nivel de riesgo activo. Es la tesis del white paper de JPMorgan "Extending the Fundamental Law of Investment Management" (marco Grinold–Clarke/de Silva/Thorley), del que esta estrategia 130/30 es una implementación práctica. Sobre esa base, el equipo construye la cartera bottom-up combinando dos fuentes de señal: el análisis fundamental (calidad del negocio, valoración) y un sistema cuantitativo multifactor (calidad, valor y momentum). El resultado buscado son compañías europeas de alta calidad con valoraciones atractivas y momentum positivo en el lado largo, y compañías con características opuestas en el lado corto. La gestión es activa y consciente del índice: aunque la mayoría de las posiciones largas son componentes del MSCI Europe, el equipo tiene amplia discrecionalidad para desviarse en pesos, valores y características de riesgo, siempre dentro de un marco institucional disciplinado y de control de riesgo relativo.</p>
-    </div>
-    <div>
-      <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Criterios de inversión</div>
-      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">01</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Calidad, valor y momentum combinados:</strong> <span class="pr" style="font-size:12.5px;">Selección de compañías europeas de alta calidad con valoraciones atractivas y momentum positivo; en el lado corto, empresas con el perfil inverso. Las señales cuantitativas multifactor se cruzan con el juicio fundamental del analista.</span></div>
-            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">02</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Enfoque bottom-up sobre todo el universo europeo:</strong> <span class="pr" style="font-size:12.5px;">Las decisiones nacen del análisis valor por valor (no de apuestas macro top-down), aprovechando toda la amplitud del universo de renta variable europea elegible para maximizar la 'amplitud' (número de apuestas no correlacionadas).</span></div>
-            </div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-light);">
-              <span style="font-family:'Source Code Pro';font-size:12px;color:var(--navy);font-weight:600;min-width:24px;">03</span>
-              <div><strong style="color:var(--ink);font-size:13px;">Extensión activa 130/30 con neutralidad de mercado:</strong> <span class="pr" style="font-size:12.5px;">Largos ~130% y cortos ~30% (vía derivados), manteniendo exposición neta ~100%. La venta en corto añade una fuente de alfa adicional sin incrementar el riesgo direccional del mercado.</span></div>
-            </div>
-    </div>
-  </div>
+  
 
   <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Rentabilidad y volatilidad anual <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar · datos diarios)</span></div>
   <div class="col2 mb20">
@@ -261,13 +244,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <div class="ch-b"><div class="ch-hm"><canvas id="mst-vol"></canvas></div></div>
   </div>
 
-  <div class="col2 mb20"><div>
-      <div class="sr" style="color:var(--pos);">Fortalezas</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Track record consistente y verificable de outperformance frente al MSCI Europe a 1, 3, 5 y 10 años (p. ej. +17,24% vs +8,59% en 2024 y +27,69% vs +19,39% en 2025), no un único año afortunado.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Métricas de riesgo de calidad: alfa positivo a 1/3/5 años, beta por debajo de 1 e information ratio de 1,8–1,9, señal de que el exceso de retorno viene de selección de valores y no de asumir más riesgo de mercado.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Proceso institucional robusto que une análisis fundamental y cuantitativo multifactor sobre una base teórica explícita (el marco del information ratio y el coeficiente de transferencia).</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Continuidad y profundidad del equipo: Michael Barakos lo gestiona desde el lanzamiento en 2007, con co-gestores incorporados en 2010 y 2017 y todo el aparato de research europeo de JPMorgan AM detrás.</span></div><div class="prin-i"><span class="prin-n">✓</span><span class="prin-b">Estructura 130/30 que, bien ejecutada, monetiza tanto las ideas alcistas como las bajistas manteniendo la exposición neta de un fondo long-only.</span></div></div>
-    </div><div>
-      <div class="sr" style="color:var(--neg);">Riesgos</div>
-      <div class="prin"><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Coste muy elevado de esta clase: la clase D (perf) soporta ~2,71%–2,73% de gestión más comisión de éxito, entrada hasta 5% y salida 0,5%; es de las clases retail más caras de la gama y erosiona de forma material el resultado neto del inversor.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Complejidad de la estrategia 130/30: el uso de derivados, ventas en corto y apalancamiento bruto (largos ~130%) añade riesgo de contraparte, de financiación y de ejecución que no existe en un fondo long-only sencillo.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Riesgo de persona clave: el papel central de Michael Barakos como CIO de RV europea y gestor desde inception concentra parte del valor del proceso en su liderazgo.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">Producto de casa grande, benchmark-aware: no es un fondo de autor con skin-in-the-game; el tracking error es moderado (beta ~0,9, R² alto) y el valor depende de la persistencia del alfa neto de comisiones.</span></div><div class="prin-i"><span class="prin-n">⚠</span><span class="prin-b">El alfa histórico está medido sobre clases más baratas; en la clase D la ventaja neta frente al índice se reduce sensiblemente por el peaje de comisiones.</span></div></div>
-    </div></div>
+  
 
   <div class="sr">Clases disponibles</div>
   <table class="rt mb20">
@@ -276,7 +253,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   </table>
   
 
-  <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor que busca exposición a renta variable europea de gran capitalización con gestión activa que ha demostrado batir al MSCI Europe de forma consistente, y que entiende y acepta la complejidad de una estrategia 130/30 con derivados y ventas en corto. Horizonte recomendado de 5 años. Dado el coste, es especialmente apto para quien pueda acceder a una clase institucional más barata; en la clase D (perf) el peaje de comisiones es difícil de justificar salvo convicción muy alta en el equipo.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No es un fondo de autor con propiedad personal: es un producto institucional de JPMorgan Asset Management gestionado por un equipo. La alineación proviene de la continuidad del equipo (Barakos desde el lanzamiento en 2007) y de la reputación y los recursos de research de la casa, no de skin-in-the-game personal documentado.</p></div></div>
+  
 
   
 
@@ -292,7 +269,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     new Chart(ctx, {
       type: 'bar',
       data: { labels: ["Europe Equity Plus Fund D (perf) (acc) EUR"], datasets: [
-      {label:'TER (%)', data:[2.73], backgroundColor:'rgba(12,35,64,0.85)'}
+      {label:'TER (%)', data:[2.71], backgroundColor:'rgba(12,35,64,0.85)'}
     ] },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -311,7 +288,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">Junio 2007 — presente</span></div>
 
   <div class="mb24">
-    <div class="subtabs" id="hist-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'hist-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',1)">Origen del fondo y de la e…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',2)">El fondo frente al mercado…</button><button class="subtab-btn" onclick="subtab(this,'hist-tabs',3)">Lectura de conjunto</button></div><div class="subtab-panel active"><p class="pr">El JPMorgan Funds – Europe Equity Plus Fund nació el 25 de junio de 2007 como sub-fondo de la SICAV luxemburguesa JPMorgan Funds (OICVM regulado por la CSSF), en pleno auge de los productos "equity plus" o 130/30 que proliferaron a mediados de la década de 2000. No fue un lanzamiento improvisado: dos años antes, JPMorgan había publicado el white paper "Extending the Fundamental Law of Investment Management", que formalizaba por qué relajar la prohibición de vender en corto —pasando de un long-only a un perfil 130% largo / 30% corto— eleva la eficiencia con que un gestor convierte sus ideas en cartera. El fondo es, en esencia, la materialización comercial de esa investigación, con Michael Barakos al frente desde el primer día.</p><p class="pr">A lo largo de casi dos décadas el equipo se ha consolidado y profundizado más que cambiado: Nicholas Horne se incorporó como co-gestor en 2010 y Ben Stapley en 2017, ambos dentro del equipo de Renta Variable Europea de la casa que Barakos dirige como CIO. Esa estabilidad es uno de los rasgos que mejor explica la consistencia del proceso. El fondo atravesó el ciclo completo —la resaca de la crisis financiera, los años de tipos cero y QE, la corrección de 2018, el shock del Covid en 2020 (reflejado en los escenarios desfavorables del KIID, con caídas anualizadas de doble dígito en el peor quinquenio) y la posterior normalización de tipos e inflación de 2022-2023.</p><p class="pr">La relación entre las decisiones del gestor y el resultado frente al mercado es la clave de su historia reciente: el fondo ha batido al MSCI Europe con holgura en los últimos ejercicios documentados (+17,24% vs +8,59% en 2024; +27,69% vs +19,39% en 2025), apoyándose en una selección de valores que combina señales cuantitativas de calidad/valor/momentum con juicio fundamental, y en la capacidad añadida de la pata corta. En 2021 la gama adoptó la clasificación Artículo 8 SFDR, formalizando la integración ESG que ya venía aplicando. El patrimonio ha crecido de forma notable —de unos €2.000 millones hacia 2020 a en torno a £5,4 mil millones en 2026—, señal de que el mercado ha premiado ese historial. El detalle año a año, ligando entorno, decisiones y resultado, se desarrolla en las siguientes sub-secciones; los puntos de inflexión estructurales (incorporaciones al equipo, cambios regulatorios) están en la línea de tiempo.</p></div><div class="subtab-panel"><p class="pr">El fondo se lanzó el 25 de junio de 2007 dentro de la SICAV paraguas JPMorgan Funds, domiciliada en Luxemburgo y regulada por la CSSF como OICVM (Parte I de la Ley de 17 de diciembre de 2010). Su gestora es JPMorgan Asset Management (Europe) S.à r.l. y el depositario JPMorgan SE – Luxembourg Branch. El "Plus" del nombre alude a la extensión activa 130/30: el fondo nació para capturar más alfa que un long-only europeo tradicional sin asumir más riesgo direccional. Su raíz intelectual está en el documento de investigación de JPMorgan "Extending the Fundamental Law of Investment Management" (extensión del marco de Grinold por Clarke, de Silva y Thorley), que demostraba que más de la mitad de la mejora del coeficiente de transferencia al pasar de long-only a 130/30 se logra ya en el primer tramo de ventas en corto. Michael Barakos asumió la gestión desde el lanzamiento y sigue siendo el gestor líder.</p></div><div class="subtab-panel"><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2007-2009 — arranque en plena crisis.</strong> el fondo se estrenó justo antes de la crisis financiera global. La estructura 130/30, con su pata corta, ofrecía en teoría una palanca defensiva adicional, aunque el periodo fue extraordinariamente adverso para toda la RV europea.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2010 — refuerzo del equipo.</strong> la incorporación de Nicholas Horne como co-gestor consolidó el banco de gestión en plena recuperación post-crisis y crisis de deuda soberana europea.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2015-2020 — el peor quinquenio documentado.</strong> los escenarios del KIID reflejan que una inversión en el periodo 2015-2020 habría arrojado, en el escenario desfavorable, un -7,4% anualizado (y hasta -29,1% en estrés). Ese tramo recoge la corrección de 2018 y, sobre todo, el desplome del Covid en marzo de 2020, un entorno donde la RV europea sufrió con dureza.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2017 — segunda incorporación.</strong> Ben Stapley se une como co-gestor, completando el trío Barakos/Horne/Stapley que gestiona el fondo desde entonces.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2018-2023 — normalización y entrega de alfa.</strong> el escenario moderado del KIID para una inversión 2018-2023 muestra +4,2% anualizado neto, un periodo que incluyó la recuperación post-Covid y el shock de tipos e inflación de 2022. Es a partir de aquí cuando el historial de outperformance se vuelve más visible.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2024 — fuerte batida al índice.</strong> el fondo subió +17,24% frente al +8,59% del MSCI Europe (Total Return Net), un exceso geométrico cercano a +8 puntos, apoyado en la selección de valores de calidad y en el posicionamiento sectorial.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2025 — año récord.</strong> +27,69% frente al +19,39% del índice, de nuevo con un amplio exceso de retorno. La fortaleza europea, apoyada en el estímulo fiscal alemán anunciado en 2025 y el boom de inversión en IA, fue el telón de fondo que el equipo supo aprovechar.</p><p class="pr" style="margin:6px 0 6px 20px;text-indent:-18px;"><span style="color:var(--gold,#b48020);font-size:8px;vertical-align:1px;">▪</span> <strong>2026 (hasta abril) — consolidación con un mes flojo.</strong> YTD +4,84% vs +4,20%; a 1 año +24,75% vs +18,44%. En el mes de abril el fondo quedó por detrás (+3,99% vs +5,19%), recordatorio de que en rallies muy verticales una cartera con sesgo de calidad y pata corta puede ceder terreno puntualmente. En el trimestre, rotación: entrada de Sandvik (maquinaria sueca, valoración atractiva con mejora del capex minero/infraestructura) y salida de Prosus (por el riesgo de disrupción de la IA en sus participadas de reparto y la intensa competencia).</p></div><div class="subtab-panel"><p class="pr">La historia del fondo es la de una estrategia cuantitativa-fundamental que se ha mantenido fiel a su diseño original durante casi 20 años, con un equipo estable y un patrimonio que ha crecido de ~€2.000M (2020) a ~£5,4bn (2026). Su valor no está en grandes virajes estratégicos —no los ha habido— sino en la ejecución consistente de un proceso que, en los ejercicios recientes, ha batido al MSCI Europe con un perfil de riesgo contenido. El principal contrapunto histórico no es de gestión sino de coste: la clase D (perf) ha cobrado siempre comisiones muy altas que se comen una parte sustancial de ese alfa.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
   <div class="kpi-row">
@@ -324,134 +301,18 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="col1 mb20"><div class="ch-b"><div class="ch-l">AUM (M€)</div><div class="ch-h"><canvas id="c-aum"></canvas></div></div></div>
   <script>
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
-  window.__HIST_AUM_HEADER__ = 2006.15;
+  window.__HIST_AUM_HEADER__ = 6897.0;
   </script>
   
-  <div class="sr">Cronología de eventos relevantes</div>
-  <div class="timeline">
-    <div class="tl-item">
-      <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2007</div>
-      <div class="tl-tag tag-strat">Decisión estratégica</div>
-      <div class="tl-title">Lanzamiento del fondo (25 jun 2007)</div>
-      <div class="tl-desc">Nace como sub-fondo de la SICAV JPMorgan Funds (Luxemburgo, OICVM), con estrategia 130/30 'active extension' y Michael Barakos como gestor desde el primer día.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-crisis"></div>
-      <div class="tl-date">2010</div>
-      <div class="tl-tag tag-crisis">Crisis</div>
-      <div class="tl-title">Nicholas Horne se incorpora como co-gestor</div>
-      <div class="tl-desc">Refuerzo del banco de gestión dentro del equipo de Renta Variable Europea de JPMorgan AM, en plena recuperación post-crisis financiera.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2017</div>
-      <div class="tl-tag tag-hito">Equipo</div>
-      <div class="tl-title">Ben Stapley se incorpora como co-gestor</div>
-      <div class="tl-desc">Se completa el trío gestor Barakos/Horne/Stapley que dirige el fondo desde entonces.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-crisis"></div>
-      <div class="tl-date">2018</div>
-      <div class="tl-tag tag-crisis">Crisis</div>
-      <div class="tl-title">Corrección de mercado</div>
-      <div class="tl-desc">Año de caídas en la RV europea recogido en los escenarios desfavorables del KIID (peor quinquenio 2015-2020).</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2020</div>
-      <div class="tl-tag tag-strat">Decisión estratégica</div>
-      <div class="tl-title">Shock del Covid-19</div>
-      <div class="tl-desc">El desplome de marzo de 2020 se refleja en el escenario desfavorable del KIID (hasta -7,4% anualizado y -29,1% en estrés para 2015-2020). AUM en torno a €2.006M a cierre de 2020.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2021</div>
-      <div class="tl-tag tag-hito">Cambio_estrategia</div>
-      <div class="tl-title">Clasificación Artículo 8 SFDR</div>
-      <div class="tl-desc">Con la entrada en vigor del SFDR (marzo 2021), el fondo queda clasificado como Artículo 8: ESG en ≥90% de compras, ≥51% de largos con características ESG positivas y ≥20% en inversiones sostenibles.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2024</div>
-      <div class="tl-tag tag-strat">Comportamiento vs mercado</div>
-      <div class="tl-title">Fuerte outperformance (+17,24% vs +8,59%)</div>
-      <div class="tl-desc">El fondo casi duplica el retorno del MSCI Europe Net, con un exceso geométrico cercano a +8 puntos.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-hito"></div>
-      <div class="tl-date">2025</div>
-      <div class="tl-tag tag-hito">Hecho_relevante</div>
-      <div class="tl-title">Año récord (+27,69% vs +19,39%)</div>
-      <div class="tl-desc">Nuevo ejercicio de amplia batida al índice en un contexto de estímulo fiscal alemán y boom de inversión en IA.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot dot-strat"></div>
-      <div class="tl-date">2026</div>
-      <div class="tl-tag tag-strat">Decisión estratégica</div>
-      <div class="tl-title">Patrimonio ~£5,4bn y rotación de cartera</div>
-      <div class="tl-desc">AUM total del fondo en torno a £5,4 mil millones (abr-2026). En el trimestre, entrada de Sandvik y salida de Prosus.</div>
-    </div>
-  </div>
   
 </section>
 
 <section class="pane" id="p2">
   <div class="pane-header"><h1 class="pane-h1">Equipo gestor</h1><span class="pane-dl">Composición actual</span></div>
 
-  <div class="mb24"><p class="pr">El JPMorgan Funds - Europe Equity Plus Fund está gestionado por el <strong>equipo de Renta Variable Europea de JPMorgan Asset Management</strong>, y no por un gestor-autor individual. Es importante señalar de entrada una limitación de las fuentes: el perfil de gestores extraído por el pipeline determinista llegó <strong>vacío</strong> ('gestores no encontrados' en manager_profile.json). La identidad y la antigüedad del equipo que se expone a continuación se ha <strong>recuperado de las fuentes externas del bundle</strong> —las fichas de Financial Times de las clases A y D del fondo y dos referencias de FundsPeople— todas ellas referidas explícitamente a ESTE fondo (Europe Equity Plus), por lo que no hay riesgo de contaminación cruzada con otros productos. Lo que SÍ falta en el bundle es el <strong>currículum personal previo</strong> de cada gestor (formación académica, empleadores anteriores, certificaciones): cuando un dato así no consta, se indica expresamente en lugar de rellenarlo, conforme a la política anti-invención.</p><p class="pr">El equipo lo forman tres gestores con responsabilidades y antigüedades distintas:</p></div>
-
   
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1a3a5c,#2c4a6e);">MB</div>
-        <div class="mgr-nm">Michael Barakos<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#2d8cf0;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">Snippet Google/Morningstar</span></div>
-        <div class="mgr-rl">CIO de Renta Variable Europea (JPM AM) y gestor principal del fondo</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Cargo: CIO de Renta Variable Europea de JPMorgan Asset Management (FundsPeople, 2019)</li><li style="margin-bottom:3px;">Gestor del Europe Equity Plus Fund desde el 25 de junio de 2007 (lanzamiento) — casi 20 años de continuidad</li><li style="margin-bottom:3px;">Track record sobre el fondo: alfa +4,46/+6,68/+3,77 a 1/3/5 años; information ratio 1,93/1,82/0,95 (FT risk)</li><li style="margin-bottom:3px;">Cara visible del producto en foros y eventos de JPM AM (FundsPeople/EFPA, 2019)</li><li style="margin-bottom:3px;">Formación académica, certificaciones (CFA u otras) y empleadores previos: NO constan en las fuentes del bundle (no inventado)</li></ul>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:13px;"><strong>Rol e incorporación al fondo.</strong> Michael Barakos figura como <strong>CIO de Renta Variable Europea de JPMorgan Asset Management</strong> (FundsPeople, evento de abril de 2019) y es el gestor de referencia del Europe Equity Plus Fund <strong>desde su lanzamiento, el 25 de junio de 2007</strong> (Financial Times, fichas de las clases A y D). Esto supone una continuidad de casi dos décadas al frente de la misma estrategia, un rasgo de estabilidad relevante para un producto de proceso.
 
-<strong>Track record sobre el fondo.</strong> Bajo su liderazgo, el fondo presenta un historial relativo sólido frente al MSCI Europe (Total Return Net): según el commentary de 2026, batía al índice en 1 año (24,75% vs 18,44%), 3 años (18,68% vs 12,02%) y 10 años (9,86% vs 8,71% anualizado). Las métricas de riesgo (FT) muestran alfa positivo en 1/3/5 años (+4,46/+6,68/+3,77), beta inferior a 1 (0,88/0,87/0,93), Sharpe sólido (1,73/1,60/0,96) e information ratio elevado (1,93/1,82/0,95) — es decir, generación de alfa con eficiencia de riesgo. Barakos ha sido además la cara visible del producto en la difusión comercial (desayunos y eventos con FundsPeople/EFPA, 2019), presentando las perspectivas de RV europea de la casa.
-
-<strong>Currículum previo (formación, empleadores anteriores, certificaciones).</strong> No consta en las fuentes del bundle. No se dispone de datos verificados sobre su formación académica ni sobre su carrera anterior a JPM AM, por lo que no se reconstruyen aquí para evitar invención. Sería el principal campo a completar con una fuente biográfica oficial.</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Defiende un enfoque que fusiona disciplina cuantitativa y juicio fundamental dentro de un marco 130/30 de extensión activa: identificar sistemáticamente compañías de alta calidad con valoraciones atractivas y momentum positivo para sobreponderar, y vender en corto las de características opuestas, mejorando el retorno potencial sin elevar la exposición neta al mercado. Concibe la venta en corto como una palanca para elevar el coeficiente de transferencia y, con él, el information ratio del proceso.</p>
-        
-        
-        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-0');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-0" class="exp-body"><div class="sr" style="margin-top:8px;">Decisiones clave (detalle)</div><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Compra de Sandvik (1T-2026): grupo sueco de maquinaria de construcción y minería, por valoración atractiva y mejor perspectiva de inversión en minería e infraestructura, aumentando exposición a bienes de capital (commentary 2026).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Venta de Prosus (1T-2026): salida de la compañía holandesa de medios/internet por riesgo de disrupción del modelo de negocio por IA e intensa competencia en sus participaciones de food delivery (commentary 2026).</p><p class="pr" style="font-size:12px;margin-bottom:6px;padding-left:12px;border-left:2px solid var(--navy-pale);">Sesgo de posicionamiento (2026): mayores sobreponderaciones en energía, software/servicios y telecomunicaciones; mayores infraponderaciones en bienes de capital, alimentación/bebidas/tabaco y productos de hogar/cuidado personal.</p><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Continuidad excepcional (gestor desde el lanzamiento del fondo en 2007) y rol de CIO de RV Europea, que le da visión de casa y acceso a los recursos de research de JPM. Perfil de gestor-proceso e institucional, no de autor individual: su valor está en la consistencia del marco cuanti-fundamental 130/30.</p></div>
-      </div>
-    </div>
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#1e5a8a,#2d8cf0);">NH</div>
-        <div class="mgr-nm">Nicholas Horne<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#2d8cf0;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">Snippet Google/Morningstar</span></div>
-        <div class="mgr-rl">Co-gestor del fondo</div>
-        <ul class="mgr-cv"><li style="margin-bottom:3px;">Co-gestor del Europe Equity Plus Fund desde el 1 de mayo de 2010 (FT)</li><li style="margin-bottom:3px;">Más de 15 años en la estrategia, dentro del equipo de RV Europea de JPM AM</li><li style="margin-bottom:3px;">Formación, certificaciones y carrera previa: NO constan en el bundle (no inventado)</li></ul>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:13px;"><strong>Incorporación al fondo.</strong> Nicholas Horne figura como co-gestor del Europe Equity Plus Fund <strong>desde el 1 de mayo de 2010</strong> (Financial Times, fichas de las clases A y D), lo que supone más de quince años de implicación continuada en la estrategia. Forma parte del equipo de Renta Variable Europea de JPM AM que aplica el proceso cuanti-fundamental 130/30 del fondo (FundsPeople, 2019).
-
-<strong>Currículum previo.</strong> El bundle no contiene datos sobre su formación académica, certificaciones ni empleadores anteriores a esta función. No se reconstruyen para evitar invención.</p>
-        <p class="pr" style="font-size:13px;font-style:italic;border-left:2px solid var(--navy-pale);padding-left:10px;">Comparte el marco de inversión del equipo: combinación de señales cuantitativas y análisis fundamental bottom-up sobre el universo de renta variable europea, con extensión activa 130/30 e integración ESG (Art. 8 SFDR).</p>
-        
-        
-        <button class="exp-btn" onclick="const b=document.getElementById('mgr-extra-1');const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Detalle adicional';" style="margin-top:8px;">▶ Detalle adicional</button>
-        <div id="mgr-extra-1" class="exp-body"><p class="pr" style="font-size:12.5px;margin-top:8px;"><strong>Rasgos diferenciales:</strong> Antigüedad elevada en el fondo (desde 2010), que aporta continuidad al proceso junto a Barakos.</p></div>
-      </div>
-    </div>
-    <div class="mgr">
-      <div class="mgr-s">
-        <div class="mgr-av" style="background:linear-gradient(135deg,#2c6e49,#4ecf99);">BS</div>
-        <div class="mgr-nm">Ben Stapley<span style="display:inline-block;padding:2px 8px;border-radius:8px;background:#2d8cf0;color:#fff;font-size:10.5px;font-weight:500;margin-left:8px;vertical-align:middle;letter-spacing:0.3px;">Snippet Google/Morningstar</span></div>
-        <div class="mgr-rl">Co-gestor del fondo</div>
-      </div>
-      <div class="mgr-b">
-        <p class="pr" style="font-size:12.5px;">**Incorporación al fondo.** Ben Stapley figura como co-gestor del Europe Equity Plus Fund **desde el 31 de enero de 2017** (Financial Times, fichas de las clases A y D), siendo el miembro más reciente del equipo de tres gestores. Participa en el proceso cuanti-fundamental 130/30 del equipo de Renta Variable Europea de JPM AM.
-
-**Currículum previo.** No constan en el bundle datos sobre su formación, certificaciones ni empleadores anteriores; no se reconstruyen para evitar invención.</p>
-      </div>
-    </div>
+  <p class="pr" style="color:var(--ink-4);font-style:italic;">Información de gestores pendiente. Ejecutar manager_deep_agent para obtener perfiles.</p>
 
   
 </section>
@@ -465,47 +326,16 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
 
   <div class="mb24">
-    <div class="subtabs" id="est-tabs"><div class="subtab-nav"><button class="subtab-btn active" onclick="subtab(this,'est-tabs',0)">Resumen general</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',1)">Objetivo del fondo</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',2)">Benchmark</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',3)">Universo de inversión y ra…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',4)">Estilo de inversión</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',5)">Fondo gestionado, no de au…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',6)">Cuantitativo + cualitativo</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',7)">El componente ESG como res…</button><button class="subtab-btn" onclick="subtab(this,'est-tabs',8)">Qué aporta frente a un lon…</button></div><div class="subtab-panel active"><p class="pr">La estrategia del JPMorgan Funds – Europe Equity Plus Fund se resume en una frase: batir al MSCI Europe (Total Return Net) mediante selección activa de valores europeos, usando una extensión 130/30 que añade una fuente de alfa sin elevar el riesgo direccional del mercado. El <strong>objetivo</strong> declarado es el crecimiento del capital a largo plazo (horizonte recomendado de 5 años) a través de la exposición a compañías europeas, mediante inversión directa en valores y el uso de derivados. El <strong>índice de referencia</strong> es el MSCI Europe Index (Total Return Net), utilizado no solo para comparar resultados sino también para calcular el VaR relativo y la comisión de éxito; el fondo está gestionado activamente y el equipo tiene amplia discrecionalidad para desviarse del índice en valores, pesos y características de riesgo.</p><p class="pr">El <strong>universo de inversión</strong> es la renta variable europea de gran capitalización: como mínimo el 67% del patrimonio se invierte en renta variable de compañías europeas. El rasgo definitorio son los <strong>rangos de exposición</strong>: el fondo mantiene posiciones largas de aproximadamente el 130% del patrimonio neto y posiciones cortas de aproximadamente el 30% (obtenidas mediante derivados), de modo que la exposición neta al mercado se mantiene en torno al 100% —como un long-only— pero con una exposición bruta mayor. El uso previsto de TRS/CFD ronda el 70% (máximo 180%). La clasificación es <strong>Artículo 8 SFDR</strong>, con integración ESG en ≥90% de los títulos comprados, ≥51% de los largos con características ESG positivas y ≥20% en inversiones sostenibles.</p><p class="pr">En cuanto a <strong>estilo</strong>, no es un fondo puramente value ni puramente growth: es un blend de calidad-valor-momentum (categoría Morningstar Europe Large-Cap Blend), que busca compañías de alta calidad, con valoraciones atractivas y momentum positivo, y se pone corto en las de perfil opuesto. Es, de forma inequívoca, un <strong>fondo gestionado por una casa y un equipo, no un fondo de autor</strong>: lo dirige el equipo de Renta Variable Europea de JPMorgan AM (Barakos como CIO y gestor líder desde 2007, con Horne y Stapley), dentro de un marco institucional, benchmark-aware y de proceso repetible, sin la dimensión personalista ni el skin-in-the-game de un fondo boutique.</p><p class="pr">Lo más diferencial es la <strong>combinación de lo cuantitativo y lo cualitativo</strong>, y la "fórmula" que de ella se deriva. El proceso es bottom-up y une dos motores: un sistema cuantitativo multifactor que puntúa todo el universo europeo (calidad, valor, momentum) y el juicio fundamental de los analistas sobre los negocios. La decisión de peso —largo o corto— surge del cruce de ambas señales y se ejecuta bajo control estricto de riesgo relativo. La justificación intelectual de por qué añadir la pata corta mejora el resultado está en la teoría del coeficiente de transferencia y el information ratio (marco Grinold–Clarke/de Silva/Thorley) que la propia JPMorgan formalizó en investigación previa al lanzamiento del fondo: relajar la prohibición de vender en corto eleva la eficiencia con que las convicciones se traducen en cartera. El resultado empírico —alfa positivo, beta <1, information ratio ~1,8— sugiere que la fórmula funciona; el coste de la clase D es el principal lastre para que ese alfa llegue íntegro al partícipe.</p></div><div class="subtab-panel"><p class="pr">El objetivo es proporcionar <strong>crecimiento del capital a largo plazo</strong> mediante la exposición a sociedades europeas, a través de inversión directa en sus valores y del uso de derivados. El periodo de mantenimiento recomendado es de <strong>5 años</strong>. Es una clase de acumulación (no reparte dividendos). Está dirigido a inversores que buscan participar en el mercado de renta variable europea con una gestión activa orientada a superar al índice.</p></div><div class="subtab-panel"><p class="pr">El índice de referencia es el <strong>MSCI Europe Index (Total Return Net)</strong>. No es un fondo indexado: el índice cumple tres funciones —comparación de resultados, cálculo del VaR relativo y base de la comisión de éxito— pero el equipo gestiona de forma activa y tiene amplia discrecionalidad para desviarse de los componentes, ponderaciones y características de riesgo del índice. Dicho esto, las métricas (beta ~0,9, R² alto frente al MSCI Europe) indican que el tracking error es moderado: es un fondo activo pero consciente del índice, no de altísima convicción/baja correlación.</p></div><div class="subtab-panel"><p class="pr">El universo es la renta variable europea, fundamentalmente de gran capitalización. Reglas del folleto: como mínimo el <strong>67% del patrimonio</strong> en renta variable de compañías europeas. El rasgo definitorio son los rangos de la extensión activa: <strong>posiciones largas ~130%</strong> del patrimonio neto y <strong>posiciones cortas ~30%</strong> (vía derivados), con exposición neta ~100%, aunque estos objetivos pueden variar según las condiciones de mercado. El uso previsto de total return swaps / CFD ronda el 70% del patrimonio, con un máximo del 180%. La mayoría de las posiciones largas (excluyendo derivados) suelen ser componentes del benchmark.</p></div><div class="subtab-panel"><p class="pr">El estilo es un <strong>blend de calidad, valor y momentum</strong> (Morningstar lo clasifica como Europe Large-Cap Blend Equity). El equipo busca, en el lado largo, títulos de alta calidad con valoraciones atractivas y momentum positivo; y, en el lado corto, compañías con el perfil opuesto. No es un fondo dogmáticamente value ni growth: la combinación de factores y el juicio fundamental determinan dónde se posiciona en cada momento.</p></div><div class="subtab-panel"><p class="pr">Es importante encuadrarlo: se trata de un <strong>producto institucional gestionado por un equipo de una gran casa</strong>, no de un fondo de autor. Lo dirige el equipo de Renta Variable Europea de J.P. Morgan Asset Management —Michael Barakos como CIO y gestor líder desde el lanzamiento en 2007, con Nicholas Horne (co, 2010) y Ben Stapley (co, 2017)—, dentro de un marco de proceso repetible, control de riesgo relativo y recursos de research de la firma. La consecuencia práctica: la alineación con el partícipe descansa en la continuidad del equipo y la reputación de la casa, no en skin-in-the-game personal; y el riesgo de persona clave se concentra en el liderazgo de Barakos.</p></div><div class="subtab-panel"><p class="pr">El corazón diferencial es la fusión de dos motores de decisión. Por un lado, un <strong>sistema cuantitativo multifactor</strong> que puntúa de forma sistemática todo el universo europeo elegible según factores de calidad, valor y momentum. Por otro, el <strong>análisis fundamental</strong> de los analistas, que aporta el juicio sobre la calidad real del negocio, los catalizadores y los riesgos que un modelo no captura. FundsPeople (2019) describe el resultado como "un proceso estructurado que combina el conocimiento de los fundamentales y el análisis cuantitativo", "disciplinado y bottom-up". La decisión de comprar (peso largo) o vender en corto se toma cruzando ambas señales y dentro de límites de riesgo relativo al MSCI Europe.</p><p class="pr">La razón de fondo de por qué la pata corta mejora el resultado tiene base teórica explícita: el documento de investigación de JPMorgan "Extending the Fundamental Law of Investment Management" (marco de Grinold extendido por Clarke, de Silva y Thorley) demuestra que relajar la restricción de no vender en corto eleva el <strong>coeficiente de transferencia</strong> —la eficiencia con que las convicciones del gestor se convierten en apuestas reales de cartera— y, por extensión, el <strong>information ratio</strong> para un mismo nivel de riesgo activo. De hecho, ese estudio señalaba que la mayor parte de la mejora se logra ya con el primer tramo de ventas en corto (un perfil 130/30 captura buena parte del beneficio de una extensión mayor). Este fondo es, literalmente, la implementación comercial de esa idea: la 'fórmula' es maximizar la amplitud de apuestas no correlacionadas y la eficiencia de su traslación a cartera, manteniendo neutral la exposición direccional al mercado.</p></div><div class="subtab-panel"><p class="pr">La integración ESG no es accesoria en este fondo: forma parte de las reglas del proceso. Como producto Artículo 8 SFDR, el fondo aplica análisis ESG de forma sistemática en al menos el <strong>90% de los títulos comprados</strong>, exige que un mínimo del <strong>51% de las posiciones largas</strong> correspondan a compañías con características ESG positivas y que al menos un <strong>20% del patrimonio</strong> se invierta en inversiones sostenibles. En la práctica, esto acota el universo elegible para el lado largo y obliga a que la selección cuantitativa-fundamental conviva con un filtro de sostenibilidad; para el inversor con preferencias ESG es una garantía relevante, y para el resto es un condicionante que el equipo asume sin que haya mermado, a juzgar por los resultados, su capacidad de batir al índice.</p></div><div class="subtab-panel"><p class="pr">La pregunta práctica para el inversor es qué añade esta estrategia frente a un fondo indexado o long-only de RV europea más barato. La respuesta del diseño es: una fuente de alfa adicional (la pata corta) sin más riesgo direccional, sostenida por un proceso disciplinado y por las métricas históricas (alfa positivo, IR ~1,8). La respuesta crítica es: ese 'plus' solo compensa si el alfa neto de comisiones supera de forma persistente al de una alternativa pasiva, algo que en la clase D, dado su coste, exige una convicción elevada en la continuidad del equipo y del proceso.</p></div></div><script>function subtab(btn,g,i){var r=document.getElementById(g);r.querySelectorAll('.subtab-btn').forEach(function(b,j){b.classList.toggle('active',j===i);});r.querySelectorAll('.subtab-panel').forEach(function(p,j){p.classList.toggle('active',j===i);});}</script>
+    <p class="pr" style="color:var(--ink-4);font-style:italic;">Sección pendiente de análisis. Ejecutar analyst_agent.</p>
   </div>
 
-  <div style="margin:30px 0 10px;padding:20px 0 8px;border-top:1px solid var(--rule);"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-4);text-align:center;margin-bottom:10px;">En palabras del gestor</div><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;Uses an active extension approach, buying securities considered attractive and selling short securities considered less attractive to improve potential return without increasing the overall net exposure to the market.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— JPMorgan AM (KIID del fondo), KIID JPMorgan Funds – Europe Equity Plus Fund</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;The Sub-Fund will typically hold long positions of approximatively 130%, and short positions of approximatively 30% (achieved through derivatives) of net assets but may vary from these targets depending on market conditions.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— JPMorgan AM (KIID del fondo), KIID JPMorgan Funds – Europe Equity Plus Fund</span></p><p class="pr" style="text-align:center;padding:10px 40px;margin:18px 0;font-style:italic;font-weight:500;font-size:14px;line-height:1.6;color:var(--ink);">&ldquo;The Sub-Fund systematically includes ESG analysis in its investment decisions on at least 90% of securities purchased.&rdquo; <span style="display:block;font-weight:400;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:6px;">— JPMorgan AM (KIID del fondo), KIID — clasificación Artículo 8 SFDR</span></p></div>
+  
 
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Estrategia actual</div>
-  <p class="pr" style="font-size:12.5px;margin-bottom:24px;">RV europea large-cap gestionada activamente con extensión 130/30 (largos ~130% / cortos ~30%, neto ~100%), proceso bottom-up que funde señales cuantitativas multifactor (calidad/valor/momentum) y análisis fundamental, benchmark MSCI Europe Net, clasificación Artículo 8 SFDR.</p>
 
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil de riesgo de la estrategia</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Tipo de activo principal.</strong> Renta Variable Europea de gran capitalización (estrategia 130/30 long/short, exposición neta ~100%)</p><p class="pr" style="font-size:12.5px;margin-bottom:4px;"><strong>Riesgos específicos.</strong></p><ul class="pr" style="font-size:12.5px;margin:0 0 10px 20px;padding-left:0;list-style:disc;"><li style="margin-bottom:4px;">Riesgo de la pata corta y de derivados: contraparte, financiación/colateral y posible pérdida ilimitada teórica en cortos mal calibrados</li><li style="margin-bottom:4px;">Riesgo de coste: la clase D (perf) ~2,71%-2,73% + comisión de éxito penaliza fuertemente el resultado neto</li><li style="margin-bottom:4px;">Riesgo de mercado de renta variable europea (SRRI 4 sobre 7) y de concentración sectorial (financieras ~20%, industriales ~18%)</li><li style="margin-bottom:4px;">Riesgo de persona clave en el CIO/gestor líder</li></ul></div>
 
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
-  <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;border-bottom:2px solid var(--ink);margin-bottom:0;">
-    <div style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);background:var(--navy-pale);">Periodo</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Contexto mercado</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Decisiones</div>
-    <div style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-2);">Resultado</div>
-  </div>
-  <div class="strat-row">
-  <div class="strat-yr">2018-2023 (escenario KIID)</div>
-  <div class="strat-c">Periodo que abarca la corrección de 2018, la recuperación, el shock del Covid (2020) y la normalización de tipos e inflación de 2022-2023.</div>
-  <div class="strat-c">Ejecución continuada de la estrategia 130/30 a lo largo de un ciclo completo, sin viraje de estilo.</div>
-  <div class="strat-c">+4,2% anualizado — rentabilidad neta del escenario moderado del KIID para una inversión de 10.000€ que crece a 12.280€ en 5 años.</div>
-</div><div class="strat-row">
-  <div class="strat-yr">2024 (año natural)</div>
-  <div class="strat-c">Mercados de RV mundiales con fuerte protagonismo de la IA y concentración en las grandes tecnológicas estadounidenses; en Europa, valoraciones con descuento récord frente a EE.UU. y mejora de las perspectivas de beneficios, en un entorno de inflación a la baja pero más lenta de lo esperado y tipos 'duraderamente altos'.</div>
-  <div class="strat-c">El equipo ejecutó su proceso de selección de calidad/valor con posicionamiento sectorial favorable, aprovechando la dispersión del mercado europeo y la pata larga/corta para capturar diferencias entre ganadores y rezagados.</div>
-  <div class="strat-c">+17,24% — frente al +8,59% del MSCI Europe Net; exceso geométrico cercano a +8 pp, uno de los mejores años relativos del fondo.</div>
-</div><div class="strat-row">
-  <div class="strat-yr">2025 (año natural)</div>
-  <div class="strat-c">Volatilidad por aranceles ('Liberation Day') y tensiones comerciales, pero con Europa entrando en acción gracias al estímulo fiscal sustancial anunciado por Alemania y al boom de inversión en IA; revisiones de beneficios al alza en la mayoría de sectores.</div>
-  <div class="strat-c">Mantenimiento del marco 130/30 con sesgo a compañías de calidad con catalizador; aprovechamiento del impulso fiscal europeo y la mejora de beneficios corporativos.</div>
-  <div class="strat-c">+27,69% — frente al +19,39% del índice; año récord en términos absolutos con amplio exceso de retorno.</div>
-</div><div class="strat-row">
-  <div class="strat-yr">2026 YTD / abril</div>
-  <div class="strat-c">Fuerte rally 'risk-on' en la RV europea pese a las tensiones EE.UU.-Irán y el Estrecho de Ormuz, apoyado por un BCE que mantuvo tipos y señaló flexibilidad; primeros signos de debilitamiento del dinamismo de servicios por la incertidumbre geopolítica.</div>
-  <div class="strat-c">Rotación: compra de Sandvik (maquinaria sueca de minería/construcción, valoración atractiva con mejor outlook de capex) y venta de Prosus (internet/medios holandés, riesgo de disrupción IA en sus participadas de reparto y competencia). Mayores overweights en energía, software & servicios y telecos; underweights en bienes de capital, alimentación/bebidas/tabaco y productos del hogar.</div>
-  <div class="strat-c">+4,84% YTD — vs +4,20% del índice (exceso +0,6 pp); en el mes de abril quedó por detrás (+3,99% vs +5,19%) por el carácter muy vertical del rally.</div>
-</div>
+  
 
   
 </section>
@@ -514,27 +344,25 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Cartera actual</h1><span class="pane-dl">Posiciones a cierre</span></div>
 
   <div class="mb24">
-    
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Decisiones / cambios recientes</div>
-  <div class="mb20"><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Los movimientos recientes documentados (comentario del fondo, abr-2026) ilustran el patrón de rotación. En el lado de las compras, el equipo entró en <strong>Sandvik</strong> (grupo sueco de maquinaria de construcción y minería) atraído por su valoración y por la mejora del ciclo de inversión en minería e infraestructura. En el lado de las ventas, salió de <strong>Prosus</strong> (medios e internet holandés) por la preocupación de que la disrupción de la IA y la intensa competencia erosionen los beneficios de sus participadas de reparto de comida. A nivel sectorial, esto se tradujo en un mayor peso en bienes de capital (donde entró Sandvik) y una reducción en distribución y retail de consumo discrecional (donde salió Prosus). Al cierre del periodo, los mayores sobrepesos del fondo estaban en <strong>energía, software & servicios y servicios de telecomunicaciones</strong>, y los mayores infrapesos en bienes de capital, alimentación/bebidas/tabaco y productos del hogar y personales. Es una cartera que rota hacia donde el binomio valoración-momentum mejora y se aleja de los negocios cuyo perfil de beneficios futuro se deteriora.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Posiciones y temas de convicción</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">La cartera se ancla en grandes valores europeos de calidad, los pilares del MSCI Europe: nombres como <strong>ASML</strong> (semiconductores, una de las mayores líneas según FT), <strong>Novo Nordisk</strong> y <strong>AstraZeneca</strong> y <strong>Novartis</strong> y <strong>Roche</strong> (el bloque de salud europea), <strong>Nestlé</strong> (consumo defensivo), <strong>SAP</strong> y <strong>Siemens</strong> (Alemania industrial/tecnológica), junto a financieras y energéticas como <strong>HSBC</strong> y <strong>Shell</strong>. Es un núcleo de blue chips europeos coherente con el sesgo de calidad del proceso; el equipo expresa su convicción modulando el sobrepeso o infrapeso relativo de estos nombres frente al índice y, en la pata corta, tomando posiciones contrarias en compañías de perfil más débil. No es una cartera de tesis concentradas a años vista al estilo boutique, sino de convicción relativa graduada dentro de un universo amplio.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>Composición actual y racional</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Por tipo de activo, la cartera es esencialmente renta variable europea (~86%: ~75% no-Reino Unido y ~11% Reino Unido según FT) con liquidez elevada (~13%) y exposición residual a renta fija. Por geografía, predomina la Eurozona (~45,8%) seguida de Europa ex-Euro (~26%, con fuerte peso de Suiza ~15% y nórdicos) y Reino Unido (~10,9%); España es marginal (~2,7%). Por sectores, lideran Servicios Financieros (~20,4%) e Industriales (~18,1%), seguidos de Tecnología (~9,5%) y Salud (~8,6%). El racional global es capturar el rendimiento del mercado europeo de gran capitalización añadiendo alfa por selección y por la pata corta, manteniendo un riesgo de mercado controlado (beta <1).</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;"><strong>La pata corta y la liquidez: rasgos propios del 130/30</strong></p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">Dos rasgos de la cartera solo se entienden a la luz de la estructura 130/30. El primero es la <strong>pata corta</strong> (~30% del patrimonio, vía derivados): no aparece como tal en las listas de top holdings, pero es donde el equipo expresa sus convicciones negativas sobre compañías de perfil débil; ese 30% adicional de exposición bruta corta, sumado al ~130% largo, eleva la exposición bruta total hacia el 160%, aunque la neta se mantenga ~100%. El segundo es la <strong>liquidez elevada</strong> (~13%, con el JPMorgan Liquidity Funds EUR como mayor línea individual): lejos de ser cash ocioso, buena parte funciona como colateral y gestión de la financiación de las posiciones cortas y de los derivados. Por eso un inversor que mire solo la lista de posiciones largas puede tener una imagen incompleta: la verdadera apuesta del fondo es la combinación de largos sobreponderados, cortos infraponderados y el control de riesgo relativo que los une.</p><p class="pr" style="font-size:12.5px;margin-bottom:8px;">El principal riesgo estructural de la cartera, por tanto, no es direccional sino de <strong>coste y complejidad</strong>: el peaje de la clase D y la maquinaria de derivados/cortos que sostiene la estructura 130/30 (riesgo de contraparte, de financiación y de ejecución). A cambio, esa misma maquinaria es la que ha permitido al equipo extraer un exceso de retorno consistente frente al índice con beta inferior a 1.</p></div>
+    <p class="pr">La cartera actual comprende <strong>0 posiciones</strong>.</p>
   </div>
 
   
 
   <div class="kpi-row">
-    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">10</div><div class="kpi-sub">vs media hist. 0</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">8,0%</div><div class="kpi-sub">—</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">0</div><div class="kpi-sub">vs media hist. 0</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Top 10 concentración</div><div class="kpi-value">0,0%</div><div class="kpi-sub">—</div></div>
     <div class="kpi-cell"><div class="kpi-label">Liquidez</div><div class="kpi-value">0,0%</div><div class="kpi-sub">vs media hist. 0,0%</div></div>
-    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">8,0%</div><div class="kpi-sub">Renta variable</div></div>
+    <div class="kpi-cell"><div class="kpi-label">Desglose por tipo</div><div class="kpi-value">—</div><div class="kpi-sub">—</div></div>
   </div>
 
-  <div class="col2 mb20"><div class="ch-b"><div class="ch-l">Composición por tipo de activo</div><div class="ch-h"><canvas id="c-mix"></canvas></div></div><div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (snapshot actual)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div></div>
+  
   <script>
   (function(){
     if (typeof Chart === 'undefined') return;
     const ctxMix = document.getElementById('c-mix');
     if (ctxMix) {
-      const tipos = [["RV", 8.0]];
+      const tipos = [];
       new Chart(ctxMix, {
         type: 'doughnut',
         data: { labels: tipos.map(x => x[0]), datasets: [{ data: tipos.map(x => x[1]), backgroundColor: ['#0c2340','#b48020','#1b8a3d','#6b3fa0','#3d5a80','#888'] }] },
@@ -545,7 +373,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     if (ctxC) {
       new Chart(ctxC, {
         type: 'bar',
-        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [8.0, 8.0, 8.0], backgroundColor:'rgba(12,35,64,0.85)' }] },
+        data: { labels:['Top 5','Top 10','Top 15'], datasets: [{ label:'% NAV', data: [0, 0, 0], backgroundColor:'rgba(12,35,64,0.85)' }] },
         options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{display:false}, beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%'} } } }
       });
     }
@@ -554,101 +382,11 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
   
 
-  <div class="sr">Todas las posiciones (10)</div>
+  <div class="sr">Todas las posiciones (0)</div>
   <div class="pt-wrap">
     <table class="pt">
       <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th><th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
-      <tbody><tr>
-  <td title="Novo Nordisk A/S 'B'">Novo Nordisk A/S 'B'</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Dinamarca</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:38px;background:#0c2340;"></div>4,8%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>5%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="SBM Offshore NV">SBM Offshore NV</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>6%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Siemens AG">Siemens AG</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#eaf0f4;padding:1px 7px;border-radius:3px;white-space:nowrap;">Industria</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:2px;background:var(--ink-3);"></div>7%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="TUI AG">TUI AG</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f2f1ef;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo discrecional</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Solvay SA">Solvay SA</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#edf6f8;padding:1px 7px;border-radius:3px;white-space:nowrap;">Materiales</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Bélgica</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="SAP SE">SAP SE</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Alemania</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="ASML Holding NV">ASML Holding NV</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Países Bajos</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Astra Zeneca plc">Astra Zeneca plc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdeef0;padding:1px 7px;border-radius:3px;white-space:nowrap;">Salud</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="Shell plc">Shell plc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fbeede;padding:1px 7px;border-radius:3px;white-space:nowrap;">Energía</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr><tr>
-  <td title="HSBC Holdings plc">HSBC Holdings plc</td>
-  <td style="text-align:center;"><span class="tp-badge tp-rv">Renta variable</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
-  <td style="font-family:'Source Sans 3';font-size:11px;">Reino Unido</td>
-  <td>—</td>
-  <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
-  <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>8%</div></td>
-  <td><span style="color:var(--ink-5);">—</span></td>
-</tr></tbody>
+      <tbody></tbody>
     </table>
   </div>
 </section>
@@ -657,89 +395,25 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="pane-header"><h1 class="pane-h1">Fuentes externas</h1><span class="pane-dl">Análisis y recursos de terceros</span></div>
   
   
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Otros recursos externos</div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#cc0000;">MS</div>
-        <div class="src-info">
-          <div class="src-o">Financial Times (Morningstar)</div>
-        </div>
-        <span class="src-date">2026</span>
-      </div>
-      <div class="src-t">JPMorgan Europe Equity Plus Fund D (perf) (acc) EUR — Ficha de Fondo</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Ficha neutral de la clase objetivo: fondo establecido desde 2007, patrimonio total ~£5,4bn (clase D ~£353M), +17,16% a 1 año, categoría Morningstar Europe Large-Cap Blend. Expone la estructura de coste elevada de la clase D (gestión 2,71%, entrada 5%, salida 0,5%).</div>
-      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0289214628:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#cc0000;">MS</div>
-        <div class="src-info">
-          <div class="src-o">Financial Times (Morningstar)</div>
-        </div>
-        <span class="src-date">2026</span>
-      </div>
-      <div class="src-t">JPMorgan Europe Equity Plus Fund A (perf) (dist) GBP — Métricas de riesgo</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">La ficha de riesgo es el dato más revelador: alfa positivo a 1/3/5 años (+4,46/+6,68/+3,77), beta <1 (~0,9), Sharpe sólido (1,73/1,60/0,96) e information ratio elevado (1,93/1,82/0,95). Evidencia de exceso de retorno por selección, no por más riesgo de mercado. Benchmark MSCI Europe NR EUR.</div>
-      <a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU0289230079:GBP" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#cc0000;">MS</div>
-        <div class="src-info">
-          <div class="src-o">Financial Times (Morningstar)</div>
-        </div>
-        <span class="src-date">2026</span>
-      </div>
-      <div class="src-t">JPMorgan Europe Equity Plus Fund A (perf) (acc) EUR — Ficha de Fondo</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Clase A: +17,34% a 1 año, comisión anual 1,71% (más barata que la D). Top holdings: JPMorgan Liquidity Funds EUR (9,29%), ASML (4,48%), Novartis (2,19%), Nestlé (1,78%), Roche (1,42%). Sectores líderes: financieras (20,35%) e industriales (18,08%). Útil para comparar el impacto del coste entre clases.</div>
-      <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0289089384:eur" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#6b3fa0;">AS</div>
-        <div class="src-info">
-          <div class="src-o">FundsPeople</div>
-        </div>
-        <span class="src-date">2019</span>
-      </div>
-      <div class="src-t">JPMorgan Funds Europe Equity Plus Fund — Fusión de análisis cuantitativo y fundamental</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Valoración positiva del proceso: estrategia disciplinada y bien estructurada que combina metodología cuantitativa y fundamental, bottom-up, con cartera de títulos de alta calidad, valoraciones atractivas y momentum positivo, y flexibilidad 130/30 para posiciones cortas en compañías con características opuestas.</div>
-      <a href="https://fundspeople.com/it/jpmorgan-funds-europe-equity-plus-fund-fusione-di-analisi-quantitativa-e-fondamentale/" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
-    <div class="src-card">
-      <div class="src-head">
-        <div class="src-logo" style="background:#6b3fa0;">AS</div>
-        <div class="src-info">
-          <div class="src-o">FundsPeople</div>
-        </div>
-        <span class="src-date">2019</span>
-      </div>
-      <div class="src-t">J.P. Morgan AM: Desayuno con Michael Barakos</div>
-      <button class="exp-btn" onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.textContent=(o?'▼':'▶')+' Ver puntos clave';">▶ Ver puntos clave</button>
-      <div class="exp-body">Cobertura neutral de un evento con Michael Barakos (CIO de RV europea) en colaboración con EFPA España (abril 2019), donde presentó perspectivas de mercado y oportunidades del Europe Equity Plus Fund y del Europe Strategic Value Fund. Confirma su rol de portavoz y líder del producto.</div>
-      <a href="https://fundspeople.com/es/evento/j-p-morgan-am-desayuno-con-michael-barakos/" class="src-lnk" target="_blank">Ver análisis completo →</a>
-    </div>
+  
 </section>
 
 <section class="pane" id="p7">
-  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">11 fuentes consultadas</span></div>
+  <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">0 fuentes consultadas</span></div>
 
   <div class="doc-grp">Informes semestrales CNMV (0)</div>
   
 
-  <div class="doc-grp">Cartas del gestor (6)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — Extending the Fundamental Law of Investment Management .pdf</span><a href="https://web.archive.org/web/20200920060233/https://www.jpmorgan.com/cm/BlobServer/Extending_the_Fundamental_Law_of_Investment_Management_.pdf?blobkey=id&blobwhere=1158630145176&blobheader=application%2Fpdf&blobheadername1=Cache-Control&blobheadervalue1=private&blobcol=urldata&blobtable=MungoBlobs" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — Weekly Strategy Report 020116.pdf</span><a href="https://web.archive.org/web/20191021104652/https://am.jpmorgan.com/blob-gim/1383300874826/83456/Weekly-Strategy-Report_020116.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">espaceclient.suravenir.fr — LU0880062913.pdf</span><a href="https://espaceclient.suravenir.fr/o/documents/WsPUS/RAPPORT_PER_SFDR/LU0880062913.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">assets-eu-01.kc-usercontent.com — jpmf europe equity plus fund kiid.pdf</span><a href="https://assets-eu-01.kc-usercontent.com/60904777-a2a4-01d4-db89-4b2578e605c6/82b62eac-7d64-4d7c-992b-624971ce2a2a/jpmf_europe_equity_plus_fund_kiid.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">am.jpmorgan.com — jpm europe equity plus fund commentary ce en.pdf</span><a href="https://am.jpmorgan.com/content/dam/jpm-am-aem/emea/regional/en/literature/commentary/jpm-europe-equity-plus-fund-commentary-ce-en.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">am.jpmorgan.com — jpmorgan funds annual report ce en.pdf</span><a href="https://am.jpmorgan.com/content/dam/jpm-am-aem/emea/regional/en/global-regulatory/annual-report/jpmorgan-funds-annual-report-ce-en.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+  <div class="doc-grp">Cartas del gestor (0)</div>
+  
 
   <div class="doc-grp">XMLs CNMV (0)</div>
   
 
-  <div class="doc-grp">Fuentes externas (5)</div>
-  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — j p morgan am desayuno con michael barakos</span><a href="https://fundspeople.com/es/evento/j-p-morgan-am-desayuno-con-michael-barakos/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">fundspeople.com — jpmorgan funds europe equity plus fund fusione di analisi quantit</span><a href="https://fundspeople.com/it/jpmorgan-funds-europe-equity-plus-fund-fusione-di-analisi-quantitativa-e-fondamentale/" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — risk</span><a href="https://markets.ft.com/data/funds/tearsheet/risk?s=LU0289230079:GBP" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0289089384:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=lu0289214628:eur" target="_blank" class="doc-a">↗ Abrir</a></div>
+  <div class="doc-grp">Fuentes externas (0)</div>
+  
 </section>
+<section class="pane" id="p9"></section>
 
 <section class="pane" id="p8">
   <style>
@@ -1084,7 +758,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 <div id="fb-modal-bg" class="fb-modal-bg">
   <div class="fb-modal" role="dialog" aria-labelledby="fb-modal-title">
     <h2 id="fb-modal-title">📝 Mejorar análisis: JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND</h2>
-    <div class="fb-sub">ISIN: <code>LU0289214628</code> · JPMorgan Asset Management (Europe) S.a.r.l.</div>
+    <div class="fb-sub">ISIN: <code>LU0289214628</code> · JPMorgan</div>
 
     <label for="fb-text">¿Qué hay que mejorar?</label>
     <textarea id="fb-text" placeholder="Describe en texto libre todo lo que ves mal o falta. Ejemplos:&#10;- El nombre del fondo es 'X', no el ISIN.&#10;- Faltan los gestores Y y Z.&#10;- La estrategia menciona value pero el fondo es claramente growth.&#10;- Mira esta entrevista: https://example.com/...&#10;&#10;Puedes mezclar varios temas en un solo feedback."></textarea>
@@ -1118,7 +792,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 (function() {
   const ISIN = 'LU0289214628';
   const FUND_NAME = 'JPMORGAN FUNDS - EUROPE EQUITY PLUS FUND';
-  const GESTORA = 'JPMorgan Asset Management (Europe) S.a.r.l.';
+  const GESTORA = 'JPMorgan';
   // API_BASE: localStorage o relativo. Igual que catalog.html.
   let API_BASE = localStorage.getItem('fa_api_base') || '';
   function fbFetch(path, opts) { return fetch(API_BASE + path, opts); }
