@@ -61,23 +61,13 @@ def detect(isin: str) -> dict:
     out["anios_kb"] = len(kb)
 
     # Antigüedad como proxy de "años potencialmente disponibles" (sourcing podría hallarlos).
-    # Se toma el primer campo de fecha/año disponible: anio_creacion, años_antiguedad, o el
-    # año de fecha_registro/fecha_inicio.
+    # Usa fund_age.launch_year (output.json → Supabase → lineage): muchos output.json INT no traen
+    # la fecha → sin el fallback a Supabase, RL (2015) parecía de 1 año y NO se flaggeaba el gap.
     from datetime import date
-    kpis = d.get("kpis") or {}
     edad = 0
     try:
-        anio = None
-        if kpis.get("anio_creacion"):
-            anio = int(str(kpis["anio_creacion"])[:4])
-        elif kpis.get("anios_antiguedad"):
-            edad = int(kpis["anios_antiguedad"])
-        else:
-            for k in ("fecha_registro", "fecha_inicio", "fecha_creacion"):
-                v = str(kpis.get(k) or d.get(k) or "")
-                m = re.search(r"(19|20)\d{2}", v)
-                if m:
-                    anio = int(m.group(0)); break
+        from tools.fund_age import launch_year
+        anio = launch_year(isin, output_data=d)
         if anio:
             edad = date.today().year - anio
     except Exception:
