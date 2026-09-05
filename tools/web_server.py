@@ -91,6 +91,9 @@ TOKEN_EXHAUSTION_PATTERNS = (
     "monthly token limit",
     "claude_max_quota",
     "subscription limit",
+    "session limit",            # Claude Max real: "You've hit your session limit · resets 3am"
+    "hit your session",
+    "hit your usage",
 )
 
 
@@ -724,6 +727,43 @@ def make_app(cold_start: bool = True) -> Flask:
         lower = log_text.lower()
         return any(pat in lower for pat in TOKEN_EXHAUSTION_PATTERNS)
 
+    def _parse_reset_time_utc(isin: str) -> "str | None":
+        """Lee los skill logs del ISIN y extrae la HORA DE RESET del límite de sesión del
+        mensaje '...you've hit your session limit · resets 3am (Europe/Madrid)'. La hora del
+        mensaje es HORA DE MADRID (confirmado por Rafa). Devuelve el ISO UTC del reset + 5 min
+        (reanudar 5 min DESPUÉS del reset para no topar otra vez), o None si no lo encuentra.
+        Con esto la cola reanuda EXACTAMENTE cuando vuelve la cuota, sin polling ciego."""
+        try:
+            from zoneinfo import ZoneInfo
+            madrid = ZoneInfo("Europe/Madrid")
+        except Exception:
+            return None
+        import re as _re
+        from datetime import timedelta as _td
+        text = ""
+        try:
+            logs = sorted(LOGS_DIR.glob(f"skill_*_{isin}*.log"),
+                          key=lambda p: p.stat().st_mtime, reverse=True)[:6]
+            for sl in logs:
+                text += sl.read_text(encoding="utf-8", errors="replace")[-4000:]
+        except Exception:
+            pass
+        m = _re.search(r"resets\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)", text, _re.I)
+        if not m:
+            return None
+        hour = int(m.group(1))
+        minute = int(m.group(2) or 0)
+        ap = m.group(3).lower()
+        if ap == "pm" and hour != 12:
+            hour += 12
+        if ap == "am" and hour == 12:
+            hour = 0
+        now_m = datetime.now(madrid)
+        reset = now_m.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        if reset <= now_m:
+            reset += _td(days=1)   # la próxima ocurrencia de esa hora
+        return (reset + _td(minutes=5)).astimezone(timezone.utc).replace(microsecond=0).isoformat()
+
     def _test_claude_max_available() -> bool:
         """Hace un ping mínimo a 'claude' CLI para ver si tokens están disponibles.
 
@@ -782,16 +822,36 @@ def make_app(cold_start: bool = True) -> Flask:
                 QUEUE_TOKENS_BLOCKED_UNTIL = None
                 break
 
+            # Si sabemos la hora de reset (parseada del mensaje 'resets 3am (Europe/Madrid)'),
+            # DORMIR hasta ella (el +5 min ya va incluido) en vez de pollear a ciegas cada 30 min
+            # y pinguear claude (que gastaría cuota). Reanuda EXACTO cuando vuelve la cuota.
+            if QUEUE_TOKENS_BLOCKED_UNTIL:
+                try:
+                    _until = datetime.fromisoformat(QUEUE_TOKENS_BLOCKED_UNTIL.replace("Z", "+00:00"))
+                    _wait = (_until - datetime.now(timezone.utc)).total_seconds()
+                except Exception:
+                    _wait = 0
+                if _wait > 30:
+                    print(f"[QUEUE] tokens monitor: durmiendo hasta el reset de cuota "
+                          f"{QUEUE_TOKENS_BLOCKED_UNTIL} ({_wait/60:.0f} min)…")
+                    _t.sleep(min(_wait, 6 * 3600))
+                    continue
+
             print(f"[QUEUE] tokens monitor: {n_paused} items paused, probando claude max…")
             QUEUE_TOKENS_LAST_CHECK = datetime.now(timezone.utc).isoformat()
             available = _test_claude_max_available()
             print(f"[QUEUE] tokens monitor: available={available}")
             if available:
-                # Reanudar: marcar paused → queued
+                # Reanudar: marcar paused → queued. CLAVE: forzar modo --resume (cold_start=False)
+                # para CONTINUAR donde se quedó (reusa extract/manager/letters ya hechos antes del
+                # límite) en vez de rehacer todo desde cero — que además volvería a topar el límite en
+                # el mismo paso y (cold-start) movería el fund_dir a .bak perdiendo lo avanzado. El
+                # bat degrada a cold-start solo si no hay datos parciales (analyze lo verifica).
                 with QUEUE_LOCK:
                     for it in QUEUE:
                         if it.get("status") == "paused_waiting_tokens":
                             it["status"] = "queued"
+                            it["cold_start"] = False
                             it["_resumed_at"] = datetime.now(timezone.utc).isoformat()
                 QUEUE_TOKENS_BLOCKED_UNTIL = None
                 _save_queue_state()
@@ -803,8 +863,9 @@ def make_app(cold_start: bool = True) -> Flask:
                 print("[QUEUE] tokens monitor: items reanudados, worker arrancado")
                 break
 
-            # No disponibles aún. Esperar y reintentar.
-            _t.sleep(QUEUE_TOKENS_CHECK_INTERVAL_S)
+            # No disponibles aún (reset ligeramente desfasado). Reintentar en 5 min si ya
+            # teníamos hora de reset conocida; si no, en el intervalo normal (30 min).
+            _t.sleep(300 if QUEUE_TOKENS_BLOCKED_UNTIL else QUEUE_TOKENS_CHECK_INTERVAL_S)
         print("[QUEUE] tokens monitor: finalizado")
 
     def _classify_run_result(isin: str, run_id: str) -> tuple[str, int | None]:
@@ -1167,8 +1228,14 @@ def make_app(cold_start: bool = True) -> Flask:
                     next_item["pause_reason"] = "token_exhaustion_detected_in_log"
                     global QUEUE_TOKENS_BLOCKED_UNTIL
                     from datetime import timedelta
-                    QUEUE_TOKENS_BLOCKED_UNTIL = (datetime.now(timezone.utc) +
-                                                  timedelta(hours=QUEUE_TOKENS_BLOCKED_UNTIL_HRS)).isoformat()
+                    _reset = _parse_reset_time_utc(isin)
+                    if _reset:
+                        QUEUE_TOKENS_BLOCKED_UNTIL = _reset
+                        print(f"[QUEUE] {isin}: límite de sesión → reanudar a {_reset} "
+                              f"(hora de reset +5min, Madrid)")
+                    else:
+                        QUEUE_TOKENS_BLOCKED_UNTIL = (datetime.now(timezone.utc) +
+                                                      timedelta(hours=QUEUE_TOKENS_BLOCKED_UNTIL_HRS)).isoformat()
                     _save_queue_state()
                     # Arrancar monitor que decidirá cuándo reanudar
                     _start_tokens_monitor()
@@ -1192,8 +1259,14 @@ def make_app(cold_start: bool = True) -> Flask:
                                 final_status = "paused_waiting_tokens"
                                 next_item["pause_reason"] = "token_exhaustion_detected_post_mortem"
                                 from datetime import timedelta
-                                QUEUE_TOKENS_BLOCKED_UNTIL = (datetime.now(timezone.utc) +
-                                                              timedelta(hours=QUEUE_TOKENS_DEFAULT_WAIT_HOURS)).isoformat()
+                                _reset = _parse_reset_time_utc(isin)
+                                if _reset:
+                                    QUEUE_TOKENS_BLOCKED_UNTIL = _reset
+                                    print(f"[QUEUE] {isin}: límite de sesión (post-mortem) → "
+                                          f"reanudar a {_reset} (+5min, Madrid)")
+                                else:
+                                    QUEUE_TOKENS_BLOCKED_UNTIL = (datetime.now(timezone.utc) +
+                                                                  timedelta(hours=QUEUE_TOKENS_DEFAULT_WAIT_HOURS)).isoformat()
                                 _start_tokens_monitor()
                         except Exception:
                             pass

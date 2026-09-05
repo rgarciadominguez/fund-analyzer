@@ -58,7 +58,31 @@ Ejecuta Python (`python -c "from tools.lineage_kb import upsert; upsert({...})"`
 ```
 Consejo para `track_record.quant_series_isin`: usa el detector (`python -m tools.lineage_detect {ISIN}`) — su `longest_series_isin`/`longest_series_start` te dan la clase con la serie NAV real más larga (prefiere la EUR si empata). Ahí es donde Morningstar ya empalmó el predecesor.
 
+## LO MÁS IMPORTANTE — Sourcing de DOCUMENTOS año a año desde el lanzamiento REAL
+El objetivo PRIMARIO no es el número (la serie NAV Morningstar ya se empalma sola), sino **los AR, SAR
+y cartas del gestor de CADA año desde el lanzamiento real** — de ahí salen holdings, geografía, sector,
+tesis y decisiones por año (consistencia / aciertos / errores). Por cada vehículo (predecesor + actual),
+busca y REGISTRA todos los años que encuentres:
+
+1. **AR / SAR del predecesor** (p.ej. el RAIF GEMS SICAV-RAIF Fortune Fixed Income LU2334862211, cuentas
+   anuales/semestrales 2021-2024). Fuentes: web de la plataforma/gestora del RAIF (GEMS/NS Partners,
+   Fortune FS), Finect por su ISIN, swissfunddata, Fundsquare/Fundinfo, **Wayback `id_`** para años viejos.
+   Un RAIF/AIF puede no publicar cuentas públicas → si no las hay, dilo (y quédate con factsheets/cartas).
+   REGISTRA en `data/known_annual_reports.json`: en la entrada de umbrella del fondo TARGET, añade cada
+   año a `reports[]` (`{year, type:"annual_report"|"semi_annual_report", url}`) y asegúrate de que el
+   ISIN target está en `isins` (así `fetch_annual_report --isin TARGET` los baja y el extract los procesa
+   como años de histórico del fondo). El extractor localiza el sub-fondo por NOMBRE de estrategia aunque
+   el ISIN no coincida (mismo caso que paraguas).
+2. **Cartas / comentarios del gestor** de cada trimestre/año desde el lanzamiento real (Fortune FS
+   monthly/quarterly commentary, cartas). REGISTRA en `data/known_manager_letters.json` (patrón +
+   URLs) para que `ensure_kb_letters` las meta como `quarterly_letter` → letters_collector las extrae.
+3. **Factsheets** con la cartera/breakdown por año si no hay AR (mejor eso que nada).
+
+Sé honesto con los caveats (vehículo/mandato distinto, dato del gestor) pero **prioriza recuperar el
+máximo de documentos por año**: es el valor diferencial.
+
 ## Después de escribir
-- Si hay un predecesor con AR propios (p.ej. un RAIF que publica cuentas), añádelo a `data/known_annual_reports.json` (para que `fetch_annual_report` baje sus AR y se extienda el histórico de cartera).
+- Deja los `reports[]` (AR/SAR) y las cartas del predecesor registrados en las KBs (punto 1 y 2 arriba).
 - Quita el fondo de `data/lineage_queue.json` (`pending`).
-- Resume en 3 líneas: predecesores hallados, desde cuándo es el track real, y caveats.
+- Resume: predecesores hallados, **qué documentos por año** conseguiste (AR/SAR/cartas y de qué años),
+  desde cuándo es el track real, y caveats.
