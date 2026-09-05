@@ -18,6 +18,10 @@
     // sirve /fund-XXXX -> fund-XXXX.html y rutas limpias
     "html_handling": "auto-trailing-slash",
     // si no existe el archivo y el worker no routea, 404 simple
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    // CLAVE: por defecto CF sirve el asset directo SIN invocar el worker cuando el fichero existe
+    // → una clase con su propio HTML (stale) se servía sin routear al primario. Con esto el worker
+    // corre PRIMERO en /fund-* y decide (routea alias→primario o cae al asset con env.ASSETS.fetch).
+    "run_worker_first": ["/fund-*"]
   }
 }
