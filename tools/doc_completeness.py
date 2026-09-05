@@ -123,8 +123,9 @@ def main(argv=None):
     args = argv or sys.argv[1:]
     if "--all" in args:
         rows = []
+        _isin_re = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}\d$")
         for fd in sorted(FUNDS.iterdir()):
-            if fd.is_dir() and (fd / "output.json").exists():
+            if fd.is_dir() and _isin_re.match(fd.name) and (fd / "output.json").exists():
                 a = assess(fd.name)
                 if a["launch_year"]:
                     rows.append(a)
