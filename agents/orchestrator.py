@@ -2489,6 +2489,17 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
         except Exception as exc:
             log("HISTORICO", "WARN", f"build_historical_series(intl): {exc}")
 
+    # LINEAGE → intl_data.json ANTES del bundle (Paso 4.5): si el resolver dejó lineage, el analyst
+    # (que lee fund_data=intl_data) narra la historia/estrategia/consistencia con el vehículo
+    # predecesor y el quant extendido. apply_lineage escribe _lineage en output.json + intl_data.
+    try:
+        from tools.apply_lineage import apply as _apply_lineage
+        _al = _apply_lineage(isin, log=lambda m: log("LINEAGE", "OK", m))
+        if _al.get("applied"):
+            log("LINEAGE", "OK", f"pre-bundle: track desde {_al.get('quant_start')}")
+    except Exception as exc:
+        log("LINEAGE", "WARN", f"apply_lineage(pre-bundle): {exc}")
+
     # Mark integrated paths as manual edits in output.json so future runs preserve them
     output_path = fund_dir / "output.json"
     if output_path.exists():

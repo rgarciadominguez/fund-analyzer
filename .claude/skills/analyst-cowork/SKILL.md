@@ -267,6 +267,22 @@ permite ver si el fondo/equipo es consistente o ha virado. Campos en `fund_data`
 
 **Reglas**: cita SIEMPRE el periodo y la cifra; NO inventes (si solo hay 1 año de histórico, dilo y no fuerces comparaciones); prioriza los cambios ESTRUCTURALES y significativos sobre el ruido año a año. Este análisis histórico es una de las partes de MÁS valor del informe — no lo omitas si hay `posiciones.historicas` con ≥2 años.
 
+## LINEAGE / vehículo predecesor (`fund_data._lineage`) — usar si existe
+
+Si el bundle trae `fund_data._lineage` (el fondo actual es el relanzamiento de una estrategia que ya
+existía en otro vehículo: AMC/RAIF/Cayman → UCITS, o un fondo renombrado), **incorpóralo a la narrativa**:
+- `historia.texto`: cuenta la evolución REAL de la estrategia desde su `strategy_inception` (no desde el
+  lanzamiento legal): qué vehículos la albergaron y cuándo (`predecessors[]`: nombre, tipo, from→to),
+  mismo gestor/equipo. Ej.: "la estrategia se gestiona desde 2018, primero como AMC, luego RAIF (2021) y
+  desde 2024 como UCITS".
+- `estrategia`/`evolucion`: al valorar CONSISTENCIA y comportamiento en mercados (alcista/bajista), usa
+  el track-record COMPLETO — los cuantitativos ya vienen extendidos al histórico del predecesor
+  (`analisis_cuantitativo.rendimiento_diario`, con `_lineage`). Comenta p.ej. el comportamiento en el año
+  malo de renta fija 2022 aunque el UCITS sea de 2024.
+- **Caveat OBLIGATORIO de honestidad**: indica que el track largo procede de un vehículo predecesor
+  (`caveat_global`): dato del gestor / vehículo o mandato distinto. No lo presentes como si fuera el
+  mismo fondo legal. Si `_lineage` dice que los documentos del predecesor no son públicos, dilo.
+
 ## Schema EXACTO del output (no inventes nombres de campos)
 
 Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.json`

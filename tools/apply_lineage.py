@@ -67,6 +67,22 @@ def apply(isin: str, log=print) -> dict:
 
     p.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
 
+    # 2b) Propagar _lineage al fichero FUENTE (intl_data.json / cnmv_data.json) porque el bundle que
+    # lee el analyst-cowork es una COPIA de ese fichero (no de output.json) y se exporta ANTES del
+    # consume. Así el analyst ve el lineage y narra la historia/estrategia/consistencia con él.
+    for src_name in ("intl_data.json", "cnmv_data.json"):
+        sp = ROOT / "data" / "funds" / isin / src_name
+        if sp.exists():
+            try:
+                sd = json.loads(sp.read_text(encoding="utf-8"))
+                sd["_lineage"] = d["_lineage"]
+                if d.get("analisis_cuantitativo", {}).get("rendimiento_diario"):
+                    sd.setdefault("analisis_cuantitativo", {})["rendimiento_diario"] = \
+                        d["analisis_cuantitativo"]["rendimiento_diario"]
+                sp.write_text(json.dumps(sd, ensure_ascii=False, indent=2), encoding="utf-8")
+            except Exception:
+                pass
+
     # 3) encolar sourcing de AR del predecesor (histórico de cartera), si publica cuentas
     enq = 0
     try:
