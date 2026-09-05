@@ -1,18 +1,23 @@
 {
-  // Configuración para desplegar el catálogo de fondos como sitio estático
-  // en Cloudflare Workers (modelo "Static Assets", 2024+).
+  // Worker fund-analyzer — sirve ./dashboard/ como Static Assets + routing FONDO vs CLASE.
   //
-  // Sirve el contenido de ./dashboard/ (catalog.html + fund-*.html).
-  // URL resultante: https://fund-analyzer.<subdominio>.workers.dev/catalog.html
+  // Modo AVANZADO (worker/index.js sobre static assets):
+  //   /fund-{ISIN}  →  si el ISIN es una clase de un grupo multi-clase, sirve el HTML del
+  //                    PRIMARIO del grupo (último análisis bueno) con el contexto de la clase
+  //                    inyectado (cabecera + selector). Ver worker/index.js + tools/build_class_map.py.
+  //   Cualquier otra ruta / fondo mono-clase → asset estático normal (env.ASSETS.fetch).
   //
-  // Deploy automático: cada push al branch conectado en Cloudflare.
+  // URL resultante: https://fund-analyzer.<subdominio>.workers.dev/fund-{ISIN}
+  // Deploy automático: cada push al branch conectado en Cloudflare (bundle de worker/index.js).
   "name": "fund-analyzer",
   "compatibility_date": "2025-05-01",
+  "main": "worker/index.js",
   "assets": {
     "directory": "./dashboard",
-    // html_handling: sirve /catalog -> catalog.html, y maneja rutas limpias
+    "binding": "ASSETS",
+    // sirve /fund-XXXX -> fund-XXXX.html y rutas limpias
     "html_handling": "auto-trailing-slash",
-    // not_found_handling: si no existe el archivo, devuelve 404 simple
+    // si no existe el archivo y el worker no routea, 404 simple
     "not_found_handling": "404-page"
   }
 }
