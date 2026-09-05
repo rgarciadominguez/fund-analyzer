@@ -5676,9 +5676,44 @@ def build_tab_documentos(data):
     if not secciones:
         secciones = '<div class="doc-r" style="color:var(--ink-4);">No hay documentos archivados para este fondo.</div>'
 
+    # Cobertura documental por AÑO (Goal 2): ≥1 AR/SAR/carta por año de historia real. Rejilla
+    # visual de qué años tenemos cada tipo. Best-effort (no rompe si falla).
+    cobertura_html = ""
+    try:
+        from tools.doc_completeness import assess as _assess
+        a = _assess(isin)
+        if a.get("years"):
+            def _cell(ok):
+                return ('<td style="text-align:center;color:#2e7d32;">✓</td>' if ok
+                        else '<td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td>')
+            filas = ""
+            for y in a["years"]:
+                r = a["por_anio"].get(str(y), {})
+                filas += (f'<tr><td style="padding-right:10px;">{y}</td>'
+                          f'{_cell(r.get("ar"))}{_cell(r.get("sar"))}{_cell(r.get("letter"))}</tr>')
+            cobertura_html = (
+                '<details class="mb20" style="font-size:12px;">'
+                f'<summary style="cursor:pointer;color:var(--ink-3);">Cobertura por año — '
+                f'AR {int(a["cobertura_ar"]*100)}% · SAR {int(a["cobertura_sar"]*100)}% · '
+                f'cartas {int(a["cobertura_carta"]*100)}% '
+                f'<span style="opacity:.6;">({a["launch_year"]}–{a["years"][-1]})</span></summary>'
+                '<table style="margin-top:8px;border-collapse:collapse;">'
+                '<tr style="color:var(--ink-4);"><td style="padding-right:10px;">Año</td>'
+                '<td style="padding:0 6px;">AR</td><td style="padding:0 6px;">SAR</td>'
+                '<td style="padding:0 6px;">Carta</td></tr>'
+                f'{filas}</table>'
+                '<div style="margin-top:6px;color:var(--ink-4);font-size:11px;">'
+                'Objetivo: ≥1 informe anual, 1 semestral y 1 carta del gestor por año desde el '
+                'lanzamiento real. Los años sin marcar pueden no tener documento público '
+                '(p.ej. vehículo predecesor privado).</div></details>'
+            )
+    except Exception:
+        cobertura_html = ""
+
     return f"""
 <section class="pane" id="p7">
   <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">{total} fuentes consultadas</span></div>
+  {cobertura_html}
   {secciones}
 </section>"""
 
