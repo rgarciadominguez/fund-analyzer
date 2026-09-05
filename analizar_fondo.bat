@@ -174,6 +174,10 @@ if defined RELAUNCH_MODE (
     if exist "data\funds\%ISIN%\cnmv_data.json" set SKIP_PREP=1
     if exist "data\funds\%ISIN%\intl_data.json" set SKIP_PREP=1
 )
+REM SALVAGUARDA anti-wipe: backup del output.json bueno ANTES del prep, para restaurarlo
+REM al final si el re-analisis acaba roto (p.ej. cuota cowork agotada deja 0 posiciones).
+call python -m tools.analysis_safeguard --backup %ISIN%
+
 if defined SKIP_PREP (
     echo === Paso 1/6: [RESUME-SKIP] prep ya hecho ^(4 outputs presentes^) ===
     echo.
@@ -215,6 +219,29 @@ if not exist "data\funds\%ISIN%\pending_manager_deep.json" (
 echo.
 
 REM ----------------------------------------------------------------------
+REM Paso 1.7: Skill lineage-resolver-cowork (Claude Max) — SOLO si la prep encolo
+REM este ISIN en data\lineage_queue.json (fondo joven <7a o con gap + senal de
+REM predecesor: serie NAV real anterior al lanzamiento legal). Identifica el
+REM vehiculo predecesor (AMC/RAIF/renombrado) para track-record e historico
+REM COMPLETO (contrato §0.9, decision Rafa "todo con etiqueta"). 1 vez, se cachea
+REM en data\fund_lineage.json (compartido por todas las clases del grupo).
+set RUN_LINEAGE=
+for /f "delims=" %%i in ('python -m tools.ensure_lineage --is-queued %ISIN% 2^>nul') do set RUN_LINEAGE=%%i
+if "%RUN_LINEAGE%"=="1" (
+    echo === Paso 1.7: Skill lineage-resolver-cowork ^(Claude Max^) ===
+    echo Identifica vehiculo predecesor de la estrategia -^> data\fund_lineage.json
+    echo.
+    call python -m tools.claude_cowork "logs\skill_lineage_%ISIN%.log" "lineage resolver cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,WebSearch,WebFetch,Glob,Grep"
+    if errorlevel 1 (
+        echo [WARN] Skill lineage-resolver fallo. Ver logs\skill_lineage_%ISIN%.log
+        set FAILED_STEPS=!FAILED_STEPS! lineage-resolver
+    ) else (
+        echo [OK] Skill lineage-resolver OK ^(o sin predecesor^). Ver logs\skill_lineage_%ISIN%.log
+    )
+    echo.
+)
+
+REM ----------------------------------------------------------------------
 REM N5 resume: skip extract-pdfs si log existe + extracted/ tiene contenido
 set SKIP_EXTRACT=
 if defined RESUME_MODE (
@@ -231,7 +258,7 @@ if defined SKIP_EXTRACT (
     echo ^(output redirigido a logs\skill_extract_pdfs_%ISIN%.log para evitar contaminacion cmd.exe^)
     echo.
     if not exist "logs" mkdir "logs"
-    call claude -p "extract pdfs cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_extract_pdfs_%ISIN%.log" 2>&1
+    call python -m tools.claude_cowork "logs\skill_extract_pdfs_%ISIN%.log" "extract pdfs cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep"
     if errorlevel 1 (
         echo [WARN] Skill extract-pdfs-cowork fallo. Ver logs\skill_extract_pdfs_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! extract-pdfs
@@ -272,7 +299,7 @@ if defined SKIP_MGRDEEP (
     echo Identifica lead/co + enriquece manager_profile.json con articulos_completos
     echo ^(output redirigido a logs\skill_manager_deep_%ISIN%.log^)
     echo.
-    call claude -p "manager deep cowork %ISIN%" --model %MODEL_MANAGER% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep,WebFetch" > "logs\skill_manager_deep_%ISIN%.log" 2>&1
+    call python -m tools.claude_cowork "logs\skill_manager_deep_%ISIN%.log" "manager deep cowork %ISIN%" --model %MODEL_MANAGER% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep,WebFetch"
     if errorlevel 1 (
         echo [WARN] Skill manager-deep-cowork fallo. Ver logs\skill_manager_deep_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! manager-deep
@@ -298,7 +325,7 @@ if defined SKIP_LETTERS (
     echo Anade K15 ^(tesis, decisiones, contexto, citas, outlook^) a cada carta
     echo ^(output redirigido a logs\skill_letters_extract_%ISIN%.log^)
     echo.
-    call claude -p "letters extract cowork %ISIN%" --model %MODEL_LETTERS% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_letters_extract_%ISIN%.log" 2>&1
+    call python -m tools.claude_cowork "logs\skill_letters_extract_%ISIN%.log" "letters extract cowork %ISIN%" --model %MODEL_LETTERS% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep"
     if errorlevel 1 (
         echo [WARN] Skill letters-extract-cowork fallo. Ver logs\skill_letters_extract_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! letters-extract
@@ -347,7 +374,7 @@ if defined SKIP_ANALYST (
     REM y se republicaria como si fuera fresca. Borrarlo antes -> una regeneracion
     REM fallida deja sin fichero -> el consume falla -> el sync aborta -> se ve.
     if exist "data\funds\%ISIN%\analyst_synthesis_cowork.json" del /Q "data\funds\%ISIN%\analyst_synthesis_cowork.json"
-    call claude -p "analyst cowork %ISIN%" --model %MODEL_ANALYST% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep" > "logs\skill_analyst_%ISIN%.log" 2>&1
+    call python -m tools.claude_cowork "logs\skill_analyst_%ISIN%.log" "analyst cowork %ISIN%" --model %MODEL_ANALYST% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep"
     if errorlevel 1 (
         echo [WARN] Skill analyst-cowork fallo. Ver logs\skill_analyst_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! analyst
@@ -363,7 +390,7 @@ REM SOLO es accesible desde claude -p (cowork), no desde el pipeline Python.
 REM Best-effort: si el fondo no esta en MyInvestor, no pasa nada (Morningstar cubre).
 REM ----------------------------------------------------------------------
 echo === Paso 5.5/6: Skill myinvestor-enrich ^(Claude Max^) ===
-call claude -p "myinvestor enrich %ISIN%" --allowedTools "Read,Write,Bash,Edit,Glob,Grep,mcp__claude_ai_MyInvestor__search_funds" > "logs\skill_myinvestor_%ISIN%.log" 2>&1
+call python -m tools.claude_cowork "logs\skill_myinvestor_%ISIN%.log" "myinvestor enrich %ISIN%" --allowedTools "Read,Write,Bash,Edit,Glob,Grep,mcp__claude_ai_MyInvestor__search_funds"
 if errorlevel 1 (
     echo [WARN] Skill myinvestor-enrich fallo ^(no critico^). Ver logs\skill_myinvestor_%ISIN%.log
 ) else (
@@ -391,6 +418,11 @@ if errorlevel 1 (
 echo.
 
 REM ----------------------------------------------------------------------
+REM SALVAGUARDA anti-wipe: si el re-analisis acabo ROTO (0 posiciones + sin sintesis) y
+REM habia un analisis previo bueno, restaurarlo. Asi un fallo (p.ej. cuota cowork agotada)
+REM nunca destruye el analisis local que ya existia. Se ejecuta ANTES del sync.
+call python -m tools.analysis_safeguard --restore-if-broken %ISIN%
+
 REM Paso 7: Sync a Supabase (Storage + tablas). NO bloquea el bat si falla.
 REM Requiere .env con SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY y bucket 'funds-data'.
 echo === Paso 7/7: Sync a Supabase ^(Storage + fund_groups + funds^) ===
@@ -439,7 +471,9 @@ set GIT_TERMINAL_PROMPT=0
 set GCM_INTERACTIVE=never
 if exist "dashboard\fund-%ISIN%.html" (
     git add "dashboard\fund-%ISIN%.html" >nul 2>&1
-    git diff --cached --quiet "dashboard\fund-%ISIN%.html"
+    REM _class_map.json (Contrato FONDO vs CLASE) lo regenera el sync → commitearlo con el dashboard
+    if exist "dashboard\_class_map.json" git add "dashboard\_class_map.json" >nul 2>&1
+    git diff --cached --quiet "dashboard\fund-%ISIN%.html" "dashboard\_class_map.json"
     if errorlevel 1 (
         git commit -m "auto: regen dashboard %ISIN%" >nul 2>&1
         if errorlevel 1 (

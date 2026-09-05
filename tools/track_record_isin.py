@@ -94,6 +94,19 @@ def resolve_track_record(client, isin, log=None, max_probe=4):
     isin = (isin or "").upper().strip()
     if not isin:
         return isin, []
+    # LINEAGE (§0.9): si hay un vehículo predecesor registrado con serie NAV más larga (MontLake:
+    # clase con track desde 2021), ESA es la serie de referencia del track-record del grupo.
+    try:
+        from tools.lineage_kb import quant_series_isin as _lin_qsi
+        qsi = _lin_qsi(isin)
+        if qsi and qsi.upper() != isin:
+            s = fetch_series(qsi)
+            if len(s) >= _MIN_POINTS:
+                if log:
+                    log(f"[track-record] {isin} -> {qsi} (lineage: serie del vehículo predecesor)")
+                return qsi, s
+    except Exception:
+        pass
     try:
         client = _get_client(client)
         ordered = _ordered_by_age(client, isin) or [isin]

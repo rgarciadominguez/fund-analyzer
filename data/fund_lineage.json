@@ -1,0 +1,61 @@
+{
+  "_doc": "Lineage / predecesor de fondos: estrategias que existían ANTES del vehículo legal actual (AMC → RAIF → UCITS, fondos renombrados, clases más antiguas). Se usa para track-record COMPLETO (quant), narrativa cualitativa (historia/consistencia) e histórico de cartera. Alimentado por: (1) detector determinista tools/lineage_detect.py (serie NAV real empieza antes del lanzamiento legal → Morningstar ya empalmó), (2) resolver agéntico skill lineage-resolver-cowork (identifica los vehículos por nombre/ISIN vía web). SIEMPRE con caveat de honestidad: los empalmes del gestor son auto-reportados y los vehículos pueden tener mandatos distintos.",
+  "funds": {
+    "IE000Z9YV312": {
+      "isin": "IE000Z9YV312",
+      "strategy_name": "Fortune Alpha Fixed Income",
+      "manager": "Fortune Financial Strategies S.A.",
+      "lead_pm": "Simon Khalili",
+      "team": ["Simon Khalili", "Fabiano Messias", "Pedro Amorim"],
+      "strategy_inception": "2018-10",
+      "current_vehicle": {
+        "isin": "IE000Z9YV312",
+        "name": "MontLake Alpha Fixed Income UCITS Fund",
+        "type": "UCITS",
+        "from": "2024-05-23"
+      },
+      "predecessors": [
+        {
+          "isin": "XS1853197686",
+          "name": "Fixed Income High Convictions (SG Issuer AMC)",
+          "type": "AMC",
+          "from": "2018-10",
+          "to": "2021-06",
+          "morningstar_secid": null,
+          "nav_series_available": false,
+          "caveat": "Actively Managed Certificate (Société Générale); performance auto-reportada por el gestor, no en Morningstar."
+        },
+        {
+          "isin": "LU2334862211",
+          "name": "GEMS SICAV-RAIF - Fortune Fixed Income",
+          "type": "RAIF/SICAV",
+          "from": "2021-06-15",
+          "to": "2024-05",
+          "morningstar_secid": null,
+          "nav_series_available": "via_current_usd_class",
+          "caveat": "RAIF con mandato más laxo (~25% AT1, 10% private credit) vs UCITS (10% AT1); sigue vivo en paralelo. Su histórico está reflejado en la serie Morningstar de la clase USD IE000RDB0I49 (desde jun-2021)."
+        }
+      ],
+      "track_record": {
+        "quant_series_isin": "IE000C8NA243",
+        "quant_series_isin_eur": "IE000C8NA243",
+        "quant_series_isin_usd": "IE000RDB0I49",
+        "quant_series_start": "2021-06-21",
+        "quant_note": "Las clases IE000C8NA243 (EUR) e IE000RDB0I49 (USD) tienen serie NAV real desde jun-2021 (Morningstar ya empalmó la era RAIF predecesor). La clase EUR 'oficial' IE000Z9YV312 solo desde may-2024 (UCITS). La era AMC (oct-2018→jun-2021) solo consta en la presentación del gestor, no hay serie limpia. Usar IE000C8NA243 para el quant EUR (track desde 2021, ~4 años) con etiqueta de predecesor."
+      },
+      "sources": [
+        "https://swissfunddata.ch/sfdpub/docs/odm-200412_02-20250228-en.pdf",
+        "https://citywire.com/asia/fund/gems-sicav-raif-fortune-fixed-income/c925073",
+        "https://lei.bloomberg.com/leis/view/5299006V12VA54QLU403"
+      ],
+      "confidence": "high",
+      "caveat_global": "Track record empalmado a través de 3 vehículos distintos del mismo gestor (AMC→RAIF→UCITS), auto-reportado por Fortune FS; mandatos ligeramente distintos entre vehículos.",
+      "resolved_at": "2026-09-06",
+      "resolved_by": "subagent+morningstar"
+    }
+  },
+  "isins_map": {
+    "XS1853197686": "IE000Z9YV312",
+    "LU2334862211": "IE000Z9YV312"
+  }
+}

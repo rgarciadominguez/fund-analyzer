@@ -2261,7 +2261,14 @@ def _hdr_extract_fund_classes_from_readings(data):
 def _dash_secid(data):
     """SecId de Morningstar persistido en el análisis (analisis_cuantitativo.morningstar.secid).
     Lo inyectamos al dashboard para bajar la serie diaria por SecId (idtype=Morningstar), NO por
-    idtype=Isin (fuzzy → serie de otro fondo). '' si no está."""
+    idtype=Isin (fuzzy → serie de otro fondo). '' si no está.
+
+    LINEAGE (§0.9): si el fondo tiene predecesor (data['_lineage']) y una clase cuya serie NAV cubre
+    MÁS histórico (`track_record.quant_series_secid`), se usa ESE SecId → los gráficos de evolución
+    muestran el track-record completo (MontLake: desde 2021, no 2024)."""
+    tr = (((data or {}).get("_lineage") or {}).get("track_record") or {})
+    if tr.get("quant_series_secid"):
+        return tr["quant_series_secid"]
     return (((data or {}).get("analisis_cuantitativo") or {}).get("morningstar") or {}).get("secid") or ""
 
 
@@ -3880,10 +3887,32 @@ def build_tab_evolucion(data):
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
   <div class="mb20"><p class="pr" style="color:var(--ink-4);font-style:italic;">Datos de evolución no disponibles para este fondo (sin series cuantitativas ni rating Morningstar).</p></div>
 </section>"""
+
+    # Aviso de LINEAGE: el track-record mostrado incluye un vehículo predecesor (§0.9, decisión Rafa
+    # "todo con etiqueta"). Se pinta un banner con el origen del histórico + caveat de honestidad.
+    _lin = (data or {}).get("_lineage") or {}
+    _lin_banner = ""
+    if _lin.get("predecessors"):
+        _tr = _lin.get("track_record") or {}
+        _pre = "; ".join(
+            f"{p.get('name')} ({p.get('type')}, {p.get('from','?')}→{p.get('to','?')})"
+            for p in _lin["predecessors"]
+        )
+        _cav = _lin.get("caveat_global") or ""
+        _desde = _tr.get("quant_series_start") or _lin.get("strategy_inception") or ""
+        _lin_banner = (
+            '<div class="mb20" style="border-left:3px solid #d9a441;background:rgba(217,164,65,.08);'
+            'padding:10px 14px;border-radius:4px;font-size:12px;line-height:1.5;">'
+            f'<strong>⧗ Track-record extendido a vehículo predecesor</strong> — la serie mostrada '
+            f'arranca en <strong>{_desde}</strong>, antes del lanzamiento del vehículo legal actual, '
+            f'porque la estrategia ({_lin.get("strategy_name") or ""}, mismo gestor) se gestionó antes en: '
+            f'{_pre}. ' + (f'<em>{_cav}</em>' if _cav else '') + '</div>'
+        )
+
     return """
 <section class="pane" id="p3">
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
-
+""" + _lin_banner + """
   <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
 
   <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>

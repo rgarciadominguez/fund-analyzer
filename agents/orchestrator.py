@@ -567,6 +567,34 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
             except Exception as exc:
                 log("KB_AR", "WARN", f"ensure_kb_ar falló: {exc}")
 
+            # KB CARTAS del gestor: discovery tampoco encuentra las cartas HTML de la gestora
+            # (p.ej. carmignac.com/articles/...letter-from-the-fund-managers). Las registramos
+            # como documentos de discovery (quarterly_letter) → letters_collector las procesa
+            # (analyst las usa) y archive_docs las almacena en documentos.cartas. Lección Carmignac.
+            try:
+                from tools.ensure_kb_letters import ensure as _ensure_kb_letters
+                _rkl = _ensure_kb_letters(isin, log=lambda m: log("KB_LETTERS", "INFO", m))
+                if _rkl.get("registered"):
+                    log("KB_LETTERS", "OK",
+                        f"{_rkl['registered']} carta(s) del gestor de la KB añadidas a discovery")
+            except Exception as exc:
+                log("KB_LETTERS", "WARN", f"ensure_kb_letters falló: {exc}")
+
+            # LINEAGE/PREDECESOR: reconoce estrategias que existían ANTES del vehículo legal actual
+            # (AMC/RAIF/Cayman → UCITS, fondos renombrados) para track-record COMPLETO (§0.9). Gate
+            # barato (fondo <7 años o gap) → detector determinista (serie NAV real vs lanzamiento
+            # legal) → encola el resolver agéntico (skill lineage-resolver-cowork, 1 vez, cacheado).
+            # Caso MontLake: track real desde 2021 (RAIF) aunque el UCITS es de 2024.
+            try:
+                from tools.ensure_lineage import ensure as _ensure_lineage
+                _rl = _ensure_lineage(isin, log=lambda m: log("LINEAGE", "INFO", m))
+                if _rl.get("status") == "flagged":
+                    log("LINEAGE", "OK", f"posible predecesor detectado → encolado para resolver")
+                elif _rl.get("status") == "resolved":
+                    log("LINEAGE", "OK", "lineage ya cacheado (predecesor conocido)")
+            except Exception as exc:
+                log("LINEAGE", "WARN", f"ensure_lineage falló: {exc}")
+
         progress.advance(main_task)
 
         # ── Extract metadata from cnmv_data/intl_data for downstream agents ──
@@ -3132,6 +3160,18 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
             log("HISTORICO", "OK", f"multi-año: {_h['changed']} (años={_h.get('n_anios')})")
     except Exception as exc:
         log("HISTORICO", "WARN", f"build_historical_series: {exc}")
+
+    # LINEAGE/PREDECESOR: si el resolver dejó un registro en data/fund_lineage.json, vuelca el
+    # track-record extendido (quant desde el vehículo predecesor, con etiqueta), el bloque _lineage
+    # para la narrativa/dashboard y encola el AR del predecesor. Idempotente, best-effort (§0.9).
+    try:
+        from tools.apply_lineage import apply as _apply_lineage
+        _al = _apply_lineage(isin, log=lambda m: log("LINEAGE", "OK", m))
+        if _al.get("applied"):
+            log("LINEAGE", "OK", f"track extendido desde {_al.get('quant_start')} "
+                f"({_al.get('predecessors')} predecesor/es)")
+    except Exception as exc:
+        log("LINEAGE", "WARN", f"apply_lineage: {exc}")
 
     try:
         from tools.publication_calendar import update_output_with_calendar

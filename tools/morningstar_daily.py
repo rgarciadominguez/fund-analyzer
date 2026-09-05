@@ -16,26 +16,57 @@ import httpx
 
 _UA = {"User-Agent": "Mozilla/5.0"}
 # 2026-07-30: el host `tools.morningstar.es` (key 2nhcdckzon) dejó de servir la serie diaria
-# (301 → homepage global). El endpoint timeseries_price se movió al host del screener
-# `lt.morningstar.com` con la key `klr5zyak8x` (la misma que ya usan clases y quant-screener).
-_URL = ("https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x"
-        "?id={isin}&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON")
+# (301 → homepage global). El endpoint timeseries_price se movió a `lt.morningstar.com`
+# (key `klr5zyak8x`, la misma del screener/quant).
+# 2026-09-01 (BUG CRÍTICO): pedir la serie por `idtype=Isin` es FUZZY — si el ISIN no está
+# indexado, Morningstar devuelve el NAV de OTRO security (caso Carmignac LU1623762843 → CAGR/vol
+# erróneos que no cuadraban con Morningstar/Finect). FIX ROBUSTO (como fund-dashboard/quant):
+# resolver el SecId REAL vía screener con validación EXACTA de ISIN, y pedir la serie por SecId
+# (idtype=Morningstar). Si el ISIN no matchea exacto → sin serie (mejor vacío que de otro fondo).
+_SCR = "https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener"
+_TS = "https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x"
 _ISIN = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
+
+
+def resolve_secid(isin: str) -> str | None:
+    """ISIN → SecId de Morningstar con validación EXACTA (el screener `term=` es fuzzy y ante
+    un ISIN no indexado devuelve el 'mejor match' = OTRO fondo). None si no hay match exacto."""
+    isin = (isin or "").upper().strip()
+    if not _ISIN.match(isin):
+        return None
+    from tools.http_retry import get_json
+    dp = "SecId%7CName%7CIsin%7CFundId"
+    for uni in ("FOALL%24%24ALL", "ETALL%24%24ALL", "CEALL%24%24ALL"):
+        url = (f"{_SCR}?page=1&pageSize=10&outputType=json&version=1"
+               f"&universeIds={uni}&securityDataPoints={dp}&term={isin}")
+        try:
+            rows = get_json(url, headers=_UA, timeout=20).get("rows") or []
+        except Exception:
+            rows = []
+        for r in rows:
+            if (r.get("Isin") or "").upper().strip() == isin:
+                return r.get("SecId")
+    return None
 
 
 def fetch_series(isin: str) -> list:
     isin = (isin or "").upper().strip()
     if not _ISIN.match(isin):
         return []
+    secid = resolve_secid(isin)
+    if not secid:
+        import sys as _sys
+        print(f"[morningstar_daily] {isin}: SecId no resuelto (ISIN no indexado) → sin serie "
+              f"(mejor vacío que de otro fondo)", file=_sys.stderr)
+        return []
+    end = datetime.now(timezone.utc).date().isoformat()
+    url = (f"{_TS}?currencyId=EUR&idtype=Morningstar&frequency=daily"
+           f"&id={secid}&startDate=1990-01-01&endDate={end}&outputType=COMPACTJSON")
     try:
         from tools.http_retry import get_json
-        data = get_json(_URL.format(isin=isin), headers=_UA, timeout=25)
+        data = get_json(url, headers=_UA, timeout=25)
         return [(int(t), float(v)) for t, v in data if v]
     except Exception as _e:
-        # Devolvemos [] para no romper llamantes, pero NO en silencio: un fallo de red
-        # (429/timeout tras reintentos de http_retry) es distinto de "sin cobertura". Se
-        # loguea a stderr para que sea visible; el healthcheck/freshness_guard lo cazan a
-        # nivel sistema. (No es el bug de host muerto — el host está en _URL, verificable.)
         import sys as _sys
         print(f"[morningstar_daily] fetch_series({isin}) sin datos: {type(_e).__name__} "
               f"{str(_e)[:80]}", file=_sys.stderr)
@@ -69,9 +100,38 @@ def monthly_returns_by_ym(s: list) -> dict:
 
 def compute_metrics(isin: str, rf_monthly: dict | None = None) -> dict:
     """Métricas desde la serie diaria. Si `rf_monthly` ({(año,mes): ret} de un
-    monetario), añade sharpe_Na por exceso sobre ese rf en la ventana de cada plazo."""
-    s = fetch_series(isin)
-    return metrics_from_series(s, rf_monthly=rf_monthly)
+    monetario), añade sharpe_Na por exceso sobre ese rf en la ventana de cada plazo.
+
+    LINEAGE (§0.9, track-record = serie NAV real más larga): si el fondo tiene un registro en
+    data/fund_lineage.json con una clase cuya serie cubre MÁS histórico (incluye vehículo predecesor
+    ya empalmado por Morningstar, p.ej. MontLake desde 2021 vs UCITS 2024), se usa esa serie y se
+    marca `_lineage` con la etiqueta/caveat para que el dashboard avise."""
+    src_isin = isin
+    lineage_note = None
+    try:
+        from tools.lineage_kb import get_record
+        rec = get_record(isin) or {}
+        tr = rec.get("track_record") or {}
+        alt = tr.get("quant_series_isin")
+        if alt and alt.upper() != (isin or "").upper():
+            s_alt = fetch_series(alt)
+            s_own = fetch_series(isin)
+            # usar la serie con inicio más antiguo (más histórico real)
+            if s_alt and (not s_own or s_alt[0][0] < s_own[0][0]):
+                src_isin = alt
+                lineage_note = {
+                    "serie_de_clase": alt,
+                    "desde": tr.get("quant_series_start"),
+                    "nota": tr.get("quant_note") or "incluye histórico de vehículo predecesor",
+                    "caveat": rec.get("caveat_global"),
+                }
+    except Exception:
+        pass
+    s = fetch_series(src_isin)
+    m = metrics_from_series(s, rf_monthly=rf_monthly)
+    if lineage_note and m:
+        m["_lineage"] = lineage_note
+    return m
 
 
 def metrics_from_series(s: list, rf_monthly: dict | None = None) -> dict:
@@ -189,23 +249,30 @@ def main():
     from tools.supabase_client import get_client
     c = get_client()
     funds = c.table("funds").select("isin,fund_group_id,has_qualitative_analysis").limit(5000).execute().data
-    # un ISIN representante por grupo (preferimos el analizado)
-    rep = {}
+    # primario por grupo = la clase ANALIZADA (has_qualitative_analysis); si ninguna, la 1ª.
+    # El track record se ancla luego en la clase con más histórico de la MISMA divisa que el
+    # primario (resolve_track_record) — idéntico al sync por-análisis. Backfill consistente.
+    from tools.track_record_isin import resolve_track_record
+    prim = {}
     for f in sorted(funds, key=lambda x: not x.get("has_qualitative_analysis")):
-        rep.setdefault(f["fund_group_id"], f["isin"])
-    print(f"{'APLICAR' if apply else 'DRY-RUN'} — {len(rep)} grupos", flush=True)
+        prim.setdefault(f["fund_group_id"], f["isin"])
+    print(f"{'APLICAR' if apply else 'DRY-RUN'} — {len(prim)} grupos", flush=True)
     ok = 0
-    for i, (gid, isin) in enumerate(rep.items(), 1):
-        m = compute_metrics(isin)
+    for i, (gid, isin) in enumerate(prim.items(), 1):
+        try:
+            tr_isin, serie = resolve_track_record(c, isin)
+            m = metrics_from_series(serie)
+        except Exception as e:
+            print(f"  [{i}] {isin} ERROR {str(e)[:60]}", flush=True); continue
         time.sleep(0.4)
         if not m:
             continue
         ok += 1
         if apply:
             c.table("fund_groups").update({"rendimiento_jsonb": m}).eq("fund_group_id", gid).execute()
-        if i <= 5:
-            print(f"  {isin}: cagr={m.get('cagr_desde_inicio')} vol={m.get('volatilidad')} "
-                  f"mdd={m.get('max_drawdown')} años={len(m.get('rentabilidades_anuales', {}))}", flush=True)
+        if i <= 8 or tr_isin.upper() != isin.upper():
+            print(f"  [{i}] {isin} -> tr={tr_isin}: cagr={m.get('cagr_desde_inicio')} "
+                  f"años={len(m.get('rentabilidades_anuales', {}))}", flush=True)
     print(f"{'APLICADO' if apply else 'DRY'}: {ok} grupos con métricas", flush=True)
 
 
