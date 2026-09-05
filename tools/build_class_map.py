@@ -52,17 +52,32 @@ def _has_dash(isin: str) -> bool:
 
 
 def _pick_primary(members: list[dict]) -> dict | None:
-    """§0.9: EUR con ≥3 años primero; luego histórico más largo. SOLO clases con dashboard local
-    (el Worker sirve ficheros de ./dashboard). Si ninguna candidata tiene fichero → None."""
+    """Primario del grupo según CLAUDE.md §0.9. SOLO clases con dashboard local (el Worker sirve
+    ficheros de ./dashboard). Si ninguna candidata tiene fichero → None.
+
+    Regla §0.9 (Rafa): (1) clase EUR con ≥3 años → la de más track entre ellas. (2) Si hay EUR pero
+    <3 años → quedarse con el EUR de más track, SALVO que otra divisa tenga ≥7 años Y ≥3 años MÁS que
+    ese EUR (entonces esa divisa, avisando en UI). "No saltar de divisa por 1 año": si ambas son
+    cortas → EUR con aviso de histórico corto. (3) Sin EUR → el de histórico más largo.
+    """
     cand = [m for m in members if _has_dash(m["isin"])]
     if not cand:
         return None
-    cand.sort(key=lambda m: (
-        not ((m.get("divisa") or "").upper() == "EUR" and _years(m.get("fecha_creacion_clase")) >= 3),
-        -_years(m.get("fecha_creacion_clase")),
-        0 if m.get("has_qualitative_analysis") else 1,
-    ))
-    return cand[0]
+    yrs = lambda m: _years(m.get("fecha_creacion_clase"))
+    is_eur = lambda m: (m.get("divisa") or "").upper() == "EUR"
+    tie = lambda m: (-yrs(m), 0 if m.get("has_qualitative_analysis") else 1, m["isin"])
+
+    eur = sorted([m for m in cand if is_eur(m)], key=tie)
+    eur3 = [m for m in eur if yrs(m) >= 3]
+    if eur3:
+        return eur3[0]
+    if eur:
+        best_eur = eur[0]
+        others = sorted([m for m in cand if not is_eur(m)], key=tie)
+        if others and yrs(others[0]) >= 7 and yrs(others[0]) - yrs(best_eur) >= 3:
+            return others[0]  # otra divisa con MUCHO más histórico (la UI avisa de la divisa)
+        return best_eur       # ambas cortas / diferencia pequeña → EUR (aviso "histórico corto")
+    return sorted(cand, key=tie)[0]
 
 
 def _class_row(m: dict, primary_isin: str) -> dict:

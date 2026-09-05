@@ -2258,6 +2258,44 @@ def _hdr_extract_fund_classes_from_readings(data):
     return list(found.values())
 
 
+def _dash_secid(data):
+    """SecId de Morningstar persistido en el análisis (analisis_cuantitativo.morningstar.secid).
+    Lo inyectamos al dashboard para bajar la serie diaria por SecId (idtype=Morningstar), NO por
+    idtype=Isin (fuzzy → serie de otro fondo). '' si no está."""
+    return (((data or {}).get("analisis_cuantitativo") or {}).get("morningstar") or {}).get("secid") or ""
+
+
+def _hdr_known_class_isins(isin_principal, data):
+    """Set AUTORITATIVO de ISINs de clase del SUB-FONDO, para filtrar la contaminación del AR
+    del PARAGUAS: su regex de clases captura ISINs de OTROS sub-fondos (p.ej. un Carmignac ajeno
+    LU0099161993 dentro del AR de Carmignac Portfolio). Cascada: (1) 'clases_conocidas' /
+    'class_isins_known' persistidos en output.json; (2) Morningstar screener por FundId en vivo
+    (no-ES), salvo DASHBOARD_SKIP_ENRICH=1. Devuelve set MAYÚSCULAS con el principal incluido.
+    Set con <=1 elemento = sin allowlist fiable → el llamador NO filtra (no regresa)."""
+    import os
+    ck = f"known_class_isins::{isin_principal}"
+    if ck in _HDR_PDF_CACHE:
+        return _HDR_PDF_CACHE[ck]
+    known = set()
+    for field in ("clases_conocidas", "class_isins_known"):
+        src = data.get(field)
+        if isinstance(src, list):
+            known |= {str(x).upper() for x in src if x}
+    if not known and os.environ.get("DASHBOARD_SKIP_ENRICH") != "1" \
+            and not (isin_principal or "").upper().startswith("ES"):
+        try:
+            from tools.morningstar_classes import fetch_classes as _mf
+            for r in (_mf(isin_principal) or []):
+                if r.get("isin"):
+                    known.add(str(r["isin"]).upper())
+        except Exception:
+            pass
+    if known:
+        known.add((isin_principal or "").upper())
+    _HDR_PDF_CACHE[ck] = known
+    return known
+
+
 def _hdr_collect_eur_retail_and_clean(data):
     """Devuelve hasta 2 clases EUR: la retail y la limpia, con sus ISINs.
     Cascada:
@@ -2270,6 +2308,13 @@ def _hdr_collect_eur_retail_and_clean(data):
     isin_principal = data.get("isin", "")
     nombre_principal = data.get("nombre", "") or ""
     result = {"retail": None, "limpia": None}
+    # Allowlist autoritativa de clases del sub-fondo (filtra ISINs ajenos del AR del paraguas).
+    known_isins = _hdr_known_class_isins(isin_principal, data)
+
+    def _isin_ajeno(isin_cand):
+        """True si hay allowlist fiable y este ISIN NO pertenece al sub-fondo."""
+        return bool(known_isins) and len(known_isins) > 1 \
+            and (isin_cand or "").upper() not in known_isins
 
     # Start with principal ISIN as default retail (si no supera clasificación).
     # Prefiere el `code` del _int_clases[0] (más limpio) al nombre completo del fondo.
@@ -2348,6 +2393,8 @@ def _hdr_collect_eur_retail_and_clean(data):
         isin = c.get("isin", "")
         if not isin or isin == isin_principal:
             continue
+        if _isin_ajeno(isin):   # descarta clases de OTRO sub-fondo del paraguas
+            continue
         tipo = _hdr_classify_class(code)
         slot = tipo if tipo in ("retail", "limpia") else None
         if slot and not result.get(slot):
@@ -2361,6 +2408,8 @@ def _hdr_collect_eur_retail_and_clean(data):
         isin = c.get("isin", "")
         if not isin or isin == isin_principal:
             continue
+        if _isin_ajeno(isin):
+            continue
         tipo = _hdr_classify_class(code)
         slot = tipo if tipo in ("retail", "limpia") else None
         if slot and not result.get(slot):
@@ -2372,7 +2421,8 @@ def _hdr_collect_eur_retail_and_clean(data):
     #      p.ej. si consultamos LU... el wrapper FR "Open Access..." NO debe ganar).
     #   B) Código de clase más simple (A sobre AD/AFERG; I sobre ID/WI).
     ft_classes = _hdr_ft_search_sibling_classes(nombre_principal, isin_principal)
-    eur_ft = [c for c in ft_classes if c.get("currency") == "EUR" and c.get("isin") != isin_principal]
+    eur_ft = [c for c in ft_classes if c.get("currency") == "EUR"
+              and c.get("isin") != isin_principal and not _isin_ajeno(c.get("isin"))]
     principal_country = isin_principal[:2].upper() if isin_principal else ""
     def _code_complexity(c):
         import re as _re
@@ -5541,21 +5591,66 @@ def build_tab_documentos(data):
             html += f'<div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ {len(items)-max_n} archivos más</div>'
         return html
 
+    # ── Agrupar informes_pdf por TIPO con etiquetas legibles (AR/SAR/KID/folleto/factsheet).
+    # Antes se metía TODO bajo "Informes semestrales CNMV", que confundía en fondos INT (sus AR/SAR
+    # no son CNMV) y ocultaba la categoría real. CNMV/XMLs solo para fondos ES.
+    is_es = (data.get("tipo") == "ES") or str(isin).upper().startswith("ES")
+
+    def _dedup(items):
+        seen, out = set(), []
+        for it in items:
+            key = (it.get("url") or it.get("nombre") or str(it)) if isinstance(it, dict) else str(it)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(it)
+        return out
+
+    GRUPOS = [
+        ("annual_report", "Informes anuales"),
+        ("semi_annual_report", "Informes semestrales CNMV" if is_es else "Informes semestrales"),
+        ("folleto", "Folleto"),
+        ("kid", "KID / Datos fundamentales"),
+        ("factsheet", "Ficha comercial"),
+        ("otros", "Otros informes"),
+    ]
+    TIPO_MAP = {
+        "annual_report": "annual_report", "informe_anual": "annual_report", "ar": "annual_report",
+        "semi_annual_report": "semi_annual_report", "semiannual_report": "semi_annual_report",
+        "informe_semestral": "semi_annual_report", "sar": "semi_annual_report",
+        "prospectus": "folleto", "prospecto": "folleto", "folleto": "folleto",
+        "kid": "kid", "kiid": "kid", "dfi": "kid",
+        "factsheet": "factsheet", "ficha": "factsheet",
+    }
+    buckets = {k: [] for k, _ in GRUPOS}
+    extra_cartas = []
+    for it in _dedup(pdfs):
+        t = ((it.get("tipo") if isinstance(it, dict) else "") or "").lower().strip()
+        if t in ("quarterly_letter", "carta", "carta_gestor", "letter"):
+            extra_cartas.append(it)
+            continue
+        buckets[TIPO_MAP.get(t, "otros")].append(it)
+
+    cartas_all = _dedup(list(cartas) + extra_cartas)
+
+    secciones = ""
+    for key, label in GRUPOS:
+        items = buckets[key]
+        if items:
+            secciones += f'<div class="doc-grp">{label} ({len(items)})</div>\n{doc_rows(items, "PDF")}\n'
+    if cartas_all:
+        secciones += f'<div class="doc-grp">Cartas del gestor ({len(cartas_all)})</div>\n{doc_rows(cartas_all, "PDF", 12)}\n'
+    if is_es and xmls:
+        secciones += f'<div class="doc-grp">XMLs CNMV ({len(xmls)})</div>\n{doc_rows(xmls, "XML", 6)}\n'
+    if ext:
+        secciones += f'<div class="doc-grp">Fuentes externas ({len(ext)})</div>\n{doc_rows(ext, "URL", 10)}\n'
+    if not secciones:
+        secciones = '<div class="doc-r" style="color:var(--ink-4);">No hay documentos archivados para este fondo.</div>'
+
     return f"""
 <section class="pane" id="p7">
   <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">{total} fuentes consultadas</span></div>
-
-  <div class="doc-grp">Informes semestrales CNMV ({len(pdfs)})</div>
-  {doc_rows(pdfs, 'PDF')}
-
-  <div class="doc-grp">Cartas del gestor ({len(cartas)})</div>
-  {doc_rows(cartas, 'PDF', 10)}
-
-  <div class="doc-grp">XMLs CNMV ({len(xmls)})</div>
-  {doc_rows(xmls, 'XML', 6)}
-
-  <div class="doc-grp">Fuentes externas ({len(ext)})</div>
-  {doc_rows(ext, 'URL', 10)}
+  {secciones}
 </section>"""
 
 
@@ -6168,6 +6263,7 @@ document.addEventListener('DOMContentLoaded',buildCharts);
 // MORNINGSTAR DATA: fetch + calculate + render
 // ═══════════════════════════════════════════════════════════
 const ISIN='{data.get("isin","ES0112231008")}';
+const MST_SECID='{_dash_secid(data)}';
 let MST_DATA=null;
 
 function dedupeSort(s){{s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){{if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}}return o;}}
@@ -6177,7 +6273,25 @@ function rets(levels){{const o=[];for(let i=1;i<levels.length;i++){{const a=leve
 function stdF(arr){{const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}}
 
 async function fetchMST(){{
-  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  // ROBUSTO: la serie se pide por SecId (idtype=Morningstar), NUNCA por idtype=Isin (fuzzy →
+  // trae el NAV de OTRO fondo → CAGR/vol/rentab que no cuadran con Morningstar/Finect). SecId
+  // inyectado desde el análisis; si falta, se resuelve por el screener con validación de ISIN.
+  let secid=(typeof MST_SECID!=='undefined'&&MST_SECID)?MST_SECID:'';
+  if(!secid){{
+    try{{
+      for(const uni of ['FOALL$$ALL','ETALL$$ALL','CEALL$$ALL']){{
+        const su='https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener?page=1&pageSize=10&outputType=json&version=1&universeIds='+encodeURIComponent(uni)+'&securityDataPoints='+encodeURIComponent('SecId|Isin')+'&term='+ISIN;
+        const r=await fetch(su,{{credentials:'omit'}});
+        if(!r.ok)continue;
+        const j=await r.json();
+        const rows=(j&&j.rows)||[];
+        const hit=rows.find(x=>((x.Isin||'').toUpperCase()===ISIN.toUpperCase()));
+        if(hit&&hit.SecId){{secid=hit.SecId;break;}}
+      }}
+    }}catch(e){{}}
+  }}
+  if(!secid)return null;   // sin SecId exacto → sin serie (mejor vacío que de otro fondo)
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?currencyId=EUR&idtype=Morningstar&frequency=daily&id='+secid+'&startDate=1990-01-01&outputType=compactJSON';
   try{{
     const res=await fetch(url,{{credentials:'omit'}});
     if(!res.ok)throw new Error('HTTP '+res.status);
