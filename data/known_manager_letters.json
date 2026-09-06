@@ -1,0 +1,14 @@
+{
+  "_doc": "Cartas del gestor (letters from the fund managers / comentarios trimestrales) por fondo. Fuente FIABLE y prioritaria para ensure_kb_letters, que las registra como documentos de discovery (doc_type=quarterly_letter) → las usa letters_collector (analyst) y archive_docs (documentos.cartas). Soporta artículos HTML (no solo PDF). Cruce por ISIN. 'pattern' es una pista del patrón de URL de la gestora para descubrir futuras cartas. Añadir nuevas cartas a 'letters' cada trimestre (o automatizar el scrape de 'letters_page').",
+  "funds": {
+    "Carmignac Portfolio Credit": {
+      "isins": ["LU1623762843"],
+      "gestora": "Carmignac",
+      "letters_page": "https://www.carmignac.com/en/our-funds/carmignac-portfolio-credit-LU1623762843-a-eur-acc/documents",
+      "pattern": "https://www.carmignac.com/en/articles/carmignac-p-credit-letter-from-the-fund-managers-q{Q}-{YYYY}-*",
+      "letters": [
+        {"periodo": "2026-Q2", "url": "https://www.carmignac.com/en/articles/carmignac-p-credit-letter-from-the-fund-managers-q2-2026-3956-13507"}
+      ]
+    }
+  }
+}
