@@ -332,6 +332,25 @@ _MONTH_TO_NUM = {
 }
 
 
+_LAST_DAY = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30,
+             7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+
+
+def _periodo_fin(periodo: str) -> str | None:
+    """Convierte un periodo ('YYYY' | 'YYYY-MM' | 'YYYY-MM-DD') en la fecha ISO de FIN
+    de ese periodo (para comparar con since_date). None si no hay año parseable.
+    'YYYY' → 31-dic; 'YYYY-MM' → último día del mes; 'YYYY-MM-DD' → ese día."""
+    if not periodo:
+        return None
+    m = re.search(r"((?:19|20)\d{2})(?:-(\d{2}))?(?:-(\d{2}))?", str(periodo))
+    if not m:
+        return None
+    year = int(m.group(1))
+    month = int(m.group(2)) if m.group(2) and 1 <= int(m.group(2)) <= 12 else 12
+    day = int(m.group(3)) if m.group(3) else _LAST_DAY[month]
+    return f"{year:04d}-{month:02d}-{day:02d}"
+
+
 def _extract_periodo(s: str) -> tuple[str, str]:
     """
     Devuelve (periodo, month) donde periodo='YYYY' o 'YYYY-MM' o 'YYYY-MM-DD'
@@ -773,6 +792,14 @@ class DiscoveryV2:
         self.web_search_fn = web_search_fn
         self.config = config or {}
         self.spent_by_type: Counter = Counter()
+        # Modo UPDATE ANUAL: filtro since_date duro sobre documentos PRIMARIOS.
+        self._annual = self.config.get("modo") == "annual_update"
+        self._annual_since = (str(self.config.get("since_date"))[:10]
+                              if self._annual and self.config.get("since_date") else None)
+        # Corte POR TIPO (preferente): cada tipo se busca desde su última fecha conocida.
+        # Un tipo ausente aquí = sin histórico → no se filtra (se busca lo reciente).
+        self._since_by_type = (self.config.get("since_by_type") or {}) if self._annual else {}
+        self._nuevos_primarios = 0     # docs primarios nuevos (posteriores al corte)
 
     # ── Identity resolution ───────────────────────────────────────────────
     def _resolve_websites(self, client_sync: httpx.AsyncClient) -> list[str]:
@@ -895,6 +922,27 @@ class DiscoveryV2:
     def _can_download(self, doc_type: str) -> bool:
         quota = self.QUOTAS.get(doc_type, 2)
         return self.spent_by_type[doc_type] < quota
+
+    # Documentos PRIMARIOS (fuente) sujetos al filtro since_date en modo annual_update.
+    # KID/prospectus/factsheet son identidad/contexto → NO se filtran por fecha.
+    _PRIMARIOS = {"annual_report", "semi_annual_report", "quarterly_letter"}
+
+    def _skip_by_since_date(self, doc_type: str, periodo: str) -> bool:
+        """En modo update anual, salta docs PRIMARIOS cuyo periodo ya está incorporado.
+        El corte es POR TIPO (última fecha conocida de ESE tipo); si el tipo no tiene
+        histórico, no se filtra (se busca lo reciente). Fallback al corte global. Docs
+        sin fecha parseable NO se saltan (mejor procesar de más que perder una novedad)."""
+        if not self._annual or doc_type not in self._PRIMARIOS:
+            return False
+        corte = self._since_by_type.get(doc_type)
+        if not corte:
+            # sin histórico de este tipo → no filtrar (discovery trae lo reciente). Solo si
+            # NO hay corte por tipo NI global dejamos pasar todo.
+            return False
+        fin = _periodo_fin(periodo)          # fecha de fin de periodo, o None si no parsea
+        if fin is None:
+            return False
+        return fin <= corte                   # ya tenemos este periodo (o anterior) de este tipo
 
     # ── Ordenar candidatos ────────────────────────────────────────────────
     def _score(self, cand: dict, state: SharedState) -> float:
@@ -1373,6 +1421,17 @@ class DiscoveryV2:
                     if m:
                         inception = int(m.group(1))
                         break
+            if not inception:
+                # Fallback robusto: fund_age (output.json → Supabase → lineage). Sin año de inicio
+                # NO se expandían los missing_years → Wayback no buscaba histórico. Con esto SIEMPRE
+                # se intenta el rango completo desde el lanzamiento real (más años = más como Carmignac).
+                try:
+                    from tools.fund_age import launch_year as _ly
+                    _y = _ly(getattr(self, "isin", "") or self.identity.get("isin", ""))
+                    if _y:
+                        inception = _y
+                except Exception:
+                    pass
             if inception:
                 all_target_years = list(range(int(inception), 2027))
                 # Añadir todos los años target a missing (si no cubiertos)
@@ -1440,6 +1499,12 @@ class DiscoveryV2:
 
                 if not self._can_download(doc_type):
                     continue
+                # Modo update anual: ignora docs primarios anteriores a since_date
+                # (ya archivados) → el coste escala con el delta del año, no el histórico.
+                if self._skip_by_since_date(doc_type, periodo):
+                    console.log(f"[dim]annual_update: salto {doc_type}@{periodo} "
+                                f"(< {self._annual_since}, ya incorporado)")
+                    continue
                 if state.coverage(doc_type, periodo):
                     continue
                 if state.already_downloaded(cand["url"]):
@@ -1452,6 +1517,8 @@ class DiscoveryV2:
                 )
                 if doc:
                     self.spent_by_type[doc.doc_type] += 1
+                    if doc.doc_type in self._PRIMARIOS:
+                        self._nuevos_primarios += 1
                     kb_mod.remember(state.kb, doc.doc_type, doc.periodo, doc.url)
                     console.log(
                         f"[green]{doc.source} {doc.doc_type}@{doc.periodo}[/green] "
@@ -1525,5 +1592,19 @@ class DiscoveryV2:
                     self._persist_to_registry(domain, count)
         except Exception as e:
             console.log(f"[yellow]G7 wrap-up: {e}")
+
+        # Modo update anual: surfacea si NO hubo documentos primarios nuevos (AR/SAR/cartas
+        # posteriores a since_date) → el cierre puede saltar la reescritura y solo rodar
+        # la fecha ("sin novedades este año").
+        if self._annual:
+            state.annual_update = {
+                "since_date": self._annual_since,
+                "since_by_type": self._since_by_type,
+                "nuevos_primarios": self._nuevos_primarios,
+                "sin_novedades": self._nuevos_primarios == 0,
+            }
+            if self._nuevos_primarios == 0:
+                console.log("[yellow]annual_update: sin novedades (no AR/SAR/cartas nuevas "
+                            "por tipo) → cerrar sin reescribir")
 
         return state
