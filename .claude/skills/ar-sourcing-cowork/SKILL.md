@@ -13,15 +13,28 @@ El discovery determinista (discovery_v2 harvest_wayback) ya lo intenta, pero fal
 dominio exacto de la gestora, el año de inicio, o `classify_url` no reconoce el nombre nativo del PDF.
 Esta skill es el BACKSTOP capaz (como los subagentes que resolvieron Carmignac/RL/MontLake).
 
+## PASO 0 OBLIGATORIO — computar el GAP y buscar SOLO eso (regla FUNDAMENTAL, robusta)
+**NO re-busques años/documentos que YA tenemos.** Céntrate ÚNICAMENTE en los huecos (año + tipo que
+faltan). Antes de buscar nada, ejecuta:
+```
+python -m tools.doc_completeness {ISIN}
+```
+Te devuelve, por año desde el lanzamiento real: `por_anio` (qué AR/SAR/carta hay/faltan) + las listas
+exactas de huecos: **`faltan_ar`**, **`faltan_sar`**, **`faltan_carta`** (años). **Tu búsqueda se limita
+EXACTAMENTE a esos (tipo, año).** Ejemplo (regla de Rafa): si de 2024 en adelante ya hay AR anual pero
+falta la carta del gestor de 2025 → busca AR/SAR/cartas de **2024 hacia atrás** (los años en las listas
+`faltan_*`) **+ solo la carta 2025** (porque el AR 2025 ya lo tenemos). No pierdas ni un fetch en años/tipos
+ya cubiertos. Comprueba también en `data/known_annual_reports.json` (reports[]) y
+`data/known_manager_letters.json` qué URLs ya están registradas para no re-registrarlas.
+
 ## Entrada
 - ISIN del fondo. Lee la identidad de `data/funds/{ISIN}/output.json` (o intl_data/cnmv_data):
   `nombre`, `gestora`, el paraguas (umbrella), los ISINs de clase, y el **año de lanzamiento real**
-  (`python -m tools.fund_age {ISIN}` → año; para fondos con predecesor usa `data/fund_lineage.json`).
-- Cobertura actual: `python -m tools.doc_completeness {ISIN}` (te dice qué años de AR/SAR/carta FALTAN).
-- KB existente: `data/known_annual_reports.json` (umbrella → `reports[]`) y `data/known_manager_letters.json`.
+  (`python -m tools.fund_age {ISIN}`; para fondos con predecesor usa `data/fund_lineage.json`).
 
-## Qué buscar — AR + SAR + cartas de CADA año desde el lanzamiento
-Para el fondo, su **paraguas** y su **gestora**, busca por cada año faltante:
+## Qué buscar — SOLO los huecos del PASO 0 (AR/SAR/cartas de los años que faltan)
+Para el fondo, su **paraguas** y su **gestora**, busca ÚNICAMENTE los `(tipo, año)` de las listas
+`faltan_ar` / `faltan_sar` / `faltan_carta`. Por cada hueco:
 1. **Informe anual (AR)** y **semestral (SAR)** — el informe COMPLETO con Schedule of Investments (de ahí
    salen holdings/geo/sector por año). Fuentes, en orden:
    - **Finect doclegal** por ISIN (`https://www.finect.com/fondos-inversion/{ISIN}`) → doclegal
