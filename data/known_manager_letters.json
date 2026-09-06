@@ -1,14 +1,51 @@
 {
-  "_doc": "Cartas del gestor (letters from the fund managers / comentarios trimestrales) por fondo. Fuente FIABLE y prioritaria para ensure_kb_letters, que las registra como documentos de discovery (doc_type=quarterly_letter) → las usa letters_collector (analyst) y archive_docs (documentos.cartas). Soporta artículos HTML (no solo PDF). Cruce por ISIN. 'pattern' es una pista del patrón de URL de la gestora para descubrir futuras cartas. Añadir nuevas cartas a 'letters' cada trimestre (o automatizar el scrape de 'letters_page').",
-  "funds": {
-    "Carmignac Portfolio Credit": {
-      "isins": ["LU1623762843"],
-      "gestora": "Carmignac",
-      "letters_page": "https://www.carmignac.com/en/our-funds/carmignac-portfolio-credit-LU1623762843-a-eur-acc/documents",
-      "pattern": "https://www.carmignac.com/en/articles/carmignac-p-credit-letter-from-the-fund-managers-q{Q}-{YYYY}-*",
-      "letters": [
-        {"periodo": "2026-Q2", "url": "https://www.carmignac.com/en/articles/carmignac-p-credit-letter-from-the-fund-managers-q2-2026-3956-13507"}
-      ]
+ "_doc": "Cartas del gestor (letters from the fund managers / comentarios trimestrales) por fondo. Fuente FIABLE y prioritaria para ensure_kb_letters, que las registra como documentos de discovery (doc_type=quarterly_letter) → las usa letters_collector (analyst) y archive_docs (documentos.cartas). Soporta artículos HTML (no solo PDF). Cruce por ISIN. 'pattern' es una pista del patrón de URL de la gestora para descubrir futuras cartas. Añadir nuevas cartas a 'letters' cada trimestre (o automatizar el scrape de 'letters_page').",
+ "funds": {
+  "Carmignac Portfolio Credit": {
+   "isins": [
+    "LU1623762843"
+   ],
+   "gestora": "Carmignac",
+   "letters_page": "https://www.carmignac.com/en/our-funds/carmignac-portfolio-credit-LU1623762843-a-eur-acc/documents",
+   "pattern": "https://www.carmignac.com/en/articles/carmignac-p-credit-letter-from-the-fund-managers-q{Q}-{YYYY}-*",
+   "letters": [
+    {
+     "periodo": "2026-Q2",
+     "url": "https://www.carmignac.com/en/articles/carmignac-p-credit-letter-from-the-fund-managers-q2-2026-3956-13507"
     }
+   ]
+  },
+  "Ashoka WhiteOak India Opportunities Fund": {
+   "isins": [
+    "IE00BDR0JY05",
+    "IE00BH3N4915"
+   ],
+   "gestora": "WhiteOak Capital",
+   "letters_page": "https://brightgatecapital.com/brightgate-distribucion/white-oak-india/",
+   "pattern": "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf (rolling monthly; historical via Wayback id_ snapshots)",
+   "letters": [
+    {
+     "periodo": "2020-Q3",
+     "url": "https://web.archive.org/web/20201024084345id_/https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf",
+     "kind": "monthly_commentary"
+    },
+    {
+     "periodo": "2022-Q3",
+     "url": "https://web.archive.org/web/20221007134612id_/https://www.brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf",
+     "kind": "monthly_commentary"
+    },
+    {
+     "periodo": "2023-Q4",
+     "url": "https://web.archive.org/web/20240217105255id_/https://www.brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf",
+     "kind": "monthly_commentary"
+    },
+    {
+     "periodo": "2026-Q1",
+     "url": "https://brightgatecapital.com/fichas-mensuales/WOAIOF-ficha-mensual.pdf",
+     "kind": "monthly_commentary"
+    }
+   ],
+   "_nota": "Factsheet mensual con Market Review+Performance Review reales (aceptado como carta). WOAIOF = subfondo India Opportunities (clases IE00BDR0JY05 EUR / IE00BH3N4915 USD comparten cartera). URL live es rolling mensual; histórico solo via Wayback (3 snapshots). Sin carta 2018/2019/2021/2024/2025 públicas."
   }
+ }
 }
