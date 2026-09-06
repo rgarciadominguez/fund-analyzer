@@ -63,7 +63,7 @@ const CONSUMER = `<script>(function(){
   var lab=document.createElement('span');lab.textContent='Clase mostrada:';lab.style.opacity='.7';
   var sel=document.createElement('select');sel.setAttribute('aria-label','Seleccionar clase');
   sel.style.cssText='background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.24);border-radius:6px;padding:3px 8px;font-size:11.5px;max-width:100%;';
-  C.forEach(function(c){var o=document.createElement('option');o.value=U(c.isin);o.textContent=label(c);if(o.value===U(cur.isin))o.selected=true;sel.appendChild(o);});
+  C.forEach(function(c){var o=document.createElement('option');o.value=U(c.isin);o.textContent=label(c);o.style.color='#111';o.style.background='#fff';if(o.value===U(cur.isin))o.selected=true;sel.appendChild(o);});
   var warn=document.createElement('div');warn.style.cssText='flex-basis:100%;font-size:11px;color:#ffd27a;';
   function uw(c){if(U(c.isin)!==U(prim.isin)&&ccy(c)!==ccy(prim)){warn.textContent='\\u26a0 Los gr\\u00e1ficos cuantitativos son de la clase primaria '+ccy(prim)+' ('+prim.isin+'). Esta clase es '+ccy(c)+' y sus m\\u00e9tricas pueden diferir.';warn.style.display='';}else{warn.textContent='';warn.style.display='none';}}
   uw(cur);
