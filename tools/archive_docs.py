@@ -49,6 +49,33 @@ def _periodo_key(p) -> str:
     return str(p or "")[:10]
 
 
+def _year_from_pdf(path) -> str:
+    """Extrae el AÑO fiscal que cubre un AR/SAR de su primera página (para ficheros sin año en el
+    nombre: annual_report_latest.pdf, semi_annual_finect.pdf). Busca 'year/period ended <fecha> YYYY',
+    '31 december YYYY', '30 june YYYY', 'au 31 décembre YYYY'. '' si no lo encuentra."""
+    try:
+        import pdfplumber
+        with pdfplumber.open(str(path)) as p:
+            txt = ""
+            for pg in p.pages[:3]:
+                txt += " " + (pg.extract_text() or "")
+        low = " ".join(txt.split()).lower()
+        pats = [
+            r"(?:year|period|financial year|exercice|période).{0,40}?(?:ended|closed|clos).{0,20}?((?:19|20)\d{2})",
+            r"31\s+december\s+((?:19|20)\d{2})",
+            r"30\s+june\s+((?:19|20)\d{2})",
+            r"31\s+d[ée]cembre\s+((?:19|20)\d{2})",
+            r"30\s+juin\s+((?:19|20)\d{2})",
+        ]
+        for pat in pats:
+            m = re.search(pat, low)
+            if m:
+                return m.group(1)
+    except Exception:
+        pass
+    return ""
+
+
 def _collect(isin: str) -> list[dict]:
     """Candidatos {doc_type, periodo, fecha, local_path, url} desde discovery (INT) y
     raw/reports (ES/CNMV)."""
@@ -74,14 +101,16 @@ def _collect(isin: str) -> list[dict]:
                         # puede tener años mal-clasificados que bloquearían el AR limpio)
         for f in sorted(disc.glob("*.pdf")):
             low = f.name.lower()
-            if "semi_annual" in low or "semiannual" in low:
+            if any(k in low for k in ("semi_annual", "semiannual", "sar-", "sar_", "interim", "semestr")):
                 dt = "semi_annual_report"
-            elif "annual_report" in low or "annualreport" in low:
+            elif any(k in low for k in ("annual_report", "annualreport", "anr-", "anr_",
+                                        "comptes-annuels", "-ar-", "_ar_", "rechenschaft")):
                 dt = "annual_report"
             else:
                 continue
             m = re.search(r"(19|20)\d{2}", f.name)
-            per = m.group(0) if m else "latest"
+            # sin año en el nombre (annual_report_latest.pdf, semi_annual_finect.pdf) → sácalo del PDF
+            per = m.group(0) if m else (_year_from_pdf(f) or "latest")
             if (dt, _periodo_key(per)) in _seen:
                 continue
             cands.append({"doc_type": dt, "periodo": per, "fecha": per,
@@ -116,7 +145,8 @@ def _is_real_report(c: dict) -> bool:
         return True   # ES CNMV semestrales
     good = ("annual_report", "annualreport", "semi_annual", "semiannual",
             "informe_anual", "informe-anual", "informe_semestral", "anr-", "anr_",
-            "comptes-annuels", "-ar-", "_ar_", "-sar-", "_sar_")
+            "comptes-annuels", "-ar-", "_ar_", "-sar-", "_sar_", "sar-", "sar_",
+            "rechenschaft", "interim", "semestr")
     return any(g in fn for g in good)
 
 
