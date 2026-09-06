@@ -55,6 +55,8 @@ NEW_6 = ["benchmark", "estrellas", "comision_suscripcion", "descripcion", "categ
 REFRESH_FROM_FUNDS = [
     "opinion_user", "encaje_texto", "ter_pct", "comision_gestion_pct",
     "benchmark", "estrellas", "comision_suscripcion", "descripcion", "categoria_activo", "kid",
+    # divisa: el portal la muestra en el desplegable de clases; venía None en filas viejas.
+    "divisa", "importe_minimo_eur", "has_qualitative_analysis",
 ]
 # clasificacion_user: la lleva RAFA en el portal (decisión definitiva 2026-07-23).
 # fund-analyzer DEJA DE CLASIFICAR (ni asignar ni propagar) → el export la emite SIEMPRE null
