@@ -219,6 +219,26 @@ if not exist "data\funds\%ISIN%\pending_manager_deep.json" (
 echo.
 
 REM ----------------------------------------------------------------------
+REM Paso 1.6: Skill ar-sourcing-cowork (Claude Max) — FUERZA el sourcing MÁXIMO de AR/SAR/cartas
+REM multi-año (todos los años desde el lanzamiento real) para que el histórico de cartera salga
+REM como Carmignac (gráficos de evolución año a año). Solo INT (ES saca la cartera completa de CNMV).
+REM Registra en known_annual_reports/known_manager_letters + descarga + deja listo para extract.
+echo %ISIN% | findstr /r "^ES" >nul
+if errorlevel 1 (
+    echo === Paso 1.6: Skill ar-sourcing-cowork ^(Claude Max^) — sourcing multi-año ===
+    echo Busca AR/SAR/cartas de cada año -^> KB + descarga -^> extract construye la evolucion
+    echo.
+    call python -m tools.claude_cowork "logs\skill_ar_sourcing_%ISIN%.log" "ar sourcing cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,WebSearch,WebFetch,Glob,Grep"
+    if errorlevel 1 (
+        echo [WARN] Skill ar-sourcing fallo. Ver logs\skill_ar_sourcing_%ISIN%.log
+        set FAILED_STEPS=!FAILED_STEPS! ar-sourcing
+    ) else (
+        echo [OK] Skill ar-sourcing OK. Ver logs\skill_ar_sourcing_%ISIN%.log
+    )
+    echo.
+)
+
+REM ----------------------------------------------------------------------
 REM Paso 1.7: Skill lineage-resolver-cowork (Claude Max) — SOLO si la prep encolo
 REM este ISIN en data\lineage_queue.json (fondo joven <7a o con gap + senal de
 REM predecesor: serie NAV real anterior al lanzamiento legal). Identifica el
