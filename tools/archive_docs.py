@@ -150,6 +150,15 @@ def archive(isin: str, client=None, log=print) -> list[dict]:
     from tools.sync_to_supabase import _upload_file_to_storage
     isin = isin.upper()
     sel = _select(_collect(isin))
+    # GUARD anti re-contaminación: nunca archivar ficheros en la blocklist del fondo (contaminación
+    # verificada, p.ej. MontLake 2004_annual_report.pdf = Natixis). Sin esto, un re-run los re-sube.
+    try:
+        from tools.clean_fund_docs import DROP_BASENAMES
+        _blocked = DROP_BASENAMES.get(isin, set())
+        if _blocked:
+            sel = [c for c in sel if Path(c["local_path"]).name not in _blocked]
+    except Exception:
+        pass
     base = (os.environ.get("SUPABASE_URL") or "").rstrip("/")
     manifest = []
     for c in sel:
