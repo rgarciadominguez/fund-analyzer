@@ -123,7 +123,11 @@ def build() -> dict:
     # en CADA run, no del export viejo. Así el export es idempotente y aplica reglas nuevas
     # (p.ej. ILS→Alternativos): si leyera su propio output ya conformado, compose fallaría.
     GROUP_COARSE = ["tipo_activo", "geografia", "plazo", "categoria_rf", "estilo",
-                    "caracteristicas_especiales", "srri", "categoria_morningstar", "gestora"]
+                    "caracteristicas_especiales", "srri", "categoria_morningstar", "gestora",
+                    # fecha REAL del último análisis: vive en fund_groups y cambia en cada run.
+                    # Sin re-sourcearla aquí, el catálogo del portal preservaba la vieja/None y el
+                    # portal caía a updated_at (fecha de publicación) → fechas desfasadas.
+                    "fecha_ultimo_analisis"]
 
     activos = []
     # 1) todas las filas del export viejo, refrescadas
@@ -166,6 +170,10 @@ def build() -> dict:
         row["horfin_id"] = f.get("horfin_id")
         row["nombre"] = f.get("nombre_clase")
         row["fund_group_id"] = f.get("fund_group_id")
+        g = groups.get(f.get("fund_group_id"), {})
+        for k in GROUP_COARSE:  # incluye fecha_ultimo_analisis (fecha real del grupo)
+            if k in g:
+                row[k] = g.get(k)
         for k in ("opinion_user", "encaje_texto", "divisa", "distribucion",
                   "broker_disponible", "importe_minimo_eur", "has_qualitative_analysis"):
             row[k] = f.get(k)
@@ -177,6 +185,43 @@ def build() -> dict:
         nuevas += 1
 
     print(f"filas: {len(old_rows)} refrescadas + {nuevas} nuevas = {len(activos)}")
+
+    # --- es_primario_del_grupo: RECOMPUTAR por grupo según §0.9 (antes se arrastraba stale del export
+    # viejo → el portal colapsaba/categorizaba por el primario equivocado; MontLake marcaba la clase USD
+    # en vez de la EUR). Regla: clase con la serie del predecesor (lineage) si está en el grupo; si no,
+    # la EUR con más track (fecha_creacion_clase más antigua), con qualitative; si no, la más antigua.
+    from collections import defaultdict as _dd
+    import re as _re
+    try:
+        from tools.lineage_kb import quant_series_isin as _lin_qsi
+    except Exception:
+        def _lin_qsi(_x):
+            return None
+
+    def _yy(v):
+        m = _re.search(r"(19|20)\d{2}", str(v or ""))
+        return int(m.group(0)) if m else 9999
+
+    _by_g = _dd(list)
+    for a in activos:
+        if a.get("fund_group_id"):
+            _by_g[a["fund_group_id"]].append(a)
+    def _div(a):
+        return (funds.get(a["isin"], {}).get("divisa") or a.get("divisa") or "").upper()
+    def _fc(a):
+        return _yy(funds.get(a["isin"], {}).get("fecha_creacion_clase"))
+    for _gid, _members in _by_g.items():
+        # El primario del catálogo es la clase que TIENE el análisis (no la mera serie de quant): así
+        # coincide con el dashboard/align_fund_group. Regla §0.9: entre las que tienen análisis
+        # cualitativo, la EUR con más track (fecha más antigua); si ninguna lo tiene, EUR/más antigua.
+        _analyzed = [a for a in _members if a.get("has_qualitative_analysis")]
+        _pool = _analyzed or _members
+        _eur = [a for a in _pool if _div(a) == "EUR"]
+        _pool = _eur or _pool
+        _pool = sorted(_pool, key=lambda a: (_fc(a), a["isin"]))
+        _prim = _pool[0]["isin"] if _pool else None
+        for a in _members:
+            a["es_primario_del_grupo"] = (a["isin"] == _prim)
 
     # --- estado cerrado/pendiente (contrato v2): expuesto para que Rafa vea sobre qué revisa ---
     from tools.fund_estado import get_estado, seed_from_rows
