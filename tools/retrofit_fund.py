@@ -39,12 +39,28 @@ def _hist_count(isin: str) -> int:
         return -1
 
 
+def _gap_prompt(isin: str) -> str:
+    """Prompt de ar-sourcing con el GAP EXACTO embebido (determinista): la skill recibe físicamente
+    los (tipo, año) que faltan → NO puede re-buscar lo que ya tenemos (regla FUNDAMENTAL de Rafa)."""
+    try:
+        from tools.doc_completeness import assess
+        a = assess(isin)
+        far, fsar, fcar = a.get("faltan_ar", []), a.get("faltan_sar", []), a.get("faltan_carta", [])
+        return (f"ar sourcing cowork {isin}. HUECOS a rellenar — busca SOLO estos (tipo, año), NO "
+                f"re-busques años/tipos ya cubiertos: AR faltan={far}; SAR faltan={fsar}; "
+                f"cartas faltan={fcar}. Cobertura actual: {a.get('resumen','')}.")
+    except Exception:
+        return f"ar sourcing cowork {isin}"
+
+
 def main(isin: str) -> None:
     isin = isin.upper()
     print(f"[retrofit] {isin}: hist antes = {_hist_count(isin)} años", flush=True)
 
-    # 1) sourcing de más años
-    if _cowork(isin, f"ar sourcing cowork {isin}", "skill_ar_sourcing"):
+    # 1) sourcing de más años — SOLO los huecos (gap embebido en el prompt, determinista)
+    prompt = _gap_prompt(isin)
+    print(f"[retrofit] gap prompt: {prompt[:200]}", flush=True)
+    if _cowork(isin, prompt, "skill_ar_sourcing"):
         print(f"LIMIT|{isin}|ar-sourcing", flush=True); return
     # 2) extraer todos los AR/SAR (incl. los nuevos)
     if _cowork(isin, f"extract pdfs cowork {isin}", "skill_extract_pdfs"):
