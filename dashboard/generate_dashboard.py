@@ -6327,7 +6327,10 @@ document.addEventListener('DOMContentLoaded',buildCharts);
 // MORNINGSTAR DATA: fetch + calculate + render
 // ═══════════════════════════════════════════════════════════
 const ISIN='{data.get("isin","ES0112231008")}';
-const MST_SECID='{_dash_secid(data)}';
+const MST_SECID_BAKED='{_dash_secid(data)}';
+let MST_SECID=MST_SECID_BAKED;                       // mutable: el selector de clase lo cambia
+let MST_ISIN=(typeof ISIN!=='undefined'?ISIN:'');    // ISIN cuya serie se pide (clase mostrada)
+const MST_PRIMARY_ISIN=MST_ISIN;
 let MST_DATA=null;
 
 function dedupeSort(s){{s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){{if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}}return o;}}
@@ -6344,12 +6347,12 @@ async function fetchMST(){{
   if(!secid){{
     try{{
       for(const uni of ['FOALL$$ALL','ETALL$$ALL','CEALL$$ALL']){{
-        const su='https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener?page=1&pageSize=10&outputType=json&version=1&universeIds='+encodeURIComponent(uni)+'&securityDataPoints='+encodeURIComponent('SecId|Isin')+'&term='+ISIN;
+        const su='https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener?page=1&pageSize=10&outputType=json&version=1&universeIds='+encodeURIComponent(uni)+'&securityDataPoints='+encodeURIComponent('SecId|Isin')+'&term='+MST_ISIN;
         const r=await fetch(su,{{credentials:'omit'}});
         if(!r.ok)continue;
         const j=await r.json();
         const rows=(j&&j.rows)||[];
-        const hit=rows.find(x=>((x.Isin||'').toUpperCase()===ISIN.toUpperCase()));
+        const hit=rows.find(x=>((x.Isin||'').toUpperCase()===MST_ISIN.toUpperCase()));
         if(hit&&hit.SecId){{secid=hit.SecId;break;}}
       }}
     }}catch(e){{}}
@@ -6807,6 +6810,24 @@ document.addEventListener('DOMContentLoaded',async()=>{{
     console.error('MST error:',e);
   }}
 }});
+
+// Selector de CLASE (worker) → recarga los gráficos cuantitativos con la serie de la clase elegida.
+// Para la clase primaria usa el SecId horneado (lineage-extendido); para otra clase resuelve su SecId
+// por ISIN vía screener. Así cada clase muestra SU histórico real (§0.9), sin recargar el iframe.
+window.switchClass=async function(isin){{
+  if(!isin)return;
+  MST_ISIN=(''+isin).toUpperCase();
+  MST_SECID=(MST_ISIN===(MST_PRIMARY_ISIN||'').toUpperCase())?MST_SECID_BAKED:'';
+  const el=document.getElementById('mst-loading');
+  const cont=document.getElementById('mst-evo-content');
+  if(el){{el.style.display='';el.textContent='Cargando datos de la clase '+MST_ISIN+'…';}}
+  if(cont)cont.style.display='none';
+  try{{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else if(el)el.textContent='Sin serie Morningstar para la clase '+MST_ISIN;
+  }}catch(e){{if(el)el.textContent='Error cargando la clase: '+e.message;}}
+}};
 </script>"""
 
 

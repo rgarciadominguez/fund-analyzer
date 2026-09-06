@@ -67,7 +67,7 @@ const CONSUMER = `<script>(function(){
   var warn=document.createElement('div');warn.style.cssText='flex-basis:100%;font-size:11px;color:#ffd27a;';
   function uw(c){if(U(c.isin)!==U(prim.isin)&&ccy(c)!==ccy(prim)){warn.textContent='\\u26a0 Los gr\\u00e1ficos cuantitativos son de la clase primaria '+ccy(prim)+' ('+prim.isin+'). Esta clase es '+ccy(c)+' y sus m\\u00e9tricas pueden diferir.';warn.style.display='';}else{warn.textContent='';warn.style.display='none';}}
   uw(cur);
-  sel.addEventListener('change',function(){var iv=sel.value,c=C.filter(function(x){return U(x.isin)===iv;})[0]||cur;uw(c);try{history.replaceState(null,'','/fund-'+iv+location.search);}catch(e){}});
+  sel.addEventListener('change',function(){var iv=sel.value,c=C.filter(function(x){return U(x.isin)===iv;})[0]||cur;uw(c);try{history.replaceState(null,'','/fund-'+iv+location.search);}catch(e){}try{if(window.switchClass)window.switchClass(iv);}catch(e){}});
   bar.appendChild(lab);bar.appendChild(sel);bar.appendChild(warn);
   function mount(){(document.querySelector('.lh-left')||document.body).appendChild(bar);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
