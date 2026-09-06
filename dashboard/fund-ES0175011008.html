@@ -219,6 +219,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
@@ -282,7 +283,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con horizonte de inversión definido hasta septiembre 2026 que busca rentabilidad modesta (2-4% anual) con volatilidad mínima y certidumbre de capital. Adecuado para perfil conservador-moderado que no tolera pérdidas significativas y necesita visibilidad de flujos a corto plazo. NO debe esperar protección absoluta del capital ni blindaje contra fluctuaciones de mercado antes del vencimiento, ya que cambios en tipos de interés pueden erosionar rentabilidades acumuladas.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No existe información disponible sobre coinversión del gestor (% de capital propio invertido en el fondo) ni sobre si Santander Asset Management tiene posiciones propias alineadas con los partícipes. La documentación no detalla el alineamiento de intereses mediante coinversión del gestor.</p></div></div>
 
-  
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.26%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.30%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">5.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1 €</td></tr></tbody></table>
 
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 0,21%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
@@ -529,7 +530,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">248%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:4%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">9%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:3%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">7%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:12%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">30%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 74%/año · baja rotación = enfoque a largo plazo.</div></div></div></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">3.3</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">4.5</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.17</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.77</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.26</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.91</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">—</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.5</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-15.7</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">1.3%</strong> · 3A <strong style="color:var(--ink);">4.0%</strong> · 5A <strong style="color:var(--ink);">0.1%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">STOXX Europe 600</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">18.53</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">2.35</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">1.76</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">—</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">11.32</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:6%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+0.43%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.39%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:8%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-0.61%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:39%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-2.83%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 7% · caídas 27% · ratio 0.27</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">248%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:4%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">9%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:3%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">7%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:12%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">30%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 74%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">7%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:7%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">27%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:27%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div></div>
 
   <div class="sr">Todas las posiciones (46)</div>
   <div class="pt-wrap">
@@ -541,6 +542,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:72px;background:#0c2340;"></div>9,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>9%</div></td>
   <td><span style="background:rgba(107,26,26,0.12000000000000002);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,8%</span></td>
@@ -550,6 +552,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:61px;background:#0c2340;"></div>7,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:6px;background:var(--ink-3);"></div>17%</div></td>
   <td><span style="background:rgba(107,26,26,0.19200000000000006);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-2,2%</span></td>
@@ -559,6 +562,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:8px;background:var(--ink-3);"></div>21%</div></td>
   <td><span style="background:rgba(107,26,26,0.084);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -568,6 +572,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:10px;background:var(--ink-3);"></div>25%</div></td>
   <td><span style="background:rgba(26,77,46,0.08549999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -577,6 +582,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>29%</div></td>
   <td><span style="background:rgba(26,77,46,0.0945);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,3%</span></td>
@@ -586,6 +592,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:33px;background:#0c2340;"></div>4,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>33%</div></td>
   <td><span style="background:rgba(107,26,26,0.09199999999999997);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
@@ -595,6 +602,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:15px;background:var(--ink-3);"></div>38%</div></td>
   <td><span style="background:rgba(107,26,26,0.10250000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,5%</span></td>
@@ -604,6 +612,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>42%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -613,6 +622,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:18px;background:var(--ink-3);"></div>46%</div></td>
   <td><span style="background:rgba(26,77,46,0.09149999999999997);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -622,6 +632,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>4,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>50%</div></td>
   <td><span style="background:rgba(107,26,26,0.10200000000000002);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,4%</span></td>
@@ -631,6 +642,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>3,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>54%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -640,6 +652,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:31px;background:#0c2340;"></div>3,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>58%</div></td>
   <td><span style="background:rgba(107,26,26,0.09500000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
@@ -649,6 +662,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>61%</div></td>
   <td><span style="background:rgba(107,26,26,0.09450000000000003);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
@@ -658,6 +672,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>65%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -667,6 +682,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
   <td><span style="background:rgba(107,26,26,0.11499999999999999);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,7%</span></td>
@@ -676,6 +692,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:30px;background:#0c2340;"></div>3,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
   <td><span style="background:rgba(107,26,26,0.10149999999999998);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,4%</span></td>
@@ -685,6 +702,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:29px;background:#0c2340;"></div>3,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
   <td><span style="background:rgba(107,26,26,0.10550000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,5%</span></td>
@@ -694,6 +712,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>80%</div></td>
   <td><span style="background:rgba(26,77,46,0.08350000000000002);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -703,6 +722,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:28px;background:#0c2340;"></div>3,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
   <td><span style="background:rgba(107,26,26,0.1255);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,9%</span></td>
@@ -712,6 +732,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:27px;background:#0c2340;"></div>3,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="background:rgba(26,77,46,0.17300000000000001);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,9%</span></td>
@@ -721,6 +742,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:36px;background:var(--ink-3);"></div>90%</div></td>
   <td><span style="background:rgba(26,77,46,0.1875);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+2,2%</span></td>
@@ -730,6 +752,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:37px;background:var(--ink-3);"></div>94%</div></td>
   <td><span style="background:rgba(26,77,46,0.0995);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,4%</span></td>
@@ -739,6 +762,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:38px;background:var(--ink-3);"></div>97%</div></td>
   <td><span style="background:rgba(26,77,46,0.16249999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,6%</span></td>
@@ -748,6 +772,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>100%</div></td>
   <td><span class="delta-new">NUEVO</span></td>
@@ -757,6 +782,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:26px;background:#0c2340;"></div>3,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>104%</div></td>
   <td><span class="delta-new">NUEVO</span></td>
@@ -766,6 +792,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>107%</div></td>
   <td><span style="background:rgba(26,77,46,0.09000000000000001);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -775,6 +802,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>110%</div></td>
   <td><span class="delta-new">NUEVO</span></td>
@@ -784,6 +812,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:24px;background:#0c2340;"></div>3,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>113%</div></td>
   <td><span class="delta-new">NUEVO</span></td>
@@ -793,6 +822,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:22px;background:#0c2340;"></div>2,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>116%</div></td>
   <td><span style="background:rgba(107,26,26,0.15300000000000002);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-1,5%</span></td>
@@ -802,6 +832,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>118%</div></td>
   <td><span style="background:rgba(26,77,46,0.09600000000000002);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,3%</span></td>
@@ -811,6 +842,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:20px;background:#0c2340;"></div>2,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>121%</div></td>
   <td><span style="background:rgba(26,77,46,0.09699999999999999);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,3%</span></td>
@@ -820,6 +852,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>123%</div></td>
   <td><span style="background:rgba(26,77,46,0.08800000000000001);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -829,6 +862,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:19px;background:#0c2340;"></div>2,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>126%</div></td>
   <td><span style="background:rgba(26,77,46,0.14);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,2%</span></td>
@@ -838,6 +872,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>128%</div></td>
   <td><span style="background:rgba(26,77,46,0.1745);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,9%</span></td>
@@ -847,6 +882,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>130%</div></td>
   <td><span style="background:rgba(26,77,46,0.16949999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,8%</span></td>
@@ -856,6 +892,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>132%</div></td>
   <td><span style="background:rgba(26,77,46,0.167);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,7%</span></td>
@@ -865,6 +902,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>134%</div></td>
   <td><span style="background:rgba(26,77,46,0.0925);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -874,6 +912,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>136%</div></td>
   <td><span style="background:rgba(26,77,46,0.099);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,4%</span></td>
@@ -883,6 +922,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>138%</div></td>
   <td><span style="background:rgba(26,77,46,0.0885);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -892,6 +932,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:13px;background:#0c2340;"></div>1,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>139%</div></td>
   <td><span style="background:rgba(26,77,46,0.091);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -901,6 +942,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>141%</div></td>
   <td><span style="background:rgba(26,77,46,0.08650000000000001);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -910,6 +952,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>142%</div></td>
   <td><span style="background:rgba(26,77,46,0.0835);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -919,6 +962,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>143%</div></td>
   <td><span style="background:rgba(26,77,46,0.0925);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -928,6 +972,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>144%</div></td>
   <td><span style="background:rgba(26,77,46,0.09);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -937,6 +982,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>144%</div></td>
   <td><span style="background:rgba(26,77,46,0.0835);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -946,6 +992,7 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:40px;background:var(--ink-3);"></div>145%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -963,19 +1010,18 @@ La rotación de cartera alcanzó <strong>30% en el período actual</strong>, evi
 
 <section class="pane" id="p7">
   <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">29 fuentes consultadas</span></div>
+  <details class="mb20" style="font-size:12px;"><summary style="cursor:pointer;color:var(--ink-3);">Cobertura por año — AR 86% · SAR 0% · cartas 28% <span style="opacity:.6;">(2020–2026)</span></summary><table style="margin-top:8px;border-collapse:collapse;"><tr style="color:var(--ink-4);"><td style="padding-right:10px;">Año</td><td style="padding:0 6px;">AR</td><td style="padding:0 6px;">SAR</td><td style="padding:0 6px;">Carta</td></tr><tr><td style="padding-right:10px;">2020</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2021</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2022</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:#2e7d32;">✓</td></tr><tr><td style="padding-right:10px;">2023</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2024</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2025</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2026</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:#2e7d32;">✓</td></tr></table><div style="margin-top:6px;color:var(--ink-4);font-size:11px;">Objetivo: ≥1 informe anual, 1 semestral y 1 carta del gestor por año desde el lanzamiento real. Los años sin marcar pueden no tener documento público (p.ej. vehículo predecesor privado).</div></details>
+  <div class="doc-grp">Informes anuales (8)</div>
+<div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2025</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0175011008/annual_report/CNMV_ES0175011008_2025_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2024</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0175011008/annual_report/CNMV_ES0175011008_2024_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2023</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0175011008/annual_report/CNMV_ES0175011008_2023_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2022</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0175011008/annual_report/CNMV_ES0175011008_2022_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2022</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0175011008/annual_report/web_Annual_report_renta4Banco_2022.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2021</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0175011008/annual_report/CNMV_ES0175011008_2021_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2021</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0175011008/annual_report/web_ANNUAL_REPORT_2021.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2020</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0175011008/annual_report/CNMV_ES0175011008_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+<div class="doc-grp">Cartas del gestor (2)</div>
+<div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — EN OutlookSAM2026.pdf</span><a href="https://web.archive.org/web/20260417112122/https://www.santanderassetmanagement.com/content/view/19950/file/EN_OutlookSAM2026.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — 2021 Stewardship Report 010926 vFin.pdf</span><a href="https://web.archive.org/web/20221127023006/https://www.santanderassetmanagement.com/content/view/8573/file/2021_Stewardship_Report_010926_vFin.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+<div class="doc-grp">XMLs CNMV (16)</div>
+<div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_202004.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Abril_FONDMENS_202004.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_202004.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Abril_FONDREGISTRO_202004.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_202008.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Agosto_FONDMENS_202008.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_202008.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Agosto_FONDREGISTRO_202008.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Enero_FONDMENS.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Enero_FONDMENS.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Enero_FONDREGISTRO.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Enero_FONDREGISTRO.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 10 archivos más</div>
+<div class="doc-grp">Fuentes externas (5)</div>
+<div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — charts</span><a href="https://markets.ft.com/data/funds/tearsheet/charts?s=ES0175011008:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — historical</span><a href="https://markets.ft.com/data/funds/tearsheet/historical?s=ES0175011008:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=ES0175011008:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">finect.com — ES0175011008 Santander horizonte 2026 2 fi</span><a href="https://www.finect.com/fondos-inversion/ES0175011008-Santander_horizonte_2026_2_fi" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">quefondos.com — index.html</span><a href="https://www.quefondos.com/es/fondos/ficha/index.html?isin=ES0175011008" target="_blank" class="doc-a">↗ Abrir</a></div>
 
-  <div class="doc-grp">Informes semestrales CNMV (6)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175011008_2020_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/reports/CNMV_ES0175011008_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175011008_2021_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/reports/CNMV_ES0175011008_2021_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175011008_2022_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/reports/CNMV_ES0175011008_2022_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175011008_2023_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/reports/CNMV_ES0175011008_2023_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175011008_2024_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/reports/CNMV_ES0175011008_2024_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0175011008_2025_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/reports/CNMV_ES0175011008_2025_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
-
-  <div class="doc-grp">Cartas del gestor (2)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — EN OutlookSAM2026.pdf</span><a href="https://web.archive.org/web/20260417112122/https://www.santanderassetmanagement.com/content/view/19950/file/EN_OutlookSAM2026.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">web.archive.org — 2021 Stewardship Report 010926 vFin.pdf</span><a href="https://web.archive.org/web/20221127023006/https://www.santanderassetmanagement.com/content/view/8573/file/2021_Stewardship_Report_010926_vFin.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
-
-  <div class="doc-grp">XMLs CNMV (16)</div>
-  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_202004.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Abril_FONDMENS_202004.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_202004.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Abril_FONDREGISTRO_202004.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_202008.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Agosto_FONDMENS_202008.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_202008.xml</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Agosto_FONDREGISTRO_202008.xml" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Enero_FONDMENS.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Enero_FONDMENS.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Enero_FONDREGISTRO.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0175011008/raw/xml/Enero_FONDREGISTRO.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 10 archivos más</div>
-
-  <div class="doc-grp">Fuentes externas (5)</div>
-  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — charts</span><a href="https://markets.ft.com/data/funds/tearsheet/charts?s=ES0175011008:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — historical</span><a href="https://markets.ft.com/data/funds/tearsheet/historical?s=ES0175011008:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=ES0175011008:EUR" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">finect.com — ES0175011008 Santander horizonte 2026 2 fi</span><a href="https://www.finect.com/fondos-inversion/ES0175011008-Santander_horizonte_2026_2_fi" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">quefondos.com — index.html</span><a href="https://www.quefondos.com/es/fondos/ficha/index.html?isin=ES0175011008" target="_blank" class="doc-a">↗ Abrir</a></div>
 </section>
+<section class="pane" id="p9"></section>
 
 <section class="pane" id="p8">
   <style>
@@ -1783,6 +1829,10 @@ document.addEventListener('DOMContentLoaded',buildCharts);
 // MORNINGSTAR DATA: fetch + calculate + render
 // ═══════════════════════════════════════════════════════════
 const ISIN='ES0175011008';
+const MST_SECID_BAKED='F000015RLS';
+let MST_SECID=MST_SECID_BAKED;                       // mutable: el selector de clase lo cambia
+let MST_ISIN=(typeof ISIN!=='undefined'?ISIN:'');    // ISIN cuya serie se pide (clase mostrada)
+const MST_PRIMARY_ISIN=MST_ISIN;
 let MST_DATA=null;
 
 function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
@@ -1792,7 +1842,25 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  // ROBUSTO: la serie se pide por SecId (idtype=Morningstar), NUNCA por idtype=Isin (fuzzy →
+  // trae el NAV de OTRO fondo → CAGR/vol/rentab que no cuadran con Morningstar/Finect). SecId
+  // inyectado desde el análisis; si falta, se resuelve por el screener con validación de ISIN.
+  let secid=(typeof MST_SECID!=='undefined'&&MST_SECID)?MST_SECID:'';
+  if(!secid){
+    try{
+      for(const uni of ['FOALL$$ALL','ETALL$$ALL','CEALL$$ALL']){
+        const su='https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener?page=1&pageSize=10&outputType=json&version=1&universeIds='+encodeURIComponent(uni)+'&securityDataPoints='+encodeURIComponent('SecId|Isin')+'&term='+MST_ISIN;
+        const r=await fetch(su,{credentials:'omit'});
+        if(!r.ok)continue;
+        const j=await r.json();
+        const rows=(j&&j.rows)||[];
+        const hit=rows.find(x=>((x.Isin||'').toUpperCase()===MST_ISIN.toUpperCase()));
+        if(hit&&hit.SecId){secid=hit.SecId;break;}
+      }
+    }catch(e){}
+  }
+  if(!secid)return null;   // sin SecId exacto → sin serie (mejor vacío que de otro fondo)
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?currencyId=EUR&idtype=Morningstar&frequency=daily&id='+secid+'&startDate=1990-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);
@@ -2244,6 +2312,24 @@ document.addEventListener('DOMContentLoaded',async()=>{
     console.error('MST error:',e);
   }
 });
+
+// Selector de CLASE (worker) → recarga los gráficos cuantitativos con la serie de la clase elegida.
+// Para la clase primaria usa el SecId horneado (lineage-extendido); para otra clase resuelve su SecId
+// por ISIN vía screener. Así cada clase muestra SU histórico real (§0.9), sin recargar el iframe.
+window.switchClass=async function(isin){
+  if(!isin)return;
+  MST_ISIN=(''+isin).toUpperCase();
+  MST_SECID=(MST_ISIN===(MST_PRIMARY_ISIN||'').toUpperCase())?MST_SECID_BAKED:'';
+  const el=document.getElementById('mst-loading');
+  const cont=document.getElementById('mst-evo-content');
+  if(el){el.style.display='';el.textContent='Cargando datos de la clase '+MST_ISIN+'…';}
+  if(cont)cont.style.display='none';
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else if(el)el.textContent='Sin serie Morningstar para la clase '+MST_ISIN;
+  }catch(e){if(el)el.textContent='Error cargando la clase: '+e.message;}
+};
 </script>
 </body>
 </html>

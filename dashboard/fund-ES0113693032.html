@@ -178,7 +178,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
   <div class="lh-top">
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
-      <div class="lh-fund">CAIXABANK COMUNICACION MUNDIAL, FI <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★☆☆</span></div>
+      <div class="lh-fund">CAIXABANK COMUNICACION MUNDIAL, FI <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★★★★☆</span></div>
       <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>CAIXABANK ASSET MANAGEMENT SGIIC, S.A.</strong></div>
       <div class="lh-meta-line">Depositario: <strong>CECABANK, S.A.</strong></div>
       <div class='lh-meta-line'>ISIN limpia EUR: <strong>ES0113693032</strong></div>
@@ -219,6 +219,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
@@ -278,7 +279,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
 
   <div class="col2 mb20"><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Para quién es adecuado</div><p class="pr">Inversor con horizonte temporal mínimo de 7-10 años y tolerancia a volatilidad alta (perfil riesgo 5), interesado en exposición concentrada en tecnología y comunicaciones en mercados desarrollados. Debe aceptar concentración sectorial no diversificada y estar preparado para fluctuaciones anuales superiores al 20%. No es adecuado para inversores con necesidad de liquidez frecuente, aversión al riesgo moderada o en búsqueda de retornos estables.</p></div><div><div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Compromiso del gestor</div><p class="pr">No hay información disponible en el documento sobre coinversión del gestor (% de capital propio de CaixaBank Asset Management invertido en el fondo), alineamiento de intereses mediante compartición de ganancias, o si la gestora 'come su propia cocina' en activos del fondo.</p></div></div>
 
-  
+  <div class="sr">Comisiones <span style="font-weight:400;font-size:8px;letter-spacing:0;">(fuente: Morningstar)</span></div><table style="border-collapse:collapse;width:100%;max-width:420px;margin-bottom:20px;"><tbody><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Gastos corrientes (TER)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.86%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de gestión</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">1.65%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Comisión de entrada (máx.)</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">0.00%</td></tr><tr><td style="padding:6px 0;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);">Inversión mínima</td><td style="padding:6px 0;text-align:right;font-size:13px;color:var(--ink);font-weight:600;border-bottom:1px solid var(--rule);">600 €</td></tr></tbody></table>
 
   <div class="sr">Evolución de comisiones <span class="ch-sel"><label>Clase:</label><select id="com-sel" onchange="buildComChart()"><option value="A" selected>A (TER 1,65%)</option></select></span></div>
   <div class="ch-b"><div class="ch-h"><canvas id="c-com"></canvas></div>
@@ -627,7 +628,12 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
     <p class="pr">La cartera actual comprende <strong>75 posiciones</strong>.</p>
   </div>
 
-  
+  <div class="section-title mb12">Evolución de la exposición (1)</div><div class="col1 mb20"><div class="ch-b"><div class="ch-l">Evolución por geografía (% sobre patrimonio)</div><div class="ch-h"><canvas id="c-geo-evo"></canvas></div>
+  <script>(function(){ if(typeof Chart==='undefined')return; const ctx=document.getElementById('c-geo-evo'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:["2009", "2010", "2016", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],datasets:[{"label": "USA", "data": [75.09, 67.38, 78.72, 63.48, 75.62, 81.88, 78.85, 70.81, 66.69, 78.72], "borderColor": "#0c2340", "backgroundColor": "rgba(12,35,64,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Europa", "data": [17.66, 21.65, 6.91, 11.08, 12.02, 13.55, 12.01, 10.06, 10.3, 6.91], "borderColor": "#b48020", "backgroundColor": "rgba(180,128,32,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Jap\u00f3n", "data": [0.88, 5.66, 2.61, 4.12, 5.43, 3.53, 4.37, 2.91, 2.13, 2.61], "borderColor": "#1b8a3d", "backgroundColor": "rgba(27,138,61,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}, {"label": "Asia emergente", "data": [0.56, 0.51, 0, 0, 0, 0, 0, 0, 0, 0], "borderColor": "#6b3fa0", "backgroundColor": "rgba(107,63,160,0.55)", "fill": true, "tension": 0.25, "pointRadius": 2, "borderWidth": 1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+  scales:{x:{grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{display:false},ticks:{callback:v=>v+'%'}}}}});})();</script></div></div>
 
   <div class="kpi-row">
     <div class="kpi-cell"><div class="kpi-label">Posiciones totales</div><div class="kpi-value">75</div><div class="kpi-sub">vs media hist. 73</div></div>
@@ -641,7 +647,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
     <div class="ch-b"><div class="ch-l">Concentración Top 5 / 10 / 15 (%)</div><div class="ch-h"><canvas id="c-conc"></canvas></div></div>
   </div>
 
-  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2019</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:69%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">148%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">214%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:49%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">105%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:4%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">8%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:5%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">10%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:6%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">12%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:18%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">39%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 77%/año · baja rotación = enfoque a largo plazo.</div></div></div></div>
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Perfil cuantitativo</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-bottom:8px;"><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Riesgo y rentabilidad</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">3 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">5 años</th><th style="padding:0 0 5px 12px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">10 años</th></tr></thead><tbody><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Volatilidad</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">17.8</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">18.0</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">16.3</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sharpe</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.92</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.62</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.95</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Sortino</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.76</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.04</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">1.67</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Beta</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.82</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.85</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">0.86</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Alpha</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-0.67</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-2.34</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-1.79</td></tr><tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">Máx. caída</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-26.6</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-30.2</td><td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">-31.6</td></tr></tbody></table><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Rentab. anualizada · 1A <strong style="color:var(--ink);">18.5%</strong> · 3A <strong style="color:var(--ink);">21.6%</strong> · 5A <strong style="color:var(--ink);">14.1%</strong> · 10A <strong style="color:var(--ink);">17.4%</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Estilo de acciones</div><div style="flex:1;"><div style="display:grid;grid-template-columns:46px 38px 38px 38px;gap:0;width:max-content;margin:0 auto;"><div></div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Value</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Blend</div><div style="text-align:center;font-size:9.5px;color:var(--ink-4);padding-bottom:3px;">Growth</div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Large</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:var(--navy);border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Mid</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="display:flex;align-items:center;justify-content:flex-end;font-size:9.5px;color:var(--ink-4);padding-right:7px;">Small</div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div><div style="width:38px;height:32px;background:#e8ecf1;border:2px solid #fff;border-radius:2px;"></div></div><div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;font-weight:700;text-align:center;">Large · Blend</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rating Morningstar</div><div style="flex:1;"><div style="text-align:center;padding:4px 0;"><div style="font-size:22px;font-weight:800;color:#9aa6b4;line-height:1.1;">Silver</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">Medalist Rating</div><div style="font-size:16px;color:#c8a23c;letter-spacing:2px;margin-top:10px;">★★★☆☆</div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:2px;">3 estrellas Morningstar</div><div class="pr" style="font-size:10px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Sector Equity Technology</div></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Valoración · Fondo vs Índice</div><div style="flex:1;"><table style="border-collapse:collapse;width:100%;"><thead><tr><th></th><th style="padding:0 12px 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">Fondo</th><th style="padding:0 0 5px;text-align:right;font-size:9px;color:var(--ink-4);font-weight:700;">MSCI World</th></tr></thead><tbody><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/E</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">24.11</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">24.20</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Valor contable</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">5.94</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.93</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Ventas</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--ink);font-weight:600;">5.39</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">3.01</td></tr><tr><td style="padding:4px 0;font-size:11.5px;color:var(--ink-2);">P/Cash Flow</td><td style="padding:4px 12px;text-align:right;font-size:12px;color:var(--navy);font-weight:700;">16.68</td><td style="padding:4px 0;text-align:right;font-size:12px;color:var(--ink-3);">17.27</td></tr></tbody></table><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;">Navy = más barato que el índice.</div><div class="pr" style="font-size:10.5px;color:var(--ink-3);margin-top:9px;border-top:1px solid var(--rule);padding-top:7px;">Capitalización media · <strong style="color:var(--ink);">798.6 B€</strong></div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Comportamiento vs índice</div><div style="flex:1;"><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:0 0 5px;">Subidas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);left:50%;width:30%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+2.31%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;left:50%;width:47%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">+3.67%</strong></div><div style="font-size:9.5px;font-weight:700;color:var(--ink-2);margin:9px 0 5px;">Caídas</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Fondo</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:var(--navy);right:50%;width:16%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-1.22%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pr" style="width:46px;font-size:10px;color:var(--ink-3);text-align:right;">Índice</span><div style="flex:1;height:13px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="position:absolute;top:0;height:13px;border-radius:2px;background:#9aa6b4;right:50%;width:43%;"></div><div style="position:absolute;left:50%;top:-2px;height:17px;border-left:1px solid #c8cfd8;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:52px;text-align:right;">-3.34%</strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> Índice · rend. medio mensual · capt. subidas 45% · caídas 49% · ratio 0.92</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Rotación de cartera</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2019</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:69%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">148%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2020</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">214%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2021</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:49%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">105%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2022</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:4%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">8%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2023</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:5%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">10%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2024</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:6%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">12%</strong></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="pr" style="width:42px;font-size:10.5px;color:var(--ink-3);text-align:right;">2025</span><div style="flex:1;height:11px;background:#eef1f5;border-radius:3px;"><div style="width:18%;height:11px;background:#7a5cab;border-radius:3px;opacity:.85;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:40px;text-align:right;">39%</strong></div><div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px;">Media 77%/año · baja rotación = enfoque a largo plazo.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Captura (5 años)</div><div style="flex:1;"><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura alcista</span><strong style="color:var(--ink);">45%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:45%;height:15px;background:#9aa6b4;border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;"><span>Captura bajista</span><strong style="color:var(--ink);">49%</strong></div><div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;"><div style="width:49%;height:15px;background:var(--pos,#2e7d32);border-radius:3px;"></div><div style="position:absolute;left:100%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div></div></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div></div></div><div style="border:1px solid var(--rule);border-radius:7px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:11px;">Exposición sectorial · vs índice</div><div style="flex:1;"><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Tecnología</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:100%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:53%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">58.5% <span style="color:var(--navy);">(+28)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Comunicación</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:54%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:14%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">31.6% <span style="color:var(--navy);">(+23)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Consumo cíclico</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:9%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:15%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">5.3% <span style="color:#c0552e;">(-4)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Servicios financieros</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:6%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:27%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">3.6% <span style="color:#c0552e;">(-12)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Inmobiliario</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:2%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:3%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">0.8% <span style="color:#c0552e;">(-1)</span></strong></div><div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><span class="pr" style="width:104px;font-size:10.5px;color:var(--ink-2);text-align:right;padding-top:1px;">Industria</span><div style="flex:1;"><div style="height:11px;background:#eef1f5;border-radius:3px;"><div style="width:2%;height:11px;background:var(--navy);border-radius:3px;opacity:.9;"></div></div><div style="width:19%;height:5px;background:#9aa6b4;border-radius:2px;margin-top:2px;"></div></div><strong style="font-size:10.5px;color:var(--ink);width:62px;text-align:right;padding-top:1px;">0.1% <span style="color:#c0552e;">(-11)</span></strong></div><div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:5px;border-top:1px solid var(--rule);padding-top:6px;"><span style="color:var(--navy);font-weight:700;">▬</span> Fondo · <span style="color:#9aa6b4;font-weight:700;">▬</span> MSCI World · (dif. en pp)</div></div></div></div>
 
   <div class="sr">Todas las posiciones (75)</div>
   <div class="pt-wrap">
@@ -653,6 +659,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:79px;background:#0c2340;"></div>10,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:3px;background:var(--ink-3);"></div>10%</div></td>
   <td><span style="background:rgba(26,77,46,0.138);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,2%</span></td>
@@ -662,6 +669,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:78px;background:#0c2340;"></div>9,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:7px;background:var(--ink-3);"></div>20%</div></td>
   <td><span style="background:rgba(26,77,46,0.201);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+2,4%</span></td>
@@ -671,6 +679,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:75px;background:#0c2340;"></div>9,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:11px;background:var(--ink-3);"></div>29%</div></td>
   <td><span style="background:rgba(26,77,46,0.08899999999999998);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -680,6 +689,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:44px;background:#0c2340;"></div>5,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:13px;background:var(--ink-3);"></div>35%</div></td>
   <td><span style="background:rgba(26,77,46,0.141);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,2%</span></td>
@@ -689,6 +699,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:44px;background:#0c2340;"></div>5,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:16px;background:var(--ink-3);"></div>40%</div></td>
   <td><span style="background:rgba(26,77,46,0.141);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,2%</span></td>
@@ -698,6 +709,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:37px;background:#0c2340;"></div>4,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:17px;background:var(--ink-3);"></div>45%</div></td>
   <td><span style="background:rgba(107,26,26,0.13300000000000003);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-1,1%</span></td>
@@ -707,6 +719,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:32px;background:#0c2340;"></div>4,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:19px;background:var(--ink-3);"></div>49%</div></td>
   <td><span style="background:rgba(26,77,46,0.118);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,8%</span></td>
@@ -716,6 +729,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:18px;background:#0c2340;"></div>2,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:20px;background:var(--ink-3);"></div>51%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -725,6 +739,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:17px;background:#0c2340;"></div>2,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:21px;background:var(--ink-3);"></div>54%</div></td>
   <td><span style="background:rgba(26,77,46,0.1575);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,6%</span></td>
@@ -734,6 +749,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:16px;background:#0c2340;"></div>2,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:22px;background:var(--ink-3);"></div>56%</div></td>
   <td><span style="background:rgba(26,77,46,0.179);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+2,0%</span></td>
@@ -743,6 +759,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:15px;background:#0c2340;"></div>1,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>57%</div></td>
   <td><span style="background:rgba(26,77,46,0.16);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+1,6%</span></td>
@@ -752,6 +769,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#fdf3e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Consumo cíclico</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:14px;background:#0c2340;"></div>1,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:23px;background:var(--ink-3);"></div>59%</div></td>
   <td><span class="delta-new">NUEVO</span></td>
@@ -761,6 +779,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:12px;background:#0c2340;"></div>1,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>61%</div></td>
   <td><span style="background:rgba(107,26,26,0.094);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
@@ -770,6 +789,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:11px;background:#0c2340;"></div>1,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:24px;background:var(--ink-3);"></div>62%</div></td>
   <td><span style="background:rgba(26,77,46,0.10250000000000001);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,4%</span></td>
@@ -779,6 +799,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>64%</div></td>
   <td><span class="delta-new">NUEVO</span></td>
@@ -788,6 +809,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:10px;background:#0c2340;"></div>1,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:25px;background:var(--ink-3);"></div>65%</div></td>
   <td><span style="background:rgba(26,77,46,0.1265);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,9%</span></td>
@@ -797,6 +819,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>66%</div></td>
   <td><span style="background:rgba(107,26,26,0.0835);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -806,6 +829,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:9px;background:#0c2340;"></div>1,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:26px;background:var(--ink-3);"></div>67%</div></td>
   <td><span style="background:rgba(26,77,46,0.0865);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -815,6 +839,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>68%</div></td>
   <td><span style="background:rgba(107,26,26,0.0995);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,4%</span></td>
@@ -824,6 +849,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:27px;background:var(--ink-3);"></div>69%</div></td>
   <td><span style="background:rgba(26,77,46,0.11649999999999999);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,7%</span></td>
@@ -833,6 +859,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:8px;background:#0c2340;"></div>1,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>70%</div></td>
   <td><span style="background:rgba(107,26,26,0.08549999999999999);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -842,6 +869,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:7px;background:#0c2340;"></div>0,9%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>71%</div></td>
   <td><span style="background:rgba(107,26,26,0.111);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,6%</span></td>
@@ -851,6 +879,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:28px;background:var(--ink-3);"></div>72%</div></td>
   <td><span style="background:rgba(26,77,46,0.083);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -860,6 +889,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>73%</div></td>
   <td><span style="background:rgba(26,77,46,0.11);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,6%</span></td>
@@ -869,6 +899,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>74%</div></td>
   <td><span style="background:rgba(107,26,26,0.127);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,9%</span></td>
@@ -878,6 +909,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:29px;background:var(--ink-3);"></div>75%</div></td>
   <td><span style="background:rgba(107,26,26,0.1195);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,8%</span></td>
@@ -887,6 +919,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:6px;background:#0c2340;"></div>0,8%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>75%</div></td>
   <td><span style="background:rgba(107,26,26,0.0915);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
@@ -896,6 +929,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>76%</div></td>
   <td><span style="background:rgba(26,77,46,0.0925);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,2%</span></td>
@@ -905,6 +939,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:30px;background:var(--ink-3);"></div>77%</div></td>
   <td><span style="background:rgba(107,26,26,0.08900000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
@@ -914,6 +949,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>78%</div></td>
   <td><span style="background:rgba(107,26,26,0.099);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,4%</span></td>
@@ -923,6 +959,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>78%</div></td>
   <td><span style="background:rgba(26,77,46,0.0875);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -932,6 +969,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e9f3ec;padding:1px 7px;border-radius:3px;white-space:nowrap;">Servicios financieros</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>79%</div></td>
   <td><span style="background:rgba(26,77,46,0.0935);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,3%</span></td>
@@ -941,6 +979,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:31px;background:var(--ink-3);"></div>80%</div></td>
   <td><span style="background:rgba(107,26,26,0.0975);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
@@ -950,6 +989,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,7%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>80%</div></td>
   <td><span style="background:rgba(107,26,26,0.105);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,5%</span></td>
@@ -959,6 +999,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:5px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>81%</div></td>
   <td><span style="background:rgba(107,26,26,0.083);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -968,6 +1009,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
   <td><span style="background:rgba(26,77,46,0.103);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,5%</span></td>
@@ -977,6 +1019,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:4px;background:#0c2340;"></div>0,6%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:32px;background:var(--ink-3);"></div>82%</div></td>
   <td><span style="background:rgba(26,77,46,0.08650000000000001);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -986,6 +1029,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,5%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
   <td><span style="background:rgba(26,77,46,0.0935);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,3%</span></td>
@@ -995,6 +1039,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>83%</div></td>
   <td><span style="background:rgba(26,77,46,0.096);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,3%</span></td>
@@ -1004,6 +1049,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
   <td><span style="background:rgba(107,26,26,0.08650000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1013,6 +1059,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
   <td><span style="background:rgba(107,26,26,0.091);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,2%</span></td>
@@ -1022,6 +1069,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:3px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>84%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1031,6 +1079,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,4%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>85%</div></td>
   <td><span style="background:rgba(107,26,26,0.0855);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1040,6 +1089,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:33px;background:var(--ink-3);"></div>85%</div></td>
   <td><span style="background:rgba(107,26,26,0.08650000000000001);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1049,6 +1099,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>85%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1058,6 +1109,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,3%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>85%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1067,6 +1119,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
   <td><span class="delta-new">NUEVO</span></td>
@@ -1076,6 +1129,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
   <td><span style="background:rgba(107,26,26,0.0855);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1085,6 +1139,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>SEK</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1094,6 +1149,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
   <td><span style="background:rgba(107,26,26,0.1105);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,6%</span></td>
@@ -1103,6 +1159,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>86%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1112,6 +1169,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,2%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="background:rgba(26,77,46,0.0825);color:var(--pos);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">+0,1%</span></td>
@@ -1121,6 +1179,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1130,6 +1189,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="background:rgba(107,26,26,0.0835);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1139,6 +1199,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1148,6 +1209,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="background:rgba(107,26,26,0.15649999999999997);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-1,5%</span></td>
@@ -1157,6 +1219,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1166,6 +1229,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="background:rgba(107,26,26,0.1035);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,5%</span></td>
@@ -1175,6 +1239,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#f7f0e6;padding:1px 7px;border-radius:3px;white-space:nowrap;">Comunicación</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:34px;background:var(--ink-3);"></div>87%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1184,6 +1249,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1193,6 +1259,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="background:rgba(107,26,26,0.084);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1202,6 +1269,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">España</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1211,6 +1279,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="background:rgba(107,26,26,0.0845);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1220,6 +1289,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1229,6 +1299,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1238,6 +1309,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;"><span style="background:#e7f0fb;padding:1px 7px;border-radius:3px;white-space:nowrap;">Tecnología</span></td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="background:rgba(107,26,26,0.0975);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,3%</span></td>
@@ -1247,6 +1319,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="background:rgba(107,26,26,0.1);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,4%</span></td>
@@ -1256,6 +1329,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1265,6 +1339,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,1%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1274,6 +1349,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1283,6 +1359,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>GBP</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="background:rgba(107,26,26,0.083);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1292,6 +1369,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>JPY</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span class="delta-new">NUEVO</span></td>
@@ -1301,6 +1379,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1310,6 +1389,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>EUR</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="background:rgba(107,26,26,0.083);color:var(--neg);padding:1px 5px;border-radius:2px;font-size:10px;font-weight:500;">-0,1%</span></td>
@@ -1319,6 +1399,7 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
   <td style="font-family:'Source Sans 3';font-size:11px;color:var(--ink-4);">—</td>
   <td style="font-family:'Source Sans 3';font-size:11px;">Internacional</td>
   <td>USD</td>
+  
   <td><div class="wbar"><div class="wfill" style="width:2px;background:#0c2340;"></div>0,0%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:35px;background:var(--ink-3);"></div>88%</div></td>
   <td><span style="color:var(--ink-5);">—</span></td>
@@ -1336,19 +1417,18 @@ Su enfoque diferencial radica en la <strong>articulación explícita entre horiz
 
 <section class="pane" id="p7">
   <div class="pane-header"><h1 class="pane-h1">Documentos</h1><span class="pane-dl">80 fuentes consultadas</span></div>
+  <details class="mb20" style="font-size:12px;"><summary style="cursor:pointer;color:var(--ink-3);">Cobertura por año — AR 56% · SAR 0% · cartas 0% <span style="opacity:.6;">(1997–2026)</span></summary><table style="margin-top:8px;border-collapse:collapse;"><tr style="color:var(--ink-4);"><td style="padding-right:10px;">Año</td><td style="padding:0 6px;">AR</td><td style="padding:0 6px;">SAR</td><td style="padding:0 6px;">Carta</td></tr><tr><td style="padding-right:10px;">1997</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">1998</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">1999</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2000</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2001</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2002</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2003</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2004</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2005</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2006</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2007</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2008</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2009</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2010</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2011</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2012</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2013</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2014</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2015</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2016</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2017</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2018</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2019</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2020</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2021</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2022</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2023</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2024</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2025</td><td style="text-align:center;color:#2e7d32;">✓</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr><tr><td style="padding-right:10px;">2026</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td><td style="text-align:center;color:var(--ink-4);opacity:.5;">·</td></tr></table><div style="margin-top:6px;color:var(--ink-4);font-size:11px;">Objetivo: ≥1 informe anual, 1 semestral y 1 carta del gestor por año desde el lanzamiento real. Los años sin marcar pueden no tener documento público (p.ej. vehículo predecesor privado).</div></details>
+  <div class="doc-grp">Informes anuales (18)</div>
+<div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2025</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2025_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2024</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2024_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2023</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2023_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2023</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/web_People_2023_Annual_Report.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2022</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2022_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2021</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2021_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2020</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2019</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2019_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2018</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2018_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2017</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2017_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2016</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2016_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">Informe anual 2015</span><a href="https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/ES0113693032/annual_report/CNMV_ES0113693032_2015_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 6 archivos más</div>
+<div class="doc-grp">Cartas del gestor (1)</div>
+<div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">www3.caixabank.es — ES0112739034 12 2.pdf</span><a href="https://www3.caixabank.es/apl/fondos/Images/13/ES0112739034_12_2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
+<div class="doc-grp">XMLs CNMV (60)</div>
+<div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Abril_FONDMENS_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Abril_FONDREGISTRO_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Agosto_FONDMENS_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Agosto_FONDREGISTRO_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Diciembre_FONDCART_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Diciembre_FONDDERI_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
+<div class="doc-grp">Fuentes externas (2)</div>
+<div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=es0113693032:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">ycharts.com — M:ES0113693008</span><a href="https://ycharts.com/mutual_funds/M:ES0113693008" target="_blank" class="doc-a">↗ Abrir</a></div>
 
-  <div class="doc-grp">Informes semestrales CNMV (17)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2009_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2009_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2010_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2010_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2011_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2011_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2012_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2012_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2013_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2013_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2014_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2014_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2015_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2015_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2016_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2016_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2017_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2017_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2018_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2018_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2019_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2019_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">CNMV_ES0113693032_2020_H2.pdf</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/reports/CNMV_ES0113693032_2020_H2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 5 archivos más</div>
-
-  <div class="doc-grp">Cartas del gestor (1)</div>
-  <div class="doc-r"><span class="doc-ext">PDF</span><span class="doc-nm">www3.caixabank.es — ES0112739034 12 2.pdf</span><a href="https://www3.caixabank.es/apl/fondos/Images/13/ES0112739034_12_2.pdf" target="_blank" class="doc-a">↗ Abrir</a></div>
-
-  <div class="doc-grp">XMLs CNMV (60)</div>
-  <div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDMENS_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Abril_FONDMENS_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Abril_FONDREGISTRO_201204.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Abril_FONDREGISTRO_201204.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDMENS_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Agosto_FONDMENS_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Agosto_FONDREGISTRO_201208.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Agosto_FONDREGISTRO_201208.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDCART_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Diciembre_FONDCART_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">XML</span><span class="doc-nm">Diciembre_FONDDERI_201212.XML</span><a href="file:///C:/Users/RafaelGarc%C3%ADa/OneDrive%20-%20Nazca/Escritorio/fund-analyzer/data/funds/ES0113693032/raw/xml/Diciembre_FONDDERI_201212.XML" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r" style="color:var(--ink-4);font-size:11px;">+ 54 archivos más</div>
-
-  <div class="doc-grp">Fuentes externas (2)</div>
-  <div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">markets.ft.com — summary</span><a href="https://markets.ft.com/data/funds/tearsheet/summary?s=es0113693032:eur" target="_blank" class="doc-a">↗ Abrir</a></div><div class="doc-r"><span class="doc-ext">URL</span><span class="doc-nm">ycharts.com — M:ES0113693008</span><a href="https://ycharts.com/mutual_funds/M:ES0113693008" target="_blank" class="doc-a">↗ Abrir</a></div>
 </section>
+<section class="pane" id="p9"></section>
 
 <section class="pane" id="p8">
   <style>
@@ -2156,6 +2236,10 @@ document.addEventListener('DOMContentLoaded',buildCharts);
 // MORNINGSTAR DATA: fetch + calculate + render
 // ═══════════════════════════════════════════════════════════
 const ISIN='ES0113693032';
+const MST_SECID_BAKED='F0GBR04Q9Y';
+let MST_SECID=MST_SECID_BAKED;                       // mutable: el selector de clase lo cambia
+let MST_ISIN=(typeof ISIN!=='undefined'?ISIN:'');    // ISIN cuya serie se pide (clase mostrada)
+const MST_PRIMARY_ISIN=MST_ISIN;
 let MST_DATA=null;
 
 function dedupeSort(s){s.sort((a,b)=>a.date-b.date);const o=[];for(const p of s){if(!o.length||o[o.length-1].date.getTime()!==p.date.getTime())o.push(p);else o[o.length-1]=p;}return o;}
@@ -2165,7 +2249,25 @@ function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
 async function fetchMST(){
-  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?id='+ISIN+'&idtype=Isin&frequency=daily&startDate=1900-01-01&outputType=compactJSON';
+  // ROBUSTO: la serie se pide por SecId (idtype=Morningstar), NUNCA por idtype=Isin (fuzzy →
+  // trae el NAV de OTRO fondo → CAGR/vol/rentab que no cuadran con Morningstar/Finect). SecId
+  // inyectado desde el análisis; si falta, se resuelve por el screener con validación de ISIN.
+  let secid=(typeof MST_SECID!=='undefined'&&MST_SECID)?MST_SECID:'';
+  if(!secid){
+    try{
+      for(const uni of ['FOALL$$ALL','ETALL$$ALL','CEALL$$ALL']){
+        const su='https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener?page=1&pageSize=10&outputType=json&version=1&universeIds='+encodeURIComponent(uni)+'&securityDataPoints='+encodeURIComponent('SecId|Isin')+'&term='+MST_ISIN;
+        const r=await fetch(su,{credentials:'omit'});
+        if(!r.ok)continue;
+        const j=await r.json();
+        const rows=(j&&j.rows)||[];
+        const hit=rows.find(x=>((x.Isin||'').toUpperCase()===MST_ISIN.toUpperCase()));
+        if(hit&&hit.SecId){secid=hit.SecId;break;}
+      }
+    }catch(e){}
+  }
+  if(!secid)return null;   // sin SecId exacto → sin serie (mejor vacío que de otro fondo)
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?currencyId=EUR&idtype=Morningstar&frequency=daily&id='+secid+'&startDate=1990-01-01&outputType=compactJSON';
   try{
     const res=await fetch(url,{credentials:'omit'});
     if(!res.ok)throw new Error('HTTP '+res.status);
@@ -2617,6 +2719,24 @@ document.addEventListener('DOMContentLoaded',async()=>{
     console.error('MST error:',e);
   }
 });
+
+// Selector de CLASE (worker) → recarga los gráficos cuantitativos con la serie de la clase elegida.
+// Para la clase primaria usa el SecId horneado (lineage-extendido); para otra clase resuelve su SecId
+// por ISIN vía screener. Así cada clase muestra SU histórico real (§0.9), sin recargar el iframe.
+window.switchClass=async function(isin){
+  if(!isin)return;
+  MST_ISIN=(''+isin).toUpperCase();
+  MST_SECID=(MST_ISIN===(MST_PRIMARY_ISIN||'').toUpperCase())?MST_SECID_BAKED:'';
+  const el=document.getElementById('mst-loading');
+  const cont=document.getElementById('mst-evo-content');
+  if(el){el.style.display='';el.textContent='Cargando datos de la clase '+MST_ISIN+'…';}
+  if(cont)cont.style.display='none';
+  try{
+    MST_DATA=await fetchMST();
+    if(MST_DATA&&MST_DATA.length>30)renderMST(MST_DATA);
+    else if(el)el.textContent='Sin serie Morningstar para la clase '+MST_ISIN;
+  }catch(e){if(el)el.textContent='Error cargando la clase: '+e.message;}
+};
 </script>
 </body>
 </html>

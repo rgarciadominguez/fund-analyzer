@@ -231,8 +231,7 @@
         "benchmark_pct": null
       }
     ],
-    "mix_activos_historico": [],
-    "mix_geografico_historico": []
+    "mix_activos_historico": []
   },
   "posiciones": {
     "actuales": [
@@ -1218,7 +1217,43 @@
       ]
     },
     "documentos": {
-      "informes_pdf": [],
+      "informes_pdf": [
+        {
+          "tipo": "prospectus",
+          "periodo": "2026",
+          "nombre": "Folleto 2026",
+          "url": "https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/LU0933684283/prospectus/LU0933684283.pdf",
+          "archivo": "LU0933684283.pdf"
+        },
+        {
+          "tipo": "factsheet",
+          "periodo": "2025",
+          "nombre": "Factsheet 2025",
+          "url": "https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/LU0933684283/factsheet/2025.06.30_Informe_semestral.pdf",
+          "archivo": "2025.06.30_Informe_semestral.pdf"
+        },
+        {
+          "tipo": "annual_report",
+          "periodo": "2025",
+          "nombre": "Informe anual 2025",
+          "url": "https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/LU0933684283/annual_report/annual_report_finect.pdf",
+          "archivo": "annual_report_finect.pdf"
+        },
+        {
+          "tipo": "semi_annual_report",
+          "periodo": "2025",
+          "nombre": "Informe semestral 2025",
+          "url": "https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/LU0933684283/semi_annual_report/2025.06.30_Informe_semestral.pdf",
+          "archivo": "2025.06.30_Informe_semestral.pdf"
+        },
+        {
+          "tipo": "kid",
+          "periodo": "2023",
+          "nombre": "KID 2023",
+          "url": "https://mfbtebngddjjuwfaelat.supabase.co/storage/v1/object/public/funds-data/docs/LU0933684283/kid/Noviembre2023.pdf",
+          "archivo": "Noviembre2023.pdf"
+        }
+      ],
       "xmls_cnmv": [],
       "cartas_urls": [
         "https://equamcapital.com/wp-content/uploads/2022/06/2Q2021v2.pdf",
@@ -1324,10 +1359,43 @@
           "fuentes_externas",
           "documentos"
         ]
+      },
+      {
+        "ts": "2026-06-11T08:42:06.339382",
+        "main_model": "opus",
+        "audit_model": "opus",
+        "anti_invencion_flagged_count": 0,
+        "audit_iterations": 1,
+        "input_drift": [
+          "fund_data.json: no existe ahora",
+          "readings.json: no existe ahora",
+          "sources.json: cambió desde la skill"
+        ],
+        "skill_version": "2.4.0",
+        "sections_generated": [
+          "resumen",
+          "historia",
+          "gestores",
+          "evolucion",
+          "estrategia",
+          "cartera",
+          "fuentes_externas",
+          "documentos"
+        ]
       }
     ]
   },
   "publication_calendar": {
+    "annual_report": {
+      "frequency": "annual",
+      "publication_months_typical": [
+        12
+      ],
+      "last_known_date": "2024-12-31",
+      "next_expected_date": "2025-12-28",
+      "source": "9 annual_report (discovery/raw)",
+      "confidence": "high"
+    },
     "quarterly_letters": {
       "frequency": "annual",
       "publication_months_typical": [
@@ -1513,8 +1581,15 @@
     {
       "periodo": "2025",
       "sectores": {
-        "Otros": 95.13,
-        "Industria": 2.67
+        "Otros": 38.45,
+        "Consumo cíclico": 14.68,
+        "Industria": 12.35,
+        "Energía": 7.87,
+        "Tecnología": 7.45,
+        "Materiales": 7.07,
+        "Consumo defensivo": 4.53,
+        "Comunicación": 4.2,
+        "Salud": 1.2
       }
     }
   ],
@@ -1546,6 +1621,245 @@
         "analyst_synthesis.documentos",
         "gestora"
       ]
+    },
+    {
+      "ts": "2026-06-11T09:21:33.119657",
+      "preserved_paths": [
+        "analyst_synthesis.resumen",
+        "analyst_synthesis.historia",
+        "analyst_synthesis.gestores",
+        "analyst_synthesis.evolucion",
+        "analyst_synthesis.estrategia",
+        "analyst_synthesis.cartera",
+        "analyst_synthesis.fuentes_externas",
+        "analyst_synthesis.documentos",
+        "gestora"
+      ]
     }
-  ]
+  ],
+  "analisis_cuantitativo": {
+    "isin": "LU0933684283",
+    "yahoo_symbol": "0P000159IF.F",
+    "style_box": {
+      "box": 7,
+      "size": "Small",
+      "style": "Value",
+      "_source": "yahoo"
+    },
+    "sectores": [
+      {
+        "sector": "industrials",
+        "peso_pct": 26.67
+      },
+      {
+        "sector": "consumer_cyclical",
+        "peso_pct": 19.86
+      },
+      {
+        "sector": "energy",
+        "peso_pct": 12.16
+      },
+      {
+        "sector": "technology",
+        "peso_pct": 10.71
+      },
+      {
+        "sector": "communication_services",
+        "peso_pct": 9.02
+      },
+      {
+        "sector": "consumer_defensive",
+        "peso_pct": 7.93
+      },
+      {
+        "sector": "basic_materials",
+        "peso_pct": 5.33
+      },
+      {
+        "sector": "financial_services",
+        "peso_pct": 4.31
+      },
+      {
+        "sector": "healthcare",
+        "peso_pct": 2.73
+      },
+      {
+        "sector": "realestate",
+        "peso_pct": 1.29
+      }
+    ],
+    "valoracion": {
+      "fondo": {
+        "per": 15.47,
+        "pvc": 1.26,
+        "pventas": 0.45,
+        "pcf": 4.43
+      },
+      "indice": {
+        "per": 24.36,
+        "pvc": 3.9,
+        "pventas": 2.98,
+        "pcf": 17.26
+      },
+      "indice_label": "MSCI World"
+    },
+    "riesgo": [
+      {
+        "periodo": "3y",
+        "volatilidad": 11.45,
+        "sharpe": 0.63,
+        "beta": 0.77,
+        "alpha": -0.6,
+        "r2": 74.94,
+        "treynor": 8.98
+      },
+      {
+        "periodo": "5y",
+        "volatilidad": 13.66,
+        "sharpe": 0.39,
+        "beta": 0.77,
+        "alpha": 2.63,
+        "r2": 77.03,
+        "treynor": 6.0
+      },
+      {
+        "periodo": "10y",
+        "volatilidad": null,
+        "sharpe": null,
+        "beta": null,
+        "alpha": null,
+        "r2": null,
+        "treynor": null
+      }
+    ],
+    "retornos": {
+      "ytd": 6.25,
+      "1a": 7.23,
+      "3a": 9.86,
+      "5a": 6.46,
+      "10a": 0.0
+    },
+    "capture_ratios": {
+      "n_meses": 46,
+      "n_up": 32,
+      "n_down": 14,
+      "_source": "computed_nav",
+      "rendimiento_regimen": {
+        "subidas": {
+          "fondo": 1.62,
+          "indice": 3.61
+        },
+        "caidas": {
+          "fondo": -2.16,
+          "indice": -3.26
+        }
+      },
+      "upside_pct": 30.8,
+      "exceso_subidas_pp": -144.3,
+      "downside_pct": 73.2,
+      "exceso_caidas_pp": 10.0,
+      "capture_ratio": 0.42,
+      "perfil": "Defensivo: cae menos que el índice; capta algo menos en subidas",
+      "perfil_tag": "defensivo"
+    },
+    "benchmark_symbol": "IWDA.L",
+    "benchmark_label": "MSCI World",
+    "sectores_benchmark": [
+      {
+        "sector": "technology",
+        "peso_pct": 31.25
+      },
+      {
+        "sector": "financial_services",
+        "peso_pct": 15.04
+      },
+      {
+        "sector": "industrials",
+        "peso_pct": 10.91
+      },
+      {
+        "sector": "consumer_cyclical",
+        "peso_pct": 9.2
+      },
+      {
+        "sector": "communication_services",
+        "peso_pct": 8.91
+      },
+      {
+        "sector": "healthcare",
+        "peso_pct": 8.59
+      },
+      {
+        "sector": "consumer_defensive",
+        "peso_pct": 4.86
+      },
+      {
+        "sector": "energy",
+        "peso_pct": 3.82
+      },
+      {
+        "sector": "basic_materials",
+        "peso_pct": 3.28
+      },
+      {
+        "sector": "utilities",
+        "peso_pct": 2.44
+      },
+      {
+        "sector": "realestate",
+        "peso_pct": 1.7
+      }
+    ],
+    "morningstar": {
+      "_fuente": "morningstar",
+      "secid": "F00000V96I",
+      "categoria_morningstar": "Europe Small-Cap Equity",
+      "rating_estrellas": 4,
+      "medalist_rating": "Silver",
+      "sustainability_rating": 4,
+      "rentabilidades": {
+        "ytd": 4.43,
+        "1a": 6.34,
+        "3a": 8.72,
+        "5a": 6.11
+      },
+      "riesgo": {
+        "3a": {
+          "alpha": -0.6,
+          "beta": 0.77,
+          "sharpe": 0.5022,
+          "sortino": 0.7944,
+          "volatilidad": 11.1084,
+          "max_drawdown": -15.6054,
+          "information_ratio": -0.47,
+          "r2": 74.94
+        },
+        "5a": {
+          "alpha": 2.63,
+          "beta": 0.77,
+          "sharpe": 0.3066,
+          "sortino": 0.4477,
+          "volatilidad": 12.2982,
+          "max_drawdown": -21.2397
+        }
+      },
+      "valoracion": {
+        "per": 10.5489,
+        "pbv": 1.2,
+        "cap_media_meur": 868.9377
+      },
+      "comisiones": {
+        "ter_pct": 1.97,
+        "comision_gestion_pct": 1.7,
+        "comision_entrada_max_pct": 0.0,
+        "inversion_minima": 100.0
+      },
+      "patrimonio_fondo_meur": 64252584.0,
+      "gestora": "Adepa",
+      "domicilio": "LUX"
+    },
+    "geo_inferida": "global",
+    "generado": "2026-06-16T15:00:17.460370+00:00"
+  },
+  "fecha_proximo_analisis": "2027-06-11"
 }
