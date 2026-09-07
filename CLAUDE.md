@@ -4,6 +4,56 @@ Documento canónico del proyecto. Léelo antes de tocar código.
 
 ---
 
+## 0. Regla intocable: NO tocar horizontefinancieroasesores.com
+
+**PROHIBIDO** modificar, escribir o llamar APIs de `horizontefinancieroasesores.com`
+(WordPress + wpdatatables) desde el pipeline. Todo lo que hagamos debe ser
+**paralelo** para no romper la web actual que Rafa usa en producción.
+
+**Sync BDD Activos (decisión 2026-07-10)**:
+- El pipeline escribe a Supabase (fuente de verdad) + regenera Excel espejo.
+- El paso `Supabase → BDD Activos WP` sigue siendo **manual** (Rafa exporta CSV).
+- Cuando esté lista la **nueva web** (hub `tool.rafagdominguez96.workers.dev`)
+  se construirá el puente Supabase → nueva web (lectura directa vía API o
+  cliente Supabase JS). La WP actual queda intacta hasta migración validada.
+- Backlog: task pending "FUTURE — Puente Supabase → nueva web".
+
+---
+
+## 0.9. Contrato FONDO vs CLASE (regla FUNDAMENTAL de datos) — 2026-09-05
+
+**Unidad de ANÁLISIS = el FONDO (grupo/activo). Unidad de CUANTITATIVO = la CLASE (ISIN).**
+Esta regla es INNEGOCIABLE y aplica a la BDD actual y a todo lo de aquí en adelante.
+
+### Nivel FONDO (una sola vez por grupo, COMPARTIDO por todas las clases)
+- Cualitativo (resumen, historia, estrategia, gestores, evolución) — buscando SIEMPRE los docs MÁS RECIENTES.
+- **Documentos** (AR, SAR, KID, folleto, factsheet): TODOS los que se usaron en el análisis, en la pestaña, **bien categorizados** y **deduplicados por grupo** (nunca por-ISIN → eso causaba contaminación tipo `2004_annual_report` y clases hermanas divergentes).
+- **Cartas del gestor** + análisis externos / readings.
+- **Posiciones/cartera, geografía, sector, AUM del subfondo, consistencia.** AUM y posiciones en la **divisa base del fondo** (el total del subfondo, NO de la clase).
+
+### Nivel CLASE (por ISIN)
+- **Cuantitativos** (rentab. por año, CAGR, vol, maxDD, Sharpe, capture, serie NAV) en la **DIVISA NATIVA de la clase**, NUNCA convertidos ni mezclados en un mismo gráfico.
+- TER, comisiones, divisa, fecha inicio clase, mínimo, distribución (Acc/Reparto).
+- Se calcula/guarda quant para **~1 clase por DIVISA** con track-record largo (no todas), salvo excepción por características muy distintas (hedged vs no, etc.). Barato (Morningstar diario por SecId, sin LLM).
+
+### Resolución de "ver análisis" (IDÉNTICA en portal, fund-analyzer, Supabase y BDD)
+1. **Primario** = clase **EUR con más track-record**, SI tiene ≥3 años. Si no hay clase EUR o la EUR tiene <3 años → la clase con el **histórico MÁS LARGO**, avisando de que los cuants son de esa clase.
+2. **Quant mostrado** = el del primario. **Fallback**: si el primario tiene <7 años y otra divisa tiene ≥7 años **con ≥3 años más de margen** → mostrar el quant de esa clase, avisando "datos de la clase en divisa X (hedged/no)". Si ambas son cortas → primario con aviso "histórico corto" (no saltar de divisa por 1 año).
+3. **Clase histórica migrada**: si una clase histórica se partió en varias y dejó de continuar, incluirla en los gráficos con `*` + nota abajo identificándola (visible para reconocerla, sin pasarse de cantoso).
+4. **SIEMPRE** selector para ver los gráficos de OTRA clase bajo el MISMO análisis.
+- "Track-record" = serie NAV real más larga y continua (no solo la fecha de inicio). Tie-break: la retail/limpia con menos comisión.
+
+### Semántica de re-análisis
+- **Cualitativo = 1 vez por fondo** (caro, LLM), con los docs más recientes.
+- **Quant = por clase** (barato, sin LLM), refrescable de forma independiente. Una clase nueva NO re-lanza el análisis caro: hereda el de fondo + calcula su quant.
+
+### ALINEACIÓN (punto innegociable)
+**Lo que haya en portal, fund-analyzer, Supabase y BDD tiene que ser TODO IGUAL Y ALINEADO SIEMPRE.**
+Un análisis = UNA fuente de verdad por grupo; TODAS las clases resuelven a ella. Prohibido dejar
+análisis por-clase divergentes o vistas desincronizadas entre capas.
+
+---
+
 ## 1. Arquitectura de `output.json`
 
 Cada fondo tiene un `data/funds/{ISIN}/output.json` con **dos zonas semánticas distintas** (no son duplicados — son niveles de procesamiento diferentes):
@@ -317,6 +367,7 @@ CLI: `python -m tools.output_accessor --audit-all` muestra todos los drifts.
 
 | Fase | Fecha | Cambio | Breaking? |
 |---|---|---|---|
+| **X** | **2026-08-04** | **Gráficos de cartera (sector + geografía) desde datos que ya tenemos + cableado en pipeline**: los gráficos de sector/geografía salían vacíos en muchos fondos. Fuentes efectivas (memoria `enrichment-sources-sector-geo`): (1) **Sectores** → Yahoo (`quant_enrichment`, RV: 11/11; RF devuelve 0, correcto) + agregación de posiciones con `sector`. Cobertura 40→**52/61**. (2) **Geografía** (`geographic_allocation_history`, gráfico evolución ≥2 periodos) → `tools/build_cartera_breakdowns.py`: región por posición = país real, o **fallback prefijo ISIN del valor** (`ticker`/`isin`→país emisión→región) cuando el país viene "Internacional"/null. **Guardas**: XS (eurobonos) y tipos vehículo (fondo/ETF, ISIN=domicilio≠geo) NO se resuelven; umbral 25% peso geoloc. Cobertura 0→**44/61** (validado: Magallanes European→Europa 94%, BBVA USA→USA 94%). (3) **Cableado pipeline** (`orchestrator` ~3035): `enrich_and_save`→**`enrich_and_merge`** (fill-if-empty, ya NO sobreescribe sectores de cartera ni bloque Morningstar) + `build_cartera_breakdowns.apply_to_output` antes del dashboard → análisis NUEVOS ya salen con sector+geografía. (4) **Guard de cobertura** `position_coverage(isin)`: avisa (log WARN, no silencio) si las posiciones cubren <50%/<75% del peso. ES viene completa de CNMV (55/61 ≥75%); INT depende de que el AR traiga el 'Securities Portfolio' completo, no solo el top-10 (4 LU quedaron en ~8-47% porque su AR no se descargó, PDFs no locales). Re-render masivo con `DASHBOARD_SKIP_ENRICH=1` (evita búsquedas web KID/AR que cuelgan). | No (aditivo) |
 | C | 2026-04-27 | Refactor lectura, `output_accessor.py` ~50 getters | No |
 | E | 2026-04-27 | Pipeline INT consolidado (CSSF/CBI/AMF/Bundes), `intl_agent.py` eliminado, bug DNCA AUM €41B arreglado | Sí (eliminó intl_agent) |
 | F | 2026-04-27 | 7 fixes Magallanes: clases comerciales (cnmv_agent v7), trusted_sources.json, file:// PDFs, AUM extractor wins, comisiones line chart, chat doc-only, publication_calendar | No (aditivo) |

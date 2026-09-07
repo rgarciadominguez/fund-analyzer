@@ -104,31 +104,46 @@ Si falta el manifest o no hay PDFs → aborta.
 
 Read `data/funds/{ISIN}/pending_extraction.json`. Lista todas las tasks.
 
-### 3. Lectura del PDF — IMAGEN, no texto (crítico para fidelidad de cifras)
+### 3. Lectura del PDF — texto donde es fiable, IMAGEN donde no (ahorro sin perder cifras)
 
-Lee cada página como **imagen**, no como texto plano. El texto de `pdfplumber`/`pypdf` en informes CNMV/AR **pierde dígitos** y trae **prosa con fuentes CID** ilegibles — copiar cifras de ahí es la causa nº1 de datos malos. La imagen de la página es inmune a eso.
+**Regla coste/calidad (#3): lee TEXTO plano por defecto, y usa la página como IMAGEN solo cuando el texto NO es fiable o son cifras críticas.** Leer TODA página como imagen es caro (cada página ≈ miles de tokens) y no hace falta cuando el texto sale limpio. La calidad se mantiene porque las cifras críticas siguen yendo por imagen.
 
-1. **Primera opción — `Read` del PDF** (el tool lo rasteriza con `pdftoppm`/poppler y te da la página como imagen). Usa el parámetro `pages` (máx ~20 págs/llamada; obligatorio en PDFs >10 págs).
-2. **Si `Read` falla con `pdftoppm not found`** (típico en Windows sin poppler), renderiza con **PyMuPDF (`fitz`, ya instalado)** a PNG 200 DPI y `Read` el PNG:
+**Paso 1 — extrae el texto de la(s) página(s) target** con PyMuPDF:
+```bash
+python -c "import fitz; d=fitz.open(r'{pdf_path}'); print(d[P].get_text())"
+```
+**Paso 2 — decide POR PÁGINA:**
+- **Texto LIMPIO → úsalo directamente, SIN imagen.** Limpio = prosa legible, palabras bien formadas, números con todos sus dígitos. Aplica a la **prosa cualitativa** (Directors' Report, estrategia, comentario del gestor) y a la **TOC**.
+- **Texto SUCIO/CID → lee la página como IMAGEN.** Señales de sucio: espacios como `\x03`, secuencias tipo `7KH\x03\\HDU` (fuente CID con offset), cajas/carácter de reemplazo `�`, o números a los que les faltan dígitos.
+- **CIFRAS CRÍTICAS pequeñas → por imagen** (pocas cifras en 1-2 págs, imagen barata y segura): `Statistics` (NAV/nº acciones), `Performance`, breakdowns geo/sector, Top Ten y el AUM. Un dígito mal ahí contamina todo.
+- **Tablas GRANDES (`Securities Portfolio`/`Schedule of Investments`, 5-15 págs de RF) → texto si sale LIMPIO**, imagen solo en las páginas con CID/dígitos faltantes. Verifica 2-3 valores contra la imagen de UNA página para confirmar que el texto es fiable; si lo es, extrae el resto por texto (no rasterices 15 páginas en balde). Si viene CID → imagen, como siempre.
+
+**Cómo leer como imagen (solo cuando aplique):**
+1. `Read` del PDF (rasteriza con poppler) usando `pages` (máx ~20 págs/llamada).
+2. **Si `Read` falla con `pdftoppm not found`** (Windows sin poppler), renderiza con **PyMuPDF (`fitz`)** a PNG 200 DPI y `Read` el PNG:
    ```bash
    python -c "import fitz; d=fitz.open(r'{pdf_path}'); [d[p].get_pixmap(dpi=200).save(rf'data/funds/{ISIN}/raw/_pg{p}.png') for p in range(START,END)]"
    ```
-   Luego `Read data/funds/{ISIN}/raw/_pg{N}.png` por cada página. Borra los `_pg*.png` al terminar la task.
-3. **`pdfplumber`/`pypdf` texto plano SOLO para localizar** (TOC, en qué página está una sección) — **nunca para copiar cifras**.
+   Borra los `_pg*.png` al terminar la task.
+
+Resumen: **prosa cualitativa y TOC → texto; tablas de cifras y páginas con CID → imagen.** Nunca copies una cifra de un texto que se ve sucio.
 
 ### 3b. Procesamiento por task (1-2 turns por task)
 
-Para CADA task (leyendo las páginas como imagen según §3):
+Para CADA task (leyendo cada página por texto o imagen según la regla de §3):
 
 **Tipo A — Extracción simple (CNMV cualitativo, KIID, factsheet)**:
-1. Leer la(s) página(s) del PDF como imagen (§3)
+1. Leer la(s) página(s) del PDF (texto si limpio, imagen si cifras/CID — §3)
 2. Aplicar el schema de extracción al contenido leído
 3. Devolver JSON con los campos pedidos
 4. Escribir `data/funds/{ISIN}/extracted/{task_id}.json`
 
 **Tipo B — Concept-first 2-stage (Annual Reports INT >30 páginas)**:
-1. **Stage 1 (mapper)**: localiza la TOC (texto plano vale aquí) y mapea qué páginas contienen qué (estrategia, posiciones, KPIs, gestores). Output intermedio: `{section_name: page_range}`. NO intentes `Read` de un PDF de 500 págs entero — pagina por rangos de la TOC.
-2. **Stage 2 (extractor)**: Re-leer las páginas específicas identificadas en stage 1, extraer datos estructurados al schema.
+1. **Stage 1 (mapper)**: localiza la TOC (texto plano) y calcula el offset TOC→PDF. Mapea SOLO las páginas del **sub-fondo TARGET**: su Directors' Report/estrategia, sus Statistics, su Securities Portfolio, sus breakdowns y Top Ten. Output intermedio: `{section_name: page_range}` **del target**.
+2. **Stage 2 (extractor) — lee ÚNICAMENTE ese rango del target (#2, gran ahorro):**
+   - **NUNCA leas el PDF entero** (un paraguas son 500 págs con ~25 sub-fondos): es el mayor derroche de tokens y arriesga contaminar con datos de OTRO sub-fondo.
+   - **NO leas las páginas de los sub-fondos vecinos.** El target ocupa un bloque contiguo (p.ej. sus Financial Statements van desde su primera página hasta la del SIGUIENTE sub-fondo en la TOC); limita el rango a ese bloque.
+   - Solo amplías si una sección del target se sale de lo mapeado (p.ej. un `Securities Portfolio` de RF que ocupa más páginas de las previstas → sigue paginando hasta acabar ESA sección del target).
 3. Devolver JSON estructurado completo.
 
 Para tasks con `two_stage: true` → siempre Tipo B.
@@ -175,7 +190,7 @@ NO ejecutes el consume automáticamente.
 ## Modelo recomendado
 
 - **Opus 4.8** — el bat lo fuerza vía `claude -p --model claude-opus-4-8` (var `MODEL_EXTRACT`). Calidad-primero: la extracción ya corría en Opus (evidencia en `extracted/*.json`) y rinde bien con `anti_invencion_notes`; bajar a Sonnet sería ahorro de coste, no mejora.
-- **El cuello de botella de calidad NO es el modelo sino el input.** Ver «Lectura del PDF» abajo: leer la página como **imagen** (no texto de pdfplumber) es lo que evita los fallos de cifras/CID. Eso rinde más que cualquier cambio de tier.
+- **El cuello de botella de calidad NO es el modelo sino el input.** Ver «Lectura del PDF» (§3): las **cifras** salen de la **imagen** de la página (evita fallos CID/dígitos), y la **prosa cualitativa** se lee por **texto** (fiable y barato). Elegir bien texto-vs-imagen por página rinde más que cualquier cambio de tier — y ahorra tokens sin perder precisión.
 
 ## Coste y rate limit
 
