@@ -798,30 +798,47 @@ def main() -> None:
         # Lock de instancia única: si ya hay OTRO worker vivo (mismo lock, PID activo) salgo, para
         # no procesar la cola por duplicado. PID-liveness (no mtime) porque una pasada puede bloquear
         # ~40min analizando; si el PID viejo murió, este lo roba (compatible con el auto-relanzado del .cmd).
-        import tempfile, ctypes
+        import tempfile, ctypes, time as _t, random as _rnd
         _lock = Path(tempfile.gettempdir()) / "hf_portal_worker.lock"
-        _otro = False
-        if _lock.exists():
+
+        def _pid_vivo(pid: int) -> bool:
+            if not pid or pid == os.getpid():
+                return False
             try:
-                _pid = int(_lock.read_text().strip())
+                _h = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+                if _h:
+                    ctypes.windll.kernel32.CloseHandle(_h)
+                    return True
             except Exception:
-                _pid = 0
-            if _pid and _pid != os.getpid():
-                try:
-                    _h = ctypes.windll.kernel32.OpenProcess(0x1000, False, _pid)
-                    if _h:
-                        ctypes.windll.kernel32.CloseHandle(_h)
-                        _otro = True
-                except Exception:
-                    pass
-        if _otro:
+                pass
+            return False
+
+        def _lock_pid() -> int:
+            try:
+                return int(_lock.read_text().strip())
+            except Exception:
+                return 0
+
+        # 1) ¿Ya hay OTRO poller vivo? (PID-liveness; si el viejo murió, se lo roba)
+        if _pid_vivo(_lock_pid()):
             log("Ya hay OTRO worker del poller vivo (lock) — salgo para no duplicar el análisis.")
             return
+        # 2) Jitter anti-carrera: si DOS pollers arrancan casi a la vez (p.ej. guardián one-pass +
+        #    daemon) y ambos ven el lock de un PID muerto, un desfase aleatorio hace que uno gane.
+        _t.sleep(_rnd.uniform(0.05, 0.6))
+        if _pid_vivo(_lock_pid()):
+            log("Otro poller ganó la carrera del lock — salgo para no duplicar.")
+            return
+        # 3) Escribo mi PID y VERIFICO que quedé yo (write-then-verify cierra la ventana TOCTOU).
         try:
             _lock.write_text(str(os.getpid()))
-            log(f"lock adquirido: {_lock} (existe={_lock.exists()})")
         except Exception as e:  # noqa: BLE001
             log(f"[WARN] no pude escribir el lock ({_lock}): {e}")
+        _t.sleep(0.15)
+        if _lock_pid() != os.getpid():
+            log("Otro poller sobrescribió el lock tras la carrera — salgo para no duplicar.")
+            return
+        log(f"lock adquirido: {_lock} (pid={os.getpid()})")
         log(f"BUCLE cada {a.loop}s (Ctrl-C para parar). limit={a.limit}")
         # Anti-cuelgue: si un poller anterior murió a mitad de un análisis (crash/kill/reinicio),
         # cierra en el portal el fondo que se quedó en 'Analizando…' antes de empezar el bucle.
