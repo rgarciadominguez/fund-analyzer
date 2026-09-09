@@ -148,6 +148,44 @@ def mark_started(isin: str, fase: str = "analizando", dry: bool = False) -> None
         log(f"  [WARN] no pude marcar empezado {isin}: {e}")
 
 
+# ── Blindaje de campos RAFA_ONLY en Supabase (clasificación/opinión/encaje) ──────────
+# Un re-análisis NUNCA debe perder la clasificación de calidad de Rafa. Pasó con Carmignac:
+# tras el aporte, funds.clasificacion_user quedó None (probablemente el flujo needs_review del
+# portal la reseteó). Como no controlamos el WordPress, blindamos desde el worker: snapshot ANTES
+# del run y restauración DESPUÉS si algún campo con valor quedó vacío. Ver una_pasada().
+_RAFA_ONLY_FIELDS = ("clasificacion_user", "opinion_user", "encaje_texto")
+
+
+def _snapshot_rafa_only(isin: str) -> dict:
+    try:
+        from tools.supabase_client import get_client
+        c = get_client()
+        r = c.table("funds").select(",".join(_RAFA_ONLY_FIELDS)).eq("isin", isin).execute()
+        return (r.data[0] if getattr(r, "data", None) else {}) or {}
+    except Exception as e:  # noqa: BLE001
+        log(f"[SAFEGUARD] snapshot RAFA_ONLY {isin} falló (no crítico): {str(e)[:70]}")
+        return {}
+
+
+def _restore_rafa_only(isin: str, snap: dict) -> None:
+    """Restaura los campos RAFA_ONLY que TENÍAN valor antes del run y quedaron vacíos después."""
+    if not snap:
+        return
+    try:
+        from tools.supabase_client import get_client
+        c = get_client()
+        r = c.table("funds").select(",".join(_RAFA_ONLY_FIELDS)).eq("isin", isin).execute()
+        cur = (r.data[0] if getattr(r, "data", None) else {}) or {}
+        restore = {k: snap.get(k) for k in _RAFA_ONLY_FIELDS
+                   if snap.get(k) not in (None, "") and cur.get(k) in (None, "")}
+        if restore:
+            c.table("funds").update(restore).eq("isin", isin).execute()
+            log(f"[SAFEGUARD] RAFA_ONLY restaurado en {isin}: {list(restore.keys())} "
+                f"(algo lo vació durante el run)")
+    except Exception as e:  # noqa: BLE001
+        log(f"[SAFEGUARD] restore RAFA_ONLY {isin} falló (no crítico): {str(e)[:70]}")
+
+
 def _doc_dates(isin: str) -> dict:
     """Fechas de los últimos documentos (annual/semianual/carta del gestor) desde
     data/funds/{ISIN}/output.json → publication_calendar (ya las calcula publication_calendar.py).
@@ -708,6 +746,8 @@ def una_pasada(args) -> int:
         log(f"Limitado a {len(lote)} de {len(cola)} (usa --limit para subirlo).")
     for item in lote:
         ok = False
+        # Blindaje: snapshot de los campos RAFA_ONLY ANTES del run (clasificación/opinión/encaje).
+        _rafa_snap = {} if args.dry_run else _snapshot_rafa_only(item["isin"])
         try:
             ok = bool(procesar(item["isin"], dry=args.dry_run, do_push=not args.no_push,
                      metrics_only=args.metrics_only, name=item.get("name", ""),
@@ -723,6 +763,9 @@ def una_pasada(args) -> int:
             # (solo con informe): un análisis fallido NO debe salir en "Categorizar".
             if not args.isin:
                 mark_done(item["isin"], ok=ok, dry=args.dry_run)
+            # Restaura la clasificación de Rafa si el run (o el needs_review del portal) la vació.
+            if not args.dry_run:
+                _restore_rafa_only(item["isin"], _rafa_snap)
     _HB_STATE["isin"] = ""; _HB_STATE["fase"] = "idle"
     return len(lote)
 
