@@ -452,20 +452,30 @@ def ensure_web_server(dry: bool) -> bool:
     return False
 
 
-def _run_bat_directo(isin: str, dry: bool) -> int:
+def _run_bat_directo(isin: str, dry: bool, scope: str = "full") -> int:
     bat = ROOT / "analizar_fondo.bat"
-    return _run(["cmd", "/c", str(bat), isin], dry=dry, timeout=3600)
+    # annual_update/aporte → --resume (NO cold-start: preserva docs/análisis y el aporte; el bat
+    # lee config.json.modo para saltar discovery/ar-sourcing/lineage). Ver MODOS_ANALISIS.md.
+    argv = ["cmd", "/c", str(bat), isin]
+    if scope != "full":
+        argv.append("--resume")
+    return _run(argv, dry=dry, timeout=3600)
 
 
-def analizar(isin: str, dry: bool) -> int:
+def analizar(isin: str, dry: bool, scope: str = "full") -> int:
     """Lanza el análisis completo A TRAVÉS del server local (/api/analyze) para que el
     catálogo lo muestre en vivo. Si el server no está disponible, cae al bat directo.
-    Devuelve 0 OK, 10 fallo, 5 sin terminar a tiempo."""
+    Devuelve 0 OK, 10 fallo, 5 sin terminar a tiempo.
+
+    scope (MODOS_ANALISIS.md): 'full' → cold-start (re-descubre todo). 'annual_update'/'aporte' →
+    --resume (cold_start=False): NO mueve el fondo a .bak ni re-descubre; preserva docs/análisis y
+    solo busca lo nuevo (annual) o solo usa el aporte (aporte)."""
+    _cold = (scope == "full")
     if not ensure_web_server(dry):
-        log("  server no disponible — ejecuto el bat directo (sin visibilidad en catálogo)")
-        return _run_bat_directo(isin, dry)
+        log(f"  server no disponible — ejecuto el bat directo (scope={scope})")
+        return _run_bat_directo(isin, dry, scope=scope)
     if dry:
-        log(f"  [dry] POST {WEB_BASE}/api/analyze-batch {{isins:[{isin}], cold_start:true}}")
+        log(f"  [dry] POST {WEB_BASE}/api/analyze-batch {{isins:[{isin}], cold_start:{_cold}}}")
         return 0
 
     def _run_by_isin() -> dict:
@@ -485,7 +495,7 @@ def analizar(isin: str, dry: bool) -> int:
     # Lanzar por la COLA (analyze-batch) → aparece en el monitor de arriba del catálogo.
     try:
         d = httpx.post(f"{WEB_BASE}/api/analyze-batch",
-                       json={"isins": [isin], "cold_start": True}, timeout=30).json()
+                       json={"isins": [isin], "cold_start": _cold}, timeout=30).json()
     except Exception as e:  # noqa: BLE001
         log(f"  [WARN] POST /api/analyze-batch falló ({e}) — fallback bat directo")
         return _run_bat_directo(isin, dry)
@@ -546,6 +556,22 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
         else:
             es_annual = False
             log(f"  {_cfg.get('motivo', 'sin análisis previo')} → análisis completo")
+    # Modo APORTE (MODOS_ANALISIS.md): hay material aportado y NO es update anual → complementar el
+    # análisis con ese material SIN re-descubrir nada. Escribe la señal modo=aporte en config.json
+    # (la lee la prep/discovery + el bat para SALTAR discovery/ar-sourcing/lineage) y fuerza --resume.
+    es_aporte = bool(docs_aportados or analisis_externos) and not es_annual
+    if es_aporte and not dry:
+        import json as _json
+        from pathlib import Path as _Path
+        _cfgp = _Path(__file__).resolve().parent.parent / "data" / "funds" / isin / "config.json"
+        try:
+            _c = _json.loads(_cfgp.read_text(encoding="utf-8")) if _cfgp.exists() else {}
+            _c["modo"] = "aporte"
+            _cfgp.parent.mkdir(parents=True, exist_ok=True)
+            _cfgp.write_text(_json.dumps(_c, ensure_ascii=False, indent=2), encoding="utf-8")
+            log("  modo APORTE · complementa sin discovery (docs aportados + los que ya tiene)")
+        except Exception as e:  # noqa: BLE001
+            log(f"  [WARN] no pude marcar modo=aporte: {e}")
     # Material APORTADO por Rafa (docs profesionales / análisis externos) → fuente
     # prioritaria. Se ingiere ANTES del análisis para que la prep/extracción lo incluya.
     if (docs_aportados or analisis_externos) and not dry:
@@ -565,9 +591,10 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
     if metrics_only:
         push_meta(isin, dry=dry, do_push=do_push)
         return True
-    # 2. Análisis completo + clases
+    # 2. Análisis completo + clases (scope decide cold-start vs --resume: full=cold, annual/aporte=resume)
     _HB_STATE["fase"] = "análisis"
-    rc = analizar(isin, dry=dry)
+    _scope_eff = "aporte" if es_aporte else ("annual_update" if es_annual else "full")
+    rc = analizar(isin, dry=dry, scope=_scope_eff)
     tag = {0: "OK", 5: "OK con avisos", 10: "FALLO crítico"}.get(rc, f"rc={rc}")
     log(f"  análisis: {tag}")
     if rc == 10:
@@ -589,6 +616,21 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
             _au_close(isin, log=log)
         except Exception as e:  # noqa: BLE001
             log(f"  [ANNUAL] cierre falló (no crítico): {e}")
+    # Reset del modo APORTE: sin esto, el siguiente análisis heredaría modo=aporte y saltaría la
+    # discovery indebidamente (un full posterior no re-descubriría). El full via cold-start ya arranca
+    # con config limpio; aquí limpiamos el caso aporte (--resume, config preservado).
+    if es_aporte and not dry:
+        try:
+            import json as _json2
+            from pathlib import Path as _P2
+            _cp = _P2(__file__).resolve().parent.parent / "data" / "funds" / isin / "config.json"
+            if _cp.exists():
+                _cc = _json2.loads(_cp.read_text(encoding="utf-8"))
+                if _cc.get("modo") == "aporte":
+                    _cc["modo"] = None
+                    _cp.write_text(_json2.dumps(_cc, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception:
+            pass
     return True        # el análisis produjo informe → el portal lo marcará needs_review=1
 
 

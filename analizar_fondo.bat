@@ -219,23 +219,34 @@ if not exist "data\funds\%ISIN%\pending_manager_deep.json" (
 echo.
 
 REM ----------------------------------------------------------------------
-REM Paso 1.6: Skill ar-sourcing-cowork (Claude Max) — FUERZA el sourcing MÁXIMO de AR/SAR/cartas
-REM multi-año (todos los años desde el lanzamiento real) para que el histórico de cartera salga
-REM como Carmignac (gráficos de evolución año a año). Solo INT (ES saca la cartera completa de CNMV).
-REM Registra en known_annual_reports/known_manager_letters + descarga + deja listo para extract.
+REM MODO de análisis (MODOS_ANALISIS.md): full | annual_update | aporte. Gatea sourcing/discovery.
+set FUND_SCOPE_MODE=full
+for /f "delims=" %%m in ('python -c "import json,os,sys; p=os.path.join('data','funds','%ISIN%','config.json'); sys.stdout.write((json.load(open(p,encoding='utf-8')).get('modo') or 'full') if os.path.exists(p) else 'full')" 2^>nul') do set FUND_SCOPE_MODE=%%m
+echo [MODO] scope de analisis = %FUND_SCOPE_MODE%
+echo.
+
+REM ----------------------------------------------------------------------
+REM Paso 1.6: Skill ar-sourcing-cowork (Claude Max) — sourcing multi-año de AR/SAR/cartas (gap-targeted:
+REM solo años/tipos que faltan). SOLO INT y SOLO en modo full o annual_update. En modo APORTE se SALTA
+REM (no se busca nada en la web; solo se usan los docs aportados + los que ya tiene). Ver MODOS_ANALISIS.md.
 echo %ISIN% | findstr /r "^ES" >nul
 if errorlevel 1 (
-    echo === Paso 1.6: Skill ar-sourcing-cowork ^(Claude Max^) — sourcing multi-año ===
-    echo Busca AR/SAR/cartas de cada año -^> KB + descarga -^> extract construye la evolucion
-    echo.
-    call python -m tools.claude_cowork "logs\skill_ar_sourcing_%ISIN%.log" "ar sourcing cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,WebSearch,WebFetch,Glob,Grep"
-    if errorlevel 1 (
-        echo [WARN] Skill ar-sourcing fallo. Ver logs\skill_ar_sourcing_%ISIN%.log
-        set FAILED_STEPS=!FAILED_STEPS! ar-sourcing
+    if /I "%FUND_SCOPE_MODE%"=="aporte" (
+        echo [MODO aporte] Paso 1.6 ar-sourcing SALTADO ^(sin sourcing web; solo docs aportados^)
+        echo.
     ) else (
-        echo [OK] Skill ar-sourcing OK. Ver logs\skill_ar_sourcing_%ISIN%.log
+        echo === Paso 1.6: Skill ar-sourcing-cowork ^(Claude Max^) — sourcing multi-año ^(gap-targeted^) ===
+        echo Busca SOLO los AR/SAR/cartas de anios/tipos que faltan -^> KB + descarga -^> extract
+        echo.
+        call python -m tools.claude_cowork "logs\skill_ar_sourcing_%ISIN%.log" "ar sourcing cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,WebSearch,WebFetch,Glob,Grep"
+        if errorlevel 1 (
+            echo [WARN] Skill ar-sourcing fallo. Ver logs\skill_ar_sourcing_%ISIN%.log
+            set FAILED_STEPS=!FAILED_STEPS! ar-sourcing
+        ) else (
+            echo [OK] Skill ar-sourcing OK. Ver logs\skill_ar_sourcing_%ISIN%.log
+        )
+        echo.
     )
-    echo.
 )
 
 REM ----------------------------------------------------------------------
@@ -245,8 +256,11 @@ REM predecesor: serie NAV real anterior al lanzamiento legal). Identifica el
 REM vehiculo predecesor (AMC/RAIF/renombrado) para track-record e historico
 REM COMPLETO (contrato §0.9, decision Rafa "todo con etiqueta"). 1 vez, se cachea
 REM en data\fund_lineage.json (compartido por todas las clases del grupo).
+REM En modo APORTE no se resuelve lineage (no se busca nada nuevo): se salta.
 set RUN_LINEAGE=
-for /f "delims=" %%i in ('python -m tools.ensure_lineage --is-queued %ISIN% 2^>nul') do set RUN_LINEAGE=%%i
+if /I not "%FUND_SCOPE_MODE%"=="aporte" (
+    for /f "delims=" %%i in ('python -m tools.ensure_lineage --is-queued %ISIN% 2^>nul') do set RUN_LINEAGE=%%i
+)
 if "%RUN_LINEAGE%"=="1" (
     echo === Paso 1.7: Skill lineage-resolver-cowork ^(Claude Max^) ===
     echo Identifica vehiculo predecesor de la estrategia -^> data\fund_lineage.json

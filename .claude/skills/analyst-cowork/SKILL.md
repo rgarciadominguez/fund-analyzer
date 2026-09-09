@@ -49,7 +49,20 @@ En ese modo:
 
 **Sin novedades**: mira `data/funds/{ISIN}/intl_discovery_data.json` → `annual_update.sin_novedades`. Si es `true` (discovery no encontró NINGÚN AR/SAR/carta posterior a `since_date`), NO reescribas nada: emite el `analyst_synthesis` previo TAL CUAL (sin bloque Novedades). El cierre solo rodará la fecha. No inventes cambios que no hay.
 
-Si `modo != "annual_update"` (o no hay config), genera el análisis COMPLETO como siempre (resto de esta skill).
+## MODO APORTE (v1 — mejora con material aportado: complementar, NO rehacer)
+
+**Si `data/funds/{ISIN}/config.json` tiene `modo == "aporte"`, NO rehagas el análisis desde cero: COMPLEMENTA el existente con el material aportado por Rafa.** (No hay discovery en este modo — usa SOLO el aporte + lo que el fondo ya tiene.)
+
+En ese modo:
+1. El material aportado está **extraído y marcado como fuente prioritaria** (tasks con `aportado:true` en `pending_extraction.json` → holdings/datos fiables) y/o en `data/funds/{ISIN}/aportados/` y `analisis_externos`. Léelo y compáralo con el `analyst_synthesis` PREVIO.
+2. **Preserva las conclusiones previas — NO les quites peso.** Integra la info nueva y, en las secciones que el aporte enriquezca (resumen/estrategia/cartera/gestores/evolución/consistencia):
+   - Señala los cambios RELEVANTES que revele el aporte (sobre todo **cartera**, **tesis**, **consistencia**).
+   - Confirma qué **SIGUE IGUAL** en estrategia / filosofía / equipo.
+   - Añade un ÚNICO bloque **`**Complemento (aporte)**`** al final del `texto` de esas secciones (2-6 frases). Mantén el resto del texto intacto.
+3. Si una sección NO la toca el aporte, no la reescribas (el consumidor preserva verbatim las que no emitas).
+4. **Cuantitativo**: no cambia (el aporte no re-descubre NAV). No inventes cambios que el aporte no soporte.
+
+Si `modo` NO es `annual_update` ni `aporte` (o no hay config), genera el análisis COMPLETO como siempre (resto de esta skill).
 
 ## REGLAS DE FORMATO en `texto` fields (críticas — v2.4)
 

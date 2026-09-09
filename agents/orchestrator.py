@@ -464,7 +464,20 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
             import json as _json
             existing_disc = fund_dir / "intl_discovery_data.json"
             skip_discovery = False
-            if existing_disc.exists():
+            # Gating por MODO (ver MODOS_ANALISIS.md): scope=aporte → NUNCA discovery (solo se usan
+            # los docs aportados + los que ya tiene). full → completa. annual_update → reutiliza y
+            # focaliza en lo nuevo (se rige por el skip de ≥3 docs + FUND_SINCE_DATE aguas abajo).
+            _modo = "full"
+            try:
+                _cfgp = fund_dir / "config.json"
+                if _cfgp.exists():
+                    _modo = (_json.loads(_cfgp.read_text(encoding="utf-8")).get("modo") or "full")
+            except Exception:
+                pass
+            if _modo == "aporte":
+                log("DISCOVERY", "SKIP", "modo=aporte → sin discovery (solo docs aportados + existentes)")
+                skip_discovery = True
+            elif existing_disc.exists():
                 try:
                     ed = _json.loads(existing_disc.read_text(encoding="utf-8"))
                     n_existing = len(ed.get("documents", []))
