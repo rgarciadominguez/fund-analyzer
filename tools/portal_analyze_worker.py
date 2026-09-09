@@ -498,7 +498,7 @@ def analizar(isin: str, dry: bool, scope: str = "full") -> int:
                        json={"isins": [isin], "cold_start": _cold, "scope": scope}, timeout=30).json()
     except Exception as e:  # noqa: BLE001
         log(f"  [WARN] POST /api/analyze-batch falló ({e}) — fallback bat directo")
-        return _run_bat_directo(isin, dry)
+        return _run_bat_directo(isin, dry, scope=scope)
     log(f"  análisis encolado en el server (queued={d.get('queued')}) → VISIBLE en el catálogo")
     ok = ("done", "completed", "completed_with_warnings", "ok", "success")
     bad = ("failed", "error", "cancelled", "canceled", "timeout", "interrupted", "skipped")
