@@ -108,20 +108,21 @@ def launch_web() -> None:
 
 
 def launch_poller() -> None:
-    """Relanza el poller vía su .cmd (que también levanta el túnel y se auto-relanza).
-    'start /min' le da su propia consola (necesaria para el 'timeout' del bucle)."""
-    cmd = ROOT / "_portal-analyze-worker.cmd"
-    if not cmd.exists():
-        log(f"[ERROR] no existe {cmd.name} — no puedo relanzar el poller")
-        return
+    """Relanza el poller como proceso python directo, oculto y detached (igual que el
+    web_server). NO usamos el .cmd porque su 'timeout' necesita consola y lanzarlo oculto
+    la rompe. El auto-relanzado lo da este propio guardián (si el poller cae, la siguiente
+    pasada lo revive). El túnel público (no crítico) solo lo levanta el .cmd al iniciar
+    sesión; en un rescate a media sesión se omite a propósito."""
+    pyw = Path(sys.executable).with_name("pythonw.exe")
+    exe = str(pyw) if pyw.exists() else sys.executable
     try:
         subprocess.Popen(
-            f'start "" /min "{cmd}"',
-            shell=True,
+            [exe, "-m", "tools.portal_analyze_worker", "--loop", "30", "--limit", "1", "--wake"],
             cwd=str(ROOT),
-            creationflags=CREATE_NO_WINDOW,  # oculta el cmd lanzador; el .cmd abre su propia consola min.
+            creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW,
+            close_fds=True,
         )
-        log("poller CAÍDO → _portal-analyze-worker.cmd relanzado")
+        log("poller CAÍDO → lanzado (pythonw -m tools.portal_analyze_worker --loop 30)")
     except Exception as e:  # noqa: BLE001
         log(f"[ERROR] no pude relanzar el poller: {e}")
 
