@@ -1922,6 +1922,18 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     # estructurado (KPIs/gestores/cartera) — p.ej. un AUM del doc que no cuadra con el KPI. Se
     # muestran en la pestaña "Revisión pendiente" del dashboard y se LIMPIAN en la actualización
     # anual (los informes completos ya refrescan lo estructurado). Ver MODOS_ANALISIS.md.
+    # novedades_resumen: digest de lo NUEVO de este update (aporte: qué complementa el material;
+    # annual_update: qué ha cambiado el año / qué sigue igual). Se muestra en la pestaña "Novedades".
+    # full → sin novedades (análisis desde cero).
+    new_nov = cowork_data.get("novedades_resumen")
+    if _modo_synth in ("aporte", "annual_update"):
+        if isinstance(new_nov, dict) and (new_nov.get("puntos") or new_nov.get("texto")):
+            new_nov.setdefault("modo", _modo_synth)
+            output_data["novedades_resumen"] = new_nov
+            log("COWORK", "OK", f"Novedades ({_modo_synth}): {len(new_nov.get('puntos') or [])} punto(s)")
+    else:
+        output_data.pop("novedades_resumen", None)
+
     def _rp_key(x):
         return str((x or {}).get("titulo") or "").strip().lower()
     new_rp = cowork_data.get("revision_pendiente")

@@ -3035,7 +3035,7 @@ def build_header(data):
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
-    {'<button class="tb" onclick="goTab(10,this)" style="color:#e0a030;">&#9888; Revisi&oacute;n pendiente</button>' if (data.get('revision_pendiente')) else ''}
+    {'<button class="tb" onclick="goTab(10,this)" style="color:var(--gold,#b48020);font-weight:600;">&#9679; Novedades</button>' if (data.get('revision_pendiente') or ((data.get('novedades_resumen') or {}).get('puntos') or (data.get('novedades_resumen') or {}).get('texto'))) else ''}
     {'<button class="tb" onclick="goTab(9,this)">Glosario</button>' if ((data.get('analyst_synthesis') or {}).get('glosario')) else ''}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
@@ -5552,15 +5552,19 @@ def build_tab_glosario(data):
 </section>"""
 
 
-def build_tab_revision(data):
-    """Pestaña 'Revisión pendiente' (p10) — desajustes que un análisis por APORTE surfaceó pero
-    NO pudo propagar a los datos estructurados (KPIs, gestores, cartera): p.ej. un AUM más
-    reciente en el doc que no coincide con el KPI, o una corrección de equipo que solo quedó en
-    prosa. El análisis previo se mantiene intacto; esto es una lista de 'a reconciliar'. Se limpia
-    SOLA en la actualización anual (los informes completos ya refrescan lo estructurado). Pane
-    vacío si no hay pendientes (la pestaña tampoco se muestra en el nav)."""
-    items = data.get("revision_pendiente") or []
-    if not isinstance(items, list) or not items:
+def build_tab_novedades(data):
+    """Pestaña 'Novedades' (p10) — resumen de lo NUEVO del último update, para no tener que
+    rastrear los bloques por pestaña:
+      · `novedades_resumen` = digest emitido por el analyst en modo APORTE (qué complementa el
+        material aportado) o ANNUAL_UPDATE (qué ha cambiado el último año, qué sigue igual).
+      · `revision_pendiente` = (solo aporte) datos frescos que NO se propagaron a lo estructurado
+        (AUM/gestores/cartera) y hay que reconciliar; se limpian solos en la actualización anual.
+    Pane vacío si no hay ni resumen ni pendientes (la pestaña tampoco se muestra en el nav)."""
+    resumen = data.get("novedades_resumen") or {}
+    pendientes = data.get("revision_pendiente") or []
+    tiene_resumen = isinstance(resumen, dict) and (resumen.get("puntos") or resumen.get("texto"))
+    tiene_pend = isinstance(pendientes, list) and len(pendientes) > 0
+    if not tiene_resumen and not tiene_pend:
         return '<section class="pane" id="p10"></section>'
     import html as _html
     import re as _re
@@ -5569,29 +5573,61 @@ def build_tab_revision(data):
         t = _html.escape(str(t or ""))
         return _re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
 
-    cards = ""
-    for it in items:
-        if not isinstance(it, dict):
-            continue
-        titulo = _e(it.get("titulo", ""))
-        detalle = _e(it.get("detalle", ""))
-        meta = " · ".join(x for x in [_e(it.get("fuente", "")), _e(it.get("fecha", ""))] if x)
-        meta_html = (f'<div style="margin-top:8px;font-size:11.5px;color:var(--ink-4);">Fuente: {meta}</div>'
-                     if meta else "")
-        cards += (f'<div style="border:1px solid var(--rule-light);border-left:3px solid #e0a030;'
-                  f'border-radius:6px;padding:14px 16px;margin-bottom:12px;background:var(--card,#fff);">'
-                  f'<div style="font-size:14px;font-weight:600;color:var(--ink-1);margin-bottom:5px;">{titulo}</div>'
-                  f'<div style="font-size:12.5px;color:var(--ink-2);line-height:1.55;">{detalle}</div>'
-                  f'{meta_html}</div>')
+    _MODO_LBL = {"aporte": "Mejora con documentación aportada",
+                 "annual_update": "Actualización anual"}
+    bloques = ""
+
+    # ── Bloque 1: resumen de novedades (aporte o anual) ──────────────────
+    if tiene_resumen:
+        modo = str(resumen.get("modo") or "")
+        etiqueta = _MODO_LBL.get(modo, "Novedades")
+        fecha = _e(resumen.get("fecha", ""))
+        sub = f'{etiqueta}{" · " + fecha if fecha else ""}'
+        puntos = resumen.get("puntos") or []
+        cuerpo = ""
+        if isinstance(puntos, list) and puntos:
+            for p in puntos:
+                if isinstance(p, dict):
+                    t = _e(p.get("titulo", "")); d = _e(p.get("detalle", ""))
+                    cuerpo += (f'<div style="padding:11px 0;border-bottom:1px solid var(--rule-light);">'
+                               f'<strong style="color:var(--ink-1);font-size:13px;">{t}</strong>'
+                               f'{"<div style=\"font-size:12.5px;color:var(--ink-2);line-height:1.55;margin-top:3px;\">" + d + "</div>" if d else ""}</div>')
+                else:
+                    cuerpo += f'<div style="padding:9px 0;border-bottom:1px solid var(--rule-light);font-size:12.5px;color:var(--ink-2);">{_e(p)}</div>'
+        elif resumen.get("texto"):
+            cuerpo = f'<p class="pr" style="font-size:13px;">{_e(resumen.get("texto"))}</p>'
+        bloques += (f'<div style="margin-bottom:26px;">'
+                    f'<div style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--navy);font-weight:600;margin-bottom:4px;">Resumen de novedades</div>'
+                    f'<div style="font-size:11.5px;color:var(--ink-4);margin-bottom:10px;">{sub}</div>'
+                    f'<div style="border:1px solid var(--rule-light);border-left:3px solid var(--navy);border-radius:6px;padding:6px 16px 14px;background:var(--card,#fff);">{cuerpo}</div>'
+                    f'</div>')
+
+    # ── Bloque 2: a reconciliar (solo aporte) ────────────────────────────
+    if tiene_pend:
+        cards = ""
+        for it in pendientes:
+            if not isinstance(it, dict):
+                continue
+            titulo = _e(it.get("titulo", "")); detalle = _e(it.get("detalle", ""))
+            meta = " · ".join(x for x in [_e(it.get("fuente", "")), _e(it.get("fecha", ""))] if x)
+            meta_html = (f'<div style="margin-top:8px;font-size:11.5px;color:var(--ink-4);">Fuente: {meta}</div>'
+                         if meta else "")
+            cards += (f'<div style="border:1px solid var(--rule-light);border-left:3px solid #e0a030;'
+                      f'border-radius:6px;padding:14px 16px;margin-bottom:12px;background:var(--card,#fff);">'
+                      f'<div style="font-size:14px;font-weight:600;color:var(--ink-1);margin-bottom:5px;">{titulo}</div>'
+                      f'<div style="font-size:12.5px;color:var(--ink-2);line-height:1.55;">{detalle}</div>'
+                      f'{meta_html}</div>')
+        bloques += (f'<div>'
+                    f'<div style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#b06f00;font-weight:600;margin-bottom:4px;">A reconciliar</div>'
+                    f'<div style="background:var(--navy-pale);padding:10px 14px;font-size:12px;color:var(--ink-3);margin-bottom:14px;border-radius:4px;border-left:3px solid #e0a030;">'
+                    f'Datos frescos de material <strong>aportado</strong> (fuente primaria/parcial) que aún no están en los datos estructurados. El análisis previo se mantiene intacto; se resolverán en la próxima <strong>actualización anual</strong> con los informes oficiales completos.</div>'
+                    f'{cards}</div>')
+
     return f"""
 <section class="pane" id="p10">
-  <div class="pane-header"><h1 class="pane-h1">Revisión pendiente</h1>
-    <span class="pane-dl">Datos a reconciliar surgidos de documentación aportada — se resolverán en la próxima actualización anual con los informes completos</span></div>
-  <div class="mb24" style="max-width:820px;">
-    <div style="background:var(--navy-pale);padding:10px 14px;font-size:12px;color:var(--ink-3);margin-bottom:16px;border-radius:4px;border-left:3px solid #e0a030;">
-      Estos puntos provienen de material <strong>aportado</strong> (fuente primaria/parcial). El análisis previo se mantiene intacto; aquí se listan datos frescos que conviene <strong>reconciliar</strong> cuando lleguen los documentos oficiales completos del año.</div>
-    {cards}
-  </div>
+  <div class="pane-header"><h1 class="pane-h1">Novedades</h1>
+    <span class="pane-dl">Qué ha cambiado en el último análisis (mejora con aporte o actualización anual)</span></div>
+  <div class="mb24" style="max-width:820px;">{bloques}</div>
 </section>"""
 
 
@@ -7330,7 +7366,7 @@ def generate():
 {build_tab_cartera(data)}
 {build_tab_fuentes(data)}
 {build_tab_documentos(data)}
-{build_tab_revision(data)}
+{build_tab_novedades(data)}
 {build_tab_glosario(data)}
 {build_tab_chat(data)}
 </main>

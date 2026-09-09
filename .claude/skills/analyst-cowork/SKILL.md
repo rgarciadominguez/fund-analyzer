@@ -46,6 +46,7 @@ En ese modo:
 4. **Cuantitativo**: lo refresca el pipeline Python (NAV → métricas → sync-metricas). Tú solo comentas el delta cualitativo en el bloque Novedades.
 
 5. **Emite** el `analyst_synthesis` completo (histórico preservado + Novedades del año). El cierre (rodar `fecha_proximo_analisis` +1 año, limpiar la tarea de vencido, volver a "Categorizar") lo hace el worker Python — tú no lo tocas.
+6. **`novedades_resumen` (OBLIGATORIO en annual)**: emite en el JSON, junto a `analyst_synthesis`, un digest de lo que ha cambiado el año para la pestaña "Novedades" (para no rastrear los bloques por pestaña): `{"modo": "annual_update", "fecha": "YYYY-MM", "puntos": [{"titulo": "...", "detalle": "qué ha cambiado / qué sigue igual"}]}`. 3-7 puntos: cartera, consistencia, equipo, estrategia/filosofía (marcando explícitamente lo que SIGUE IGUAL). Si `sin_novedades` es true, no lo emitas (o `puntos: []`).
 
 **Sin novedades**: mira `data/funds/{ISIN}/intl_discovery_data.json` → `annual_update.sin_novedades`. Si es `true` (discovery no encontró NINGÚN AR/SAR/carta posterior a `since_date`), NO reescribas nada: emite el `analyst_synthesis` previo TAL CUAL (sin bloque Novedades). El cierre solo rodará la fecha. No inventes cambios que no hay.
 
@@ -64,9 +65,10 @@ En ese modo:
 5. **`revision_pendiente` (OBLIGATORIO en aporte)**: emite en el JSON, junto a `analyst_synthesis`, una lista `revision_pendiente` con los **datos frescos del aporte que NO has propagado a lo estructurado** y conviene reconciliar cuando lleguen los informes oficiales completos. Típicamente:
    - Un **KPI que no cuadra**: el doc trae un AUM/TER/YTM más reciente que NO coincide con `kpis.*` (que dejas intacto). → item con el valor del doc, el del KPI y la fecha.
    - Una **corrección o dato de equipo/cartera que solo quedó en prosa** (p.ej. "el fondo lo gestionan 3, no 2" o holdings nuevos) y NO está en `cualitativo.gestores` / `posiciones.actuales`.
-   Cada item: `{"titulo": "...", "detalle": "qué dice el aporte vs qué hay en los datos, y qué reconciliar", "fuente": "nombre del doc aportado", "fecha": "YYYY-MM"}`. Si el aporte NO deja ningún desajuste (todo cuadra), emite `revision_pendiente: []`. **No dupliques** ítems que ya estén (el consumidor deduplica por título). Estos ítems se muestran en la pestaña "Revisión pendiente" y se limpian solos en la actualización anual.
+   Cada item: `{"titulo": "...", "detalle": "qué dice el aporte vs qué hay en los datos, y qué reconciliar", "fuente": "nombre del doc aportado", "fecha": "YYYY-MM"}`. Si el aporte NO deja ningún desajuste (todo cuadra), emite `revision_pendiente: []`. **No dupliques** ítems que ya estén (el consumidor deduplica por título). Estos ítems se muestran en la pestaña "Novedades" (bloque "A reconciliar") y se limpian solos en la actualización anual.
+6. **`novedades_resumen` (OBLIGATORIO en aporte)**: emite un digest de QUÉ aporta este material, para la pestaña "Novedades": `{"modo": "aporte", "fecha": "YYYY-MM", "puntos": [{"titulo": "...", "detalle": "qué complementa/confirma/corrige el aporte"}]}`. 3-6 puntos que resuman los bloques "Complemento (aporte)" que has añadido (datos nuevos, confirmaciones de tesis, correcciones), para que Rafa vea de un vistazo la mejora sin rastrear las 7 pestañas.
 
-Si `modo` NO es `annual_update` ni `aporte` (o no hay config), genera el análisis COMPLETO como siempre (resto de esta skill) y NO emitas `revision_pendiente` (o `[]`).
+Si `modo` NO es `annual_update` ni `aporte` (o no hay config), genera el análisis COMPLETO como siempre (resto de esta skill) y NO emitas `revision_pendiente` ni `novedades_resumen`.
 
 ## REGLAS DE FORMATO en `texto` fields (críticas — v2.4)
 
