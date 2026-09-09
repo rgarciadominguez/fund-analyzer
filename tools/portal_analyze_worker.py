@@ -127,7 +127,9 @@ def mark_done(isin: str, ok: bool = True, dry: bool = False) -> None:
         url = f"{base}/wp-json/horizonte/v1/admin/assets/analisis-hecho"
         h = _auth_header(user, pwd); h["Content-Type"] = "application/json"
         httpx.post(url, headers=h, content=json.dumps({"isin": isin, "ok": bool(ok)}), timeout=30)
+        _clear_inflight()   # el portal ya sabe que terminó → quitar el marcador anti-cuelgue
     except Exception as e:  # noqa: BLE001
+        # NO limpiamos el marcador: si el POST falló, el próximo arranque reconciliará.
         log(f"  [WARN] no pude marcar hecho {isin}: {e}")
 
 
@@ -136,6 +138,7 @@ def mark_started(isin: str, fase: str = "analizando", dry: bool = False) -> None
     _HB_STATE["isin"] = isin; _HB_STATE["fase"] = fase
     if dry:
         return
+    _set_inflight(isin)   # marcador anti-cuelgue: si el poller muere aquí, el próximo arranque reconcilia
     try:
         base, user, pwd = _cfg()
         url = f"{base}/wp-json/horizonte/v1/admin/assets/analisis-empezado"
@@ -283,6 +286,57 @@ def push_meta(isin: str, dry: bool = False, do_push: bool = True) -> bool:
 # Heartbeat en disco (sobrevive a reinicios del web_server) → el dashboard sabe si el worker está
 # VIVO y qué analiza, sin depender del hilo interno del web_server. Un thread lo refresca cada 20s.
 _HB_STATE = {"isin": "", "fase": "idle"}
+
+# Marcador IN-FLIGHT en disco: se escribe al empezar un análisis (mark_started) y se borra al
+# terminar (mark_done). Si el poller MUERE a mitad (crash, kill, reinicio) el marcador queda →
+# el siguiente arranque lo detecta y RECONCILIA el estado del portal (mark_done), para que un
+# fondo NUNCA se quede colgado en "Analizando…" en la web. Ver reconcile_inflight().
+_INFLIGHT = Path("data") / "_worker_inflight.json"
+
+
+def _set_inflight(isin: str) -> None:
+    try:
+        _INFLIGHT.parent.mkdir(exist_ok=True)
+        _INFLIGHT.write_text(json.dumps({"isin": isin, "ts": int(time.time())}), encoding="utf-8")
+    except Exception:
+        pass
+
+
+def _clear_inflight() -> None:
+    try:
+        _INFLIGHT.unlink()
+    except Exception:
+        pass
+
+
+def reconcile_inflight() -> None:
+    """Al arrancar el poller: si quedó un análisis IN-FLIGHT (un poller anterior murió a mitad sin
+    llamar a mark_done), el fondo estaría colgado en 'Analizando…' en el portal para siempre. Aquí
+    lo cerramos: si el run local terminó bien → mark_done(ok=True) (pasa a Categorizar); si no hay
+    rastro de run OK → mark_done(ok=False) (limpia el badge sin marcar needs_review). Idempotente."""
+    try:
+        if not _INFLIGHT.exists():
+            return
+        info = json.loads(_INFLIGHT.read_text(encoding="utf-8"))
+        isin = (info.get("isin") or "").upper().strip()
+        if not isin:
+            _clear_inflight()
+            return
+        # ¿el análisis local terminó con informe? output.json fresco (posterior al marcador).
+        ok = False
+        try:
+            ojp = ROOT / "data" / "funds" / isin / "output.json"
+            if ojp.exists():
+                syn = (json.loads(ojp.read_text(encoding="utf-8")).get("analyst_synthesis") or {})
+                ok = bool(syn)  # hay síntesis → el run produjo informe
+        except Exception:
+            ok = False
+        log(f"[RECONCILE] in-flight huérfano {isin} (poller anterior murió a mitad) → mark_done(ok={ok})")
+        mark_done(isin, ok=ok)
+        _clear_inflight()
+    except Exception as e:  # noqa: BLE001
+        log(f"[RECONCILE] fallo reconciliando in-flight: {e}")
+        _clear_inflight()
 
 
 def write_heartbeat() -> None:
@@ -769,6 +823,10 @@ def main() -> None:
         except Exception as e:  # noqa: BLE001
             log(f"[WARN] no pude escribir el lock ({_lock}): {e}")
         log(f"BUCLE cada {a.loop}s (Ctrl-C para parar). limit={a.limit}")
+        # Anti-cuelgue: si un poller anterior murió a mitad de un análisis (crash/kill/reinicio),
+        # cierra en el portal el fondo que se quedó en 'Analizando…' antes de empezar el bucle.
+        if not a.dry_run:
+            reconcile_inflight()
         try:
             while True:
                 try:
