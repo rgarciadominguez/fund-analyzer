@@ -406,8 +406,29 @@ def make_app(cold_start: bool = True) -> Flask:
                     "status": "already_running",
                 }, 409
 
-        # Cold-start: mover carpeta del fondo a .bak si existe
         fund_dir = DATA_DIR / "funds" / isin
+        # AUTORIDAD DE MODO (MODOS_ANALISIS.md): config.json.modo lo escribe el worker ANTES de
+        # lanzar. Si el fondo está marcado aporte/annual_update, NUNCA cold-start: hay que preservar
+        # el análisis previo Y la señal `modo` que el bat (FUND_SCOPE_MODE) y el orchestrator
+        # (skip discovery) leen. Un cold-start movería config.json a .bak y regeneraría el dir sin
+        # `modo` → discovery indebida (este fue el bug: aporte tratado como full/annual y disparando
+        # discovery). Esta autoridad manda sobre lo que el caller pasara en force_cold/scope.
+        _modo_cfg = "full"
+        try:
+            _cfgp_auth = fund_dir / "config.json"
+            if _cfgp_auth.exists():
+                _modo_cfg = (json.loads(_cfgp_auth.read_text(encoding="utf-8")).get("modo") or "full")
+        except Exception:
+            _modo_cfg = "full"
+        if _modo_cfg in ("aporte", "annual_update"):
+            if force_cold:
+                print(f"[ANALYZE {isin}] modo={_modo_cfg} (config.json) → IGNORO cold-start "
+                      "(preservar análisis previo + señal modo)")
+            force_cold = False
+            if _modo_cfg == "annual_update":
+                annual = True
+
+        # Cold-start: mover carpeta del fondo a .bak si existe
         if fund_dir.exists() and force_cold:
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup = DATA_DIR / "funds" / f"{isin}.bak_pre_web_{ts}"
@@ -454,6 +475,11 @@ def make_app(cold_start: bool = True) -> Flask:
             cnmv_p = fund_dir / "cnmv_data.json"
             intl_p = fund_dir / "intl_data.json"
             if not fund_dir.exists() or (not cnmv_p.exists() and not intl_p.exists()):
+                if _modo_cfg == "aporte":
+                    # NUNCA cold-startear un aporte: sería re-descubrir y perder el análisis que
+                    # el aporte debe COMPLEMENTAR. Mejor abortar claro y que se restaure el previo.
+                    return {"error": f"aporte de {isin} sin análisis previo local — restaura el "
+                            "análisis antes de aportar (no se hace cold-start en modo aporte)"}, 409
                 # No hay datos parciales → degradar a cold-start automático
                 print(f"[ANALYZE {isin}] resume requested but no partial data — fallback to cold-start")
                 bat_argv = [str(bat_path), isin]

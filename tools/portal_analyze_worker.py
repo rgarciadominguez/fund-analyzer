@@ -495,7 +495,7 @@ def analizar(isin: str, dry: bool, scope: str = "full") -> int:
     # Lanzar por la COLA (analyze-batch) → aparece en el monitor de arriba del catálogo.
     try:
         d = httpx.post(f"{WEB_BASE}/api/analyze-batch",
-                       json={"isins": [isin], "cold_start": _cold}, timeout=30).json()
+                       json={"isins": [isin], "cold_start": _cold, "scope": scope}, timeout=30).json()
     except Exception as e:  # noqa: BLE001
         log(f"  [WARN] POST /api/analyze-batch falló ({e}) — fallback bat directo")
         return _run_bat_directo(isin, dry)
@@ -545,9 +545,14 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
     scope="annual_update": actualiza SOLO el delta del último año de un fondo ya analizado
     (no rehace desde cero). Escribe la señal en config.json que discovery/analyst leen, y
     al cerrar rueda fecha_proximo_analisis + limpia la tarea de vencido."""
-    es_annual = scope == "annual_update"
+    # Precedencia de modo (MODOS_ANALISIS.md): si Rafa APORTA material, es modo APORTE
+    # (complementar SIN discovery), AUNQUE el portal etiquete scope=annual_update. Subir un
+    # doc = aporte y GANA sobre annual — si no, el annual dispararía discovery focalizada e
+    # ignoraría el doc como aporte. El annual "puro" es solo cuando NO hay material aportado.
+    es_aporte = bool(docs_aportados or analisis_externos)
+    es_annual = (scope == "annual_update") and not es_aporte
     log(f"── Procesando {isin} {('· ' + name) if name else ''} "
-        f"{'[UPDATE ANUAL]' if es_annual else ''}──")
+        f"{'[UPDATE ANUAL]' if es_annual else ('[APORTE]' if es_aporte else '')}──")
     if es_annual and not dry:
         from tools.annual_update import prepare as _au_prepare
         _cfg = _au_prepare(isin)
@@ -556,10 +561,9 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
         else:
             es_annual = False
             log(f"  {_cfg.get('motivo', 'sin análisis previo')} → análisis completo")
-    # Modo APORTE (MODOS_ANALISIS.md): hay material aportado y NO es update anual → complementar el
-    # análisis con ese material SIN re-descubrir nada. Escribe la señal modo=aporte en config.json
-    # (la lee la prep/discovery + el bat para SALTAR discovery/ar-sourcing/lineage) y fuerza --resume.
-    es_aporte = bool(docs_aportados or analisis_externos) and not es_annual
+    # Modo APORTE (MODOS_ANALISIS.md): hay material aportado → complementar el análisis con ese
+    # material SIN re-descubrir nada. Escribe la señal modo=aporte en config.json (la lee la
+    # prep/discovery + el bat para SALTAR discovery/ar-sourcing/lineage) y fuerza --resume.
     if es_aporte and not dry:
         import json as _json
         from pathlib import Path as _Path
