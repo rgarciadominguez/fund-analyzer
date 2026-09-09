@@ -2066,6 +2066,19 @@ def make_app(cold_start: bool = True) -> Flask:
             "storage_errors": stats.get("storage_errors", []),
         })
 
+    @app.route("/api/broker-options", methods=["GET"])
+    def api_broker_options():
+        """Lista canónica de brokers para el desplegable multi-selección del modal de
+        categorización (W13). El frontend debe construir el multi-select con estas opciones
+        en vez de un campo de texto libre."""
+        fallback = ["MyInvestor", "Renta4", "Mapfre", "BBVA", "Caixa",
+                    "ABANCA", "Santander", "CJRS", "Ironia", "EBN"]
+        try:
+            from tools.import_taxonomy import BROKER_NAMES
+            return jsonify({"brokers": list(BROKER_NAMES)})
+        except Exception as e:  # noqa: BLE001
+            return jsonify({"brokers": fallback, "warn": str(e)[:80]})
+
     @app.route("/api/update-fund/<isin>", methods=["POST"])
     def api_update_fund(isin: str):
         """Actualiza campos editables de un fondo en Supabase (tabla `funds`).
@@ -2115,9 +2128,28 @@ def make_app(cold_start: bool = True) -> Flask:
             if k == "broker_disponible":
                 if v is None:
                     v = []
+                # Aceptar TEXTO LIBRE ("MyInvestor, Mapfre") además de lista → normalizar a lista.
+                # Sin esto, el modal (campo de texto) mandaba un string y no persistía (bug Mapfre).
+                if isinstance(v, str):
+                    v = re.split(r"[,;\n]+", v)
                 if not isinstance(v, list):
-                    return jsonify({"error": "broker_disponible debe ser lista"}), 400
-                v = [str(b).strip() for b in v if str(b).strip()]
+                    return jsonify({"error": "broker_disponible debe ser lista o texto separado por comas"}), 400
+                # Canonicalizar contra la lista maestra (casing correcto) + dedup preservando orden.
+                try:
+                    from tools.import_taxonomy import BROKER_NAMES as _BK
+                except Exception:
+                    _BK = []
+                _canon = {b.lower(): b for b in _BK}
+                _seen, _out = set(), []
+                for b in v:
+                    b = str(b).strip()
+                    if not b:
+                        continue
+                    b = _canon.get(b.lower(), b)   # casing canónico si es un broker conocido
+                    if b.lower() not in _seen:
+                        _seen.add(b.lower())
+                        _out.append(b)
+                v = _out
             elif isinstance(v, str):
                 v = v.strip() or None  # "" → None
             if k == "clasificacion_user" and v not in ALLOWED_CLASIF:
