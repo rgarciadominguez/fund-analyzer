@@ -3035,6 +3035,7 @@ def build_header(data):
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    {'<button class="tb" onclick="goTab(10,this)" style="color:#e0a030;">&#9888; Revisi&oacute;n pendiente</button>' if (data.get('revision_pendiente')) else ''}
     {'<button class="tb" onclick="goTab(9,this)">Glosario</button>' if ((data.get('analyst_synthesis') or {}).get('glosario')) else ''}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
@@ -5551,6 +5552,49 @@ def build_tab_glosario(data):
 </section>"""
 
 
+def build_tab_revision(data):
+    """Pestaña 'Revisión pendiente' (p10) — desajustes que un análisis por APORTE surfaceó pero
+    NO pudo propagar a los datos estructurados (KPIs, gestores, cartera): p.ej. un AUM más
+    reciente en el doc que no coincide con el KPI, o una corrección de equipo que solo quedó en
+    prosa. El análisis previo se mantiene intacto; esto es una lista de 'a reconciliar'. Se limpia
+    SOLA en la actualización anual (los informes completos ya refrescan lo estructurado). Pane
+    vacío si no hay pendientes (la pestaña tampoco se muestra en el nav)."""
+    items = data.get("revision_pendiente") or []
+    if not isinstance(items, list) or not items:
+        return '<section class="pane" id="p10"></section>'
+    import html as _html
+    import re as _re
+
+    def _e(t):
+        t = _html.escape(str(t or ""))
+        return _re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
+
+    cards = ""
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        titulo = _e(it.get("titulo", ""))
+        detalle = _e(it.get("detalle", ""))
+        meta = " · ".join(x for x in [_e(it.get("fuente", "")), _e(it.get("fecha", ""))] if x)
+        meta_html = (f'<div style="margin-top:8px;font-size:11.5px;color:var(--ink-4);">Fuente: {meta}</div>'
+                     if meta else "")
+        cards += (f'<div style="border:1px solid var(--rule-light);border-left:3px solid #e0a030;'
+                  f'border-radius:6px;padding:14px 16px;margin-bottom:12px;background:var(--card,#fff);">'
+                  f'<div style="font-size:14px;font-weight:600;color:var(--ink-1);margin-bottom:5px;">{titulo}</div>'
+                  f'<div style="font-size:12.5px;color:var(--ink-2);line-height:1.55;">{detalle}</div>'
+                  f'{meta_html}</div>')
+    return f"""
+<section class="pane" id="p10">
+  <div class="pane-header"><h1 class="pane-h1">Revisión pendiente</h1>
+    <span class="pane-dl">Datos a reconciliar surgidos de documentación aportada — se resolverán en la próxima actualización anual con los informes completos</span></div>
+  <div class="mb24" style="max-width:820px;">
+    <div style="background:var(--navy-pale);padding:10px 14px;font-size:12px;color:var(--ink-3);margin-bottom:16px;border-radius:4px;border-left:3px solid #e0a030;">
+      Estos puntos provienen de material <strong>aportado</strong> (fuente primaria/parcial). El análisis previo se mantiene intacto; aquí se listan datos frescos que conviene <strong>reconciliar</strong> cuando lleguen los documentos oficiales completos del año.</div>
+    {cards}
+  </div>
+</section>"""
+
+
 def build_tab_documentos(data):
     s = get_documentos(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("documentos", {})
     pdfs = s.get("informes_pdf", [])
@@ -7286,6 +7330,7 @@ def generate():
 {build_tab_cartera(data)}
 {build_tab_fuentes(data)}
 {build_tab_documentos(data)}
+{build_tab_revision(data)}
 {build_tab_glosario(data)}
 {build_tab_chat(data)}
 </main>

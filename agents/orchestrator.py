@@ -1918,6 +1918,32 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     for sec in sections:
         mark_manual_edit(output_data, f"analyst_synthesis.{sec}")
 
+    # Revisión pendiente: datos frescos que un APORTE surfaceó pero NO pudo propagar a lo
+    # estructurado (KPIs/gestores/cartera) — p.ej. un AUM del doc que no cuadra con el KPI. Se
+    # muestran en la pestaña "Revisión pendiente" del dashboard y se LIMPIAN en la actualización
+    # anual (los informes completos ya refrescan lo estructurado). Ver MODOS_ANALISIS.md.
+    def _rp_key(x):
+        return str((x or {}).get("titulo") or "").strip().lower()
+    new_rp = cowork_data.get("revision_pendiente")
+    if _modo_synth == "annual_update":
+        if output_data.get("revision_pendiente"):
+            log("COWORK", "OK",
+                f"Revisión pendiente limpiada ({len(output_data['revision_pendiente'])} ítems) por update anual")
+        output_data["revision_pendiente"] = []
+    elif _modo_synth == "aporte" and isinstance(new_rp, list):
+        prev = output_data.get("revision_pendiente") or []
+        seen = {_rp_key(x) for x in prev if isinstance(x, dict)}
+        merged = list(prev)
+        for it in new_rp:
+            if isinstance(it, dict) and it.get("titulo") and _rp_key(it) not in seen:
+                merged.append(it)
+                seen.add(_rp_key(it))
+        output_data["revision_pendiente"] = merged
+        log("COWORK", "OK", f"Revisión pendiente: {len(merged)} ítem(s) a reconciliar (aporte)")
+    elif _modo_synth not in ("aporte", "annual_update"):
+        # full / re-análisis desde cero: parte limpio (o lo que emita el skill)
+        output_data["revision_pendiente"] = new_rp if isinstance(new_rp, list) else []
+
     # Record metadata
     output_data.setdefault("_meta", {}).setdefault("cowork_runs", []).append({
         "ts": cowork_meta.get("generated"),
