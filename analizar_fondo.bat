@@ -223,6 +223,12 @@ REM MODO de análisis (MODOS_ANALISIS.md): full | annual_update | aporte. Gatea 
 set FUND_SCOPE_MODE=full
 for /f "delims=" %%m in ('python -c "import json,os,sys; p=os.path.join('data','funds','%ISIN%','config.json'); sys.stdout.write((json.load(open(p,encoding='utf-8')).get('modo') or 'full') if os.path.exists(p) else 'full')" 2^>nul') do set FUND_SCOPE_MODE=%%m
 echo [MODO] scope de analisis = %FUND_SCOPE_MODE%
+REM En aporte/annual (--resume) hay que RE-EJECUTAR extract (docs nuevos/aportados; el extract es
+REM INCREMENTAL: solo procesa tasks sin output previo) y analyst (re-sintesis/complemento), aunque
+REM existan de un analisis previo. Sin esto el --resume normal los saltaria y el aporte no se usaria.
+set FORCE_RERUN=
+if /I "%FUND_SCOPE_MODE%"=="aporte" set FORCE_RERUN=1
+if /I "%FUND_SCOPE_MODE%"=="annual_update" set FORCE_RERUN=1
 echo.
 
 REM ----------------------------------------------------------------------
@@ -283,6 +289,8 @@ if defined RESUME_MODE (
         if exist "data\funds\%ISIN%\extracted" set SKIP_EXTRACT=1
     )
 )
+REM aporte/annual: forzar extract (incremental: solo procesa tasks nuevas sin output)
+if defined FORCE_RERUN set SKIP_EXTRACT=
 if defined SKIP_EXTRACT (
     echo === Paso 2/6: [RESUME-SKIP] extract-pdfs-cowork ya hecho ===
     echo.
@@ -351,6 +359,9 @@ if defined RESUME_MODE (
         if exist "data\funds\%ISIN%\letters_data.json" set SKIP_LETTERS=1
     )
 )
+REM annual_update: forzar letters (ar-sourcing pudo traer cartas nuevas del ultimo ano).
+REM aporte NO: sus analisis externos entran como readings, no como cartas del fondo.
+if /I "%FUND_SCOPE_MODE%"=="annual_update" set SKIP_LETTERS=
 if defined SKIP_LETTERS (
     echo === Paso 4/6: [RESUME-SKIP] letters-extract-cowork ya hecho ===
     echo.
@@ -395,6 +406,10 @@ REM re-run de feedback es que el LLM re-lea bundle\human_feedback.json y
 REM regenere las secciones afectadas. Sin esto, el resume re-consume una
 REM sintesis vieja y el feedback nunca se aplica a la narrativa.
 if defined APPLY_FEEDBACK set SKIP_ANALYST=
+REM aporte/annual: forzar re-sintesis. La skill analyst-cowork lee config.json.modo
+REM y COMPLEMENTA (aporte) o aNade delta "Novedades {ano}" (annual) preservando el
+REM histOrico/conclusiones previas — NUNCA rehace desde cero. Ver MODOS_ANALISIS.md.
+if defined FORCE_RERUN set SKIP_ANALYST=
 if defined SKIP_ANALYST (
     echo === Paso 5/6: [RESUME-SKIP] analyst-cowork ya hecho ===
     echo.

@@ -597,6 +597,22 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
     rc = analizar(isin, dry=dry, scope=_scope_eff)
     tag = {0: "OK", 5: "OK con avisos", 10: "FALLO crítico"}.get(rc, f"rc={rc}")
     log(f"  análisis: {tag}")
+    # Reset del modo APORTE — SIEMPRE tras el run (éxito O fallo), antes de cualquier return.
+    # Sin esto, si el run falla (rc==10) el modo=aporte queda pegado y el siguiente análisis
+    # heredaría aporte y saltaría discovery indebidamente. El full via cold-start ya arranca con
+    # config limpio; aquí limpiamos el caso aporte (--resume, config preservado).
+    if es_aporte and not dry:
+        try:
+            import json as _json2
+            from pathlib import Path as _P2
+            _cp = _P2(__file__).resolve().parent.parent / "data" / "funds" / isin / "config.json"
+            if _cp.exists():
+                _cc = _json2.loads(_cp.read_text(encoding="utf-8"))
+                if _cc.get("modo") == "aporte":
+                    _cc["modo"] = None
+                    _cp.write_text(_json2.dumps(_cc, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception:
+            pass
     if rc == 10:
         log("  [SKIP] análisis crítico — no se empujan clases (datos parciales)")
         return False   # análisis fallido → el portal NO lo marca para categorizar (sin informe)
@@ -616,21 +632,6 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
             _au_close(isin, log=log)
         except Exception as e:  # noqa: BLE001
             log(f"  [ANNUAL] cierre falló (no crítico): {e}")
-    # Reset del modo APORTE: sin esto, el siguiente análisis heredaría modo=aporte y saltaría la
-    # discovery indebidamente (un full posterior no re-descubriría). El full via cold-start ya arranca
-    # con config limpio; aquí limpiamos el caso aporte (--resume, config preservado).
-    if es_aporte and not dry:
-        try:
-            import json as _json2
-            from pathlib import Path as _P2
-            _cp = _P2(__file__).resolve().parent.parent / "data" / "funds" / isin / "config.json"
-            if _cp.exists():
-                _cc = _json2.loads(_cp.read_text(encoding="utf-8"))
-                if _cc.get("modo") == "aporte":
-                    _cc["modo"] = None
-                    _cp.write_text(_json2.dumps(_cc, ensure_ascii=False, indent=2), encoding="utf-8")
-        except Exception:
-            pass
     return True        # el análisis produjo informe → el portal lo marcará needs_review=1
 
 

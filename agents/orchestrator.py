@@ -1857,6 +1857,18 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     # reemplazando todo. Caso real: feedback sobre cartera/evolucion no debe
     # tocar la pestaña de gestores (LU0168736675).
     apply_feedback_run = os.environ.get("FUND_APPLY_FEEDBACK") == "1"
+    # Modo del run (aporte/annual_update): la skill analyst emite SOLO las secciones
+    # que toca (con el histórico preservado + el delta añadido). Hay que MERGEAR sobre
+    # el análisis previo, no reemplazarlo entero, o perderíamos las secciones no
+    # emitidas. Ver MODOS_ANALISIS.md + analyst-cowork SKILL.md (línea "el consumidor
+    # preserva verbatim las que no emitas").
+    _modo_synth = "full"
+    try:
+        _cfgp2 = fund_dir / "config.json"
+        if _cfgp2.exists():
+            _modo_synth = (json.loads(_cfgp2.read_text(encoding="utf-8")).get("modo") or "full")
+    except Exception:
+        pass
     targeted = _feedback_targeted_sections(output_data) if apply_feedback_run else None
     if targeted is not None and existing_synth:
         merged_synth = dict(existing_synth)
@@ -1872,6 +1884,20 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
         log("COWORK", "OK",
             f"Regeneración selectiva por feedback → reemplazadas: {replaced}; "
             f"preservadas del análisis previo: {preserved}")
+    elif _modo_synth in ("aporte", "annual_update") and existing_synth:
+        # Merge preservador: reemplaza SOLO las secciones que la skill emitió
+        # (contienen histórico + delta) y conserva verbatim el resto del análisis previo.
+        merged_synth = dict(existing_synth)
+        replaced = []
+        for sec, val in new_synth.items():
+            merged_synth[sec] = val
+            replaced.append(sec)
+        preserved = [s for s in existing_synth if s not in new_synth]
+        output_data["analyst_synthesis"] = merged_synth
+        sections = list(merged_synth.keys())
+        log("COWORK", "OK",
+            f"Modo {_modo_synth}: actualizadas {replaced}; "
+            f"preservadas del análisis previo {preserved}")
     else:
         output_data["analyst_synthesis"] = new_synth
         sections = list(new_synth.keys())

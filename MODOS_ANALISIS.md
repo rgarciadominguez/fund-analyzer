@@ -53,3 +53,26 @@ Regla de oro: **cada modo gatea qué se busca y cómo se sintetiza. La discovery
 **Señal de scope:** `data/funds/{ISIN}/config.json.modo` ∈ {`full`, `annual_update`, `aporte`} +
 env `FUND_SCOPE`. El worker del portal lo fija según la acción de Rafa (nuevo/actualizar/aportar).
 Los modos 2 y 3 **nunca** disparan discovery completa (era el bug: el aporte caía en `full`).
+
+---
+
+## Cableado (2026-09-09) — cómo se distinguen `full` (cold-start) vs `annual/aporte` (`--resume`)
+
+`full` cold-startea (mueve el dir a `.bak`, re-descubre TODO). `annual_update` y `aporte` van con
+`--resume` (preservan el dir, no re-descubren). Pero `--resume` por defecto SALTA extract y analyst
+si ya existen → habría dejado el aporte/delta SIN procesar ni re-sintetizar. Fix:
+
+- **`analizar_fondo.bat`** define `FORCE_RERUN=1` si modo ∈ {aporte, annual_update}. Con eso:
+  - **extract** NO se salta (limpia `SKIP_EXTRACT`) — y es **INCREMENTAL**: la skill `extract-pdfs-cowork`
+    salta las tasks cuyo `extracted/{task_id}.json` ya existe y procesa SOLO las nuevas (doc aportado /
+    docs del último año que `aportados.ingest` / ar-sourcing añadieron a `pending_extraction.json`).
+  - **analyst** NO se salta (limpia `SKIP_ANALYST`) — la skill lee `config.json.modo` y COMPLEMENTA
+    (aporte) o añade delta **Novedades {año}** (annual), preservando el histórico; nunca rehace.
+  - **letters** se fuerza solo en `annual_update` (cartas nuevas del año); en `aporte` no (sus análisis
+    externos entran como readings).
+- **`_consume_extracted`** lee TODOS los `extracted/*.json` (viejos + nuevos) → merge idempotente;
+  `build_historical_series` reconstruye la serie con todos los años (preserva histórico, suma lo nuevo).
+- **`_consume_cowork_analyst`** en modo aporte/annual hace **merge preservador**: reemplaza SOLO las
+  secciones que la skill emitió (llevan histórico + delta) y conserva verbatim el resto del análisis
+  previo (no hace full-replace como en un `full`).
+- El worker resetea `config.json.modo=None` tras el run (éxito O fallo) para que no se herede.

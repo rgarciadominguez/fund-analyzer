@@ -104,6 +104,16 @@ Si falta el manifest o no hay PDFs → aborta.
 
 Read `data/funds/{ISIN}/pending_extraction.json`. Lista todas las tasks.
 
+### 2b. INCREMENTAL — salta las tasks ya extraídas (crítico para aporte/annual)
+
+**Antes de procesar, para CADA task comprueba si `data/funds/{ISIN}/extracted/{task_id}.json` YA existe.**
+- **Si existe** (de un análisis previo) → **SÁLTALA**, no la re-extraigas. Ya está hecha.
+- **Procesa SOLO las tasks SIN output** (docs nuevos o aportados que la prep/`aportados.ingest` acaba de añadir al manifiesto).
+
+Por qué: en modo `aporte` (Rafa sube un doc) y `annual_update` (docs del último año) el bat re-lanza esta skill sobre un fondo YA analizado; sin este salto re-extraerías 5-15 PDFs viejos en balde (coste + riesgo de tocar lo que ya estaba bien). En modo `full` la carpeta `extracted/` viene vacía (cold-start), así que no se salta nada y se procesa todo igual. El histórico multi-año se preserva: `extracted/` conserva los años viejos y solo se le SUMAN los nuevos (el `consume-extracted` reconstruye la serie con todos).
+
+En `extraction_complete.json`, cuenta las saltadas aparte: añade `"n_skipped_existing": N` y NO las metas en `n_failed`.
+
 ### 3. Lectura del PDF — texto donde es fiable, IMAGEN donde no (ahorro sin perder cifras)
 
 **Regla coste/calidad (#3): lee TEXTO plano por defecto, y usa la página como IMAGEN solo cuando el texto NO es fiable o son cifras críticas.** Leer TODA página como imagen es caro (cada página ≈ miles de tokens) y no hace falta cuando el texto sale limpio. La calidad se mantiene porque las cifras críticas siguen yendo por imagen.
