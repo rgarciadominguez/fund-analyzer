@@ -102,12 +102,20 @@ def _hist_count(isin: str) -> int:
 def _gap_prompt(isin: str) -> str:
     """Prompt de ar-sourcing con el GAP EXACTO embebido: la skill busca SOLO (tipo, año) que faltan."""
     try:
+        import datetime as _dt
         from tools.doc_completeness import assess
         a = assess(isin)
-        return (f"ar sourcing cowork {isin}. HUECOS a rellenar — busca SOLO estos (tipo, año), NO "
-                f"re-busques años/tipos ya cubiertos: AR faltan={a.get('faltan_ar', [])}; "
-                f"SAR faltan={a.get('faltan_sar', [])}; cartas faltan={a.get('faltan_carta', [])}. "
-                f"Cobertura actual: {a.get('resumen', '')}.")
+        # Capar a la VENTANA PÚBLICA reciente: las gestoras publican ~5-8 años rolling; buscar AR
+        # de hace 10-30 años es esfuerzo perdido (no existen online). Solo huecos de los últimos 8.
+        _cut = _dt.date.today().year - 8
+
+        def _rec(ys):
+            return [y for y in (ys or []) if isinstance(y, int) and y >= _cut]
+        far, fsar, fca = _rec(a.get("faltan_ar")), _rec(a.get("faltan_sar")), _rec(a.get("faltan_carta"))
+        return (f"ar sourcing cowork {isin}. HUECOS a rellenar (SOLO ventana pública reciente, "
+                f">={_cut}) — busca SOLO estos (tipo, año), NO re-busques años/tipos ya cubiertos "
+                f"ni años previos a {_cut} (no los publican): AR faltan={far}; SAR faltan={fsar}; "
+                f"cartas faltan={fca}. Cobertura actual: {a.get('resumen', '')}.")
     except Exception:
         return f"ar sourcing cowork {isin}"
 
