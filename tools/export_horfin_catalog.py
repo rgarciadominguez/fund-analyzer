@@ -57,10 +57,10 @@ REFRESH_FROM_FUNDS = [
     "benchmark", "estrellas", "comision_suscripcion", "descripcion", "categoria_activo", "kid",
     # divisa: el portal la muestra en el desplegable de clases; venía None en filas viejas.
     "divisa", "importe_minimo_eur", "has_qualitative_analysis",
+    # broker_disponible y clasificacion_user: los mantiene el consumer /inputs-rafa en `funds`
+    # (el PORTAL es la fuente). El export los CARRIER de funds → catalogo_activos (ya no los nulea).
+    "clasificacion_user", "broker_disponible",
 ]
-# clasificacion_user: la lleva RAFA en el portal (decisión definitiva 2026-07-23).
-# fund-analyzer DEJA DE CLASIFICAR (ni asignar ni propagar) → el export la emite SIEMPRE null
-# (la columna sigue en FIELDS_34 por compatibilidad; el portal ya no la lee).
 
 # Semántica de vacío: null. NUNCA "" ni "n.a." (rompería el sync de Horizonte).
 _EMPTY = {"", "n.a.", "N.A.", "na", "NA", "null", "None", "-"}
@@ -152,9 +152,9 @@ def build() -> dict:
                 continue
             if k in f:
                 row[k] = f.get(k)
-        # La clasificación de calidad la lleva Rafa en el portal → NO la emitimos.
-        row["clasificacion_user"] = None
-        row["clasificacion_origen"] = None
+        # clasificacion_user/clasificacion_origen: la lleva Rafa en el PORTAL; el consumer
+        # /inputs-rafa la escribe en funds → aquí se CARRIER (REFRESH_FROM_FUNDS arriba), ya NO se
+        # nulea. clasificacion_origen se conserva de base (lo pone el consumer = 'portal').
         row["ter_pct"] = r2(f.get("ter_pct", base.get("ter_pct")))
         row["comision_gestion_pct"] = r2(f.get("comision_gestion_pct", base.get("comision_gestion_pct")))
         # 6 nuevas

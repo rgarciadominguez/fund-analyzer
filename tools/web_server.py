@@ -29,6 +29,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from tools.llm_logger import log_llm_response
 
 try:
     from flask import Flask, jsonify, redirect, request, send_from_directory
@@ -308,6 +309,7 @@ def make_app(cold_start: bool = True) -> Flask:
                          "cache_control": {"type": "ephemeral"}}],
                 messages=msgs,
             )
+            log_llm_response(resp, agent="web_server_chat", model="claude-haiku-4-5")
             answer = "".join(
                 b.text for b in resp.content if getattr(b, "type", None) == "text"
             ).strip()
@@ -2119,7 +2121,15 @@ def make_app(cold_start: bool = True) -> Flask:
 
         update_dict: dict = {}
         tax_dict: dict = {}
+        # READ-ONLY: 5 campos que Rafa VALIDA EN EL PORTAL (fuente de verdad). El consumer
+        # tools/consume_inputs_rafa.py los sincroniza portal→Supabase cada hora. Editarlos aquí
+        # crearía dos fuentes y el siguiente volcado del catálogo los pisaría sin avisar.
+        READONLY_PORTAL = {"broker_disponible", "opinion_user", "encaje_texto", "plazo", "clasificacion_user"}
+        rechazados_portal: list[str] = []
         for k, v in body.items():
+            if k in READONLY_PORTAL:
+                rechazados_portal.append(k)
+                continue
             if k in TAX_FIELDS:
                 tax_dict[k] = (v.strip() if isinstance(v, str) else v) or ""
                 continue
@@ -2160,6 +2170,13 @@ def make_app(cold_start: bool = True) -> Flask:
             update_dict[k] = v
 
         if not update_dict and not tax_dict:
+            if rechazados_portal:
+                return jsonify({
+                    "error": "Estos campos se validan en el portal — read-only aquí: "
+                             + ", ".join(sorted(set(rechazados_portal))),
+                    "readonly_portal": sorted(set(rechazados_portal)),
+                    "nota": "Se valida en el portal",
+                }), 409
             return jsonify({
                 "error": "no hay campos válidos para actualizar",
                 "allowed_fields": sorted(ALLOWED_FIELDS | TAX_FIELDS),

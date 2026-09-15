@@ -24,6 +24,7 @@ Uso:
 from __future__ import annotations
 
 import ctypes
+import json
 import subprocess
 import sys
 import tempfile
@@ -127,6 +128,35 @@ def launch_poller() -> None:
         log(f"[ERROR] no pude relanzar el poller: {e}")
 
 
+_INPUTS_STAMP = ROOT / "data" / "_inputs_rafa_guardian.json"
+INPUTS_INTERVAL = 3600  # 1 hora
+
+
+def maybe_consume_inputs() -> None:
+    """Una vez/hora lanza el consumer /inputs-rafa (portal → Supabase) como subproceso detached.
+    El guardián ya corre siempre (cada 3 min), así que sirve de scheduler horario sin tarea admin."""
+    try:
+        try:
+            last = float(json.loads(_INPUTS_STAMP.read_text(encoding="utf-8")).get("ts", 0))
+        except Exception:
+            last = 0.0
+        if time.time() - last < INPUTS_INTERVAL:
+            return
+        pyw = Path(sys.executable).with_name("pythonw.exe")
+        exe = str(pyw) if pyw.exists() else sys.executable
+        subprocess.Popen(
+            [exe, "-m", "tools.consume_inputs_rafa"],
+            cwd=str(ROOT),
+            creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW,
+            close_fds=True,
+        )
+        _INPUTS_STAMP.parent.mkdir(exist_ok=True)
+        _INPUTS_STAMP.write_text(json.dumps({"ts": time.time()}), encoding="utf-8")
+        log("consumer /inputs-rafa lanzado (sync portal→Supabase, horario)")
+    except Exception as e:  # noqa: BLE001
+        log(f"[inputs-rafa] no pude lanzar consumer: {e}")
+
+
 def main(check_only: bool = False) -> int:
     w = web_alive()
     p = poller_alive()
@@ -138,6 +168,7 @@ def main(check_only: bool = False) -> int:
         time.sleep(4)  # dar margen a que ligue el puerto antes de que el poller le hable
     if not p:
         launch_poller()
+    maybe_consume_inputs()   # scheduler horario del sync /inputs-rafa
     if w and p:
         # heartbeat silencioso 1/hora para no inflar el log (solo en minuto 00-02)
         if time.localtime().tm_min < 3:
