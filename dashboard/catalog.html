@@ -437,6 +437,8 @@
   }
   .btn-analyze:hover { background: #a87b1f; }
   .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ro-field { padding:7px 9px; background:var(--paper-2); border:1px dashed var(--border);
+    border-radius:2px; font-size:13px; color:var(--ink-2); margin-bottom:4px; }
 
   /* Modal */
   .modal-backdrop {
@@ -2356,7 +2358,7 @@ async function checkServer() {
 // W8 (2026-05-21): modal con instrucciones paso a paso para arrancar el server local
 function showHowToLaunchServerModal() {
   openModal('Lanzar server local');
-  const cmd = `cd "C:\\Users\\RafaelGarcía\\OneDrive - Nazca\\Escritorio\\fund-analyzer"\npython -m tools.web_server`;
+  const cmd = `cd "C:\\Users\\RafaelGarcía\\OneDrive - Nazca\\Rafa\\Personal\\Asesoría Financiera\\fund-analyzer"\npython -m tools.web_server`;
   // W14 (2026-05-26): si el user está en Pages (HTTPS), añadir aviso de
   // Mixed Content + atajo para abrir el catalog en localhost (HTTP) donde
   // los botones SÍ funcionan.
@@ -2959,19 +2961,21 @@ function showEditFundForm(fund) {
         <span style="color:var(--ink-3);">${escapeHtml(fund.gestora || '—')}</span>
       </div>
 
-      <label for="edit-clasif">Clasificación</label>
-      <select id="edit-clasif">${optionsHtml}</select>
-
-      <label for="edit-opinion">Opinión</label>
-      <textarea id="edit-opinion" rows="3" placeholder="Tu opinión sobre el fondo">${escapeHtml(fund.opinion || '')}</textarea>
-
-      <label for="edit-encaje">Encaje (perfil cliente)</label>
-      <textarea id="edit-encaje" rows="2" placeholder="Tipo de cliente al que encaja">${escapeHtml(fund.encaje_texto || fund.encaje || '')}</textarea>
-
-      <label>Brokers disponibles</label>
-      <div id="edit-brokers" style="padding:6px;background:var(--paper-2);border:1px solid var(--border);border-radius:2px;">
-        ${brokersCheckboxes}
+      <div style="padding:8px 10px;background:var(--paper-2);border-left:3px solid var(--gold,#b48020);border-radius:2px;margin:4px 0 12px;font-size:11px;color:var(--ink-2);">
+        ⓘ <strong>Clasificación, opinión, encaje y brokers</strong> se validan en el <strong>portal</strong> (fuente de verdad). Aquí se muestran en <strong>solo lectura</strong>; edítalos en el portal.
       </div>
+
+      <label>Clasificación <span style="color:var(--ink-3);font-weight:normal;font-size:10px;">· se valida en el portal</span></label>
+      <div class="ro-field">${escapeHtml(fund.clasificacion_user || '—')}</div>
+
+      <label>Opinión <span style="color:var(--ink-3);font-weight:normal;font-size:10px;">· se valida en el portal</span></label>
+      <div class="ro-field" style="min-height:34px;white-space:pre-wrap;">${escapeHtml(fund.opinion || fund.opinion_user || '—')}</div>
+
+      <label>Encaje (perfil cliente) <span style="color:var(--ink-3);font-weight:normal;font-size:10px;">· se valida en el portal</span></label>
+      <div class="ro-field" style="white-space:pre-wrap;">${escapeHtml(fund.encaje_texto || fund.encaje || '—')}</div>
+
+      <label>Brokers disponibles <span style="color:var(--ink-3);font-weight:normal;font-size:10px;">· se valida en el portal</span></label>
+      <div class="ro-field">${(Array.isArray(fund.broker_disponible) && fund.broker_disponible.length) ? fund.broker_disponible.map(escapeHtml).join(', ') : '—'}</div>
 
       <label for="edit-notas">Notas internas</label>
       <textarea id="edit-notas" rows="2" placeholder="Notas privadas (no se publican)">${escapeHtml(fund.notas_internas || '')}</textarea>
@@ -2986,30 +2990,17 @@ function showEditFundForm(fund) {
   $('#modal-action').disabled = false;
   $('#modal-cancel').textContent = 'Cancelar';
   $('#modal-action').onclick = () => submitEditFund(fund.isin);
-  setTimeout(() => $('#edit-clasif')?.focus(), 50);
+  setTimeout(() => $('#edit-notas')?.focus(), 50);
 }
 
 async function submitEditFund(isin) {
   const errEl = $('#edit-error');
   errEl.style.display = 'none';
 
-  const clasif = ($('#edit-clasif')?.value || '').trim();
-  const opinion = ($('#edit-opinion')?.value || '').trim();
-  const encaje = ($('#edit-encaje')?.value || '').trim();
   const notas = ($('#edit-notas')?.value || '').trim();
-  // W13: brokers desde checkboxes
-  const brokers = Array.from(document.querySelectorAll('#edit-brokers .edit-broker:checked'))
-    .map(cb => cb.value);
 
-  // F (checkpoint): si pone Top o Bueno, advertir
-  if (clasif === 'Top' || clasif === 'Bueno') {
-    const ok = confirm(
-      `Vas a clasificar como "${clasif}".\n\n` +
-      `¿Revisaste el análisis cuantitativo (📊) en fund-dashboard antes de decidir?\n\n` +
-      `Pulsa Aceptar para continuar guardando, o Cancelar para volver al formulario.`
-    );
-    if (!ok) return;
-  }
+  // Clasificación, opinión, encaje y brokers son READ-ONLY aquí: se validan en el PORTAL
+  // (fuente de verdad) y el backend los rechaza. Solo se editan notas internas + taxonomía.
 
   // Campos de categorización (taxonomía → fund_taxonomy.json + push fund-dashboard)
   const TAX_KEYS = ['categoria', 'tipo_activo', 'geografia', 'divisa', 'issuer', 'clase_comercial', 'gestora', 'estilo'];
@@ -3022,11 +3013,7 @@ async function submitEditFund(isin) {
   });
 
   const payload = {
-    clasificacion_user: clasif || null,
-    opinion_user: opinion || null,
-    encaje_texto: encaje || null,
     notas_internas: notas || null,
-    broker_disponible: brokers,  // W13
     ...taxPayload,
   };
 
