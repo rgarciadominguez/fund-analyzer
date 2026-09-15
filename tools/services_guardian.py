@@ -25,6 +25,8 @@ from __future__ import annotations
 
 import ctypes
 import json
+import os
+import random
 import subprocess
 import sys
 import tempfile
@@ -176,10 +178,37 @@ def main(check_only: bool = False) -> int:
     return 0
 
 
+_GUARD_LOCK = Path(tempfile.gettempdir()) / "hf_guardian.lock"
+
+
+def _acquire_singleton() -> bool:
+    """Lock de instancia única del guardián (evita que varios daemons se lancen pollers en paralelo,
+    como pasó al reiniciar). PID-liveness + jitter + write-then-verify. True si soy el único."""
+    def _pid() -> int:
+        try:
+            return int(_GUARD_LOCK.read_text().strip())
+        except Exception:
+            return 0
+    if _pid_alive(_pid()) and _pid() != os.getpid():
+        return False
+    time.sleep(random.uniform(0.05, 0.5))
+    if _pid_alive(_pid()) and _pid() != os.getpid():
+        return False
+    try:
+        _GUARD_LOCK.write_text(str(os.getpid()))
+    except Exception:
+        pass
+    time.sleep(0.15)
+    return _pid() == os.getpid()
+
+
 def daemon(interval: int = 180) -> None:
     """Bucle infinito: revisa cada `interval` segundos y revive lo que falte. Es el proceso
     que arranca al iniciar sesión (VBS oculto en Inicio). Nunca revienta: cada pasada va en
     try/except. Si el propio demonio muriera, el siguiente inicio de sesión lo relanza."""
+    if not _acquire_singleton():
+        log("otro guardián ya vivo (lock) — salgo para no duplicar")
+        return
     log(f"daemon iniciado (cada {interval}s)")
     while True:
         try:
