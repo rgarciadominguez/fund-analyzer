@@ -61,11 +61,9 @@ def aporte_sin_integrar(isin: str) -> bool:
     apo = fd / "raw" / "aportados"
     if not apo.exists():
         return False
-    try:
-        from tools.aportados import _slug
-    except Exception:
-        def _slug(s):  # fallback mínimo
-            return "".join(c if c.isalnum() or c in "-._" else "_" for c in str(s))
+    # Id canónico (incluye la VERSIÓN del esquema): si el esquema cambió, el extract vigente no
+    # existe todavía → "sin integrar" → se re-extrae y re-sintetiza solo.
+    from tools.aportados import task_id_for
     ref_mtime = None
     for ref_name in ("analyst_synthesis_cowork.json", "output.json"):
         ref = fd / ref_name
@@ -73,7 +71,7 @@ def aporte_sin_integrar(isin: str) -> bool:
             ref_mtime = ref.stat().st_mtime
             break
     for p in apo.glob("*.pdf"):
-        exf = fd / "extracted" / f"aportado_{_slug(p.name)}.json"
+        exf = fd / "extracted" / f"{task_id_for(p.name)}.json"
         if not exf.exists():
             return True  # aportado sin extraer → no integrado
         if ref_mtime is None or exf.stat().st_mtime > ref_mtime + 1:

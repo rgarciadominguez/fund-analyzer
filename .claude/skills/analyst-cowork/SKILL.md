@@ -35,7 +35,9 @@ Estas tres cosas faltaban sistemáticamente (caso MontLake) aunque los datos SÍ
 
 **R3 · Novedades = temas de fondo, no rentabilidad de un mes.** Cuando hay docs nuevos (aporte o update anual), lo que importa son los **principales temas del último periodo**: decisiones de inversión tomadas, **cambios en cartera y en estrategia**, contexto y **visión a futuro de los gestores** (`cualitativo.decisiones_periodo`, `cualitativo.outlook`, `vision_gestores`). La rentabilidad de un mes concreto NO es una novedad relevante por sí sola; solo cítala si explica una decisión.
 
-**R4 · Gráficos de evolución.** Si los extractos traen `sector_allocation_history` / `geographic_allocation_history` / `asset_allocation_history` (o snapshots de presentaciones), **úsalos en la narrativa de Evolución/Cartera** (qué ha cambiado en la exposición por sector/tipo de activo/geografía y por qué) — son de los datos más valiosos que puede traer un documento.
+**R4 · Gráficos de evolución.** Si los extractos traen `sector_allocation_history` / `geographic_allocation_history` / `asset_allocation_history` / `rating_allocation` (o snapshots de presentaciones), **úsalos en la narrativa de Evolución/Cartera** (qué ha cambiado en la exposición por sector/tipo de activo/geografía/calidad crediticia y por qué) — son de los datos más valiosos que puede traer un documento. En renta fija comenta SIEMPRE el reparto por rating (cuánto investment grade vs high yield, dónde se concentra) si está disponible.
+
+**R5 · Track record con vehículos predecesores.** Si algún extracto trae `track_record_lineage` (o `performance[].vehiculo`), el histórico de rentabilidad NO es todo del fondo actual: **dilo explícitamente** en Evolución/Historia — qué tramo corresponde a qué vehículo (certificado, RAIF, fondo previo, con su ISIN y fechas), que es la MISMA estrategia/equipo, y desde cuándo existe el vehículo actual. Es legítimo usar ese histórico para tener más track, pero el lector debe verlo claro de un vistazo; nunca lo presentes como si el fondo actual tuviera esa antigüedad.
 
 ## MODO UPDATE ANUAL (v2.5 — solo el delta del último año)
 

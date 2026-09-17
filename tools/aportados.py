@@ -90,11 +90,70 @@ def ingest(isin: str, docs_urls: list[str] | None = None,
     return {"ok": True, "n_docs": len(manifest["docs"]), "n_externos": len(analisis_externos)}
 
 
+# Versión del esquema de extracción de aportados. SUBIRLA al cambiar `_aportado_schema()`:
+# el id de la task la incluye, así un cambio de esquema genera un id nuevo → su extract no existe
+# → el gate de extract re-extrae solo, y el extract de la versión vieja se borra aquí. (Antes
+# había que invalidar a mano; ahora es del sistema.)
+APORTADO_SCHEMA_VERSION = 3
+
+
+def task_id_for(nombre: str) -> str:
+    """Id canónico de la task/extract de un doc aportado (lo usan también los gates)."""
+    return f"aportado_v{APORTADO_SCHEMA_VERSION}_{_slug(nombre)}"
+
+
+def _aportado_schema() -> dict:
+    """Esquema RICO de los AR (posiciones, allocations, statistics, performance, cualitativo…)
+    + los extras propios de material profesional. NO ad-hoc: un esquema escrito a mano perdió
+    `performance`/`statistics` (caso MontLake: tabla de rentabilidades 2020-24 sin capturar)."""
+    try:
+        from agents.intl_extractor_v2 import AR_SUBFUND_SCHEMA
+        import copy
+        sch = copy.deepcopy(AR_SUBFUND_SCHEMA)
+    except Exception:
+        sch = {}
+    sch["periodo"] = ("string YYYY-MM — fecha de los DATOS del documento (no la de publicación), con "
+                      "MES: es un snapshot intra-anual y debe SUMAR un punto a la evolución, no "
+                      "pisar el del AR del mismo año")
+    sch["performance"] = ("list[{periodo:'YYYY', clase, rentabilidad_pct, benchmark_pct, vehiculo}] — "
+                          "TODAS las rentabilidades por año natural que traiga el doc (tablas de "
+                          "'Historical performance'/'Track record', también vs peers/benchmark). "
+                          "`vehiculo` = qué vehículo generó ese año si el track viene de PREDECESORES "
+                          "(certificado, RAIF, fondo previo) — ver track_record_lineage")
+    sch.update({
+        "texto_cualitativo": "string — resumen del documento",
+        "track_record_lineage": ("list[{desde, hasta, vehiculo, isin}] si el doc indica que el track "
+                                 "record se construye con vehículos PREDECESORES (p.ej. 'performance "
+                                 "until June 2021 derived from <certificado> XS…'). Literal."),
+        "criterios_inversion": {
+            "spread_objetivo": "p.ej. +300 pb sobre tasa libre de riesgo",
+            "calidad_crediticia_minima": "p.ej. BBB- / solo investment grade",
+            "tamano_minimo_emisor": "p.ej. capitalización mínima $5bn",
+            "otros_limites": "list — duración, concentración, geografía, divisa…",
+        },
+        "estructura_gestion": {
+            "management_company": "ManCo / plataforma legal (p.ej. Waystone/MontLake)",
+            "investment_manager": "gestor de inversión REAL que toma las decisiones (p.ej. Fortune)",
+            "roles": "quién hace qué: regulatorio/legal/administración vs gestión de cartera",
+            "por_que": "razón del modelo (plataforma UCITS para gestoras boutique, etc.)",
+        },
+        "vision_gestores": {"decisiones_clave": "list", "cambios_cartera": "list",
+                            "cambios_estrategia": "list", "outlook": "string — visión a futuro"},
+        "sector_allocation_history": ("list[{periodo:'YYYY-MM', sectores:{sector:peso}}] SOLO si el doc "
+                                      "trae la exposición por sector EN VARIAS FECHAS con valores legibles"),
+        "geographic_allocation_history": "list[{periodo:'YYYY-MM', zonas:{region:peso}}] idem",
+        "datos_clave": "dict — resto de datos relevantes (comisiones por clase, custodio, auditor…)",
+    })
+    return sch
+
+
 def register_for_extraction(isin: str, manifest: dict, log=print) -> int:
     """Añade los PDFs aportados como tasks en pending_extraction.json, marcados como fuente
-    prioritaria fiable (el extractor y el analyst les dan más peso)."""
+    prioritaria fiable (el extractor y el analyst les dan más peso). Si la task existente es de
+    OTRA versión de esquema, la sustituye y borra su extract (invalidación automática)."""
     isin = isin.upper()
-    pe_path = _fund_dir(isin) / "pending_extraction.json"
+    fd = _fund_dir(isin)
+    pe_path = fd / "pending_extraction.json"
     pe = {}
     if pe_path.exists():
         try:
@@ -103,46 +162,40 @@ def register_for_extraction(isin: str, manifest: dict, log=print) -> int:
             pe = {}
     pe.setdefault("isin", isin)
     tasks = pe.setdefault("tasks", [])
-    existing_paths = {t.get("pdf_path") for t in tasks if isinstance(t, dict)}
     n = 0
     for doc in manifest.get("docs", []):
         lp = doc["local_path"]
-        if lp in existing_paths:
-            continue
+        tid = task_id_for(doc["nombre"])
+        if any(isinstance(t, dict) and t.get("id") == tid for t in tasks):
+            continue   # ya registrada con el esquema vigente
+        # Task del MISMO pdf con otra versión de esquema → fuera (y su extract, que quedó stale)
+        viejas = [t for t in tasks if isinstance(t, dict) and t.get("aportado") and t.get("pdf_path") == lp]
+        for t in viejas:
+            tasks.remove(t)
+            old = fd / "extracted" / f"{t.get('id')}.json"
+            if old.exists():
+                try:
+                    old.unlink()
+                    log(f"[APORTADO] esquema v{APORTADO_SCHEMA_VERSION}: extract antiguo invalidado ({old.name})")
+                except Exception:
+                    pass
         tasks.append({
-            "id": f"aportado_{_slug(doc['nombre'])}",
+            "id": tid,
             "agent": "intl_extractor_v2",
             "pdf_path": lp,
-            "schema": (
-                "{'periodo': 'YYYY-MM — fecha de los DATOS del documento (no la de publicación), "
-                "con mes: es un snapshot y debe SUMAR un punto a la evolución, no pisar el del AR', "
-                "'texto_cualitativo': 'string — resumen del documento', "
-                "'criterios_inversion': {'spread_objetivo': 'p.ej. +300 pb sobre tasa libre de riesgo', "
-                "'calidad_crediticia_minima': 'p.ej. BBB- / solo investment grade', "
-                "'tamano_minimo_emisor': 'p.ej. capitalización mínima $5bn', "
-                "'otros_limites': 'list — duración, concentración, geografía, divisa…'}, "
-                "'estructura_gestion': {'management_company': 'ManCo / plataforma legal (p.ej. Waystone/MontLake)', "
-                "'investment_manager': 'gestor de inversión REAL que toma las decisiones (p.ej. Fortune)', "
-                "'roles': 'quién hace qué: regulatorio/legal/administración vs gestión de cartera', "
-                "'por_que': 'razón del modelo (plataforma UCITS para gestoras boutique, etc.)'}, "
-                "'vision_gestores': {'decisiones_clave': 'list', 'cambios_cartera': 'list', "
-                "'cambios_estrategia': 'list', 'outlook': 'string — visión a futuro'}, "
-                "'sector_allocation': 'list [{sector, peso_pct}] del snapshot', "
-                "'geographic_allocation': 'list [{region, peso_pct}] del snapshot', "
-                "'asset_allocation': 'dict del snapshot', "
-                "'sector_allocation_history': 'list [{periodo:YYYY-MM, sectores:{sector:peso}}] SOLO si el doc trae gráficos de EVOLUCIÓN por fechas', "
-                "'geographic_allocation_history': 'list [{periodo:YYYY-MM, zonas:{region:peso}}] idem', "
-                "'posiciones': 'list si es cartera/AR', 'datos_clave': 'dict'}"
-            ),
+            "schema": _aportado_schema(),
+            "schema_version": APORTADO_SCHEMA_VERSION,
             "context": (f"DOCUMENTO APORTADO POR EL ASESOR para el fondo {isin} — fuente "
                         "PRIORITARIA, curada y fiable (material profesional de la gestora o "
                         "análisis externo de calidad). Dale MÁS peso que a las fuentes "
-                        "automáticas al sintetizar. CAPTURA LITERALMENTE los criterios de "
-                        "inversión (spread objetivo, rating mínimo, tamaño mínimo de emisor, "
-                        "límites), la estructura de gestión (ManCo/plataforma vs gestor real) y la "
-                        "visión de los gestores (decisiones, cambios, outlook). Si hay gráficos de "
-                        "evolución (sector/geografía/tipo de activo por fechas), extrae CADA fecha "
-                        "como un punto de la serie — son muy valiosos para el análisis."),
+                        "automáticas al sintetizar. Suele ser una PRESENTACIÓN (muchas páginas son "
+                        "tablas/gráficos): recórrela ENTERA y captura LITERALMENTE (a) criterios de "
+                        "inversión (spread objetivo, rating mínimo, tamaño mínimo de emisor, límites), "
+                        "(b) estructura de gestión (ManCo/plataforma vs gestor real), (c) visión de los "
+                        "gestores, (d) TODAS las tablas numéricas: rentabilidades por año, desglose por "
+                        "rating/sector/país/tipo de activo, estadísticas, y (e) el linaje del track "
+                        "record si viene de vehículos predecesores. Lee como IMAGEN las páginas de "
+                        "tablas/gráficos. No inventes valores de un gráfico sin cifras legibles."),
             "aportado": True,
             "two_stage": True,
         })

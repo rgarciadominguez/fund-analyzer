@@ -40,12 +40,34 @@ def _load(p: Path) -> dict:
 
 
 def _year_of(name: str, data: dict) -> str | None:
-    """Periodo del extract: `data.periodo` si es YYYY[-Hx]; si no, del nombre de fichero."""
+    """Periodo del extract: `data.periodo` si es YYYY, YYYY-Hx o YYYY-MM (snapshot intra-anual de
+    una presentación/aportado); si no, del nombre de fichero."""
     per = str(data.get("periodo") or "").strip()
-    if re.match(r"^\d{4}(-H[12])?$", per):
+    if re.match(r"^\d{4}(-H[12]|-(0[1-9]|1[0-2]))?$", per):
         return per
     m = re.search(r"(\d{4})", name)
     return m.group(1) if m else None
+
+
+def _rating_from_holdings(pos: list) -> dict:
+    """{rating: peso_pct} agregando los holdings por su rating. Solo si ≥60% del peso viene con
+    rating (si no, el desglose sería engañoso → {} y no se pinta)."""
+    tot, con, out = 0.0, 0.0, {}
+    for p in (pos or []):
+        if not isinstance(p, dict):
+            continue
+        try:
+            w = float(p.get("peso_pct") or 0)
+        except (TypeError, ValueError):
+            continue
+        if w <= 0:
+            continue
+        tot += w
+        r = str(p.get("rating") or "").strip().upper()
+        if r and r not in ("NONE", "NULL", "N/A", "-"):
+            con += w
+            out[r] = round(out.get(r, 0.0) + w, 2)
+    return out if tot > 0 and con / tot >= 0.6 else {}
 
 
 def _is_ar(name: str) -> bool:
@@ -188,14 +210,20 @@ def build(isin: str) -> dict:
     fd = ROOT / "data" / "funds" / isin.upper()
     ed = fd / "extracted"
     files = sorted(glob.glob(str(ed / "*annual_subfund*.json")))
-    # AR primero para que gane sobre SAR del mismo año en el upsert
+    # Docs APORTADOS (presentaciones profesionales): traen snapshots de exposición, rating y
+    # rentabilidades muy valiosos. Antes el glob los dejaba fuera → nunca llegaban a los gráficos.
+    aportados = sorted(glob.glob(str(ed / "aportado_*.json")))
+    # Orden: AR → SAR → aportado. El AR gana las posiciones del AÑO; el aportado entra después y
+    # aporta su punto propio (akey YYYY-MM) a las series de exposición.
     files.sort(key=lambda f: (0 if _is_ar(Path(f).name) else 1, f))
+    files += aportados
 
     hist_by_per: dict[str, dict] = {}
     mix_act_by_per: dict[str, dict] = {}
     mix_geo_by_per: dict[str, dict] = {}
     sector_by_per: dict[str, dict] = {}
     asset_hist_by_per: dict[str, dict] = {}
+    rating_by_per: dict[str, dict] = {}
     rent_by_key: dict[tuple, dict] = {}
     aum_by_per: dict[str, float] = {}
 
@@ -208,6 +236,11 @@ def build(isin: str) -> dict:
         if not per:
             continue
         yr = per[:4]
+        # Clave de las series de EXPOSICIÓN (sector/geo/tipo de activo/rating): un snapshot
+        # intra-anual (YYYY-MM, p.ej. presentación aportada de ago-2025) es un PUNTO PROPIO de la
+        # evolución; con clave por año colisionaba con el AR del mismo año y se descartaba
+        # (bug MontLake: gráficos de evolución con 1 solo punto). Los AR/SAR siguen por año.
+        akey = per if re.match(r"^\d{4}-(0[1-9]|1[0-2])$", per) else yr
 
         # posiciones.historicas: 1 entrada por AÑO. Como se procesa el AR antes que el SAR
         # (sort AR-first), el AR anual gana; el SAR del mismo año no re-pisa (guard por yr).
@@ -224,9 +257,10 @@ def build(isin: str) -> dict:
 
         # mix_activos_historico (asset_allocation {equity/bonds/cash/otros})
         aa = data.get("asset_allocation") or {}
-        if isinstance(aa, dict) and any(v for v in aa.values() if v) and yr not in mix_act_by_per:
-            mix_act_by_per[yr] = {
-                "periodo": yr,
+        if isinstance(aa, dict) and any(v for v in aa.values() if isinstance(v, (int, float)) and v) \
+                and akey not in mix_act_by_per:
+            mix_act_by_per[akey] = {
+                "periodo": akey,
                 "renta_variable_pct": aa.get("equity_pct"),
                 "renta_fija_pct": aa.get("bonds_pct"),
                 "liquidez_pct": aa.get("cash_pct"),
@@ -235,8 +269,8 @@ def build(isin: str) -> dict:
 
         # mix_geografico_historico: tabla del AR primero; si no, derivar de los holdings del año.
         zonas = _norm_geo(data.get("geographic_allocation") or []) or _geo_from_holdings(pos)
-        if zonas and yr not in mix_geo_by_per:
-            mix_geo_by_per[yr] = {"periodo": yr, "zonas": zonas}
+        if zonas and akey not in mix_geo_by_per:
+            mix_geo_by_per[akey] = {"periodo": akey, "zonas": zonas}
 
         # sector_allocation_history: tabla del AR primero; si no, derivar de los holdings.
         secs = {it.get("sector"): it.get("peso_pct")
@@ -244,15 +278,24 @@ def build(isin: str) -> dict:
                 if isinstance(it, dict) and it.get("sector") and it.get("peso_pct")}
         if not secs:
             secs = _sector_from_holdings(pos)
-        if secs and yr not in sector_by_per:
-            sector_by_per[yr] = {"periodo": yr, "sectores": secs}
+        if secs and akey not in sector_by_per:
+            sector_by_per[akey] = {"periodo": akey, "sectores": secs}
+
+        # rating_allocation_history (calidad crediticia — clave en RENTA FIJA): {rating: peso_pct}
+        rats = {it.get("rating"): it.get("peso_pct")
+                for it in (data.get("rating_allocation") or [])
+                if isinstance(it, dict) and it.get("rating") and it.get("peso_pct") is not None}
+        if not rats:
+            rats = _rating_from_holdings(pos)   # AR sin tabla de rating: derivar de los bonos
+        if rats and akey not in rating_by_per:
+            rating_by_per[akey] = {"periodo": akey, "ratings": rats}
 
         # asset_allocation_history (tipo de activo): PRIMERO el asset_allocation del AR (limpio,
         # equity/bonds/cash/otros); si el AR no lo trae, agrega holdings por tipo (solo si vienen
         # tipados). Para el gráfico de evolución por tipo de activo.
         tipos = _asset_mix_from_allocation(aa) or _asset_mix_from_holdings(pos)
-        if tipos and yr not in asset_hist_by_per:
-            asset_hist_by_per[yr] = {"periodo": yr, "tipos": tipos}
+        if tipos and akey not in asset_hist_by_per:
+            asset_hist_by_per[akey] = {"periodo": akey, "tipos": tipos}
 
         # serie_rentabilidad (tabla performance: puede haber varias clases/año)
         for pr in (data.get("performance") or []):
@@ -292,6 +335,7 @@ def build(isin: str) -> dict:
         "geographic_allocation_history": geo_hist,               # subkey "zonas"
         "sector_allocation_history": _sorted(sector_by_per),     # subkey "sectores"
         "asset_allocation_history": _sorted(asset_hist_by_per),  # subkey "tipos"
+        "rating_allocation_history": _sorted(rating_by_per),     # subkey "ratings" (RF)
         "n_anios": len(hist_by_per),
     }
 
@@ -330,7 +374,7 @@ def _apply_to_file(p: Path, isin: str, built: dict, log=print) -> dict:
             changed.append(f"{key}={len(cuant[key])}")
     # Claves top-level que consume el dashboard para los gráficos de evolución de exposición.
     for key in ("geographic_allocation_history", "sector_allocation_history",
-                "asset_allocation_history"):
+                "asset_allocation_history", "rating_allocation_history"):
         if built.get(key) and key not in manual:
             d[key] = _upsert_by_periodo(d.get(key), built[key])
             changed.append(f"{key}={len(d[key])}")

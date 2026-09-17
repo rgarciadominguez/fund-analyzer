@@ -98,6 +98,7 @@ AR_SUBFUND_SCHEMA = {
     "geographic_allocation": "list[{region, peso_pct}] desglose por PAIS/zona (de 'Portfolio Breakdown'/'Geographical allocation')",
     "sector_allocation": "list[{sector, peso_pct}] desglose por SECTOR/industria (de 'Portfolio Breakdown'/'Economic allocation')",
     "asset_allocation": "{equity_pct, bonds_pct, cash_pct, otros_pct} si el fondo es mixto/multi-activo",
+    "rating_allocation": "list[{rating, peso_pct}] desglose por CALIDAD CREDITICIA (AAA…CCC/NR) si el fondo es de renta fija y el doc trae la tabla ('Rating breakdown'/'Credit quality'). Si hay varias columnas (emisor/bono), usa la del BONO (average). Clave en RF.",
     "statistics": "list[{periodo: 'YYYY', nav_por_clase: {clase: nav}, num_acciones: int, aum_meur: float}] de la seccion 'Statistics'/'Statistical Information' que da NAV+acciones de los ULTIMOS 3 AÑOS -> clave para series historicas",
     "performance": "list[{periodo: 'YYYY', clase, rentabilidad_pct, benchmark_pct}] de la tabla de rentabilidad del Directors'/Investment Manager's Report",
     "cualitativo": {

@@ -5248,7 +5248,11 @@ def build_tab_cartera(data):
     _sec_evo = build_allocation_evolution_chart(
         data.get("sector_allocation_history"), "sectores",
         "Evolución por sector (% sobre patrimonio)", "c-sec-evo")
-    _evos = [c for c in (_asset_evo, _geo_evo, _sec_evo) if c]
+    # Calidad crediticia (renta fija): mismo gráfico genérico, subkey "ratings".
+    _rat_evo = build_allocation_evolution_chart(
+        data.get("rating_allocation_history"), "ratings",
+        "Evolución por calidad crediticia (% sobre patrimonio)", "c-rating-evo", top_n=7)
+    _evos = [c for c in (_asset_evo, _geo_evo, _sec_evo, _rat_evo) if c]
     evo_alloc_html = ""
     if _evos:
         _cls = {1: "col1", 2: "col2"}.get(len(_evos), "col2")
