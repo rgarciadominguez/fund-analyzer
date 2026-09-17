@@ -229,10 +229,12 @@ _DOC_TIPO_PORTAL = {
     "folleto": "folleto",
     "prospectus": "folleto",
     "prospecto": "folleto",
+    "aportado": "aportado",   # material curado que sube Rafa (archive_docs lo sube desde raw/aportados)
 }
 _DOC_TIPO_LABEL = {
     "annual_report": "Annual Report", "semiannual_report": "Informe semestral",
     "carta_gestor": "Carta del gestor", "kid": "KID", "folleto": "Folleto",
+    "aportado": "Documento aportado",
 }
 
 

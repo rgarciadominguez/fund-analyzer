@@ -113,12 +113,36 @@ def register_for_extraction(isin: str, manifest: dict, log=print) -> int:
             "id": f"aportado_{_slug(doc['nombre'])}",
             "agent": "intl_extractor_v2",
             "pdf_path": lp,
-            "schema": "{'texto_cualitativo': 'string — resumen del documento', "
-                      "'posiciones': 'list si es cartera/AR', 'datos_clave': 'dict'}",
+            "schema": (
+                "{'periodo': 'YYYY-MM — fecha de los DATOS del documento (no la de publicación), "
+                "con mes: es un snapshot y debe SUMAR un punto a la evolución, no pisar el del AR', "
+                "'texto_cualitativo': 'string — resumen del documento', "
+                "'criterios_inversion': {'spread_objetivo': 'p.ej. +300 pb sobre tasa libre de riesgo', "
+                "'calidad_crediticia_minima': 'p.ej. BBB- / solo investment grade', "
+                "'tamano_minimo_emisor': 'p.ej. capitalización mínima $5bn', "
+                "'otros_limites': 'list — duración, concentración, geografía, divisa…'}, "
+                "'estructura_gestion': {'management_company': 'ManCo / plataforma legal (p.ej. Waystone/MontLake)', "
+                "'investment_manager': 'gestor de inversión REAL que toma las decisiones (p.ej. Fortune)', "
+                "'roles': 'quién hace qué: regulatorio/legal/administración vs gestión de cartera', "
+                "'por_que': 'razón del modelo (plataforma UCITS para gestoras boutique, etc.)'}, "
+                "'vision_gestores': {'decisiones_clave': 'list', 'cambios_cartera': 'list', "
+                "'cambios_estrategia': 'list', 'outlook': 'string — visión a futuro'}, "
+                "'sector_allocation': 'list [{sector, peso_pct}] del snapshot', "
+                "'geographic_allocation': 'list [{region, peso_pct}] del snapshot', "
+                "'asset_allocation': 'dict del snapshot', "
+                "'sector_allocation_history': 'list [{periodo:YYYY-MM, sectores:{sector:peso}}] SOLO si el doc trae gráficos de EVOLUCIÓN por fechas', "
+                "'geographic_allocation_history': 'list [{periodo:YYYY-MM, zonas:{region:peso}}] idem', "
+                "'posiciones': 'list si es cartera/AR', 'datos_clave': 'dict'}"
+            ),
             "context": (f"DOCUMENTO APORTADO POR EL ASESOR para el fondo {isin} — fuente "
                         "PRIORITARIA, curada y fiable (material profesional de la gestora o "
                         "análisis externo de calidad). Dale MÁS peso que a las fuentes "
-                        "automáticas al sintetizar."),
+                        "automáticas al sintetizar. CAPTURA LITERALMENTE los criterios de "
+                        "inversión (spread objetivo, rating mínimo, tamaño mínimo de emisor, "
+                        "límites), la estructura de gestión (ManCo/plataforma vs gestor real) y la "
+                        "visión de los gestores (decisiones, cambios, outlook). Si hay gráficos de "
+                        "evolución (sector/geografía/tipo de activo por fechas), extrae CADA fecha "
+                        "como un punto de la serie — son muy valiosos para el análisis."),
             "aportado": True,
             "two_stage": True,
         })

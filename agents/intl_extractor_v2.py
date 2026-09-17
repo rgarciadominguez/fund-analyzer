@@ -608,17 +608,19 @@ def _merge_asset_allocation(out: dict, v: Any) -> None:
         if not isinstance(s, dict):
             continue
         date = str(s.get("date", ""))[:10]
-        year = date[:4]
-        if not year:
+        # Periodo con MES si se conoce (YYYY-MM): un snapshot intra-anual (presentación/aportado)
+        # debe SUMAR un punto a la evolución, no colapsar al año y perderse (bug MontLake).
+        per = date[:7] if len(date) >= 7 and date[4] == "-" else date[:4]
+        if not per:
             continue
         entry = {
-            "periodo": year,
+            "periodo": per,
             "renta_variable_pct": _safe_float(s.get("equity_pct")),
             "renta_fija_pct": _safe_float(s.get("fixed_income_pct")),
             "liquidez_pct": _safe_float(s.get("cash_pct")),
             "otros_pct": _safe_float(s.get("other_pct")),
         }
-        if not any(e.get("periodo") == year for e in out["cuantitativo"]["mix_activos_historico"]):
+        if not any(e.get("periodo") == per for e in out["cuantitativo"]["mix_activos_historico"]):
             out["cuantitativo"]["mix_activos_historico"].append(entry)
 
 
@@ -628,13 +630,15 @@ def _merge_geographic(out: dict, v: Any) -> None:
     for s in v.get("snapshots") or []:
         if not isinstance(s, dict):
             continue
-        year = str(s.get("date", ""))[:4]
-        if not year:
+        date = str(s.get("date", ""))[:10]
+        # Periodo con MES si se conoce (YYYY-MM): snapshot intra-anual = punto propio (no colapsar al año).
+        per = date[:7] if len(date) >= 7 and date[4] == "-" else date[:4]
+        if not per:
             continue
         allocs = s.get("allocations") or []
         zonas = {a.get("zone"): _safe_float(a.get("pct")) for a in allocs if isinstance(a, dict) and a.get("zone")}
-        if zonas and not any(e.get("periodo") == year for e in out["cuantitativo"]["mix_geografico_historico"]):
-            out["cuantitativo"]["mix_geografico_historico"].append({"periodo": year, "zonas": zonas})
+        if zonas and not any(e.get("periodo") == per for e in out["cuantitativo"]["mix_geografico_historico"]):
+            out["cuantitativo"]["mix_geografico_historico"].append({"periodo": per, "zonas": zonas})
 
 
 def _merge_portfolio_metrics(out: dict, v: Any) -> None:

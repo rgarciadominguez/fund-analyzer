@@ -2250,25 +2250,32 @@ def merge_ar_statistics_performance(data: dict, intl_data: dict) -> None:
                            "benchmark_pct": p.get("benchmark_pct")})
                 seen.add(key)
 
-    # Histórico de geografía/sector POR AÑO (para el gráfico de evolución de
-    # pesos). Cada AR trae el desglose de su 'periodo' → acumular (upsert).
+    # Histórico de geografía/sector POR PERIODO (para el gráfico de evolución de pesos).
+    # Acepta periodo "YYYY" (AR) o "YYYY-MM" (snapshot de presentación/aportado), para que un
+    # snapshot intermedio SUME un punto en vez de colisionar con / pisar el del AR del mismo año
+    # (bug MontLake: el aportado ago-2025 venía como '2025' y dejaba 1 solo punto → sin evolución).
     _per = str(data.get("periodo") or "")
-    if _re.match(r"^\d{4}$", _per):
-        def _upsert_hist(key, subkey, items, namek, normalize=False):
-            mapping = {it.get(namek): it.get("peso_pct") for it in items
+    _PER_RE = r"^\d{4}(-\d{2})?$"
+
+    def _upsert_hist(key, subkey, items, namek, per, normalize=False, mapping=None):
+        if mapping is None:
+            mapping = {it.get(namek): it.get("peso_pct") for it in (items or [])
                        if isinstance(it, dict) and it.get(namek) and it.get("peso_pct") is not None}
             if normalize:
                 # USA / United States / Estados Unidos → un solo país (agrega)
                 from tools.region_normalizer import aggregate_by_country
                 mapping = aggregate_by_country(mapping)
-            if not mapping:
-                return
-            hist = intl_data.setdefault(key, [])
-            hist[:] = [h for h in hist if h.get("periodo") != _per]
-            hist.append({"periodo": _per, subkey: mapping})
-            hist.sort(key=lambda h: h.get("periodo", ""))
+        per = str(per or "")
+        if not mapping or not _re.match(_PER_RE, per):
+            return
+        hist = intl_data.setdefault(key, [])
+        hist[:] = [h for h in hist if h.get("periodo") != per]
+        hist.append({"periodo": per, subkey: mapping})
+        hist.sort(key=lambda h: h.get("periodo", ""))
+
+    if _re.match(_PER_RE, _per):
         if isinstance(data.get("geographic_allocation"), list):
-            _upsert_hist("geographic_allocation_history", "zonas", data["geographic_allocation"], "region", normalize=True)
+            _upsert_hist("geographic_allocation_history", "zonas", data["geographic_allocation"], "region", _per, normalize=True)
         # Sector: del AR si lo trae; si no (caso Robeco, lista por país), DERIVAR
         # de las posiciones del AR vía el clasificador (caché global de sectores).
         sec_items = data.get("sector_allocation") if isinstance(data.get("sector_allocation"), list) else None
@@ -2279,7 +2286,15 @@ def merge_ar_statistics_performance(data: dict, intl_data: dict) -> None:
             except Exception:
                 sec_items = None
         if sec_items:
-            _upsert_hist("sector_allocation_history", "sectores", sec_items, "sector")
+            _upsert_hist("sector_allocation_history", "sectores", sec_items, "sector", _per)
+
+    # Series MULTI-PERIODO que el extract puede traer de los gráficos de evolución de una
+    # presentación (exposición por sector/geografía en varias fechas): un punto por periodo.
+    for _key, _sub in (("sector_allocation_history", "sectores"),
+                       ("geographic_allocation_history", "zonas")):
+        for _ent in (data.get(_key) or []):
+            if isinstance(_ent, dict) and isinstance(_ent.get(_sub), dict) and _ent.get(_sub):
+                _upsert_hist(_key, _sub, None, None, _ent.get("periodo"), mapping=_ent[_sub])
 
 
 def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:

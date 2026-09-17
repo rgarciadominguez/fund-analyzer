@@ -127,6 +127,15 @@ def _collect(isin: str) -> list[dict]:
             cands.append({"doc_type": "annual_report" if dt.month == 12 else "semi_annual_report",
                           "periodo": dt.isoformat(), "fecha": dt.isoformat(),
                           "local_path": str(f), "url": ""})
+    # APORTADOS (material curado que sube Rafa): se archivan SIEMPRE y se listan en Documentos.
+    # Antes no se miraba esta carpeta → el doc con el que se mejoró el análisis no era consultable.
+    apo = fd / "raw" / "aportados"
+    if apo.exists():
+        for f in sorted(apo.glob("*.pdf")):
+            m = re.search(r"(19|20)\d{2}", f.name)
+            per = m.group(0) if m else (_year_from_pdf(f) or "latest")
+            cands.append({"doc_type": "aportado", "periodo": per, "fecha": per,
+                          "local_path": str(f), "url": ""})
     return cands
 
 
@@ -171,6 +180,8 @@ def _select(cands: list[dict]) -> list[dict]:
             sel.append(max(lst, key=lambda c: _periodo_key(c["periodo"])))
     letters = sorted(by.get("quarterly_letter", []), key=lambda c: _periodo_key(c["periodo"]), reverse=True)
     sel.extend(letters[:_N_LETTERS])
+    # Aportados: todos (son pocos, curados y son la fuente de la mejora del análisis).
+    sel.extend(by.get("aportado", []))
     return sel
 
 
@@ -251,8 +262,8 @@ def _merge_into_output_documentos(isin: str, manifest: list[dict], log=print) ->
     # AR/SAR más nuevo primero
     for m in sorted(manifest, key=lambda x: str(x.get("periodo") or ""), reverse=True):
         tipo = m.get("tipo")
-        if tipo in ("annual_report", "semi_annual_report", "kid", "prospectus", "factsheet"):
-            etq = _TIPO_LABEL_ES.get(tipo, "Documento")
+        if tipo in ("annual_report", "semi_annual_report", "kid", "prospectus", "factsheet", "aportado"):
+            etq = _TIPO_LABEL_ES.get(tipo, "Documento aportado" if tipo == "aportado" else "Documento")
             per = str(m.get("periodo") or "").strip()
             per = per[:4] if per and per[:4].isdigit() else ""
             informes.append({"tipo": tipo, "periodo": per,
@@ -260,6 +271,18 @@ def _merge_into_output_documentos(isin: str, manifest: list[dict], log=print) ->
                              "url": m.get("url"), "archivo": m.get("nombre")})
         elif tipo in ("carta_gestor", "quarterly_letter") and m.get("url") and m["url"] not in cartas:
             cartas.append(m["url"])
+    # Cartas EXTRAÍDAS por el letters agent (letters_data.json): tienen url_fuente pero no siempre
+    # PDF local/archivado → listar la URL para que sean consultables. Bug MontLake: el analyst
+    # citaba una carta (jun-2026) que no aparecía en Documentos.
+    lp = p.with_name("letters_data.json")
+    if lp.exists():
+        try:
+            for c in (json.loads(lp.read_text(encoding="utf-8")).get("cartas") or []):
+                u = (c.get("url_fuente") or "").strip() if isinstance(c, dict) else ""
+                if u and u.startswith("http") and u not in cartas:
+                    cartas.append(u)
+        except Exception:
+            pass
     if informes:
         docs["informes_pdf"] = informes
     docs["cartas_urls"] = cartas
