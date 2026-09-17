@@ -4927,6 +4927,46 @@ def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=5):
     hist.sort(key=lambda h: str(h.get("periodo")))
     if len(hist) < 2:
         return ""
+    # COMPARABILIDAD: cada fuente clasifica a su manera (el AR por industria Bloomberg, una
+    # presentación por bucket de estrategia…). Pintar juntas dos taxonomías distintas da un área
+    # apilada donde todo "salta" de 0 a X: parece un cambio de cartera y es solo un cambio de
+    # etiquetas. Un periodo solo entra si ≥50% de su peso cae en categorías que también usa otro
+    # periodo; se conserva el grupo comparable y, si no quedan ≥2 puntos, no hay gráfico.
+    def _cats(h):
+        return {k for k, v in h[subkey].items() if (v or 0) > 0}
+    def _shared_weight(h, others):
+        tot = sum((v or 0) for v in h[subkey].values()) or 1
+        oc = set().union(*[_cats(o) for o in others]) if others else set()
+        return sum((v or 0) for k, v in h[subkey].items() if k in oc) / tot
+    # Un periodo que es ≥90% "Otros" no informa (extracción fallida): fuera.
+    def _identified(h):
+        tot = sum((v or 0) for v in h[subkey].values()) or 1
+        return sum((v or 0) for k, v in h[subkey].items()
+                   if k not in ("Otros", "Other", "Others")) / tot
+    hist = [h for h in hist if _identified(h) >= 0.10]
+    def _comparable(hs):
+        return [h for h in hs if _shared_weight(h, [o for o in hs if o is not h]) >= 0.5]
+    if subkey == "sectores" and len(_comparable(hist)) < len(hist):
+        # Mismo sector en dos idiomas/nomenclaturas ("Industrials" vs "Industria"): unificar a la
+        # taxonomía canónica SOLO cuando las fuentes no casan tal cual (si ya casan se respeta el
+        # detalle original, p.ej. industrias de un fondo de RF). Lo no reconocido conserva su etiqueta.
+        try:
+            from tools.sector_classifier import canonical_sector as _canon
+        except Exception:
+            _canon = None
+        if _canon:
+            _h2 = []
+            for h in hist:
+                agg_c = {}
+                for k, v in h[subkey].items():
+                    ck = _canon(k) or k
+                    agg_c[ck] = round(agg_c.get(ck, 0) + (v or 0), 2)
+                _h2.append({**h, subkey: agg_c})
+            if len(_comparable(_h2)) > len(_comparable(hist)):
+                hist = _h2
+    hist = _comparable(hist)
+    if len(hist) < 2:
+        return ""
     years = [str(h["periodo"]) for h in hist]
     agg = {}
     for h in hist:
