@@ -50,7 +50,7 @@ set PRECHECK_RC=0
 echo %* | findstr /C:"--resume" >nul || python -m tools.healthcheck --precheck
 if errorlevel 1 set PRECHECK_RC=1
 if not "%PRECHECK_RC%"=="0" echo [AVISO] Dependencia critica ROTA: revisa data\healthcheck_status.json o corre "python -m tools.dep_autocure". Continuando (pon FUND_PRECHECK_STRICT=1 para abortar)...
-if not "%PRECHECK_RC%"=="0" if "%FUND_PRECHECK_STRICT%"=="1" exit /b 2
+if not "%PRECHECK_RC%"=="0" if "%FUND_PRECHECK_STRICT%"=="1" (echo Exit code: 2& exit /b 2)
 
 REM Parse flags (position-independent across args 2-4)
 if "%2"=="--resume" set RESUME_MODE=1
@@ -129,6 +129,7 @@ echo [RESUME] modo resume activo -- saltare pasos ya completados
 if not exist "data\funds\%ISIN%" (
     echo [ERROR] --resume pedido pero data\funds\%ISIN% no existe.
     echo Lanza sin --resume para arranque en frio.
+    echo Exit code: 3
     exit /b 3
 )
 set HAS_ANY_PREP=
@@ -138,6 +139,7 @@ if not defined HAS_ANY_PREP (
     echo [ERROR] --resume pedido pero faltan archivos criticos
     echo         ^(ni cnmv_data.json ni intl_data.json existen en data\funds\%ISIN%\^)
     echo Lanza sin --resume para regenerar prep desde cero.
+    echo Exit code: 3
     exit /b 3
 )
 echo.
@@ -201,6 +203,7 @@ if defined SKIP_PREP (
     if errorlevel 1 (
         echo [ERROR] Prep fallo. Es bloqueante: sin prep no hay manifests para las skills.
         echo Revisa data\funds\%ISIN%\ y progress.log
+        echo Exit code: 1
         exit /b 1
     )
     echo.
@@ -214,6 +217,7 @@ if errorlevel 1 (
     echo   2. Di sucesivamente: "extract pdfs cowork %ISIN%", "manager deep cowork %ISIN%",
     echo      "letters extract cowork %ISIN%", "analyst cowork %ISIN%"
     echo   3. Cuando termines, ejecuta: python -m agents.orchestrator --isin %ISIN% --consume-all-cowork
+    echo Exit code: 2
     exit /b 2
 )
 
