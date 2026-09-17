@@ -222,6 +222,19 @@ REM ----------------------------------------------------------------------
 REM MODO de análisis (MODOS_ANALISIS.md): full | annual_update | aporte. Gatea sourcing/discovery.
 set FUND_SCOPE_MODE=full
 for /f "delims=" %%m in ('python -c "import json,os,sys; p=os.path.join('data','funds','%ISIN%','config.json'); sys.stdout.write((json.load(open(p,encoding='utf-8')).get('modo') or 'full') if os.path.exists(p) else 'full')" 2^>nul') do set FUND_SCOPE_MODE=%%m
+REM BLINDAJE MODO: si hay un doc en raw\aportados\ SIN integrar, el modo es APORTE (complementar),
+REM pase lo que pase con el scope que llegó (arregla el bug MontLake: aporte tratado como full → doc
+REM ignorado y analyst saltado). Se escribe config.modo=aporte para que orchestrator+analyst+consumer
+REM lo vean por igual. Ver tools/pipeline_gates.py (aporte_sin_integrar).
+set _HAS_APORTE=0
+for /f "delims=" %%a in ('python -m tools.pipeline_gates --isin %ISIN% --check aporte 2^>nul') do set _HAS_APORTE=%%a
+if "%_HAS_APORTE%"=="1" (
+    if /I not "%FUND_SCOPE_MODE%"=="annual_update" (
+        set FUND_SCOPE_MODE=aporte
+        python -c "import json,os; p=os.path.join('data','funds','%ISIN%','config.json'); d=(json.load(open(p,encoding='utf-8')) if os.path.exists(p) else {}); d['modo']='aporte'; json.dump(d, open(p,'w',encoding='utf-8'), ensure_ascii=False, indent=2)" >nul 2>&1
+        echo [MODO] doc aportado sin integrar detectado -^> forzando APORTE
+    )
+)
 echo [MODO] scope de analisis = %FUND_SCOPE_MODE%
 REM En aporte/annual (--resume) hay que RE-EJECUTAR extract (docs nuevos/aportados; el extract es
 REM INCREMENTAL: solo procesa tasks sin output previo) y analyst (re-sintesis/complemento), aunque
@@ -282,6 +295,14 @@ if "%RUN_LINEAGE%"=="1" (
 )
 
 REM ----------------------------------------------------------------------
+REM Blindaje aportados: registra en pending_extraction cualquier PDF de raw\aportados\ que falte
+REM (aunque el prep regenerara el manifiesto o el analisis no pasara por ingest). Ver aportados.py.
+call python -m tools.aportados --reconcile --isin %ISIN% >nul 2>&1
+REM Gate determinista (independiente del modo): ¿hay docs en el manifiesto SIN extraer? Si si, NO
+REM saltar extract, pase lo que pase con el scope. Arregla el bug MontLake (aportado ignorado).
+set EXTRACT_GATE=0
+for /f "delims=" %%g in ('python -m tools.pipeline_gates --isin %ISIN% --check extract 2^>nul') do set EXTRACT_GATE=%%g
+
 REM N5 resume: skip extract-pdfs si log existe + extracted/ tiene contenido
 set SKIP_EXTRACT=
 if defined RESUME_MODE (
@@ -291,6 +312,8 @@ if defined RESUME_MODE (
 )
 REM aporte/annual: forzar extract (incremental: solo procesa tasks nuevas sin output)
 if defined FORCE_RERUN set SKIP_EXTRACT=
+REM hay docs nuevos sin extraer -> NO saltar (gate manda sobre el resume-skip)
+if "%EXTRACT_GATE%"=="1" set SKIP_EXTRACT=
 if defined SKIP_EXTRACT (
     echo === Paso 2/6: [RESUME-SKIP] extract-pdfs-cowork ya hecho ===
     echo.
@@ -410,6 +433,11 @@ REM aporte/annual: forzar re-sintesis. La skill analyst-cowork lee config.json.m
 REM y COMPLEMENTA (aporte) o aNade delta "Novedades {ano}" (annual) preservando el
 REM histOrico/conclusiones previas — NUNCA rehace desde cero. Ver MODOS_ANALISIS.md.
 if defined FORCE_RERUN set SKIP_ANALYST=
+REM Gate determinista (independiente del modo): si hay extractos MAS NUEVOS que la sintesis
+REM previa (datos nuevos sin sintetizar), NO saltar el analyst. Complementa lo nuevo sin rehacer.
+set ANALYST_GATE=0
+for /f "delims=" %%g in ('python -m tools.pipeline_gates --isin %ISIN% --check analyst 2^>nul') do set ANALYST_GATE=%%g
+if "%ANALYST_GATE%"=="1" set SKIP_ANALYST=
 if defined SKIP_ANALYST (
     echo === Paso 5/6: [RESUME-SKIP] analyst-cowork ya hecho ===
     echo.
