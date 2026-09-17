@@ -345,14 +345,18 @@ def build(isin: str) -> dict:
     }
 
 
-def _upsert_by_periodo(existing: list, nuevos: list) -> list:
-    """Fusiona por `periodo`: los nuevos rellenan/actualizan; conserva lo que no toquen."""
+def _upsert_by_periodo(existing: list, nuevos: list, extra_key: str | None = None) -> list:
+    """Fusiona por `periodo`: los nuevos rellenan/actualizan; conserva lo que no toquen.
+    `extra_key`: segundo campo de la clave cuando hay VARIAS filas por periodo (serie_rentabilidad
+    trae una por clase y año: con clave solo-periodo se pisaban y sobrevivía una clase al azar)."""
+    def _k(x):
+        return (str(x["periodo"]), str(x.get(extra_key) or "") if extra_key else "")
     by = {}
     for e in (existing or []):
         if isinstance(e, dict) and e.get("periodo") is not None:
-            by[str(e["periodo"])] = e
+            by[_k(e)] = e
     for n in nuevos:
-        by[str(n["periodo"])] = n           # el histórico reconstruido es autoritativo
+        by[_k(n)] = n                       # el histórico reconstruido es autoritativo
     return [by[k] for k in sorted(by.keys())]
 
 
@@ -375,7 +379,8 @@ def _apply_to_file(p: Path, isin: str, built: dict, log=print) -> dict:
                      ("serie_rentabilidad", "serie_rentabilidad"),
                      ("serie_aum", "serie_aum")):
         if built[src] and f"cuantitativo.{key}" not in manual:
-            cuant[key] = _upsert_by_periodo(cuant.get(key), built[src])
+            cuant[key] = _upsert_by_periodo(cuant.get(key), built[src],
+                                            extra_key="clase" if key == "serie_rentabilidad" else None)
             changed.append(f"{key}={len(cuant[key])}")
     # Claves top-level que consume el dashboard para los gráficos de evolución de exposición.
     for key in ("geographic_allocation_history", "sector_allocation_history",
