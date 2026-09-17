@@ -146,6 +146,73 @@ def load_data():
 
 import re as _re
 
+def _build_classes_table_from_document(data):
+    """Tabla de clases desde `clases_documento` (tools/aportado_publish). '' si no hay.
+    Pensada para IDENTIFICAR cada clase de un vistazo: código, ISIN, divisa (+cubierta), reparto,
+    gestión, éxito y mínimo. La clase analizada va primero y resaltada; las inactivas, atenuadas."""
+    import html as _h
+    cl = [c for c in ((data or {}).get("clases_documento") or []) if isinstance(c, dict)]
+    if not cl:
+        return ""
+    isin = ((data or {}).get("isin") or "").upper()
+
+    def _num(v):
+        try:
+            return float(str(v).replace("%", "").replace(",", "."))
+        except Exception:
+            return None
+
+    def _key(c):
+        ccy = (c.get("divisa") or "").upper()
+        return (0 if (c.get("isin") or "").upper() == isin else 1,
+                0 if c.get("activa", True) else 1,
+                0 if ccy == "EUR" else 1 if ccy == "USD" else 2,
+                0 if c.get("cubierta") else 1, str(c.get("codigo") or ""))
+
+    rows, detalles = "", set()
+    for c in sorted(cl, key=_key):
+        es = (c.get("isin") or "").upper() == isin
+        activa = c.get("activa", True)
+        ccy = (c.get("divisa") or "—").upper().replace("HEDGED", "").strip()
+        ccy_cell = _h.escape(ccy) + (' <span style="font-size:10px;color:#8a5a00;">cubierta</span>' if c.get("cubierta") else "")
+        rep = (c.get("reparto") or "").lower()
+        rep_cell = "Acumulación" if rep.startswith("acc") else "Reparto" if rep else "—"
+        g, e = _num(c.get("comision_gestion_pct")), _num(c.get("comision_exito_pct"))
+        if e is None:
+            ex_cell = "—"
+        elif e == 0:
+            ex_cell = '<span style="color:var(--pos);">No cobra</span>'
+        else:
+            ex_cell = f"<strong>{p(e)}</strong>"
+            if c.get("comision_exito_detalle"):
+                detalles.add(str(c["comision_exito_detalle"]))
+        mn = c.get("inversion_minima")
+        mn_cell = _h.escape(str(mn)) if mn not in (None, "", 0) else "Sin mínimo"
+        estado = ('<span style="color:var(--pos);font-size:10px;">Activa</span>' if activa
+                  else '<span style="color:var(--ink-4);font-size:10px;">No lanzada</span>')
+        style = (' style="background:rgba(180,128,32,.10);font-weight:600;"' if es
+                 else ' style="opacity:.55;"' if not activa else "")
+        rows += (f'<tr{style}><td><strong>{_h.escape(str(c.get("codigo") or "—"))}</strong>'
+                 + (' <span style="font-size:10px;color:#8a5a00;">◀ analizada</span>' if es else "") + '</td>'
+                 f'<td style="font-family:\'Source Code Pro\';font-size:11px;">{_h.escape(c.get("isin") or "—")}</td>'
+                 f'<td>{ccy_cell}</td><td>{rep_cell}</td><td>{p(g) if g is not None else "—"}</td>'
+                 f'<td>{ex_cell}</td><td style="font-size:12px;">{mn_cell}</td><td>{estado}</td></tr>')
+    note = ""
+    if detalles:
+        note = ('<p style="font-size:11px;color:var(--ink-4);margin-top:4px;">Comisión de éxito: '
+                + _h.escape("; ".join(sorted(detalles))) + '. Se cobra solo sobre lo que el fondo gane por '
+                'encima de esa referencia y tras superar su máximo anterior (si lo indica).</p>')
+    fuente = sorted({str(c.get("fuente")) for c in cl if c.get("fuente")})
+    if fuente:
+        note += (f'<p style="font-size:10px;color:var(--ink-4);font-style:italic;">Fuente: '
+                 f'{_h.escape("; ".join(fuente))}.</p>')
+    return f"""<table class="rt mb20">
+    <thead><tr><th>Clase</th><th>ISIN</th><th>Divisa</th><th>Reparto</th><th>Com. Gestión</th><th>Com. Éxito</th><th>Mínimo</th><th>Estado</th></tr></thead>
+    <tbody>{rows}</tbody>
+  </table>
+  {note}"""
+
+
 def build_classes_table(data):
     """Build classes table dynamically from cuantitativo data.
     Shows only CURRENT classes (latest period in serie_comisiones_por_clase).
@@ -154,6 +221,12 @@ def build_classes_table(data):
     com_series = cuant.get("serie_comisiones_por_clase", [])
     ter_series = cuant.get("serie_ter_por_clase", [])
     isin = data.get("isin", "")
+
+    # PRIORIDAD: tabla de clases del DOCUMENTO (folleto/presentación aportada): es literal y trae
+    # lo que las heurísticas no (todas las clases, divisa/cobertura, comisión de ÉXITO, mínimo).
+    _doc_tbl = _build_classes_table_from_document(data)
+    if _doc_tbl:
+        return _doc_tbl
 
     # Find first year each class appears (for "Inicio" column)
     clases_inicio = {}
@@ -3975,7 +4048,43 @@ def build_tab_evolucion(data):
       </div>
     </div>
   </div>
+""" + build_doc_charts_block(data, ("rentabilidad", "riesgo", "patrimonio"),
+                             "Evolución histórica según el gestor") + """
 </section>"""
+
+
+def build_doc_charts_block(data, secciones, titulo):
+    """Gráficos ORIGINALES de los documentos aportados (tools/aportado_publish), filtrados por
+    sección. Cada uno: imagen de la página + qué muestra + LECTURA (lo que el gráfico enseña).
+    Son del gestor (auto-reportados): se dice explícitamente. '' si no hay ninguno."""
+    import html as _h
+    gl = [g for g in ((data or {}).get("graficos_documento") or [])
+          if isinstance(g, dict) and g.get("img") and g.get("seccion") in secciones]
+    if not gl:
+        return ""
+    gl.sort(key=lambda g: (0 if g.get("tipo") == "evolucion" else 1, g.get("pagina") or 0))
+    docs = sorted({(g.get("documento") or "", g.get("periodo") or "") for g in gl})
+    fuente = "; ".join(f"{_h.escape(d)}" + (f" (datos a {_h.escape(p)})" if p else "") for d, p in docs)
+    items = ""
+    for g in gl:
+        tag = "Evolución" if g.get("tipo") == "evolucion" else "Foto actual"
+        items += (
+            '<figure style="margin:0 0 26px;">'
+            f'<div class="ch-l" style="display:flex;justify-content:space-between;gap:12px;">'
+            f'<span>{_h.escape(g.get("titulo") or "")}</span>'
+            f'<span style="opacity:.6;font-weight:400">{tag} · pág. {g.get("pagina")}</span></div>'
+            f'<a href="{_h.escape(g["img"])}" target="_blank" rel="noopener">'
+            f'<img src="{_h.escape(g["img"])}" loading="lazy" alt="{_h.escape(g.get("titulo") or "")}" '
+            'style="width:100%;height:auto;border:1px solid var(--rule);border-radius:4px;background:#fff;display:block;"></a>'
+            + (f'<figcaption class="pr" style="margin-top:8px;font-size:12.5px;line-height:1.55;">'
+               f'<strong>Qué enseña:</strong> {_h.escape(g.get("lectura") or g.get("que_muestra") or "")}</figcaption>'
+               if (g.get("lectura") or g.get("que_muestra")) else "")
+            + '</figure>'
+        )
+    return (f'<div class="section-title mb12" style="margin-top:28px;">{_h.escape(titulo)} ({len(gl)})</div>'
+            f'<div class="pr mb20" style="font-size:12px;opacity:.8;">Gráficos originales del documento aportado: '
+            f'{fuente}. Elaborados por la gestora (datos auto-reportados); se muestran tal cual, con su lectura. '
+            f'Pulsa un gráfico para verlo a tamaño completo.</div>{items}')
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -5312,6 +5421,10 @@ def build_tab_cartera(data):
         _cls = {1: "col1", 2: "col2"}.get(len(_evos), "col2")
         evo_alloc_html = (f'<div class="section-title mb12">Evolución de la exposición ({len(_evos)})</div>'
                           f'<div class="{_cls} mb20">{"".join(_evos)}</div>')
+    # Evolución de cartera según el documento aportado (yield/duración históricos, IG vs no-IG,
+    # estructura de deuda, sectores…): los gráficos originales del gestor, con su lectura.
+    evo_alloc_html += build_doc_charts_block(
+        data, ("cartera", "estrategia"), "Evolución de la cartera según el gestor")
 
     return f"""
 <section class="pane" id="p5">

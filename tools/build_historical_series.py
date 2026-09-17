@@ -212,7 +212,12 @@ def build(isin: str) -> dict:
     files = sorted(glob.glob(str(ed / "*annual_subfund*.json")))
     # Docs APORTADOS (presentaciones profesionales): traen snapshots de exposición, rating y
     # rentabilidades muy valiosos. Antes el glob los dejaba fuera → nunca llegaban a los gráficos.
-    aportados = sorted(glob.glob(str(ed / "aportado_*.json")))
+    # Uno por documento (el de esquema más reciente): pueden convivir dos versiones del mismo PDF.
+    try:
+        from tools.aportados import current_extracts
+        aportados = [str(p) for p in current_extracts(isin)]
+    except Exception:
+        aportados = sorted(glob.glob(str(ed / "aportado_*.json")))
     # Orden: AR → SAR → aportado. El AR gana las posiciones del AÑO; el aportado entra después y
     # aporta su punto propio (akey YYYY-MM) a las series de exposición.
     files.sort(key=lambda f: (0 if _is_ar(Path(f).name) else 1, f))

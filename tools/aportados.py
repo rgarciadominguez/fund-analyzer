@@ -94,7 +94,7 @@ def ingest(isin: str, docs_urls: list[str] | None = None,
 # el id de la task la incluye, así un cambio de esquema genera un id nuevo → su extract no existe
 # → el gate de extract re-extrae solo, y el extract de la versión vieja se borra aquí. (Antes
 # había que invalidar a mano; ahora es del sistema.)
-APORTADO_SCHEMA_VERSION = 3
+APORTADO_SCHEMA_VERSION = 4   # v4: clases_documento + graficos_documento
 
 
 def task_id_for(nombre: str) -> str:
@@ -142,7 +142,26 @@ def _aportado_schema() -> dict:
         "sector_allocation_history": ("list[{periodo:'YYYY-MM', sectores:{sector:peso}}] SOLO si el doc "
                                       "trae la exposición por sector EN VARIAS FECHAS con valores legibles"),
         "geographic_allocation_history": "list[{periodo:'YYYY-MM', zonas:{region:peso}}] idem",
-        "datos_clave": "dict — resto de datos relevantes (comisiones por clase, custodio, auditor…)",
+        "clases_documento": ("list[{codigo, isin, divisa, cubierta:bool, reparto:'Acc'|'Dist', "
+                             "comision_gestion_pct, comision_exito_pct, comision_exito_detalle, "
+                             "inversion_minima, activa:bool}] — TODAS las filas de la tabla de clases "
+                             "('List of share classes'), una por clase, LITERAL. `cubierta`=true si la "
+                             "divisa dice Hedged. `comision_exito_detalle` = base y condiciones (p.ej. "
+                             "'10% sobre el tipo libre de riesgo, con high-water mark'). Si una clase no "
+                             "cobra éxito: comision_exito_pct=0. No omitas clases inactivas (activa=false)."),
+        "graficos_documento": ("list[{pagina:int, titulo, tipo:'evolucion'|'foto', "
+                               "seccion:'cartera'|'rentabilidad'|'riesgo'|'patrimonio'|'estrategia', "
+                               "que_muestra, lectura}] — CATÁLOGO de las páginas con GRÁFICOS de valor "
+                               "analítico, sobre todo los de EVOLUCIÓN en el tiempo (yield/duración "
+                               "históricos, IG vs no-IG, estructura de deuda, sectores, AUM y flujos, "
+                               "rotación, atribución por año, volatilidad, drawdown, rentabilidad acumulada). "
+                               "`pagina` = nº de página del PDF (1-indexed). `lectura` = 2-4 frases con lo que "
+                               "el gráfico ENSEÑA: tendencia, niveles aproximados de inicio/fin/extremos "
+                               "(marca '≈' si los lees del eje) y comparación con el índice si lo hay. Estas "
+                               "páginas se incrustan tal cual en el dashboard y el analista usa `lectura`. "
+                               "Excluye portadas, índices, glosarios, organigramas y gráficos genéricos de "
+                               "mercado que no hablen del fondo."),
+        "datos_clave": "dict — resto de datos relevantes (custodio, auditor, registros por país…)",
     })
     return sch
 
@@ -193,8 +212,10 @@ def register_for_extraction(isin: str, manifest: dict, log=print) -> int:
                         "inversión (spread objetivo, rating mínimo, tamaño mínimo de emisor, límites), "
                         "(b) estructura de gestión (ManCo/plataforma vs gestor real), (c) visión de los "
                         "gestores, (d) TODAS las tablas numéricas: rentabilidades por año, desglose por "
-                        "rating/sector/país/tipo de activo, estadísticas, y (e) el linaje del track "
-                        "record si viene de vehículos predecesores. Lee como IMAGEN las páginas de "
+                        "rating/sector/país/tipo de activo, estadísticas, (e) el linaje del track "
+                        "record si viene de vehículos predecesores, (f) la tabla COMPLETA de clases "
+                        "(clases_documento) y (g) el catálogo de gráficos (graficos_documento), con su "
+                        "lectura. Lee como IMAGEN las páginas de "
                         "tablas/gráficos. No inventes valores de un gráfico sin cifras legibles."),
             "aportado": True,
             "two_stage": True,
@@ -223,7 +244,51 @@ def register_from_folder(isin: str, log=print) -> int:
             continue
     if not docs:
         return 0
-    return register_for_extraction(isin, {"docs": docs}, log=log)
+    n = register_for_extraction(isin, {"docs": docs}, log=log)
+    purge_stale_extracts(isin, [d["nombre"] for d in docs], log=log)
+    return n
+
+
+def current_extracts(isin: str) -> list[Path]:
+    """Extracts de docs aportados, UNO por documento: el de esquema más reciente. Los consumidores
+    deben usar esto y no un glob `aportado_*.json` (pueden convivir dos versiones del mismo PDF
+    entre que se re-extrae con el esquema nuevo y se purga el viejo)."""
+    import re as _re
+    ext = _fund_dir(isin.upper()) / "extracted"
+    best: dict[str, tuple[int, Path]] = {}
+    for f in ext.glob("aportado*.json") if ext.exists() else []:
+        m = _re.match(r"aportado(?:_v(\d+))?_(.+)\.json$", f.name)
+        if not m:
+            continue
+        ver, slug = int(m.group(1) or 0), m.group(2)
+        if slug not in best or ver > best[slug][0]:
+            best[slug] = (ver, f)
+    return [p for _, p in sorted(best.values(), key=lambda x: x[1].name)]
+
+
+def purge_stale_extracts(isin: str, nombres: list[str], log=print) -> int:
+    """Borra los extracts de un doc aportado hechos con un esquema ANTERIOR, pero solo cuando ya
+    existe el de la versión vigente (así un fallo de extracción no deja el fondo sin datos del
+    aporte). Sin esto convivían dos extracts del mismo PDF y los consumidores que hacen glob
+    `aportado_*.json` (series históricas) leían también el viejo."""
+    ext = _fund_dir(isin.upper()) / "extracted"
+    if not ext.exists():
+        return 0
+    n = 0
+    for nombre in nombres:
+        cur = ext / f"{task_id_for(nombre)}.json"
+        if not cur.exists():
+            continue
+        slug = _slug(nombre)
+        for f in ext.glob("aportado*.json"):
+            if f.name != cur.name and f.name.endswith(f"{slug}.json"):
+                try:
+                    f.unlink()
+                    n += 1
+                    log(f"[APORTADO] extract de esquema anterior eliminado ({f.name})")
+                except Exception:
+                    pass
+    return n
 
 
 def inject_readings(isin: str, analisis_externos: list[dict], log=print) -> int:

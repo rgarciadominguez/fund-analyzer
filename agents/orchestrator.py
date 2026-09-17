@@ -3283,6 +3283,16 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
     except Exception as exc:
         log("CALENDAR", "WARN", f"calendar: {exc}")
 
+    # DOCS APORTADOS: gráficos originales del documento (evolución) incrustados + tabla de clases
+    # completa (con comisión de éxito). Determinista, idempotente, best-effort.
+    try:
+        from tools.aportado_publish import apply as _apo_pub
+        _ap = _apo_pub(isin, log=lambda m: log("APORTADO", "OK", m))
+        if _ap.get("changed"):
+            log("APORTADO", "OK", f"publicados {_ap.get('graficos')} gráficos + {_ap.get('clases')} clases")
+    except Exception as exc:
+        log("APORTADO", "WARN", f"aportado_publish: {exc}")
+
     try:
         import subprocess
         gen_path = ROOT / "dashboard" / "generate_dashboard.py"

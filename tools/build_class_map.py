@@ -80,15 +80,54 @@ def _pick_primary(members: list[dict]) -> dict | None:
     return sorted(cand, key=tie)[0]
 
 
-def _class_row(m: dict, primary_isin: str) -> dict:
+def _doc_classes(primary_isin: str) -> dict[str, dict]:
+    """Tabla de clases del DOCUMENTO (output.clases_documento del primario), por ISIN. Es literal
+    del folleto/presentación: manda sobre lo inferido (cobertura, comisión de éxito, código)."""
+    try:
+        op = ROOT / "data" / "funds" / primary_isin / "output.json"
+        cl = json.loads(op.read_text(encoding="utf-8")).get("clases_documento") or []
+        return {(c.get("isin") or "").upper(): c for c in cl if isinstance(c, dict) and c.get("isin")}
+    except Exception:
+        return {}
+
+
+def _common_prefix(names: list[str]) -> str:
+    """Prefijo común (por palabras) de los nombres de clase del grupo = nombre del fondo; lo que
+    queda es el CÓDIGO de la clase ('ML Alpha Fixed Inc UCITS FIEHA H EUR Acc' → 'FIEHA H EUR Acc')."""
+    toks = [n.split() for n in names if n]
+    if len(toks) < 2:
+        return ""
+    pre = []
+    for ws in zip(*toks):
+        if len(set(ws)) == 1:
+            pre.append(ws[0])
+        else:
+            break
+    return " ".join(pre)
+
+
+def _class_row(m: dict, primary_isin: str, doc: dict | None = None, prefix: str = "") -> dict:
+    from tools.morningstar_daily import is_hedged_class
+    name = m.get("nombre_clase") or ""
+    d = (doc or {}).get((m["isin"] or "").upper()) or {}
+    resto = name[len(prefix):].strip() if prefix and name.startswith(prefix) else ""
+    rep = (d.get("reparto") or "").lower() or (
+        "acc" if " acc" in name.lower() else "dist" if any(t in name.lower() for t in (" inc", " dist", " dis")) else "")
     return {
         "isin": m["isin"],
-        "nombre_clase": m.get("nombre_clase") or "",
-        "divisa": (m.get("divisa") or "").upper() or None,
-        "hedge": bool(m.get("divisa_hedge_bool")),
+        "nombre_clase": name,
+        # código: el del documento; si no, lo que queda tras el nombre del fondo, solo si ese prefijo
+        # es fiable (≥3 palabras comunes a TODAS las clases). Si no, None → la UI usa el nombre entero.
+        "codigo": d.get("codigo") or (resto.split()[0] if (resto and len(prefix.split()) >= 3) else None),
+        "divisa": (m.get("divisa") or d.get("divisa") or "").upper().replace("HEDGED", "").strip() or None,
+        # cobertura: documento > flag de la taxonomía > nombre de la clase ("… H EUR", "Hedged")
+        "hedge": bool(d.get("cubierta")) if "cubierta" in d else (bool(m.get("divisa_hedge_bool")) or is_hedged_class(name)),
+        "reparto": "Acc" if rep.startswith("acc") else "Dist" if rep else None,
         "fecha_inicio": m.get("fecha_creacion_clase"),
         "anios": _years(m.get("fecha_creacion_clase")),
-        "comision": m.get("comision_gestion_pct"),
+        "comision": d.get("comision_gestion_pct") if d.get("comision_gestion_pct") is not None else m.get("comision_gestion_pct"),
+        "exito": d.get("comision_exito_pct"),
+        "minimo": d.get("inversion_minima"),
         "ter": m.get("ter_pct"),
         "es_primario": m["isin"] == primary_isin,
         "tiene_dashboard": _has_dash(m["isin"]),
@@ -132,8 +171,10 @@ def build(dry: bool = False) -> dict:
             continue  # ningún miembro tiene dashboard local → no se puede routear
         n_multi += 1
         pisin = prim["isin"]
+        _doc = _doc_classes(pisin)
+        _pre = _common_prefix([m.get("nombre_clase") or "" for m in members])
         classes = sorted(
-            (_class_row(m, pisin) for m in members),
+            (_class_row(m, pisin, _doc, _pre) for m in members),
             key=lambda x: (not x["es_primario"], -(x["anios"] or 0), x["isin"]),
         )
         groups_out[pisin] = {

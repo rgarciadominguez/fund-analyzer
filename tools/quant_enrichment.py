@@ -358,7 +358,9 @@ def enrich_fund(isin: str, benchmark_symbol: Optional[str] = None,
     # Benchmark (ETF) para valoración-índice y capture ratios
     geo_bench = DEFAULT_BENCHMARKS.get((geo or "").lower())
     if benchmark_symbol:
-        bench, bench_label = benchmark_symbol, benchmark_symbol
+        bench = benchmark_symbol
+        bench_label = (FIXED_INCOME_BENCHMARK[1] if benchmark_symbol == FIXED_INCOME_BENCHMARK[0]
+                       else benchmark_symbol)
     elif geo_bench:
         bench, bench_label = geo_bench
     else:
@@ -400,7 +402,49 @@ def enrich_fund(isin: str, benchmark_symbol: Optional[str] = None,
             out["morningstar"] = ms
     except Exception:
         pass
+
+    # Serie DIARIA de Morningstar resuelta por SecId (cuadra 100% con Morningstar/Finect):
+    # rentabilidades por AÑO NATURAL completas (incl. el último año) + CAGR/vol/maxDD. Fuente
+    # autoritativa para el gráfico de rentabilidad anual y CAGR/vol — mejor que la serie del AR
+    # (incompleta / mal-anclada) y que el chart de Yahoo (a veces trae otro security). El fix de
+    # `morningstar_daily` (SecId, no idtype=Isin fuzzy) es lo que la hace fiable.
+    try:
+        from tools.morningstar_daily import compute_metrics as _ms_daily
+        md = _ms_daily(isin)
+        if md and md.get("rentabilidades_anuales"):
+            out["rendimiento_diario"] = md
+    except Exception:
+        pass
     return out
+
+
+# Renta fija: comparar un fondo de bonos con MSCI World (capture ratios, PER del índice) no tiene
+# sentido (caso MontLake). Índice de bonos global cubierto a EUR como referencia por defecto.
+FIXED_INCOME_BENCHMARK = ("EUNA.DE", "Bloomberg Global Aggregate (EUR hedged)")
+_RF_WORDS = ("fixed income", "fixed inc", "bond", "renta fija", "credit", "crédito", "credito",
+             "obligaciones", "deuda", "high yield", "aggregate", "treasury", "gilt", " rf ")
+
+
+def is_fixed_income(data: dict) -> bool:
+    """¿Fondo de renta fija? Por cartera (≥60% bonos) o, si no hay dato, por nombre/categoría."""
+    aa = (data or {}).get("asset_allocation") or {}
+    try:
+        b, e = float(aa.get("bonds_pct") or 0), float(aa.get("equity_pct") or 0)
+        if b >= 60:
+            return True
+        if e >= 60:
+            return False
+    except Exception:
+        pass
+    k = (data or {}).get("kpis") or {}
+    t = f" {(data or {}).get('nombre', '')} {k.get('clasificacion', '')} {k.get('benchmark', '')} ".lower()
+    return any(w in t for w in _RF_WORDS)
+
+
+def _default_benchmark_symbol(data: dict, benchmark_symbol: Optional[str]) -> Optional[str]:
+    if benchmark_symbol:
+        return benchmark_symbol
+    return FIXED_INCOME_BENCHMARK[0] if is_fixed_income(data) else None
 
 
 def resolve_geo(isin: str, texto: str = "") -> str:
@@ -448,7 +492,7 @@ def enrich_and_save(isin: str, benchmark_symbol: Optional[str] = None,
         kpis.get("benchmark", ""), data.get("gestora", ""),
     ])
     geo = resolve_geo(isin, texto)
-    enr = enrich_fund(isin, benchmark_symbol=benchmark_symbol, geo=geo)
+    enr = enrich_fund(isin, benchmark_symbol=_default_benchmark_symbol(data, benchmark_symbol), geo=geo)
     enr["geo_inferida"] = geo
     from datetime import datetime, timezone
     enr["generado"] = datetime.now(timezone.utc).isoformat()
@@ -466,6 +510,72 @@ def enrich_and_save(isin: str, benchmark_symbol: Optional[str] = None,
     return {"ok": True, "enrichment": enr}
 
 
-__all__ = ["enrich_fund", "enrich_and_save", "resolve_yahoo_symbol",
+def enrich_and_merge(isin: str, benchmark_symbol: Optional[str] = None,
+                     log=None) -> dict:
+    """Como `enrich_and_save` pero FILL-IF-EMPTY: solo rellena las claves de
+    `analisis_cuantitativo` que estén vacías, sin pisar nada ya presente
+    (p.ej. sectores derivados de la cartera cuando Yahoo devuelve 0, o un
+    bloque Morningstar previo). Idempotente y no destructivo.
+
+    Devuelve {ok, added:[claves rellenadas], had:[claves que ya estaban]}.
+    """
+    import json
+    from pathlib import Path
+    from datetime import datetime, timezone
+    root = Path(__file__).parent.parent
+    out_path = root / "data" / "funds" / isin.upper() / "output.json"
+    if not out_path.exists():
+        return {"ok": False, "reason": "no_output"}
+    data = json.loads(out_path.read_text(encoding="utf-8"))
+    before = data.get("analisis_cuantitativo") or {}
+
+    kpis = data.get("kpis", {}) or {}
+    texto = " ".join(str(x) for x in [
+        data.get("nombre", ""), kpis.get("clasificacion", ""),
+        kpis.get("benchmark", ""), data.get("gestora", ""),
+    ])
+    geo = resolve_geo(isin, texto)
+    enr = enrich_fund(isin, benchmark_symbol=_default_benchmark_symbol(data, benchmark_symbol), geo=geo)
+
+    def _empty(v):
+        return v in (None, [], {}, "", 0)
+
+    # Fill-if-empty protege lo CURADO (sectores de cartera, bloque Morningstar…), pero NO aplica a:
+    #  · métricas de SERIE (`rendimiento_diario`): caducan cada día y, si estaban mal calculadas,
+    #    se quedaban mal para siempre (MontLake: serie de otra clase → 2025 −1,9% vs +8,1% real);
+    #  · lo que depende del benchmark, cuando el benchmark cambia (p.ej. MSCI World → índice de bonos).
+    always = {"rendimiento_diario"}
+    if enr.get("benchmark_symbol") and enr.get("benchmark_symbol") != before.get("benchmark_symbol"):
+        always |= {"benchmark_symbol", "benchmark_label", "capture_ratios", "sectores_benchmark", "valoracion"}
+
+    merged = dict(before)
+    added, had = [], []
+    for k, v in enr.items():
+        if k in always:
+            if not _empty(v) or k in ("capture_ratios", "sectores_benchmark", "valoracion"):
+                merged[k] = v
+                added.append(k)
+            continue
+        if _empty(v):
+            continue
+        if _empty(merged.get(k)):
+            merged[k] = v
+            added.append(k)
+        else:
+            had.append(k)
+    merged.setdefault("geo_inferida", geo)
+    merged["generado"] = datetime.now(timezone.utc).isoformat()
+    data["analisis_cuantitativo"] = merged
+
+    tmp = out_path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(out_path)
+    if log:
+        log("QUANT-MERGE", "OK", f"{isin}: +{added} (ya tenía {had})")
+    return {"ok": True, "added": added, "had": had,
+            "sectores": len(merged.get("sectores") or [])}
+
+
+__all__ = ["enrich_fund", "enrich_and_save", "enrich_and_merge", "resolve_yahoo_symbol",
            "resolve_geo", "decode_style_box", "compute_capture_ratios",
            "get_nav_history", "DEFAULT_BENCHMARKS"]

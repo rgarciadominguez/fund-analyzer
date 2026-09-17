@@ -562,7 +562,9 @@ if exist "dashboard\fund-%ISIN%.html" (
     git add "dashboard\fund-%ISIN%.html" >nul 2>&1
     REM _class_map.json (Contrato FONDO vs CLASE) lo regenera el sync → commitearlo con el dashboard
     if exist "dashboard\_class_map.json" git add "dashboard\_class_map.json" >nul 2>&1
-    git diff --cached --quiet "dashboard\fund-%ISIN%.html" "dashboard\_class_map.json"
+    REM Graficos del documento aportado (imagenes que el dashboard referencia) → van en el mismo commit
+    if exist "dashboard\doc-charts\%ISIN%" git add -A "dashboard\doc-charts\%ISIN%" >nul 2>&1
+    git diff --cached --quiet
     if errorlevel 1 (
         git commit -m "auto: regen dashboard %ISIN%" >nul 2>&1
         if errorlevel 1 (
