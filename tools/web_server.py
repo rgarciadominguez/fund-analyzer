@@ -1050,6 +1050,50 @@ def make_app(cold_start: bool = True) -> Flask:
         _save_queue_state()
         print(f"[WATCHDOG] {isin} re-encolado para RELAUNCH auto (intento {rc + 1}/{MAX_AUTO_RELAUNCH})")
 
+    def _exit_code_from_log(log_path: str):
+        """Exit code que el bat imprime al final ('Exit code: N'). Señal robusta de que el run
+        TERMINÓ (aunque el handle del subprocess ya no exista, p.ej. tras reiniciar el server)."""
+        try:
+            if not log_path or not os.path.exists(log_path):
+                return None
+            with open(log_path, "rb") as f:
+                f.seek(0, 2)
+                f.seek(max(0, f.tell() - 4096))
+                tail = f.read().decode("utf-8", errors="replace")
+            m = re.findall(r"Exit code:\s*(-?\d+)", tail)
+            return int(m[-1]) if m else None
+        except Exception:
+            return None
+
+    def _finished_rc(run: dict):
+        """None si el run sigue vivo/no se sabe; si no, el returncode con el que TERMINÓ.
+        Primero el proceso (poll), luego el marcador del log. Distingue 'acabó' de 'murió':
+        un run terminado NUNCA debe tratarse como corte ni relanzarse (bug MontLake: se relanzó
+        un run con exit 0 porque el watcher aún no lo había marcado done)."""
+        proc = run.get("_proc")
+        try:
+            if proc is not None:
+                rc = proc.poll()
+                if rc is not None:
+                    return rc
+        except Exception:
+            pass
+        return _exit_code_from_log(run.get("log_path", ""))
+
+    def _reclassify_finished(it: dict, run_id: str, isin: str, rc: int) -> None:
+        fin = "done" if rc == 0 else "failed"
+        print(f"[WATCHDOG] {isin} (run {run_id}) TERMINÓ (rc={rc}) — el watcher no lo marcó; "
+              f"reclasifico {fin}, SIN relanzar")
+        now = datetime.now(timezone.utc).isoformat()
+        with QUEUE_LOCK:
+            it["status"] = fin
+            it["finished_at"] = now
+            it["exit_code"] = rc
+        if run_id in RUNS:
+            RUNS[run_id]["status"] = fin
+            RUNS[run_id]["exit_code"] = rc
+            RUNS[run_id]["end_time"] = now
+
     def _watchdog_tick():
         """Una iteración del watchdog. Detecta:
         1. Items running con PID que ya no existe → mark interrupted + auto-relaunch
@@ -1073,7 +1117,15 @@ def make_app(cold_start: bool = True) -> Flask:
             pid = run.get("pid")
             pid_alive = _is_pid_alive(pid)
             if pid_alive is False:
-                print(f"[WATCHDOG] {isin} (run {run_id}) PID={pid} NO EXISTE — marcando interrupted")
+                # ¿Acabó normalmente y el watcher aún no lo marcó? Un PID muerto CON exit code
+                # registrado (o marcador de fin en el log) es un run TERMINADO, no un corte:
+                # reclasificar y NO relanzar. (Bug MontLake: se relanzó un run acabado con exit 0.)
+                rc = _finished_rc(run)
+                if rc is not None:
+                    _reclassify_finished(it, run_id, isin, rc)
+                    changes_made = True
+                    continue
+                print(f"[WATCHDOG] {isin} (run {run_id}) PID={pid} NO EXISTE y sin exit code — marcando interrupted")
                 with QUEUE_LOCK:
                     it["status"] = "interrupted"
                     it["finished_at"] = datetime.now(timezone.utc).isoformat()
@@ -1092,6 +1144,13 @@ def make_app(cold_start: bool = True) -> Flask:
             log_path = run.get("log_path", "")
             stale_min = _run_last_activity_min(log_path, isin)
             if stale_min is not None and stale_min > WATCHDOG_LOG_STALE_MIN:
+                # Mismo guard que W3: un run que TERMINÓ deja de escribir el log y a los N min
+                # parece "colgado" → NO es un cuelgue si tiene exit code: reclasificar, no relanzar.
+                rc = _finished_rc(run)
+                if rc is not None:
+                    _reclassify_finished(it, run_id, isin, rc)
+                    changes_made = True
+                    continue
                 # Verificar adicionalmente que pid_alive es None (no podemos saber) o True
                 # Si pid_alive es True pero log está stale 15+ min, asumir cuelgue
                 print(f"[WATCHDOG] {isin} (run {run_id}) log stale {stale_min:.1f}min, PID_alive={pid_alive} — marcando interrupted")
