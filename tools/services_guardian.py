@@ -159,6 +159,36 @@ def maybe_consume_inputs() -> None:
         log(f"[inputs-rafa] no pude lanzar consumer: {e}")
 
 
+_PUSH_INTERVAL = 1800  # 30 min
+_last_push_check = 0.0
+
+
+def maybe_push_pending() -> None:
+    """Red de seguridad del deploy: si quedaron commits 'auto: regen dashboard' sin subir (push del
+    run fallido por red/SSL), los sube. Sin esto el dashboard nuevo no llega al portal hasta que
+    otro run haga push. Solo lanza el push si de verdad hay commits pendientes."""
+    global _last_push_check
+    try:
+        if time.time() - _last_push_check < _PUSH_INTERVAL:
+            return
+        _last_push_check = time.time()
+        from tools import git_autopush
+        n = git_autopush.pending("v2-cowork")
+        if n <= 0:
+            return
+        pyw = Path(sys.executable).with_name("pythonw.exe")
+        exe = str(pyw) if pyw.exists() else sys.executable
+        subprocess.Popen(
+            [exe, "-m", "tools.git_autopush", "--branch", "v2-cowork"],
+            cwd=str(ROOT),
+            creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW,
+            close_fds=True,
+        )
+        log(f"{n} commit(s) del dashboard sin subir → push lanzado (git_autopush)")
+    except Exception as e:  # noqa: BLE001
+        log(f"[git_autopush] no pude comprobar/lanzar el push: {e}")
+
+
 def main(check_only: bool = False) -> int:
     w = web_alive()
     p = poller_alive()
@@ -171,6 +201,7 @@ def main(check_only: bool = False) -> int:
     if not p:
         launch_poller()
     maybe_consume_inputs()   # scheduler horario del sync /inputs-rafa
+    maybe_push_pending()     # red de seguridad del deploy (commits del dashboard sin subir)
     if w and p:
         # heartbeat silencioso 1/hora para no inflar el log (solo en minuto 00-02)
         if time.localtime().tm_min < 3:

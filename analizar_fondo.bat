@@ -569,19 +569,20 @@ if exist "dashboard\fund-%ISIN%.html" (
             echo [WARN] auto-commit fallo - revisa git status manualmente
             set FAILED_STEPS=!FAILED_STEPS! auto-git-commit
         ) else (
-            git push origin v2-cowork >nul 2>&1
-            if errorlevel 1 (
-                echo [WARN] auto-push fallo - hazlo manual: git push origin v2-cowork
-                set FAILED_STEPS=!FAILED_STEPS! auto-git-push
-            ) else (
-                echo [OK] dashboard/fund-%ISIN%.html commiteado y pusheado
-            )
+            echo [OK] dashboard/fund-%ISIN%.html commiteado
         )
     ) else (
         echo [SKIP] dashboard sin cambios desde ultimo commit
     )
 ) else (
     echo [SKIP] dashboard\fund-%ISIN%.html no existe
+)
+REM Push SIEMPRE que haya commits pendientes (tambien los de un run anterior cuyo push
+REM fallo): con reintentos y dejando el motivo del fallo en el log (antes se descartaba).
+python -m tools.git_autopush --branch v2-cowork
+if errorlevel 1 (
+    echo [WARN] auto-push fallo tras reintentos - motivo arriba; el guardian lo reintenta
+    set FAILED_STEPS=!FAILED_STEPS! auto-git-push
 )
 echo.
 
