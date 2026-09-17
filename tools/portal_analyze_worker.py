@@ -739,6 +739,11 @@ def una_pasada(args) -> int:
         cola = fetch_queue()
         log(f"Cola del portal: {len(cola)} ISIN pendiente(s) de análisis")
     if not cola:
+        # Anti-cuelgue continuo: estamos IDLE (0 pendientes), así que NO hay run en curso; si queda
+        # un marcador in-flight es de un run que murió sin mark_done → el portal se quedó en
+        # "Analizando…". Lo cerramos aquí (cada pasada idle, ~30s) sin esperar a reiniciar el poller.
+        if not args.dry_run:
+            reconcile_inflight()
         log("Nada que hacer.")
         return 0
     lote = cola[: max(1, args.limit)]
