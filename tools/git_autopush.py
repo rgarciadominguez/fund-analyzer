@@ -41,7 +41,7 @@ def push(branch: str = "v2-cowork", retries: int = 4) -> int:
     if n == 0:
         print("[git_autopush] al día con origin (nada que subir)")
         return 0
-    print(f"[git_autopush] {n if n > 0 else '?'} commit(s) pendientes → push origin {branch}")
+    print(f"[git_autopush] {n if n > 0 else '?'} commit(s) pendientes -> push origin {branch}")
     err = ""
     for i in range(1, retries + 1):
         try:
@@ -59,6 +59,13 @@ def push(branch: str = "v2-cowork", retries: int = 4) -> int:
 
 
 if __name__ == "__main__":
+    # El .bat redirige la salida a un log con la consola en cp1252: un carácter no codificable
+    # tumbaba el proceso ANTES de hacer el push. Nunca debe fallar por imprimir.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     ap = argparse.ArgumentParser()
     ap.add_argument("--branch", default="v2-cowork")
     ap.add_argument("--retries", type=int, default=4)
