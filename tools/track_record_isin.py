@@ -96,15 +96,19 @@ def resolve_track_record(client, isin, log=None, max_probe=4):
         return isin, []
     # LINEAGE (§0.9): si hay un vehículo predecesor registrado con serie NAV más larga (MontLake:
     # clase con track desde 2021), ESA es la serie de referencia del track-record del grupo.
+    # 2026-09-17: NO se sustituye la serie de la clase por la de otra clase (daba retornos de una
+    # clase sin cubrir / en otra divisa como si fueran de esta). Se EMPALMA: predecesor en la divisa
+    # correcta hasta el lanzamiento de la clase + serie propia después (build_class_series).
     try:
-        from tools.lineage_kb import quant_series_isin as _lin_qsi
-        qsi = _lin_qsi(isin)
-        if qsi and qsi.upper() != isin:
-            s = fetch_series(qsi)
-            if len(s) >= _MIN_POINTS:
+        from tools.lineage_kb import get_record as _lin_rec
+        if ((_lin_rec(isin) or {}).get("track_record")):
+            from tools.morningstar_daily import build_class_series
+            cs = build_class_series(isin)
+            if len(cs["points"]) >= _MIN_POINTS and cs.get("pred"):
                 if log:
-                    log(f"[track-record] {isin} -> {qsi} (lineage: serie del vehículo predecesor)")
-                return qsi, s
+                    log(f"[track-record] {isin}: serie propia + predecesor {cs['pred']['isin']} "
+                        f"en {cs['pred']['currency']} (lineage, empalmado)")
+                return isin, cs["points"]
     except Exception:
         pass
     try:

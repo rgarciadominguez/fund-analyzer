@@ -73,6 +73,114 @@ def fetch_series(isin: str) -> list:
         return []
 
 
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+# SERIE DE UNA CLASE CON PREDECESOR (2026-09-17)
+# BUG que motivó esto (MontLake IE000Z9YV312, clase EUR CUBIERTA): para "alargar" el track se usaba
+# la serie de OTRA clase (FIEI, EUR sin cubrir) cuyo tramo previo a su lanzamiento es un relleno de
+# Morningstar con los NAV en USD etiquetados como EUR, y cuyo tramo posterior lleva el riesgo
+# EUR/USD que la clase cubierta NO tiene → 2025 salía −1,9% (real +8,13%) y un drawdown de −14%
+# inexistente. Reglas, genéricas:
+#   1. La serie PROPIA de una clase solo vale desde su fecha de lanzamiento (InceptionDate). Lo que
+#      Morningstar trae antes es historia de otra clase/vehículo: nunca se atribuye a la clase.
+#   2. El tramo PREDECESOR sale de la serie de referencia del linaje, en la divisa que corresponde:
+#      clase CUBIERTA → divisa original de la estrategia (una clase cubierta replica el retorno en
+#      divisa local menos el coste de cobertura); clase NO cubierta → convertida a la divisa de la clase.
+#   3. Se empalma re-basando el predecesor al primer NAV real de la clase y se devuelve el corte,
+#      para que dashboard y métricas puedan marcar qué parte es predecesor.
+_HEDGE_RE = re.compile(r"(hedged|\bhdg\b|\bhgd\b|\(h\)|\bh[- ]?(eur|usd|chf|gbp|jpy|sek|nok|aud|cad)\b"
+                       r"|\b(eur|usd|chf|gbp|jpy|sek|nok|aud|cad)[- ]?h\b"
+                       r"|\bh (eur|usd|chf|gbp|jpy|sek|nok|aud|cad)\b)", re.I)
+
+
+def is_hedged_class(name: str) -> bool:
+    """¿La clase cubre divisa?, por su nombre ('… FIEHA H EUR Acc', 'EUR Hedged', 'Hdg')."""
+    return bool(_HEDGE_RE.search(name or ""))
+
+
+def resolve_security(isin: str) -> dict | None:
+    """ISIN → {secid, name, currency, inception} con validación EXACTA de ISIN (ver resolve_secid)."""
+    isin = (isin or "").upper().strip()
+    if not _ISIN.match(isin):
+        return None
+    from tools.http_retry import get_json
+    dp = "SecId%7CName%7CIsin%7CPriceCurrency%7CInceptionDate"
+    for uni in ("FOALL%24%24ALL", "ETALL%24%24ALL", "CEALL%24%24ALL"):
+        url = (f"{_SCR}?page=1&pageSize=10&outputType=json&version=1"
+               f"&universeIds={uni}&securityDataPoints={dp}&term={isin}")
+        try:
+            rows = get_json(url, headers=_UA, timeout=20).get("rows") or []
+        except Exception:
+            rows = []
+        for r in rows:
+            if (r.get("Isin") or "").upper().strip() == isin and r.get("SecId"):
+                return {"isin": isin, "secid": r["SecId"], "name": r.get("Name") or "",
+                        "currency": (r.get("PriceCurrency") or "").upper() or None,
+                        "inception": (r.get("InceptionDate") or "")[:10] or None}
+    return None
+
+
+def fetch_series_secid(secid: str, currency: str = "EUR") -> list:
+    """Serie diaria por SecId en la divisa pedida (Morningstar convierte con `currencyId`)."""
+    end = datetime.now(timezone.utc).date().isoformat()
+    url = (f"{_TS}?currencyId={currency or 'EUR'}&idtype=Morningstar&frequency=daily"
+           f"&id={secid}&startDate=1990-01-01&endDate={end}&outputType=COMPACTJSON")
+    try:
+        from tools.http_retry import get_json
+        return [(int(t), float(v)) for t, v in get_json(url, headers=_UA, timeout=25) if v]
+    except Exception:
+        return []
+
+
+def _ts_of(date_str: str) -> int | None:
+    try:
+        return int(datetime.strptime(date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp() * 1000)
+    except Exception:
+        return None
+
+
+def build_class_series(isin: str, pred_isin: str | None = None) -> dict:
+    """Serie de la clase `isin` = tramo PREDECESOR (si hay linaje) + serie PROPIA desde su lanzamiento.
+    Devuelve {points, own_start_ts, currency, hedged, pred:{isin,currency,from_ts,to_ts}|None}.
+    `pred_isin`: clase de referencia del linaje (por defecto, la del registro de lineage_kb)."""
+    out = {"isin": (isin or "").upper(), "points": [], "own_start_ts": None, "currency": None,
+           "hedged": False, "pred": None}
+    sec = resolve_security(isin)
+    if not sec:
+        return out
+    cur = sec["currency"] or "EUR"
+    out["currency"], out["hedged"] = cur, is_hedged_class(sec["name"])
+    own = sorted(fetch_series_secid(sec["secid"], cur))
+    inc = _ts_of(sec["inception"] or "")
+    if inc:                                   # regla 1: lo anterior al lanzamiento no es de la clase
+        own = [p for p in own if p[0] >= inc]
+    if not own:
+        return out
+    out["own_start_ts"] = own[0][0]
+    if pred_isin is None:
+        try:
+            from tools.lineage_kb import get_record
+            tr = ((get_record(isin) or {}).get("track_record") or {})
+            pred_isin = tr.get("pred_series_isin") or tr.get("quant_series_isin_usd") or tr.get("quant_series_isin")
+        except Exception:
+            pred_isin = None
+    pts = own
+    if pred_isin and pred_isin.upper() != out["isin"]:
+        psec = resolve_security(pred_isin)
+        if psec:
+            pcur = (psec["currency"] or cur) if out["hedged"] else cur      # regla 2
+            pser = [p for p in sorted(fetch_series_secid(psec["secid"], pcur)) if p[0] < own[0][0]]
+            if len(pser) >= _MIN_PRED_POINTS:
+                k = own[0][1] / pser[-1][1]                                  # regla 3: empalme
+                pts = [(t, v * k) for t, v in pser] + own
+                out["pred"] = {"isin": psec["isin"], "secid": psec["secid"], "currency": pcur,
+                               "from_ts": pser[0][0], "to_ts": own[0][0]}
+    out["points"] = pts
+    return out
+
+
+_MIN_PRED_POINTS = 20
+
+
 def _year(ts):
     return datetime.fromtimestamp(ts / 1000, timezone.utc).year
 
@@ -106,28 +214,31 @@ def compute_metrics(isin: str, rf_monthly: dict | None = None) -> dict:
     data/fund_lineage.json con una clase cuya serie cubre MÁS histórico (incluye vehículo predecesor
     ya empalmado por Morningstar, p.ej. MontLake desde 2021 vs UCITS 2024), se usa esa serie y se
     marca `_lineage` con la etiqueta/caveat para que el dashboard avise."""
-    src_isin = isin
     lineage_note = None
+    s = []
     try:
         from tools.lineage_kb import get_record
         rec = get_record(isin) or {}
-        tr = rec.get("track_record") or {}
-        alt = tr.get("quant_series_isin")
-        if alt and alt.upper() != (isin or "").upper():
-            s_alt = fetch_series(alt)
-            s_own = fetch_series(isin)
-            # usar la serie con inicio más antiguo (más histórico real)
-            if s_alt and (not s_own or s_alt[0][0] < s_own[0][0]):
-                src_isin = alt
+        if rec.get("track_record"):
+            # Serie PROPIA de la clase + tramo predecesor en la divisa correcta (build_class_series).
+            cs = build_class_series(isin)
+            if cs["points"] and cs.get("pred"):
+                s = cs["points"]
+                p = cs["pred"]
                 lineage_note = {
-                    "serie_de_clase": alt,
-                    "desde": tr.get("quant_series_start"),
-                    "nota": tr.get("quant_note") or "incluye histórico de vehículo predecesor",
+                    "serie_de_clase": p["isin"],
+                    "divisa_predecesor": p["currency"],
+                    "desde": datetime.fromtimestamp(p["from_ts"] / 1000, timezone.utc).date().isoformat(),
+                    "clase_propia_desde": datetime.fromtimestamp(p["to_ts"] / 1000, timezone.utc).date().isoformat(),
+                    "nota": (f"Hasta {datetime.fromtimestamp(p['to_ts'] / 1000, timezone.utc).date().isoformat()}"
+                             f" la serie es la del vehículo/clase predecesor ({p['isin']}, en {p['currency']});"
+                             f" desde entonces, la serie real de esta clase."),
                     "caveat": rec.get("caveat_global"),
                 }
     except Exception:
         pass
-    s = fetch_series(src_isin)
+    if not s:
+        s = fetch_series(isin)
     m = metrics_from_series(s, rf_monthly=rf_monthly)
     if lineage_note and m:
         m["_lineage"] = lineage_note
