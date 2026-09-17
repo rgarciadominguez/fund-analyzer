@@ -156,6 +156,18 @@ if defined RELAUNCH_MODE (
     if exist "data\funds\%ISIN%\analyst_synthesis_cowork.json" del /q "data\funds\%ISIN%\analyst_synthesis_cowork.json"
 )
 
+REM ----------------------------------------------------------------------
+REM DETECCION TEMPRANA DE APORTE (antes del prep): si hay un doc en raw\aportados\ sin integrar,
+REM el modo es APORTE. Se escribe config.modo=aporte AQUI, ANTES del prep, para que la discovery
+REM del orchestrator (prep) tambien se salte (no solo el extract/analyst). Sin esto, un aporte
+REM lanzado directo (sin worker que presetee el modo) dispararia discovery en el prep.
+set _APORTE_EARLY=0
+for /f "delims=" %%a in ('python -m tools.pipeline_gates --isin %ISIN% --check aporte 2^>nul') do set _APORTE_EARLY=%%a
+if "%_APORTE_EARLY%"=="1" (
+    python -c "import json,os; p=os.path.join('data','funds','%ISIN%','config.json'); d=(json.load(open(p,encoding='utf-8')) if os.path.exists(p) else {}); d['modo']='aporte'; json.dump(d, open(p,'w',encoding='utf-8'), ensure_ascii=False, indent=2)" >nul 2>&1
+    echo [MODO] doc aportado sin integrar -^> APORTE fijado ANTES del prep ^(discovery se saltara^)
+)
+
 REM N5 resume: skip prep si los 4 outputs principales ya estan
 set SKIP_PREP=
 if defined RESUME_MODE (
