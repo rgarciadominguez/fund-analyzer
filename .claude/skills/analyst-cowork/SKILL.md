@@ -35,18 +35,16 @@ En ese modo:
 
 2. **Mira SOLO lo nuevo** (desde `since_date`): informe anual/semianual más reciente, cartas/comentarios del gestor del último año, cambios de cartera (altas/bajas/rotación) y de exposición (sector, geografía, divisa, duración, crédito), cambios de equipo gestor, comisiones (TER), tamaño (AUM) y política de la clase. Las fuentes nuevas están en el bundle/prep (docs con fecha posterior a `since_date`).
 
-3. **INTEGRA, no reescribas** (regla de oro: si algo ya estaba y no ha cambiado este año, no lo toques):
-   - Conserva VERBATIM las secciones y párrafos del `analyst_synthesis` previo que no hayan cambiado.
-   - **Primero, FUNDE las Novedades del año ANTERIOR en la narrativa base**: si el `texto` previo ya tenía un bloque `**Novedades {año-1}**`, intégralo en el cuerpo del análisis (reescríbelo como parte del relato, ya está revisado y aplicado) y ELIMINA ese header de año anterior. Así no se apilan bloques "Novedades 2026", "Novedades 2027"… y las novedades de este año se comparan contra lo ya aplicado.
-   - **Luego añade** a las secciones relevantes (resumen/estrategia/cartera/gestores/evolución) un ÚNICO bloque **`**Novedades {año actual}**`** al final del `texto`, explicando QUÉ ha cambiado este año y QUÉ implica (2-6 frases). Mantén el histórico intacto encima.
-   - Actualiza los campos estructurados (KPIs, top_posiciones, perfil_riesgo, comisiones…) SOLO donde el dato nuevo difiera del anterior.
-   - Si un dato no ha cambiado, déjalo idéntico.
-   - Si NO hay novedades reales en una sección, no inventes un "Novedades {año}" vacío — omítelo.
+3. **INTEGRA en la narrativa — NO apiles bloques** (regla de oro): el resultado es UN análisis coherente y actualizado, no el viejo con un anexo pegado.
+   - Donde el dato del último año **cambia, refina o contradice** algo del texto previo (cartera, exposición, tesis, equipo, comisiones, tamaño), **reescribe esa frase/párrafo integrando el dato nuevo** — para que quede un solo relato sin duplicados ni contradicciones. Preserva las CONCLUSIONES y el peso del análisis previo: ajustas el texto, no lo tiras.
+   - Lo que NO ha cambiado, déjalo VERBATIM (no reescribas por reescribir).
+   - **NO añadas bloques `**Novedades {año}**` al final de las secciones.** El "qué ha cambiado y por qué" va APARTE, en `novedades_resumen` (pestaña Novedades). Si el texto previo traía un bloque `**Novedades {año-1}**` de un run viejo, fúndelo en el cuerpo y elimínalo.
+   - Actualiza los campos estructurados (KPIs, top_posiciones, perfil_riesgo, comisiones…) SOLO donde el dato nuevo difiera del anterior. Si un dato no ha cambiado, déjalo idéntico.
 
-4. **Cuantitativo**: lo refresca el pipeline Python (NAV → métricas → sync-metricas). Tú solo comentas el delta cualitativo en el bloque Novedades.
+4. **Cuantitativo**: lo refresca el pipeline Python (NAV → métricas → sync-metricas). El delta cualitativo va integrado en el texto + resumido en `novedades_resumen`.
 
-5. **Emite** el `analyst_synthesis` completo (histórico preservado + Novedades del año). El cierre (rodar `fecha_proximo_analisis` +1 año, limpiar la tarea de vencido, volver a "Categorizar") lo hace el worker Python — tú no lo tocas.
-6. **`novedades_resumen` (OBLIGATORIO en annual)**: emite en el JSON, junto a `analyst_synthesis`, un digest de lo que ha cambiado el año para la pestaña "Novedades" (para no rastrear los bloques por pestaña): `{"modo": "annual_update", "fecha": "YYYY-MM", "puntos": [{"titulo": "...", "detalle": "qué ha cambiado / qué sigue igual"}]}`. 3-7 puntos: cartera, consistencia, equipo, estrategia/filosofía (marcando explícitamente lo que SIGUE IGUAL). Si `sin_novedades` es true, no lo emitas (o `puntos: []`).
+5. **Emite** el `analyst_synthesis` completo (integrado y coherente). El cierre (rodar `fecha_proximo_analisis` +1 año, limpiar la tarea de vencido, volver a "Categorizar") lo hace el worker Python — tú no lo tocas.
+6. **`novedades_resumen` (OBLIGATORIO en annual)** — es el registro APARTE de lo que HAS CAMBIADO en el análisis (no un anexo del texto): `{"modo": "annual_update", "fecha": "YYYY-MM", "puntos": [{"titulo": "...", "detalle": "QUÉ has modificado/mejorado en el análisis Y EN QUÉ SENTIDO / POR QUÉ (qué dato nuevo del año lo motiva)"}]}`. 3-7 puntos con los cambios que has integrado este año (cartera, consistencia, equipo, estrategia) + qué **SIGUE IGUAL**. Si `sin_novedades` es true, no lo emitas (o `puntos: []`).
 
 **Sin novedades**: mira `data/funds/{ISIN}/intl_discovery_data.json` → `annual_update.sin_novedades`. Si es `true` (discovery no encontró NINGÚN AR/SAR/carta posterior a `since_date`), NO reescribas nada: emite el `analyst_synthesis` previo TAL CUAL (sin bloque Novedades). El cierre solo rodará la fecha. No inventes cambios que no hay.
 
@@ -56,17 +54,18 @@ En ese modo:
 
 En ese modo:
 1. El material aportado está **extraído y marcado como fuente prioritaria** (tasks con `aportado:true` en `pending_extraction.json` → holdings/datos fiables) y/o en `data/funds/{ISIN}/aportados/` y `analisis_externos`. Léelo y compáralo con el `analyst_synthesis` PREVIO.
-2. **Preserva las conclusiones previas — NO les quites peso.** Integra la info nueva y, en las secciones que el aporte enriquezca (resumen/estrategia/cartera/gestores/evolución/consistencia):
-   - Señala los cambios RELEVANTES que revele el aporte (sobre todo **cartera**, **tesis**, **consistencia**).
-   - Confirma qué **SIGUE IGUAL** en estrategia / filosofía / equipo.
-   - Añade un ÚNICO bloque **`**Complemento (aporte)**`** al final del `texto` de esas secciones (2-6 frases). Mantén el resto del texto intacto.
+2. **INTEGRA en la narrativa, preservando las conclusiones — NO apiles un "Complemento".** El resultado es UN análisis coherente y mejorado, no el viejo con un bloque pegado. En las secciones que el aporte enriquezca (resumen/estrategia/cartera/gestores/evolución/consistencia):
+   - Donde el aporte **aporta, refina, corrige o contradice** algo del texto previo (cartera, tesis, estrategia, equipo, cifras cualitativas), **reescribe esa frase/párrafo integrando el dato nuevo** — sin duplicar ni contradecirte. NO quites peso a las conclusiones previas: las integras con lo nuevo, no las tiras.
+   - Explica en el propio relato los puntos CLAVE que el aporte aclara (p.ej. qué significa y qué implica un objetivo de spread mínimo), no solo los enuncies.
+   - Confirma (integrado en el texto) qué **SIGUE IGUAL** en estrategia / filosofía / equipo.
+   - **NO añadas bloques `**Complemento (aporte)**`.** El "qué has cambiado/mejorado y por qué" va APARTE, en `novedades_resumen`.
 3. Si una sección NO la toca el aporte, no la reescribas (el consumidor preserva verbatim las que no emitas).
 4. **Cuantitativo**: no cambia (el aporte no re-descubre NAV). No inventes cambios que el aporte no soporte.
 5. **`revision_pendiente` (OBLIGATORIO en aporte)**: emite en el JSON, junto a `analyst_synthesis`, una lista `revision_pendiente` con los **datos frescos del aporte que NO has propagado a lo estructurado** y conviene reconciliar cuando lleguen los informes oficiales completos. Típicamente:
    - Un **KPI que no cuadra**: el doc trae un AUM/TER/YTM más reciente que NO coincide con `kpis.*` (que dejas intacto). → item con el valor del doc, el del KPI y la fecha.
    - Una **corrección o dato de equipo/cartera que solo quedó en prosa** (p.ej. "el fondo lo gestionan 3, no 2" o holdings nuevos) y NO está en `cualitativo.gestores` / `posiciones.actuales`.
    Cada item: `{"titulo": "...", "detalle": "qué dice el aporte vs qué hay en los datos, y qué reconciliar", "fuente": "nombre del doc aportado", "fecha": "YYYY-MM"}`. Si el aporte NO deja ningún desajuste (todo cuadra), emite `revision_pendiente: []`. **No dupliques** ítems que ya estén (el consumidor deduplica por título). Estos ítems se muestran en la pestaña "Novedades" (bloque "A reconciliar") y se limpian solos en la actualización anual.
-6. **`novedades_resumen` (OBLIGATORIO en aporte)**: emite un digest de QUÉ aporta este material, para la pestaña "Novedades": `{"modo": "aporte", "fecha": "YYYY-MM", "puntos": [{"titulo": "...", "detalle": "qué complementa/confirma/corrige el aporte"}]}`. 3-6 puntos que resuman los bloques "Complemento (aporte)" que has añadido (datos nuevos, confirmaciones de tesis, correcciones), para que Rafa vea de un vistazo la mejora sin rastrear las 7 pestañas.
+6. **`novedades_resumen` (OBLIGATORIO en aporte)** — es el registro APARTE de lo que HAS CAMBIADO en el análisis con el aporte (no un anexo del texto): `{"modo": "aporte", "fecha": "YYYY-MM", "puntos": [{"titulo": "...", "detalle": "QUÉ has modificado/mejorado/integrado en el análisis con el aporte Y EN QUÉ SENTIDO / POR QUÉ"}]}`. 3-6 puntos que expliquen tus ediciones (qué integraste, qué corregiste, qué confirmaste), para que Rafa vea de un vistazo la mejora sin rastrear las pestañas.
 
 Si `modo` NO es `annual_update` ni `aporte` (o no hay config), genera el análisis COMPLETO como siempre (resto de esta skill) y NO emitas `revision_pendiente` ni `novedades_resumen`.
 

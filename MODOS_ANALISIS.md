@@ -21,10 +21,12 @@ Regla de oro: **cada modo gatea qué se busca y cómo se sintetiza. La discovery
   No re-busca años/tipos ya archivados (gap-targeting por tipo).
 - **Lineage:** NO (ya resuelto).
 - **Extract:** solo los docs nuevos.
-- **Analyst:** ACTUALIZA **preservando el histórico**. Añade bloque **"Novedades {año}"**:
-  - Cambios RELEVANTES del último año (sobre todo **cartera** y **consistencia**).
-  - Qué **sigue igual** en estrategia / filosofía / equipo.
-  - **NO quita peso al histórico** — lo mantiene intacto encima y añade el delta.
+- **Analyst:** **INTEGRA el delta EN la narrativa**, no lo apila. Reescribe las frases/párrafos donde el
+  dato del año **cambia, refina o contradice** lo previo (cartera, exposición, tesis, equipo, comisiones,
+  tamaño) → un solo relato coherente, sin duplicar ni contradecirse. **Preserva las conclusiones/peso**
+  del análisis previo (ajusta el texto, no lo tira); lo que no cambia queda verbatim.
+  - El **"qué ha cambiado y por qué"** va APARTE, en `novedades_resumen` (pestaña Novedades) — NO como
+    bloques "Novedades {año}" pegados al final de cada sección.
 
 ## 3 · Mejora con aporte local de documentos (`scope=aporte`)
 **Cuándo:** Rafa sube material (docs_aportados/analisis_externos) para complementar/mejorar.
@@ -32,10 +34,12 @@ Regla de oro: **cada modo gatea qué se busca y cómo se sintetiza. La discovery
 - **Lineage:** NO.
 - **Extract:** SOLO los docs aportados (`raw/aportados/`) — se suman a los que ya tiene extraídos.
 - **Readings/letters:** el aporte entra como **fuente prioritaria**.
-- **Analyst:** COMPLEMENTA las conclusiones previas con el aporte. **NO quita peso a lo previo**:
-  - Integra la info nueva del aporte.
-  - Señala cambios RELEVANTES que revele el aporte, y qué **sigue igual** en estrategia/filosofía.
-  - Mantiene el análisis existente y lo mejora, no lo rehace.
+- **Analyst:** **INTEGRA el aporte EN la narrativa**, no lo apila como "Complemento". Reescribe las
+  frases/párrafos donde el aporte **aporta, refina, corrige o contradice** lo previo (cartera, tesis,
+  estrategia, equipo, cifras cualitativas) → un solo relato coherente, sin duplicar ni contradecirse.
+  Explica en el propio texto los puntos clave que aclara (p.ej. qué implica un objetivo de spread mínimo).
+  **NO quita peso a las conclusiones previas** (las integra con lo nuevo); lo que no toca queda verbatim.
+  - El **"qué ha cambiado/mejorado y por qué"** va APARTE, en `novedades_resumen` — NO como bloques pegados.
 
 ---
 
