@@ -162,6 +162,9 @@ def _build_classes_table_from_document(data):
         except Exception:
             return None
 
+    def _pf(v):   # comisiones con 2 decimales (1,25% no es 1,2%)
+        return f(v, 2, "%") if v is not None else "—"
+
     def _key(c):
         ccy = (c.get("divisa") or "").upper()
         return (0 if (c.get("isin") or "").upper() == isin else 1,
@@ -183,7 +186,7 @@ def _build_classes_table_from_document(data):
         elif e == 0:
             ex_cell = '<span style="color:var(--pos);">No cobra</span>'
         else:
-            ex_cell = f"<strong>{p(e)}</strong>"
+            ex_cell = f"<strong>{_pf(e)}</strong>"
             if c.get("comision_exito_detalle"):
                 detalles.add(str(c["comision_exito_detalle"]))
         mn = c.get("inversion_minima")
@@ -195,7 +198,7 @@ def _build_classes_table_from_document(data):
         rows += (f'<tr{style}><td><strong>{_h.escape(str(c.get("codigo") or "—"))}</strong>'
                  + (' <span style="font-size:10px;color:#8a5a00;">◀ analizada</span>' if es else "") + '</td>'
                  f'<td style="font-family:\'Source Code Pro\';font-size:11px;">{_h.escape(c.get("isin") or "—")}</td>'
-                 f'<td>{ccy_cell}</td><td>{rep_cell}</td><td>{p(g) if g is not None else "—"}</td>'
+                 f'<td>{ccy_cell}</td><td>{rep_cell}</td><td>{_pf(g)}</td>'
                  f'<td>{ex_cell}</td><td style="font-size:12px;">{mn_cell}</td><td>{estado}</td></tr>')
     note = ""
     if detalles:
@@ -5088,7 +5091,9 @@ def build_allocation_evolution_chart(history, subkey, titulo, cid, top_n=5):
             if len(_comparable(_h2)) > len(_comparable(hist)):
                 hist = _h2
     hist = _comparable(hist)
-    if len(hist) < 2:
+    # "Evolución" exige ≥2 AÑOS distintos: un AR de 2025 frente a una presentación de 2025-08
+    # (otra fuente, otra taxonomía) no es evolución, es ruido de clasificación.
+    if len(hist) < 2 or len({str(h["periodo"])[:4] for h in hist}) < 2:
         return ""
     years = [str(h["periodo"]) for h in hist]
     agg = {}
