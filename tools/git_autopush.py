@@ -36,19 +36,48 @@ def pending(branch: str) -> int:
         return -1
 
 
+def _push_target() -> str:
+    """Destino del push. El SERVIDOR no tiene credencial de git guardada (allí GCM no puede
+    preguntar: 'Cannot prompt because user interactivity has been disabled', 17-sep-2026). Si en
+    `.env` hay GITHUB_PUSH_TOKEN (fine-grained PAT con permiso Contents:write sobre el repo), se
+    empuja por HTTPS con ese token. El token NUNCA se imprime (stderr de git se filtra)."""
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(REPO / ".env")
+    except Exception:
+        pass
+    tok = (os.environ.get("GITHUB_PUSH_TOKEN") or "").strip()
+    if not tok:
+        return "origin"
+    rc, url, _ = _git("remote", "get-url", "origin", timeout=30)
+    if rc != 0 or not url.startswith("https://"):
+        return "origin"
+    host_path = url.split("://", 1)[1].split("@")[-1]          # github.com/usuario/repo.git
+    return f"https://x-access-token:{tok}@{host_path}"
+
+
 def push(branch: str = "v2-cowork", retries: int = 4) -> int:
     n = pending(branch)
     if n == 0:
         print("[git_autopush] al día con origin (nada que subir)")
         return 0
-    print(f"[git_autopush] {n if n > 0 else '?'} commit(s) pendientes -> push origin {branch}")
+    target = _push_target()
+    via = "token de .env" if target != "origin" else "credencial del sistema"
+    print(f"[git_autopush] {n if n > 0 else '?'} commit(s) pendientes -> push origin {branch} ({via})")
     err = ""
     for i in range(1, retries + 1):
         try:
-            rc, _, err = _git("push", "origin", branch)
+            rc, _, err = _git("push", target, f"{branch}:{branch}")
+            if target != "origin":
+                err = err.replace(target, "<remote>")            # jamás filtrar el token
         except subprocess.TimeoutExpired:
             rc, err = 1, "timeout (180s)"
         if rc == 0:
+            if target != "origin":
+                # push por URL no actualiza origin/<branch>; alinearlo para que `pending` sea 0
+                sha = _git("rev-parse", branch, timeout=30)[1]
+                if sha:
+                    _git("update-ref", f"refs/remotes/origin/{branch}", sha, timeout=30)
             print(f"[git_autopush] [OK] push hecho (intento {i})")
             return 0
         print(f"[git_autopush] [WARN] intento {i}/{retries} falló: {err[-300:]}")
