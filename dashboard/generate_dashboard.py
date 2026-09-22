@@ -4085,7 +4085,7 @@ def build_doc_charts_block(data, secciones, titulo, cuerpo=True):
         suf = "%" if unidad == "%" else (" " + unidad if unidad else "")
         ds = []
         for i, sr in enumerate(g["series"]):
-            col = base[i % len(base)]
+            col = "#94a3b8" if (sr.get("nombre") or "").strip().lower() in ("otros", "other", "others") else base[i % (len(base) - 1)]
             d = {"label": sr.get("nombre") or f"Serie {i+1}", "data": sr.get("data"),
                  "borderColor": col, "borderWidth": 1.5, "spanGaps": True}
             if is_bar:
