@@ -48,9 +48,20 @@ def _load_isins(lista: Path) -> list:
     return out
 
 
-def run(lista: Path, rf_isin: str, out_dir: Path) -> dict:
+def run(lista: Path, rf_isin: str, out_dir: Path, track_record: bool = False) -> dict:
     isins = _load_isins(lista)
-    print(f"[QUANT] {len(isins)} ISIN a volcar | rf={rf_isin}", flush=True)
+    print(f"[QUANT] {len(isins)} ISIN a volcar | rf={rf_isin}"
+          f"{' | track-record (clase mas antigua)' if track_record else ''}", flush=True)
+    # Con track_record: cada ISIN usa la SERIE de la clase con más histórico de su grupo
+    # (misma divisa preferida) pero las métricas se guardan bajo el ISIN pedido → el portal
+    # muestra el track record del FONDO aunque se analice una clase nueva. Opt-in: el feed
+    # diario per-clase (quant_sync) NO lo usa.
+    _tr = None
+    if track_record:
+        try:
+            from tools.track_record_isin import resolve_track_record as _tr
+        except Exception:
+            _tr = None
 
     rf_series = fetch_series(rf_isin)
     rf_monthly = monthly_returns_by_ym(rf_series) if rf_series else None
@@ -65,7 +76,20 @@ def run(lista: Path, rf_isin: str, out_dir: Path) -> dict:
     with gzip.open(hist_path, "wt", encoding="utf-8", newline="") as gz:
         gz.write("isin,fecha,nav\n")
         for i, (isin, nombre) in enumerate(isins, 1):
-            s = fetch_series(isin)
+            # Serie: con --track-record la del grupo/linaje ya EMPALMADA (misma que fund_groups.
+            # rendimiento_jsonb); sin él, la propia de la clase desde su lanzamiento (+predecesor).
+            # Nunca la cruda por ISIN: traía el relleno pre-lanzamiento de Morningstar en otra divisa.
+            s = []
+            if _tr:
+                try:
+                    t, s = _tr(None, isin)
+                    if t and t.upper() != isin.upper():
+                        print(f"  [{i}] track-record {isin} -> {t}", flush=True)
+                except Exception:
+                    s = []
+            if not s:
+                from tools.morningstar_daily import series_for_metrics
+                s = series_for_metrics(isin)
             time.sleep(0.35)
             if len(s) < 30:
                 faltan.append({"isin": isin, "nombre": nombre,
@@ -114,7 +138,7 @@ def main():
     lista = Path(_arg("--lista", str(_DEFAULT_LISTA)))
     rf = _arg("--rf", _DEFAULT_RF)
     out = Path(_arg("--out", str(_DEFAULT_OUT)))
-    run(lista, rf, out)
+    run(lista, rf, out, track_record=("--track-record" in args))
 
 
 if __name__ == "__main__":

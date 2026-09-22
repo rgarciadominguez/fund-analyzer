@@ -81,18 +81,21 @@ def _group_rating(client) -> dict:
     return out
 
 
-def build_per_isin(client, want_prices: bool = False):
+def build_per_isin(client, want_prices: bool = False, only_isins: list | None = None):
     """Por cada ISIN sus PROPIAS métricas (difieren por clase). HÍBRIDO:
       - screener Morningstar (lt.morningstar.com, por SecId/clase): trailing rentab/vol/maxDD
         → SIEMPRE disponible, difiere por clase (fuente primaria).
       - serie diaria (morningstar_daily.fetch_series, host lt.morningstar.com): rentab por año natural + UNDERWATER + vol/cagr
         de por vida → cuando el endpoint responde (a veces rate-limita); si no, esos campos null.
     Devuelve (met_rows, ann_rows, price_rows, metricas_json, sin_metrica)."""
-    from tools.morningstar_daily import fetch_series, metrics_from_series
+    from tools.morningstar_daily import series_for_metrics as fetch_series, metrics_from_series
     from tools.morningstar_quant import fetch_quant
     from datetime import datetime as _dt, timezone as _tz
 
     isins = _catalog_isins(client)
+    if only_isins:
+        want = {i.upper() for i in only_isins}
+        isins = [i for i in isins if i.upper() in want] or sorted(want)
     rating = _group_rating(client)
     print(f"ISIN del catálogo (todas las clases): {len(isins)}")
 
@@ -203,13 +206,13 @@ def build_per_isin(client, want_prices: bool = False):
     return met_rows, ann_rows, price_rows, metricas_json, sin_metrica
 
 
-def sync(apply: bool = False, prices: bool = False) -> dict:
+def sync(apply: bool = False, prices: bool = False, only_isins: list | None = None) -> dict:
     from dotenv import load_dotenv
     load_dotenv(ROOT / ".env")
     from tools.supabase_client import get_client
     client = get_client()
 
-    met, ann, price, mjson, sin_metrica = build_per_isin(client, want_prices=prices)
+    met, ann, price, mjson, sin_metrica = build_per_isin(client, want_prices=prices, only_isins=only_isins)
     print(f"\nmétricas POR ISIN: {len(met)} | rendimientos: {len(ann)} | "
           f"precios: {len(price)} | SIN métrica: {len(sin_metrica)}")
     if sin_metrica:
@@ -217,10 +220,11 @@ def sync(apply: bool = False, prices: bool = False) -> dict:
               f"{' …' if len(sin_metrica) > 20 else ''}")
 
     # metricas.json (para la carga del portal)
-    METRICAS_JSON.write_text(json.dumps(
-        {"generado": _now(), "n": len(mjson), "sin_metrica": sin_metrica, "metricas": mjson},
-        ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"escrito {METRICAS_JSON} ({len(mjson)} ISIN)")
+    if not only_isins:   # con filtro no se pisa el metricas.json canónico (es de TODO el catálogo)
+        METRICAS_JSON.write_text(json.dumps(
+            {"generado": _now(), "n": len(mjson), "sin_metrica": sin_metrica, "metricas": mjson},
+            ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"escrito {METRICAS_JSON} ({len(mjson)} ISIN)")
 
     if apply:
         # Resiliente a columnas underwater ausentes: si nuestra hf_asset_metrics no tiene el
@@ -260,5 +264,6 @@ if __name__ == "__main__":
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--prices", action="store_true")
+    ap.add_argument("--isin", help="solo estos ISIN (coma): recalcular un fondo tras corregir su serie")
     a = ap.parse_args()
-    print(sync(apply=a.apply, prices=a.prices))
+    print(sync(apply=a.apply, prices=a.prices, only_isins=[x.strip() for x in a.isin.split(",")] if a.isin else None))

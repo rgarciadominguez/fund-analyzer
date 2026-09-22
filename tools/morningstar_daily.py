@@ -138,17 +138,49 @@ def _ts_of(date_str: str) -> int | None:
         return None
 
 
-def build_class_series(isin: str, pred_isin: str | None = None) -> dict:
+def lineage_pred_isin(isin: str) -> str | None:
+    """Clase de referencia del predecesor para CUALQUIER clase del grupo: el registro de linaje está
+    en el ISIN primario (fund_lineage.json); las hermanas se resuelven vía dashboard/_class_map.json
+    (alias → primario). Sin registro → None (NUNCA se usa el relleno pre-lanzamiento de Morningstar
+    como predecesor: en FIEI venía en otra divisa mal etiquetada)."""
+    try:
+        import json as _json
+        from pathlib import Path as _P
+        from tools.lineage_kb import get_record
+        isin = (isin or "").upper()
+        cands = [isin]
+        try:
+            m = _json.loads((_P(__file__).resolve().parent.parent / "dashboard" / "_class_map.json").read_text(encoding="utf-8"))
+            prim = (m.get("aliases") or {}).get(isin)
+            if prim:
+                cands.append(prim.upper())
+        except Exception:
+            pass
+        for c in cands:
+            tr = ((get_record(c) or {}).get("track_record") or {})
+            p = tr.get("pred_series_isin") or tr.get("quant_series_isin_usd") or tr.get("quant_series_isin")
+            if p:
+                return p
+    except Exception:
+        pass
+    return None
+
+
+def build_class_series(isin: str, pred_isin: str | None = None, currency: str | None = "EUR") -> dict:
     """Serie de la clase `isin` = tramo PREDECESOR (si hay linaje) + serie PROPIA desde su lanzamiento.
-    Devuelve {points, own_start_ts, currency, hedged, pred:{isin,currency,from_ts,to_ts}|None}.
-    `pred_isin`: clase de referencia del linaje (por defecto, la del registro de lineage_kb)."""
+    Devuelve {points, own_start_ts, currency, view_currency, hedged, pred:{isin,currency,from_ts,to_ts}|None}.
+    `pred_isin`: clase de referencia del linaje (por defecto, la del registro de lineage_kb).
+    `currency`: divisa en la que se expresa la serie. CONVENCIÓN DEL SISTEMA = "EUR" (lo que obtiene
+    un inversor en euros; es lo que muestran portal, Supabase y dashboard, todos iguales). None =
+    divisa propia de la clase (solo para vistas explícitas 'en su divisa')."""
     out = {"isin": (isin or "").upper(), "points": [], "own_start_ts": None, "currency": None,
-           "hedged": False, "pred": None}
+           "view_currency": None, "hedged": False, "pred": None}
     sec = resolve_security(isin)
     if not sec:
         return out
-    cur = sec["currency"] or "EUR"
-    out["currency"], out["hedged"] = cur, is_hedged_class(sec["name"])
+    native = sec["currency"] or "EUR"
+    cur = (currency or native).upper()
+    out["currency"], out["view_currency"], out["hedged"] = native, cur, is_hedged_class(sec["name"])
     own = sorted(fetch_series_secid(sec["secid"], cur))
     inc = _ts_of(sec["inception"] or "")
     if inc:                                   # regla 1: lo anterior al lanzamiento no es de la clase
@@ -157,17 +189,22 @@ def build_class_series(isin: str, pred_isin: str | None = None) -> dict:
         return out
     out["own_start_ts"] = own[0][0]
     if pred_isin is None:
-        try:
-            from tools.lineage_kb import get_record
-            tr = ((get_record(isin) or {}).get("track_record") or {})
-            pred_isin = tr.get("pred_series_isin") or tr.get("quant_series_isin_usd") or tr.get("quant_series_isin")
-        except Exception:
-            pred_isin = None
+        pred_isin = lineage_pred_isin(isin)
     pts = own
-    if pred_isin and pred_isin.upper() != out["isin"]:
+    if pred_isin and pred_isin.upper() == out["isin"]:
+        # ESTA clase es la referencia del linaje: Morningstar ya empalmó el vehículo predecesor en su
+        # propia serie → el tramo previo a su lanzamiento es el predecesor (en la divisa de vista).
+        pser = [p for p in sorted(fetch_series_secid(sec["secid"], cur)) if p[0] < own[0][0]]
+        if len(pser) >= _MIN_PRED_POINTS:
+            k = own[0][1] / pser[-1][1]
+            pts = [(t, v * k) for t, v in pser] + own
+            out["pred"] = {"isin": out["isin"], "secid": sec["secid"], "currency": cur,
+                           "from_ts": pser[0][0], "to_ts": own[0][0]}
+    elif pred_isin and pred_isin.upper() != out["isin"]:
         psec = resolve_security(pred_isin)
         if psec:
-            pcur = (psec["currency"] or cur) if out["hedged"] else cur      # regla 2
+            # regla 2: clase cubierta → divisa original de la estrategia; no cubierta → la divisa de vista
+            pcur = (psec["currency"] or cur) if (out["hedged"] and cur == native) else cur
             pser = [p for p in sorted(fetch_series_secid(psec["secid"], pcur)) if p[0] < own[0][0]]
             if len(pser) >= _MIN_PRED_POINTS:
                 k = own[0][1] / pser[-1][1]                                  # regla 3: empalme
@@ -179,6 +216,21 @@ def build_class_series(isin: str, pred_isin: str | None = None) -> dict:
 
 
 _MIN_PRED_POINTS = 20
+
+
+def series_for_metrics(isin: str, currency: str = "EUR") -> list:
+    """LA serie con la que se calculan métricas de una clase en TODOS los productores (quant_sync,
+    export_quant_feed, sync_to_supabase, dashboard): propia desde su lanzamiento + predecesor del
+    linaje en la divisa correcta (build_class_series). Antes cada productor bajaba la serie cruda por
+    ISIN (con el relleno pre-lanzamiento de Morningstar, a veces en otra divisa) y el portal, Supabase
+    y el dashboard mostraban cifras distintas para el mismo fondo (MontLake 2026-09-22)."""
+    try:
+        cs = build_class_series(isin, currency=currency)
+        if cs.get("points"):
+            return cs["points"]
+    except Exception:
+        pass
+    return fetch_series(isin)
 
 
 def _year(ts):

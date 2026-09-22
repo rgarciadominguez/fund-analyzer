@@ -6730,7 +6730,7 @@ function stdF(arr){{const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)retu
 //    divisa original de la estrategia; NO cubierta → convertida a la divisa en que se muestra la clase.
 // 3) La clase se muestra en SU divisa (no forzada a EUR); el conmutador permite verla en EUR.
 const MST_PRED_ISIN='{_dash_pred_isin(data)}';        // clase de referencia del predecesor ('' = sin linaje)
-let MST_VIEW_EUR=false;                               // conmutador "ver en EUR"
+let MST_VIEW_EUR=true;                                // vista por defecto EUR (= portal/Supabase); conmutador a divisa propia
 let MST_INFO=null;                                    // ficha de la serie mostrada (clase, divisa, corte…)
 const MST_HEDGE_RE=/(hedged|\\bhdg\\b|\\bhgd\\b|\\(h\\)|\\bh[- ]?(eur|usd|chf|gbp|jpy|sek|nok|aud|cad)\\b|\\b(eur|usd|chf|gbp|jpy|sek|nok|aud|cad)[- ]?h\\b)/i;
 
@@ -6777,17 +6777,17 @@ async function fetchMST(){{
     let own=inc?all.filter(p=>p.date>=inc):all;
     if(!own.length)own=all;
     let pred=[],predInfo=null;
-    if(MST_PRED_ISIN&&MST_PRED_ISIN.toUpperCase()!==sec.isin){{
+    if(MST_PRED_ISIN&&MST_PRED_ISIN.toUpperCase()===sec.isin&&inc){{
+      // esta clase ES la referencia del linaje: su relleno previo al lanzamiento es el predecesor
+      pred=all.filter(p=>p.date<own[0].date);
+      if(pred.length>=20)predInfo={{isin:sec.isin,name:sec.name,currency:cur}};else pred=[];
+    }}else if(MST_PRED_ISIN&&MST_PRED_ISIN.toUpperCase()!==sec.isin){{
       const ps=await mstResolve(MST_PRED_ISIN);
       if(ps){{
-        const pcur=hedged?ps.currency:cur;
+        const pcur=(hedged&&cur===sec.currency)?ps.currency:cur;
         pred=(await mstSeries(ps.secid,pcur)).filter(p=>p.date<own[0].date);
         if(pred.length>=20)predInfo={{isin:ps.isin,name:ps.name,currency:pcur}};else pred=[];
       }}
-    }}else if(inc){{
-      // sin clase de referencia distinta: el relleno previo al lanzamiento ES el predecesor
-      pred=all.filter(p=>p.date<own[0].date);
-      if(pred.length>=20)predInfo={{isin:sec.isin,name:'histórico previo al lanzamiento de la clase',currency:cur}};else pred=[];
     }}
     if(pred.length){{const k=own[0].nav/pred[pred.length-1].nav;pred=pred.map(p=>({{date:p.date,nav:p.nav*k}}));}}
     MST_INFO={{isin:sec.isin,name:sec.name,currency:sec.currency,viewCur:cur,hedged,ownStart:own[0].date,pred:predInfo,predFrom:pred.length?pred[0].date:null}};
@@ -6815,7 +6815,7 @@ function renderClassInfo(){{
     h+='. En los gráficos va en línea discontinua / tono claro.</div>';
   }}
   if(I.currency!=='EUR'){{
-    h+='<div style="margin-top:6px"><label style="font-size:11.5px;opacity:.8">Ver en: </label><select id="mst-cur-sel" style="font-size:11.5px;padding:2px 6px"><option value="0"'+(MST_VIEW_EUR?'':' selected')+'>'+I.currency+' — divisa de la clase (lo que publica el fondo)</option><option value="1"'+(MST_VIEW_EUR?' selected':'')+'>EUR — lo que obtiene un inversor en euros sin cubrir</option></select></div>';
+    h+='<div style="margin-top:6px"><label style="font-size:11.5px;opacity:.8">Ver en: </label><select id="mst-cur-sel" style="font-size:11.5px;padding:2px 6px"><option value="1"'+(MST_VIEW_EUR?' selected':'')+'>EUR — lo que obtiene un inversor en euros (vista estándar del portal)</option><option value="0"'+(MST_VIEW_EUR?'':' selected')+'>'+I.currency+' — en la divisa de la clase (lo que publica el fondo)</option></select></div>';
   }}
   h+='</div>';
   el.innerHTML=h;

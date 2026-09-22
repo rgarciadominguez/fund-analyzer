@@ -562,32 +562,12 @@ REM credenciales y CUELGUE el run (el watchdog lo mataria tras el sync OK).
 REM Con esto git falla rapido si no hay credencial cacheada (no critico).
 set GIT_TERMINAL_PROMPT=0
 set GCM_INTERACTIVE=never
-if exist "dashboard\fund-%ISIN%.html" (
-    git add "dashboard\fund-%ISIN%.html" >nul 2>&1
-    REM _class_map.json (Contrato FONDO vs CLASE) lo regenera el sync → commitearlo con el dashboard
-    if exist "dashboard\_class_map.json" git add "dashboard\_class_map.json" >nul 2>&1
-    REM Graficos del documento aportado (imagenes que el dashboard referencia) → van en el mismo commit
-    if exist "dashboard\doc-charts\%ISIN%" git add -A "dashboard\doc-charts\%ISIN%" >nul 2>&1
-    git diff --cached --quiet
-    if errorlevel 1 (
-        git commit -m "auto: regen dashboard %ISIN%" >nul 2>&1
-        if errorlevel 1 (
-            echo [WARN] auto-commit fallo - revisa git status manualmente
-            set FAILED_STEPS=!FAILED_STEPS! auto-git-commit
-        ) else (
-            echo [OK] dashboard/fund-%ISIN%.html commiteado
-        )
-    ) else (
-        echo [SKIP] dashboard sin cambios desde ultimo commit
-    )
-) else (
-    echo [SKIP] dashboard\fund-%ISIN%.html no existe
-)
-REM Push SIEMPRE que haya commits pendientes (tambien los de un run anterior cuyo push
-REM fallo): con reintentos y dejando el motivo del fallo en el log (antes se descartaba).
-python -m tools.git_autopush --branch v2-cowork
+REM Publicacion UNICA y verificada (2026-09-22): sello de build + commit explicito comprobado +
+REM push con reintentos + Supabase Storage + sondeo del Worker hasta que sirve el sello. Falla en
+REM voz alta si algun destino no coincide (antes: commit sin codigo y Storage desactualizado, en silencio).
+python -m tools.publish_dashboard --isin %ISIN% --wait 420
 if errorlevel 1 (
-    echo [WARN] auto-push fallo tras reintentos - motivo arriba; el guardian lo reintenta
+    echo [WARN] publicacion incompleta - ver motivo arriba; el guardian reintenta el push
     set FAILED_STEPS=!FAILED_STEPS! auto-git-push
 )
 echo.
