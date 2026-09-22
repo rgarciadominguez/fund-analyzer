@@ -138,7 +138,7 @@ def publish(isin: str, do_git: bool = True, do_storage: bool = True, wait: int =
         from tools.supabase_client import get_client
         from tools.upload_dashboards import upload_one
         r = upload_one(get_client(), isin, log=log)
-        if not r or not r.get("dashboard_storage_path"):
+        if not r or not r.get("html"):        # upload_one devuelve {'html': bytes, 'json': bytes}
             log(f"[publish] ERROR: subida a Storage fallida ({r})")
             return 1
 
