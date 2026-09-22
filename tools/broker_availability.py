@@ -452,11 +452,19 @@ def sync_catalog(client=None, log=print) -> dict:
         client = get_client()
     rows, off = [], 0
     while True:
-        b = client.table("funds").select("isin,nombre_clase,gestora").range(off, off + 999).execute().data or []
+        b = client.table("funds").select("isin,nombre_clase,fund_group_id").range(off, off + 999).execute().data or []
         rows += b
         if len(b) < 1000:
             break
         off += 1000
+    gest = {}
+    try:
+        for g in client.table("fund_groups").select("fund_group_id,gestora").limit(8000).execute().data or []:
+            gest[g["fund_group_id"]] = g.get("gestora") or ""
+    except Exception:
+        pass
+    for r in rows:
+        r["gestora"] = gest.get(r.get("fund_group_id"), "")
     mapfre_set, _ = _mapfre_universe()
     mi_found, _ = _myinvestor_universe()
     r4 = _renta4_universe()
