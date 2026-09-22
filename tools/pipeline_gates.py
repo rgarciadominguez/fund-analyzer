@@ -61,6 +61,10 @@ def aporte_sin_integrar(isin: str) -> bool:
     apo = fd / "raw" / "aportados"
     if not apo.exists():
         return False
+    # Sin análisis previo (ni síntesis ni output) no hay nada que complementar: es un análisis
+    # COMPLETO con docs aportados (se extraen igual, como fuente prioritaria), no modo aporte.
+    if not (fd / "analyst_synthesis_cowork.json").exists() and not (fd / "output.json").exists():
+        return False
     # Id canónico (incluye la VERSIÓN del esquema): si el esquema cambió, el extract vigente no
     # existe todavía → "sin integrar" → se re-extrae y re-sintetiza solo.
     from tools.aportados import task_id_for

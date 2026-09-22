@@ -362,6 +362,15 @@ def make_app(cold_start: bool = True) -> Flask:
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 500
 
+    def _has_remote_analysis(isin: str) -> bool:
+        """¿Hay análisis publicado en Supabase (output.json en Storage)? Best-effort; False si no se sabe."""
+        try:
+            from tools.supabase_client import get_client
+            r = get_client().table("funds").select("output_json_storage_path,has_qualitative_analysis").eq("isin", isin.upper()).execute().data
+            return bool(r and (r[0].get("output_json_storage_path") or r[0].get("has_qualitative_analysis")))
+        except Exception:
+            return False
+
     def _start_analysis_for_isin(
         isin: str, force_cold: bool, apply_feedback: bool = False,
         relaunch: bool = False, scope: str = "full",
@@ -478,21 +487,43 @@ def make_app(cold_start: bool = True) -> Flask:
             intl_p = fund_dir / "intl_data.json"
             if not fund_dir.exists() or (not cnmv_p.exists() and not intl_p.exists()):
                 if _modo_cfg == "aporte":
-                    # NUNCA cold-startear un aporte: sería re-descubrir y perder el análisis que
-                    # el aporte debe COMPLEMENTAR. Mejor abortar claro y que se restaure el previo.
-                    return {"error": f"aporte de {isin} sin análisis previo local — restaura el "
-                            "análisis antes de aportar (no se hace cold-start en modo aporte)"}, 409
+                    # Un aporte COMPLEMENTA un análisis. Si no hay análisis local, ¿existe remoto
+                    # (Supabase)? → abortar para que se restaure (no re-descubrir y perderlo).
+                    # Si NO existe en ningún sitio (fondo nunca analizado, caso Brightgate 22-sep),
+                    # lo correcto es un análisis COMPLETO con los docs aportados como fuente
+                    # prioritaria: se degrada a full conservando raw/aportados + manifiesto.
+                    if _has_remote_analysis(isin):
+                        return {"error": f"aporte de {isin} sin análisis previo local — restaura el "
+                                "análisis antes de aportar (no se hace cold-start en modo aporte)"}, 409
+                    print(f"[ANALYZE {isin}] aporte sin análisis previo en ningún sitio → análisis COMPLETO con los docs aportados")
+                    _modo_cfg = "full"
+                    try:
+                        cfgp = fund_dir / "config.json"
+                        d = json.loads(cfgp.read_text(encoding="utf-8")) if cfgp.exists() else {}
+                        d["modo"] = "full"
+                        cfgp.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
+                    except Exception:
+                        pass
                 # No hay datos parciales → degradar a cold-start automático
                 print(f"[ANALYZE {isin}] resume requested but no partial data — fallback to cold-start")
                 bat_argv = [str(bat_path), isin]
                 if apply_feedback:
                     print(f"[ANALYZE {isin}] apply_feedback ignorado (fallback cold-start sin outputs previos)")
-                # Cold-start manual: mover fund_dir a .bak si existe (sin reusar)
+                # Cold-start manual: mover fund_dir a .bak si existe (sin reusar)… salvo los DOCS
+                # APORTADOS (raw/aportados + aportados.json), que vuelven al fund_dir nuevo.
                 if fund_dir.exists():
                     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
                     backup = DATA_DIR / "funds" / f"{isin}.bak_pre_web_{ts}"
                     try:
                         fund_dir.rename(backup)
+                        import shutil
+                        if (backup / "raw" / "aportados").exists():
+                            (fund_dir / "raw").mkdir(parents=True, exist_ok=True)
+                            shutil.copytree(backup / "raw" / "aportados", fund_dir / "raw" / "aportados")
+                            for extra in ("aportados.json",):
+                                if (backup / extra).exists():
+                                    shutil.copy2(backup / extra, fund_dir / extra)
+                            print(f"[ANALYZE {isin}] docs aportados conservados en el cold-start")
                     except Exception:
                         pass
         elif apply_feedback:

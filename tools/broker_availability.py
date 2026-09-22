@@ -309,18 +309,25 @@ def detect(isin: str, output_data: Optional[dict] = None,
                        else f"UCITS UE ({isin[:2]}) distribuible en España → arquitectura abierta (Allfunds)"),
         }
 
-    # ── Mapfre: SOLO la lista "Mundo Asesoramiento" (Excel de Rafa), en cualquier clase ──
+    # ── Mapfre: dos niveles (Rafa 2026-09-22: "Mapfre y Mundo Asesoramiento son distintos") ──
+    #   · lista "Mundo Asesoramiento" (Excel de Rafa) → CONFIRMADO (alta, lista=asesoramiento), aditivo
+    #   · resto: plataforma Mapfre (Allfunds, "universo") → regla media-alta, solo pre-rellena si vacío
     grp = group_isins(isin)
     mapfre_set, mapfre_fecha = _mapfre_universe()
     hit = [c for c in grp if c in mapfre_set]
     if hit and not is_etf:
         per_broker["Mapfre"] = {
-            "available": True, "confidence": "alta",
+            "available": True, "confidence": "alta", "lista": "asesoramiento",
             "reason": f"en la lista Mundo Asesoramiento Mapfre ({mapfre_fecha}) — clase {hit[0]}",
         }
+    elif registered and not is_etf:
+        per_broker["Mapfre"] = {
+            "available": True, "confidence": "media-alta", "lista": "universo",
+            "reason": (f"no está en Mundo Asesoramiento ({mapfre_fecha or 'lista no encontrada'}); "
+                       f"universo Mapfre (Allfunds) por regla: UCITS distribuible en España"),
+        }
     else:
-        excluded_extra = {"Mapfre": (f"ninguna de las {len(grp)} clases está en la lista Mundo Asesoramiento "
-                                     f"({mapfre_fecha or 'lista no encontrada'})")}
+        excluded_extra = {"Mapfre": f"ninguna de las {len(grp)} clases está en Mundo Asesoramiento y no aplica la regla"}
 
     # ── MyInvestor: conector (get_funds por ISIN), en cualquier clase ──
     mi_found, mi_missing = _myinvestor_universe()
@@ -394,7 +401,7 @@ def apply_to_output(isin: str, output_data: Optional[dict] = None) -> dict:
 # ── Refresh del universo propio de Renta4 (opcional, no requiere login) ────────
 
 def sync_auto_to_supabase(isin: str, detected: Optional[list[str]] = None,
-                          force: bool = False, client=None) -> str:
+                          force: bool = False, client=None, confirmed_map: Optional[dict] = None) -> str:
     """Pre-marca `broker_disponible` en Supabase (funds + catalogo_activos) para el ISIN.
 
     SEMÁNTICA (2026-09-22, Rafa: "que esté ya marcado de antemano"):
@@ -406,8 +413,11 @@ def sync_auto_to_supabase(isin: str, detected: Optional[list[str]] = None,
     Devuelve "added:<brokers>" | "filled" | "unchanged" | "skip_empty_detect" | "skip_no_row" | "error:<msg>".
     """
     isin = (isin or "").strip().upper()
+    confirmed: dict = dict(confirmed_map or {})
     if detected is None:
-        detected = (detect(isin).get("detected") or [])
+        info = detect(isin)
+        detected = (info.get("detected") or [])
+        confirmed = {b: v.get("confidence") == "alta" for b, v in (info.get("per_broker") or {}).items()}
     if not detected:
         return "skip_empty_detect"
     try:
@@ -427,7 +437,7 @@ def sync_auto_to_supabase(isin: str, detected: Optional[list[str]] = None,
                     new.append(b)
         else:
             for b in detected:
-                if b in CONFIRMED_BROKERS and b not in new:
+                if b in CONFIRMED_BROKERS and b not in new and confirmed.get(b, True):
                     new.append(b)
         if new == current:
             return "unchanged"
@@ -474,15 +484,15 @@ def sync_catalog(client=None, log=print) -> dict:
         if not isin:
             continue
         grp = group_isins(isin)
-        det = []
+        det, conf = [], {}
         if not _is_etf(r.get("nombre_clase") or "", r.get("gestora") or ""):
             if any(c in mapfre_set for c in grp):
-                det.append("Mapfre")
+                det.append("Mapfre"); conf["Mapfre"] = True          # Mundo Asesoramiento → confirmado
         if any(c in mi_found for c in grp):
-            det.append("MyInvestor")
+            det.append("MyInvestor"); conf["MyInvestor"] = True
         if _gestora_is_renta4(r.get("gestora") or "") or isin in r4:
-            det.append("Renta4")
-        a = sync_auto_to_supabase(isin, detected=det, client=client) if det else "skip_empty_detect"
+            det.append("Renta4"); conf["Renta4"] = True
+        a = sync_auto_to_supabase(isin, detected=det, client=client, confirmed_map=conf) if det else "skip_empty_detect"
         key = a.split(":")[0]
         actions[key] = actions.get(key, 0) + 1
         if a.startswith("added") or a == "filled":
