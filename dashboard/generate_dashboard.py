@@ -3125,7 +3125,8 @@ def build_header(data):
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
-    {'<button class="tb" onclick="goTab(10,this)" style="color:var(--gold,#b48020);font-weight:600;">&#9679; Novedades</button>' if (data.get('revision_pendiente') or ((data.get('novedades_resumen') or {}).get('puntos') or (data.get('novedades_resumen') or {}).get('texto'))) else ''}
+    {'<button class="tb" onclick="goTab(10,this)" style="color:var(--gold,#b48020);font-weight:600;">&#9679; Novedades</button>' if (data.get('revision_pendiente') or any((data.get('novedades_resumen') or {}).get(k) for k in ('veredicto','hallazgos','huecos_de_fondo','puntos','texto'))) else ''}
+    {'<button class="tb" onclick="goTab(11,this)">Anexo gráficos</button>' if any(isinstance(g, dict) and g.get('labels') and not g.get('en_cuerpo', True) for g in (data.get('graficos_documento') or [])) else ''}
     {'<button class="tb" onclick="goTab(9,this)">Glosario</button>' if ((data.get('analyst_synthesis') or {}).get('glosario')) else ''}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
@@ -4052,42 +4053,90 @@ def build_tab_evolucion(data):
     </div>
   </div>
 """ + build_doc_charts_block(data, ("rentabilidad", "riesgo", "patrimonio"),
-                             "Evolución histórica según el gestor") + """
+                             "Evolución del fondo con datos de la gestora") + """
 </section>"""
 
 
-def build_doc_charts_block(data, secciones, titulo):
-    """Gráficos ORIGINALES de los documentos aportados (tools/aportado_publish), filtrados por
-    sección. Cada uno: imagen de la página + qué muestra + LECTURA (lo que el gráfico enseña).
-    Son del gestor (auto-reportados): se dice explícitamente. '' si no hay ninguno."""
+def build_doc_charts_block(data, secciones, titulo, cuerpo=True):
+    """Gráficos de EVOLUCIÓN sacados de los documentos aportados, RE-DIBUJADOS con el formato del
+    dashboard (Chart.js, misma paleta/tipografía que el resto). Las cifras vienen medidas del PDF
+    (tools/pdf_chart_digitizer → tools/aportado_publish): {labels, series:[{nombre,data}]}.
+    formato: linea | barras | area_apilada | barras_apiladas. '' si no hay ninguno."""
     import html as _h
+    import json as _json
     gl = [g for g in ((data or {}).get("graficos_documento") or [])
-          if isinstance(g, dict) and g.get("img") and g.get("seccion") in secciones]
+          if isinstance(g, dict) and g.get("labels") and g.get("series") and g.get("seccion") in secciones
+          and bool(g.get("en_cuerpo", True)) == cuerpo]
     if not gl:
         return ""
-    gl.sort(key=lambda g: (0 if g.get("tipo") == "evolucion" else 1, g.get("pagina") or 0))
+    base = ["#0c2340", "#b48020", "#1b8a3d", "#6b3fa0", "#3d5a80", "#0891b2", "#8c3214", "#94a3b8"]
+
+    def _rgba(hexc, a):
+        hexc = hexc.lstrip("#")
+        return f"rgba({int(hexc[0:2],16)},{int(hexc[2:4],16)},{int(hexc[4:6],16)},{a})"
+
+    cells = ""
+    for n, g in enumerate(gl):
+        cid = "c-doc-" + "".join(ch for ch in str(g.get("id") or n) if ch.isalnum()) + f"-{n}"
+        fmt = g.get("formato") or "linea"
+        stacked = fmt in ("area_apilada", "barras_apiladas")
+        is_bar = fmt in ("barras", "barras_apiladas")
+        unidad = (g.get("unidad") or "").strip()
+        suf = "%" if unidad == "%" else (" " + unidad if unidad else "")
+        ds = []
+        for i, sr in enumerate(g["series"]):
+            col = base[i % len(base)]
+            d = {"label": sr.get("nombre") or f"Serie {i+1}", "data": sr.get("data"),
+                 "borderColor": col, "borderWidth": 1.5, "spanGaps": True}
+            if is_bar:
+                d.update({"backgroundColor": _rgba(col, 0.85), "borderWidth": 0})
+            elif fmt == "area_apilada":
+                d.update({"backgroundColor": _rgba(col, 0.82), "fill": "origin" if i == 0 else "-1",
+                          "tension": 0.2, "pointRadius": 0, "borderWidth": 0.8, "borderColor": "#ffffff"})
+            else:
+                d.update({"backgroundColor": _rgba(col, 0.08), "fill": len(g["series"]) == 1,
+                          "tension": 0.2, "pointRadius": 0})
+            ds.append(d)
+        cfg = {
+            "cid": cid, "type": "bar" if is_bar else "line", "labels": g["labels"], "datasets": ds,
+            "suf": suf, "stacked": stacked, "zero": bool(is_bar or stacked),
+            "ymax": 100 if (fmt == "area_apilada" and unidad == "%") else None, "legend": len(ds) > 1,
+        }
+        aprox = ' <span style="opacity:.6;font-weight:400">· valores aproximados</span>' if g.get("aproximado") else ""
+        cells += (
+            f'<div class="ch-b"><div class="ch-l">{_h.escape(g.get("titulo") or "")}{aprox}</div>'
+            f'<div class="ch-hm"><canvas id="{cid}"></canvas></div>'
+            + (f'<p class="pr" style="font-size:12px;line-height:1.5;margin-top:8px;">{_h.escape(g["lectura"])}</p>'
+               if g.get("lectura") else "")
+            + '<script>window.__DOC_CHARTS__=(window.__DOC_CHARTS__||[]);window.__DOC_CHARTS__.push('
+            + _json.dumps(cfg, ensure_ascii=False).replace("</", "<\\/") + ');</script></div>')
     docs = sorted({(g.get("documento") or "", g.get("periodo") or "") for g in gl})
-    fuente = "; ".join(f"{_h.escape(d)}" + (f" (datos a {_h.escape(p)})" if p else "") for d, p in docs)
-    items = ""
-    for g in gl:
-        tag = "Evolución" if g.get("tipo") == "evolucion" else "Foto actual"
-        items += (
-            '<figure style="margin:0 0 26px;">'
-            f'<div class="ch-l" style="display:flex;justify-content:space-between;gap:12px;">'
-            f'<span>{_h.escape(g.get("titulo") or "")}</span>'
-            f'<span style="opacity:.6;font-weight:400">{tag} · pág. {g.get("pagina")}</span></div>'
-            f'<a href="{_h.escape(g["img"])}" target="_blank" rel="noopener">'
-            f'<img src="{_h.escape(g["img"])}" loading="lazy" alt="{_h.escape(g.get("titulo") or "")}" '
-            'style="width:100%;height:auto;border:1px solid var(--rule);border-radius:4px;background:#fff;display:block;"></a>'
-            + (f'<figcaption class="pr" style="margin-top:8px;font-size:12.5px;line-height:1.55;">'
-               f'<strong>Qué enseña:</strong> {_h.escape(g.get("lectura") or g.get("que_muestra") or "")}</figcaption>'
-               if (g.get("lectura") or g.get("que_muestra")) else "")
-            + '</figure>'
-        )
+    fuente = "; ".join(_h.escape(d) + (f" (datos a {_h.escape(p_)})" if p_ else "") for d, p_ in docs)
+    cls = "col1" if len(gl) == 1 else "col2"
     return (f'<div class="section-title mb12" style="margin-top:28px;">{_h.escape(titulo)} ({len(gl)})</div>'
-            f'<div class="pr mb20" style="font-size:12px;opacity:.8;">Gráficos originales del documento aportado: '
-            f'{fuente}. Elaborados por la gestora (datos auto-reportados); se muestran tal cual, con su lectura. '
-            f'Pulsa un gráfico para verlo a tamaño completo.</div>{items}')
+            f'<div class="{cls} mb12">{cells}</div>'
+            f'<p style="font-size:10.5px;color:var(--ink-4);font-style:italic;margin-bottom:20px;">Elaboración propia con datos de la '
+            f'gestora: series medidas sobre los gráficos de {fuente}. Valores aproximados (±1% del rango del eje).</p>'
+            + _DOC_CHARTS_JS)
+
+
+# Render único de todos los gráficos de documento (idempotente: cada cfg se pinta una vez).
+_DOC_CHARTS_JS = """<script>(function(){
+  function run(){ if(typeof Chart==='undefined')return;
+    (window.__DOC_CHARTS__||[]).forEach(function(c){
+      var el=document.getElementById(c.cid); if(!el||el.dataset.done)return; el.dataset.done='1';
+      var fmt=function(v){return (v==null?'—':v.toLocaleString('es-ES',{maximumFractionDigits:1}))+c.suf;};
+      var y={stacked:c.stacked,beginAtZero:c.zero,grid:{display:false},ticks:{font:{size:9},callback:function(v){return v.toLocaleString('es-ES')+c.suf;}}};
+      if(c.ymax!=null)y.max=c.ymax;
+      new Chart(el,{type:c.type,data:{labels:c.labels,datasets:c.datasets},options:{responsive:true,maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{display:c.legend,position:'bottom',labels:{font:{size:10},boxWidth:10}},
+                 tooltip:{callbacks:{label:function(x){return x.dataset.label+': '+fmt(x.parsed.y);}}}},
+        scales:{x:{stacked:c.stacked,grid:{display:false},ticks:{maxTicksLimit:10,font:{size:9}}},y:y}}});
+    });}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  window.addEventListener('load',run);
+})();</script>"""
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -5429,7 +5478,7 @@ def build_tab_cartera(data):
     # Evolución de cartera según el documento aportado (yield/duración históricos, IG vs no-IG,
     # estructura de deuda, sectores…): los gráficos originales del gestor, con su lectura.
     evo_alloc_html += build_doc_charts_block(
-        data, ("cartera", "estrategia"), "Evolución de la cartera según el gestor")
+        data, ("cartera", "estrategia"), "Evolución de la cartera")
 
     return f"""
 <section class="pane" id="p5">
@@ -5738,7 +5787,8 @@ def build_tab_novedades(data):
     Pane vacío si no hay ni resumen ni pendientes (la pestaña tampoco se muestra en el nav)."""
     resumen = data.get("novedades_resumen") or {}
     pendientes = data.get("revision_pendiente") or []
-    tiene_resumen = isinstance(resumen, dict) and (resumen.get("puntos") or resumen.get("texto"))
+    tiene_resumen = isinstance(resumen, dict) and (resumen.get("veredicto") or resumen.get("hallazgos")
+                                                   or resumen.get("puntos") or resumen.get("texto"))
     tiene_pend = isinstance(pendientes, list) and len(pendientes) > 0
     if not tiene_resumen and not tiene_pend:
         return '<section class="pane" id="p10"></section>'
@@ -5761,7 +5811,59 @@ def build_tab_novedades(data):
         sub = f'{etiqueta}{" · " + fecha if fecha else ""}'
         puntos = resumen.get("puntos") or []
         cuerpo = ""
-        if isinstance(puntos, list) and puntos:
+        ejecutivo = bool(resumen.get("veredicto") or resumen.get("hallazgos") or resumen.get("huecos_de_fondo"))
+        if ejecutivo:
+            # FORMATO EJECUTIVO (ancho completo, visual): veredicto → 2 columnas de tarjetas
+            # (qué faltaba / qué mueve la aguja) → se confirma. Detalle ≤ 1-2 frases.
+            v = resumen.get("veredicto") or {}
+            if isinstance(v, str):
+                v = {"texto": v}
+            est = str(v.get("estado") or "")
+            _EST = {"se_mantiene": ("SE MANTIENE", "#1b8a3d", "El análisis anterior se sostiene"),
+                    "se_matiza": ("SE MATIZA", "#b48020", "El análisis anterior se sostiene, con matices de fondo"),
+                    "cambia": ("CAMBIA", "#8c3214", "Cambia la lectura del fondo")}
+            pill, colv, lbl = _EST.get(est, ("VEREDICTO", "var(--navy)", "Veredicto"))
+            if v.get("texto"):
+                cuerpo += (f'<div style="display:flex;gap:18px;align-items:flex-start;border:1px solid var(--rule-light);'
+                           f'border-left:5px solid {colv};border-radius:6px;padding:16px 20px;margin-bottom:22px;background:var(--card,#fff);">'
+                           f'<div style="flex:0 0 auto;text-align:center;min-width:120px;"><div style="display:inline-block;background:{colv};color:#fff;'
+                           f'font-size:11px;font-weight:700;letter-spacing:1px;padding:5px 12px;border-radius:14px;">{pill}</div>'
+                           f'<div style="font-size:10.5px;color:var(--ink-4);margin-top:6px;">{lbl}</div></div>'
+                           f'<div style="font-size:15px;line-height:1.55;color:var(--ink-1);">{_e(v.get("texto"))}</div></div>')
+            _IMP = {"tesis": ("Tesis", "#0c2340"), "estrategia": ("Estrategia", "#3d5a80"), "cartera": ("Cartera", "#1b8a3d"),
+                    "riesgo": ("Riesgo", "#8c3214"), "costes": ("Costes", "#b48020"), "equipo": ("Equipo", "#6b3fa0")}
+
+            def _cards(items, color, con_chip):
+                items = [x for x in (items or []) if isinstance(x, dict) and (x.get("titulo") or x.get("detalle"))]
+                h = ""
+                for x in items:
+                    chip = ""
+                    if con_chip:
+                        nm, cc = _IMP.get(str(x.get("impacto") or "").lower(), ("", ""))
+                        if nm:
+                            chip = (f'<span style="font-size:10px;font-weight:700;color:#fff;background:{cc};border-radius:10px;'
+                                    f'padding:2px 9px;margin-left:8px;white-space:nowrap;vertical-align:middle;">{nm}</span>')
+                    h += (f'<div style="border:1px solid var(--rule-light);border-top:3px solid {color};border-radius:6px;'
+                          f'padding:12px 14px;background:var(--card,#fff);">'
+                          f'<div style="font-size:14px;font-weight:600;color:var(--ink-1);line-height:1.3;">{_e(x.get("titulo"))}{chip}</div>'
+                          f'<div style="font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-top:6px;">{_e(x.get("detalle"))}</div></div>')
+                return h
+            huecos = _cards(resumen.get("huecos_de_fondo"), "#b48020", False)
+            halls = _cards(resumen.get("hallazgos"), "var(--navy)", True)
+            lab = ('<div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;color:var(--ink-3);margin:0 0 8px;">{}</div>')
+            grid = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;'
+            cuerpo += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;">'
+            cuerpo += ('<div>' + lab.format("Qué le faltaba de fondo al análisis anterior")
+                       + (f'<div style="{grid}">{huecos}</div>' if huecos else
+                          '<div style="font-size:12.5px;color:var(--ink-3);">Nada de fondo: estaba completo.</div>') + '</div>')
+            cuerpo += ('<div>' + lab.format("Qué mueve la aguja (estrategia, cartera, riesgo)")
+                       + (f'<div style="{grid}">{halls}</div>' if halls else
+                          '<div style="font-size:12.5px;color:var(--ink-3);">Sin hallazgos relevantes.</div>') + '</div>')
+            cuerpo += '</div>'
+            if resumen.get("sin_cambios"):
+                cuerpo += (f'<div style="margin-top:18px;padding:10px 14px;border-radius:6px;background:var(--navy-pale);font-size:12.5px;'
+                           f'color:var(--ink-2);"><strong style="color:#1b8a3d;">✓ Se confirma:</strong> {_e(resumen.get("sin_cambios"))}</div>')
+        elif isinstance(puntos, list) and puntos:
             for p in puntos:
                 if isinstance(p, dict):
                     t = _e(p.get("titulo", "")); d = _e(p.get("detalle", ""))
@@ -5772,11 +5874,15 @@ def build_tab_novedades(data):
                     cuerpo += f'<div style="padding:9px 0;border-bottom:1px solid var(--rule-light);font-size:12.5px;color:var(--ink-2);">{_e(p)}</div>'
         elif resumen.get("texto"):
             cuerpo = f'<p class="pr" style="font-size:13px;">{_e(resumen.get("texto"))}</p>'
-        bloques += (f'<div style="margin-bottom:26px;">'
-                    f'<div style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--navy);font-weight:600;margin-bottom:4px;">Resumen de novedades</div>'
-                    f'<div style="font-size:11.5px;color:var(--ink-4);margin-bottom:10px;">{sub}</div>'
-                    f'<div style="border:1px solid var(--rule-light);border-left:3px solid var(--navy);border-radius:6px;padding:6px 16px 14px;background:var(--card,#fff);">{cuerpo}</div>'
-                    f'</div>')
+        if ejecutivo:
+            bloques += (f'<div style="margin-bottom:26px;">'
+                        f'<div style="font-size:11.5px;color:var(--ink-4);margin-bottom:12px;">{sub}</div>{cuerpo}</div>')
+        else:
+            bloques += (f'<div style="margin-bottom:26px;">'
+                        f'<div style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--navy);font-weight:600;margin-bottom:4px;">Resumen de novedades</div>'
+                        f'<div style="font-size:11.5px;color:var(--ink-4);margin-bottom:10px;">{sub}</div>'
+                        f'<div style="border:1px solid var(--rule-light);border-left:3px solid var(--navy);border-radius:6px;padding:6px 16px 14px;background:var(--card,#fff);">{cuerpo}</div>'
+                        f'</div>')
 
     # ── Bloque 2: a reconciliar (solo aporte) ────────────────────────────
     if tiene_pend:
@@ -5793,17 +5899,39 @@ def build_tab_novedades(data):
                       f'<div style="font-size:14px;font-weight:600;color:var(--ink-1);margin-bottom:5px;">{titulo}</div>'
                       f'<div style="font-size:12.5px;color:var(--ink-2);line-height:1.55;">{detalle}</div>'
                       f'{meta_html}</div>')
-        bloques += (f'<div>'
-                    f'<div style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#b06f00;font-weight:600;margin-bottom:4px;">A reconciliar</div>'
-                    f'<div style="background:var(--navy-pale);padding:10px 14px;font-size:12px;color:var(--ink-3);margin-bottom:14px;border-radius:4px;border-left:3px solid #e0a030;">'
-                    f'Datos frescos de material <strong>aportado</strong> (fuente primaria/parcial) que aún no están en los datos estructurados. El análisis previo se mantiene intacto; se resolverán en la próxima <strong>actualización anual</strong> con los informes oficiales completos.</div>'
-                    f'{cards}</div>')
+        n_p = len([x for x in pendientes if isinstance(x, dict)])
+        bloques += ('<details style="margin-top:6px;"><summary style="cursor:pointer;font-size:12px;text-transform:uppercase;'
+                    f'letter-spacing:0.5px;color:#b06f00;font-weight:600;">Detalle técnico: {n_p} dato(s) a reconciliar con el próximo informe oficial</summary>'
+                    '<div style="font-size:12px;color:var(--ink-3);margin:10px 0 14px;">Datos del material aportado que aún no están en los datos '
+                    'estructurados. No cambian el análisis; se resuelven solos en la próxima actualización anual.</div>'
+                    f'{cards}</details>')
 
     return f"""
 <section class="pane" id="p10">
   <div class="pane-header"><h1 class="pane-h1">Novedades</h1>
-    <span class="pane-dl">Qué ha cambiado en el último análisis (mejora con aporte o actualización anual)</span></div>
-  <div class="mb24" style="max-width:820px;">{bloques}</div>
+    <span class="pane-dl">Lectura rápida: ¿se sostenía el análisis anterior, qué le faltaba y qué hay de nuevo que importe?</span></div>
+  <div class="mb24">{bloques}</div>
+</section>"""
+
+
+def build_tab_anexo_graficos(data):
+    """Pestaña 'Anexo gráficos' (p11): los gráficos de evolución del documento aportado que NO son
+    de las dimensiones estándar ni 'clave' para el tipo de fondo. En el cuerpo solo van los
+    principales; aquí el resto, por sección, con su lectura. Vacía si no hay ninguno."""
+    gl = [g for g in ((data or {}).get("graficos_documento") or [])
+          if isinstance(g, dict) and g.get("labels") and not g.get("en_cuerpo", True)]
+    if not gl:
+        return '<section class="pane" id="p11"></section>'
+    _T = {"cartera": "Cartera", "estrategia": "Estrategia", "rentabilidad": "Rentabilidad",
+          "riesgo": "Riesgo", "patrimonio": "Patrimonio"}
+    body = ""
+    for sec in ("cartera", "estrategia", "riesgo", "rentabilidad", "patrimonio"):
+        body += build_doc_charts_block(data, (sec,), _T[sec], cuerpo=False)
+    return f"""
+<section class="pane" id="p11">
+  <div class="pane-header"><h1 class="pane-h1">Anexo gráficos</h1>
+    <span class="pane-dl">Evolución complementaria con datos de la gestora — los principales están en Cartera y Evolución</span></div>
+  {body}
 </section>"""
 
 
@@ -7636,6 +7764,7 @@ def generate():
 {build_tab_fuentes(data)}
 {build_tab_documentos(data)}
 {build_tab_novedades(data)}
+{build_tab_anexo_graficos(data)}
 {build_tab_glosario(data)}
 {build_tab_chat(data)}
 </main>

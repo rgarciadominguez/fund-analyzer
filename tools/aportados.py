@@ -94,7 +94,7 @@ def ingest(isin: str, docs_urls: list[str] | None = None,
 # el id de la task la incluye, así un cambio de esquema genera un id nuevo → su extract no existe
 # → el gate de extract re-extrae solo, y el extract de la versión vieja se borra aquí. (Antes
 # había que invalidar a mano; ahora es del sistema.)
-APORTADO_SCHEMA_VERSION = 4   # v4: clases_documento + graficos_documento
+APORTADO_SCHEMA_VERSION = 5   # v5: graficos_documento = series DIGITALIZADAS (gráficos propios), no recortes
 
 
 def task_id_for(nombre: str) -> str:
@@ -149,18 +149,30 @@ def _aportado_schema() -> dict:
                              "divisa dice Hedged. `comision_exito_detalle` = base y condiciones (p.ej. "
                              "'10% sobre el tipo libre de riesgo, con high-water mark'). Si una clase no "
                              "cobra éxito: comision_exito_pct=0. No omitas clases inactivas (activa=false)."),
-        "graficos_documento": ("list[{pagina:int, titulo, tipo:'evolucion'|'foto', "
-                               "seccion:'cartera'|'rentabilidad'|'riesgo'|'patrimonio'|'estrategia', "
-                               "que_muestra, lectura}] — CATÁLOGO de las páginas con GRÁFICOS de valor "
-                               "analítico, sobre todo los de EVOLUCIÓN en el tiempo (yield/duración "
-                               "históricos, IG vs no-IG, estructura de deuda, sectores, AUM y flujos, "
-                               "rotación, atribución por año, volatilidad, drawdown, rentabilidad acumulada). "
-                               "`pagina` = nº de página del PDF (1-indexed). `lectura` = 2-4 frases con lo que "
-                               "el gráfico ENSEÑA: tendencia, niveles aproximados de inicio/fin/extremos "
-                               "(marca '≈' si los lees del eje) y comparación con el índice si lo hay. Estas "
-                               "páginas se incrustan tal cual en el dashboard y el analista usa `lectura`. "
-                               "Excluye portadas, índices, glosarios, organigramas y gráficos genéricos de "
-                               "mercado que no hablen del fondo."),
+        "graficos_documento": (
+            "list — gráficos del documento que se RE-DIBUJARÁN en el dashboard con formato propio. Los "
+            "NÚMEROS no los lees tú: ya están medidos en el fichero de gráficos digitalizados que indica "
+            "el contexto de la task (cada gráfico tiene un `id` tipo 'p48#2'). Tú ELIGES, NOMBRAS e "
+            "INTERPRETAS. Cada item: {id, titulo (español, claro), seccion:'cartera'|'rentabilidad'|"
+            "'riesgo'|'patrimonio', dimension:'rating'|'sector'|'geografia'|'tipo_activo'|'duracion'|'yield'|"
+            "'patrimonio'|'otro' (qué mide; rating/sector/geografia/tipo_activo son las dimensiones ESTÁNDAR "
+            "que van en el cuerpo de todos los fondos), clave:bool (máx 2 en total: gráficos que definen a "
+            "ESTE tipo de fondo aunque no sean estándar, p.ej. duración en renta fija; el resto va a un "
+            "anexo), formato:'linea'|'barras'|'area_apilada'|'barras_apiladas', unidad "
+            "('%', 'años', 'M USD'…), series:[{color_hex, nombre}] (SOLO las series a pintar, con su "
+            "nombre real en español mirando la leyenda de la página; omite restos/ruido), x_inicio y "
+            "x_fin ('YYYY-MM', fecha del primer y último punto leída del eje X de la página — "
+            "OBLIGATORIO si el gráfico digitalizado tiene eje_x='relativo' y es temporal), categorias "
+            "(list, en orden, si eje_x='relativo' y NO es temporal, p.ej. ['2021','2022',…]), lectura "
+            "(2-3 frases: qué enseña sobre la estrategia/cartera: tendencia, niveles inicio→fin, cambios "
+            "de régimen y qué decisión del gestor revelan)}. CRITERIO: solo gráficos de EVOLUCIÓN TEMPORAL "
+            "del propio fondo que ayuden a entender cartera, riesgo, patrimonio o resultados (exposición "
+            "IG/no-IG, sectores, subordinación, yield, duración, AUM/flujos, rotación, atribución anual). "
+            "NO: gráficos de mercado genéricos, fotos de un solo momento, los que dupliquen lo que el "
+            "dashboard ya calcula (rentabilidad acumulada, drawdown, volatilidad) ni series ilegibles. "
+            "Máximo 8, los más valiosos. Si un gráfico clave NO está digitalizado (es una imagen), puedes "
+            "darlo con `aproximado:true` y series:[{nombre, puntos:[[etiqueta, valor]]}] leídos del eje, "
+            "con pocos puntos (anuales/semestrales)."),
         "datos_clave": "dict — resto de datos relevantes (custodio, auditor, registros por país…)",
     })
     return sch
@@ -185,6 +197,7 @@ def register_for_extraction(isin: str, manifest: dict, log=print) -> int:
     for doc in manifest.get("docs", []):
         lp = doc["local_path"]
         tid = task_id_for(doc["nombre"])
+        charts_rel = digitize_doc(isin, doc["nombre"], log=log)
         if any(isinstance(t, dict) and t.get("id") == tid for t in tasks):
             continue   # ya registrada con el esquema vigente
         # Task del MISMO pdf con otra versión de esquema → fuera (y su extract, que quedó stale)
@@ -214,9 +227,14 @@ def register_for_extraction(isin: str, manifest: dict, log=print) -> int:
                         "gestores, (d) TODAS las tablas numéricas: rentabilidades por año, desglose por "
                         "rating/sector/país/tipo de activo, estadísticas, (e) el linaje del track "
                         "record si viene de vehículos predecesores, (f) la tabla COMPLETA de clases "
-                        "(clases_documento) y (g) el catálogo de gráficos (graficos_documento), con su "
-                        "lectura. Lee como IMAGEN las páginas de "
-                        "tablas/gráficos. No inventes valores de un gráfico sin cifras legibles."),
+                        "(clases_documento) y (g) los gráficos a re-dibujar (graficos_documento). Lee como "
+                        "IMAGEN las páginas de "
+                        "tablas/gráficos. No inventes valores de un gráfico sin cifras legibles."
+                        + (f" GRÁFICOS DIGITALIZADOS (valores ya medidos sobre los ejes, úsalos para "
+                           f"`graficos_documento` y para tu lectura): lee {charts_rel} (ruta relativa al "
+                           f"repo) — trae por gráfico: id, página, título detectado, eje, y por serie "
+                           f"color, nombre detectado (puede venir sucio), nº de puntos y valores "
+                           f"inicio/fin/mín/máx." if charts_rel else "")),
             "aportado": True,
             "two_stage": True,
         })
@@ -226,6 +244,48 @@ def register_for_extraction(isin: str, manifest: dict, log=print) -> int:
     if n:
         log(f"[APORTADO] {n} docs añadidos a la cola de extracción (prioritarios)")
     return n
+
+
+def charts_paths(isin: str, nombre: str) -> tuple[Path, Path]:
+    ext = _fund_dir(isin.upper()) / "extracted"
+    return ext / f"charts_{_slug(nombre)}.full.json", ext / f"charts_{_slug(nombre)}.resumen.json"
+
+
+def digitize_doc(isin: str, nombre: str, log=print) -> str | None:
+    """Digitaliza los gráficos vectoriales del PDF aportado (tools/pdf_chart_digitizer) ANTES de la
+    extracción: `.full.json` (todas las cifras, lo usa aportado_publish) y `.resumen.json` (compacto,
+    lo lee el extractor para elegir/nombrar). Determinista e idempotente. Devuelve la ruta relativa
+    del resumen, o None si no hay gráficos / falla (la extracción sigue igual)."""
+    try:
+        pdf = _fund_dir(isin.upper()) / "raw" / "aportados" / nombre
+        if not pdf.exists():
+            return None
+        full, res = charts_paths(isin, nombre)
+        if not (full.exists() and res.exists() and full.stat().st_mtime >= pdf.stat().st_mtime):
+            import pdfplumber
+            from tools.pdf_chart_digitizer import digitize
+            with pdfplumber.open(str(pdf)) as d:
+                n = len(d.pages)
+            data = digitize(str(pdf), list(range(1, n + 1)))
+            data = {k: v for k, v in data.items() if isinstance(v, list) and v}
+            full.parent.mkdir(parents=True, exist_ok=True)
+            full.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            comp = []
+            for pg, charts in data.items():
+                for c in charts:
+                    comp.append({"id": c["id"], "pagina": int(pg), "titulo_detectado": c["titulo_detectado"],
+                                 "eje_y": c["eje_y"], "eje_x": c["eje_x"], "apilado": c["apilado"],
+                                 "series": [{"color_hex": s_["color_hex"], "nombre_detectado": s_["nombre_detectado"],
+                                             "tipo": s_["tipo"], "n": len(s_["puntos"]),
+                                             "inicio": s_["puntos"][0], "fin": s_["puntos"][-1],
+                                             "min": min(p_[1] for p_ in s_["puntos"]),
+                                             "max": max(p_[1] for p_ in s_["puntos"])} for s_ in c["series"]]})
+            res.write_text(json.dumps(comp, ensure_ascii=False, indent=1), encoding="utf-8")
+            log(f"[APORTADO] {len(comp)} gráficos digitalizados de {nombre}")
+        return res.relative_to(ROOT).as_posix() if res.exists() else None
+    except Exception as e:  # noqa: BLE001
+        log(f"[APORTADO] digitalización de gráficos falló ({type(e).__name__}: {e}) — se sigue sin ella")
+        return None
 
 
 def register_from_folder(isin: str, log=print) -> int:

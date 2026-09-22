@@ -1,11 +1,10 @@
 """Publica en output.json lo que los DOCS APORTADOS traen y que no es una serie numérica:
 
-  1. `graficos_documento` — las páginas con gráficos de valor (sobre todo de EVOLUCIÓN: yield y
-     duración históricos, IG vs no-IG, estructura de deuda, AUM y flujos, atribución por año…).
-     Una presentación profesional las trae ya hechas por el gestor; re-dibujarlas exigiría leer
-     valores de barras sin cifras (frágil e inventable). Se INCRUSTAN tal cual: el extractor
-     (que ya ve el PDF) elige las páginas y escribe su lectura; aquí se renderizan a imagen en
-     `dashboard/doc-charts/{ISIN}/` (el Worker sirve ./dashboard como estáticos) y se referencian.
+  1. `graficos_documento` — gráficos de EVOLUCIÓN del documento RE-DIBUJADOS con el formato del
+     dashboard (decisión de Rafa 2026-09-21: nada de recortes del PDF). Las cifras salen de la
+     geometría vectorial del PDF (tools/pdf_chart_digitizer, medido contra los ejes); el extractor
+     solo elige qué gráficos interesan, nombra las series, da las fechas del eje si no son legibles
+     y escribe la lectura. Aquí se combinan ambos → {labels, series} listos para Chart.js.
   2. `clases_documento` — la tabla completa de clases del documento (código, ISIN, divisa,
      cubierta, reparto, comisión de gestión y de ÉXITO, mínimo, activa).
 
@@ -22,8 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CHARTS_DIR = ROOT / "dashboard" / "doc-charts"
-MAX_PAGES_PER_DOC = 16
-RESOLUTION = 110          # dpi: legible a ancho completo, ~120-200 KB por página en JPEG
+MAX_CHARTS_PER_DOC = 8
 SECCIONES = {"cartera", "rentabilidad", "riesgo", "patrimonio", "estrategia"}
 
 
@@ -31,30 +29,93 @@ def _slug(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", (s or "").lower()).strip("-")[:40] or "doc"
 
 
-def _pdf_for(isin: str, extract: dict) -> Path | None:
-    """PDF del extract. `pdf_path` puede venir absoluto de OTRA máquina (Surface vs servidor):
-    se resuelve por nombre dentro de raw/aportados del fondo."""
-    name = Path(str(extract.get("pdf_path") or "").replace("\\", "/")).name
-    p = ROOT / "data" / "funds" / isin / "raw" / "aportados" / name
-    return p if name and p.exists() else None
+def _month_add(ym: str, k: int) -> str:
+    y, m = int(ym[:4]), int(ym[5:7])
+    t = y * 12 + (m - 1) + k
+    return f"{t // 12}-{t % 12 + 1:02d}"
 
 
-def _render(pdf: Path, pages: list[int], out_dir: Path, prefix: str, log) -> dict[int, str]:
-    import pdfplumber
-    out_dir.mkdir(parents=True, exist_ok=True)
-    done: dict[int, str] = {}
-    with pdfplumber.open(str(pdf)) as doc:
-        n = len(doc.pages)
-        for pg in pages:
-            if not (1 <= pg <= n):
-                log(f"[APORTADO-PUB] página {pg} fuera de rango (1-{n}) → ignorada")
-                continue
-            dest = out_dir / f"{prefix}-p{pg:02d}.jpg"
-            if not dest.exists():
-                img = doc.pages[pg - 1].to_image(resolution=RESOLUTION).original.convert("RGB")
-                img.save(str(dest), "JPEG", quality=82, optimize=True)
-            done[pg] = dest.name
-    return done
+def _months_between(a: str, b: str) -> int:
+    return (int(b[:4]) * 12 + int(b[5:7])) - (int(a[:4]) * 12 + int(a[5:7]))
+
+
+def _norm_hex(h) -> str:
+    return (h or "").strip().lower()
+
+
+def build_chart(item: dict, digit: dict, log=print) -> dict | None:
+    """Item del extractor (elige/nombra/interpreta) + gráfico digitalizado (cifras) → gráfico final
+    {labels, series:[{nombre, data}]} listo para pintar. None si no se puede construir con garantías."""
+    series_out, labels = [], None
+    complete = False
+    if item.get("aproximado") and not digit:
+        # gráfico raster leído a ojo por el extractor: series con sus propios puntos
+        labs = []
+        for s_ in item.get("series") or []:
+            for lab, _v in s_.get("puntos") or []:
+                if str(lab) not in labs:
+                    labs.append(str(lab))
+        labs.sort()
+        for s_ in item.get("series") or []:
+            m = {str(l): v for l, v in (s_.get("puntos") or [])}
+            series_out.append({"nombre": s_.get("nombre") or "", "data": [m.get(l) for l in labs]})
+        labels = labs
+    elif digit:
+        want = {_norm_hex(s_.get("color_hex")): s_.get("nombre") for s_ in (item.get("series") or [])
+                if isinstance(s_, dict) and s_.get("color_hex")}
+        chosen = [(want[_norm_hex(d["color_hex"])], d) for d in digit["series"] if _norm_hex(d["color_hex"]) in want]
+        if not chosen:
+            return None
+        complete = len(chosen) == len(digit["series"])
+        rel = digit.get("eje_x") == "relativo"
+        conv = {}
+        if rel:
+            xs = sorted({float(l[1:]) for _, d in chosen for l, _v in d["puntos"]})
+            cats = item.get("categorias") or []
+            x0, x1 = item.get("x_inicio"), item.get("x_fin")
+            if cats:                                # categórico: agrupar posiciones en len(cats) cubos
+                groups, tol = [], (xs[-1] - xs[0]) / max(len(cats) * 3, 1)
+                for x in xs:
+                    if groups and x - groups[-1][-1] <= tol:
+                        groups[-1].append(x)
+                    else:
+                        groups.append([x])
+                if len(groups) != len(cats):
+                    log(f"[APORTADO-PUB] {item.get('id')}: {len(groups)} grupos vs {len(cats)} categorías → descartado")
+                    return None
+                for g, c in zip(groups, cats):
+                    for x in g:
+                        conv[f"@{x:.4f}"] = str(c)
+            elif x0 and x1 and re.match(r"^\d{4}-\d{2}$", x0) and re.match(r"^\d{4}-\d{2}$", x1) and xs[-1] > xs[0]:
+                n = _months_between(x0, x1)
+                for x in xs:
+                    conv[f"@{x:.4f}"] = _month_add(x0, int(round(n * (x - xs[0]) / (xs[-1] - xs[0]))))
+            else:
+                log(f"[APORTADO-PUB] {item.get('id')}: eje relativo sin x_inicio/x_fin ni categorias → descartado")
+                return None
+        agg_sum = digit.get("apilado") or item.get("formato") == "barras_apiladas"
+        per_series = []
+        for nombre, d in chosen:
+            acc = {}
+            for l, v in d["puntos"]:
+                acc.setdefault(conv.get(l, l) if rel else l, []).append(v)
+            per_series.append((nombre, {k: sum(v) / len(v) for k, v in acc.items()}))
+        labels = sorted({k for _, m in per_series for k in m}) if not (rel and item.get("categorias"))             else [str(c) for c in item["categorias"]]
+        for nombre, m in per_series:
+            series_out.append({"nombre": nombre, "data": [round(m[l], 2) if l in m else None for l in labels]})
+    if not series_out or not labels or len(labels) < 2:
+        return None
+    # 100% apilado: normalizar pequeñas desviaciones de medida
+    if item.get("formato") == "area_apilada" and (item.get("unidad") or "").strip() == "%":
+        for s_ in series_out:              # en apilado, hueco = 0 (la banda no existe ese mes)
+            s_["data"] = [0 if v is None else v for v in s_["data"]]
+        for i in range(len(labels)):
+            tot = sum((s_["data"][i] or 0) for s_ in series_out)
+            if complete and 97 <= tot <= 103:       # solo error de medida; si faltan series (omitidas) no se reescala
+                for s_ in series_out:
+                    if s_["data"][i] is not None:
+                        s_["data"][i] = round(s_["data"][i] * 100 / tot, 2)
+    return {"labels": labels, "series": series_out}
 
 
 def apply(isin: str, log=print) -> dict:
@@ -66,7 +127,6 @@ def apply(isin: str, log=print) -> dict:
     from tools.aportados import current_extracts
     graficos: list[dict] = []
     clases: list[dict] = []
-    keep: set[str] = set()
     for ep in current_extracts(isin):
         try:
             ex = json.loads(ep.read_text(encoding="utf-8"))
@@ -83,54 +143,63 @@ def apply(isin: str, log=print) -> dict:
                 row["isin"] = (row.get("isin") or "").upper().strip() or None
                 row["fuente"] = doc_name
                 clases.append(row)
-        # ── gráficos ──
-        gl = [g for g in (data.get("graficos_documento") or [])
-              if isinstance(g, dict) and str(g.get("pagina") or "").isdigit()]
-        if not gl:
+        # ── gráficos: elección/nombres/lectura del extractor + cifras digitalizadas ──
+        items = [g for g in (data.get("graficos_documento") or []) if isinstance(g, dict)]
+        if not items:
             continue
-        pdf = _pdf_for(isin, ex)
-        if not pdf:
-            log(f"[APORTADO-PUB] PDF no encontrado para {doc_name} → gráficos sin publicar")
-            continue
-        # los de evolución primero; tope de páginas por doc
-        gl.sort(key=lambda g: (0 if g.get("tipo") == "evolucion" else 1, int(g["pagina"])))
-        gl = gl[:MAX_PAGES_PER_DOC]
-        prefix = _slug(Path(doc_name).stem)
-        rendered = _render(pdf, sorted({int(g["pagina"]) for g in gl}), CHARTS_DIR / isin, prefix, log)
-        for g in gl:
-            fn = rendered.get(int(g["pagina"]))
-            if not fn:
+        from tools.aportados import charts_paths
+        full_p, _ = charts_paths(isin, doc_name)
+        digit_by_id = {}
+        if full_p.exists():
+            try:
+                for _pg, chs in json.loads(full_p.read_text(encoding="utf-8")).items():
+                    for c in chs:
+                        digit_by_id[c["id"]] = c
+            except Exception:
+                pass
+        for g in items[:MAX_CHARTS_PER_DOC]:
+            built = build_chart(g, digit_by_id.get(str(g.get("id") or "")), log=log)
+            if not built:
                 continue
-            keep.add(fn)
             sec = (g.get("seccion") or "").lower()
+            m_pg = re.match(r"p(\d+)#", str(g.get("id") or ""))
             graficos.append({
-                "img": f"doc-charts/{isin}/{fn}",
-                "pagina": int(g["pagina"]),
-                "titulo": g.get("titulo") or "",
-                "tipo": g.get("tipo") or "",
+                "id": g.get("id"), "titulo": g.get("titulo") or "",
                 "seccion": sec if sec in SECCIONES else "cartera",
-                "que_muestra": g.get("que_muestra") or "",
-                "lectura": g.get("lectura") or "",
-                "documento": doc_name,
+                "formato": g.get("formato") or "linea", "unidad": g.get("unidad") or "",
+                "labels": built["labels"], "series": built["series"],
+                "lectura": g.get("lectura") or "", "aproximado": bool(g.get("aproximado")),
+                "dimension": (g.get("dimension") or "otro").lower(), "clave": bool(g.get("clave")),
+                "documento": doc_name, "pagina": int(m_pg.group(1)) if m_pg else g.get("pagina"),
                 "periodo": data.get("periodo") or "",
             })
-    # imágenes huérfanas (doc retirado / páginas que ya no se eligen)
-    d = CHARTS_DIR / isin
-    if graficos and d.exists():       # sin gráficos en esta pasada no se toca nada (vacío no borra)
-        for f in d.glob("*.jpg"):
-            if f.name not in keep:
-                try:
-                    f.unlink()
-                except Exception:
-                    pass
     out = json.loads(op.read_text(encoding="utf-8"))
+    # formato antiguo (recortes del PDF como imagen): se retira siempre, con sus ficheros
+    if any(isinstance(g, dict) and g.get("img") for g in (out.get("graficos_documento") or [])):
+        out["graficos_documento"] = [g for g in out["graficos_documento"] if not (isinstance(g, dict) and g.get("img"))]
+        old_fmt = True
+    else:
+        old_fmt = False
+    import shutil
+    if (CHARTS_DIR / isin).exists():
+        shutil.rmtree(CHARTS_DIR / isin, ignore_errors=True)
     before = (out.get("graficos_documento"), out.get("clases_documento"))
     # Vacío NO borra: si esta pasada no trae nada (extract aún sin re-hacer), se conserva lo previo.
     if graficos:
-        out["graficos_documento"] = sorted(graficos, key=lambda g: (g["seccion"], g["pagina"]))
+        # CUERPO de las pestañas: solo las dimensiones estándar (una por dimensión) + máx. 2 "clave"
+        # del tipo de fondo. El resto va a la pestaña "Anexo gráficos" (decisión Rafa 2026-09-22).
+        STD = ("rating", "sector", "geografia", "tipo_activo")
+        vistos, n_clave = set(), 0
+        for g in graficos:
+            g["en_cuerpo"] = False
+            if g["dimension"] in STD and g["dimension"] not in vistos:
+                vistos.add(g["dimension"]); g["en_cuerpo"] = True
+            elif g["clave"] and n_clave < 2:
+                n_clave += 1; g["en_cuerpo"] = True
+        out["graficos_documento"] = sorted(graficos, key=lambda g: (g["seccion"], g.get("pagina") or 0))
     if clases:
         out["clases_documento"] = clases
-    changed = before != (out.get("graficos_documento"), out.get("clases_documento"))
+    changed = old_fmt or before != (out.get("graficos_documento"), out.get("clases_documento"))
     if changed:
         op.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
         log(f"[APORTADO-PUB] {len(graficos)} gráficos del documento + {len(clases)} clases publicados")

@@ -1927,10 +1927,18 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     # full → sin novedades (análisis desde cero).
     new_nov = cowork_data.get("novedades_resumen")
     if _modo_synth in ("aporte", "annual_update"):
-        if isinstance(new_nov, dict) and (new_nov.get("puntos") or new_nov.get("texto")):
+        if isinstance(new_nov, dict) and (new_nov.get("veredicto") or new_nov.get("hallazgos")
+                                          or new_nov.get("puntos") or new_nov.get("texto")):
             new_nov.setdefault("modo", _modo_synth)
+            # formato ejecutivo: topes duros (la pestaña es para leer en 30 s, no un inventario)
+            if isinstance(new_nov.get("huecos_de_fondo"), list):
+                new_nov["huecos_de_fondo"] = new_nov["huecos_de_fondo"][:3]
+            if isinstance(new_nov.get("hallazgos"), list):
+                new_nov["hallazgos"] = new_nov["hallazgos"][:4]
             output_data["novedades_resumen"] = new_nov
-            log("COWORK", "OK", f"Novedades ({_modo_synth}): {len(new_nov.get('puntos') or [])} punto(s)")
+            log("COWORK", "OK", f"Novedades ({_modo_synth}): veredicto="
+                f"{(new_nov.get('veredicto') or {}).get('estado')} huecos={len(new_nov.get('huecos_de_fondo') or [])} "
+                f"hallazgos={len(new_nov.get('hallazgos') or [])}")
     else:
         output_data.pop("novedades_resumen", None)
 
