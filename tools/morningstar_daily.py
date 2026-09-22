@@ -26,6 +26,10 @@ _UA = {"User-Agent": "Mozilla/5.0"}
 _SCR = "https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener"
 _TS = "https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x"
 _ISIN = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
+# Compat: healthcheck/dep_autocure sondean `_URL.format(isin=...)` (host+key). Desapareció en un
+# refactor y el precheck avisaba "DEPENDENCIA CRÍTICA ROTA" en cada run (falso).
+_URL = (f"{_TS}?currencyId=EUR&idtype=Isin&frequency=daily&id={{isin}}"
+        "&startDate=2024-01-01&outputType=COMPACTJSON")
 
 
 def resolve_secid(isin: str) -> str | None:

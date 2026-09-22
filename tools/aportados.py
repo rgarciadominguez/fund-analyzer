@@ -255,7 +255,10 @@ def register_for_extraction(isin: str, manifest: dict, log=print) -> int:
 
 
 def charts_paths(isin: str, nombre: str) -> tuple[Path, Path]:
-    ext = _fund_dir(isin.upper()) / "extracted"
+    # Subcarpeta propia: el consumidor de extracts (orchestrator._consume_extracted) y los gates
+    # globean extracted/*.json esperando extracts; un charts_*.json ahí tumbó consume-extracted
+    # (Brightgate 22-sep: "'list' object has no attribute 'get'" → análisis vacío).
+    ext = _fund_dir(isin.upper()) / "extracted" / "_charts"
     return ext / f"charts_{_slug(nombre)}.full.json", ext / f"charts_{_slug(nombre)}.resumen.json"
 
 

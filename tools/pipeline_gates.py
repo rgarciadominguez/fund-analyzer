@@ -93,6 +93,17 @@ def analyst_stale(isin: str) -> bool:
     if not exts:
         return False
     newest = max(p.stat().st_mtime for p in exts)
+    # Síntesis previa evaluada como NO publicable por el meta-agente (meta_report.dashboard_ready
+    # False, p.ej. producida cuando consume-extracted falló) → hay que volver a sintetizar.
+    try:
+        mr = fd / "meta_report.json"
+        syn = fd / "analyst_synthesis_cowork.json"
+        if mr.exists() and syn.exists():
+            m = json.loads(mr.read_text(encoding="utf-8"))
+            if m.get("dashboard_ready") is False and mr.stat().st_mtime >= syn.stat().st_mtime - 1:
+                return True
+    except Exception:
+        pass
     # referencia de "última síntesis": el cowork json si existe, si no el output.json
     for ref_name in ("analyst_synthesis_cowork.json", "output.json"):
         ref = fd / ref_name

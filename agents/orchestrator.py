@@ -2367,6 +2367,9 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
             n_fail += 1
             continue
 
+        if not isinstance(task, dict) or tf.name.startswith("charts_"):
+            log("CONSUME", "INFO", f"{tf.name}: no es un extract (se ignora)")
+            continue
         agent_name = task.get("agent", "")
         data = task.get("data") or {}
         if not isinstance(data, dict):

@@ -35,6 +35,8 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:      # el daemon puede arrancar con otro cwd → "No module named 'tools'"
+    sys.path.insert(0, str(ROOT))
 LOG = ROOT / "logs" / "guardian.log"
 WEB_URL = "http://127.0.0.1:5000/api/queue"
 POLLER_LOCK = Path(tempfile.gettempdir()) / "hf_portal_worker.lock"
