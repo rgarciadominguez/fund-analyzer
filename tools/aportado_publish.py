@@ -43,7 +43,7 @@ def _norm_hex(h) -> str:
     return (h or "").strip().lower()
 
 
-def build_chart(item: dict, digit: dict, log=print) -> dict | None:
+def build_chart(item: dict, digit: dict, digit_all: dict | None = None, log=print) -> dict | None:
     """Item del extractor (elige/nombra/interpreta) + gráfico digitalizado (cifras) → gráfico final
     {labels, series:[{nombre, data}]} listo para pintar. None si no se puede construir con garantías."""
     series_out, labels = [], None
@@ -105,13 +105,41 @@ def build_chart(item: dict, digit: dict, log=print) -> dict | None:
             series_out.append({"nombre": nombre, "data": [round(m[l], 2) if l in m else None for l in labels]})
     if not series_out or not labels or len(labels) < 2:
         return None
+    # DESGLOSE de una serie con otro gráfico (p.ej. "Financiero" × reparto bancos/aseguradoras del
+    # gráfico p48#1): item.desglose = {serie: <nombre en este gráfico>, grafico: <id>, x_inicio, x_fin,
+    # partes: [{color_hex, nombre}]}. Las partes sustituyen a la serie, con su peso × cuota.
+    dg = item.get("desglose") if isinstance(item.get("desglose"), dict) else None
+    if dg and digit_all and dg.get("grafico") in digit_all and dg.get("serie"):
+        sub_item = {"id": dg["grafico"], "formato": "area_apilada", "unidad": "%",
+                    "x_inicio": dg.get("x_inicio"), "x_fin": dg.get("x_fin"), "categorias": dg.get("categorias"),
+                    "series": dg.get("partes") or []}
+        sub = build_chart(sub_item, digit_all[dg["grafico"]], digit_all=None, log=log)
+        base_idx = next((i for i, s_ in enumerate(series_out) if s_["nombre"] == dg["serie"]), None)
+        if sub and base_idx is not None and sub["series"]:
+            def _share_at(lab, k):
+                # cuota de la parte k en la etiqueta `lab` (o la más cercana por orden)
+                cand = [l for l in sub["labels"] if l <= lab] or sub["labels"][:1]
+                j = sub["labels"].index(cand[-1])
+                tot = sum((s_["data"][j] or 0) for s_ in sub["series"]) or 1
+                return (sub["series"][k]["data"][j] or 0) / tot
+            base = series_out.pop(base_idx)
+            nuevas = []
+            for k, part in enumerate(sub["series"]):
+                nuevas.append({"nombre": f"{dg['serie']} · {part['nombre']}",
+                               "data": [None if v is None else round(v * _share_at(lab, k), 2)
+                                        for lab, v in zip(labels, base["data"])]})
+            series_out[base_idx:base_idx] = nuevas
     # 100% apilado: normalizar pequeñas desviaciones de medida
     if item.get("formato") == "area_apilada" and (item.get("unidad") or "").strip() == "%":
         for s_ in series_out:              # en apilado, hueco = 0 (la banda no existe ese mes)
             s_["data"] = [0 if v is None else v for v in s_["data"]]
+        # series no capturadas (ruido/pequeñas) → "Otros" hasta 100, para que el apilado no quede corto
+        resto = [round(max(0.0, 100 - sum((s_["data"][i] or 0) for s_ in series_out)), 2) for i in range(len(labels))]
+        if not complete and any(r >= 1 for r in resto) and all(r <= 25 for r in resto):
+            series_out.append({"nombre": "Otros", "data": resto})
         for i in range(len(labels)):
             tot = sum((s_["data"][i] or 0) for s_ in series_out)
-            if complete and 97 <= tot <= 103:       # solo error de medida; si faltan series (omitidas) no se reescala
+            if 97 <= tot <= 103:       # solo error de medida; si faltan series (omitidas) no se reescala
                 for s_ in series_out:
                     if s_["data"][i] is not None:
                         s_["data"][i] = round(s_["data"][i] * 100 / tot, 2)
@@ -158,7 +186,7 @@ def apply(isin: str, log=print) -> dict:
             except Exception:
                 pass
         for g in items[:MAX_CHARTS_PER_DOC]:
-            built = build_chart(g, digit_by_id.get(str(g.get("id") or "")), log=log)
+            built = build_chart(g, digit_by_id.get(str(g.get("id") or "")), digit_all=digit_by_id, log=log)
             if not built:
                 continue
             sec = (g.get("seccion") or "").lower()
@@ -188,7 +216,7 @@ def apply(isin: str, log=print) -> dict:
     if graficos:
         # CUERPO de las pestañas: solo las dimensiones estándar (una por dimensión) + máx. 2 "clave"
         # del tipo de fondo. El resto va a la pestaña "Anexo gráficos" (decisión Rafa 2026-09-22).
-        STD = ("rating", "sector", "geografia", "tipo_activo")
+        STD = ("rating", "sector", "geografia", "tipo_activo", "rotacion")
         vistos, n_clave = set(), 0
         for g in graficos:
             g["en_cuerpo"] = False

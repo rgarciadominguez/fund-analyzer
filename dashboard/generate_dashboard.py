@@ -5761,19 +5761,21 @@ def build_tab_glosario(data):
         term = _e(item.get("termino", ""))
         defi = _e(item.get("definicion", ""))
         ej = item.get("ejemplo_fondo") or ""
-        ej_html = (f'<div style="margin-top:10px;padding:10px 12px;background:var(--navy-pale);'
-                   f'border-left:3px solid var(--gold,#b48020);font-size:12.5px;color:var(--ink-2);">'
+        ej_html = (f'<div style="padding:10px 12px;background:var(--navy-pale);border-radius:4px;'
+                   f'border-left:3px solid var(--gold,#b48020);font-size:12.5px;color:var(--ink-2);line-height:1.5;">'
                    f'<strong style="color:var(--ink-1);">En este fondo:</strong> {_e(ej)}</div>') if ej else ""
+        # A todo el ancho, en dos columnas: término + definición | "en este fondo" (Rafa 2026-09-22)
         cards += (f'<div class="gl-card" style="border:1px solid var(--rule-light);border-radius:6px;'
-                  f'padding:16px 18px;margin-bottom:14px;background:var(--card,#fff);">'
-                  f'<div style="font-size:15px;font-weight:600;color:var(--ink-1);margin-bottom:6px;">{term}</div>'
-                  f'<div style="font-size:13px;color:var(--ink-2);line-height:1.55;">{defi}</div>'
+                  f'padding:16px 20px;margin-bottom:12px;background:var(--card,#fff);display:grid;'
+                  f'grid-template-columns:{"minmax(0,3fr) minmax(0,2fr)" if ej else "1fr"};gap:22px;align-items:start;">'
+                  f'<div><div style="font-size:15px;font-weight:600;color:var(--ink-1);margin-bottom:6px;">{term}</div>'
+                  f'<div style="font-size:13px;color:var(--ink-2);line-height:1.55;">{defi}</div></div>'
                   f'{ej_html}</div>')
     return f"""
 <section class="pane" id="p9">
   <div class="pane-header"><h1 class="pane-h1">Glosario financiero</h1>
     <span class="pane-dl">Estrategias y términos de este fondo, con ejemplo práctico</span></div>
-  <div class="mb24" style="max-width:820px;">{cards}</div>
+  <div class="mb24">{cards}</div>
 </section>"""
 
 
