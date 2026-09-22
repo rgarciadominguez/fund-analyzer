@@ -483,7 +483,7 @@ REM SOLO es accesible desde claude -p (cowork), no desde el pipeline Python.
 REM Best-effort: si el fondo no esta en MyInvestor, no pasa nada (Morningstar cubre).
 REM ----------------------------------------------------------------------
 echo === Paso 5.5/6: Skill myinvestor-enrich ^(Claude Max^) ===
-call python -m tools.claude_cowork "logs\skill_myinvestor_%ISIN%.log" "myinvestor enrich %ISIN%" --allowedTools "Read,Write,Bash,Edit,Glob,Grep,mcp__claude_ai_MyInvestor__search_funds"
+call python -m tools.claude_cowork "logs\skill_myinvestor_%ISIN%.log" "myinvestor enrich %ISIN%" --allowedTools "Read,Write,Bash,Edit,Glob,Grep,mcp__claude_ai_MyInvestor__search_funds,mcp__claude_ai_MyInvestor__get_funds"
 if errorlevel 1 (
     echo [WARN] Skill myinvestor-enrich fallo ^(no critico^). Ver logs\skill_myinvestor_%ISIN%.log
 ) else (

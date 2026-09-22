@@ -15,12 +15,10 @@ MyInvestor cubre ~2.300 fondos (el universo "recomendable"). Para los que están
 
 ## Pasos
 
-1. **Reúne TODOS los ISINs de clase del fondo** y casa por ISIN exacto contra cualquiera de ellos (el conector NO busca por ISIN — `search_funds(ISIN)` devuelve 0; la búsqueda es por nombre/gestora BM25):
-   - Lee de `output.json`: `nombre`, `gestora`, y la lista `clases[].isin` (todas las clases del fondo).
-   - Reúne el conjunto de ISINs candidatos = el ISIN objetivo + todos los `clases[].isin`. (Opcional: `python -c "from tools.reconcile_fund_groups import load_class_isins; ..."` o lee también las filas del grupo en Supabase.)
-   - Llama `mcp__claude_ai_MyInvestor__search_funds` con `query` = **gestora** (p.ej. "Cobas", "Dunas", "DNCA", "Magallanes") y `limit` 10. La gestora es más fiable que el nombre (a veces basura: "Troy Asset Management"→"Troy"/"Trojan"; "Insight Investment Management"→"Insight").
-   - **Acepta SOLO resultados cuyo `isin` == ALGUNO de nuestros ISINs candidatos (match exacto).** Recoge **TODAS** las clases nuestras que aparezcan (lista `clases_en_myinvestor`): el portal marca el broker por FONDO, y basta con que una clase esté. Para los datos ricos (`matched_isin`) usa la que coincida con el ISIN objetivo si está; si no, cualquiera que coincida. NUNCA aceptes un fondo cuyo ISIN no esté en nuestra lista de clases. Con muchas clases, haz 2-3 búsquedas (gestora, nombre, gestora+palabra clave) con `limit` 20 para no dejar clases fuera.
-   - Si la query por gestora no trae ninguno de nuestros ISINs, prueba 1-2 queries más (nombre limpio, gestora+keyword). Si tras eso ninguno coincide → el fondo NO está en el conector (→ paso 2). Normal y correcto: Morningstar lo cubre.
+1. **Reúne TODOS los ISINs de clase del fondo y consúltalos por ISIN exacto** (verificado 2026-09-22: `get_funds` acepta ISINs y devuelve `missing` para los que no están; es la vía fiable — `search_funds` por nombre/gestora es solo respaldo):
+   - Lee de `output.json`: `nombre`, `gestora` y `clases[].isin`; y sobre todo `dashboard/_class_map.json` → `groups[<primario>].classes[].isin` (o `aliases[ISIN]` → primario) para tener TODAS las clases del grupo. Conjunto candidato = ISIN objetivo + todas las clases.
+   - Llama `mcp__claude_ai_MyInvestor__get_funds` con `isins` en lotes de ≤10. Las que vuelven en `funds` ESTÁN en MyInvestor → `clases_en_myinvestor` (lista completa). Si TODAS salen en `missing`, prueba una vez `search_funds` con `query` = gestora (`limit` 10) y acepta solo resultados cuyo `isin` esté en el conjunto candidato. NUNCA aceptes un fondo cuyo ISIN no esté en nuestra lista.
+   - Para los datos ricos (`matched_isin`) usa la ficha del ISIN objetivo si está; si no, la de cualquier clase encontrada.
 
 2. **Si el fondo NO está en MyInvestor**: escribe `myinvestor_data.json` con `{"isin": "...", "disponible_myinvestor": false}` y termina. (No es un error — es lo normal para muchos fondos.)
 
