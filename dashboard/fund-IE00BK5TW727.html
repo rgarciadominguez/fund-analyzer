@@ -1,3 +1,4 @@
+<!-- hf-build:56e75c6eda4e -->
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
@@ -179,8 +180,8 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <!-- ZONA 1: Nombre, gestora, depositario, ISIN(s) -->
     <div class="lh-left">
       <div class="lh-fund">Baillie Gifford WW L/T Glb Gr A EUR Acc <span style="color:rgba(255,255,255,0.45);font-size:14px;margin-left:4px;">★☆☆☆☆</span></div>
-      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Baillie Gifford</strong></div>
-      
+      <div class="lh-meta-line" style="margin-top:3px;">Gestora: <strong>Baillie Gifford Investment Management</strong></div>
+      <div class="lh-meta-line">Depositario: <strong>Brown Brothers Harriman Trustee Services Tudor Trust Limited</strong></div>
       <div class='lh-meta-line'>ISIN retail EUR: <strong>IE00BK5TW727</strong> <span style='opacity:.55;font-size:10.5px;'>· A EUR ACC</span></div>
     </div>
 
@@ -190,6 +191,10 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
         <div class="lh-aum-v">€4.013M</div>
         <div class="lh-aum-l">AUM</div>
         <div class="lh-pubs"><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. carta</span><span class="lh-pub-val">2025-09</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Últ. informe</span><span class="lh-pub-val">2026-03</span></div><div class="lh-pub-row"><span class="lh-pub-lbl">Próx.</span><span class="lh-pub-soon">2026-09 (Carta)</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="srri-pips"><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip on"></div><div class="srri-pip"></div><div class="srri-pip"></div></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.50);letter-spacing:0.5px;font-weight:500;">SRRI 5 / 7</span>
       </div>
     </div>
 
@@ -215,6 +220,7 @@ hr.hr{border:none;border-top:1px solid var(--rule);margin:24px 0;}
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
+    
     
     
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
@@ -530,6 +536,7 @@ No se dispone de datos públicos verificados sobre empleadores anteriores a su i
       </div>
     </div>
   </div>
+
 </section>
 
 <section class="pane" id="p4">
@@ -1039,6 +1046,7 @@ No se dispone de datos públicos verificados sobre empleadores anteriores a su i
 
 </section>
 <section class="pane" id="p10"></section>
+<section class="pane" id="p11"></section>
 <section class="pane" id="p9"></section>
 
 <section class="pane" id="p8">
@@ -1859,49 +1867,124 @@ function yearEndF(s){const m=new Map();for(const p of s){const y=p.date.getUTCFu
 function rets(levels){const o=[];for(let i=1;i<levels.length;i++){const a=levels[i-1].nav,b=levels[i].nav;if(a>0&&b>0)o.push({date:levels[i].date,r:b/a-1});}return o;}
 function stdF(arr){const x=arr.filter(v=>Number.isFinite(v));if(x.length<2)return NaN;const m=x.reduce((a,b)=>a+b,0)/x.length;return Math.sqrt(x.reduce((a,b)=>a+(b-m)*(b-m),0)/(x.length-1));}
 
-async function fetchMST(){
-  // ROBUSTO: la serie se pide por SecId (idtype=Morningstar), NUNCA por idtype=Isin (fuzzy →
-  // trae el NAV de OTRO fondo → CAGR/vol/rentab que no cuadran con Morningstar/Finect). SecId
-  // inyectado desde el análisis; si falta, se resuelve por el screener con validación de ISIN.
-  let secid=(typeof MST_SECID!=='undefined'&&MST_SECID)?MST_SECID:'';
-  if(!secid){
+// ── SERIE DE UNA CLASE (espejo de tools/morningstar_daily.build_class_series) ──
+// 1) La serie PROPIA de la clase solo vale desde su lanzamiento; lo que Morningstar trae antes es
+//    historia de otra clase/vehículo → tramo PREDECESOR (se pinta en otro tono, nunca como propio).
+// 2) El predecesor sale de la clase de referencia del linaje, en la divisa que toca: clase CUBIERTA →
+//    divisa original de la estrategia; NO cubierta → convertida a la divisa en que se muestra la clase.
+// 3) La clase se muestra en SU divisa (no forzada a EUR); el conmutador permite verla en EUR.
+const MST_PRED_ISIN='';        // clase de referencia del predecesor ('' = sin linaje)
+let MST_VIEW_EUR=true;                                // vista por defecto EUR (= portal/Supabase); conmutador a divisa propia
+let MST_INFO=null;                                    // ficha de la serie mostrada (clase, divisa, corte…)
+const MST_HEDGE_RE=/(hedged|\bhdg\b|\bhgd\b|\(h\)|\bh[- ]?(eur|usd|chf|gbp|jpy|sek|nok|aud|cad)\b|\b(eur|usd|chf|gbp|jpy|sek|nok|aud|cad)[- ]?h\b)/i;
+
+async function mstResolve(isin){
+  isin=(isin||'').toUpperCase();
+  for(const uni of ['FOALL$$ALL','ETALL$$ALL','CEALL$$ALL']){
     try{
-      for(const uni of ['FOALL$$ALL','ETALL$$ALL','CEALL$$ALL']){
-        const su='https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener?page=1&pageSize=10&outputType=json&version=1&universeIds='+encodeURIComponent(uni)+'&securityDataPoints='+encodeURIComponent('SecId|Isin')+'&term='+MST_ISIN;
-        const r=await fetch(su,{credentials:'omit'});
-        if(!r.ok)continue;
-        const j=await r.json();
-        const rows=(j&&j.rows)||[];
-        const hit=rows.find(x=>((x.Isin||'').toUpperCase()===MST_ISIN.toUpperCase()));
-        if(hit&&hit.SecId){secid=hit.SecId;break;}
-      }
+      const su='https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener?page=1&pageSize=10&outputType=json&version=1&universeIds='+encodeURIComponent(uni)+'&securityDataPoints='+encodeURIComponent('SecId|Isin|Name|PriceCurrency|InceptionDate')+'&term='+isin;
+      const r=await fetch(su,{credentials:'omit'});
+      if(!r.ok)continue;
+      const rows=((await r.json())||{}).rows||[];
+      const hit=rows.find(x=>((x.Isin||'').toUpperCase()===isin));   // match EXACTO (el term= es fuzzy)
+      if(hit&&hit.SecId)return {isin,secid:hit.SecId,name:hit.Name||'',currency:(hit.PriceCurrency||'EUR').toUpperCase(),inception:(hit.InceptionDate||'').slice(0,10)};
     }catch(e){}
   }
-  if(!secid)return null;   // sin SecId exacto → sin serie (mejor vacío que de otro fondo)
-  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?currencyId=EUR&idtype=Morningstar&frequency=daily&id='+secid+'&startDate=1990-01-01&outputType=compactJSON';
-  try{
-    const res=await fetch(url,{credentials:'omit'});
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const arr=await res.json();
-    const pts=[];
-    for(const it of arr){
-      if(!Array.isArray(it)||it.length<2)continue;
-      const ts=Number(it[0]),v=Number(it[1]);
-      if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
-      const d0=new Date(ts);
-      pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
-    }
-    return dedupeSort(pts);
-  }catch(e){
-    // Fallback proxy
-    try{
-      const res2=await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url));
-      const arr2=await res2.json();
-      const pts2=[];
-      for(const it of arr2){if(Array.isArray(it)&&it.length>=2){const ts=Number(it[0]),v=Number(it[1]);if(Number.isFinite(ts)&&Number.isFinite(v)&&v>0)pts2.push({date:new Date(ts),nav:v});}}
-      return dedupeSort(pts2);
-    }catch(e2){throw e2;}
+  return null;
+}
+async function mstSeries(secid,cur){
+  const url='https://lt.morningstar.com/api/rest.svc/timeseries_price/klr5zyak8x?currencyId='+(cur||'EUR')+'&idtype=Morningstar&frequency=daily&id='+secid+'&startDate=1990-01-01&outputType=compactJSON';
+  const res=await fetch(url,{credentials:'omit'});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const arr=await res.json();
+  const pts=[];
+  for(const it of arr){
+    if(!Array.isArray(it)||it.length<2)continue;
+    const ts=Number(it[0]),v=Number(it[1]);
+    if(!Number.isFinite(ts)||!Number.isFinite(v)||v<=0)continue;
+    const d0=new Date(ts);
+    pts.push({date:new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())),nav:v});
   }
+  return dedupeSort(pts);
+}
+
+async function fetchMST(){
+  // ROBUSTO: serie por SecId (idtype=Morningstar), NUNCA por idtype=Isin (fuzzy → NAV de OTRO fondo).
+  MST_INFO=null;
+  const sec=await mstResolve(MST_ISIN);
+  if(!sec)return null;     // sin SecId exacto → sin serie (mejor vacío que de otro fondo)
+  try{
+    const hedged=MST_HEDGE_RE.test(sec.name);
+    const cur=MST_VIEW_EUR?'EUR':sec.currency;
+    const all=await mstSeries(sec.secid,cur);
+    const inc=sec.inception?new Date(sec.inception+'T00:00:00Z'):null;
+    let own=inc?all.filter(p=>p.date>=inc):all;
+    if(!own.length)own=all;
+    let pred=[],predInfo=null;
+    if(MST_PRED_ISIN&&MST_PRED_ISIN.toUpperCase()===sec.isin&&inc){
+      // esta clase ES la referencia del linaje: su relleno previo al lanzamiento es el predecesor
+      pred=all.filter(p=>p.date<own[0].date);
+      if(pred.length>=20)predInfo={isin:sec.isin,name:sec.name,currency:cur};else pred=[];
+    }else if(MST_PRED_ISIN&&MST_PRED_ISIN.toUpperCase()!==sec.isin){
+      const ps=await mstResolve(MST_PRED_ISIN);
+      if(ps){
+        const pcur=(hedged&&cur===sec.currency)?ps.currency:cur;
+        pred=(await mstSeries(ps.secid,pcur)).filter(p=>p.date<own[0].date);
+        if(pred.length>=20)predInfo={isin:ps.isin,name:ps.name,currency:pcur};else pred=[];
+      }
+    }
+    if(pred.length){const k=own[0].nav/pred[pred.length-1].nav;pred=pred.map(p=>({date:p.date,nav:p.nav*k}));}
+    MST_INFO={isin:sec.isin,name:sec.name,currency:sec.currency,viewCur:cur,hedged,ownStart:own[0].date,pred:predInfo,predFrom:pred.length?pred[0].date:null};
+    return dedupeSort(pred.concat(own));
+  }catch(e){MST_INFO=null;throw e;}
+}
+
+// Ficha de la serie mostrada: qué clase es (nombre, ISIN, divisa, cubierta) y qué tramo es predecesor.
+function mstFmtD(d){return d?d.toISOString().slice(0,10).split('-').reverse().join('/'):'';}
+function renderClassInfo(){
+  const host=document.getElementById('mst-evo-content');
+  if(!host||!MST_INFO)return;
+  let el=document.getElementById('mst-class-info');
+  if(!el){el=document.createElement('div');el.id='mst-class-info';host.insertBefore(el,host.firstChild);}
+  const I=MST_INFO;
+  const ccy=I.currency+(I.hedged?' cubierta (hedged)':'');
+  let h='<div style="border:1px solid rgba(12,35,64,.18);border-left:3px solid #0c2340;border-radius:4px;padding:10px 14px;margin:0 0 16px;font-size:12.5px;line-height:1.55;">';
+  h+='<div><b>Clase mostrada:</b> '+I.name+' &nbsp;·&nbsp; <span style="font-family:Source Code Pro,monospace">'+I.isin+'</span> &nbsp;·&nbsp; <b>'+ccy+'</b></div>';
+  h+='<div style="opacity:.85">Serie <b>real de esta clase</b> desde '+mstFmtD(I.ownStart)+', en '+I.viewCur+(I.viewCur!==I.currency?' (convertida desde '+I.currency+')':'')+'.</div>';
+  if(I.pred){
+    h+='<div style="margin-top:4px;color:#8a5a00"><span style="display:inline-block;width:18px;border-top:2px dashed #b48020;vertical-align:middle;margin-right:6px"></span>';
+    h+='<b>Tramo anterior ('+mstFmtD(I.predFrom)+' → '+mstFmtD(I.ownStart)+'): NO es esta clase.</b> Es el track de la estrategia en vehículos/clase predecesores';
+    h+=(I.pred.isin!==I.isin?' (referencia '+I.pred.isin+')':'')+', en <b>'+I.pred.currency+'</b>';
+    if(I.hedged&&I.pred.currency!==I.currency)h+='. Al ser una clase cubierta, su resultado habría sido parecido al de la estrategia en '+I.pred.currency+' menos el coste de la cobertura (aprox. el diferencial de tipos entre ambas divisas)';
+    h+='. En los gráficos va en línea discontinua / tono claro.</div>';
+  }
+  if(I.currency!=='EUR'){
+    h+='<div style="margin-top:6px"><label style="font-size:11.5px;opacity:.8">Ver en: </label><select id="mst-cur-sel" style="font-size:11.5px;padding:2px 6px"><option value="1"'+(MST_VIEW_EUR?' selected':'')+'>EUR — lo que obtiene un inversor en euros (vista estándar del portal)</option><option value="0"'+(MST_VIEW_EUR?'':' selected')+'>'+I.currency+' — en la divisa de la clase (lo que publica el fondo)</option></select></div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+  const s=document.getElementById('mst-cur-sel');
+  if(s)s.onchange=function(){MST_VIEW_EUR=(s.value==='1');window.switchClass(MST_ISIN);};
+}
+// Estilo por tramo para líneas (labels = fechas ISO): predecesor discontinuo y en ocre.
+function mstSeg(labels){
+  if(!MST_INFO||!MST_INFO.pred)return {};
+  const cut=MST_INFO.ownStart.toISOString().slice(0,labels[0].length);
+  const isPred=(c)=>labels[c.p1DataIndex]<=cut;
+  return {segment:{borderColor:c=>isPred(c)?'#b48020':undefined,borderDash:c=>isPred(c)?[5,4]:undefined,backgroundColor:c=>isPred(c)?'rgba(180,128,32,0.10)':undefined}};
+}
+// Línea vertical "lanzamiento de la clase" en gráficos de línea.
+function mstCutPlugin(labels){
+  return {id:'mstCut'+Math.random().toString(36).slice(2,7),afterDatasetsDraw(chart){
+    if(!MST_INFO||!MST_INFO.pred)return;
+    const cut=MST_INFO.ownStart.toISOString().slice(0,labels[0].length);
+    const idx=labels.findIndex(l=>l>=cut);if(idx<0)return;
+    const x=chart.scales.x.getPixelForValue(idx),a=chart.chartArea,ctx=chart.ctx;
+    ctx.save();ctx.strokeStyle='#b48020';ctx.setLineDash([3,3]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x,a.top);ctx.lineTo(x,a.bottom);ctx.stroke();
+    ctx.setLineDash([]);ctx.font='600 8px Source Code Pro';ctx.fillStyle='#8a5a00';ctx.textAlign='left';
+    ctx.fillText('lanzamiento clase',x+4,a.top+9);ctx.restore();
+  }};
 }
 
 function calcYearlyReturns(ye){
@@ -2022,8 +2105,15 @@ function renderMST(series){
 
   // ── Shared chart builders ──
   function renderRetChart(id){
-    const colors=retYs.map(v=>v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a'));
-    mk(id,{type:'bar',data:{labels:retLabels,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
+    // Años del tramo PREDECESOR en tono claro (no son de esta clase); el año del lanzamiento, mixto (*).
+    const ownY=(MST_INFO&&MST_INFO.pred)?MST_INFO.ownStart.getUTCFullYear():null;
+    const colors=retYs.map((v,i)=>{
+      const y=retXs[i];
+      if(ownY!==null&&y<ownY)return v>=0?'#d9c08a':'#d9a3a3';
+      return v>=0?(dk()?'#4a8a6a':'#1a4d2e'):(dk()?'#c04040':'#6b1a1a');
+    });
+    const retLbl=retLabels.map((l,i)=>(ownY!==null&&retXs[i]===ownY)?l+'*':l);
+    mk(id,{type:'bar',data:{labels:retLbl,datasets:[{data:retYs.map(v=>v*100),backgroundColor:colors}]},
       options:{...opt(),scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9}}},
         y:{grid:{display:false},ticks:{color:dk()?'#908c84':'#555',font:{family:'Source Code Pro',size:9},callback:function(v){return fmtES(v,1)+'%';}},
           // Extra range so labels don't touch edges
@@ -2073,9 +2163,15 @@ function renderMST(series){
   // ── Resumen tab ──
   renderRetChart('mst-ret');
   renderVolChart('mst-vol');
-  if(retXs[retXs.length-1]===incYear){
+  {
     const el=document.getElementById('mst-ret-note');
-    if(el)el.textContent='* Último año ('+incYear+') incompleto.';
+    const notes=[];
+    if(MST_INFO&&MST_INFO.pred){
+      const oy=MST_INFO.ownStart.getUTCFullYear();
+      notes.push('Barras claras: años del vehículo/clase predecesor (en '+MST_INFO.pred.currency+'), no de esta clase. '+oy+'*: año del lanzamiento, mezcla ambos tramos.');
+    }
+    if(retXs[retXs.length-1]===incYear)notes.push('Último año ('+incYear+') incompleto.');
+    if(el)el.textContent=notes.join(' ');
   }
 
   // ── Historia tab: KPIs + VL chart desde datos Morningstar daily ──
@@ -2186,6 +2282,7 @@ function renderMST(series){
   const loadEl=document.getElementById('mst-loading');
   if(evoEl)evoEl.style.display='block';
   if(loadEl)loadEl.style.display='none';
+  renderClassInfo();
 
   // KPIs
   const totalR=series[series.length-1].nav/series[0].nav;
@@ -2211,7 +2308,7 @@ function renderMST(series){
   else if(ddCalc.worstDate && !ddCalc.recoveredDate) ddSubParts.push('sin recuperar');
   const ddSub = ddSubParts.join(' · ');
   if(kpiEl)kpiEl.innerHTML=`
-    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años</div></div>
+    <div class="kpi-cell"><div class="kpi-label">CAGR histórico</div><div class="kpi-value pos">`+fmtES(cagr*100,1)+`%</div><div class="kpi-sub">`+fmtES(nYears,1)+` años`+((MST_INFO&&MST_INFO.pred)?` · solo `+fmtES((series[series.length-1].date-MST_INFO.ownStart)/31557600000,1)+` de esta clase`:``)+`</div></div>
     <div class="kpi-cell"><div class="kpi-label">Volatilidad media</div><div class="kpi-value">`+fmtES(volAll*100,1)+`%</div><div class="kpi-sub">Anualizada (mensual √12)</div></div>
     <div class="kpi-cell"><div class="kpi-label">Máx. drawdown</div><div class="kpi-value neg">`+fmtES(maxDD*100,1)+`%</div><div class="kpi-sub">`+ddSub+`</div></div>
     <div class="kpi-cell"><div class="kpi-label">Rent. rolling 3A media</div><div class="kpi-value">`+fmtES(avgRoll3*100,1)+`%</div><div class="kpi-sub">Vol. rolling 12M media: `+fmtES(avgRollVol*100,1)+`%</div></div>
@@ -2227,9 +2324,10 @@ function renderMST(series){
   // Find max point for annotation
   const gMax=Math.max(...gVals);const gMaxIdx=gVals.indexOf(gMax);
   const gPointRadii=gVals.map((_,i)=>i===gMaxIdx||i===gVals.length-1?3:0);
-  mk('mst-growth',{type:'line',data:{labels:gPts.map(p=>p.date.toISOString().slice(0,10)),datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1()}]},
+  const gLabels=gPts.map(p=>p.date.toISOString().slice(0,10));
+  mk('mst-growth',{type:'line',data:{labels:gLabels,datasets:[{data:gVals,borderColor:A1(),backgroundColor:A1()+'18',borderWidth:1.5,fill:true,tension:0.2,pointRadius:gPointRadii,pointBackgroundColor:A1(),...mstSeg(gLabels)}]},
     options:lineOpt(),
-    plugins:[{id:'gLbl',afterDatasetsDraw(chart){
+    plugins:[mstCutPlugin(gLabels),{id:'gLbl',afterDatasetsDraw(chart){
       const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#c8c4bc':'#0c2340';
       // Label last point and max
       const meta=chart.getDatasetMeta(0);
@@ -2254,9 +2352,10 @@ function renderMST(series){
     if(Math.abs(i-ddMinIdx)>5&&ddVpct[i]<dd2Val){dd2Val=ddVpct[i];dd2Idx=i;}
   }
   const ddRadii=ddVpct.map((_,i)=>(i===ddMinIdx||(dd2Idx>=0&&i===dd2Idx))?3:0);
-  mk('mst-dd',{type:'line',data:{labels:ddPts.map(d=>d.toISOString().slice(0,10)),datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR()}]},
+  const ddLabels=ddPts.map(d=>d.toISOString().slice(0,10));
+  mk('mst-dd',{type:'line',data:{labels:ddLabels,datasets:[{data:ddVpct,borderColor:AR(),backgroundColor:AR()+'20',borderWidth:1.5,fill:true,tension:0.2,pointRadius:ddRadii,pointBackgroundColor:AR(),...mstSeg(ddLabels)}]},
     options:lineOpt(),
-    plugins:[{id:'ddLbl',afterDatasetsDraw(chart){
+    plugins:[mstCutPlugin(ddLabels),{id:'ddLbl',afterDatasetsDraw(chart){
       const ctx=chart.ctx;ctx.font='600 8px Source Code Pro';ctx.textAlign='center';ctx.fillStyle=dk()?'#e08080':'#6b1a1a';
       const meta=chart.getDatasetMeta(0);
       [ddMinIdx,dd2Idx].forEach(idx=>{
@@ -2283,7 +2382,8 @@ function updateRollingRet(){
   const vpct=vals.map(v=>v*100);
   const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
   const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
-  mk('mst-roll-ret',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2()}]},
+  const rrLabels=pts.map(d=>d.toISOString().slice(0,7));
+  mk('mst-roll-ret',{type:'line',data:{labels:rrLabels,datasets:[{data:vpct,borderColor:A2(),backgroundColor:A2()+'18',borderWidth:1.5,fill:true,tension:0.3,pointRadius:radii,pointBackgroundColor:A2(),...mstSeg(rrLabels)}]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
       scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
@@ -2305,7 +2405,8 @@ function updateRollingVol(){
   const vpct=vals.map(v=>v*100);
   const maxV=Math.max(...vpct);const maxI=vpct.indexOf(maxV);
   const radii=vpct.map((_,i)=>i===maxI||i===vpct.length-1?3:0);
-  mk('mst-roll-vol',{type:'line',data:{labels:pts.map(d=>d.toISOString().slice(0,7)),datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3()}]},
+  const rvLabels=pts.map(d=>d.toISOString().slice(0,7));
+  mk('mst-roll-vol',{type:'line',data:{labels:rvLabels,datasets:[{data:vpct,borderColor:A3(),borderWidth:1.5,fill:false,tension:0.3,pointRadius:radii,pointBackgroundColor:A3(),...mstSeg(rvLabels)}]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:function(ctx){return fmtES(ctx.parsed.y,1)+'%';}}}},
       scales:{x:{grid:{display:false},ticks:{color:TC(),font:{family:'Source Code Pro',size:9},maxTicksLimit:10}},y:pctAxis}
