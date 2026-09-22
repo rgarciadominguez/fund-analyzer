@@ -75,6 +75,42 @@ def fetch(since: str | None) -> dict:
     return r.json()
 
 
+BROKER_CANON = ("MyInvestor", "Mapfre", "Ironia", "Renta4", "BBVA", "Caixa", "ABANCA", "Santander", "CJRS", "EBN")
+
+
+def parse_brokers(raw) -> list:
+    """CSV o lista → lista LIMPIA de brokers canónicos. Tolera el formato roto que circuló entre
+    portal y Supabase (2026-09-17): un JSON '["MyInvestor","Renta4"]' partido por comas daba
+    elementos como '["MyInvestor"' y '"Renta4"]' (197 filas). Nunca más: se quitan corchetes y
+    comillas de cada trozo, se canonizan mayúsculas y se deduplica conservando el orden."""
+    import json as _json
+    if raw is None:
+        return []
+    items = []
+    if isinstance(raw, (list, tuple)):
+        for x in raw:
+            items += parse_brokers(x)
+        raw = None
+    else:
+        s = str(raw).strip()
+        if s.startswith("[") and s.endswith("]"):
+            try:
+                return parse_brokers(_json.loads(s))
+            except Exception:
+                pass
+        items = [t.strip().strip("[]\"' ") for t in s.split(",")]
+    canon = {b.lower(): b for b in BROKER_CANON}
+    out = []
+    for t in items:
+        t = (t or "").strip().strip("[]\"' ")
+        if not t:
+            continue
+        t = canon.get(t.lower(), t)
+        if t not in out:
+            out.append(t)
+    return out
+
+
 def _brokers_by_isin(payload: dict) -> dict:
     """brokers[] ya viene resuelto por ISIN (fondo si tiene, si no la clase). broker = CSV."""
     out: dict[str, list] = {}
@@ -83,7 +119,7 @@ def _brokers_by_isin(payload: dict) -> dict:
         raw = b.get("broker")
         if not isin or _empty(raw):
             continue
-        arr = [s.strip() for s in str(raw).split(",") if s.strip()]
+        arr = parse_brokers(raw)
         if arr:
             out[isin] = arr
     return out

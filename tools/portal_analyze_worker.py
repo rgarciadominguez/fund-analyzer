@@ -285,6 +285,15 @@ def push_meta(isin: str, dry: bool = False, do_push: bool = True) -> bool:
         if not f:
             return False
         gid = f[0]["fund_group_id"]
+        # El portal MANDA en broker/opinión/encaje/horizonte/clasificación: traer sus últimos inputs a
+        # Supabase antes de empujar la meta, para no devolverle un broker viejo (pre-marcado = lo que
+        # haya en Supabase cuando el portal no tiene nada).
+        try:
+            from tools.consume_inputs_rafa import consume as _consume_inputs, parse_brokers as _pb
+            _consume_inputs()
+        except Exception as _e:  # noqa: BLE001
+            log(f"  [WARN] consume inputs-rafa antes de sync-meta: {str(_e)[:80]}")
+            from tools.consume_inputs_rafa import parse_brokers as _pb
         members = c.table("funds").select("*").eq("fund_group_id", gid).execute().data or []
         gg = c.table("fund_groups").select("*").eq("fund_group_id", gid).execute().data
         g = gg[0] if gg else {}
@@ -304,7 +313,7 @@ def push_meta(isin: str, dry: bool = False, do_push: bool = True) -> bool:
             "moneda": prim.get("divisa"), "ter": prim.get("ter_pct"),
             "comision_gestion_pct": prim.get("comision_gestion_pct"),
             "minimo": prim.get("importe_minimo_eur"), "distribucion": prim.get("distribucion"),
-            "broker": prim.get("broker_disponible"),
+            "broker": ",".join(_pb(prim.get("broker_disponible") or [])) or None,   # CSV = formato del portal
             "fecha_ultimo_analisis": _dt(g.get("fecha_ultimo_analisis")), "fecha_alta": _dt(g.get("fecha_alta")),
             "has_qualitative_analysis": 1,
         }

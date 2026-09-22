@@ -71,9 +71,21 @@ def consume(isin: str, client=None, log=None) -> dict:
     fupd = {}
     if d.get("distribucion"):
         fupd["distribucion"] = d["distribucion"]   # MyInvestor es la fuente robusta
-    brokers = list(f0.get("broker_disponible") or [])
+    from tools.consume_inputs_rafa import parse_brokers as _pb
+    brokers = _pb(f0.get("broker_disponible") or [])
     if "MyInvestor" not in brokers:
         brokers.append("MyInvestor"); fupd["broker_disponible"] = brokers
+    # TODAS las clases del fondo que están en MyInvestor (la skill las lista en clases_en_myinvestor)
+    # + la clase analizada (el modal del portal es por FONDO: cualquier clase disponible marca el fondo)
+    for extra in {*(d.get("clases_en_myinvestor") or []), isin} - {target}:
+        try:
+            row = c.table("funds").select("broker_disponible").eq("isin", extra).execute().data
+            if row:
+                bl = _pb(row[0].get("broker_disponible") or [])
+                if "MyInvestor" not in bl:
+                    c.table("funds").update({"broker_disponible": bl + ["MyInvestor"]}).eq("isin", extra).execute()
+        except Exception:
+            pass
     mn = _num(d.get("min_initial"))
     if mn is not None and mn > 1:
         fupd["importe_minimo_eur"] = mn

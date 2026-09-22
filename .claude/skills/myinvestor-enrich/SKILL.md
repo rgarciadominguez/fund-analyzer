@@ -19,7 +19,7 @@ MyInvestor cubre ~2.300 fondos (el universo "recomendable"). Para los que están
    - Lee de `output.json`: `nombre`, `gestora`, y la lista `clases[].isin` (todas las clases del fondo).
    - Reúne el conjunto de ISINs candidatos = el ISIN objetivo + todos los `clases[].isin`. (Opcional: `python -c "from tools.reconcile_fund_groups import load_class_isins; ..."` o lee también las filas del grupo en Supabase.)
    - Llama `mcp__claude_ai_MyInvestor__search_funds` con `query` = **gestora** (p.ej. "Cobas", "Dunas", "DNCA", "Magallanes") y `limit` 10. La gestora es más fiable que el nombre (a veces basura: "Troy Asset Management"→"Troy"/"Trojan"; "Insight Investment Management"→"Insight").
-   - **Acepta SOLO un resultado cuyo `isin` == ALGUNO de nuestros ISINs candidatos (match exacto).** Si varias clases nuestras están en MyInvestor, elige la que coincida con el ISIN objetivo si está; si no, cualquiera que coincida (apunta cuál en `matched_isin`). NUNCA aceptes un fondo cuyo ISIN no esté en nuestra lista de clases.
+   - **Acepta SOLO resultados cuyo `isin` == ALGUNO de nuestros ISINs candidatos (match exacto).** Recoge **TODAS** las clases nuestras que aparezcan (lista `clases_en_myinvestor`): el portal marca el broker por FONDO, y basta con que una clase esté. Para los datos ricos (`matched_isin`) usa la que coincida con el ISIN objetivo si está; si no, cualquiera que coincida. NUNCA aceptes un fondo cuyo ISIN no esté en nuestra lista de clases. Con muchas clases, haz 2-3 búsquedas (gestora, nombre, gestora+palabra clave) con `limit` 20 para no dejar clases fuera.
    - Si la query por gestora no trae ninguno de nuestros ISINs, prueba 1-2 queries más (nombre limpio, gestora+keyword). Si tras eso ninguno coincide → el fondo NO está en el conector (→ paso 2). Normal y correcto: Morningstar lo cubre.
 
 2. **Si el fondo NO está en MyInvestor**: escribe `myinvestor_data.json` con `{"isin": "...", "disponible_myinvestor": false}` y termina. (No es un error — es lo normal para muchos fondos.)
@@ -29,6 +29,7 @@ MyInvestor cubre ~2.300 fondos (el universo "recomendable"). Para los que están
 {
   "isin": "<ISIN objetivo>",
   "matched_isin": "<el ISIN de NUESTRA clase que coincidió en MyInvestor (puede ser != isin objetivo)>",
+  "clases_en_myinvestor": ["<TODOS los ISIN de nuestras clases vistos en MyInvestor>"],
   "disponible_myinvestor": true,
   "distribucion": "Acumulación o Reparto (de distributing: 0=Acumulación, 1=Reparto)",
   "ter": <ter>,

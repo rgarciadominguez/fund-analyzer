@@ -22,6 +22,8 @@ CLI:  python -m tools.build_asset_classes
 
 from __future__ import annotations
 
+from tools.consume_inputs_rafa import parse_brokers as _pb
+
 import json
 import sys
 from datetime import datetime, timezone
@@ -57,9 +59,15 @@ def build() -> dict:
     for f in funds:
         if f.get("fund_group_id"):
             by_group[str(f["fund_group_id"])].add(f["isin"])
-    for g in c.table("fund_groups").select("fund_group_id,class_isins_known").execute().data:
+    # fecha_proximo_analisis por grupo (para que el portal genere tareas de re-análisis)
+    prox_por_grupo = {}
+    for g in c.table("fund_groups").select(
+            "fund_group_id,class_isins_known,fecha_proximo_analisis").execute().data:
+        gid = str(g["fund_group_id"])
         for i in (g.get("class_isins_known") or []):
-            by_group[str(g["fund_group_id"])].add(i)
+            by_group[gid].add(i)
+        if g.get("fecha_proximo_analisis"):
+            prox_por_grupo[gid] = g["fecha_proximo_analisis"]
 
     # es_primario desde el export (ya lo computa el contrato)
     primario = {}
@@ -82,9 +90,14 @@ def build() -> dict:
             "fecha_creacion_clase": f.get("fecha_creacion_clase"),
             "importe_minimo_eur": f.get("importe_minimo_eur"),
             # broker: EL dato de la clase (cambia por clase). Lista de brokers donde está.
-            "broker": f.get("broker_disponible") or [],
+            # CSV, no lista: el portal guarda el campo como texto y al devolverlo lo parte por comas
+            # (una lista serializada volvía como '["MyInvestor"', '"Renta4"]' → 197 filas rotas, 2026-09-17)
+            "broker": ",".join(_pb(f.get("broker_disponible"))),
             "kid": f.get("kid"),
             "clases_hermanas": hermanas,
+            # fecha del próximo re-análisis (del grupo) → el portal genera tareas de
+            # "relanzar fondo" cuando esta fecha < hoy. Misma para todas las clases del grupo.
+            "fecha_proximo_analisis": prox_por_grupo.get(gid),
         }
     return {"generado": datetime.now(timezone.utc).isoformat(), "n": len(clases), "clases": clases}
 
