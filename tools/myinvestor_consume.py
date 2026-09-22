@@ -40,6 +40,15 @@ def consume(isin: str, client=None, log=None) -> dict:
         from tools.supabase_client import get_client
         client = get_client()
     c = client
+    # Caché del universo MyInvestor (found/missing) para broker_availability y el backfill
+    try:
+        from tools.broker_availability import record_myinvestor
+        found = list(d.get("clases_en_myinvestor") or []) + ([d.get("matched_isin")] if d.get("matched_isin") else [])
+        if d.get("disponible_myinvestor") and not found:
+            found = [isin]
+        record_myinvestor(found, d.get("clases_no_en_myinvestor") or ([isin] if not d.get("disponible_myinvestor") else []))
+    except Exception:
+        pass
     if not d.get("disponible_myinvestor"):
         return {}
 

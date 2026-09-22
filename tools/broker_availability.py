@@ -50,6 +50,7 @@ CLI:
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone
@@ -66,12 +67,22 @@ METHOD = "rules_v1_no_login"
 # Brokers que este módulo PUEDE auto-detectar (alta confianza). MyInvestor NO está
 # (sin fuente pública sin login). Los demás brokers del Excel (BBVA, Caixa, ABANCA,
 # Santander, CJRS, EBN) tampoco se auto-detectan en v1 → manual.
-AUTO_BROKERS = ("Ironia", "Mapfre", "Renta4")
+AUTO_BROKERS = ("Ironia", "Mapfre", "Renta4", "MyInvestor")
+
+# FUENTES CONFIRMADAS (2026-09-22, decisión Rafa "siempre debe chequear desde ahí"):
+#   · Mapfre  → la lista "Mundo Asesoramiento" que Rafa mantiene en Excel (no el universo Allfunds).
+#               Cache data/broker_universe/mapfre.json, se reconstruye sola si el Excel es más nuevo.
+#   · MyInvestor → conector MyInvestor (get_funds por ISIN; skill myinvestor-enrich / backfill).
+#               Cache data/broker_universe/myinvestor.json {found, missing, updated}.
+#   Ambas se comprueban para TODAS las clases del grupo (dashboard/_class_map.json): basta una.
+MAPFRE_XLSX = Path(os.environ.get("MAPFRE_MUNDO_XLSX") or os.path.join(
+    os.path.expanduser("~"), "OneDrive - Nazca", "Rafa", "Personal", "Asesoría Financiera",
+    "Operativa", "Mapfre", "Mundo asesoramiento Mapfre.xlsx"))
+CONFIRMED_BROKERS = ("Mapfre", "MyInvestor", "Renta4")   # aditivos en Supabase (nunca se quitan)
 
 # Brokers explícitamente excluidos del auto-marcado, con el motivo (para transparencia
 # en la UI). El resto del Excel simplemente no aplica todavía.
 EXCLUDED_BROKERS = {
-    "MyInvestor": "catálogo curado tras login — sin fuente pública sin login; marcado manual",
 }
 
 # Prefijos ISIN de domicilios UCITS UE típicamente distribuidos en España vía Allfunds.
@@ -160,6 +171,80 @@ def _spain_registered(isin: str, fund_dir: Optional[Path]) -> tuple[bool, str]:
     return False, "no"
 
 
+def _mapfre_universe() -> tuple[set[str], str]:
+    """ISINs de la lista 'Mundo Asesoramiento' de Mapfre (Excel de Rafa) → (set, fecha del Excel).
+    Cache en data/broker_universe/mapfre.json; se reconstruye si el Excel cambió."""
+    cache = UNIVERSE_DIR / "mapfre.json"
+    try:
+        xmt = MAPFRE_XLSX.stat().st_mtime if MAPFRE_XLSX.exists() else None
+        if cache.exists():
+            d = json.loads(cache.read_text(encoding="utf-8"))
+            if xmt is None or abs(float(d.get("source_mtime") or 0) - xmt) < 1:
+                return {str(x).upper() for x in d.get("isins") or []}, d.get("fecha") or ""
+        if xmt is None:
+            return set(), ""
+        import openpyxl
+        from datetime import datetime as _dt
+        wb = openpyxl.load_workbook(str(MAPFRE_XLSX), read_only=True, data_only=True)
+        isins = set()
+        for ws in wb.worksheets:
+            for row in ws.iter_rows(values_only=True):
+                for cell in row:
+                    if isinstance(cell, str) and re.fullmatch(r"[A-Z]{2}[A-Z0-9]{9}[0-9]", cell.strip().upper()):
+                        isins.add(cell.strip().upper())
+        fecha = _dt.fromtimestamp(xmt).strftime("%Y-%m-%d")
+        UNIVERSE_DIR.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps({"isins": sorted(isins), "source": MAPFRE_XLSX.name,
+                                     "source_mtime": xmt, "fecha": fecha}, ensure_ascii=False, indent=1),
+                         encoding="utf-8")
+        return isins, fecha
+    except Exception:
+        return set(), ""
+
+
+def _myinvestor_universe() -> tuple[set[str], set[str]]:
+    """(found, missing) según el conector MyInvestor, tal como lo dejó la skill/backfill."""
+    path = UNIVERSE_DIR / "myinvestor.json"
+    if not path.exists():
+        return set(), set()
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+        return ({str(x).upper() for x in d.get("found") or []},
+                {str(x).upper() for x in d.get("missing") or []})
+    except Exception:
+        return set(), set()
+
+
+def record_myinvestor(found, missing) -> None:
+    """Actualiza la caché del universo MyInvestor (la llama myinvestor_consume / el backfill)."""
+    path = UNIVERSE_DIR / "myinvestor.json"
+    d = {"found": [], "missing": []}
+    if path.exists():
+        try:
+            d = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    f = {str(x).upper() for x in d.get("found") or []} | {str(x).upper() for x in (found or [])}
+    m = ({str(x).upper() for x in d.get("missing") or []} | {str(x).upper() for x in (missing or [])}) - f
+    UNIVERSE_DIR.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"found": sorted(f), "missing": sorted(m),
+                                "updated": datetime.now(timezone.utc).isoformat()}, indent=1), encoding="utf-8")
+
+
+def group_isins(isin: str) -> list[str]:
+    """Todas las clases del grupo del ISIN (primario + hermanas) según dashboard/_class_map.json."""
+    isin = (isin or "").upper()
+    try:
+        m = json.loads((ROOT / "dashboard" / "_class_map.json").read_text(encoding="utf-8"))
+        prim = isin if isin in m.get("groups", {}) else (m.get("aliases") or {}).get(isin)
+        if prim and prim in m.get("groups", {}):
+            out = [c["isin"].upper() for c in m["groups"][prim].get("classes", [])]
+            return out if isin in out else [isin] + out
+    except Exception:
+        pass
+    return [isin]
+
+
 def _renta4_universe() -> set[str]:
     """Carga el universo propio de Renta4 cacheado (ISINs de Renta 4 Gestora).
 
@@ -212,28 +297,43 @@ def detect(isin: str, output_data: Optional[dict] = None,
     tipo = (get_tipo(output_data) or ("ES" if isin.startswith("ES") else "INT")).upper()
 
     per_broker: dict[str, dict] = {}
+    excluded_extra: dict[str, str] = {}
     is_etf = _is_etf(nombre, gestora)
 
-    # ── Ironia & Mapfre (arquitectura abierta Allfunds) ───────────────────────
-    # NO aplica a ETFs: son plataformas de fondos, no brokers de ETF → manual.
+    # ── Ironia (arquitectura abierta Allfunds): regla, no confirmada ──────────
     registered, reg_conf = _spain_registered(isin, fund_dir)
     if registered and not is_etf:
-        es = isin.startswith("ES")
-        base_reason = (
-            "fondo ES registrado en CNMV → arquitectura abierta (Allfunds)"
-            if es else
-            f"UCITS UE ({isin[:2]}) distribuible en España → arquitectura abierta (Allfunds)"
-        )
-        for broker in ("Ironia", "Mapfre"):
-            # Mapfre tiene universo algo menor que Ironia → media-alta cuando Ironia es alta.
-            conf = reg_conf
-            if broker == "Mapfre" and conf == "alta":
-                conf = "media-alta"
-            per_broker[broker] = {
-                "available": True,
-                "confidence": conf,
-                "reason": base_reason,
-            }
+        per_broker["Ironia"] = {
+            "available": True, "confidence": reg_conf,
+            "reason": ("fondo ES registrado en CNMV → arquitectura abierta (Allfunds)" if isin.startswith("ES")
+                       else f"UCITS UE ({isin[:2]}) distribuible en España → arquitectura abierta (Allfunds)"),
+        }
+
+    # ── Mapfre: SOLO la lista "Mundo Asesoramiento" (Excel de Rafa), en cualquier clase ──
+    grp = group_isins(isin)
+    mapfre_set, mapfre_fecha = _mapfre_universe()
+    hit = [c for c in grp if c in mapfre_set]
+    if hit and not is_etf:
+        per_broker["Mapfre"] = {
+            "available": True, "confidence": "alta",
+            "reason": f"en la lista Mundo Asesoramiento Mapfre ({mapfre_fecha}) — clase {hit[0]}",
+        }
+    else:
+        excluded_extra = {"Mapfre": (f"ninguna de las {len(grp)} clases está en la lista Mundo Asesoramiento "
+                                     f"({mapfre_fecha or 'lista no encontrada'})")}
+
+    # ── MyInvestor: conector (get_funds por ISIN), en cualquier clase ──
+    mi_found, mi_missing = _myinvestor_universe()
+    hit = [c for c in grp if c in mi_found]
+    if hit:
+        per_broker["MyInvestor"] = {
+            "available": True, "confidence": "alta",
+            "reason": f"en el catálogo MyInvestor (conector) — clase {hit[0]}",
+        }
+    else:
+        checked = [c for c in grp if c in mi_missing]
+        excluded_extra["MyInvestor"] = (f"ninguna clase en MyInvestor ({len(checked)}/{len(grp)} comprobadas)"
+                                        if checked else "sin comprobar aún (skill myinvestor-enrich / backfill)")
 
     # ── Renta4 (FondoTop) — solo fondos de Renta 4 Gestora ────────────────────
     r4_universe = _renta4_universe()
@@ -253,6 +353,7 @@ def detect(isin: str, output_data: Optional[dict] = None,
     detected = [b for b, v in per_broker.items() if v.get("available")]
 
     excluded = dict(EXCLUDED_BROKERS)
+    excluded.update(excluded_extra)
     if is_etf:
         excluded["Ironia"] = "ETF/cotizado — plataforma de fondos, no broker de ETF; marcado manual"
         excluded["Mapfre"] = "ETF/cotizado — plataforma de fondos, no broker de ETF; marcado manual"
@@ -293,42 +394,93 @@ def apply_to_output(isin: str, output_data: Optional[dict] = None) -> dict:
 # ── Refresh del universo propio de Renta4 (opcional, no requiere login) ────────
 
 def sync_auto_to_supabase(isin: str, detected: Optional[list[str]] = None,
-                          force: bool = False) -> str:
-    """Pre-rellena `funds.broker_disponible` en Supabase con los brokers auto-detectados.
+                          force: bool = False, client=None) -> str:
+    """Pre-marca `broker_disponible` en Supabase (funds + catalogo_activos) para el ISIN.
 
-    SEMÁNTICA "no pisar lo manual" (decisión 2026-06-03):
-      - Escribe SOLO si el campo actual está vacío/null (o force=True).
-      - Una vez el campo tiene valor (auto inicial o edición del modal W13), el
-        marcado manual manda y esta función NO lo toca → el usuario actualiza a
-        mano (logueado) lo que falte (MyInvestor, BBVA, etc.).
-
-    Devuelve una etiqueta de la acción: "filled" | "skip_manual" | "skip_empty_detect"
-    | "skip_no_row" | "error:<msg>".
+    SEMÁNTICA (2026-09-22, Rafa: "que esté ya marcado de antemano"):
+      - Brokers CONFIRMADOS por fuente (Mapfre = lista Mundo Asesoramiento, MyInvestor = conector,
+        Renta4 = gestora/universo) se AÑADEN si faltan; nunca se quita nada de lo que haya.
+      - Brokers por regla (Ironia) solo si el campo está vacío (o force).
+    El portal manda sobre estos campos (consumer /inputs-rafa); esto es el pre-marcado que ve
+    Rafa cuando el portal aún no tiene nada, y lo que se le envía en sync-meta/sync-clases.
+    Devuelve "added:<brokers>" | "filled" | "unchanged" | "skip_empty_detect" | "skip_no_row" | "error:<msg>".
     """
     isin = (isin or "").strip().upper()
     if detected is None:
         detected = (detect(isin).get("detected") or [])
     if not detected:
         return "skip_empty_detect"
-
     try:
-        from tools.supabase_client import get_client
-        client = get_client()
-    except Exception as exc:
-        return f"error:{exc}"
-
-    try:
+        if client is None:
+            from tools.supabase_client import get_client
+            client = get_client()
+        from tools.consume_inputs_rafa import parse_brokers
         res = client.table("funds").select("isin,broker_disponible").eq("isin", isin).execute()
         rows = getattr(res, "data", None) or []
         if not rows:
             return "skip_no_row"
-        current = rows[0].get("broker_disponible")
-        if current and isinstance(current, list) and len(current) > 0 and not force:
-            return "skip_manual"
-        client.table("funds").update({"broker_disponible": detected}).eq("isin", isin).execute()
-        return "filled"
+        current = parse_brokers(rows[0].get("broker_disponible") or [])
+        new = list(current)
+        if not current or force:
+            for b in detected:
+                if b not in new:
+                    new.append(b)
+        else:
+            for b in detected:
+                if b in CONFIRMED_BROKERS and b not in new:
+                    new.append(b)
+        if new == current:
+            return "unchanged"
+        for t in ("funds", "catalogo_activos"):
+            try:
+                client.table(t).update({"broker_disponible": new}).eq("isin", isin).execute()
+            except Exception:
+                pass
+        added = [b for b in new if b not in current]
+        return "filled" if not current else "added:" + ",".join(added)
     except Exception as exc:
         return f"error:{exc}"
+
+
+def sync_catalog(client=None, log=print) -> dict:
+    """Backfill de TODO el catálogo (con o sin análisis): Mapfre (lista) + MyInvestor (caché del
+    conector) + Renta4 para cada ISIN de `funds`, aditivo. Devuelve recuento por acción."""
+    if client is None:
+        from dotenv import load_dotenv
+        load_dotenv(ROOT / ".env")
+        from tools.supabase_client import get_client
+        client = get_client()
+    rows, off = [], 0
+    while True:
+        b = client.table("funds").select("isin,nombre_clase,gestora").range(off, off + 999).execute().data or []
+        rows += b
+        if len(b) < 1000:
+            break
+        off += 1000
+    mapfre_set, _ = _mapfre_universe()
+    mi_found, _ = _myinvestor_universe()
+    r4 = _renta4_universe()
+    actions: dict[str, int] = {}
+    for r in rows:
+        isin = (r.get("isin") or "").upper()
+        if not isin:
+            continue
+        grp = group_isins(isin)
+        det = []
+        if not _is_etf(r.get("nombre_clase") or "", r.get("gestora") or ""):
+            if any(c in mapfre_set for c in grp):
+                det.append("Mapfre")
+        if any(c in mi_found for c in grp):
+            det.append("MyInvestor")
+        if _gestora_is_renta4(r.get("gestora") or "") or isin in r4:
+            det.append("Renta4")
+        a = sync_auto_to_supabase(isin, detected=det, client=client) if det else "skip_empty_detect"
+        key = a.split(":")[0]
+        actions[key] = actions.get(key, 0) + 1
+        if a.startswith("added") or a == "filled":
+            log(f"  {isin}: {a}")
+    log(f"[broker_availability] catálogo: {len(rows)} ISIN → {actions}")
+    return actions
 
 
 def refresh_renta4_universe() -> int:
@@ -379,6 +531,17 @@ def _cli() -> None:
         print(__doc__)
         return
 
+    if "--sync-catalog" in args:
+        sync_catalog()
+        return
+
+    if "--refresh-mapfre" in args:
+        UNIVERSE_DIR.mkdir(parents=True, exist_ok=True)
+        (UNIVERSE_DIR / "mapfre.json").unlink(missing_ok=True)
+        isins, fecha = _mapfre_universe()
+        print(f"[broker_availability] lista Mundo Asesoramiento Mapfre ({fecha}): {len(isins)} ISINs")
+        return
+
     if "--refresh-renta4" in args:
         n = refresh_renta4_universe()
         print(f"[broker_availability] universo Renta4 cacheado: {n} ISINs")
@@ -412,7 +575,7 @@ def _cli() -> None:
     apply = "--apply" in args
     isins = [a.upper() for a in args if re.fullmatch(r"[A-Za-z]{2}[A-Za-z0-9]{9}[0-9]", a)]
     if not isins:
-        print("Uso: python -m tools.broker_availability [--apply|--apply-all|--refresh-renta4] ISIN...")
+        print("Uso: python -m tools.broker_availability [--apply|--apply-all|--sync-catalog|--refresh-mapfre|--refresh-renta4] ISIN...")
         return
     for isin in isins:
         info = apply_to_output(isin) if apply else detect(isin)

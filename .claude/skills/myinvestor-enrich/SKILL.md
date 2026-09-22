@@ -20,7 +20,7 @@ MyInvestor cubre ~2.300 fondos (el universo "recomendable"). Para los que están
    - Llama `mcp__claude_ai_MyInvestor__get_funds` con `isins` en lotes de ≤10. Las que vuelven en `funds` ESTÁN en MyInvestor → `clases_en_myinvestor` (lista completa). Si TODAS salen en `missing`, prueba una vez `search_funds` con `query` = gestora (`limit` 10) y acepta solo resultados cuyo `isin` esté en el conjunto candidato. NUNCA aceptes un fondo cuyo ISIN no esté en nuestra lista.
    - Para los datos ricos (`matched_isin`) usa la ficha del ISIN objetivo si está; si no, la de cualquier clase encontrada.
 
-2. **Si el fondo NO está en MyInvestor**: escribe `myinvestor_data.json` con `{"isin": "...", "disponible_myinvestor": false}` y termina. (No es un error — es lo normal para muchos fondos.)
+2. **Si el fondo NO está en MyInvestor**: escribe `myinvestor_data.json` con `{"isin": "...", "disponible_myinvestor": false, "clases_no_en_myinvestor": [<todas las comprobadas>]}` y corre igualmente `python -m tools.myinvestor_consume {ISIN}` (registra el resultado en la caché del universo) y termina. (No es un error — es lo normal para muchos fondos.)
 
 3. **Si está**, extrae del resultado y escribe `data/funds/{ISIN}/myinvestor_data.json`:
 ```json
@@ -28,6 +28,7 @@ MyInvestor cubre ~2.300 fondos (el universo "recomendable"). Para los que están
   "isin": "<ISIN objetivo>",
   "matched_isin": "<el ISIN de NUESTRA clase que coincidió en MyInvestor (puede ser != isin objetivo)>",
   "clases_en_myinvestor": ["<TODOS los ISIN de nuestras clases vistos en MyInvestor>"],
+  "clases_no_en_myinvestor": ["<los ISIN de nuestras clases que get_funds devolvió en missing>"],
   "disponible_myinvestor": true,
   "distribucion": "Acumulación o Reparto (de distributing: 0=Acumulación, 1=Reparto)",
   "ter": <ter>,
