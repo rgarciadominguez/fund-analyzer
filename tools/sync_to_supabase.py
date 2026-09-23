@@ -209,8 +209,21 @@ def _upload_file_to_storage(client, bucket: str, dest_path: str, local_path: Pat
                 "x-upsert": "true",
             },
         )
-        urllib.request.urlopen(req, timeout=60)
-        return dest_path
+        # PDFs de 5-20 MB desde el servidor: 60 s se quedaba corto ("write operation timed out",
+        # BNY 23-sep: 7 informes sin archivar). Timeout proporcional al tamaño y 3 intentos.
+        timeout = max(120, min(600, 60 + len(body) // 50_000))   # ~50 KB/s de suelo
+        last = None
+        for attempt in range(3):
+            try:
+                urllib.request.urlopen(req, timeout=timeout)
+                return dest_path
+            except Exception as e:  # noqa: BLE001
+                last = e
+                if attempt < 2:
+                    import time as _t
+                    _t.sleep(5 * (attempt + 1))
+        print(f"[SYNC] [ERROR] Subiendo {dest_path} ({len(body)//1024} KB, {timeout}s x3): {last}")
+        return None
     except Exception as e:
         print(f"[SYNC] [ERROR] Subiendo {dest_path}: {e}")
         return None
@@ -398,6 +411,28 @@ def _sync_fund_impl(
                 _r = _upload_file_to_storage(client, BUCKET_NAME, storage_paths["output"],
                                              output_json_path, "application/json")
                 log(f"[SYNC] [{'OK' if _r else 'FAIL'}] re-subido output.json con documentos archivados")
+            # BUG FIX (2026-09-05): el dashboard se generó en el Paso 6 ANTES de archivar los docs,
+            # así que su sección "Documentos" salía VACÍA (informes_pdf/cartas_urls todavía sin
+            # rellenar). Ahora output.json YA tiene los AR/SAR/cartas → REGENERAMOS el dashboard
+            # (sin enrich, sin tokens) y lo RE-SUBIMOS para que el portal liste los documentos.
+            try:
+                import os as _os
+                import subprocess as _sp
+                import sys as _sys
+                _root = Path(__file__).resolve().parent.parent
+                _env = {**_os.environ, "DASHBOARD_SKIP_ENRICH": "1"}
+                _rc = _sp.run([_sys.executable, str(_root / "dashboard" / "generate_dashboard.py"), isin],
+                              cwd=str(_root), env=_env, capture_output=True, text=True, timeout=300)
+                _dash = _root / "dashboard" / f"fund-{isin}.html"
+                if _rc.returncode == 0 and _dash.exists():
+                    _r2 = _upload_file_to_storage(client, BUCKET_NAME, storage_paths["dashboard"],
+                                                  _dash, "text/html")
+                    log(f"[SYNC] [{'OK' if _r2 else 'FAIL'}] dashboard REGENERADO con documentos y re-subido")
+                else:
+                    log(f"[SYNC] regen dashboard tras archivar rc={_rc.returncode}: "
+                        f"{(_rc.stderr or '')[:120]}")
+            except Exception as _e2:
+                log(f"[SYNC] regen/re-subida dashboard tras archivar (no crítico): {str(_e2)[:80]}")
         except Exception as _e:
             log(f"[SYNC] archive_docs falló (no crítico): {str(_e)[:80]}")
 
@@ -843,12 +878,77 @@ def _sync_fund_impl(
 
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
 
+    # Contrato FONDO vs CLASE (CLAUDE.md §0.9): tras analizar, TODAS las clases del grupo apuntan
+    # a ESTE análisis (el último bueno) → "ver análisis" muestra siempre el último del activo,
+    # sea cual sea la clase que se pulse. Evita clases hermanas con análisis divergentes. Non-fatal.
+    try:
+        from tools.align_fund_group import align_group as _align_group
+        _ag = _align_group(isin, client=client, log=lambda m: log(f"[SYNC] {m}"))
+        if _ag.get("aligned"):
+            log(f"[SYNC] [OK] grupo alineado: {_ag['aligned']} clases → este análisis")
+    except Exception as _eag:
+        log(f"[SYNC] align_fund_group falló (no crítico): {str(_eag)[:80]}")
+
+    # Contrato FONDO vs CLASE en el WORKER (CLAUDE.md §0.9): regenera dashboard/_class_map.json
+    # para que /fund-{ISIN} de CUALQUIER clase del grupo sirva el análisis del primario (no 404 ni
+    # stale) con selector de clase. Se commitea con los dashboards en el push. Non-fatal.
+    try:
+        from tools.build_class_map import build as _build_class_map
+        _cm = _build_class_map(dry=False)
+        log(f"[SYNC] [OK] class_map: {len(_cm.get('aliases', {}))} aliases → primarios")
+    except Exception as _ecm:
+        log(f"[SYNC] build_class_map falló (no crítico): {str(_ecm)[:80]}")
+
+    # 3er destino del sync (contrato "sync siempre los tres destinos"): refrescar el catálogo
+    # del PORTAL. funds/fund_groups/Storage ya están frescos arriba, pero el portal lee la tabla
+    # catalogo_activos (materializada por export_horfin_catalog → catalog_publish + webhook), que
+    # NO se tocaba en el pipeline → el portal se quedaba viejo. Non-fatal.
+    _refresh_portal_catalog(log, isin)
+
     return {
         "isin": isin,
         "uploaded": uploaded,
         "funds_updated": funds_updated,
         "fund_groups_updated": True,
     }
+
+
+def _refresh_portal_catalog(log, isin: str) -> None:
+    """Regenera catalogo_supabase.json desde Supabase y lo publica a la tabla catalogo_activos
+    (la que lee el portal Horizonte en vivo + webhook). Cierra el 3er destino del sync.
+    Non-fatal. Desactivable con PORTAL_REFRESH_DISABLED=1 (p.ej. re-render masivo)."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+    if os.environ.get("PORTAL_REFRESH_DISABLED") == "1":
+        return
+    try:
+        root = str(Path(__file__).resolve().parent.parent)
+        for step, args in (("export", ["-m", "tools.export_horfin_catalog"]),
+                           ("publish", ["-m", "tools.catalog_publish", "--apply"])):
+            r = subprocess.run([sys.executable, *args], cwd=root, capture_output=True,
+                               text=True, timeout=200)
+            if r.returncode != 0:
+                log(f"[SYNC] portal-refresh {step} rc={r.returncode}: "
+                    f"{(r.stderr or r.stdout or '')[:120]}")
+                return
+        log("[SYNC] [OK] catálogo del portal refrescado (catalogo_activos + webhook)")
+
+        # Reconciliar el fondo en la cola/quant del portal: --metrics-only empuja métricas + meta
+        # (esto EXCLUYE el ISIN de cola-analisis). NO llama mark_done (para no inundar
+        # "Categorizar": ese needs_review lo decide el flujo del portal). Cubre el caso de
+        # análisis lanzados por el web_server (batch), que no pasan por portal_analyze_worker →
+        # antes dejaban el fondo colgado como pendiente/fallido en el portal.
+        rm = subprocess.run([sys.executable, "-m", "tools.portal_analyze_worker",
+                             "--isin", isin, "--metrics-only"], cwd=root,
+                            capture_output=True, text=True, timeout=200)
+        if rm.returncode == 0:
+            log("[SYNC] [OK] fondo reconciliado en el portal (métricas + meta → fuera de cola)")
+        else:
+            log(f"[SYNC] portal-metrics rc={rm.returncode}: {(rm.stderr or rm.stdout or '')[:120]}")
+    except Exception as e:
+        log(f"[SYNC] portal-refresh falló (no crítico): {str(e)[:100]}")
 
 
 def main():
