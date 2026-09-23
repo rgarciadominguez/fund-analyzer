@@ -359,7 +359,7 @@ REM los lee vacios. Fix 3 solo entrega valor si este consume parcial corre AQUI.
 echo === Paso 2.5/6: Consume-extracted (merge cualitativo a cnmv_data) ===
 call python -m agents.orchestrator --isin %ISIN% --consume-extracted %ALLOW_FALLBACK%
 if errorlevel 1 (
-    echo [ERROR] consume-extracted fallo: sin bundle no se sintetiza (evita publicar un analisis vacio, caso Brightgate 22-sep)
+    echo [ERROR] consume-extracted fallo: sin bundle no se sintetiza -- evita publicar un analisis vacio
     echo Exit code: 10
     exit /b 10
 )
