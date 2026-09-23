@@ -32,7 +32,11 @@ def main(isin: str) -> int:
                 print(f"[RELAUNCH] extract corrupto eliminado: {os.path.basename(f)}")
             except Exception:
                 pass
-    for name in ("manager_profile.json", "letters_data.json", "analyst_synthesis_cowork.json"):
+    # Solo la salida LLM de la FASE FINAL. manager_profile.json y letters_data.json son salidas de la
+    # PREP (manager_profiler / letters_collector): si se borran y el relaunch salta la prep
+    # ("RESUME-SKIP prep ya hecho"), el fondo se queda sin cartas (BNY 23-sep: bundle re-export
+    # "letters_data.json not found" y análisis publicado sin cartas).
+    for name in ("analyst_synthesis_cowork.json",):
         p = fd / name
         if p.exists():
             try:
