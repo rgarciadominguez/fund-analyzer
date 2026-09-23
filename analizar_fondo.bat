@@ -152,10 +152,9 @@ REM para que se rehagan limpias; las descargas (cnmv_data/intl_data/XMLs/PDFs) s
 REM conservan y el prep se salta abajo. Así nunca se reusa una salida a medias.
 if defined RELAUNCH_MODE (
     echo [RELAUNCH] Corte detectado: re-ejecutando LLM desde cero, conservando descargas
-    if exist "data\funds\%ISIN%\extracted" rmdir /s /q "data\funds\%ISIN%\extracted"
-    if exist "data\funds\%ISIN%\manager_profile.json" del /q "data\funds\%ISIN%\manager_profile.json"
-    if exist "data\funds\%ISIN%\letters_data.json" del /q "data\funds\%ISIN%\letters_data.json"
-    if exist "data\funds\%ISIN%\analyst_synthesis_cowork.json" del /q "data\funds\%ISIN%\analyst_synthesis_cowork.json"
+    REM 2026-09-23: NO se borra extracted entero (rehacer extractos buenos cuesta horas y cuota);
+    REM tools.relaunch_clean retira solo los JSON truncados y las salidas LLM de fase.
+    python -m tools.relaunch_clean %ISIN%
 )
 
 REM ----------------------------------------------------------------------

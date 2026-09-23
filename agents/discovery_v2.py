@@ -1510,11 +1510,17 @@ class DiscoveryV2:
                 if state.already_downloaded(cand["url"]):
                     continue
 
-                doc = await download_and_register(
-                    state, c, cand["url"], doc_type, periodo,
-                    source=cand["source"],
-                    source_detail=cand.get("source_page", "")[-80:],
-                )
+                # Tope duro por descarga (2026-09-23): una descarga que gotea sin cerrar no dispara el
+                # timeout por lectura de httpx y dejó colgado el prep 41 min (BNY, watchdog → relaunch).
+                try:
+                    doc = await asyncio.wait_for(download_and_register(
+                        state, c, cand["url"], doc_type, periodo,
+                        source=cand["source"],
+                        source_detail=cand.get("source_page", "")[-80:],
+                    ), timeout=120)
+                except asyncio.TimeoutError:
+                    console.log(f"[yellow]timeout 120s descargando {doc_type}@{periodo} ({cand['url'][:70]}) → siguiente")
+                    doc = None
                 if doc:
                     self.spent_by_type[doc.doc_type] += 1
                     if doc.doc_type in self._PRIMARIOS:
@@ -1530,9 +1536,9 @@ class DiscoveryV2:
             if not state.is_fully_covered():
                 try:
                     from agents.discovery.url_template_learner import learn_and_enumerate
-                    await learn_and_enumerate(state, c)
+                    await asyncio.wait_for(learn_and_enumerate(state, c), timeout=300)
                 except Exception as e:
-                    console.log(f"[yellow]template learner: {e}")
+                    console.log(f"[yellow]template learner: {type(e).__name__} {e}")
 
             # Phase 4 — Email draft si gap significativo
             kb_mod.save_kb(self.fund_dir, state.kb)

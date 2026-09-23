@@ -102,6 +102,40 @@ def build_meta(isin: str) -> dict | None:
     return meta  # solo DERIVADO (guess). El override del usuario se aplica aparte.
 
 
+# Campos que NUNCA son aditivos: se recalculan siempre desde la fuente canónica (2026-09-23).
+# `name` era aditivo y un primer sync con el ISIN/gestora/benchmark como nombre se quedaba para
+# siempre (Carmignac sin nombre, MontLake = 'Fortune Financial Strategies SA', BNY = 'SOFR compuesto').
+_AUTORITATIVOS = ("name", "className", "clase", "currency", "divisa")
+
+
+def _currency_label(divisa: str, hedge: bool) -> str:
+    d = (divisa or "EUR").upper()
+    if d == "EUR":
+        return "EuroHedge" if hedge else "Euro"
+    return d
+
+
+def _class_meta(c: dict, base_meta: dict) -> dict:
+    """Meta de UNA clase del grupo (roles de tools.class_selection) heredando categoría/tipo/geografía
+    de la clase analizada. Nombre canónico por clase (tools.fund_names)."""
+    from tools.fund_names import canonical_name
+    from tools.class_selection import etiqueta
+    rol = next((x for x in ("retail", "limpia", "serie_larga") if x in c["roles"]), "analizada")
+    m = {k: v for k, v in base_meta.items() if k in ("category", "assetType", "geography", "issuer", "categoria", "tipoActivo", "geografia", "opinion")}
+    m.update({
+        "isin": c["isin"],
+        "name": canonical_name(c["isin"]).get("name") or c.get("nombre") or c["isin"],
+        "className": etiqueta(c),
+        "clase": {"retail": "Retail", "limpia": "Limpia", "serie_larga": "Serie larga", "analizada": "Analizada"}[rol],
+        "currency": _currency_label(c["divisa"], c["hedge"]),
+        "divisa": _currency_label(c["divisa"], c["hedge"]),
+        "roles": c["roles"], "motivo_clase": c.get("motivo", ""),
+        "anio_inicio": c.get("anio"), "comision_gestion_pct": c.get("fee"),
+        "myinvestor": bool(c.get("myinvestor")), "mundo_asesoramiento": bool(c.get("mundo")),
+    })
+    return m
+
+
 def _override(isin: str) -> dict:
     """Categorización EXPLÍCITA del usuario (data/funds/{ISIN}/funddash_meta.json).
     Lo que pongas aquí SIEMPRE manda (sobre el derivado y sobre lo que haya en el tool)."""
@@ -139,40 +173,109 @@ def _patch_meta(isin: str, meta: dict) -> int:
         return r.status
 
 
-def sync(isin: str, repo: set, dry: bool = False) -> bool:
-    derived = build_meta(isin)
-    if not derived:
-        print(f"  SKIP {isin}: sin output.json")
-        return False
-    override = _override(isin)
+def _patch_full(isin: str, meta: dict, rows: list) -> int:
+    """Actualiza meta Y la serie (rows) — para refrescar la gráfica de un fondo existente."""
+    import urllib.request
+    req = urllib.request.Request(
+        SB_URL + "/rest/v1/funds?isin=eq." + isin,
+        data=json.dumps({"meta": meta, "rows": rows, "updated_at": "2026-06-12T00:00:00Z"}).encode("utf-8"),
+        headers={"apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY,
+                 "Content-Type": "application/json", "Prefer": "return=minimal"},
+        method="PATCH")
+    with urllib.request.urlopen(req, timeout=45) as r:
+        return r.status
+
+
+def build_rows_daily(isin: str) -> list:
+    """Serie DIARIA de NAV desde Morningstar (el fetch YA arreglado, host lt.morningstar.com)
+    en el formato del fund-dashboard: [{date:'YYYY-MM-DD', freq:'daily', value:float}] ascendente.
+
+    Clave del endurecimiento (ago-2026): el fund-dashboard bajaba la serie él mismo de forma
+    perezosa, pero su fetch se rompió cuando Morningstar movió el host (todas las series se
+    quedaron congeladas en 2026-03-20). Ahora el fund-analyzer — que SÍ tiene el fetch arreglado —
+    empuja la serie directamente, así la gráfica de evolución sale siempre que Morningstar cubra.
+    Devuelve [] si Morningstar no cubre el ISIN (mejor vacío que erróneo: no se pisa nada)."""
+    from datetime import datetime, timezone
+    try:
+        from tools.morningstar_daily import fetch_series
+        serie = fetch_series(isin)
+    except Exception:
+        serie = []
+    out = []
+    for ts, v in sorted(serie):
+        if not v:
+            continue
+        d = datetime.fromtimestamp(int(ts) / 1000, timezone.utc).date().isoformat()
+        out.append({"date": d, "freq": "daily", "value": round(float(v), 4)})
+    return out
+
+
+def _push_one(isin: str, derived: dict, override: dict, repo: set, dry: bool) -> bool:
     existe = isin in repo
     if existe:
         cur = {} if dry else _get_meta(isin)
         meta = dict(cur)
         for k, v in derived.items():
-            if v and not meta.get(k):     # ADITIVO: el derivado solo rellena campos vacíos
+            if k in _AUTORITATIVOS:       # nombre/clase/divisa: SIEMPRE la fuente canónica
+                if v:
+                    meta[k] = v
+            elif v and not meta.get(k):   # el resto ADITIVO: solo rellena campos vacíos
                 meta[k] = v
         meta.update(override)             # tu categorización explícita SIEMPRE manda
         meta["isin"] = isin
-        accion = "PATCH aditivo (preserva serie+lo tuyo)"
+        accion = "PATCH (nombre/clase canónicos + resto aditivo)"
     else:
         meta = {**derived, **override}
-        accion = "NUEVO (rows vacías → MST)"
+        accion = "NUEVO (+serie diaria Morningstar)"
     line = (f"  {isin:14} [{accion:38}] cat={meta.get('category'):8} tipo={meta.get('assetType'):6} "
             f"geo={str(meta.get('geography')):10} {str(meta.get('name'))[:28]}")
+    rows = build_rows_daily(isin)
     if dry:
-        print("[dry] " + line)
+        print("[dry] " + line + f"  rows={len(rows)}")
         return True
     try:
         if existe:
-            _patch_meta(isin, meta)
+            if rows:
+                _patch_full(isin, meta, rows)     # refresca meta + serie diaria
+            else:
+                _patch_meta(isin, meta)           # sin cobertura Morningstar: NO pisa la serie previa
         else:
-            _post({"isin": isin, "meta": meta, "rows": [], "updated_at": "2026-06-12T00:00:00Z"})
-        print("[OK]  " + line)
+            _post({"isin": isin, "meta": meta, "rows": rows, "updated_at": "2026-06-12T00:00:00Z"})
+        sufijo = f"  rows={len(rows)}" if rows else "  rows=0 (Morningstar sin cobertura)"
+        print("[OK]  " + line + sufijo)
         return True
     except Exception as e:
         print(f"  ERR {isin}: {str(e)[:70]}")
         return False
+
+
+def sync(isin: str, repo: set, dry: bool = False) -> bool:
+    """Empuja la clase analizada Y las clases del grupo que la regla de clases selecciona
+    (retail/limpia por divisa + serie más larga), cada una con su nombre canónico y su papel."""
+    derived = build_meta(isin)
+    if not derived:
+        print(f"  SKIP {isin}: sin output.json")
+        return False
+    from tools.fund_names import canonical_name
+    cn = canonical_name(isin, log=None)
+    derived["name"] = cn.get("name") or derived.get("name")
+    override = _override(isin)
+    try:
+        from tools.class_selection import select
+        clases = select(isin)
+    except Exception as e:  # noqa: BLE001
+        print(f"  [WARN] class_selection {isin}: {str(e)[:80]} → solo la clase analizada")
+        clases = []
+    ok = True
+    if clases:
+        for c in clases:
+            m = _class_meta(c, derived)
+            if c["isin"] == isin:
+                m = {**m, **override}
+            ok = _push_one(c["isin"], m, override if c["isin"] == isin else {}, repo, dry) and ok
+    else:
+        ok = _push_one(isin, derived, override, repo, dry)
+    return ok
 
 
 def main(argv=None) -> int:
