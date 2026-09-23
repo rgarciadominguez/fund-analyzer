@@ -432,7 +432,9 @@ class SearchEngine:
         seen_urls: set[str] = set()
         all_results: list[dict] = []
 
-        for query in queries:
+        for i, query in enumerate(queries, 1):
+            if i % 10 == 0:   # progreso visible: 49 queries con 3 proveedores pueden ser 15-20 min sin otra linea de log
+                print(f"[SEARCH] {agent or 'search'}: {i}/{len(queries)} queries, {len(all_results)} urls", flush=True)
             results = await self.search(query, num=num_per_query, agent=agent)
             for r in results:
                 url = r["url"]
