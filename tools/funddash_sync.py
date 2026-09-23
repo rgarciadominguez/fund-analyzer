@@ -278,19 +278,91 @@ def sync(isin: str, repo: set, dry: bool = False) -> bool:
     return ok
 
 
+_TIPO_FD = {"RV": "RV", "RF": "RF LP", "MIXTOS": "Mixto", "MIXTO": "Mixto", "ALTERNATIVOS": "Alternativo",
+            "MATERIAS_PRIMAS": "Materias primas", "MONETARIO": "RF CP"}
+
+
+def build_meta_catalog(isin: str) -> dict | None:
+    """Meta DERIVADA para un fondo SIN análisis (2026-09-23, Rafa: "que todo esté en fund-dashboard"):
+    sale del catálogo Supabase (fund_groups.tipo_activo/geografia + nombre canónico), sin inventar
+    nada: lo que el catálogo no tenga queda vacío y Rafa lo rellena en fund-dashboard."""
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / ".env")
+    from tools.supabase_client import get_client
+    from tools.fund_names import canonical_name
+    c = get_client()
+    r = c.table("funds").select("isin,fund_group_id,divisa,divisa_hedge_bool").eq("isin", isin).execute().data
+    if not r or not r[0].get("fund_group_id"):
+        return None
+    g = (c.table("fund_groups").select("nombre_base,tipo_activo,geografia,categoria_morningstar").eq(
+        "fund_group_id", r[0]["fund_group_id"]).execute().data or [{}])[0]
+    name = canonical_name(isin).get("name") or isin
+    nlow = f"{name} {g.get('nombre_base') or ''}".lower()
+    tipo = str(g.get("tipo_activo") or "").upper()
+    return {
+        "isin": isin, "name": name, "className": "",
+        "category": "Indexado" if any(k in nlow for k in ("índice", "indice", "index", "indexado")) else "Activo",
+        "assetType": _TIPO_FD.get(tipo, ""),
+        "geography": g.get("geografia") or "",
+        "currency": _currency_label(r[0].get("divisa") or "EUR", bool(r[0].get("divisa_hedge_bool"))),
+        "issuer": "",
+    }
+
+
+def sync_any(isin: str, repo: set, dry: bool = False) -> bool:
+    """Analizado → sync() (output.json); sin análisis → clases del grupo con meta del catálogo."""
+    if (FUNDS / isin / "output.json").exists() and build_meta(isin):
+        return sync(isin, repo, dry)
+    derived = build_meta_catalog(isin)
+    if not derived:
+        print(f"  SKIP {isin}: no está en el catálogo")
+        return False
+    try:
+        from tools.class_selection import select
+        clases = select(isin)
+    except Exception as e:  # noqa: BLE001
+        print(f"  [WARN] class_selection {isin}: {str(e)[:80]}")
+        clases = []
+    ok = True
+    for c in clases or [{"isin": isin, "roles": ["retail"], "divisa": derived["currency"], "hedge": False, "myinvestor": False, "mundo": False}]:
+        ok = _push_one(c["isin"], _class_meta(c, derived), _override(c["isin"]), repo, dry) and ok
+    return ok
+
+
+def catalog_isins() -> list[str]:
+    """Un ISIN representativo por fund_group del catálogo (la selección de clases hace el resto)."""
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / ".env")
+    from tools.supabase_client import get_client
+    c = get_client()
+    rows, off = [], 0
+    while True:
+        b = c.table("funds").select("isin,fund_group_id,has_qualitative_analysis").range(off, off + 999).execute().data or []
+        rows += b
+        if len(b) < 1000:
+            break
+        off += 1000
+    by: dict[str, str] = {}
+    for r in sorted(rows, key=lambda r: (not r.get("has_qualitative_analysis"), r["isin"])):
+        by.setdefault(r["fund_group_id"], r["isin"].upper())
+    return sorted(by.values())
+
+
 def main(argv=None) -> int:
     args = argv or sys.argv[1:]
     dry = "--dry-run" in args
     if "--all" in args:
         isins = sorted(d.name for d in FUNDS.iterdir()
                        if "." not in d.name and (d / "output.json").exists())
+    elif "--catalog" in args:          # TODO el catálogo (con y sin análisis), un representante por fondo
+        isins = catalog_isins()
     elif "--isin" in args:
         isins = [args[args.index("--isin") + 1].strip().upper()]
     else:
-        print("uso: python -m tools.funddash_sync --isin X | --all [--dry-run]")
+        print("uso: python -m tools.funddash_sync --isin X | --all | --catalog [--dry-run]")
         return 1
     repo = _repo_isins()   # lectura; permite distinguir PATCH (existe) vs NUEVO incluso en dry-run
-    ok = sum(sync(i, repo, dry) for i in isins)
+    ok = sum(sync_any(i, repo, dry) for i in isins)
     print(f"\n{'(dry) ' if dry else ''}sincronizados: {ok}/{len(isins)}")
     return 0
 

@@ -25,6 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ORDER_ROL = {"analizada": 0, "retail": 1, "limpia": 2, "serie_larga": 3}
 ORDER_CCY = {"EUR": 0, "USD": 1, "GBP": 2, "CHF": 3}
+MAJOR_CCY = ("EUR", "USD", "GBP", "CHF")   # divisas con bucket retail/limpia; el resto solo si es la analizada
 
 
 def _year(v) -> int | None:

@@ -117,7 +117,41 @@ def import_isins(isins: list[str], apply: bool = False, log=print) -> dict:
                 groups[gid] = row_group
             client.table("funds").insert({k: v for k, v in row_fund.items() if v is not None}).execute()
             existing[isin] = gid
+            # Clases hermanas (mismo FundId en Morningstar) → mismas filas `funds` en el grupo, para que
+            # la regla retail/limpia por divisa tenga con qué elegir (fund-dashboard). Aditivo.
+            try:
+                from tools.reconcile_fund_groups import populate_fund_classes
+                n = populate_fund_classes(client, isin, clases, apply=True, fund_name=nombre)
+                for c in clases:
+                    existing.setdefault(c["isin"], gid)
+                if n:
+                    log(f"      + {n} clases hermanas en el grupo")
+            except Exception as e:  # noqa: BLE001
+                log(f"      [WARN] hermanas {isin}: {str(e)[:80]}")
     return res
+
+
+def backfill_siblings(isins: list[str], log=print) -> int:
+    """Para ISIN ya en el catálogo (p. ej. las altas de hoy hechas antes de este paso): añade sus clases hermanas."""
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / ".env")
+    from tools.supabase_client import get_client
+    from tools.morningstar_classes import fetch_classes
+    from tools.reconcile_fund_groups import populate_fund_classes
+    client = get_client()
+    total = 0
+    for isin in isins:
+        try:
+            clases = fetch_classes(isin)
+            time.sleep(0.7)
+            if len(clases) <= 1:
+                continue
+            n = populate_fund_classes(client, isin, clases, apply=True)
+            total += n
+            log(f"  {isin}: +{n} hermanas (de {len(clases)} clases)")
+        except Exception as e:  # noqa: BLE001
+            log(f"  {isin}: ERROR {str(e)[:80]}")
+    return total
 
 
 _SIN_DATOS = ROOT / "data" / ".portal_isins_sin_datos.json"   # isin → ts del último intento fallido
@@ -179,7 +213,16 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--isin", action="append", help="solo estos ISIN (repetible)")
+    ap.add_argument("--siblings-since", help="backfill de clases hermanas para ISIN dados de alta desde esta fecha (YYYY-MM-DD)")
     a = ap.parse_args(argv)
+    if a.siblings_since:
+        from dotenv import load_dotenv
+        load_dotenv(ROOT / ".env")
+        from tools.supabase_client import get_client
+        rows = get_client().table("funds").select("isin").gte("fecha_alta", a.siblings_since).eq("has_qualitative_analysis", False).execute().data
+        print(f"backfill hermanas: {len(rows)} ISIN dados de alta desde {a.siblings_since}")
+        print("total hermanas añadidas:", backfill_siblings(sorted(r["isin"].upper() for r in rows)))
+        return 0
     isins = [i.upper() for i in (a.isin or [])] or _portal_isins()
     print(f"{'APLICAR' if a.apply else 'DRY-RUN'}: {len(isins)} ISIN candidatos")
     res = import_isins(isins, apply=a.apply)

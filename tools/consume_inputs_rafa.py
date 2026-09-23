@@ -166,6 +166,14 @@ def consume(dry_run: bool = False, full: bool = False) -> dict:
         alta = import_missing_from_portal(isins_tanda, apply=not dry_run, log=_log)
         if alta.get("altas"):
             _log(f"[alta-portal] dadas de alta {len(alta['altas'])} clases nuevas del portal")
+            if not dry_run:   # y al fund-dashboard (todo el catálogo vive allí, con o sin análisis)
+                try:
+                    from tools.funddash_sync import sync_any, _repo_isins
+                    repo_fd = _repo_isins()
+                    for a in alta["altas"]:
+                        sync_any(a[0], repo_fd)
+                except Exception as e:  # noqa: BLE001
+                    _log(f"[WARN] fund-dashboard tras alta: {str(e)[:100]}")
     except Exception as e:  # noqa: BLE001
         _log(f"[WARN] alta-portal falló (se sigue con los inputs): {str(e)[:120]}")
 
