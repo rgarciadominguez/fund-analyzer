@@ -3961,6 +3961,85 @@ def build_tab_gestores(data):
 # TAB 4: EVOLUCIÓN (vacía)
 # ═══════════════════════════════════════════════════════════════
 
+def _quant_class_choice(data):
+    """Qué CLASE muestran los gráficos cuantitativos (regla Rafa 2026-09-23): la clase del fondo que
+    está en MyInvestor (retail), SALVO que tenga <10 años de histórico y otra clase del grupo tenga ≥10
+    → entonces esa, avisando arriba de que no se muestra la retail (ISIN) por tener solo X años.
+    Años = desde el lanzamiento de la clase (dashboard/_class_map.json, precisión de año) o, si el
+    fondo tiene linaje, desde el inicio de la serie empalmada. Devuelve dict {isin, retail_isin,
+    retail_years, chosen_years, motivo} — isin = la analizada si no hay nada que decidir."""
+    import json as _json
+    from pathlib import Path as _P
+    from datetime import date as _date
+    isin = ((data or {}).get("isin") or "").upper()
+    out = {"isin": isin, "retail_isin": None, "retail_years": None, "chosen_years": None, "motivo": ""}
+    root = _P(__file__).resolve().parent.parent
+    try:
+        m = _json.loads((root / "dashboard" / "_class_map.json").read_text(encoding="utf-8"))
+        prim = isin if isin in m.get("groups", {}) else (m.get("aliases") or {}).get(isin)
+        classes = list((m.get("groups", {}).get(prim) or {}).get("classes") or []) if prim else []
+    except Exception:
+        classes = []
+    if not classes:
+        return out
+    # clases en MyInvestor: caché del conector + myinvestor_data del fondo + Supabase (best-effort)
+    mi = set()
+    try:
+        d = _json.loads((root / "data" / "broker_universe" / "myinvestor.json").read_text(encoding="utf-8"))
+        mi |= {str(x).upper() for x in d.get("found") or []}
+    except Exception:
+        pass
+    try:
+        d = _json.loads((root / "data" / "funds" / isin / "myinvestor_data.json").read_text(encoding="utf-8"))
+        if d.get("disponible_myinvestor"):
+            mi |= {str(x).upper() for x in (d.get("clases_en_myinvestor") or []) + [d.get("matched_isin") or isin]}
+    except Exception:
+        pass
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(root / ".env")
+        from tools.supabase_client import get_client
+        rows = get_client().table("funds").select("isin,broker_disponible").in_("isin", [c["isin"] for c in classes]).execute().data or []
+        mi |= {r["isin"].upper() for r in rows if any(str(b).strip().strip('[]"') == "MyInvestor" for b in (r.get("broker_disponible") or []))}
+    except Exception:
+        pass
+    years = {}
+    lin_start = (((data or {}).get("_lineage") or {}).get("track_record") or {}).get("quant_series_start")
+    for c in classes:
+        y = c.get("anios") or 0
+        if lin_start:      # con linaje, el histórico empalmado cuenta para todas las clases del grupo
+            try:
+                y = max(y, _date.today().year - int(str(lin_start)[:4]))
+            except Exception:
+                pass
+        years[c["isin"].upper()] = y
+    by = {c["isin"].upper(): c for c in classes}
+    retail = [i for i in by if i in mi]
+    if not retail:
+        return out
+
+    def _pref(i):   # analizada > EUR > más años
+        return (0 if i == isin else 1, 0 if (by[i].get("divisa") or "") == "EUR" else 1, -years[i])
+    r = sorted(retail, key=_pref)[0]
+    out.update({"retail_isin": r, "retail_years": years[r]})
+    if years[r] >= 10:
+        out.update({"isin": r, "chosen_years": years[r]})
+        return out
+    others = [i for i in by if i != r and years[i] >= 10]
+    if others:
+        rc = by[r].get("divisa") or ""
+        best = sorted(others, key=lambda i: (0 if (by[i].get("divisa") or "") == rc else 1,
+                                             0 if (by[i].get("divisa") or "") == "EUR" else 1, -years[i]))[0]
+        nom = by[best].get("nombre_clase") or by[best].get("codigo") or best
+        out.update({"isin": best, "chosen_years": years[best],
+                    "motivo": (f"No se muestra la clase retail disponible en MyInvestor ({r}) porque solo tiene "
+                               f"aprox. {years[r]} anio(s) de track record; los graficos son de la clase "
+                               f"{nom} ({best}, aprox. {years[best]} anios).").replace("anio", "año").replace("graficos", "gráficos")})
+        return out
+    out.update({"isin": r, "chosen_years": years[r]})
+    return out
+
+
 def build_tab_evolucion(data):
     # F4: guard a nivel de bloque. Si el fondo NO tiene NINGUNA señal cuantitativa
     # (ni rating MS, ni series local), los 3 charts MS (Rent/Vol anual, Drawdown)
@@ -4001,10 +4080,20 @@ def build_tab_evolucion(data):
             f'{_pre}. ' + (f'<em>{_cav}</em>' if _cav else '') + '</div>'
         )
 
+    _qc = _quant_class_choice(data)
+    _qc_banner = ""
+    if _qc.get("motivo"):
+        _qc_banner = ('<div class="mb20" style="border-left:3px solid #8c3214;background:rgba(140,50,20,.07);'
+                      'padding:10px 14px;border-radius:4px;font-size:12.5px;line-height:1.5;">'
+                      f'<strong>Clase mostrada en los gráficos:</strong> {_qc["motivo"]}</div>')
+    elif _qc.get("isin") and _qc["isin"] != (data.get("isin") or "").upper():
+        _qc_banner = ('<div class="mb20" style="border-left:3px solid var(--navy);background:var(--navy-pale);'
+                      'padding:8px 14px;border-radius:4px;font-size:12px;">Gráficos de la clase retail disponible en '
+                      f'MyInvestor: <strong>{_qc["isin"]}</strong> (aprox. {_qc.get("chosen_years")} años de track record).</div>')
     return """
 <section class="pane" id="p3">
   <div class="pane-header"><h1 class="pane-h1">Evolución del fondo</h1><span class="pane-dl">Datos diarios · Morningstar</span></div>
-""" + _lin_banner + """
+""" + _qc_banner + _lin_banner + """
   <div class="mb20"><p class="pr">Análisis cuantitativo basado en <strong>datos diarios de Morningstar</strong>. Las métricas de volatilidad se calculan desde retornos mensuales (fin de mes) para alinearse con la metodología estándar de Morningstar y Finect. Los rolling son configurables por periodo.</p></div>
 
   <div id="mst-loading" style="text-align:center;padding:40px 0;color:var(--ink-4);font-size:13px;">Cargando datos de Morningstar...</div>
@@ -6715,7 +6804,7 @@ document.addEventListener('DOMContentLoaded',buildCharts);
 const ISIN='{data.get("isin","ES0112231008")}';
 const MST_SECID_BAKED='{_dash_secid(data)}';
 let MST_SECID=MST_SECID_BAKED;                       // mutable: el selector de clase lo cambia
-let MST_ISIN=(typeof ISIN!=='undefined'?ISIN:'');    // ISIN cuya serie se pide (clase mostrada)
+let MST_ISIN='{_quant_class_choice(data).get("isin") or data.get("isin","")}';    // clase MOSTRADA (regla retail/10 años); puede diferir de ISIN
 const MST_PRIMARY_ISIN=MST_ISIN;
 let MST_DATA=null;
 
@@ -6802,6 +6891,8 @@ function mstFmtD(d){{return d?d.toISOString().slice(0,10).split('-').reverse().j
 function renderClassInfo(){{
   const host=document.getElementById('mst-evo-content');
   if(!host||!MST_INFO)return;
+  try{{const sel=document.querySelector('.fa-class-bar select');
+    if(sel&&sel.value!==MST_ISIN&&Array.from(sel.options).some(o=>o.value===MST_ISIN)){{sel.value=MST_ISIN;sel.dispatchEvent(new Event('change'));}}}}catch(e){{}}
   let el=document.getElementById('mst-class-info');
   if(!el){{el=document.createElement('div');el.id='mst-class-info';host.insertBefore(el,host.firstChild);}}
   const I=MST_INFO;
@@ -6822,7 +6913,7 @@ function renderClassInfo(){{
   h+='</div>';
   el.innerHTML=h;
   const s=document.getElementById('mst-cur-sel');
-  if(s)s.onchange=function(){{MST_VIEW_EUR=(s.value==='1');window.switchClass(MST_ISIN);}};
+  if(s)s.onchange=function(){{MST_VIEW_EUR=(s.value==='1');window.__mstForce=true;window.switchClass(MST_ISIN);}};
 }}
 // Estilo por tramo para líneas (labels = fechas ISO): predecesor discontinuo y en ocre.
 function mstSeg(labels){{
@@ -7295,6 +7386,8 @@ document.addEventListener('DOMContentLoaded',async()=>{{
 // por ISIN vía screener. Así cada clase muestra SU histórico real (§0.9), sin recargar el iframe.
 window.switchClass=async function(isin){{
   if(!isin)return;
+  if((''+isin).toUpperCase()===MST_ISIN&&MST_DATA&&MST_DATA.length>30&&!window.__mstForce)return;  // ya cargada
+  window.__mstForce=false;
   MST_ISIN=(''+isin).toUpperCase();
   MST_SECID=(MST_ISIN===(MST_PRIMARY_ISIN||'').toUpperCase())?MST_SECID_BAKED:'';
   const el=document.getElementById('mst-loading');
