@@ -90,6 +90,10 @@ def select(isin: str, client=None) -> list[dict]:
     motivo: dict[str, list[str]] = {c["isin"]: [] for c in cls}
     buckets: dict[tuple, list[dict]] = {}
     for c in cls:
+        # Solo divisas principales: una clase CAD/SEK/JPY suelta no aporta a un cliente español y
+        # multiplica filas (Carmignac: 7 clases publicadas por una CAD cubierta). La analizada va siempre.
+        if c["divisa"] not in MAJOR_CCY:
+            continue
         buckets.setdefault((c["divisa"], c["hedge"]), []).append(c)
 
     def _inst(c):   # institucional: mínimo ≥ 500k
