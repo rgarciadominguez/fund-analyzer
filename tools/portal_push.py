@@ -26,11 +26,12 @@ import base64
 import os
 import sys
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 import httpx
 
 ROOT = Path(__file__).resolve().parent.parent
-HORFIN = Path(r"C:\Users\RafaelGarcía\horizonte-datos")
+HORFIN = HORFIN_DIR
 _ENDPOINTS = {
     "sync-metricas": HORFIN / "metricas.json",
     "sync-clases": HORFIN / "asset_classes_por_isin.json",

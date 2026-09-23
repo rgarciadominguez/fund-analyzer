@@ -32,11 +32,12 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-OLD = Path(r"C:\Users\RafaelGarcía\horizonte-datos\catalogo_supabase.json")
+OLD = HORFIN_DIR / "catalogo_supabase.json"
 OUT = OLD  # sobrescribe el viejo, como piden
 
 # Los 34 campos, en orden, tal como salen en el export viejo.
@@ -235,7 +236,7 @@ def build() -> dict:
     from tools.contract_sync import apply_contract, load_contract
     contract_version = load_contract().get("_meta", {}).get("version")
     activos, contract_report = apply_contract(activos)
-    (Path(r"C:\Users\RafaelGarcía\horizonte-datos") / "contrato_validacion.json").write_text(
+    (HORFIN_DIR / "contrato_validacion.json").write_text(
         json.dumps(contract_report, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"contrato v{contract_version}: "
           f"{len(contract_report['valores_puestos_a_null_por_fuera_de_contrato'])} tipos fuera→null, "

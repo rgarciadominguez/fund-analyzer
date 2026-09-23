@@ -12,7 +12,8 @@ import re, sys
 from pathlib import Path
 from collections import Counter
 
-EXCEL = r"C:\Users\RafaelGarcía\OneDrive - Nazca\Rafa\Personal\Asesoría Financiera\Operativa\BDD\20260513_Listado Fondos Def (version valores).xlsm"
+from tools.paths import BDD_DIR
+EXCEL = str(BDD_DIR / "20260513_Listado Fondos Def (version valores).xlsm")
 _ISIN = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
 
 

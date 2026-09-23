@@ -25,10 +25,11 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-EXPORT = Path(r"C:\Users\RafaelGarcía\horizonte-datos\catalogo_supabase.json")
+EXPORT = HORFIN_DIR / "catalogo_supabase.json"
 
 # Campos que son listas → van como jsonb
 _JSONB = {"caracteristicas_especiales", "broker_disponible", "class_isins_known"}

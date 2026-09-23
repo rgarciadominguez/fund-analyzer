@@ -33,13 +33,14 @@ import os
 import re
 import sys
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 FICHAS = ROOT / "data" / ".benchmark_fichas.json"
 RESULT = ROOT / "data" / "benchmark_asignado.json"
-CSV_HORFIN = Path(r"C:\Users\RafaelGarcía\horizonte-datos\Activos y Bancos (1).csv")
+CSV_HORFIN = HORFIN_DIR / "Activos y Bancos (1).csv"
 
 MODEL = "claude-sonnet-4-5"
 

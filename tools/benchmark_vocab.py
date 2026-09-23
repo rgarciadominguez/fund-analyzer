@@ -27,10 +27,11 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "benchmark_vocabulary.json"
-CSV_HORFIN = Path(r"C:\Users\RafaelGarcía\horizonte-datos\Activos y Bancos (1).csv")
+CSV_HORFIN = HORFIN_DIR / "Activos y Bancos (1).csv"
 
 # grafía cruda (lower, sin espacios extra) -> canónica
 ALIASES = {

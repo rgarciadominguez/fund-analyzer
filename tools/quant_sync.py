@@ -32,10 +32,11 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-METRICAS_JSON = Path(r"C:\Users\RafaelGarcía\horizonte-datos\metricas.json")
+METRICAS_JSON = HORFIN_DIR / "metricas.json"
 
 
 def _now():

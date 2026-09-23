@@ -12,9 +12,8 @@ from pathlib import Path
 from datetime import datetime
 
 # Ruta por defecto del Excel espejo (OneDrive BDD).
-DEFAULT_OUT = (Path(r"C:\Users\RafaelGarcía\OneDrive - Nazca\Rafa\Personal"
-                    r"\Asesoría Financiera\Operativa\BDD")
-               / "20260617_BDD Fondos v2 (espejo Supabase).xlsx")
+from tools.paths import BDD_DIR
+DEFAULT_OUT = BDD_DIR / "20260617_BDD Fondos v2 (espejo Supabase).xlsx"   # relativo al repo: vale en Surface y servidor
 
 
 def regenerate(out: str | None = None, quiet: bool = False) -> str | None:

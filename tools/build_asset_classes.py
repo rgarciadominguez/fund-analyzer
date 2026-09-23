@@ -28,10 +28,11 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = Path(r"C:\Users\RafaelGarcía\horizonte-datos\asset_classes_por_isin.json")
-EXPORT = Path(r"C:\Users\RafaelGarcía\horizonte-datos\catalogo_supabase.json")
+OUT = HORFIN_DIR / "asset_classes_por_isin.json"
+EXPORT = HORFIN_DIR / "catalogo_supabase.json"
 
 
 def build() -> dict:

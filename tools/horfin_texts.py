@@ -35,11 +35,12 @@ import os
 import re
 import sys
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-APORTE = Path(r"C:\Users\RafaelGarcía\horizonte-datos\aporte_horfin.json")
+APORTE = HORFIN_DIR / "aporte_horfin.json"
 MODEL = "claude-sonnet-4-5"
 
 _SYSTEM = """Escribes fichas de fondos para Horizonte Financiero, en español, con SU estilo.

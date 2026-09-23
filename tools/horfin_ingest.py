@@ -22,11 +22,12 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-APORTE = Path(r"C:\Users\RafaelGarcía\horizonte-datos\aporte_horfin.json")
+APORTE = HORFIN_DIR / "aporte_horfin.json"
 REPORT = ROOT / "data" / "horfin_ingest_report.json"
 
 VALID_CATEGORIA = {"Indexado", "Gestionado", "Hedgefund"}

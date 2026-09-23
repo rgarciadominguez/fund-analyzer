@@ -26,6 +26,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = ROOT / "data" / "fund_estado.json"
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     ap.add_argument("--show", metavar="ISIN")
     a = ap.parse_args()
     if a.seed:
-        exp = Path(r"C:\Users\RafaelGarcía\horizonte-datos\catalogo_supabase.json")
+        exp = HORFIN_DIR / "catalogo_supabase.json"
         rows = json.loads(exp.read_text(encoding="utf-8"))["activos"]
         n = seed_from_rows(rows)
         reg = _load()

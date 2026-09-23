@@ -49,11 +49,12 @@ import tempfile
 import time
 from datetime import datetime
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 import httpx
 
 ROOT = Path(__file__).resolve().parent.parent
-HORFIN = Path(r"C:\Users\RafaelGarcía\horizonte-datos")
+HORFIN = HORFIN_DIR
 LOG = ROOT / "logs" / "portal_analyze_worker.log"
 _ISIN = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
 WEB_BASE = "http://127.0.0.1:5000"   # el server local del catálogo (web_server.py)

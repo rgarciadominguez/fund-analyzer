@@ -14,7 +14,7 @@
 #   powershell -ExecutionPolicy Bypass -File iniciar.ps1
 
 $ErrorActionPreference = "Continue"
-$repo = "C:\Users\RafaelGarcía\OneDrive - Nazca\Escritorio\fund-analyzer"
+$repo = $PSScriptRoot   # carpeta del propio script: vale en cualquier maquina/usuario
 $catalogUrl = "https://fund-analyzer.rafagdominguez96.workers.dev/catalog.html"
 $tunnelLog = Join-Path $repo "tunnel_out.log"
 

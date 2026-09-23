@@ -22,12 +22,13 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from tools.paths import HORFIN_DIR
 
 from tools.morningstar_daily import fetch_series, metrics_from_series, monthly_returns_by_ym
 
 _ISIN = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
-_DEFAULT_LISTA = Path(r"C:\Users\RafaelGarcía\horizonte-datos\mis_296_activos.json")
-_DEFAULT_OUT = Path(r"C:\Users\RafaelGarcía\horizonte-datos")
+_DEFAULT_LISTA = HORFIN_DIR / "mis_296_activos.json"
+_DEFAULT_OUT = HORFIN_DIR
 _DEFAULT_RF = "FR0000989626"   # Groupama Trésorerie IC (monetario EUR)
 
 
