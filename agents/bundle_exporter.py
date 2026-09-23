@@ -430,6 +430,37 @@ def build_bundle_feedback(hf_data: dict, isin: str) -> dict:
     }
 
 
+
+def _fill_identity(fund_dir: Path, fund_data_path: Path) -> None:
+    """Identidad (nombre/gestora) vacía en fund_data → rellenar desde lo que ya sabemos.
+
+    En annual_update/aporte la prep vuelve a escribir intl_data.json desde cero y la gestora
+    puede quedar '' (DNCA Credit Conviction 23-sep: bundle_validator INVALID 'fund_data.gestora
+    missing' aunque output.json decía 'DNCA Finance'). Orden: output.json (análisis previo) >
+    cssf_data.json (regulador). Solo rellena huecos; nunca pisa un valor no vacío.
+    """
+    try:
+        fd = _read_json(fund_data_path) or {}
+        if not isinstance(fd, dict):
+            return
+        out = _read_json(fund_dir / "output.json") or {}
+        cssf = _read_json(fund_dir / "cssf_data.json") or {}
+        cands = {
+            "nombre": [out.get("nombre"), cssf.get("nombre_oficial")],
+            "gestora": [out.get("gestora"), cssf.get("gestora_oficial")],
+        }
+        changed = False
+        for k, vals in cands.items():
+            if not (fd.get(k) or "").strip():
+                v = next((x for x in vals if isinstance(x, str) and x.strip()), None)
+                if v:
+                    fd[k] = v.strip()
+                    changed = True
+        if changed:
+            fund_data_path.write_text(json.dumps(fd, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
 def run(isin: str) -> dict:
     """Assemble the bundle for `isin` and return the manifest dict.
 
@@ -457,6 +488,7 @@ def run(isin: str) -> dict:
         raise BundleExportError(
             f"neither cnmv_data.json nor intl_data.json found in {fund_dir}"
         )
+    _fill_identity(fund_dir, bundle_dir / "fund_data.json")
 
     # 2. manager_profile.json — copy with backup fallback.
     # P2 (2026-05-19): si no existe ni el main ni el backup, escribir uno
