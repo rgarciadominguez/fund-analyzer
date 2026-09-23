@@ -45,7 +45,12 @@ def is_garbage(name: str, isin: str = "", gestora: str = "") -> str | None:
         return "demasiado corto (código de clase suelto)"
     if gestora and _norm(n) == _norm(gestora):
         return "es la gestora"
-    if _BENCH.search(n) and not re.search(r"\b(fund|fondo|fi|fcp|sicav|ucits|icav|portfolio|bond|equity|acc|inc)\b", n, re.I):
+    # benchmark suelto ("SOFR compuesto", "MSCI World"): pocas palabras, sin código de clase entre
+    # paréntesis/guiones ni palabra de fondo/gestora. "Amundi Index MSCI World - AE (C)" NO es basura.
+    if "%" in n or (("+" in n) and len(n.split()) <= 4):   # "€STR + 1.40%", "SOFR + 2%"
+        return "parece un benchmark"
+    if (_BENCH.search(n) and len(n.split()) <= 4 and not re.search(r"[()\-]", n)
+            and not re.search(r"\b(fund|fondo|fi|fcp|sicav|ucits|icav|portfolio|bond|equity|acc|inc|index|indice|índice|amundi|ishares|vanguard)\b", n, re.I)):
         return "parece un benchmark"
     if " desde " in n.lower() or n.endswith((":", "...")):
         return "es prosa"
