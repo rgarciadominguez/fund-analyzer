@@ -694,19 +694,44 @@ def make_app(cold_start: bool = True) -> Flask:
         # restauran y el worker los recogerá.
         n_zombies = 0
         n_restored = 0
+        n_requeued = 0
         for it in items:
             if it.get("status") == "running":
                 it["status"] = "interrupted"
                 it["finished_at"] = it.get("finished_at") or datetime.now(timezone.utc).isoformat()
                 it["error"] = "subprocess perdido tras reinicio del web_server"
                 n_zombies += 1
+                # 2026-09-24: un run cortado por reinicio del servidor (Windows Update, corte de red +
+                # reinicio manual) se quedaba en 'interrupted' para siempre → "mandé análisis y no
+                # terminaron". Se reencola como RELANZAMIENTO (conserva prep/extractos) con el mismo
+                # tope anti-bucle que el watchdog (MAX_AUTO_RELAUNCH); cada item interrumpido solo
+                # genera un reencolado (marca requeued_after_restart).
+                if (not it.get("requeued_after_restart")
+                        and int(it.get("relaunch_count", 0)) < MAX_AUTO_RELAUNCH):
+                    it["requeued_after_restart"] = True
+                    it["_requeue"] = True
+                    n_requeued += 1
             elif it.get("status") == "queued":
                 n_restored += 1
+        requeued = []
+        for it in items:
+            if it.pop("_requeue", None):
+                requeued.append({
+                    "isin": it["isin"], "status": "queued", "relaunch": True,
+                    "relaunch_count": int(it.get("relaunch_count", 0)) + 1, "cold_start": False,
+                    "scope": it.get("scope"), "config": it.get("config"),
+                    "queued_at": datetime.now(timezone.utc).isoformat(),
+                    "_auto_relaunch_of": it.get("run_id"),
+                    "note": "reencolado automáticamente: run cortado por reinicio del servidor",
+                })
+        items.extend(requeued)
+        for r in requeued:
+            print(f"[QUEUE] {r['isin']}: run cortado por reinicio → reencolado como RELAUNCH auto (intento {r['relaunch_count']}/{MAX_AUTO_RELAUNCH})")
         with QUEUE_LOCK:
             QUEUE.clear()
             QUEUE.extend(items)
         if n_zombies or n_restored:
-            print(f"[QUEUE] cargado queue_state.json — {n_zombies} zombies marcados interrupted, {n_restored} pendientes restaurados")
+            print(f"[QUEUE] cargado queue_state.json — {n_zombies} zombies marcados interrupted ({n_requeued} reencolados), {n_restored} pendientes restaurados")
         else:
             print(f"[QUEUE] cargado queue_state.json — {len(items)} items (terminados de sesiones previas)")
 
