@@ -137,6 +137,10 @@ def build() -> dict:
     for isin, base in old_rows.items():
         row = {k: base.get(k) for k in FIELDS_34}
         f = funds.get(isin, {})
+        # grupo: SIEMPRE el vivo de `funds` (2026-09-23: al fusionar clases en un grupo, el export
+        # arrastraba el fund_group_id del export viejo → 17 filas del portal apuntaban a grupos borrados)
+        if f.get("fund_group_id"):
+            row["fund_group_id"] = f["fund_group_id"]
         g = groups.get(f.get("fund_group_id") or base.get("fund_group_id"), {})
         # nombre: refresco desde funds (corrige cruces ISIN<->nombre erróneos como IE0007987708)
         if f.get("nombre_clase"):
