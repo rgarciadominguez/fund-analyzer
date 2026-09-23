@@ -120,10 +120,51 @@ def import_isins(isins: list[str], apply: bool = False, log=print) -> dict:
     return res
 
 
-def _post_steps(log=print) -> None:
+_SIN_DATOS = ROOT / "data" / ".portal_isins_sin_datos.json"   # isin → ts del último intento fallido
+_RETRY_DAYS = 30
+
+
+def _sin_datos_load() -> dict:
+    try:
+        return json.loads(_SIN_DATOS.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def import_missing_from_portal(portal_isins: list[str], apply: bool, log=print, max_n: int = 40) -> dict:
+    """Entrada AUTOMÁTICA (consume_inputs_rafa, cada hora en el servidor): ISIN del portal que no
+    están en `funds` → alta. Los que Morningstar no conoce se anotan y no se reintentan hasta pasados
+    _RETRY_DAYS (ETF, clases institucionales sin ficha, códigos que no son ISIN). Tope por pasada."""
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / ".env")
+    from tools.supabase_client import get_client
+    existing = {r["isin"].upper() for r in get_client().table("funds").select("isin").limit(8000).execute().data}
+    skip = _sin_datos_load()
+    now = time.time()
+    cand = [i for i in portal_isins if _ISIN.match(i) and i not in existing
+            and (now - float(skip.get(i, 0))) > _RETRY_DAYS * 86400][:max_n]
+    if not cand:
+        return {"altas": [], "sin_datos": [], "etf": []}
+    log(f"[alta-portal] {len(cand)} ISIN del portal no están en el catálogo → alta {'(dry-run)' if not apply else ''}")
+    res = import_isins(cand, apply=apply, log=log)
+    if apply:
+        for i in res["sin_datos"] + [e[0] for e in res["etf"]]:
+            skip[i] = now
+        try:
+            _SIN_DATOS.write_text(json.dumps(skip, indent=1), encoding="utf-8")
+        except Exception:
+            pass
+        if res["altas"]:
+            _post_steps(log, steps=("export", "publish"))   # el consumer que nos llama aplica los inputs después
+    return res
+
+
+def _post_steps(log=print, steps=("export", "publish", "consume")) -> None:
     """Catálogo → tabla → portal, y traer los inputs de Rafa para los ISIN recién dados de alta."""
     exe = sys.executable
-    for cmd in (["-m", "tools.export_horfin_catalog"], ["-m", "tools.catalog_publish", "--apply"], ["-m", "tools.consume_inputs_rafa"]):
+    cmds = {"export": ["-m", "tools.export_horfin_catalog"], "publish": ["-m", "tools.catalog_publish", "--apply"],
+            "consume": ["-m", "tools.consume_inputs_rafa"]}
+    for cmd in (cmds[k] for k in steps):
         log(f"[post] {' '.join(cmd)}")
         r = subprocess.run([exe, *cmd], cwd=str(ROOT), capture_output=True, text=True, timeout=900, encoding="utf-8", errors="replace")
         tail = "\n".join((r.stdout or "").strip().splitlines()[-3:])

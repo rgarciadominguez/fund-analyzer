@@ -24,6 +24,7 @@ Uso:
   python -m tools.consume_inputs_rafa --dry-run   # no escribe, solo informa
 """
 from __future__ import annotations
+import time
 
 import argparse
 import json
@@ -125,6 +126,23 @@ def _brokers_by_isin(payload: dict) -> dict:
     return out
 
 
+_FULL_SCAN_STAMP = Path(__file__).resolve().parent.parent / "data" / ".portal_import_full_scan.json"
+
+
+def _full_scan_due(hours: int = 24) -> bool:
+    try:
+        return (time.time() - float(json.loads(_FULL_SCAN_STAMP.read_text(encoding="utf-8")).get("ts", 0))) > hours * 3600
+    except Exception:
+        return True
+
+
+def _mark_full_scan() -> None:
+    try:
+        _FULL_SCAN_STAMP.write_text(json.dumps({"ts": time.time()}), encoding="utf-8")
+    except Exception:
+        pass
+
+
 def consume(dry_run: bool = False, full: bool = False) -> dict:
     since = None if full else _load_since()
     _log(f"GET /inputs-rafa {'(full)' if full else f'since={since}'}")
@@ -135,6 +153,21 @@ def consume(dry_run: bool = False, full: bool = False) -> dict:
     rows = payload.get("rows") or []
     brokers = _brokers_by_isin(payload)
     _log(f"recibido: {len(rows)} rows · {len(brokers)} brokers")
+
+    # ── Alta automática (2026-09-23, Rafa): un fondo nuevo en el portal entra en el catálogo solo,
+    #    con o sin análisis y con o sin clasificación. Incremental: los ISIN de esta tanda; y una vez
+    #    al día, TODOS los del portal (por si un alta antigua se quedó fuera). ──
+    try:
+        from tools.import_portal_isins import import_missing_from_portal
+        isins_tanda = [(r.get("isin") or "").upper().strip() for r in rows]
+        if not full and _full_scan_due():
+            isins_tanda = sorted({(r.get("isin") or "").upper().strip() for r in (fetch(None).get("rows") or [])} | set(isins_tanda))
+            _mark_full_scan()
+        alta = import_missing_from_portal(isins_tanda, apply=not dry_run, log=_log)
+        if alta.get("altas"):
+            _log(f"[alta-portal] dadas de alta {len(alta['altas'])} clases nuevas del portal")
+    except Exception as e:  # noqa: BLE001
+        _log(f"[WARN] alta-portal falló (se sigue con los inputs): {str(e)[:120]}")
 
     from tools.supabase_client import get_client
     client = get_client()
