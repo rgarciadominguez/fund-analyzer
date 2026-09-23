@@ -2176,7 +2176,7 @@ def make_app(cold_start: bool = True) -> Flask:
         """Actualiza campos editables de un fondo en Supabase (tabla `funds`).
 
         Body JSON con cualquier subset de:
-          - clasificacion_user   (str: Top | Bueno | Medio | Clase_similar | Clase_sucia | null)
+          - clasificacion_user   (str: Top | Bueno | Medio | Malo | Clase_similar | Clase_sucia | null)
           - opinion_user         (str)
           - encaje_texto         (str)
           - notas_internas       (str)
