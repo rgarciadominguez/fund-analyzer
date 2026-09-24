@@ -175,6 +175,7 @@ def find_official_site_sync(isin: str, name: str = "", gestora: str = "", log=No
     desde código async: 24-sep "Cannot run the event loop while another loop is running" → la
     búsqueda dirigida de la web de la gestora fallaba SIEMPRE), se ejecuta en un hilo aparte con
     su propio loop; si no, asyncio.run normal."""
+    import asyncio
     import concurrent.futures
     try:
         asyncio.get_running_loop()
