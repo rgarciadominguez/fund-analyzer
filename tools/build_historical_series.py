@@ -32,6 +32,27 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
+
+_RE_YEAR = re.compile(r"^\d{4}$")
+_RE_12M = re.compile(r"(^|[^\d])(1\s*[yY]\b|1Y_pa|1\s*a[nñ]o\b|1\s*ano\b|12\s*meses|1\s*year|one\s*year)", re.I)
+_RE_MULTI = re.compile(r"(\b[2-9]\d?\s*(Y\b|Y_pa|a[nñ]os|anos|years)|desde\s*inicio|since\s*inception|SinceInception|launch|6\s*meses|6\s*months|ytd)", re.I)
+
+
+def _performance_year(pr: dict, doc_year: str) -> str:
+    """Año al que corresponde una fila de la tabla de rentabilidad, o "" si no es un dato anual.
+    · periodo "2024" → 2024.  · "1Y_pa (a 2025-09-30)" / "1 año" / "12 meses" → año del documento (FY).
+    · "3Y_pa", "desde inicio p.a.", "6 meses", "YTD" → se descartan (no son la rentabilidad del año)."""
+    lab = str(pr.get("periodo") or pr.get("horizonte") or "").strip()
+    if _RE_YEAR.match(lab):
+        return lab
+    if _RE_MULTI.search(lab):
+        return ""
+    if _RE_12M.search(lab):
+        y = str(doc_year or "")[:4]
+        return y if _RE_YEAR.match(y) else ""
+    return ""
+
+
 def _load(p: Path) -> dict:
     try:
         return json.loads(p.read_text(encoding="utf-8"))
@@ -306,16 +327,34 @@ def build(isin: str) -> dict:
         for pr in (data.get("performance") or []):
             if not isinstance(pr, dict):
                 continue
-            p_yr = str(pr.get("periodo") or yr)[:4]
-            if not re.match(r"^\d{4}$", p_yr):
+            # 2026-09-24 (Baillie LTGG): las tablas de rentabilidad de AR/SAR traen filas por HORIZONTE
+            # (6 meses, 1 año, 3 años p.a., desde inicio p.a.). Antes, una fila sin `periodo` heredaba el
+            # año del documento y la ÚLTIMA (desde inicio) se publicaba como "rentabilidad del año".
+            # Solo vale una fila si es un año natural explícito o el tramo de 12 meses a cierre.
+            p_yr = _performance_year(pr, yr)
+            if not p_yr:
                 continue
             clase = str(pr.get("clase") or "")
+            es_ar = _is_ar(name)
+            prev = rent_by_key.get((p_yr, clase))
+            if prev and prev.get("fuente") == "AR" and not es_ar:
+                continue   # el 12m del semestral no pisa el ejercicio completo del informe anual
             rent_by_key[(p_yr, clase)] = {
                 "periodo": p_yr, "clase": clase,
                 "rentabilidad_pct": pr.get("rentabilidad_pct"),
                 "benchmark_pct": pr.get("benchmark_pct"),
+                "tramo": pr.get("periodo") or pr.get("horizonte") or "",
+                "fuente": "AR" if es_ar else "SAR",
             }
 
+        # serie_aum: patrimonio del propio informe (kpis.aum_actual_meur + fecha_aum). Antes solo se
+        # miraba statistics.aum_meur, que suele venir vacío → pestaña Evolución sin patrimonio (Baillie).
+        _k = data.get("kpis") or {}
+        _aum = _k.get("aum_actual_meur")
+        if isinstance(_aum, (int, float)) and _aum > 0:
+            _fa = str(_k.get("fecha_aum") or "")
+            _akey_aum = _fa[:7] if re.match(r"^\d{4}-\d{2}", _fa) else akey
+            aum_by_per.setdefault(_akey_aum, _aum) if not _is_ar(name) else aum_by_per.__setitem__(_akey_aum, _aum)
         # serie_aum (statistics: cada AR trae ~3 años de aum_meur)
         for st in (data.get("statistics") or []):
             if not isinstance(st, dict):
