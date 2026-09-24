@@ -3,7 +3,7 @@ name: analyst-cowork
 description: Genera el bloque `analyst_synthesis.*` (8 secciones narrativas + estructuradas) de un fondo del proyecto fund-analyzer usando la cuota de Claude Max. Reemplaza al `agents/analyst_agent.py` legacy. Úsala SIEMPRE que Rafa diga "analyst cowork", "analiza fondo X con cowork", "regenera síntesis de X via skill", "skill analyst X", "consume preview de X", "monta el analyst de X aquí", o cualquier variante sobre ejecutar la síntesis del analyst del fund-analyzer dentro de Cowork. NO la uses para ejecutar el pipeline de descarga (CNMV, PDFs, scraping) — eso sigue en Python. NO la uses para fondos que no han pasado antes por la prep determinista (`python -m agents.orchestrator --isin X --prep-only`).
 ---
 
-# analyst-cowork v2.3
+# analyst-cowork v2.6
 
 Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bloque `analyst_synthesis.*` con 8 secciones siguiendo el **schema EXACTO** que espera el dashboard renderer (`dashboard/generate_dashboard.py`). Diseñada para correr bajo Claude Max y eliminar el coste API de Anthropic.
 
@@ -43,6 +43,19 @@ Estas tres cosas faltaban sistemáticamente (caso MontLake) aunque los datos SÍ
 
 **R5 · Track record con vehículos predecesores.** Si algún extracto trae `track_record_lineage` (o `performance[].vehiculo`), el histórico de rentabilidad NO es todo del fondo actual: **dilo explícitamente** en Evolución/Historia — qué tramo corresponde a qué vehículo (certificado, RAIF, fondo previo, con su ISIN y fechas), que es la MISMA estrategia/equipo, y desde cuándo existe el vehículo actual. Es legítimo usar ese histórico para tener más track, pero el lector debe verlo claro de un vistazo; nunca lo presentes como si el fondo actual tuviera esa antigüedad.
 
+**R6 · EJES DE DIFERENCIACIÓN (Rafa, 2026-09-24) — OBLIGATORIO en todos los modos.** El análisis tiene que dejar claro en qué se
+diferencia este fondo de otros, en CUATRO ejes, y en cada uno decir si cambia con el tiempo y POR QUÉ (con la evidencia: qué informe,
+carta o año lo muestra). Van como campo estructurado `estrategia.diferenciacion` (schema más abajo) Y deben estar desarrollados en la
+narrativa (estrategia/cartera/gestores/evolución):
+1. **Activos**: en qué tipo de activos invierte y cómo cambia el mix (RV/RF/liquidez/otros; subtipos: HY, IG, subordinada, small caps…).
+   Si cambia, por qué (mandato, visión, ciclo, entradas/salidas de dinero). Si el mandato no le deja cambiar, dilo.
+2. **Gestión**: tipo de gestión (autor vs equipo vs casa), cómo se toman las decisiones (comité, gestor único, modelo cuantitativo),
+   quién controla al gestor (órgano de control: comité de riesgos, depositario, consejo, límites del folleto) y skin-in-the-game.
+3. **Geografía**: mix geográfico y cómo cambia; por qué; y si el mandato permite cambiarlo.
+4. **Filosofía y equipo**: filosofía y estrategia de inversión + expertise real del equipo (años, especialidad, track record previo).
+Sin datos para un eje: dilo explícitamente ("no consta en los informes") en vez de rellenar. Nada genérico: cada eje con cifras,
+años o nombres concretos cuando existan.
+
 ## MODO UPDATE ANUAL (v2.5 — solo el delta del último año)
 
 **Antes de generar nada, lee `data/funds/{ISIN}/config.json`. Si `modo == "annual_update"`, NO rehagas el análisis desde cero: actualiza el existente solo con el delta del último año.**
@@ -56,6 +69,10 @@ En ese modo:
 3. **INTEGRA en la narrativa — NO apiles bloques** (regla de oro): el resultado es UN análisis coherente y actualizado, no el viejo con un anexo pegado.
    - Donde el dato del último año **cambia, refina o contradice** algo del texto previo (cartera, exposición, tesis, equipo, comisiones, tamaño), **reescribe esa frase/párrafo integrando el dato nuevo** — para que quede un solo relato sin duplicados ni contradicciones. Preserva las CONCLUSIONES y el peso del análisis previo: ajustas el texto, no lo tiras.
    - Lo que NO ha cambiado, déjalo VERBATIM (no reescribas por reescribir).
+   - **RECONSTRUCCIÓN DIRIGIDA (2026-09-24):** si tu `novedades_resumen.veredicto.estado` va a ser `cambia`, o un
+     `hueco_de_fondo` afecta a la estrategia/tesis/equipo/cartera, NO complementes esas secciones: REGENÉRALAS COMPLETAS con todo
+     el material (bundle previo + nuevo), como en un análisis full, y sigue preservando verbatim las secciones no afectadas. Un
+     análisis previo flojo no se arregla añadiendo párrafos.
    - **NO añadas bloques `**Novedades {año}**` al final de las secciones.** El "qué ha cambiado y por qué" va APARTE, en `novedades_resumen` (pestaña Novedades). Si el texto previo traía un bloque `**Novedades {año-1}**` de un run viejo, fúndelo en el cuerpo y elimínalo.
    - Actualiza los campos estructurados (KPIs, top_posiciones, perfil_riesgo, comisiones…) SOLO donde el dato nuevo difiera del anterior. Si un dato no ha cambiado, déjalo idéntico.
 
@@ -86,6 +103,9 @@ En ese modo:
    - Confirma (integrado en el texto) qué **SIGUE IGUAL** en estrategia / filosofía / equipo.
    - **NO añadas bloques `**Complemento (aporte)**`.** El "qué has cambiado/mejorado y por qué" va APARTE, en `novedades_resumen`.
 3. Si una sección NO la toca el aporte, no la reescribas (el consumidor preserva verbatim las que no emitas).
+   **RECONSTRUCCIÓN DIRIGIDA (2026-09-24):** si tu `novedades_resumen.veredicto.estado` va a ser `cambia`, o un `hueco_de_fondo`
+   afecta a la estrategia/tesis/equipo/cartera, REGENERA COMPLETAS esas secciones con todo el material (análisis previo + aporte),
+   no las complementes. Caso real: Gamma Global (aporte 24-sep) dio veredicto "cambia" y dejó una estrategia genérica heredada.
 4. **Cuantitativo**: no cambia (el aporte no re-descubre NAV). No inventes cambios que el aporte no soporte.
 5. **`revision_pendiente` (OBLIGATORIO en aporte)**: emite en el JSON, junto a `analyst_synthesis`, una lista `revision_pendiente` con los **datos frescos del aporte que NO has propagado a lo estructurado** y conviene reconciliar cuando lleguen los informes oficiales completos. Típicamente:
    - Un **KPI que no cuadra**: el doc trae un AUM/TER/YTM más reciente que NO coincide con `kpis.*` (que dejas intacto). → item con el valor del doc, el del KPI y la fecha.
@@ -235,6 +255,14 @@ Reglas:
 2. **Por cada item con `source_urls`** que apliquen a una sección, intenta incorporar la información de esas URLs en `analyst_synthesis.fuentes_externas.texto` o como referencia en la sección target.
 3. **Items con `action=revisar` y sin `target_section`** (global): aplica el feedback al contexto general de TODAS las secciones (suele ser feedback de calidad/tono).
 4. **Confianza humana > automática**: si el usuario contradice algo que el analyst anterior dijo, el usuario gana.
+
+### Regeneración dirigida por CALIDAD (2026-09-24) — `data/funds/{ISIN}/quality_regen.json`
+
+Si existe ese fichero, lo ha escrito el control de calidad tras el primer pase (`tools/quality_regen.py`). Estructura:
+`{"secciones": ["estrategia", "gestores"], "motivos": {"estrategia": ["Estrategia con pocas cifras (2). Parece genérica.", ...]}, "intento": 1}`.
+Regenera **SOLO esas secciones, COMPLETAS y corrigiendo de raíz los motivos listados** (cifras concretas, ejes de diferenciación,
+equipo con nombres y expertise), y emítelas en `analyst_synthesis`; el consumidor preserva verbatim el resto. Es una única pasada:
+no habrá una segunda. No toques `novedades_resumen` salvo que esté entre las secciones.
 
 ### Regeneración selectiva (2026-06-06) — IMPORTANTE
 
@@ -479,6 +507,12 @@ Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos re
   "resumen_general": "2500-4000 chars. PROSA FLUIDA EXTENSA (4-6 párrafos, SIN headers ni subsecciones) que RESUME de forma sustancial TODO lo que se detalla en las demás pestañas/subsecciones (objetivo, benchmark, universo+rangos, estilo, autor vs gestionado, cuanti/cuali y la fórmula). Es la 1ª pestaña de Estrategia: una visión de conjunto sólida y completa que se pueda leer sola y entender la estrategia entera; el detalle por bloque va en `texto`. Debe ser CONSIDERABLEMENTE extensa, no un resumen corto.",
   "texto": "5000-9000 chars. Estrategia centrada en los 6 puntos de arriba (objetivo, benchmark, universo+rangos, estilo, autor/gestionado, cuanti/cuali+fórmula), profundizando en lo diferencial. Cada uno como sub-sección con **bold** header (el dashboard las convierte en pestañas). Sin historia ni enumerar posiciones.",
   "estrategia_actual_resumen": "200-400 chars. Resumen de la estrategia hoy.",
+  "diferenciacion": {
+    "activos":          {"texto": "400-900 chars: qué activos y cómo cambia el mix", "cambia": "si|no|no_puede", "por_que": "1-2 frases", "evidencia": ["Informe anual 2025", "Carta 2024-Q4"]},
+    "gestion":          {"texto": "400-900 chars: autor/equipo/casa, toma de decisiones, órgano de control, skin-in-the-game", "cambia": "si|no|no_puede", "por_que": "...", "evidencia": ["..."]},
+    "geografia":        {"texto": "400-900 chars: mix geográfico y cómo cambia", "cambia": "si|no|no_puede", "por_que": "...", "evidencia": ["..."]},
+    "filosofia_equipo": {"texto": "400-900 chars: filosofía/estrategia + expertise real del equipo", "cambia": "si|no|no_puede", "por_que": "...", "evidencia": ["..."]}
+  },
   "fortalezas": [
     "frase 1 (100-300 chars)",
     "frase 2",

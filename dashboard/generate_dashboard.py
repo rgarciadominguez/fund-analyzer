@@ -4638,6 +4638,37 @@ def build_quant_panel(data):
         + grid)
 
 
+
+def _build_diferenciacion_html(dif: dict, nombre: str = "") -> str:
+    """Cuatro ejes en los que Rafa quiere ver la diferenciación del fondo (2026-09-24). Si el análisis
+    no los trae (análisis anteriores a la v2.6 de la skill), no se pinta nada."""
+    if not isinstance(dif, dict):
+        return ""
+    ejes = (("activos", "Activos y mix"), ("gestion", "Gestión y control"),
+            ("geografia", "Geografía y mix"), ("filosofia_equipo", "Filosofía y equipo"))
+    cards = []
+    for key, label in ejes:
+        e = dif.get(key) or {}
+        if not isinstance(e, dict) or not (e.get("texto") or "").strip():
+            continue
+        cambia = str(e.get("cambia") or "").lower()
+        badge = {"si": ("Cambia", "var(--navy)"), "no": ("Estable", "#3a7d44"), "no_puede": ("Mandato fijo", "#7a7a7a")}.get(cambia)
+        badge_html = f'<span style="font-size:10.5px;padding:2px 8px;border-radius:10px;color:#fff;background:{badge[1]};margin-left:8px;">{badge[0]}</span>' if badge else ""
+        por_que = (e.get("por_que") or "").strip()
+        evid = [str(x) for x in (e.get("evidencia") or []) if str(x).strip()]
+        cards.append(f'''<div style="flex:1 1 46%;min-width:280px;border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+      <div style="font-weight:600;color:var(--ink);font-size:13px;margin-bottom:6px;">{label}{badge_html}</div>
+      <div class="pr" style="font-size:12.5px;">{render_narrative_inline(e.get("texto") or "", nombre)}</div>
+      {f'<div style="font-size:12px;margin-top:6px;"><strong>Por qué:</strong> {por_que}</div>' if por_que else ''}
+      {f'<div style="font-size:11px;color:#6b6b6b;margin-top:6px;">Evidencia: {", ".join(evid)}</div>' if evid else ''}
+    </div>''')
+    if not cards:
+        return ""
+    return f'''<div class="mb24">
+  <div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">En qué se diferencia este fondo</div>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;">{"".join(cards)}</div>
+</div>'''
+
 def build_tab_estrategia(data):
     import re
     s = get_section_estrategia(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("estrategia", {})
@@ -4846,10 +4877,15 @@ def build_tab_estrategia(data):
         _est_tabs.append((_tab_label(_h), _body))
     estrategia_narr = build_subtabs(_est_tabs, "est-tabs") if _est_tabs else render_narrative_inline(texto, _nombre)
 
-    # ── Layout fijo: narrativa → quotes → resumen actual → matriz hitos → resumen consistencia
+    # ── Ejes de diferenciación (Rafa 2026-09-24): activos / gestión / geografía / filosofía+equipo ──
+    diferenciacion_html = _build_diferenciacion_html(s.get("diferenciacion") or {}, _nombre)
+
+    # ── Layout fijo: diferenciación → narrativa → quotes → resumen actual → matriz hitos → resumen consistencia
     return f"""
 <section class="pane" id="p4">
   <div class="pane-header"><h1 class="pane-h1">Estrategia y coherencia</h1><span class="pane-dl">Evaluación estratégica</span></div>
+
+  {diferenciacion_html}
 
   <div class="mb24">
     {estrategia_narr}

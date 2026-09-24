@@ -1870,6 +1870,18 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     except Exception:
         pass
     targeted = _feedback_targeted_sections(output_data) if apply_feedback_run else None
+    # Regeneración dirigida por CALIDAD (tools/quality_regen.py): quality_regen.json lista las secciones
+    # regeneradas; se mergean solo esas y el resto se preserva verbatim.
+    if targeted is None:
+        try:
+            _qr = fund_dir / "quality_regen.json"
+            if _qr.exists():
+                _secs = json.loads(_qr.read_text(encoding="utf-8")).get("secciones") or []
+                if _secs:
+                    targeted = set(_secs)
+                    log("COWORK", "INFO", f"quality_regen.json → merge selectivo de {sorted(targeted)}")
+        except Exception:
+            pass
     if targeted is not None and existing_synth:
         merged_synth = dict(existing_synth)
         replaced, preserved = [], []
@@ -3220,6 +3232,14 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
                 pass
     except Exception as exc:
         log("QUALITY", "WARN", f"Dashboard quality (single pass) falló: {exc}")
+
+    # Regeneración DIRIGIDA por calidad (Rafa 24-sep): una pasada, solo secciones con fallos de fondo
+    # (genérica/sin cifras/ejes de diferenciación/equipo genérico). Nunca por estilo. Sin bucle.
+    try:
+        from tools.quality_regen import run as _quality_regen
+        _quality_regen(isin, log=lambda m: log("QREGEN", "INFO", m))
+    except Exception as exc:
+        log("QREGEN", "WARN", f"regeneración por calidad falló (se sigue): {exc}")
 
     # Enriquecimiento cuantitativo (Yahoo style box/valoración/riesgo + capture
     # ratios calculados). Pura Python, best-effort: si Yahoo no cubre el fondo o
