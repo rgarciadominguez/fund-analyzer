@@ -271,9 +271,31 @@ def maybe_clean_onedrive_logs(days: int = 90) -> None:
         log(f"[WARN] limpieza logs/: {e}")
 
 
+_FX_STAMP = ROOT / "data" / "_fx_refresh.json"
+
+
+def maybe_refresh_fx() -> None:
+    """Una vez al día amplía la serie EUR/USD local desde Yahoo (tools.fx) para que las conversiones de
+    divisa de los informes usen el tipo de la fecha y nadie tenga que actualizar el histórico a mano."""
+    try:
+        try:
+            last = float(json.loads(_FX_STAMP.read_text(encoding="utf-8")).get("ts", 0))
+        except Exception:
+            last = 0.0
+        if time.time() - last < 86400:
+            return
+        from tools.fx import ensure_fresh
+        ensure_fresh("USD", log=log)
+        _FX_STAMP.parent.mkdir(exist_ok=True)
+        _FX_STAMP.write_text(json.dumps({"ts": time.time()}), encoding="utf-8")
+    except Exception as e:  # noqa: BLE001
+        log(f"[WARN] refresco FX: {e}")
+
+
 def main(check_only: bool = False) -> int:
     dedupe_web()
     maybe_clean_onedrive_logs()
+    maybe_refresh_fx()
     w = web_alive()
     p = poller_alive()
     if check_only:

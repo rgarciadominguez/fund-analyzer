@@ -79,10 +79,13 @@ REM El cuello de botella real de extraccion NO es el modelo sino la lectura
 REM visual de PDFs (ver fallback fitz en extract-pdfs-cowork SKILL.md).
 REM Fable 5 -> candidato de UPGRADE solo para analyst (A/B tras validar Max).
 REM ====================================================================
-set MODEL_EXTRACT=claude-opus-4-8
-set MODEL_LETTERS=claude-opus-4-8
-set MODEL_MANAGER=claude-opus-4-8
-set MODEL_ANALYST=claude-opus-4-8
+REM 2026-09-24 (Rafa OK): Opus 5 donde hay juicio (sintesis, gestores, sourcing web); Sonnet 5 en
+REM extraccion estructurada (tablas de informes, cartas, lineage). Comprobado que el CLI sirve ambos.
+set MODEL_EXTRACT=claude-sonnet-5
+set MODEL_LETTERS=claude-sonnet-5
+set MODEL_MANAGER=claude-opus-5
+set MODEL_ANALYST=claude-opus-5
+set MODEL_SOURCING=claude-opus-5
 
 REM ====================================================================
 REM Fix coste: vaciar ANTHROPIC_API_KEY del env del bat para que las 4
@@ -272,7 +275,7 @@ if errorlevel 1 (
         echo === Paso 1.6: Skill ar-sourcing-cowork ^(Claude Max^) — sourcing multi-año ^(gap-targeted^) ===
         echo Busca SOLO los AR/SAR/cartas de anios/tipos que faltan -^> KB + descarga -^> extract
         echo.
-        call python -m tools.claude_cowork "logs\skill_ar_sourcing_%ISIN%.log" "ar sourcing cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,WebSearch,WebFetch,Glob,Grep"
+        call python -m tools.claude_cowork "logs\skill_ar_sourcing_%ISIN%.log" "ar sourcing cowork %ISIN%" --model %MODEL_SOURCING% --allowedTools "Read,Write,Bash,Edit,WebSearch,WebFetch,Glob,Grep"
         if errorlevel 1 (
             echo [WARN] Skill ar-sourcing fallo. Ver logs\skill_ar_sourcing_%ISIN%.log
             set FAILED_STEPS=!FAILED_STEPS! ar-sourcing

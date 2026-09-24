@@ -9,6 +9,7 @@ vacíos con 79 posiciones en cartera). Aquí cada KPI se toma de la fuente más 
               > informe anual / extractos (lo que ya haya en output.json)
               > Morningstar / MyInvestor (myinvestor_data.json, Supabase `estrellas`).
   Fondos INT: informe anual / extractos (output.json) > Morningstar / MyInvestor.
+  Comisión y TER de cabecera: la clase accesible al particular según MyInvestor manda (Rafa 24-sep).
   Derivados de la propia cartera (siempre): nº de activos y concentración top 10.
 
 Nunca escribe vacío sobre un valor; deja rastro en `output["kpis_origen"]` (fuente por KPI) y en
@@ -134,6 +135,18 @@ def propose(isin: str, use_supabase: bool = True) -> list[dict]:
                     prop("ter_pct", float(ter), f"informe {fa}", solo_si_vacio=True)
         except Exception:
             pass
+    # Comisión y TER de cabecera = los de la CLASE ACCESIBLE AL PARTICULAR (Rafa 24-sep: referencia MyInvestor,
+    # que da datos reales por clase y cubre un universo grande). Manda sobre CNMV/informe cuando existe.
+    fee_mi = _num(mi.get("comision_gestion_pct"))
+    cls_mi = mi.get("clase_retail_isin") or mi.get("matched_isin") or ""
+    if fee_mi and fee_mi > 0:
+        prop("coste_gestion_pct", float(fee_mi), f"MyInvestor clase retail {cls_mi}".strip())
+    ter_mi = _num(mi.get("ter"))
+    if ter_mi and ter_mi > 0 and mi.get("disponible_myinvestor"):
+        prop("ter_pct", float(ter_mi), f"MyInvestor clase retail {cls_mi}".strip())
+    exito_mi = _num(mi.get("comision_exito_pct"))
+    if exito_mi and exito_mi > 0:
+        prop("comision_exito_pct", float(exito_mi), f"MyInvestor clase retail {cls_mi}".strip(), solo_si_vacio=True)
     # rating: MyInvestor (Morningstar) > Supabase estrellas; solo si el análisis no lo tiene o difiere
     rating = _num(mi.get("mstar_rating"))
     src = "MyInvestor (Morningstar)"
