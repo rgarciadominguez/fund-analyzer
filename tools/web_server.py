@@ -1095,6 +1095,8 @@ def make_app(cold_start: bool = True) -> Flask:
         new_item = {
             "isin": isin, "status": "queued", "relaunch": True,
             "relaunch_count": rc + 1, "cold_start": False,
+            # conservar el modo del run cortado (BNY 24-sep: annual_update relanzado sin scope → config modo=None)
+            "scope": it.get("scope"), "config": it.get("config"),
             "queued_at": datetime.now(timezone.utc).isoformat(),
             "_auto_relaunch_of": it.get("run_id"),
         }

@@ -1938,7 +1938,23 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     # annual_update: qué ha cambiado el año / qué sigue igual). Se muestra en la pestaña "Novedades".
     # full → sin novedades (análisis desde cero).
     new_nov = cowork_data.get("novedades_resumen")
+    # El modo puede venir del config.json o, si el lanzador no lo escribió (relanzamiento del watchdog),
+    # de lo que la propia skill marcó en _meta.mode (BNY 24-sep: config modo=None, skill en annual_update).
+    _meta_mode = (cowork_meta.get("mode") or "") if isinstance(cowork_meta, dict) else ""
+    if _modo_synth not in ("aporte", "annual_update") and _meta_mode in ("aporte", "annual_update"):
+        _modo_synth = _meta_mode
     if _modo_synth in ("aporte", "annual_update"):
+        # Sin documentos nuevos: la skill no emite digest; la pestaña Novedades tiene que decirlo igualmente
+        # (Rafa abre esa pestaña para saber qué pasó en el update), sin inventar hallazgos.
+        if not isinstance(new_nov, dict) and (cowork_meta.get("sin_novedades") if isinstance(cowork_meta, dict) else False):
+            _prev = (output_data.get("ultima_actualizacion") or "")[:10]
+            new_nov = {"modo": _modo_synth, "fecha": datetime.now().strftime("%Y-%m"),
+                       "veredicto": {"estado": "se_mantiene",
+                                     "texto": f"Sin documentos nuevos del fondo desde el último análisis ({_prev or 'fecha anterior'}): "
+                                              f"ni informe anual, ni semestral, ni cartas posteriores. El análisis se mantiene íntegro."},
+                       "huecos_de_fondo": [], "hallazgos": [],
+                       "sin_cambios": "Sin novedades documentales: estrategia, equipo y cartera según el último análisis publicado."}
+            log("COWORK", "INFO", f"Novedades ({_modo_synth}): sin documentos nuevos → digest 'se_mantiene' estándar")
         if isinstance(new_nov, dict) and (new_nov.get("veredicto") or new_nov.get("hallazgos")
                                           or new_nov.get("puntos") or new_nov.get("texto")):
             new_nov.setdefault("modo", _modo_synth)
