@@ -171,17 +171,20 @@ def _cache_to_registry(gestora: str, domain: str, url: str) -> None:
 
 
 def find_official_site_sync(isin: str, name: str = "", gestora: str = "", log=None) -> dict:
-    import asyncio
+    """Versión síncrona. Si YA hay un event loop corriendo en este hilo (sources_agent la llama
+    desde código async: 24-sep "Cannot run the event loop while another loop is running" → la
+    búsqueda dirigida de la web de la gestora fallaba SIEMPRE), se ejecuta en un hilo aparte con
+    su propio loop; si no, asyncio.run normal."""
+    import concurrent.futures
     try:
-        return asyncio.run(find_official_site(isin, name, gestora, log=log))
+        asyncio.get_running_loop()
+        running = True
     except RuntimeError:
-        # ya hay loop (raro en CLI) → nuevo loop
-        loop = asyncio.new_event_loop()
-        try:
-            return loop.run_until_complete(find_official_site(isin, name, gestora, log=log))
-        finally:
-            loop.close()
-
+        running = False
+    if running:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+            return ex.submit(lambda: asyncio.run(find_official_site(isin, name, gestora, log=log))).result(timeout=180)
+    return asyncio.run(find_official_site(isin, name, gestora, log=log))
 
 def main():
     import sys, json
