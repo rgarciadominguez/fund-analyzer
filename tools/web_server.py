@@ -2402,7 +2402,73 @@ def make_app(cold_start: bool = True) -> Flask:
 # ─────────────────────────────────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────────────────────────────────
+_WEB_LOCK = ROOT / "data" / ".web_server.lock"
+
+
+def _pid_alive(pid: int) -> bool:
+    if not pid:
+        return False
+    try:
+        import ctypes
+        h = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+        if h:
+            ctypes.windll.kernel32.CloseHandle(h)
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def _setup_file_log() -> None:
+    """Con pythonw (sin consola) stdout/stderr son None y TODO lo que imprime la cola y el
+    watchdog se perdía (24-sep: dos web_server y ninguna traza). Si no hay consola, se escribe
+    en logs/web_server.log (append, sin buffer)."""
+    try:
+        if sys.stdout is not None and sys.stdout.isatty():
+            return
+    except Exception:
+        pass
+    try:
+        (ROOT / "logs").mkdir(exist_ok=True)
+        f = open(ROOT / "logs" / "web_server.log", "a", encoding="utf-8", errors="replace", buffering=1)
+        sys.stdout = f
+        sys.stderr = f
+    except Exception:
+        pass
+
+
+def _acquire_web_lock(port: int) -> bool:
+    """Instancia única. En Windows dos procesos PUEDEN ligar el mismo puerto (SO_REUSEADDR), así que
+    el puerto no protege: 24-sep tras un reinicio arrancaron dos web_server con 44 s de diferencia
+    (guardián + lanzador antiguo de Inicio) y la cola quedó sin dueño claro. Lock por PID con
+    write-then-verify; si ya hay uno vivo, este proceso se retira sin tocar nada."""
+    import random
+    def _pid() -> int:
+        try:
+            return int(_WEB_LOCK.read_text(encoding="utf-8").split()[0])
+        except Exception:
+            return 0
+    other = _pid()
+    if other and other != os.getpid() and _pid_alive(other):
+        print(f"[SERVER] ya hay un web_server vivo (pid {other}) → me retiro sin arrancar (pid {os.getpid()})")
+        return False
+    time.sleep(random.uniform(0.05, 0.6))
+    other = _pid()
+    if other and other != os.getpid() and _pid_alive(other):
+        print(f"[SERVER] ya hay un web_server vivo (pid {other}) → me retiro sin arrancar (pid {os.getpid()})")
+        return False
+    try:
+        _WEB_LOCK.parent.mkdir(exist_ok=True)
+        _WEB_LOCK.write_text(f"{os.getpid()} {port} {datetime.now(timezone.utc).isoformat()}", encoding="utf-8")
+    except Exception as e:
+        print(f"[SERVER] no pude escribir el lock ({e}); sigo sin garantía de instancia única")
+        return True
+    time.sleep(0.15)
+    return _pid() == os.getpid()
+
+
 def main():
+    _setup_file_log()
     parser = argparse.ArgumentParser(description="Web server para fund-analyzer")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=5000)
@@ -2414,11 +2480,14 @@ def main():
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 
+    if not _acquire_web_lock(args.port):
+        return
+
     load_persisted_runs()
 
     app = make_app(cold_start=not args.no_cold_start)
     print("=" * 70)
-    print(f"  fund-analyzer web server")
+    print(f"  fund-analyzer web server  (pid {os.getpid()}, {datetime.now().strftime('%Y-%m-%d %H:%M:%S')})")
     print(f"  Root: {ROOT}")
     print(f"  Catalog:  http://{args.host}:{args.port}/dashboard/catalog.html")
     print(f"  API base: http://{args.host}:{args.port}/api/")

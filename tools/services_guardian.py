@@ -191,7 +191,54 @@ def maybe_push_pending() -> None:
         log(f"[git_autopush] no pude comprobar/lanzar el push: {e}")
 
 
+_WEB_LOCK = ROOT / "data" / ".web_server.lock"
+
+
+def web_pids() -> list[tuple[int, str]]:
+    """[(pid, fecha_creacion)] de los procesos python/pythonw que ejecutan tools.web_server."""
+    try:
+        out = subprocess.run(
+            ["powershell", "-NoProfile", "-Command",
+             "Get-CimInstance Win32_Process -Filter \"name='python.exe' or name='pythonw.exe'\" | "
+             "? { $_.CommandLine -match 'tools.web_server' } | % { $_.ProcessId.ToString() + '|' + $_.CreationDate.ToString('yyyyMMddHHmmss') }"],
+            capture_output=True, text=True, timeout=40, creationflags=CREATE_NO_WINDOW)
+        res = []
+        for line in (out.stdout or "").splitlines():
+            if "|" in line:
+                pid, created = line.strip().split("|", 1)
+                res.append((int(pid), created))
+        return res
+    except Exception:
+        return []
+
+
+def dedupe_web() -> None:
+    """Si hay más de un web_server (24-sep: guardián + lanzador antiguo de Inicio tras un reinicio),
+    conserva el dueño del lock (si está vivo) o el más antiguo, y mata los demás por PID exacto."""
+    pids = web_pids()
+    if len(pids) <= 1:
+        return
+    keep = None
+    try:
+        lock_pid = int(_WEB_LOCK.read_text(encoding="utf-8").split()[0])
+        if any(pid == lock_pid for pid, _ in pids):
+            keep = lock_pid
+    except Exception:
+        pass
+    if keep is None:
+        keep = sorted(pids, key=lambda x: x[1])[0][0]
+    for pid, created in pids:
+        if pid == keep:
+            continue
+        try:
+            subprocess.run(["taskkill", "/PID", str(pid), "/F"], capture_output=True, timeout=20, creationflags=CREATE_NO_WINDOW)
+            log(f"web_server DUPLICADO pid {pid} (creado {created}) eliminado; se conserva pid {keep}")
+        except Exception as e:  # noqa: BLE001
+            log(f"[ERROR] no pude eliminar web_server duplicado pid {pid}: {e}")
+
+
 def main(check_only: bool = False) -> int:
+    dedupe_web()
     w = web_alive()
     p = poller_alive()
     if check_only:
