@@ -35,6 +35,9 @@ console = Console()
 
 CNMV_BASE = "https://www.cnmv.es"
 CNMV_ISIN_URL = f"{CNMV_BASE}/portal/Consultas/IIC/Fondo.aspx"
+# Versión del parser de PDF (subir al cambiar extractores): invalida pdf_cache.json Y el skip por
+# "cache fresco" de cnmv_data.json, para que una mejora del parser llegue a los fondos ya analizados.
+PDF_PARSER_VERSION = "v8.2"
 CNMV_REPORTS_URL = f"{CNMV_BASE}/Portal/consultas/iic/fondo"
 CNMV_CATALOG_URL = f"{CNMV_BASE}/portal/publicaciones/descarga-informacion-individual"
 
@@ -115,7 +118,10 @@ class CNMVAgent:
                 last_periodo = max((s.get("periodo", "") for s in serie_aum if isinstance(s, dict)), default="")
                 # Si los datos son < 30 días Y cubren al menos hasta el año pasado → skip
                 # Esto es conservador: para forzar refresh manual, usar --clean
-                if age_days < 30 and last_periodo and int(str(last_periodo)[:4]) >= self.current_year - 1:
+                same_parser = cached.get("_parser_version") == PDF_PARSER_VERSION
+                if not same_parser:
+                    console.log(f"[yellow]cnmv_data.json parseado con otra versión ({cached.get('_parser_version')} ≠ {PDF_PARSER_VERSION}) → re-proceso")
+                if same_parser and age_days < 30 and last_periodo and int(str(last_periodo)[:4]) >= self.current_year - 1:
                     console.log(f"[green]✓ Cache fresco ({age_days}d, último periodo {last_periodo}) — skip CNMV download[/green]")
                     return cached
             except Exception as exc:
@@ -611,6 +617,16 @@ class CNMVAgent:
         else:
             to_download = h2_reports  # desde inicio
 
+        # SAR: además del/los H2, descargar el informe SEMIANUAL (H1) MÁS RECIENTE cuando
+        # es de un año POSTERIOR al último H2 disponible → caso mid-year en el que aún no
+        # están las cuentas anuales pero sí el semestral (fundamental para el análisis/delta).
+        h1_reports = [r for r in reports if r.get("semester") == "H1"]
+        latest_h1 = max(h1_reports, key=lambda r: (r.get("year") or 0), default=None)
+        latest_h2_year = max((r.get("year") or 0) for r in h2_reports) if h2_reports else 0
+        if latest_h1 and (latest_h1.get("year") or 0) > latest_h2_year and latest_h1 not in to_download:
+            to_download = list(to_download) + [latest_h1]
+            console.log(f"[blue]+ SAR H1 {latest_h1.get('year')} (semianual reciente, sin H2 aún)")
+
         downloaded: list[tuple[dict, Path]] = []
         for report in to_download:
             pdf_path = await self._download_pdf(report)
@@ -630,6 +646,7 @@ class CNMVAgent:
             "analisis_periodos": [],
         }
 
+        parsed_list: list[tuple[dict, dict]] = []   # (report, parsed) en orden de descarga (reciente → antiguo)
         for i, (report, pdf_path) in enumerate(downloaded):
             year = report.get("year") or self.current_year
             console.log(f"[blue]Parseando PDF {year}: {pdf_path.name}")
@@ -640,6 +657,7 @@ class CNMVAgent:
                 console.log(f"[yellow]Error parseando {pdf_path.name}: {exc}")
                 continue
 
+            parsed_list.append((report, parsed))
             # Most-recent PDF sets the "current" scalar fields
             if i == 0:
                 for campo in [
@@ -809,6 +827,56 @@ class CNMVAgent:
                     "seccion_4_5_texto": parsed.get("seccion_4_5_hechos_texto") or "",
                 }
                 merged["analisis_periodos"].append(periodo_entry)
+
+        # ── Escalares "actuales": el PDF más reciente puede no traerlos (layout nuevo o semestral).
+        #    Regla (Rafa 24-sep: la CNMV manda): tomar cada campo del PDF más reciente que lo tenga;
+        #    comisiones/TER preferentemente de un informe ANUAL (H2); si solo hay semestral (H1),
+        #    anualizar (x2) y dejarlo marcado como estimación. ──
+        _FEE_FIELDS = ("coste_gestion_pct", "coste_deposito_pct", "ter_pct",
+                       "comisiones_gestion_por_clase", "comisiones_exito_por_clase", "ter_por_clase")
+        _OTHER_FIELDS = ("num_participes", "num_participes_anterior", "volatilidad_pct", "clasificacion",
+                         "perfil_riesgo", "divisa", "depositario", "fecha_registro", "gestora_pdf",
+                         "rotacion_cartera_pct", "rotacion_cartera_anterior_pct", "benchmark_mencionado")
+        def _x2(v):
+            if isinstance(v, dict):
+                return {k: (round(x * 2, 4) if isinstance(x, (int, float)) else x) for k, x in v.items()}
+            return round(v * 2, 4) if isinstance(v, (int, float)) else v
+        by_recency = sorted(parsed_list, key=lambda rp: (int(rp[0].get("year") or 0), rp[0].get("semester") == "H2"), reverse=True)
+        for campo in _OTHER_FIELDS:
+            # dato PUNTUAL (partícipes, patrimonio, rotación…): el informe más reciente que lo tenga, aunque sea
+            # el semestral (el i==0 de arriba era el H2 más reciente; un H1 posterior es más actual)
+            for rep, prs in by_recency:
+                if prs.get(campo) is not None:
+                    merged[campo] = prs[campo]
+                    merged.setdefault("_kpi_origen", {})[campo] = f"{rep.get('year')}-{rep.get('semester') or 'H2'}"
+                    break
+        h2_first = [rp for rp in by_recency if (rp[0].get("semester") or "H2") == "H2"] + [rp for rp in by_recency if rp[0].get("semester") == "H1"]
+        for campo in _FEE_FIELDS:
+            src = None
+            for rep, prs in h2_first:
+                if prs.get(campo) is not None:
+                    src = (rep, prs)
+                    break
+            if src is None:
+                continue
+            rep, prs = src
+            v = prs[campo]
+            if rep.get("semester") == "H1":
+                v = _x2(v)
+                merged.setdefault("_kpi_estimado_h1", []).append(campo)
+            merged[campo] = v
+            merged.setdefault("_kpi_origen", {})[campo] = f"{rep.get('year')}-{rep.get('semester') or 'H2'}"
+        # Series por clase / TER que vengan de un H1: anualizar y marcar (no mezclar medio año con años)
+        for serie_key in ("serie_comisiones_por_clase", "serie_ter_por_clase", "serie_ter_pdf"):
+            for entry in merged.get(serie_key, []) or []:
+                sem = next((rp[0].get("semester") for rp in parsed_list if str(rp[0].get("year")) == str(entry.get("periodo"))), None)
+                if sem == "H1" and not entry.get("parcial_anualizado"):
+                    for k in ("clases", "exito"):
+                        if isinstance(entry.get(k), dict):
+                            entry[k] = _x2(entry[k])
+                    if isinstance(entry.get("ter_pct"), (int, float)):
+                        entry["ter_pct"] = round(entry["ter_pct"] * 2, 4)
+                    entry["parcial_anualizado"] = True
 
         # Clean internal keys
         merged.pop("_prev_gestora", None)
@@ -1042,7 +1110,9 @@ class CNMVAgent:
         # Parser version: incrementar al añadir nuevos extractores.
         # v6: añadido vl_historico_pdf (tabla "Fecha Patrimonio Valor liquidativo") y comision_exito_pct teórico
         # v7 (Fase G 2026-04-28): TER por clase usa nombre comercial real (Individual CLASE X) en vez de A/B/C/D posicional
-        PARSER_VERSION = "v7"
+        # v8 (2026-09-24): layout CNMV 2023+ sin la palabra CLASE (partícipes con decimales, comisiones por
+        #    clase con sistema de imputación), _semestre_pdf. Sin LLM: re-parsear toda la caché es barato.
+        PARSER_VERSION = PDF_PARSER_VERSION
         cache = self._load_pdf_cache()
         key = pdf_path.name
         fsize = pdf_path.stat().st_size
@@ -1058,6 +1128,9 @@ class CNMVAgent:
         full_text = re.sub(r'\(cid:\d+\)', ' ', full_text)
 
         result: dict = {"_periodo_pdf": str(year)}
+        # H1 = informe semestral (valores acumulados de MEDIO año); H2 = anual. Lo usa el merge para
+        # no publicar comisiones/TER de medio año como si fueran anuales (Gamma 24-sep: 0,38 % vs 0,75 %).
+        result["_semestre_pdf"] = "H1" if re.search(r"_H1\b", pdf_path.name, re.I) else "H2"
         result.update(self._parse_seccion_politica(full_text))
         result.update(self._parse_seccion_datos_generales(full_text, year))
         result.update(self._parse_seccion_comportamiento(full_text, year))
@@ -1246,6 +1319,23 @@ class CNMVAgent:
                 total_part_act += ints_found[0]
                 total_part_ant += ints_found[1]
                 found_any = True
+
+        if not found_any:
+            # Layout CNMV 2023+: la fila de clase va SIN la palabra CLASE y los partícipes llevan
+            # dos decimales: "A 7.476,00 3.514,00 EUR 0,00 0,00 NO" (participaciones en líneas aparte).
+            for line in participes_section.split("\n"):
+                m_new = re.match(r'\s*(?:CLASE\s+)?([A-Z0-9]{1,8})\s+([\d.]+,\d{2})\s+([\d.]+,\d{2})\s+(?:EUR|USD|GBP)\b', line)
+                if not m_new or m_new.group(1).upper() in ("CLASE", "PERIODO"):
+                    continue
+                try:
+                    act = int(round(float(m_new.group(2).replace(".", "").replace(",", "."))))
+                    ant = int(round(float(m_new.group(3).replace(".", "").replace(",", "."))))
+                except ValueError:
+                    continue
+                if 0 <= act < 10_000_000 and 0 <= ant < 10_000_000:
+                    total_part_act += act
+                    total_part_ant += ant
+                    found_any = True
 
         if found_any:
             result["num_participes"] = total_part_act
@@ -1463,6 +1553,9 @@ class CNMVAgent:
         comis_m = re.search(r'Comisiones\s+aplicadas\s+en\s+el\s+per', text, re.IGNORECASE)
         if comis_m:
             comis_section = text[comis_m.start(): comis_m.start() + 2000]
+            cut = re.search(r'\n\s*2\.2\s|\bRentabilidad\b', comis_section[60:])
+            if cut:
+                comis_section = comis_section[:60 + cut.start()]
         else:
             comis_section = text
 
@@ -1471,6 +1564,25 @@ class CNMVAgent:
             r'CLASE\s+(\w+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)',
             comis_section, re.IGNORECASE,
         )
+        if not class_comisiones:
+            # Layout CNMV 2023+: "<clase> <sist.imputación> per_spat per_sres per_total acum_spat acum_sres acum_total
+            # <base> dep_periodo dep_acumulada Patrimonio" (sin la palabra CLASE). Mismo orden de 6 números.
+            dep_acums = []
+            for line in comis_section.split("\n"):
+                m_new = re.match(
+                    r'\s*(?:CLASE\s+)?([A-Z0-9]{1,8})\s+(?:al\s+fondo|al\s+part[ií]cipe|mixta)\s+'
+                    r'(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)\s+(-?[\d,]+)'
+                    r'(?:\s+[A-Za-záéíóú]+\s+(-?[\d,]+)\s+(-?[\d,]+))?', line, re.IGNORECASE)
+                if not m_new or m_new.group(1).upper() in ("CLASE", "PERIODO", "IMPUTAC", "VALOR", "TOTAL"):
+                    continue
+                class_comisiones.append(tuple(m_new.group(k) for k in range(1, 8)))
+                if m_new.group(9):
+                    dep_acums.append(m_new.group(9))
+            if dep_acums and "coste_deposito_pct" not in result:
+                try:
+                    result["coste_deposito_pct"] = max(float(x.replace(",", ".")) for x in dep_acums)
+                except ValueError:
+                    pass
         if class_comisiones:
             por_clase = {}
             exito_clase = {}
@@ -1485,7 +1597,9 @@ class CNMVAgent:
                 exito_clase[cls_name] = acum_sres
             if por_clase:
                 result["comisiones_gestion_por_clase"] = por_clase
-                result["coste_gestion_pct"] = min(por_clase.values())
+                # KPI de cabecera = clase retail (Rafa 24-sep): "A" si existe; si no, la de mayor
+                # comisión (las limpias/institucionales van en la tabla por clase). Antes: min().
+                result["coste_gestion_pct"] = por_clase["A"] if "A" in por_clase else max(por_clase.values())
             # Comisión de éxito (sobre resultados)
             result["comisiones_exito_por_clase"] = exito_clase
             result["cobra_comision_exito"] = any(v > 0 for v in exito_clase.values())
@@ -2101,6 +2215,11 @@ class CNMVAgent:
             val = pdf_data.get(campo)
             if val is not None:
                 result["kpis"][campo] = val
+        # trazabilidad de la fuente de cada KPI (informe/semestre) y de los anualizados desde un H1
+        if pdf_data.get("_kpi_origen"):
+            result["_kpi_origen"] = pdf_data["_kpi_origen"]
+        if pdf_data.get("_kpi_estimado_h1"):
+            result["_kpi_estimado_h1"] = pdf_data["_kpi_estimado_h1"]
 
         # Comisiones por clase → cuantitativo (use accumulated series from _process_pdfs)
         serie_comis = pdf_data.get("serie_comisiones_por_clase", [])
@@ -2380,6 +2499,7 @@ class CNMVAgent:
 
     def _save(self, result: dict) -> None:
         """Guarda el resultado parcial o final en cnmv_data.json."""
+        result["_parser_version"] = PDF_PARSER_VERSION   # ver skip por "cache fresco" en run()
         output_path = self.fund_dir / "cnmv_data.json"
         output_path.write_text(
             json.dumps(result, ensure_ascii=False, indent=2),

@@ -3170,6 +3170,14 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
         except Exception:
             pass
 
+    # KPIs de cabecera por confianza de fuente (Rafa 24-sep): CNMV > informe anual > Morningstar/MyInvestor,
+    # y derivados de la cartera. Corrige el "primer valor que llegó y se quedó" (partícipes de 2021, rating vacío...).
+    try:
+        from tools.kpi_reconcile import reconcile as _kpi_reconcile
+        _kpi_reconcile(isin, apply=True, log=lambda m: log("KPI", "INFO", m))
+    except Exception as exc:
+        log("KPI", "WARN", f"conciliación de KPIs falló (se sigue): {exc}")
+
     try:
         from agents.validation_agent import ValidationAgent
         validator = ValidationAgent(isin, fund_dir=fund_dir, config=config)

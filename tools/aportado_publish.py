@@ -146,6 +146,45 @@ def build_chart(item: dict, digit: dict, digit_all: dict | None = None, log=prin
     return {"labels": labels, "series": series_out}
 
 
+
+def consolidate_clases(clases: list[dict]) -> list[dict]:
+    """Una fila por clase (Rafa 24-sep: Gamma salía con 10 filas para 2 clases, una por documento y
+    con comisiones de años distintos). Clave = ISIN si lo hay, si no el código. Manda la fila del
+    documento MÁS RECIENTE (`periodo` del extracto; a igualdad, la última leída) y las demás solo
+    rellenan huecos. Se conserva `fuente` de la fila que manda y `fuentes` con todos los documentos."""
+    def _key(c):
+        return (c.get("isin") or "").upper() or ("cod:" + str(c.get("codigo") or "").upper())
+    def _per(c):
+        return str(c.get("periodo") or "")
+    grupos: dict[str, list[dict]] = {}
+    for c in clases:
+        if not isinstance(c, dict):
+            continue
+        grupos.setdefault(_key(c), []).append(c)
+    # un ISIN conocido absorbe las filas del mismo código sin ISIN
+    by_cod: dict[str, str] = {}
+    for k, rows in grupos.items():
+        if not k.startswith("cod:"):
+            for r in rows:
+                cod = str(r.get("codigo") or "").upper()
+                if cod:
+                    by_cod.setdefault(cod, k)
+    for k in list(grupos):
+        if k.startswith("cod:") and k[4:] in by_cod:
+            grupos[by_cod[k[4:]]].extend(grupos.pop(k))
+    out = []
+    for k, rows in grupos.items():
+        rows_sorted = sorted(rows, key=_per, reverse=True)   # estable: a igual periodo, la última leída primero
+        base = dict(rows_sorted[0])
+        for r in rows_sorted[1:]:
+            for kk, v in r.items():
+                if base.get(kk) in (None, "", []) and v not in (None, "", []):
+                    base[kk] = v
+        base["fuentes"] = sorted({str(r.get("fuente") or "") for r in rows if r.get("fuente")})
+        out.append(base)
+    out.sort(key=lambda c: (str(c.get("divisa") or ""), str(c.get("codigo") or ""), str(c.get("isin") or "")))
+    return out
+
 def apply(isin: str, log=print) -> dict:
     isin = isin.upper()
     fd = ROOT / "data" / "funds" / isin
@@ -170,6 +209,7 @@ def apply(isin: str, log=print) -> dict:
                 row = dict(c)
                 row["isin"] = (row.get("isin") or "").upper().strip() or None
                 row["fuente"] = doc_name
+                row["periodo"] = data.get("periodo") or ""
                 clases.append(row)
         # ── gráficos: elección/nombres/lectura del extractor + cifras digitalizadas ──
         items = [g for g in (data.get("graficos_documento") or []) if isinstance(g, dict)]
@@ -226,7 +266,7 @@ def apply(isin: str, log=print) -> dict:
                 n_clave += 1; g["en_cuerpo"] = True
         out["graficos_documento"] = sorted(graficos, key=lambda g: (g["seccion"], g.get("pagina") or 0))
     if clases:
-        out["clases_documento"] = clases
+        out["clases_documento"] = consolidate_clases(clases)
     changed = old_fmt or before != (out.get("graficos_documento"), out.get("clases_documento"))
     if changed:
         op.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
