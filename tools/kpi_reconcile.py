@@ -109,6 +109,31 @@ def propose(isin: str, use_supabase: bool = True) -> list[dict]:
             if v is not None and v > 0:
                 tag = f"CNMV informe {origen.get(campo, '')}".strip() + (" (H1 anualizado)" if campo in est_h1 else "")
                 prop(campo, float(v), tag)
+    if not es:
+        # INT: el informe anual/semestral más reciente manda para el patrimonio (convertido a EUR desde la
+        # divisa base con el tipo de la fecha) y para el TER si lo trae.
+        try:
+            import glob as _glob
+            best = None
+            for f in _glob.glob(str(fd / "extracted" / "*.json")):
+                d = _load(Path(f)) or {}
+                d = d.get("data") or d
+                k = d.get("kpis") or {}
+                aum, fa = _num(k.get("aum_actual_meur")), str(k.get("fecha_aum") or d.get("periodo") or "")
+                if aum and aum > 0 and fa and (best is None or fa > best[0]):
+                    best = (fa, aum, str(k.get("divisa_base") or "EUR").upper(), _num(k.get("ter_pct")))
+            if best:
+                fa, aum, cur, ter = best
+                if cur != "EUR":
+                    from tools.fx import to_eur
+                    aum, fxsrc = to_eur(aum, cur, fa)
+                    prop("aum_actual_meur", round(aum, 2), f"informe {fa} ({cur} → EUR, {fxsrc})")
+                else:
+                    prop("aum_actual_meur", round(aum, 2), f"informe {fa}")
+                if ter and ter > 0:
+                    prop("ter_pct", float(ter), f"informe {fa}", solo_si_vacio=True)
+        except Exception:
+            pass
     # rating: MyInvestor (Morningstar) > Supabase estrellas; solo si el análisis no lo tiene o difiere
     rating = _num(mi.get("mstar_rating"))
     src = "MyInvestor (Morningstar)"

@@ -354,6 +354,13 @@ def build(isin: str) -> dict:
         if isinstance(_aum, (int, float)) and _aum > 0:
             _fa = str(_k.get("fecha_aum") or "")
             _akey_aum = _fa[:7] if re.match(r"^\d{4}-\d{2}", _fa) else akey
+            # El extractor deja el patrimonio en la DIVISA BASE del sub-fondo (Baillie: 5.348 M$ como "M€").
+            # Si divisa_base no es EUR, se convierte al tipo de la fecha del dato (tools.fx).
+            _cur = str(_k.get("divisa_base") or "EUR").upper()
+            if _cur != "EUR":
+                from tools.fx import to_eur
+                _aum, _ = to_eur(float(_aum), _cur, _fa or _akey_aum)
+                _aum = round(_aum, 2)
             aum_by_per.setdefault(_akey_aum, _aum) if not _is_ar(name) else aum_by_per.__setitem__(_akey_aum, _aum)
         # serie_aum (statistics: cada AR trae ~3 años de aum_meur)
         for st in (data.get("statistics") or []):
