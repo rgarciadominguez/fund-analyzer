@@ -55,7 +55,8 @@ import httpx
 
 ROOT = Path(__file__).resolve().parent.parent
 HORFIN = HORFIN_DIR
-LOG = ROOT / "logs" / "portal_analyze_worker.log"
+from tools.paths import LOGS_LOCAL_DIR, rotate_if_big
+LOG = LOGS_LOCAL_DIR / "portal_analyze_worker.log"   # fuera de OneDrive (ver tools.paths)
 _ISIN = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
 WEB_BASE = "http://127.0.0.1:5000"   # el server local del catálogo (web_server.py)
 
@@ -70,6 +71,7 @@ def log(msg: str) -> None:
     print(line, flush=True)
     try:
         LOG.parent.mkdir(parents=True, exist_ok=True)
+        rotate_if_big(LOG, max_mb=10, keep=3)
         with LOG.open("a", encoding="utf-8") as f:
             f.write(line + "\n")
     except Exception:

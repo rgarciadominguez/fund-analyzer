@@ -2422,15 +2422,17 @@ def _pid_alive(pid: int) -> bool:
 def _setup_file_log() -> None:
     """Con pythonw (sin consola) stdout/stderr son None y TODO lo que imprime la cola y el
     watchdog se perdía (24-sep: dos web_server y ninguna traza). Si no hay consola, se escribe
-    en logs/web_server.log (append, sin buffer)."""
+    en LOGS_LOCAL_DIR/web_server.log (fuera de OneDrive; append, sin buffer)."""
     try:
         if sys.stdout is not None and sys.stdout.isatty():
             return
     except Exception:
         pass
     try:
-        (ROOT / "logs").mkdir(exist_ok=True)
-        f = open(ROOT / "logs" / "web_server.log", "a", encoding="utf-8", errors="replace", buffering=1)
+        from tools.paths import LOGS_LOCAL_DIR, rotate_if_big
+        LOGS_LOCAL_DIR.mkdir(parents=True, exist_ok=True)
+        rotate_if_big(LOGS_LOCAL_DIR / "web_server.log", max_mb=10, keep=3)
+        f = open(LOGS_LOCAL_DIR / "web_server.log", "a", encoding="utf-8", errors="replace", buffering=1)
         sys.stdout = f
         sys.stderr = f
     except Exception:

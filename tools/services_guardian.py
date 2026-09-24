@@ -27,6 +27,7 @@ import ctypes
 import json
 import os
 import random
+import re
 import subprocess
 import sys
 import tempfile
@@ -37,7 +38,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:      # el daemon puede arrancar con otro cwd → "No module named 'tools'"
     sys.path.insert(0, str(ROOT))
-LOG = ROOT / "logs" / "guardian.log"
+from tools.paths import LOGS_LOCAL_DIR, rotate_if_big
+LOG = LOGS_LOCAL_DIR / "guardian.log"   # fuera de OneDrive (ver tools.paths)
 WEB_URL = "http://127.0.0.1:5000/api/queue"
 POLLER_LOCK = Path(tempfile.gettempdir()) / "hf_portal_worker.lock"
 
@@ -48,6 +50,7 @@ CREATE_NO_WINDOW = 0x08000000
 
 
 def log(msg: str) -> None:
+    rotate_if_big(LOG, max_mb=5, keep=2)
     try:
         LOG.parent.mkdir(parents=True, exist_ok=True)
         with open(LOG, "a", encoding="utf-8") as f:
@@ -237,8 +240,40 @@ def dedupe_web() -> None:
             log(f"[ERROR] no pude eliminar web_server duplicado pid {pid}: {e}")
 
 
+_CLEAN_STAMP = ROOT / "data" / "_logs_cleanup.json"
+
+
+def maybe_clean_onedrive_logs(days: int = 90) -> None:
+    """Una vez al día: en <repo>/logs (OneDrive) borra copias de conflicto de OneDrive
+    ("*-NOMBREPC-123.log") y run_/skill_ de más de `days` días. Los run_/skill_ recientes se quedan:
+    son los que la Surface lee para vigilar los análisis."""
+    try:
+        try:
+            last = float(json.loads(_CLEAN_STAMP.read_text(encoding="utf-8")).get("ts", 0))
+        except Exception:
+            last = 0.0
+        if time.time() - last < 86400:
+            return
+        logs = ROOT / "logs"
+        n_conf = n_old = 0
+        lim = time.time() - days * 86400
+        for f in logs.glob("*.log"):
+            name = f.name
+            if re.search(r"-[A-Za-z0-9]+-\d+\.log$", name):        # copia de conflicto de OneDrive
+                f.unlink(missing_ok=True); n_conf += 1
+            elif (name.startswith("run_") or name.startswith("skill_")) and f.stat().st_mtime < lim:
+                f.unlink(missing_ok=True); n_old += 1
+        _CLEAN_STAMP.parent.mkdir(exist_ok=True)
+        _CLEAN_STAMP.write_text(json.dumps({"ts": time.time()}), encoding="utf-8")
+        if n_conf or n_old:
+            log(f"limpieza logs/: {n_conf} copias de conflicto OneDrive, {n_old} run/skill > {days} días")
+    except Exception as e:  # noqa: BLE001
+        log(f"[WARN] limpieza logs/: {e}")
+
+
 def main(check_only: bool = False) -> int:
     dedupe_web()
+    maybe_clean_onedrive_logs()
     w = web_alive()
     p = poller_alive()
     if check_only:
