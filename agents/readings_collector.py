@@ -33,6 +33,12 @@ console = Console()
 # Sites con analisis de calidad — cobertura GLOBAL (ES + UK + US + EU)
 # Criterio de inclusion: la plataforma publica analisis editoriales sobre fondos
 # concretos (no solo fichas de producto). Ordenado por calidad editorial.
+# 2º token genérico de nombre de PARAGUAS: cuando aparece, el anchor de contaminación usa
+# un trigrama (incluye el token distintivo del sub-fondo) para no confundir hermanos
+# (ej. Carmignac Portfolio Credit vs Carmignac Portfolio Emergents).
+_UMBRELLA_2ND_TOKENS = {"portfolio", "invest", "funds", "fund", "capital", "sicav",
+                        "global", "patrimoine", "gestion", "asset", "investment"}
+
 DIRECTED_SOURCES = [
     # ── GLOBALES: cubren fondos de cualquier jurisdiccion ──
     {
@@ -356,6 +362,19 @@ GESTORA_REGION_HINTS = {
     "EN_GLOBAL": [],  # fallback
 }
 
+
+
+def _messages_create(client, **kw):
+    """messages.create tolerante: si el SDK instalado no acepta `temperature` (24-sep: en el servidor
+    TODAS las extracciones Haiku de lecturas fallaban con "unexpected keyword argument 'temperature'"),
+    se reintenta sin ese parámetro en vez de perder la lectura."""
+    try:
+        return client.messages.create(**kw)
+    except TypeError as e:
+        if "temperature" in str(e) and "temperature" in kw:
+            kw = {k: v for k, v in kw.items() if k != "temperature"}
+            return client.messages.create(**kw)
+        raise
 
 class ReadingsCollector:
     """Curador de analisis externos — busquedas dirigidas + extraccion profunda."""
@@ -779,7 +798,7 @@ class ReadingsCollector:
             import os
             from tools.llm_models import HAIKU_HINTS
             client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-            r = client.messages.create(
+            r = _messages_create(client,
                 model=HAIKU_HINTS,
                 max_tokens=200,  # solo necesitamos dominios
                 temperature=0,  # K5 Fase K: determinismo
@@ -948,6 +967,11 @@ class ReadingsCollector:
             tokens = [w for w in cleaned.split() if len(w) > 3]
             if not tokens:
                 return ""
+            # Sub-fondo de PARAGUAS (2º token genérico tipo "portfolio"/"invest"/"funds"):
+            # el bigrama "carmignac portfolio" lo comparten TODOS los sub-fondos → no
+            # distingue Credit de Emergents. Usar TRIgrama con el token distintivo.
+            if len(tokens) >= 3 and tokens[1] in _UMBRELLA_2ND_TOKENS:
+                return f"{tokens[0]} {tokens[1]} {tokens[2]}"
             # Si nombre tiene ≥2 tokens significativos: bigrama de los 2 primeros
             # (más distintivo, evita match con palabras genéricas)
             if len(tokens) >= 2:
@@ -1149,7 +1173,7 @@ class ReadingsCollector:
             client = anthropic.Anthropic(
                 api_key=_os.getenv("ANTHROPIC_API_KEY"), timeout=120,
             )
-            r = client.messages.create(
+            r = _messages_create(client,
                 model=_HAIKU,
                 max_tokens=2000,
                 temperature=0.0,
