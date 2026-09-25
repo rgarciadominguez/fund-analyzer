@@ -290,6 +290,28 @@ if errorlevel 1 (
 )
 
 REM ----------------------------------------------------------------------
+REM Paso 1.65: Skill letters-sourcing-cowork (Claude Max) - cartas/comentarios del gestor de TODOS los
+REM anios desde el lanzamiento, navegando la web de la gestora (25-sep-2026, Rafa: 'en las webs suelen
+REM estar, incluidas las historicas'). Todos los fondos (ES e INT); full y annual_update. En APORTE se salta.
+REM Despues, tools.letters_recollect reconstruye letters_data.json con lo nuevo (la prep ya habia corrido).
+if /I "%FUND_SCOPE_MODE%"=="aporte" (
+    echo [MODO aporte] Paso 1.65 letters-sourcing SALTADO ^(sin sourcing web^)
+    echo.
+) else (
+    echo === Paso 1.65: Skill letters-sourcing-cowork ^(Claude Max^) - cartas del gestor multi-anio ===
+    echo.
+    call python -m tools.claude_cowork "logs\skill_letters_sourcing_%ISIN%.log" "letters sourcing cowork %ISIN%" --model %MODEL_SOURCING% --allowedTools "Read,Write,Bash,Edit,WebSearch,WebFetch,Glob,Grep"
+    if errorlevel 1 (
+        echo [WARN] Skill letters-sourcing fallo ^(no critico^). Ver logs\skill_letters_sourcing_%ISIN%.log
+        set FAILED_STEPS=!FAILED_STEPS! letters-sourcing
+    ) else (
+        echo [OK] Skill letters-sourcing OK. Ver logs\skill_letters_sourcing_%ISIN%.log
+    )
+    call python -m tools.letters_recollect %ISIN%
+    echo.
+)
+
+REM ----------------------------------------------------------------------
 REM Paso 1.7: Skill lineage-resolver-cowork (Claude Max) — SOLO si la prep encolo
 REM este ISIN en data\lineage_queue.json (fondo joven <7a o con gap + senal de
 REM predecesor: serie NAV real anterior al lanzamiento legal). Identifica el

@@ -90,6 +90,27 @@ def assess(isin: str) -> dict:
             sar_years.add(y)
         elif t in ("quarterly_letter", "carta", "carta_gestor"):
             letter_years.add(y)
+    # letters_data.json (cartas ya recolectadas) y KB de cartas: cuentan aunque aun no haya analisis
+    try:
+        _ld = json.loads((ROOT / "data" / "funds" / isin / "letters_data.json").read_text(encoding="utf-8"))
+        for c in _ld.get("cartas") or []:
+            if c.get("_k15_error") and not (c.get("tesis_gestora") or "").strip():
+                continue
+            y = _year_of(c.get("periodo"))
+            if y:
+                letter_years.add(y)
+    except Exception:
+        pass
+    try:
+        _kb = json.loads((ROOT / "data" / "known_manager_letters.json").read_text(encoding="utf-8"))
+        for _e in (_kb.get("funds") or {}).values():
+            if isin.upper() in [str(i).upper() for i in (_e.get("isins") or [])]:
+                for lt in _e.get("letters") or []:
+                    y = _year_of(lt.get("periodo")) or _year_of(lt.get("url"))
+                    if y:
+                        letter_years.add(y)
+    except Exception:
+        pass
     # cartas_urls (cartas del gestor) — año del nombre/url
     for it in docs.get("cartas_urls") or []:
         y = _year_of(it if isinstance(it, str) else (it.get("periodo") or it.get("url") if isinstance(it, dict) else ""))

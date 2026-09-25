@@ -1,6 +1,32 @@
 {
  "_doc": "Cartas del gestor (letters from the fund managers / comentarios trimestrales) por fondo. Fuente FIABLE y prioritaria para ensure_kb_letters, que las registra como documentos de discovery (doc_type=quarterly_letter) → las usa letters_collector (analyst) y archive_docs (documentos.cartas). Soporta artículos HTML (no solo PDF). Cruce por ISIN. 'pattern' es una pista del patrón de URL de la gestora para descubrir futuras cartas. Añadir nuevas cartas a 'letters' cada trimestre (o automatizar el scrape de 'letters_page').",
  "funds": {
+  "DNCA Invest Credit Conviction": {
+   "isins": [
+    "LU0284393930"
+   ],
+   "gestora": "DNCA Finance",
+   "letters_page": "https://www.dnca-investments.com/en/funds/dnca-invest-credit-conviction/units/a-lu0284393930",
+   "pattern": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930/LETTER-a-lu0284393930/download_doc_share (comentario mensual PDF, SIEMPRE el mas reciente) + articulos web https://www.dnca-investments.com/actualites/{YYYY}-{MM}-{DD}-decouvrez-*credit-conviction*",
+   "letters": [
+    {
+     "periodo": "latest",
+     "url": "https://www.dnca-investments.com/funds/dnca-invest-credit-conviction/parts/a-lu0284393930/LETTER-a-lu0284393930/download_doc_share?locale=en&country_code=INT"
+    },
+    {
+     "periodo": "2026-05",
+     "url": "https://www.dnca-investments.com/actualites/2026-05-18-decouvrez-comment-dnca-invest-credit-conviction-evolue-dans-des-marches-fluctuants"
+    },
+    {
+     "periodo": "2024-11",
+     "url": "https://www.dnca-investments.com/actualites/2024-11-25-decouvrez-dnca-invest-credit-conviction"
+    },
+    {
+     "periodo": "2024-04",
+     "url": "https://www.dnca-investments.com/actualites/2024-04-05-decouvrez-dnca-invest-credit-conviction"
+    }
+   ]
+  },
   "Carmignac Portfolio Credit": {
    "isins": [
     "LU1623762843"
@@ -46,6 +72,249 @@
     }
    ],
    "_nota": "Factsheet mensual con Market Review+Performance Review reales (aceptado como carta). WOAIOF = subfondo India Opportunities (clases IE00BDR0JY05 EUR / IE00BH3N4915 USD comparten cartera). URL live es rolling mensual; histórico solo via Wayback (3 snapshots). Sin carta 2018/2019/2021/2024/2025 públicas."
+  },
+  "BrightGate Global Income Fund": {
+   "isins": [
+    "LU0942882589"
+   ],
+   "gestora": "BrightGate Capital",
+   "letters_page": "https://brightgatecapital.com/brightgate-global-income-cartas-a-co-participes/",
+   "pattern": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/{YYYY}-H{H}-ESP.pdf (semestral, ESP y ENG; especiales: 2018.11-petroleo, 2020-Q1)",
+   "letters": [
+    {
+     "periodo": "2014-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2014-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2015-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2015-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2016-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2016-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2017-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2017-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2018-H1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2018-H1-ESP.pdf"
+    },
+    {
+     "periodo": "2018.11-petroleo",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2018.11-petroleo-ESP.pdf"
+    },
+    {
+     "periodo": "2018-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2018-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2019-H1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2019-H1-ESP.pdf"
+    },
+    {
+     "periodo": "2019-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2019-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2020-Q1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2020-Q1-ESP.pdf"
+    },
+    {
+     "periodo": "2020-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2020-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2021-H1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2021-H1-ESP.pdf"
+    },
+    {
+     "periodo": "2021-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2021-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2022-H1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2022-H1-ESP.pdf"
+    },
+    {
+     "periodo": "2022-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2022-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2023-H1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2023-H1-ESP.pdf"
+    },
+    {
+     "periodo": "2023-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2023-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2024-H1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2024-H1-ESP.pdf"
+    },
+    {
+     "periodo": "2024-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2024-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2025-H1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2025-H1-ESP.pdf"
+    },
+    {
+     "periodo": "2025-H2",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2025-H2-ESP.pdf"
+    },
+    {
+     "periodo": "2026-H1",
+     "url": "https://www.brightgatecapital.com/documentacion/brightgate/global-income/cartas/2026-H1-ESP.pdf"
+    }
+   ]
+  },
+  "Gamma Global, FI": {
+   "isins": [
+    "ES0140794001",
+    "ES0140794019"
+   ],
+   "gestora": "Singular Asset Management, SGIIC, S.A. (Singular Bank)",
+   "letters_page": "https://www.singularam.es/category/cartas-e-informes/",
+   "letters_page_alt": "https://gabcasla.substack.com/archive (substack del co-gestor Gabriel Castro, CFA)",
+   "pattern": "https://www.singularam.es/wp-content/uploads/carta-trimestral-Gamma-Q{Q}-{YYYY}.pdf (2025-2026); 2023-2024 con nombre de mes: carta-trimestral-Gamma-{marzo|junio|septiembre|diciembre}-{YYYY}.pdf o Q{Q}{YYYY}.pdf. Substack: https://gabcasla.substack.com/p/gamma-global-q{Q}-{YYYY} (hasta 2024) y /gamma-global-{N}t-{YYYY} (desde 2025)",
+   "publica": "carta trimestral a participes desde 2022-Q1 (fondo lanzado 23-abr-2021; NO hay cartas de 2021, ni en la web ni en el substack del gestor). La web singularam.es solo conserva material desde feb-2023 (media library) -> 2022 y 2023-Q1 solo estan en el substack de Gabriel Castro. Ademas hay 'Carta Estrategia Singular' (mensual) y 'Carta trimestral Singular Asset Management' (gestora): son de la CASA, no del fondo -> NO usar.",
+   "letters": [
+    {
+     "periodo": "2022-Q1",
+     "tipo": "carta_trimestral",
+     "url": "https://gabcasla.substack.com/p/gamma-global-q1-2022",
+     "titulo": "Gamma Global Q1 2022",
+     "verificado": "substack del co-gestor Gabriel Castro; 'Estimado participe' + nombre del fondo en el cuerpo"
+    },
+    {
+     "periodo": "2022-Q2",
+     "tipo": "carta_trimestral",
+     "url": "https://gabcasla.substack.com/p/gamma-global-q2-2022",
+     "titulo": "Gamma Global Q2 2022",
+     "verificado": "substack Gabriel Castro; carta a participes verificada"
+    },
+    {
+     "periodo": "2022-Q3",
+     "tipo": "carta_trimestral",
+     "url": "https://gabcasla.substack.com/p/gamma-global-q3-2022",
+     "titulo": "Gamma Global Q3 2022",
+     "verificado": "substack Gabriel Castro; carta a participes verificada"
+    },
+    {
+     "periodo": "2022-Q4",
+     "tipo": "carta_trimestral",
+     "url": "https://gabcasla.substack.com/p/gamma-global-q4-2022",
+     "titulo": "Gamma Global Q4 2022",
+     "verificado": "substack Gabriel Castro; carta a participes verificada"
+    },
+    {
+     "periodo": "2023-Q1",
+     "tipo": "carta_trimestral",
+     "url": "https://gabcasla.substack.com/p/gamma-global-q1-2023",
+     "titulo": "Gamma Global Q1 2023",
+     "verificado": "substack Gabriel Castro; el PDF original de la gestora (carta-trimestral-Gamma-Q12023.pdf) esta MUERTO (404 desde nov-2023, tampoco en Wayback)"
+    },
+    {
+     "periodo": "2023-Q2",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/carta-trimestral-Gamma-Q22023.pdf",
+     "titulo": "Carta trimestral Gamma Global - 2T 2023",
+     "verificado": "cabecera 'Gamma Global, FI - Carta trimestral 2T 2023' (leida como imagen)",
+     "nota": "PDF escaneado/CID: el texto NO se extrae con pdfplumber/fitz; hay que LEERLO COMO IMAGEN (render 150-200 dpi)."
+    },
+    {
+     "periodo": "2023-Q3",
+     "tipo": "carta_trimestral",
+     "url": "https://gabcasla.substack.com/p/gamma-global-q3-2023",
+     "titulo": "Gamma Global Q3 2023",
+     "verificado": "substack Gabriel Castro (texto plano); el PDF de la gestora del mismo trimestre es escaneado"
+    },
+    {
+     "periodo": "2023-Q4",
+     "tipo": "carta_trimestral",
+     "url": "https://gabcasla.substack.com/p/gamma-global-q4-2023",
+     "titulo": "Gamma Global Q4 2023",
+     "verificado": "substack Gabriel Castro (texto plano); el PDF de la gestora del mismo trimestre es escaneado"
+    },
+    {
+     "periodo": "2024-Q1",
+     "tipo": "carta_trimestral",
+     "url": "https://gabcasla.substack.com/p/gamma-global-q1-2024",
+     "titulo": "Gamma Global Q1 2024",
+     "verificado": "substack Gabriel Castro (texto plano); el PDF de la gestora del mismo trimestre es escaneado"
+    },
+    {
+     "periodo": "2024-Q2",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/carta-trimestral-gamma-junio-2024.pdf",
+     "titulo": "Carta trimestral Gamma Global - 2T 2024",
+     "verificado": "post oficial 'Carta trimestral Gamma - junio 2024' de la gestora",
+     "nota": "PDF escaneado/CID: el texto NO se extrae con pdfplumber/fitz; hay que LEERLO COMO IMAGEN (render 150-200 dpi)."
+    },
+    {
+     "periodo": "2024-Q3",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/Carta-trimestral-Gamma-septiembre-2024.pdf",
+     "titulo": "Carta trimestral Gamma Global - 3T 2024",
+     "verificado": "post oficial 'Carta trimestral Gamma - septiembre 2024'",
+     "nota": "PDF escaneado/CID: el texto NO se extrae con pdfplumber/fitz; hay que LEERLO COMO IMAGEN (render 150-200 dpi)."
+    },
+    {
+     "periodo": "2024-Q4",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/Carta-trimestral-Gamma-diciembre-2024.pdf",
+     "titulo": "Carta trimestral Gamma Global - 4T 2024",
+     "verificado": "post oficial 'Carta trimestral Gamma - diciembre 2024'",
+     "nota": "PDF escaneado/CID: el texto NO se extrae con pdfplumber/fitz; hay que LEERLO COMO IMAGEN (render 150-200 dpi)."
+    },
+    {
+     "periodo": "2025-Q1",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/carta-trimestral-Gamma-Q1-2025.pdf",
+     "titulo": "Carta trimestral Gamma Global - 1T 2025",
+     "verificado": "post oficial 'Carta trimestral Gamma - marzo 2025'",
+     "nota": "PDF escaneado/CID: el texto NO se extrae con pdfplumber/fitz; hay que LEERLO COMO IMAGEN (render 150-200 dpi)."
+    },
+    {
+     "periodo": "2025-Q2",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/carta-trimestral-Gamma-Q2-2025.pdf",
+     "titulo": "Carta trimestral Gamma Global - 2T 2025",
+     "verificado": "cabecera 'Gamma Global A FI - Carta trimestral 2T 2025' (leida como imagen); el PDF existe en el servidor aunque la gestora nunca publico el post",
+     "nota": "PDF escaneado/CID: el texto NO se extrae con pdfplumber/fitz; hay que LEERLO COMO IMAGEN (render 150-200 dpi)."
+    },
+    {
+     "periodo": "2025-Q3",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/carta-trimestral-Gamma-Q3-2025.pdf",
+     "titulo": "Carta trimestral Gamma Global - 3T 2025",
+     "verificado": "post oficial 'Carta trimestral Gamma - septiembre 2025'; texto extraible"
+    },
+    {
+     "periodo": "2025-Q4",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/carta-trimestral-Gamma-Q4-2025.pdf",
+     "titulo": "Carta trimestral Gamma Global - 4T 2025",
+     "verificado": "post oficial 'Carta trimestral Gamma - diciembre 2025'; texto extraible"
+    },
+    {
+     "periodo": "2026-Q1",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/carta-trimestral-Gamma-Q1-2026.pdf",
+     "titulo": "Carta trimestral Gamma Global - 1T 2026",
+     "verificado": "post oficial de la gestora; texto extraible"
+    },
+    {
+     "periodo": "2026-Q2",
+     "tipo": "carta_trimestral",
+     "url": "https://www.singularam.es/wp-content/uploads/carta-trimestral-Gamma-Q2-2026.pdf",
+     "titulo": "Carta trimestral Gamma Global - 2T 2026",
+     "verificado": "post oficial de la gestora; texto extraible"
+    }
+   ]
   }
  }
 }

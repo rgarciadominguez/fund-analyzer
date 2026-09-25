@@ -134,7 +134,17 @@ class LettersCollector:
         if not p.exists():
             p = self.fund_dir / "raw" / "discovery" / p.name
         if not p.exists():
+            p2 = self.fund_dir / "raw" / "letters" / Path(local_path).name
+            p = p2 if p2.exists() else p
+        if not p.exists():
             return ""
+        # Cartas HTML ya extraídas a texto (ensure_kb_letters) o .txt sueltos: leer directo.
+        if p.suffix.lower() in (".txt", ".html", ".htm", ".md"):
+            try:
+                return p.read_text(encoding="utf-8", errors="replace")
+            except Exception as e:
+                self._log("WARN", f"Error TXT {p.name}: {e}")
+                return ""
         try:
             import pdfplumber
             text = ""
@@ -1221,6 +1231,27 @@ class LettersCollector:
 
         return cartas_web
 
+    def _es_de_este_fondo(self, pdf_path: str) -> bool:
+        """Filtro de identidad (25-sep-2026): un PDF solo cuenta como carta si el nombre del fondo (o su
+        abreviatura, o el ISIN) aparece en sus primeras paginas. El rastreo por nombre de fichero
+        ('commentary', 'letter') metia comentarios de otras casas (NEPC, SWM...) como cartas del fondo."""
+        try:
+            text = (self._extract_pdf_text(pdf_path, max_pages=6) or "").lower()
+        except Exception:
+            return False
+        if not text.strip():
+            return False   # sin texto no se puede verificar: que entre por la KB (verificada), no por aqui
+        text = re.sub(r"\s+", " ", text)
+        if self.isin.lower() in text:
+            return True
+        for v in self._fund_name_variants():
+            v = re.sub(r"\s+", " ", (v or "").lower()).strip()
+            # sin sufijos legales para que 'Gamma Global, FI' case con 'Gamma Global'
+            v = re.sub(r"[,.]?\s*\b(fi|fim|sicav|ucits|fcp|plc|fund|fondo)\b.*$", "", v).strip()
+            if len(v) >= 5 and v in text:
+                return True
+        return False
+
     def _fund_name_variants(self) -> list[str]:
         """Variantes del nombre para mejor matching."""
         fund_q = self.fund_short or self.fund_name
@@ -1342,6 +1373,12 @@ class LettersCollector:
         if q_match:
             return f"{year}-Q{q_match.group(1)}"
 
+        # Mes numerico (2026-03, 03/2026, 2026_03) -> trimestre (cartas mensuales de la KB)
+        m_num = re.search(r'(?:20[012]\d[-_/.](0[1-9]|1[0-2])|(0[1-9]|1[0-2])[-_/.]20[012]\d)', p)
+        if m_num:
+            month = int(m_num.group(1) or m_num.group(2))
+            return f"{year}-Q{(month - 1) // 3 + 1}"
+
         # Detectar semestre
         if any(w in p_lower for w in ["s1", "h1", "primer semestre", "first half"]):
             return f"{year}-S1"
@@ -1376,10 +1413,12 @@ class LettersCollector:
         return years
 
     def _dedup_by_periodo(self, cartas: list[dict]) -> list[dict]:
-        """Dedup: mantener 1 carta por AÑO (la mas rica, preferiblemente Q4/fin de año).
+        """Dedup: una carta por PERIODO normalizado (trimestre, semestre o año), la mas rica.
 
-        Objetivo: 1 carta/año con la vision del gestor sobre ese periodo.
-        Si hay varias del mismo año, elegir la de fin de año (Q4/Dec/Oct).
+        Hasta el 25-sep-2026 se quedaba UNA carta por AÑO y tiraba el resto: con una gestora que publica
+        trimestrales desde el lanzamiento, el analista solo veia 1 de cada 4. Rafa: cuanta mas voz del
+        gestor mejor (siempre que sea de este fondo). Ahora se conservan todos los periodos distintos;
+        dentro del mismo periodo gana la mas rica (y, a igualdad, la de fin de año).
         """
         def richness(carta):
             score = 0
@@ -1405,24 +1444,25 @@ class LettersCollector:
         for c in cartas:
             c["periodo"] = self._normalize_periodo(c.get("periodo"))
 
-        # Agrupar por año
-        by_year: dict[int, list[dict]] = {}
-        no_year: list[dict] = []
+        # Agrupar por periodo normalizado (una carta por PERIODO, no por año)
+        by_periodo: dict[str, list[dict]] = {}
         for c in cartas:
             p = c.get("periodo") or ""
-            years_found = re.findall(r'(20[012]\d)', str(p))
-            if years_found:
-                year = max(int(y) for y in years_found)
-                by_year.setdefault(year, []).append(c)
-            else:
-                no_year.append(c)
+            if not re.search(r'(20[012]\d)', str(p)):
+                continue  # sin año no se puede situar en el tiempo
+            by_periodo.setdefault(p, []).append(c)
 
-        # Para cada año, elegir la mejor carta (mas rica + bonus fin de año)
         result = []
-        for year in sorted(by_year.keys()):
-            candidates = by_year[year]
+        def _longitud(c):
+            return sum(len(str(c.get(k) or "")) for k in
+                       ("contexto_mercado", "tesis_gestora", "decisiones_tomadas",
+                        "resultado_real", "outlook", "texto_completo"))
+
+        for periodo in sorted(by_periodo.keys()):
+            candidates = by_periodo[periodo]
+            # a igualdad de riqueza (campos rellenos), gana la de mas texto
             best = max(candidates,
-                       key=lambda c: richness(c) + end_of_year_bonus(c))
+                       key=lambda c: (richness(c) + end_of_year_bonus(c), _longitud(c)))
             result.append(best)
 
         return result
@@ -1453,10 +1493,26 @@ class LettersCollector:
             if not local:
                 continue
             text = self._extract_pdf_text(local)
+            periodo = doc.get("periodo", "")
             if not text:
+                # PDF escaneado / fuentes CID (Gamma 2023-2025: 6 de 18 cartas): no hay texto, pero la carta
+                # existe y esta verificada. Se registra con `archivo` para que letters-extract-cowork la lea
+                # como imagen (su Read nativo hace OCR). Antes se perdia en silencio.
+                all_cartas.append({
+                    "archivo": Path(local).name,
+                    "ruta_local": local,
+                    "periodo": periodo,
+                    "fuente": doc.get("source") or "discovery",
+                    "fuente_tipo": "sin_texto_extraible",
+                    "doc_type": doc["doc_type"],
+                    "url": doc.get("url", ""),
+                    "texto_completo": "",
+                })
+                fuentes.append(doc.get("url", local))
+                self._log("INFO", f"  [{doc['doc_type']}] {periodo}: sin texto extraible, "
+                          f"registrada por archivo para OCR en letters-extract")
                 continue
 
-            periodo = doc.get("periodo", "")
             extracted = self._extract_commentary(text, doc["doc_type"], periodo)
             for carta in extracted:
                 carta["fuente_tipo"] = "pdf_discovery"
@@ -1576,6 +1632,7 @@ class LettersCollector:
                 "investor-letter", "letter-to-investors",
             )
             discovery_dir = self.fund_dir / "raw" / "discovery"
+            descartadas = self._archivos_descartados()
             if discovery_dir.exists():
                 existing_archivos = {c.get("archivo") for c in all_cartas
                                        if isinstance(c, dict)}
@@ -1585,7 +1642,10 @@ class LettersCollector:
                     name_lc = pdf.name.lower()
                     if not any(k in name_lc for k in COMMENTARY_KEYWORDS_AUTO):
                         continue
-                    if pdf.name in existing_archivos:
+                    if pdf.name in existing_archivos or pdf.name in descartadas:
+                        continue
+                    if not self._es_de_este_fondo(str(pdf)):
+                        self._log("INFO", f"auto-discover: {pdf.name} no menciona el fondo -> no es carta suya")
                         continue
                     periodo_m = re.search(r"(20[012]\d)(?:[_-]?(?:Q[1-4]|H[12]|T[1-4]))?",
                                           name_lc)
@@ -1624,6 +1684,8 @@ class LettersCollector:
                              key=lambda c: c.get("periodo") or "",
                              reverse=True),
             "fuentes": fuentes,
+            # ficheros que NO son cartas de este fondo (marcados por letters-extract): no se vuelven a registrar
+            "descartadas": sorted(self._archivos_descartados()),
         }
 
         self._log("OK", f"Total: {len(cartas_dedup)} cartas, "
@@ -1689,6 +1751,26 @@ class LettersCollector:
             self._log("INFO", f"Registrados {added} PDFs historicos en discovery "
                       f"para extractor")
 
+    def _archivos_descartados(self) -> set[str]:
+        """Ficheros que letters-extract marco como NO carta del fondo (_k15_error) o que ya figuran en
+        `descartadas` del letters_data anterior. El rastreo automatico de raw/discovery los re-registraba
+        en cada pasada por el nombre ('commentary'): el 'Q4 2025 Market Commentary' de NEPC volvia siempre."""
+        out: set[str] = set()
+        existing_path = self.fund_dir / "letters_data.json"
+        if not existing_path.exists():
+            return out
+        try:
+            existing = json.loads(existing_path.read_text(encoding="utf-8"))
+        except Exception:
+            return out
+        for c in existing.get("cartas", []):
+            if c.get("_k15_error") and not (c.get("tesis_gestora") or "").strip() and c.get("archivo"):
+                out.add(c["archivo"])
+        for a in existing.get("descartadas") or []:
+            if a:
+                out.add(str(a))
+        return out
+
     def _merge_with_existing_letters(self, new_cartas: list[dict]) -> list[dict]:
         """Merge con cartas existentes — NUNCA perder cartas entre runs."""
         existing_path = self.fund_dir / "letters_data.json"
@@ -1699,9 +1781,14 @@ class LettersCollector:
         except Exception:
             return new_cartas
 
-        # Indexar existentes por periodo normalizado
+        # Indexar existentes por periodo normalizado. Las que letters-extract marco como NO carta del
+        # fondo (_k15_error, sin tesis) no se conservan: son contaminacion (p.ej. market commentary de NEPC).
         by_periodo: dict[str, dict] = {}
         for c in existing.get("cartas", []):
+            if c.get("_k15_error") and not (c.get("tesis_gestora") or "").strip():
+                self._log("INFO", f"Descartada carta previa marcada como ajena: {c.get('periodo')} "
+                          f"({str(c.get('_k15_error'))[:60]})")
+                continue
             p = self._normalize_periodo(c.get("periodo"))
             if p:
                 by_periodo[p] = c
