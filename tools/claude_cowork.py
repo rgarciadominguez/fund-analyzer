@@ -43,6 +43,21 @@ def _wait_net(max_wait: int = 180) -> bool:
     return _net_up()
 
 
+def _env_login() -> dict:
+    """Entorno para `claude -p` SIN el token de `claude setup-token`.
+
+    En el servidor hay una variable de máquina CLAUDE_CODE_OAUTH_TOKEN (para otros workers). Con ese
+    token Claude Code arranca en modo "solo modelo" y NO carga los conectores de claude.ai (MyInvestor,
+    Supabase...): la skill myinvestor-enrich dejó de ver `mcp__claude_ai_MyInvestor__*` desde el reinicio
+    del 24-sep-2026, cuando los procesos del fund-analyzer empezaron a heredarla. Sin la variable, `claude`
+    usa el login completo (~/.claude/.credentials.json), que es como funcionaba antes y como lanzan sus
+    tareas los scripts del copiloto (hf-cowork-tarea.ps1). Mismo login Max, misma cuota."""
+    import os as _os
+    env = dict(_os.environ)
+    env.pop("CLAUDE_CODE_OAUTH_TOKEN", None)
+    return env
+
+
 def _heartbeat(logfile: str, proc: "subprocess.Popen") -> None:
     """Latido para el watchdog de la cola (web_server mira el mtime de logs/skill_*_{ISIN}*.log).
     En print-mode `claude -p` no vuelca nada hasta terminar, y con Fable 5.1 un paso de síntesis
@@ -93,7 +108,7 @@ def main() -> int:
         # cmd /c → resuelve claude.cmd/.exe en Windows; hereda el env del bat (API key vacía → Max)
         cmd = ["cmd", "/c", "claude", "-p", prompt] + passthrough
         with open(logfile, "w", encoding="utf-8", errors="replace") as fh:
-            proc = subprocess.Popen(cmd, stdout=fh, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(cmd, stdout=fh, stderr=subprocess.STDOUT, env=_env_login())
             _heartbeat(logfile, proc)
             rc = proc.wait()
         # El hilo del latido es daemon y el proceso termina antes de que borre su fichero: se borra aqui.
