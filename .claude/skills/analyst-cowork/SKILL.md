@@ -3,7 +3,7 @@ name: analyst-cowork
 description: Genera el bloque `analyst_synthesis.*` (8 secciones narrativas + estructuradas) de un fondo del proyecto fund-analyzer usando la cuota de Claude Max. Reemplaza al `agents/analyst_agent.py` legacy. Úsala SIEMPRE que Rafa diga "analyst cowork", "analiza fondo X con cowork", "regenera síntesis de X via skill", "skill analyst X", "consume preview de X", "monta el analyst de X aquí", o cualquier variante sobre ejecutar la síntesis del analyst del fund-analyzer dentro de Cowork. NO la uses para ejecutar el pipeline de descarga (CNMV, PDFs, scraping) — eso sigue en Python. NO la uses para fondos que no han pasado antes por la prep determinista (`python -m agents.orchestrator --isin X --prep-only`).
 ---
 
-# analyst-cowork v2.6
+# analyst-cowork v2.7
 
 Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bloque `analyst_synthesis.*` con 8 secciones siguiendo el **schema EXACTO** que espera el dashboard renderer (`dashboard/generate_dashboard.py`). Diseñada para correr bajo Claude Max y eliminar el coste API de Anthropic.
 
@@ -12,6 +12,29 @@ Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bl
 **v2.2 (2026-05-04)**: añade campos que el quality_loop v1 chequea — `estrategia.fortalezas/riesgos/perfil_riesgo` y `cartera.top_posiciones`.
 
 **v2.3 (2026-05-04)**: reglas estrictas de formato en `texto` para evitar headers disruptivos y listas inline apelmazadas (feedback visual usuario).
+
+## PARA QUÉ ES ESTE TRABAJO Y CÓMO HACERLO (v2.7, 2026-09-25)
+
+**Para quién y para qué.** El análisis lo usa Rafa, asesor financiero independiente, para decidir si un fondo encaja en
+la cartera de un cliente y para explicárselo. Lo que necesita entender es **en qué se diferencia este fondo de otros**
+(activos y mix, tipo de gestión y control, geografía, filosofía y expertise del equipo) y si lo que la gestora dice
+que hace coincide con lo que los datos muestran a lo largo de los años. Un análisis genérico que valdría para
+cualquier fondo de la categoría no le sirve; uno prudente que dice "esto no consta" donde no hay dato, sí.
+
+**Fuentes y límites.** Todo lo que afirmes tiene que poder señalarse en un fichero del `bundle/` (o de `extracted/`
+si el bundle lo referencia). Usa solo material del fondo analizado: si un documento o carta habla claramente de OTRO
+fondo (aunque sea de la misma gestora), ignóralo y anótalo en `_meta.descartados`. Cada cifra va con su fecha, su
+clase de acción y su divisa; si el patrimonio está en dólares, no lo llames euros. Lo cuantitativo de cabecera
+(rentabilidad, comisiones) sale de las series y de MyInvestor/Morningstar, no del texto de los informes. Cuando dos
+fuentes se contradicen, dilo y explica cuál pesa más y por qué. No inventes gestores, cifras ni fechas para rellenar.
+
+**Cómo trabajar.** Las reglas R1–R6 y el schema de más abajo son el contrato con el dashboard (nombres de campo
+exactos): respétalos. El "workflow paso a paso" del final es orientación, no una secuencia de turnos obligatoria:
+lee el bundle entero primero, decide qué merece contarse y escribe. Cuando tengas la información suficiente, actúa;
+no vuelvas a derivar lo que ya has establecido. Antes de terminar, comprueba tus afirmaciones contra los ficheros
+que has leído y corrige las que no puedas respaldar. Planifica la estructura en el razonamiento y escribe el JSON
+una sola vez en la respuesta: no redactes el entregable entero dos veces. Trabajas sin nadie mirando: no preguntes,
+decide y anota en `_meta.supuestos` lo que hayas tenido que asumir.
 
 ## GLOSARIO FINANCIERO (fondos especialistas / renta fija compleja)
 
@@ -653,9 +676,9 @@ Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos re
 - `urls_consultadas`: típicamente 1-2 URLs del portal del regulador.
 - `total_fuentes` = suma de longitudes de las 5 listas anteriores.
 
-## Workflow paso a paso
+## Workflow paso a paso (orientación; el orden y el número de turnos son libres)
 
-### 1. Validación de pre-requisitos (1 turn)
+### 1. Validación de pre-requisitos
 
 Bash:
 ```
@@ -666,6 +689,6 @@ ls -la data/funds/$ISIN/bundle/
 
 Si falta el bundle o cualquiera de los 5 inputs → aborta y pide ejecutar prep. Si OK → continúa.
 
-### 2. Lectura del schema (1 turn)
+### 2. Lectura del schema
 
 Lee `docs/cowork_handoff/CLAUDE.md` secc

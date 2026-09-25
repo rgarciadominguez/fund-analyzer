@@ -35,6 +35,7 @@ REGLAS_FONDO = {
     "historia_has_cifras": "historia",
 }
 MODEL = os.environ.get("MODEL_ANALYST", "claude-opus-4-8")
+EFFORT = os.environ.get("EFFORT_ANALYST", "high")
 
 
 def _load(p: Path):
@@ -90,7 +91,7 @@ def run(isin: str, log=print, dry_run: bool = False) -> dict:
     # 1) skill analyst-cowork (misma invocación que el .bat, paso 5)
     logfile = ROOT / "logs" / f"skill_analyst_qregen_{isin}.log"
     cmd = [sys.executable, "-m", "tools.claude_cowork", str(logfile), f"analyst cowork {isin}",
-           "--model", MODEL, "--allowedTools", "Read,Write,Bash,Edit,Agent,Glob,Grep"]
+           "--model", MODEL, "--effort", EFFORT, "--allowedTools", "Read,Write,Bash,Edit,Agent,Glob,Grep"]
     r = subprocess.run(cmd, cwd=str(ROOT), timeout=3600)
     ok_skill = r.returncode == 0
     log(f"[QREGEN] skill analyst-cowork rc={r.returncode}")

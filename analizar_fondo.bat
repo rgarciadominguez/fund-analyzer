@@ -86,6 +86,9 @@ set MODEL_LETTERS=claude-sonnet-5
 set MODEL_MANAGER=claude-opus-5
 set MODEL_ANALYST=claude-fable-5-1
 set MODEL_SOURCING=claude-opus-5
+REM Esfuerzo del analyst: 'high' (guia Fable 5.1: en xhigh redacta el JSON entero en el
+REM razonamiento y otra vez en la respuesta -> doble tokens y tiempo sin mejorar).
+set EFFORT_ANALYST=high
 
 REM ====================================================================
 REM Fix coste: vaciar ANTHROPIC_API_KEY del env del bat para que las 4
@@ -470,7 +473,7 @@ if defined SKIP_ANALYST (
     REM y se republicaria como si fuera fresca. Borrarlo antes -> una regeneracion
     REM fallida deja sin fichero -> el consume falla -> el sync aborta -> se ve.
     if exist "data\funds\%ISIN%\analyst_synthesis_cowork.json" del /Q "data\funds\%ISIN%\analyst_synthesis_cowork.json"
-    call python -m tools.claude_cowork "logs\skill_analyst_%ISIN%.log" "analyst cowork %ISIN%" --model %MODEL_ANALYST% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep"
+    call python -m tools.claude_cowork "logs\skill_analyst_%ISIN%.log" "analyst cowork %ISIN%" --model %MODEL_ANALYST% --effort %EFFORT_ANALYST% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep"
     if errorlevel 1 (
         echo [WARN] Skill analyst-cowork fallo. Ver logs\skill_analyst_%ISIN%.log
         set FAILED_STEPS=!FAILED_STEPS! analyst

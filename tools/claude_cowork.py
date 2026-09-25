@@ -43,6 +43,35 @@ def _wait_net(max_wait: int = 180) -> bool:
     return _net_up()
 
 
+def _heartbeat(logfile: str, proc: "subprocess.Popen") -> None:
+    """Latido para el watchdog de la cola (web_server mira el mtime de logs/skill_*_{ISIN}*.log).
+    En print-mode `claude -p` no vuelca nada hasta terminar, y con Fable 5.1 un paso de síntesis
+    puede razonar más de los 40 min de umbral sin tocar ningún fichero → el run se marcaba muerto.
+    Mientras el proceso vive, escribimos la hora en <log>_alive.log (mismo patrón de nombre que el
+    skill log, así el watchdog lo ve). Al terminar se borra."""
+    import os as _os
+    import threading as _th
+    alive = _os.path.splitext(logfile)[0] + "_alive.log"
+
+    def _loop():
+        while proc.poll() is None:
+            try:
+                with open(alive, "w", encoding="utf-8") as f:
+                    f.write(time.strftime("%Y-%m-%d %H:%M:%S") + " claude -p vivo\n")
+            except Exception:
+                pass
+            for _ in range(60):
+                if proc.poll() is not None:
+                    break
+                time.sleep(1)
+        try:
+            _os.remove(alive)
+        except Exception:
+            pass
+
+    _th.Thread(target=_loop, daemon=True).start()
+
+
 def main() -> int:
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -64,7 +93,9 @@ def main() -> int:
         # cmd /c → resuelve claude.cmd/.exe en Windows; hereda el env del bat (API key vacía → Max)
         cmd = ["cmd", "/c", "claude", "-p", prompt] + passthrough
         with open(logfile, "w", encoding="utf-8", errors="replace") as fh:
-            rc = subprocess.call(cmd, stdout=fh, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(cmd, stdout=fh, stderr=subprocess.STDOUT)
+            _heartbeat(logfile, proc)
+            rc = proc.wait()
         try:
             low = open(logfile, encoding="utf-8", errors="replace").read().lower()
         except Exception:
