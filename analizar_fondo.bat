@@ -84,7 +84,7 @@ REM extraccion estructurada (tablas de informes, cartas, lineage). Comprobado qu
 set MODEL_EXTRACT=claude-sonnet-5
 set MODEL_LETTERS=claude-sonnet-5
 set MODEL_MANAGER=claude-opus-5
-set MODEL_ANALYST=claude-opus-5
+set MODEL_ANALYST=claude-fable-5-1
 set MODEL_SOURCING=claude-opus-5
 
 REM ====================================================================
