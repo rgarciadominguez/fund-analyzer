@@ -96,6 +96,12 @@ def main() -> int:
             proc = subprocess.Popen(cmd, stdout=fh, stderr=subprocess.STDOUT)
             _heartbeat(logfile, proc)
             rc = proc.wait()
+        # El hilo del latido es daemon y el proceso termina antes de que borre su fichero: se borra aqui.
+        try:
+            import os as _os
+            _os.remove(_os.path.splitext(logfile)[0] + "_alive.log")
+        except OSError:
+            pass
         try:
             low = open(logfile, encoding="utf-8", errors="replace").read().lower()
         except Exception:
