@@ -36,7 +36,9 @@ def _load(p: Path):
 def snapshot(isin: str) -> Path:
     fd = FUNDS / isin
     dst = fd / "_pre_test"
-    dst.mkdir(exist_ok=True)
+    if dst.exists():
+        shutil.rmtree(dst)   # una foto limpia: no arrastrar extractos/dashboard de una foto anterior
+    dst.mkdir()
     for name in KEEP:
         if (fd / name).exists():
             shutil.copy2(fd / name, dst / name)

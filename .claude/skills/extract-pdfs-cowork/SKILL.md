@@ -3,7 +3,7 @@ name: extract-pdfs-cowork
 description: Extrae contenido cualitativo y estructurado de PDFs descargados por la prep determinista (CNMV anexos semestrales, Annual Reports INT, KIIDs, prospectus, factsheets). Reemplaza las llamadas a Gemini Pro/Flash en `cnmv_agent.py` (cualitativo), `cnmv_enrichment.py` (sectores/RV/RF) e `intl_extractor_v2.py` (concept-first 2-stage). Úsala SIEMPRE que Rafa diga "extract pdfs cowork", "extrae cualitativo de X", "skill extract pdfs X", o cualquier variante sobre extraer texto/datos cualitativos de PDFs descargados localmente. Espera que la prep haya dejado un manifiesto `pending_extraction.json` listando los PDFs y los esquemas de extracción esperados.
 ---
 
-# extract-pdfs-cowork v1.0
+# extract-pdfs-cowork v1.1
 
 Sustituto de las llamadas Gemini Pro/Flash a `gemini_wrapper.py` para extracción de PDFs locales. Diseñada para correr bajo Claude Max sin coste API.
 
@@ -118,7 +118,7 @@ En `extraction_complete.json`, cuenta las saltadas aparte: añade `"n_skipped_ex
 
 **Regla coste/calidad (#3): lee TEXTO plano por defecto, y usa la página como IMAGEN solo cuando el texto NO es fiable o son cifras críticas.** Leer TODA página como imagen es caro (cada página ≈ miles de tokens) y no hace falta cuando el texto sale limpio. La calidad se mantiene porque las cifras críticas siguen yendo por imagen.
 
-**Paso 1 — extrae el texto de la(s) página(s) target** con PyMuPDF:
+**Paso 1 — extrae el texto de la(s) página(s) target** con PyMuPDF (si `import fitz` falla, usa pdfplumber: `pdfplumber.open(p).pages[P].extract_text()`):
 ```bash
 python -c "import fitz; d=fitz.open(r'{pdf_path}'); print(d[P].get_text())"
 ```
@@ -129,12 +129,22 @@ python -c "import fitz; d=fitz.open(r'{pdf_path}'); print(d[P].get_text())"
 - **Tablas GRANDES (`Securities Portfolio`/`Schedule of Investments`, 5-15 págs de RF) → texto si sale LIMPIO**, imagen solo en las páginas con CID/dígitos faltantes. Verifica 2-3 valores contra la imagen de UNA página para confirmar que el texto es fiable; si lo es, extrae el resto por texto (no rasterices 15 páginas en balde). Si viene CID → imagen, como siempre.
 
 **Cómo leer como imagen (solo cuando aplique):**
-1. `Read` del PDF (rasteriza con poppler) usando `pages` (máx ~20 págs/llamada).
-2. **Si `Read` falla con `pdftoppm not found`** (Windows sin poppler), renderiza con **PyMuPDF (`fitz`)** a PNG 200 DPI y `Read` el PNG:
-   ```bash
-   python -c "import fitz; d=fitz.open(r'{pdf_path}'); [d[p].get_pixmap(dpi=200).save(rf'data/funds/{ISIN}/raw/_pg{p}.png') for p in range(START,END)]"
+1. Renderiza las páginas a PNG con la herramienta del repo (elige sola el motor que funcione: PyMuPDF si
+   carga, si no pypdfium2, que no necesita nada del sistema):
    ```
-   Borra los `_pg*.png` al terminar la task.
+   python -m tools.pdf_raster "{pdf_path}" START END "data/funds/{ISIN}/raw/_raster" 200
+   ```
+   Imprime una ruta PNG por página → `Read` cada PNG. Borra los PNG al terminar la task.
+2. Si `tools.pdf_raster` termina con código 3 (ningún motor), prueba `Read` directo del PDF con `pages`.
+3. **Si tampoco funciona, NO te pares**: extrae por texto (pdfplumber / `fitz.get_text` si carga) todo lo que
+   sea legible, deja en `null` las cifras que solo estén en imagen, y anota en `anti_invencion_notes` de esa
+   task: `"sin rasterizador: páginas X-Y solo por texto"`. Un output parcial y honesto vale; ninguno, no.
+
+**Trabajas sin nadie mirando (regla fija).** Nadie puede responderte durante el pipeline: **nunca termines la
+tarea con una pregunta** ("¿quieres que instale…?") ni pidas permiso para dependencias del sistema. No
+instales nada a nivel de máquina: usa lo que hay, degrada a texto y deja constancia del hueco en la respuesta
+final y en `extraction_complete.json` (`n_failed`, `notas`). El 28-sep-2026 una pregunta así dejó 7 documentos
+aportados por Rafa sin extraer y el análisis salió sin sus gráficos ni su tabla de clases.
 
 Resumen: **prosa cualitativa y TOC → texto; tablas de cifras y páginas con CID → imagen.** Nunca copies una cifra de un texto que se ve sucio.
 

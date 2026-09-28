@@ -2644,9 +2644,23 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
         except Exception as exc:
             log("CONSUME", "WARN", f"no se pudo marcar manual_edits: {exc}")
 
+    # Tasks encargadas y sin extracto (28-sep-2026: la skill se paró a preguntar y 7 docs aportados
+    # quedaron sin extraer mientras el pipeline decía "integradas 7, 0 fallaron").
+    sin_extracto = []
+    try:
+        pend = json.loads((fund_dir / "pending_extraction.json").read_text(encoding="utf-8"))
+        hechos = {p.stem for p in task_files}
+        sin_extracto = [t.get("id") for t in (pend.get("tasks") or [])
+                        if t.get("id") and t.get("id") not in hechos
+                        and not str(t.get("id")).startswith("web_qualitativo_")]
+    except Exception:
+        pass
+    if sin_extracto:
+        log("CONSUME_EXTRACTED", "WARN", f"{len(sin_extracto)} task(s) SIN extracto: {sin_extracto[:8]}"
+            + (" …" if len(sin_extracto) > 8 else "") + " — el análisis sale sin esos documentos")
     log("CONSUME_EXTRACTED", "OK", f"integradas {n_ok} tasks, {n_fail} fallaron")
     return {"isin": isin, "n_integrated": n_ok, "n_failed": n_fail,
-            "paths": integrated_paths}
+            "paths": integrated_paths, "sin_extracto": sin_extracto}
 
 
 def _consume_manager_deep(isin: str, fund_dir: Path, log) -> dict:
