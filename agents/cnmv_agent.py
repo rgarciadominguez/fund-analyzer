@@ -38,6 +38,25 @@ CNMV_ISIN_URL = f"{CNMV_BASE}/portal/Consultas/IIC/Fondo.aspx"
 # Versión del parser de PDF (subir al cambiar extractores): invalida pdf_cache.json Y el skip por
 # "cache fresco" de cnmv_data.json, para que una mejora del parser llegue a los fondos ya analizados.
 PDF_PARSER_VERSION = "v8.2"
+
+
+_PAIS_ISIN = {
+    "ES": "España", "FR": "Francia", "DE": "Alemania", "IT": "Italia", "GB": "Reino Unido",
+    "US": "Estados Unidos", "NL": "Países Bajos", "PT": "Portugal", "BE": "Bélgica", "LU": "Luxemburgo",
+    "IE": "Irlanda", "AT": "Austria", "CH": "Suiza", "SE": "Suecia", "NO": "Noruega", "DK": "Dinamarca",
+    "FI": "Finlandia", "IS": "Islandia", "JP": "Japón", "CN": "China", "HK": "Hong Kong", "SG": "Singapur",
+    "AU": "Australia", "NZ": "Nueva Zelanda", "CA": "Canadá", "MX": "México", "BR": "Brasil", "CL": "Chile",
+    "PL": "Polonia", "GR": "Grecia", "CZ": "Chequia", "HU": "Hungría", "TR": "Turquía", "ZA": "Sudáfrica",
+    "IL": "Israel", "KR": "Corea del Sur", "TW": "Taiwán", "IN": "India", "FO": "Islas Feroe",
+    "BM": "Bermudas", "KY": "Islas Caimán", "JE": "Jersey", "GG": "Guernsey", "VG": "Islas Vírgenes",
+}
+
+
+def _pais_from_isin(isin_pos: str) -> str:
+    """País de la posición por prefijo ISIN (28-sep-2026). Antes todo lo no español era 'Internacional'
+    y el desglose geográfico no distinguía nada. XS/EU (eurobonos) siguen siendo 'Internacional'."""
+    pref = (isin_pos or "")[:2].upper()
+    return _PAIS_ISIN.get(pref, "Internacional")
 CNMV_REPORTS_URL = f"{CNMV_BASE}/Portal/consultas/iic/fondo"
 CNMV_CATALOG_URL = f"{CNMV_BASE}/portal/publicaciones/descarga-informacion-individual"
 
@@ -2035,7 +2054,7 @@ class CNMVAgent:
                     "nombre": nombre,
                     "ticker": isin_pos,
                     "tipo": tipo_raw.upper(),  # Normalizar tipo a MAYUS (Bonos→BONOS)
-                    "pais": "España" if isin_pos.startswith("ES") else "Internacional",
+                    "pais": _pais_from_isin(isin_pos),
                     "divisa": divisa,
                     "valor_mercado_miles": valor_miles,
                     "peso_pct": peso,
@@ -2065,7 +2084,7 @@ class CNMVAgent:
                     "nombre": nombre,
                     "ticker": isin_pos,
                     "tipo": tipo,
-                    "pais": "España" if isin_pos.startswith("ES") else "Internacional",
+                    "pais": _pais_from_isin(isin_pos),
                     "divisa": divisa,
                     "valor_mercado_miles": valor_miles,
                     "peso_pct": peso,

@@ -4325,6 +4325,89 @@ _SECTOR_ES = {
 }
 
 
+
+
+def _es_renta_fija_dominante(data: dict) -> bool:
+    """Fondo de deuda: renta fija ≥ 55 % del mix más reciente (CNMV/AR) o, sin mix, ≥ 55 % del peso de
+    las posiciones tipadas como RF. Se usa para elegir qué gráficos tienen sentido (28-sep-2026)."""
+    mix = ((data.get("cuantitativo") or {}).get("mix_activos_historico") or [])
+    if mix and isinstance(mix[-1], dict):
+        last = mix[-1]
+        rf = float(last.get("renta_fija_pct") or last.get("rf_pct") or 0)
+        rv = float(last.get("renta_variable_pct") or last.get("rv_pct") or 0)
+        if rf or rv:
+            return rf >= 55 or (rf >= 40 and rf > rv * 2)
+    pos = ((data.get("posiciones") or {}).get("actuales") or [])
+    tot, rf_w = 0.0, 0.0
+    for p in pos:
+        if not isinstance(p, dict):
+            continue
+        w = p.get("peso_pct")
+        if not isinstance(w, (int, float)):
+            continue
+        tot += w
+        if _infer_asset_type(p)[0] == "RF":
+            rf_w += w
+    return tot > 0 and rf_w / tot >= 0.55
+
+
+def _rf_card_body(data: dict, ms_rf: dict) -> str:
+    """Tarjeta de renta fija: calidad crediticia y vencimiento efectivo (Morningstar) + lo que se puede
+    calcular de las posiciones (divisas, escalera de vencimientos, cupón medio). '' si no hay nada."""
+    import datetime as _dt
+    pos = [p for p in ((data.get("posiciones") or {}).get("actuales") or []) if isinstance(p, dict)]
+    bonos = [p for p in pos if _infer_asset_type(p)[0] == "RF" and isinstance(p.get("peso_pct"), (int, float))]
+    rows = []
+    cq = ms_rf.get("calidad_crediticia")
+    mat = ms_rf.get("maturity_efectiva")
+    if cq:
+        rows.append(("Calidad crediticia media", f"{cq}", "Morningstar"))
+    if isinstance(mat, (int, float)):
+        rows.append(("Vencimiento efectivo", f"{mat:.1f} años", "Morningstar"))
+    if bonos:
+        w_tot = sum(p["peso_pct"] for p in bonos)
+        # divisas
+        div = {}
+        for p in bonos:
+            div[p.get("divisa") or "?"] = div.get(p.get("divisa") or "?", 0) + p["peso_pct"]
+        top = sorted(div.items(), key=lambda x: -x[1])[:4]
+        rows.append(("Divisa de emisión de los bonos", " · ".join(f"{k} {v / w_tot * 100:.0f}%" for k, v in top), "cartera"))
+        # escalera de vencimientos
+        hoy = _dt.date.today()
+        ladder = {"hasta 1 año": 0.0, "1-3 años": 0.0, "3-5 años": 0.0, "más de 5 años": 0.0}
+        con_venc = 0.0
+        for p in bonos:
+            v = str(p.get("vencimiento") or "")[:10]
+            try:
+                d = _dt.date.fromisoformat(v)
+            except ValueError:
+                continue
+            yrs = (d - hoy).days / 365.25
+            k = "hasta 1 año" if yrs < 1 else "1-3 años" if yrs < 3 else "3-5 años" if yrs < 5 else "más de 5 años"
+            ladder[k] += p["peso_pct"]
+            con_venc += p["peso_pct"]
+        if con_venc >= w_tot * 0.5:
+            rows.append(("Vencimientos", " · ".join(f"{k} {v / con_venc * 100:.0f}%" for k, v in ladder.items() if v > 0),
+                         "cartera"))
+        # cupón medio ponderado
+        cup = [(p["peso_pct"], float(p["cupon"])) for p in bonos
+               if isinstance(p.get("cupon"), (int, float)) and 0 < float(p["cupon"]) < 30]
+        if cup and sum(w for w, _ in cup) >= w_tot * 0.5:
+            wc = sum(w * c for w, c in cup) / sum(w for w, _ in cup)
+            rows.append(("Cupón medio ponderado", f"{wc:.2f}%", "cartera"))
+        rows.append(("Peso de la deuda en cartera", f"{w_tot:.1f}% en {len(bonos)} emisiones", "cartera"))
+    if not rows:
+        return ""
+    trs = "".join(
+        f'<tr><td style="padding:3px 0;font-size:11px;color:var(--ink-2);">{k}</td>'
+        f'<td style="padding:3px 0 3px 12px;text-align:right;font-size:11.5px;color:var(--ink);font-weight:600;">{v}</td></tr>'
+        for k, v, _src in rows)
+    srcs = sorted({src for _k, _v, src in rows})
+    return (f'<table style="border-collapse:collapse;width:100%;"><tbody>{trs}</tbody></table>'
+            f'<div class="pr" style="font-size:10px;color:var(--ink-4);margin-top:8px;">Fuente: {" y ".join(srcs)}. '
+            f'El style box y los sectores de acciones se omiten: describen renta variable.</div>')
+
+
 def build_quant_panel(data):
     """Panel cuantitativo estilo-Morningstar (style box + capture ratios +
     sectores) desde `data["analisis_cuantitativo"]` (Yahoo + cálculo propio).
@@ -4333,6 +4416,12 @@ def build_quant_panel(data):
     sb = q.get("style_box") or {}
     cr = q.get("capture_ratios") or {}
     secs = q.get("sectores") or []
+    rf_dom = _es_renta_fija_dominante(data)
+    if rf_dom:
+        # Fondo de deuda: el style box y los sectores GICS (Yahoo) describen acciones; en renta fija
+        # confunden más que aportan (Rafa, 28-sep-2026). Se sustituyen por la tarjeta de renta fija.
+        sb = {}
+        secs = []
     ries = q.get("riesgo") or []
     ret = q.get("retornos") or {}
     val = q.get("valoracion") or {}
@@ -4436,6 +4525,12 @@ def build_quant_panel(data):
             f'<div class="pr" style="font-size:12.5px;color:var(--ink);margin-top:11px;'
             f'font-weight:700;text-align:center;">{sb.get("size")} · {sb.get("style")}</div>')
         cards.append(_card("Estilo de acciones", body))
+
+    # 1a) Renta fija (solo fondos de deuda): lo que de verdad describe la cartera
+    if rf_dom:
+        body_rf = _rf_card_body(data, ms_rf)
+        if body_rf:
+            cards.append(_card("Renta fija · exposición", body_rf))
 
     # 1b) Medalist + estrellas Morningstar (mini-card)
     if ms.get("medalist_rating") or ms.get("rating_estrellas"):
@@ -4986,8 +5081,16 @@ def _infer_asset_type(pos):
     tipo = (pos.get("tipo") or pos.get("asset_type") or "").upper()
     sector = (pos.get("sector") or "").lower()
 
-    # Tipo explícito normalizado primero
-    if tipo in ("BONO", "BOND", "RF", "FIXED_INCOME", "GOVERNMENT_BOND", "CORPORATE_BOND"):
+    # Tipo explícito normalizado primero. CNMV etiqueta en plural ('BONOS', 'OBLIGACIONES'); sin esto
+    # los bonos con nombre societario (AB, ASA, HOLDINGS) caían en la inferencia por nombre como acciones
+    # y un fondo de deuda salía "todo renta variable" (Gamma, 28-sep-2026).
+    if tipo in ("BONO", "BONOS", "BOND", "BONDS", "RF", "FIXED_INCOME", "FIXED INCOME", "GOVERNMENT_BOND",
+                "CORPORATE_BOND", "OBLIGACION", "OBLIGACIONES", "PAGARE", "PAGARES", "PAGARÉ", "PAGARÉS",
+                "DEUDA", "RENTA FIJA", "LETRA", "LETRAS", "NOTE", "NOTES", "CONVERTIBLE", "CONVERTIBLES",
+                "TITULIZACION", "TITULIZACIÓN", "CEDULAS", "CÉDULAS"):
+        return "RF", "Renta fija", "tp-rf"
+    # Un instrumento con cupón o vencimiento es deuda, diga lo que diga el nombre.
+    if (pos.get("cupon") is not None or pos.get("vencimiento")) and tipo not in ("ACCIONES", "EQUITY", "RV", "STOCK"):
         return "RF", "Renta fija", "tp-rf"
     if tipo in ("ACCIONES", "EQUITY", "RV", "STOCK"):
         return "RV", "Renta variable", "tp-rv"

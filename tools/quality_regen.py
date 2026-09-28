@@ -30,6 +30,9 @@ REGLAS_FONDO = {
     "diferenciacion_geografia": "estrategia",
     "diferenciacion_filosofia_equipo": "estrategia",
     "equipo_not_generic": "gestores",
+    # completitud del perfil de riesgo (Gamma 25-sep: quedaron vacíos y nadie los regeneró)
+    "perfil_riesgo_present": "estrategia",
+    "desglose_exposicion_present": "estrategia",
     "gestores_equipo_no_generico": "gestores",
     "cartera_has_cifras": "cartera",
     "historia_has_cifras": "historia",
@@ -58,7 +61,7 @@ def decide(isin: str) -> dict:
     secciones: dict[str, list[str]] = {}
     for f in rep.get("fallos") or []:
         rid = f.get("regla_id")
-        if f.get("fail_type") != "content" or rid not in REGLAS_FONDO:
+        if f.get("fail_type") not in ("content", "completitud") or rid not in REGLAS_FONDO:
             continue
         sec = REGLAS_FONDO[rid]
         secciones.setdefault(sec, []).append(str(f.get("problema") or rid))

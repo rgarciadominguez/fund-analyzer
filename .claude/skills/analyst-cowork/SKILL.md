@@ -3,7 +3,7 @@ name: analyst-cowork
 description: Genera el bloque `analyst_synthesis.*` (8 secciones narrativas + estructuradas) de un fondo del proyecto fund-analyzer usando la cuota de Claude Max. Reemplaza al `agents/analyst_agent.py` legacy. Úsala SIEMPRE que Rafa diga "analyst cowork", "analiza fondo X con cowork", "regenera síntesis de X via skill", "skill analyst X", "consume preview de X", "monta el analyst de X aquí", o cualquier variante sobre ejecutar la síntesis del analyst del fund-analyzer dentro de Cowork. NO la uses para ejecutar el pipeline de descarga (CNMV, PDFs, scraping) — eso sigue en Python. NO la uses para fondos que no han pasado antes por la prep determinista (`python -m agents.orchestrator --isin X --prep-only`).
 ---
 
-# analyst-cowork v2.7
+# analyst-cowork v2.8
 
 Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bloque `analyst_synthesis.*` con 8 secciones siguiendo el **schema EXACTO** que espera el dashboard renderer (`dashboard/generate_dashboard.py`). Diseñada para correr bajo Claude Max y eliminar el coste API de Anthropic.
 
@@ -78,6 +78,25 @@ narrativa (estrategia/cartera/gestores/evolución):
 4. **Filosofía y equipo**: filosofía y estrategia de inversión + expertise real del equipo (años, especialidad, track record previo).
 Sin datos para un eje: dilo explícitamente ("no consta en los informes") en vez de rellenar. Nada genérico: cada eje con cifras,
 años o nombres concretos cuando existan.
+
+**R7 · FONDOS DE DEUDA (Rafa, 2026-09-28) — cuando la renta fija domina la cartera (≥55 % del mix).** Un análisis
+de un fondo de bonos que solo habla de rentabilidad y de "gestión activa" se queda corto. Saca partido de los
+informes (CNMV/AR/SAR: cartera completa con emisor, cupón, vencimiento, divisa), de las cartas del gestor y de
+Morningstar (calidad crediticia, vencimiento efectivo) para desarrollar, con cifras y fechas:
+- **Filosofía de crédito**: cómo analizan emisores (propio vs agencias), universo (rating mínimo o sin rating,
+  tamaño de emisor, mercado primario/secundario), cómo deciden entrar y salir, si compran a vencimiento o rotan,
+  qué papel juegan cupón/carry frente a precio.
+- **Exposición** (obligatorio en `estrategia.perfil_riesgo.desglose_exposicion`, una fila por dimensión con
+  `dimension`, `detalle` con cifras y `comentario` con el porqué): tipo de activo (bonos/acciones/liquidez),
+  calidad crediticia o rating, duración y vencimientos, divisa de emisión y cobertura, sector de los emisores,
+  geografía (los **nórdicos aparte de Europa** cuando pesen), concentración por emisor, liquidez de las emisiones.
+  Si una dimensión no consta, dilo en el `detalle` en vez de omitir la fila.
+- **Riesgos propios de la deuda** (en `perfil_riesgo.riesgos_especificos`, `escenarios_adversos`, `protecciones`,
+  `liquidez_estructura`): crédito/impago, liquidez de mercado y del vehículo (reembolsos vs emisiones ilíquidas),
+  concentración sectorial, divisa (cubierta o no, coste), tipos y reinversión, capacidad del fondo frente al tamaño
+  de su nicho. Con evidencia (informe y fecha) y con lo que el gestor dice al respecto en sus cartas.
+- **Qué NO hacer**: no rellenar con sectores GICS o style box de acciones (no describen la cartera de un fondo de
+  bonos); no llamar "renta variable" a bonos con nombre societario.
 
 ## MODO UPDATE ANUAL (v2.5 — solo el delta del último año)
 
@@ -549,9 +568,13 @@ Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos re
     "tipo_activo_principal": "Mixto Flexible Global / Renta Variable Global / Renta Fija / etc",
     "riesgos_especificos": ["riesgo 1", "riesgo 2", "riesgo 3"],
     "desglose_exposicion": [
-      {"dimension": "geografía", "detalle": "60% internacional, 20% España, 16% Argentina, 4% otros"},
-      {"dimension": "sectores", "detalle": "..."}
-    ]
+      {"dimension": "geografía", "detalle": "60% internacional, 20% España, 16% Argentina, 4% otros",
+       "comentario": "por qué esa distribución y si cambia"},
+      {"dimension": "sectores", "detalle": "...", "comentario": "..."}
+    ],
+    "escenarios_adversos": ["qué le haría daño y cuánto, con el precedente si lo hay (2022, 2020...)"],
+    "protecciones": ["qué limita el daño: límites del folleto, cobertura de divisa, liquidez, diversificación"],
+    "liquidez_estructura": "liquidez del vehículo y de sus activos: plazo de reembolso, % en activos ilíquidos según informes"
   },
   "hitos_estrategia": [
     {
@@ -577,7 +600,7 @@ Los `hitos` (TIMELINE de abajo) se centran en **PUNTOS DE INFLEXIÓN y hechos re
 - Los `quotes` deben ser CITAS LITERALES extraídas de `letters_data.cartas[*].texto_completo`. Si no encuentras citas reales, devuelve lista vacía (no inventes).
 - `fortalezas` y `riesgos` se DUPLICAN aquí en estrategia (también en resumen). El v1 dashboard renderiza ambos sitios. NO es redundancia inocua — el quality_loop chequea los dos.
 - `hitos_estrategia[].resultado` debe seguir el formato `"+X.XX% — driver"` (cifra + por qué). Sin driver explicativo, el quality_loop lo flaggea.
-- `perfil_riesgo` es OBLIGATORIO con los 3 sub-campos. Sin esto, el quality_loop reporta "Perfil de riesgo de la estrategia incompleto".
+- `perfil_riesgo` es OBLIGATORIO con TODOS sus sub-campos (tipo_activo_principal, riesgos_especificos, desglose_exposicion con ≥3 filas, escenarios_adversos, protecciones, liquidez_estructura). Sin esto, el quality_loop reporta "Perfil de riesgo de la estrategia incompleto".
 
 ### cartera
 
