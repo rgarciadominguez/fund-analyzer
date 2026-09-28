@@ -431,6 +431,38 @@ def build_bundle_feedback(hf_data: dict, isin: str) -> dict:
 
 
 
+def _fill_quant(fund_dir: Path, fund_data_path: Path) -> None:
+    """Cuantitativo comparable para el analista (29-sep-2026). La comparativa cualitativa de Gamma mostró
+    que el análisis perdió drawdown, Sharpe, beta y captura porque "el bundle no trae la serie": estaban en
+    output.json (analisis_cuantitativo) pero no llegaban a fund_data.json. Se copia un resumen."""
+    try:
+        fd = _read_json(fund_data_path) or {}
+        if not isinstance(fd, dict):
+            return
+        out = _read_json(fund_dir / "output.json") or {}
+        q = out.get("analisis_cuantitativo") or {}
+        if not q:
+            return
+        rd = q.get("rendimiento_diario") or {}
+        comp = {
+            "_nota": "Métricas comparables: Morningstar (autoritativo) y cálculo propio sobre la serie NAV. "
+                     "Citar periodo y fuente. Es lo que permite comparar con la categoría y el catálogo.",
+            "morningstar": {k: (q.get("morningstar") or {}).get(k) for k in
+                            ("categoria_morningstar", "rating_estrellas", "medalist_rating", "rentabilidades",
+                             "riesgo", "renta_fija", "comisiones")},
+            "riesgo_propio": q.get("riesgo"),
+            "retornos_propios": q.get("retornos"),
+            "capture_ratios": q.get("capture_ratios"),
+            "benchmark": {"symbol": q.get("benchmark_symbol"), "label": q.get("benchmark_label")},
+            "serie_nav": {k: rd.get(k) for k in ("_fuente", "n_puntos", "rentabilidades_anuales", "cagr_desde_inicio",
+                                                 "volatilidad", "volatilidad_3a", "volatilidad_5a", "max_drawdown")},
+        }
+        fd["cuantitativo_comparable"] = comp
+        fund_data_path.write_text(json.dumps(fd, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
 def _fill_identity(fund_dir: Path, fund_data_path: Path) -> None:
     """Identidad (nombre/gestora) vacía en fund_data → rellenar desde lo que ya sabemos.
 
@@ -489,6 +521,7 @@ def run(isin: str) -> dict:
             f"neither cnmv_data.json nor intl_data.json found in {fund_dir}"
         )
     _fill_identity(fund_dir, bundle_dir / "fund_data.json")
+    _fill_quant(fund_dir, bundle_dir / "fund_data.json")
 
     # 2. manager_profile.json — copy with backup fallback.
     # P2 (2026-05-19): si no existe ni el main ni el backup, escribir uno

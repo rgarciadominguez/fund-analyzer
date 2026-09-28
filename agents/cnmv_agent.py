@@ -812,10 +812,15 @@ class CNMVAgent:
                         if i == 0 or k not in merged:
                             merged[k] = v
 
-            # Positions: current from most-recent only
+            # Positions: current from the MOST RECENT report by (year, semester). `i == 0` era "el primero
+            # descargado", que no siempre es el más reciente (Gamma 29-sep: dic-2025 en vez de jun-2026).
             posiciones = parsed.get("posiciones", [])
-            if i == 0 and posiciones:
-                merged["posiciones_actuales"] = posiciones
+            if posiciones:
+                _pos_key = (int(report.get("year") or year or 0), 1 if report.get("semester") == "H2" else 0)
+                if _pos_key >= merged.get("_pos_actuales_key", (-1, -1)):
+                    merged["posiciones_actuales"] = posiciones
+                    merged["_pos_actuales_key"] = _pos_key
+                    merged["posiciones_actuales_periodo"] = f"{_pos_key[0]}-{'H2' if _pos_key[1] else 'H1'}"
 
             # Historical positions: ALL positions per period (sorted by weight)
             if posiciones:
@@ -2432,6 +2437,8 @@ class CNMVAgent:
         # Posiciones
         if pdf_data.get("posiciones_actuales"):
             result["posiciones"]["actuales"] = pdf_data["posiciones_actuales"]
+            if pdf_data.get("posiciones_actuales_periodo"):
+                result["posiciones"]["periodo_actuales"] = pdf_data["posiciones_actuales_periodo"]
         if pdf_data.get("posiciones_historicas"):
             result["posiciones"]["historicas"] = pdf_data["posiciones_historicas"]
 

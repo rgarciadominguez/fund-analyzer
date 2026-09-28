@@ -95,6 +95,14 @@ Morningstar (calidad crediticia, vencimiento efectivo) para desarrollar, con cif
   `liquidez_estructura`): crédito/impago, liquidez de mercado y del vehículo (reembolsos vs emisiones ilíquidas),
   concentración sectorial, divisa (cubierta o no, coste), tipos y reinversión, capacidad del fondo frente al tamaño
   de su nicho. Con evidencia (informe y fecha) y con lo que el gestor dice al respecto en sus cartas.
+- **Duración frente a vencimientos (obligatorio)**: si la duración declarada (folleto, factsheet, Morningstar) es
+  mucho menor que lo que sugiere el calendario de vencimientos (p.ej. duración < 3 años con el 60 % venciendo a
+  4-6 años), explica por qué: cupón flotante (habitual en el high yield nórdico: cupón = NIBOR/EURIBOR + margen;
+  pista: cupones "raros" como 2,176 son márgenes), opciones de amortización anticipada (calls), duración a call,
+  o cupones altos. Si no lo puedes explicar con las fuentes, dilo: es el pilar de "no nos afectan los tipos".
+- **Cuantitativo comparable**: usa `fund_data.cuantitativo_comparable` (Morningstar y serie NAV: volatilidad,
+  drawdown máximo, Sharpe, beta, captura alcista/bajista, rentabilidad por año) para situar el fondo frente a su
+  categoría; cita el periodo y la fuente. Es lo que permite compararlo con el resto del catálogo.
 - **Qué NO hacer**: no rellenar con sectores GICS o style box de acciones (no describen la cartera de un fondo de
   bonos); no llamar "renta variable" a bonos con nombre societario.
 
