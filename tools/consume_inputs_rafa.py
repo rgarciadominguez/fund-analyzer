@@ -143,8 +143,21 @@ def _mark_full_scan() -> None:
         pass
 
 
+def _retry_supabase_pending(log) -> None:
+    """Reintento horario de los syncs aplazados por Supabase caído/restringido (29-sep-2026).
+    Vive aquí porque el guardián lanza este módulo como proceso fresco cada hora (sin reiniciar nada)."""
+    try:
+        from tools.supabase_pending import pending, retry
+        if pending():
+            retry(log=log)
+    except Exception as e:  # noqa: BLE001
+        log(f"[SUPABASE_PENDING] reintento falló: {str(e)[:100]}")
+
+
 def consume(dry_run: bool = False, full: bool = False) -> dict:
     since = None if full else _load_since()
+    if not dry_run:
+        _retry_supabase_pending(_log)   # syncs aplazados por Supabase caído: antes de nada, cada hora
     _log(f"GET /inputs-rafa {'(full)' if full else f'since={since}'}")
     payload = fetch(since)
     if not payload.get("ok"):

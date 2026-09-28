@@ -102,3 +102,36 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+_PROBE_CACHE: dict = {}
+
+
+def probe(timeout: float = 8.0, cache_s: int = 60) -> tuple[bool, str]:
+    """¿Responde Supabase? (True, "") o (False, motivo). Sonda REST mínima con el service key, cacheada
+    `cache_s` segundos. Un 402 (proyecto restringido por cuota) o un fallo de red devuelven False:
+    el sync se aplaza (tools/supabase_pending) en vez de tumbar el pipeline (29-sep-2026)."""
+    import time
+    import urllib.request
+    now = time.time()
+    hit = _PROBE_CACHE.get("r")
+    if hit and now - hit[0] < cache_s:
+        return hit[1]
+    try:
+        url, key = _load_env()
+    except Exception as e:  # noqa: BLE001
+        res = (False, f"sin configurar: {str(e)[:60]}")
+        _PROBE_CACHE["r"] = (now, res)
+        return res
+    req = urllib.request.Request(url.rstrip("/") + "/rest/v1/funds?select=isin&limit=1",
+                                 headers={"apikey": key, "Authorization": f"Bearer {key}"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            res = (200 <= r.status < 300, "" if 200 <= r.status < 300 else f"HTTP {r.status}")
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "402" in msg:
+            msg = "HTTP 402: proyecto restringido (cuota)"
+        res = (False, msg[:100])
+    _PROBE_CACHE["r"] = (now, res)
+    return res

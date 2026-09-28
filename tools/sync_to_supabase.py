@@ -352,6 +352,23 @@ def _sync_fund_impl(
 
     log(f"[SYNC] Iniciando sync de {isin}...")
 
+    # Supabase restringido/caído (29-sep-2026): NO es un fallo del análisis. Se aplaza el sync (reintento
+    # automático cada hora), se reconcilia el portal con lo que no depende de Supabase y se sale con 0.
+    if not dry_run:
+        try:
+            from tools.supabase_client import probe as _probe
+            _ok, _why = _probe()
+        except Exception as _e:  # noqa: BLE001
+            _ok, _why = False, str(_e)[:80]
+        if not _ok:
+            from tools.supabase_pending import add as _pend_add
+            _pend_add(isin, _why)
+            log(f"[SYNC] [APLAZADO] Supabase no responde ({_why}). El análisis local y el dashboard del "
+                f"Worker quedan publicados; Storage/tablas/portal-catálogo se sincronizarán solos cuando "
+                f"Supabase vuelva (data/_pending_supabase_sync.json).")
+            _reconcile_portal_sin_supabase(log, isin)
+            return {"isin": isin, "deferred": True, "reason": _why}
+
     # Cliente Supabase (lazy import)
     if dry_run:
         log("[SYNC] [DRY-RUN] No se sube nada, solo simula")
@@ -877,6 +894,11 @@ def _sync_fund_impl(
         log(f"[SYNC] freshness_guard falló (no crítico): {str(_e)[:80]}")
 
     log(f"[SYNC] [OK] Sync OK: {isin} | uploaded={sum(1 for v in uploaded.values() if v)}/{len(uploaded)} archivos")
+    try:
+        from tools.supabase_pending import remove as _pend_remove
+        _pend_remove(isin, "sync_to_supabase")
+    except Exception:
+        pass
 
     # Contrato FONDO vs CLASE (CLAUDE.md §0.9): tras analizar, TODAS las clases del grupo apuntan
     # a ESTE análisis (el último bueno) → "ver análisis" muestra siempre el último del activo,
@@ -911,6 +933,26 @@ def _sync_fund_impl(
         "funds_updated": funds_updated,
         "fund_groups_updated": True,
     }
+
+
+def _reconcile_portal_sin_supabase(log, isin: str) -> None:
+    """Con Supabase caído: empujar al portal métricas + meta del fondo desde los ficheros locales
+    (portal_analyze_worker --metrics-only), para que salga de la cola y muestre el análisis del Worker.
+    El catálogo (export_horfin_catalog/catalog_publish) sí necesita Supabase → queda para el reintento."""
+    import subprocess
+    import sys
+    from pathlib import Path
+    try:
+        root = str(Path(__file__).resolve().parent.parent)
+        rm = subprocess.run([sys.executable, "-m", "tools.portal_analyze_worker",
+                             "--isin", isin, "--metrics-only"], cwd=root,
+                            capture_output=True, text=True, timeout=300)
+        if rm.returncode == 0:
+            log("[SYNC] [OK] portal reconciliado sin Supabase (métricas + meta → fuera de cola)")
+        else:
+            log(f"[SYNC] portal-metrics (sin Supabase) rc={rm.returncode}: {(rm.stderr or rm.stdout or '')[-160:]}")
+    except Exception as e:  # noqa: BLE001
+        log(f"[SYNC] portal (sin Supabase) falló (no crítico): {str(e)[:100]}")
 
 
 def _refresh_portal_catalog(log, isin: str) -> None:

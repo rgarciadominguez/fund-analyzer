@@ -135,14 +135,44 @@ def publish(isin: str, do_git: bool = True, do_storage: bool = True, wait: int =
     if do_storage:
         from dotenv import load_dotenv
         load_dotenv(ROOT / ".env")
-        from tools.supabase_client import get_client
-        from tools.upload_dashboards import upload_one
-        r = upload_one(get_client(), isin, log=log)
-        if not r or not r.get("html"):        # upload_one devuelve {'html': bytes, 'json': bytes}
-            log(f"[publish] ERROR: subida a Storage fallida ({r})")
-            return 1
+        from tools.supabase_client import get_client, probe
+        _ok, _why = probe()
+        if not _ok:
+            # Supabase caido/restringido: no gastar 6 min en reintentos; el Worker (git) es lo que ve el
+            # portal. Storage queda aplazado y se reintenta solo (tools/supabase_pending).
+            from tools.supabase_pending import add as _pend_add
+            _pend_add(isin, _why, pasos=("publish_storage",))
+            log(f"[publish] Storage APLAZADO: Supabase no responde ({_why}); se reintenta solo cuando vuelva")
+            do_storage = False
+        else:
+            from tools.upload_dashboards import upload_one
+            r = upload_one(get_client(), isin, log=log)
+            if not r or not r.get("html"):        # upload_one devuelve {'html': bytes, 'json': bytes}
+                log(f"[publish] ERROR: subida a Storage fallida ({r})")
+                return 1
 
     res = verify(isin, sello, wait=wait if do_git else 0, log=log)
+    # Supabase restringido (29-sep-2026): si el Worker ya sirve el sello, el análisis ESTÁ publicado para el
+    # portal (el iframe lee del Worker). Storage queda aplazado y se reintenta solo.
+    if res.get("worker") == sello and res.get("storage") != sello:
+        try:
+            from tools.supabase_client import probe as _probe
+            _ok, _why = _probe()
+        except Exception as _e:  # noqa: BLE001
+            _ok, _why = False, str(_e)[:80]
+        if not _ok:
+            from tools.supabase_pending import add as _pend_add
+            _pend_add(isin, _why, pasos=("publish_storage",))
+            log(f"[publish] Worker al día ({sello}); Storage APLAZADO: Supabase no responde ({_why}). "
+                f"Se reintenta solo cuando vuelva.")
+            res["ok"] = True
+            res["storage_pendiente"] = True
+    elif res.get("ok") and res.get("storage") == sello:
+        try:
+            from tools.supabase_pending import remove as _pend_remove
+            _pend_remove(isin, "publish_storage")
+        except Exception:
+            pass
     log(f"[publish] verificación: storage={res['storage']} worker={res['worker']} esperado={sello} → "
         f"{'OK en todos los destinos' if res['ok'] else 'DESAJUSTE'}")
     return 0 if res["ok"] else 1
