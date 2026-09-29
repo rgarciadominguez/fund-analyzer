@@ -6,13 +6,12 @@ SALE con una línea en cuanto hay un evento, y esa salida despierta al chat, que
 vuelve a lanzar si el run sigue vivo.
 
 Eventos (lee data/queue_state.json, que OneDrive trae del servidor):
-  PAUSA      running/queued -> paused_waiting_tokens   (con la hora prevista de reanudación)
   REANUDADO  paused_waiting_tokens -> queued/running    ("vuelta al trabajo")
   FIN        -> completed / completed_with_warnings / failed / skipped / cancelled (con exit code)
   PERDIDO    el item desaparece de la cola
 
 Uso:  python -m tools.seguir_run ES0140794001 [--poll 60] [--max-horas 24]
-Sale 0 con una línea "[EVENTO] ..." ; sale 2 si pasa --max-horas sin eventos (volver a lanzar).
+Sale 0 con una línea [REANUDADO] / [FIN] / [PERDIDO] ; sale 2 si pasa --max-horas sin eventos (volver a lanzar).
 """
 from __future__ import annotations
 
@@ -86,15 +85,9 @@ def main() -> int:
         st = it.get("status")
         if st == prev:
             continue
-        if st == PAUSA:
-            try:
-                hasta = json.loads(QS.read_text(encoding="utf-8")).get("tokens_blocked_until")
-            except Exception:
-                hasta = None
-            cuando = f"hacia las {_hora(hasta)} (+5 min)" if hasta else "cuando vuelvan los tokens"
-            print(f"[PAUSA] {isin}: en pausa por límite de tokens de Claude; se reanuda solo {cuando} "
-                  f"(run {it.get('run_id')}).", flush=True)
-            return 0
+        if st == PAUSA:  # la pausa ya la enseña Claude con su aviso de límite; solo interesa la VUELTA
+            prev = st
+            continue
         if prev == PAUSA and st in VIVOS:
             print(f"[REANUDADO] {isin}: vuelta al trabajo a las {_hora(it.get('_resumed_at') or it.get('started_at'))}; "
                   f"retoma donde se quedó (run {it.get('run_id')}).", flush=True)
