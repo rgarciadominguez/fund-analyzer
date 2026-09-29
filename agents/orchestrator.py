@@ -81,7 +81,8 @@ CLARIFYING_QUESTIONS = [
         "id": "clase_accion",
         "pregunta": "Clase de accion (fondos INT con multiples clases)?",
         "tipo": "texto_libre",
-        "default": "I EUR",
+        # "I EUR" no existe en muchos fondos (Gamma: solo A y Z); la clase por defecto es la del ISIN analizado.
+        "default": "la del ISIN analizado",
     },
     {
         "id": "contexto_adicional",

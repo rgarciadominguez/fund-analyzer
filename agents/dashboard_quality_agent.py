@@ -825,6 +825,37 @@ def _check_clase_nueva_detectada(rule: dict, data: dict) -> tuple[bool, dict]:
     return True, {"actual": "ok"}
 
 
+def _es_cifra_historica(text: str, start: int, end: int, real: float) -> bool:
+    """Una cifra en prosa es histórica (no un error) si en su contexto hay un año anterior al actual o si
+    la cifra real aparece también cerca (patrón "de 112 partícipes en 2021 a 11.942 hoy"). 29-sep-2026:
+    Gamma marcaba como incoherente una comparación correcta."""
+    import datetime as _dt
+    # ventana = el párrafo de la cifra + el párrafo anterior (suele ser el sub-encabezado con el año)
+    p0 = text.rfind("
+
+", 0, start)
+    p_prev = text.rfind("
+
+", 0, max(p0, 0)) if p0 > 0 else -1
+    p1 = text.find("
+
+", end)
+    win = text[(p_prev + 2 if p_prev >= 0 else 0):(p1 if p1 > 0 else len(text))]
+    if len(win) < 320:
+        win = text[max(0, start - 160):min(len(text), end + 160)] + " " + win
+    this_year = _dt.date.today().year
+    for y in re.findall(r"\b(20[0-3]\d)\b", win):
+        if int(y) < this_year - 1:
+            return True
+    try:
+        r = float(real)
+    except (TypeError, ValueError):
+        return False
+    cands = {f"{r:,.0f}".replace(",", "."), f"{r:.0f}", f"{r:,.1f}".replace(",", "X").replace(".", ",").replace("X", "."),
+             f"{r:.1f}".replace(".", ",")}
+    return any(c and c in win for c in cands)
+
+
 def _check_text_kpis_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
     """Detecta cifras de partícipes/AUM en prosa que no cuadran con KPIs reales.
     Caso típico: gestor escribe en el PDF 'el número de partícipes se sitúa en 9.856'
@@ -853,6 +884,8 @@ def _check_text_kpis_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
                 continue
             diff_pct = abs(n - real_parts) / real_parts * 100 if real_parts else 0
             if diff_pct > 5:  # >5% drift
+                if _es_cifra_historica(text, m.start(), m.end(), real_parts):
+                    continue  # comparación histórica correcta, no un error
                 issues.append(f"texto dice {int(n)} partícipes, KPI real {real_parts} ({diff_pct:.0f}% drift)")
                 break  # un solo error suficiente
 
@@ -868,6 +901,8 @@ def _check_text_kpis_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
                 continue
             diff_pct = abs(n - real_aum) / real_aum * 100
             if diff_pct > 15:  # >15% drift (tolerante por ciclos de mercado)
+                if _es_cifra_historica(text, m.start(), m.end(), real_aum):
+                    continue
                 issues.append(f"texto dice {n} M€ AUM, KPI real {real_aum} ({diff_pct:.0f}% drift)")
                 break
 
