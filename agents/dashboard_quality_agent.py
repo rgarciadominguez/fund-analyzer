@@ -831,15 +831,10 @@ def _es_cifra_historica(text: str, start: int, end: int, real: float) -> bool:
     Gamma marcaba como incoherente una comparación correcta."""
     import datetime as _dt
     # ventana = el párrafo de la cifra + el párrafo anterior (suele ser el sub-encabezado con el año)
-    p0 = text.rfind("
-
-", 0, start)
-    p_prev = text.rfind("
-
-", 0, max(p0, 0)) if p0 > 0 else -1
-    p1 = text.find("
-
-", end)
+    sep = chr(10) + chr(10)
+    p0 = text.rfind(sep, 0, start)
+    p_prev = text.rfind(sep, 0, max(p0, 0)) if p0 > 0 else -1
+    p1 = text.find(sep, end)
     win = text[(p_prev + 2 if p_prev >= 0 else 0):(p1 if p1 > 0 else len(text))]
     if len(win) < 320:
         win = text[max(0, start - 160):min(len(text), end + 160)] + " " + win
