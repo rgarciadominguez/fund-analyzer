@@ -98,6 +98,32 @@ TOKEN_EXHAUSTION_PATTERNS = (
 )
 
 
+
+def _avisar_cola(resumen: str, ok: bool = True) -> None:
+    """Aviso de la cola a Rafa (29-sep-2026): pausa por límite de tokens y reanudación. Va al portal como tarea
+    'fa-cola' (panel técnico; sin vigilancia de silencio) y a data/_avisos_cola.jsonl. Best-effort."""
+    try:
+        (ROOT / "data" / "_avisos_cola.jsonl").open("a", encoding="utf-8").write(
+            json.dumps({"ts": datetime.now(timezone.utc).isoformat(), "ok": ok, "resumen": resumen},
+                       ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+    try:
+        import base64
+        import urllib.request
+        cfg = json.load(open(os.path.expanduser("~/.horizonte-portal.json"), encoding="utf-8"))
+        body = json.dumps({"nombre": "fa-cola", "ok": ok, "silencio": True, "max_horas": 0,
+                           "resumen": "[" + os.environ.get("COMPUTERNAME", "?") + "] " + resumen}, ensure_ascii=False).encode("utf-8")
+        req = urllib.request.Request(cfg["base_url"].rstrip("/") + "/wp-json/horizonte/v1/admin/servidor/tarea",
+                                     data=body, method="POST",
+                                     headers={"Content-Type": "application/json; charset=utf-8",
+                                              "Authorization": "Basic " + base64.b64encode(
+                                                  f"{cfg['usuario']}:{cfg['app_password']}".encode()).decode()})
+        urllib.request.urlopen(req, timeout=20).read()
+    except Exception as e:  # noqa: BLE001
+        print(f"[QUEUE] aviso al portal no enviado: {str(e)[:80]}")
+
+
 def load_persisted_runs():
     """Carga runs del archivo persistido (para mostrar histórico tras reinicios)."""
     if not RUNS_FILE.exists():
@@ -941,12 +967,18 @@ def make_app(cold_start: bool = True) -> Flask:
                 # límite) en vez de rehacer todo desde cero — que además volvería a topar el límite en
                 # el mismo paso y (cold-start) movería el fund_dir a .bak perdiendo lo avanzado. El
                 # bat degrada a cold-start solo si no hay datos parciales (analyze lo verifica).
+                _reanudados = []
                 with QUEUE_LOCK:
                     for it in QUEUE:
                         if it.get("status") == "paused_waiting_tokens":
                             it["status"] = "queued"
                             it["cold_start"] = False
                             it["_resumed_at"] = datetime.now(timezone.utc).isoformat()
+                            _reanudados.append(it.get("isin"))
+                if _reanudados:
+                    _avisar_cola("▶ Vuelta al trabajo: tokens de Claude disponibles; reanudado(s) "
+                                 + ", ".join(str(x) for x in _reanudados)
+                                 + " en modo reanudación (conserva lo ya hecho y retoma donde se quedó).")
                 QUEUE_TOKENS_BLOCKED_UNTIL = None
                 _save_queue_state()
                 # Arrancar worker si no está corriendo
@@ -1386,6 +1418,12 @@ def make_app(cold_start: bool = True) -> Flask:
                     _reset = _parse_reset_time_utc(isin)
                     if _reset:
                         QUEUE_TOKENS_BLOCKED_UNTIL = _reset
+                    try:
+                        _hh = _reset[11:16] + " UTC" if _reset else "la próxima comprobación"
+                        _avisar_cola(f"⏸ {isin}: en PAUSA por límite de tokens de Claude; se reanuda solo hacia {_hh} "
+                                     f"(run {next_item.get('run_id') or '?'}; retoma donde se quedó).")
+                    except Exception:
+                        pass
                         print(f"[QUEUE] {isin}: límite de sesión → reanudar a {_reset} "
                               f"(hora de reset +5min, Madrid)")
                     else:
@@ -1417,6 +1455,12 @@ def make_app(cold_start: bool = True) -> Flask:
                                 _reset = _parse_reset_time_utc(isin)
                                 if _reset:
                                     QUEUE_TOKENS_BLOCKED_UNTIL = _reset
+                                try:
+                                    _hh = _reset[11:16] + " UTC" if _reset else "la próxima comprobación"
+                                    _avisar_cola(f"⏸ {isin}: en PAUSA por límite de tokens de Claude (detectado al terminar el paso); "
+                                                 f"se reanuda solo hacia {_hh}.")
+                                except Exception:
+                                    pass
                                     print(f"[QUEUE] {isin}: límite de sesión (post-mortem) → "
                                           f"reanudar a {_reset} (+5min, Madrid)")
                                 else:
