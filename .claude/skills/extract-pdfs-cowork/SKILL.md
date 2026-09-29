@@ -169,8 +169,8 @@ Para CADA task (leyendo cada página por texto o imagen según la regla de §3):
 Para tasks con `two_stage: true` → siempre Tipo B.
 
 **Tipo C — Clasificación sin PDF (`agent: cnmv_enrichment`, `pdf_path` "(no_pdf — classification task)")**:
-la task trae en `extra.positions` la lista de posiciones sin sector (nombre, tipo, ISIN del valor) y en
-`extra.vocabulary` el vocabulario permitido. Clasifica CADA posición por su emisor (bono corporativo → sector
+la task trae en su campo `positions` la lista de posiciones sin sector (nombre, tipo, ISIN del valor) y en
+`vocabulary` el vocabulario permitido (si `positions` viniera vacío, lee `posiciones.actuales` sin sector de `cnmv_data.json`). Clasifica CADA posición por su emisor (bono corporativo → sector
 del emisor; deuda pública → Government; supranacional → Supranational; IIC/ETF → Other; liquidez → Cash) con
 tu conocimiento del emisor (p.ej. Kosmos, Panoro, DNO → Energy; Navios, Diana → Industrials/transporte marítimo;
 Grifols → Healthcare). Si no conoces al emisor, `sector: "Other"` y anótalo en `anti_invencion_notes`. Escribe
