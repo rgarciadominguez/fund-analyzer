@@ -213,6 +213,10 @@ def revisar(dry: bool = False, solo: str | None = None, rows: list | None = None
             except Exception as e:  # noqa: BLE001
                 _log(f"[WARN] no pude cerrar la tarea {prev.get('id')} de {isin}: {str(e)[:80]}")
             st["ar"].pop(isin, None); prev = None
+        if fpa and not prev and hoy > fpa + timedelta(days=1):
+            # ya vencido antes de este vigilante: el portal ya tiene su tarea "Re-analizar fondo" → no duplicar
+            st["ar"][isin] = {"id": 0, "fecha": fpa.isoformat(), "creada": hoy.isoformat(), "nota": "tarea del portal"}
+            prev = st["ar"][isin]
         if fpa and not prev and hoy >= fpa - timedelta(days=1):
             titulo = (f"Re-analizar fondo: {nombre} ({isin}) — update anual: annual report y semestral nuevos, "
                       f"cartas y análisis externos del año; después leer los docs nuevos y la performance del año")
@@ -227,6 +231,12 @@ def revisar(dry: bool = False, solo: str | None = None, rows: list | None = None
         # 2) CARTA nueva sin annual report nuevo cerca
         if fpa and (fpa - hoy).days < MARGEN_AR_DIAS:
             continue                                   # la carta entra en el update anual
+        kb = _kb_de(isin)
+        if not kb.get("letters_page") and not kb.get("pattern"):
+            # Solo fondos con la página de cartas de su gestora verificada (known_manager_letters.json, que
+            # rellena letters-sourcing-cowork en cada full/annual_update). Sin eso el aviso sería una búsqueda
+            # en Google sobre cartas que a veces ni son del fondo (contaminadas): ruido, no seguimiento.
+            continue
         try:
             from tools.publication_calendar import build_publication_calendar
             pc = build_publication_calendar(isin) or {}
@@ -240,11 +250,18 @@ def revisar(dry: bool = False, solo: str | None = None, rows: list | None = None
         periodo, fin, v = _siguiente_periodo(ultimo, freq)
         if hoy <= fin:
             continue                                   # el periodo aún no ha cerrado
+        # Si la última carta conocida es antigua (el fondo no publica al día o no la tenemos), no se piden
+        # revisiones de periodos pasados: solo se busca la del ÚLTIMO periodo cerrado, y solo por patrón.
+        atrasado = False
+        while True:
+            p2, f2, v2 = _siguiente_periodo(fin, freq)
+            if f2 >= hoy:
+                break
+            periodo, fin, v, atrasado = p2, f2, v2, True
         cst = st["cartas"].setdefault(isin, {})
         ya = cst.get(periodo) or {}
         if ya.get("estado") == "leer":
             continue
-        kb = _kb_de(isin)
         encontrada = next((u for u in _urls_candidatas(kb, v) if _publicada(u)), None)
         try:
             if encontrada:
@@ -255,9 +272,8 @@ def revisar(dry: bool = False, solo: str | None = None, rows: list | None = None
                 cst[periodo] = {"estado": "leer", "id": tid, "url": encontrada, "fecha": hoy.isoformat()}
                 res["tareas_carta"] += 1
                 _log(f"{isin} ({cl}): carta {periodo} publicada → {encontrada}")
-            elif not ya and (hoy - fin).days >= GRACIA_CARTA_DIAS:
-                enlace = kb.get("letters_page") or ("https://www.google.com/search?q=" +
-                                                    urllib.request.quote(f"{nombre} carta trimestral {periodo}"))
+            elif not ya and not atrasado and (hoy - fin).days >= GRACIA_CARTA_DIAS:
+                enlace = kb.get("letters_page") or kb.get("letters_page_alt") or "(página de cartas no registrada)"
                 tid = _tarea({"titulo": f"Revisar si ha salido la carta {periodo} de {nombre} ({isin}) y leerla: {enlace}"[:240],
                               "fecha": hoy.isoformat()}, dry)
                 cst[periodo] = {"estado": "revisar", "id": tid, "fecha": hoy.isoformat()}
