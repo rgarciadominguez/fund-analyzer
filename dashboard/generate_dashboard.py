@@ -146,6 +146,51 @@ def load_data():
 
 import re as _re
 
+
+def _build_comision_exito_html(data: dict) -> str:
+    """Comisión de éxito explicada (Rafa 29-sep-2026): porcentaje, base/umbral, marca de agua, periodicidad y
+    coste efectivo cobrado por año. Va debajo de la tabla de clases del resumen. '' si no hay."""
+    import html as _h
+    cl = [c for c in ((data or {}).get("clases_documento") or []) if isinstance(c, dict)]
+    ce = (data or {}).get("comision_exito") or {}
+    pcts = [c for c in cl if isinstance(c.get("comision_exito_pct"), (int, float)) and c.get("comision_exito_pct") > 0]
+    if not pcts and not ce.get("existe"):
+        return ""
+    detalle = ""
+    for c in pcts:
+        if c.get("comision_exito_detalle"):
+            detalle = str(c["comision_exito_detalle"]); break
+    pct = pcts[0].get("comision_exito_pct") if pcts else None
+    fuente = (pcts[0].get("fuente") if pcts else "") or ""
+    txt = ce.get("texto") or ce.get("descripcion") or ""
+    low = (detalle + " " + txt).lower()
+    hwm = "sí" if _re.search(r"marca de agua|high.?water|hwm", low) else "no consta"
+    umbral = ""
+    m = _re.search(r"(por encima|exceso|superen?|hurdle)[^.;]{0,60}?(\d+(?:[.,]\d+)?)\s*%", low)
+    if m:
+        umbral = m.group(2).replace(".", ",") + " %"
+    per = "anual" if _re.search(r"anual|año|annual|year", low) else "no consta"
+    serie = ce.get("serie_historica") or []
+    cost_rows = ""
+    for e in serie[-4:]:
+        ex = e.get("exito") or {}
+        vals = [f"{k}: {float(v):.2f}%" for k, v in ex.items() if isinstance(v, (int, float))]
+        if vals:
+            cost_rows += f'<tr><td style="padding:3px 8px 3px 0;color:var(--ink-3);">{_h.escape(str(e.get("periodo")))}</td><td style="padding:3px 0;">{_h.escape(" · ".join(vals))}</td></tr>'
+    body = (f'<p class="pr" style="font-size:12.5px;margin:0 0 8px;">'
+            f'<strong>{f"{pct:g} %" if isinstance(pct, (int, float)) else "Existe"}</strong> sobre los resultados '
+            f'{("que superen el <strong>" + umbral + "</strong> " + ("anual " if per == "anual" else "")) if umbral else ""}'
+            f'(base: {_h.escape(detalle) if detalle else "según folleto"}). '
+            f'Marca de agua: <strong>{hwm}</strong>. Periodicidad: <strong>{per}</strong>. '
+            f'{("Fuente: " + _h.escape(str(fuente)) + ". ") if fuente else ""}'
+            f'Se paga solo si hay resultado por encima de esa referencia; a igual rentabilidad bruta, reduce la neta.</p>')
+    if cost_rows:
+        body += ('<div class="pr" style="font-size:11px;color:var(--ink-3);margin-bottom:4px;">Coste efectivo cobrado por año (informes CNMV, % del patrimonio, por clase):</div>'
+                 f'<table style="border-collapse:collapse;font-size:11.5px;"><tbody>{cost_rows}</tbody></table>')
+    return ('<div class="sr" style="margin-top:14px;">Comisión de éxito, explicada</div>'
+            f'<div style="background:var(--paper-2);border-left:3px solid #c8a23c;padding:10px 14px;margin-bottom:14px;">{body}</div>')
+
+
 def _build_classes_table_from_document(data):
     """Tabla de clases desde `clases_documento` (tools/aportado_publish). '' si no hay.
     Pensada para IDENTIFICAR cada clase de un vistazo: código, ISIN, divisa (+cubierta), reparto,
@@ -229,7 +274,7 @@ def build_classes_table(data):
     # lo que las heurísticas no (todas las clases, divisa/cobertura, comisión de ÉXITO, mínimo).
     _doc_tbl = _build_classes_table_from_document(data)
     if _doc_tbl:
-        return _doc_tbl
+        return _doc_tbl + _build_comision_exito_html(data)
 
     # Find first year each class appears (for "Inicio" column)
     clases_inicio = {}
@@ -3627,10 +3672,6 @@ def build_tab_historia(data):
 <section class="pane" id="p1">
   <div class="pane-header"><h1 class="pane-h1">Historia del fondo</h1><span class="pane-dl">{fecha_inicio} — presente</span></div>
 
-  <div class="mb24">
-    {historia_narr}
-  </div>
-
   <div class="kpi-row">
     <div class="kpi-cell"><div class="kpi-label">Años desde inicio</div><div class="kpi-value">{years_since or '—'}</div><div class="kpi-sub">{fecha_inicio} — presente</div></div>
     <div class="kpi-cell"><div class="kpi-label">CAGR desde inicio</div><div class="kpi-value pos" id="kpi-cagr">—</div><div class="kpi-sub" id="kpi-cagr-sub">Anualizado · Morningstar daily</div></div>
@@ -3645,6 +3686,11 @@ def build_tab_historia(data):
   </script>
   {cronologia_block}
   {hechos_block}
+
+  <details class="mb24" style="margin-top:12px;">
+    <summary class="pr" style="cursor:pointer;font-size:12.5px;color:var(--navy);font-weight:600;">Leer la historia completa</summary>
+    <div style="margin-top:10px;">{historia_narr}</div>
+  </details>
 </section>"""
 
 
@@ -5076,19 +5122,20 @@ def build_tab_estrategia(data):
 
   {diferenciacion_html}
 
-  <div class="mb24">
-    {estrategia_narr}
-  </div>
-
-  {quotes_html}
+  {f'''<div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Lo que ha hecho, año a año (decisiones y resultado)</div>
+  {matrix_header}
+  {hitos_html}''' if hitos_html else ''}
 
   {resumen_html}
 
   {perfil_html}
 
-  {f'''<div class="sr" style="color:var(--navy);border-bottom-color:var(--navy);">Consistencia estratégica (año a año)</div>
-  {matrix_header}
-  {hitos_html}''' if hitos_html else ''}
+  <details class="mb24" style="margin-top:8px;">
+    <summary class="pr" style="cursor:pointer;font-size:12.5px;color:var(--navy);font-weight:600;">Leer el análisis completo de la estrategia</summary>
+    <div style="margin-top:10px;">{estrategia_narr}</div>
+  </details>
+
+  {quotes_html}
 
   {consistencia_html}
 </section>"""
@@ -5830,7 +5877,18 @@ def build_tab_cartera(data):
     _rat_evo = build_allocation_evolution_chart(
         data.get("rating_allocation_history"), "ratings",
         "Evolución por calidad crediticia (% sobre patrimonio)", "c-rating-evo", top_n=7)
-    _evos = [c for c in (_asset_evo, _geo_evo, _sec_evo, _rat_evo) if c]
+    # Deuda (Rafa 29-sep-2026): evolución de vencimientos, cupón y divisa de la deuda por año
+    _rf_evos = []
+    if _es_renta_fija_dominante(data):
+        _rf_evos = [
+            build_allocation_evolution_chart(data.get("rf_vencimiento_history"), "tramos",
+                                             "Evolución de vencimientos de la deuda (% de la deuda, a la fecha de cada periodo)", "c-rf-venc-evo"),
+            build_allocation_evolution_chart(data.get("rf_cupon_history"), "tramos",
+                                             "Evolución del cupón de la deuda (% de la deuda)", "c-rf-cup-evo"),
+            build_allocation_evolution_chart(data.get("rf_divisa_history"), "tramos",
+                                             "Evolución de la divisa de emisión (% de la deuda)", "c-rf-div-evo"),
+        ]
+    _evos = [c for c in (_asset_evo, _geo_evo, _sec_evo, _rat_evo, *_rf_evos) if c]
     evo_alloc_html = ""
     if _evos:
         _cls = {1: "col1", 2: "col2"}.get(len(_evos), "col2")

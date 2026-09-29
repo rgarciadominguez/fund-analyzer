@@ -257,6 +257,63 @@ def build_for(isin: str) -> dict:
             out["sector_history"] = sec_hist
     except Exception:
         pass
+
+    # 4) Deuda: evolución por año de vencimientos (relativos a la fecha del periodo), cupón y divisa
+    #    (Rafa 29-sep-2026: "clave ver si es siempre igual o va cambiando y por qué").
+    try:
+        import datetime as _dt
+        def _fin_periodo(per):
+            per = str(per)
+            if len(per) >= 7 and per[4] == "-":
+                y, m = int(per[:4]), int(per[5:7])
+                return _dt.date(y, m, 28)
+            return _dt.date(int(per[:4]), 12, 31)
+        def _es_bono(q):
+            t = str(q.get("tipo") or "").upper()
+            return t in ("BONOS", "BONO", "BOND", "BONDS", "RF", "OBLIGACIONES", "PAGARES", "PAGARÉS", "LETRAS") \
+                or q.get("cupon") is not None or bool(q.get("vencimiento"))
+        venc_h, cup_h, div_h = [], [], []
+        periodos = [(e.get("periodo"), e.get("todas") or e.get("posiciones") or []) for e in (posw.get("historicas") or [])]
+        serie = (d.get("cuantitativo", {}) or {}).get("serie_aum") or []
+        per_act = str(serie[-1].get("periodo", ""))[:7] if serie else ""
+        if per_act and per_act not in {str(pp)[:7] for pp, _ in periodos}:
+            periodos.append((per_act, posw.get("actuales") or []))
+        for per, rows in periodos:
+            bonos = [q for q in rows if isinstance(q, dict) and _es_bono(q) and isinstance(q.get("peso_pct"), (int, float))]
+            w = sum(q["peso_pct"] for q in bonos)
+            if not per or w < 20:
+                continue
+            ref = _fin_periodo(per)
+            ladder = {"hasta 1 año": 0.0, "1-3 años": 0.0, "3-5 años": 0.0, "más de 5 años": 0.0, "sin fecha": 0.0}
+            cup = {"< 3%": 0.0, "3-5%": 0.0, "5-7%": 0.0, "7-9%": 0.0, "> 9%": 0.0, "sin dato": 0.0}
+            div = {}
+            for q in bonos:
+                v = str(q.get("vencimiento") or "")[:10]
+                try:
+                    yrs = (_dt.date.fromisoformat(v) - ref).days / 365.25
+                    k = "hasta 1 año" if yrs < 1 else "1-3 años" if yrs < 3 else "3-5 años" if yrs < 5 else "más de 5 años"
+                except ValueError:
+                    k = "sin fecha"
+                ladder[k] += q["peso_pct"]
+                c = q.get("cupon")
+                if isinstance(c, (int, float)) and c > 0:
+                    cup["< 3%" if c < 3 else "3-5%" if c < 5 else "5-7%" if c < 7 else "7-9%" if c < 9 else "> 9%"] += q["peso_pct"]
+                else:
+                    cup["sin dato"] += q["peso_pct"]
+                div[q.get("divisa") or "?"] = div.get(q.get("divisa") or "?", 0) + q["peso_pct"]
+            pct = lambda m: {k: round(v / w * 100, 2) for k, v in m.items() if v > 0}
+            venc_h.append({"periodo": str(per)[:7], "tramos": pct(ladder), "_fuente": "cartera"})
+            cup_h.append({"periodo": str(per)[:7], "tramos": pct(cup), "_fuente": "cartera"})
+            div_h.append({"periodo": str(per)[:7], "tramos": pct(div), "_fuente": "cartera"})
+        for key, lst in (("rf_vencimiento_history", venc_h), ("rf_cupon_history", cup_h), ("rf_divisa_history", div_h)):
+            dd = {}
+            for g in lst:
+                dd[g["periodo"]] = g
+            lst = sorted(dd.values(), key=lambda g: g["periodo"])
+            if len(lst) >= 2:
+                out.setdefault("rf_history", {})[key] = lst
+    except Exception:
+        pass
     return out
 
 
@@ -295,6 +352,11 @@ def apply_to_output(isin: str, bd: dict, overwrite: bool = False) -> list:
         resto = [e for e in (cur or []) if isinstance(e, dict) and e.get("_fuente") != "cartera"
                  and str(e.get("periodo"))[:4] not in anios]
         return sorted(nuevo + resto, key=lambda e: str(e.get("periodo")))
+
+    # Deuda por año (siempre se refresca: es cálculo determinista de las carteras)
+    for key, lst in (bd.get("rf_history") or {}).items():
+        d[key] = lst
+        written.append(key)
 
     # Sectores por año (fill-if-empty; en overwrite refresca)
     if bd.get("sector_history"):

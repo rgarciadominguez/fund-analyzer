@@ -50,6 +50,8 @@ Para CADA carta que aún NO tenga K15 estructurado, añadir estos campos al obje
     {"nombre": "Inversión X", "accion": "compra|venta|aumentado|reducido|mantenido", "racional": "string corto"}
   ],
   "resultado_real": "string (100-400 chars) o null. Qué rentabilidad se reportó vs benchmark.",
+  "casos_credito": [{"nombre": "IOG PLC", "que_paso": "reestructuración", "desenlace": "canje por acciones", "impacto": "0,6% del patrimonio"}],
+  "relevancia": "string (2-4 frases): qué aporta esta carta que no estaba antes",
   "doc_type": "manager_presentation|carta_semestral|carta_trimestral|informe_mensual|annual_letter",
   "fuente_tipo": "pdf_discovery|web_scraping|manual",
   "_k15_extracted_at": "ISO timestamp",
@@ -111,6 +113,12 @@ Razonar sobre el texto y extraer los 7 campos K15:
 5. **citas_textuales**: 2-5 citas LITERALES (entre comillas dobles) que mejor capturen el pensamiento del gestor en este periodo.
 6. **posiciones_mencionadas**: Lista de empresas/activos mencionados explícitamente con la acción tomada.
 7. **resultado_real**: Si la carta reporta rentabilidad del periodo (vs benchmark), capturarlo.
+8. **casos_credito** (Rafa 29-sep-2026): lista de nombres TENSIONADOS en el periodo: impagos, reestructuraciones,
+   canjes, ventas forzadas, rebajas de rating, litigios, con `{"nombre", "que_paso", "desenlace", "impacto"}`. Si la
+   carta no menciona ninguno, lista vacía (no inventar). Es lo que alimenta la sección de Riesgos.
+9. **relevancia**: 2-4 frases con lo que esta carta aporta que NO estaba en las anteriores (un cambio de criterio, una
+   exposición nueva, un aviso del gestor, un cambio de equipo). Se trata de ENTENDER la carta y quedarse con lo que
+   importa, no de resumirla: si no aporta nada nuevo, dilo ("reitera la tesis; sin decisiones nuevas").
 
 ### 4. Reglas críticas
 

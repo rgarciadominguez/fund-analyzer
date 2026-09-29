@@ -418,6 +418,33 @@ def _upsert_by_periodo(existing: list, nuevos: list, extra_key: str | None = Non
     return [by[k] for k in sorted(by.keys())]
 
 
+def _rellenar_sin_pisar(existing: list, nuevos: list, extra_key: str | None = None) -> list:
+    """Series CUANTITATIVAS oficiales (Rafa 29-sep-2026): Morningstar/CNMV/AR mandan; los documentos aportados
+    solo añaden periodos que faltan (p.ej. años anteriores al histórico oficial) y quedan marcados
+    fuente='documento'. Un año ya cubierto por una fuente oficial NO se toca ni se duplica ('2021' + '2021-12')."""
+    def _year(x):
+        return str(x.get("periodo") or "")[:4]
+    def _k(x):
+        return (str(x["periodo"]), str(x.get(extra_key) or "") if extra_key else "")
+    by = {}
+    anios_oficiales = set()
+    for e in (existing or []):
+        if isinstance(e, dict) and e.get("periodo") is not None:
+            by[_k(e)] = e
+            if (e.get("fuente") or "") != "documento":
+                anios_oficiales.add((_year(e), str(e.get(extra_key) or "") if extra_key else ""))
+    for n in nuevos:
+        if not isinstance(n, dict) or n.get("periodo") is None:
+            continue
+        key_y = (_year(n), str(n.get(extra_key) or "") if extra_key else "")
+        if key_y in anios_oficiales:
+            continue                         # ya hay dato oficial de ese año: el documento no lo pisa
+        n = dict(n)
+        n.setdefault("fuente", "documento")
+        by[_k(n)] = n
+    return [by[k] for k in sorted(by.keys())]
+
+
 def _apply_to_file(p: Path, isin: str, built: dict, log=print) -> dict:
     """Upsert de las estructuras históricas en un fichero (output.json o intl_data.json).
     Mismo schema (posiciones.historicas + cuantitativo.*). Best-effort."""
@@ -437,8 +464,12 @@ def _apply_to_file(p: Path, isin: str, built: dict, log=print) -> dict:
                      ("serie_rentabilidad", "serie_rentabilidad"),
                      ("serie_aum", "serie_aum")):
         if built[src] and f"cuantitativo.{key}" not in manual:
-            cuant[key] = _upsert_by_periodo(cuant.get(key), built[src],
-                                            extra_key="clase" if key == "serie_rentabilidad" else None)
+            if key in ("serie_aum", "serie_rentabilidad", "serie_participes"):
+                cuant[key] = _rellenar_sin_pisar(cuant.get(key), built[src],
+                                                 extra_key="clase" if key == "serie_rentabilidad" else None)
+            else:
+                cuant[key] = _upsert_by_periodo(cuant.get(key), built[src],
+                                                extra_key="clase" if key == "serie_rentabilidad" else None)
             changed.append(f"{key}={len(cuant[key])}")
     # Claves top-level que consume el dashboard para los gráficos de evolución de exposición.
     for key in ("geographic_allocation_history", "sector_allocation_history",

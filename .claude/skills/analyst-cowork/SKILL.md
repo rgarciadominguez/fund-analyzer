@@ -3,7 +3,7 @@ name: analyst-cowork
 description: Genera el bloque `analyst_synthesis.*` (8 secciones narrativas + estructuradas) de un fondo del proyecto fund-analyzer usando la cuota de Claude Max. Reemplaza al `agents/analyst_agent.py` legacy. Úsala SIEMPRE que Rafa diga "analyst cowork", "analiza fondo X con cowork", "regenera síntesis de X via skill", "skill analyst X", "consume preview de X", "monta el analyst de X aquí", o cualquier variante sobre ejecutar la síntesis del analyst del fund-analyzer dentro de Cowork. NO la uses para ejecutar el pipeline de descarga (CNMV, PDFs, scraping) — eso sigue en Python. NO la uses para fondos que no han pasado antes por la prep determinista (`python -m agents.orchestrator --isin X --prep-only`).
 ---
 
-# analyst-cowork v2.9
+# analyst-cowork v3.0
 
 Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bloque `analyst_synthesis.*` con 8 secciones siguiendo el **schema EXACTO** que espera el dashboard renderer (`dashboard/generate_dashboard.py`). Diseñada para correr bajo Claude Max y eliminar el coste API de Anthropic.
 
@@ -109,6 +109,31 @@ Morningstar (calidad crediticia, vencimiento efectivo) para desarrollar, con cif
 - **Qué NO hacer**: no rellenar con sectores GICS o style box de acciones (no describen la cartera de un fondo de
   bonos); no llamar "renta variable" a bonos con nombre societario.
 
+**R9 · FUENTES CUANTITATIVAS, JERARQUÍA FIJA (Rafa 2026-09-29).** Rentabilidad y riesgo (anual, acumulada,
+volatilidad, drawdown, Sharpe, captura): SIEMPRE de la serie Morningstar (`fund_data.cuantitativo_comparable`,
+`serie_vl_base100`, `rendimiento_diario`). Patrimonio: fondos ES → CNMV (XML mensual / último informe); fondos
+INT → Morningstar (`patrimonio_fondo`, último dato) para el actual y la serie de los informes anuales
+(statistics del sub-fondo, misma clase o total del sub-fondo, dicho cuál) para el histórico. Partícipes: solo
+existen para fondos ES (último informe CNMV); en INT no consta: no lo inventes. Los documentos aportados NUNCA
+sustituyen un dato oficial; solo pueden AMPLIAR el histórico hacia atrás si son de la misma clase, y entonces
+dilo ("2019-2020 según presentación de la gestora"). Cuando dos fuentes difieran, manda la jerarquía y se
+anota la diferencia en `_meta.supuestos`.
+
+**R10 · EJECUTIVO Y LEGIBLE (Rafa 2026-09-29).** Estrategia e Historia se hacían pesadas. No hay topes de longitud:
+la medida es que Rafa lo pueda seguir de un vistazo sin perder nada importante. Cómo: (1) abre cada sección con
+lo diferencial y con la conclusión, no con el contexto; (2) cuenta la estrategia como "lo que dicen que hacen →
+lo que han hecho (decisiones, exposiciones) → lo que ha salido (rentabilidad atribuible)", con `hitos_estrategia`
+como la tabla que lo sostiene; (3) una idea por párrafo, párrafos cortos, cifras dentro de la frase que las
+explica; (4) no repitas entre secciones (la cartera va en Cartera; la filosofía en Estrategia; los hechos en
+Historia); (5) sin inventarios: ni listas de posiciones con pesos ni enumeraciones de documentos; (6) el
+texto largo se reserva para lo que de verdad necesita desarrollo. Sintetiza como un analista senior que
+escribe para un cliente con poco tiempo.
+
+**R4d · COMISIÓN DE ÉXITO EXPLICADA (Rafa 2026-09-29).** Si existe (`comision_exito.existe`, `clases_documento[].comision_exito_pct`),
+el `resumen` la explica en una frase completa: porcentaje, base de cálculo (sobre qué exceso: umbral/hurdle),
+si hay marca de agua (high-water mark) y periodicidad/reset, y el coste efectivo que ha supuesto por año
+(`comision_exito.serie_historica`), con la fuente (folleto/KID/factsheet). Nunca un "9 %" suelto.
+
 **R8 · COHERENCIA ENTRE SECCIONES Y REGENERACIÓN POR INPUTS (2026-09-29).** En modo aporte o annual_update,
 "complementar" no significa tocar solo dos pestañas. Regenera TODA sección cuyos inputs hayan cambiado desde la
 síntesis anterior: compara los hashes de `bundle/bundle_manifest.json` con `_meta.input_hashes` de
@@ -116,9 +141,10 @@ síntesis anterior: compara los hashes de `bundle/bundle_manifest.json` con `_me
 perfil_riesgo, diferenciación), **historia** y **fuentes_externas**; `fund_data` cambiado (carteras, sectores,
 KPIs, histórico de exposición) → **cartera**, **evolución** y el desglose de exposición; `manager_profile` cambiado →
 **gestores**; documentos aportados → las secciones que toquen sus datos, y **resumen** siempre que cambie alguna
-cifra de cabecera o el veredicto. Las 18 cartas de un fondo tienen que verse en Estrategia (decisiones, nombres
-tensionados, outlook por periodo) y en Riesgos (casos de crédito posteriores al último ya citado), no solo en
-una cita. Y **una cifra corregida se corrige en todas las secciones**: si Evolución fija la rentabilidad de 2023
+cifra de cabecera o el veredicto. Las cartas no se "vuelcan": se ENTIENDEN. De cada carta (`relevancia`, `decisiones_tomadas`, `casos_credito`,
+`outlook`) sacas lo que cambia la lectura del fondo y lo llevas a donde toque: un caso de crédito → Riesgos y
+Cartera; un cambio de criterio → Estrategia; un hecho → Historia; una decisión con resultado → hitos y Evolución.
+Si una carta no aporta nada nuevo, no aparece. Y **una cifra corregida se corrige en todas las secciones**: si Evolución fija la rentabilidad de 2023
 en 4,46 %, Historia, Resumen y Novedades no pueden decir otra cosa; antes de terminar, busca en todas las secciones
 las cifras que has cambiado (rentabilidad anual, partícipes, patrimonio, comisiones) y déjalas iguales. El
 patrimonio de cabecera es siempre el dato más reciente disponible, con su fecha.
