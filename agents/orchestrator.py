@@ -2613,6 +2613,11 @@ def _consume_extracted(isin: str, fund_dir: Path, log) -> dict:
 
             integrated_paths.append(f"intl_data.{tf.stem}")
             n_ok += 1
+        elif tf.name.startswith("aportado_") and agent_name == "intl_extractor_v2" and intl_data is None:
+            # Doc aportado en fondo ES: se integra en el Paso 6 (aportado_publish: gráficos + clases) y lo
+            # lee el analista desde extracted/. No es un fallo (29-sep-2026: 7 WARN engañosos por run).
+            log("CONSUME", "INFO", f"task {tf.name}: doc aportado → se integra en Paso 6 (aportado_publish)")
+            n_ok += 1
         else:
             log("CONSUME", "WARN",
                 f"task {tf.name}: agent='{agent_name}' no reconocido o data file ausente")
