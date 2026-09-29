@@ -402,7 +402,19 @@ def _upsert_by_periodo(existing: list, nuevos: list, extra_key: str | None = Non
         if isinstance(e, dict) and e.get("periodo") is not None:
             by[_k(e)] = e
     for n in nuevos:
-        by[_k(n)] = n                       # el histórico reconstruido es autoritativo
+        prev = by.get(_k(n))
+        # Fusión (29-sep-2026): el histórico reconstruido desde documentos es autoritativo para lo que trae,
+        # pero NO puede tirar la cartera completa por año ('todas', CNMV/AR) que ya tenía la entrada: se
+        # conserva la cartera completa y se añaden los campos nuevos (aum_meur, holdings, ...).
+        if isinstance(prev, dict) and isinstance(n, dict) and prev.get("todas") and not n.get("todas"):
+            merged = dict(prev)
+            for k2, v2 in n.items():
+                if k2 in ("todas", "top10", "num_posiciones") and prev.get(k2):
+                    continue
+                merged[k2] = v2
+            by[_k(n)] = merged
+        else:
+            by[_k(n)] = n
     return [by[k] for k in sorted(by.keys())]
 
 

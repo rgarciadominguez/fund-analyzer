@@ -37,7 +37,7 @@ CNMV_BASE = "https://www.cnmv.es"
 CNMV_ISIN_URL = f"{CNMV_BASE}/portal/Consultas/IIC/Fondo.aspx"
 # Versión del parser de PDF (subir al cambiar extractores): invalida pdf_cache.json Y el skip por
 # "cache fresco" de cnmv_data.json, para que una mejora del parser llegue a los fondos ya analizados.
-PDF_PARSER_VERSION = "v8.2"
+PDF_PARSER_VERSION = "v8.3"   # v8.3 (29-sep-2026): país por ISIN + periodo de posiciones actuales
 
 
 _PAIS_ISIN = {

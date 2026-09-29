@@ -3,7 +3,7 @@ name: analyst-cowork
 description: Genera el bloque `analyst_synthesis.*` (8 secciones narrativas + estructuradas) de un fondo del proyecto fund-analyzer usando la cuota de Claude Max. Reemplaza al `agents/analyst_agent.py` legacy. Úsala SIEMPRE que Rafa diga "analyst cowork", "analiza fondo X con cowork", "regenera síntesis de X via skill", "skill analyst X", "consume preview de X", "monta el analyst de X aquí", o cualquier variante sobre ejecutar la síntesis del analyst del fund-analyzer dentro de Cowork. NO la uses para ejecutar el pipeline de descarga (CNMV, PDFs, scraping) — eso sigue en Python. NO la uses para fondos que no han pasado antes por la prep determinista (`python -m agents.orchestrator --isin X --prep-only`).
 ---
 
-# analyst-cowork v2.8
+# analyst-cowork v2.9
 
 Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bloque `analyst_synthesis.*` con 8 secciones siguiendo el **schema EXACTO** que espera el dashboard renderer (`dashboard/generate_dashboard.py`). Diseñada para correr bajo Claude Max y eliminar el coste API de Anthropic.
 
@@ -108,6 +108,20 @@ Morningstar (calidad crediticia, vencimiento efectivo) para desarrollar, con cif
   categoría; cita el periodo y la fuente. Es lo que permite compararlo con el resto del catálogo.
 - **Qué NO hacer**: no rellenar con sectores GICS o style box de acciones (no describen la cartera de un fondo de
   bonos); no llamar "renta variable" a bonos con nombre societario.
+
+**R8 · COHERENCIA ENTRE SECCIONES Y REGENERACIÓN POR INPUTS (2026-09-29).** En modo aporte o annual_update,
+"complementar" no significa tocar solo dos pestañas. Regenera TODA sección cuyos inputs hayan cambiado desde la
+síntesis anterior: compara los hashes de `bundle/bundle_manifest.json` con `_meta.input_hashes` de
+`analyst_synthesis_cowork.json` previo y aplica: `letters_data` cambiado → **estrategia** (hitos, quotes,
+perfil_riesgo, diferenciación), **historia** y **fuentes_externas**; `fund_data` cambiado (carteras, sectores,
+KPIs, histórico de exposición) → **cartera**, **evolución** y el desglose de exposición; `manager_profile` cambiado →
+**gestores**; documentos aportados → las secciones que toquen sus datos, y **resumen** siempre que cambie alguna
+cifra de cabecera o el veredicto. Las 18 cartas de un fondo tienen que verse en Estrategia (decisiones, nombres
+tensionados, outlook por periodo) y en Riesgos (casos de crédito posteriores al último ya citado), no solo en
+una cita. Y **una cifra corregida se corrige en todas las secciones**: si Evolución fija la rentabilidad de 2023
+en 4,46 %, Historia, Resumen y Novedades no pueden decir otra cosa; antes de terminar, busca en todas las secciones
+las cifras que has cambiado (rentabilidad anual, partícipes, patrimonio, comisiones) y déjalas iguales. El
+patrimonio de cabecera es siempre el dato más reciente disponible, con su fecha.
 
 ## MODO UPDATE ANUAL (v2.5 — solo el delta del último año)
 

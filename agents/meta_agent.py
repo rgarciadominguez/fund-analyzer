@@ -153,9 +153,15 @@ class MetaAgent:
             issues.append("gestora vacía")
         if not kpis.get("aum_actual_meur"):
             issues.append("AUM actual vacío — revisar XMLs CNMV o annual report")
-        if not cual.get("gestores"):
+        # La síntesis del analista (cowork) es la fuente real de gestores/estrategia/fuentes: si la tiene,
+        # no avisar (29-sep-2026: 'gestores vacíos' con 3 perfiles y 23 KB de texto en la síntesis).
+        synth = output.get("analyst_synthesis") or {}
+        def synth_ok(sec, *keys):
+            v = synth.get(sec) or {}
+            return isinstance(v, dict) and any((v.get(k) or "") for k in keys)
+        if not cual.get("gestores") and not synth_ok("gestores", "perfiles", "texto"):
             issues.append("gestores vacíos — buscar en Citywire / Finect")
-        if not cual.get("estrategia") and not cual.get("filosofia_inversion"):
+        if not cual.get("estrategia") and not cual.get("filosofia_inversion") and not synth_ok("estrategia", "texto"):
             issues.append("sin estrategia ni filosofía de inversión — necesita PDFs cualitativos")
         if not pos_data.get("actuales"):
             issues.append("sin posiciones actuales — revisar extracción de cartera")
@@ -192,7 +198,7 @@ class MetaAgent:
             issues.append("sin cartas de gestores — ejecutar letters_agent con DuckDuckGo")
 
         # 7. Sin análisis externos
-        if not (self.fund_dir / "analisis_externos.json").exists():
+        if not synth_ok("fuentes_externas", "opiniones_clave", "texto") and not (self.fund_dir / "analisis_externos.json").exists():
             issues.append("sin análisis externos — ejecutar readings_agent")
         else:
             # Check if analisis_externos has only search URLs (not real articles)

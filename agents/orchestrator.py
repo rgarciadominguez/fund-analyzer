@@ -2026,6 +2026,13 @@ def _consume_cowork_analyst(isin: str, fund_dir: Path, log) -> dict:
     save_output(isin, output_data)
     log("COWORK", "OK",
         f"Analyst de Cowork integrado ({len(sections)} secciones, drift={len(drift)})")
+    # La fecha del análisis es la de ESTA integración (29-sep-2026: se quedaba en la del análisis previo en
+    # aporte/annual_update y el portal mostraba 'última actualización' vieja).
+    try:
+        output_data["ultima_actualizacion"] = datetime.now().isoformat()
+        log("COWORK", "INFO", "ultima_actualizacion refrescada")
+    except Exception:
+        pass
     if cowork_meta.get("anti_invencion_flagged"):
         log("COWORK", "WARN",
             f"Anti-invención: {len(cowork_meta['anti_invencion_flagged'])} flags residuales")

@@ -215,6 +215,48 @@ def build_for(isin: str) -> dict:
     geo = sorted(dedup.values(), key=lambda g: g["periodo"])
     if len(geo) >= 2:                       # el gráfico de evolución exige ≥2 periodos
         out["geo_history"] = geo
+
+    # 3) Sectores — serie multi-año (29-sep-2026, Rafa: faltaba el gráfico de evolución por sector).
+    #    Las posiciones históricas no traen sector: se rellena desde la caché global (tools/sector_classifier,
+    #    que alimenta la task de clasificación por emisor) y se agrega por periodo.
+    try:
+        from tools.sector_classifier import apply_sectors, load_cache
+        cache = load_cache()
+        # sectores ya clasificados en la cartera actual (task por emisor) → mismos emisores en años anteriores
+        def _nk(nombre):
+            return re.sub(r"[^a-z0-9]", "", str(nombre or "").lower())[:20]
+        _sector_por_nombre = {_nk(q.get("nombre")): q.get("sector") for q in (posw.get("actuales") or [])
+                              if isinstance(q, dict) and q.get("sector") and q.get("nombre")}
+        sec_hist = []
+        for entry in posw.get("historicas") or []:
+            per = entry.get("periodo")
+            top = entry.get("todas") or entry.get("top10") or entry.get("posiciones") or []
+            if not per or not top:
+                continue
+            rows = [dict(q) for q in top if isinstance(q, dict)]
+            for q in rows:
+                if not q.get("sector") and _sector_por_nombre.get(_nk(q.get("nombre"))):
+                    q["sector"] = _sector_por_nombre[_nk(q.get("nombre"))]
+            apply_sectors(rows, cache)
+            agg = _agg(rows, "sector")
+            cubierto = sum(a["peso_pct"] for a in agg)
+            tot = sum(float(q.get("peso_pct") or 0) for q in rows)
+            if agg and tot > 0 and cubierto / tot >= 0.5:      # al menos la mitad del peso con sector
+                sec_hist.append({"periodo": str(per)[:7], "sectores": {a["sector"]: a["peso_pct"] for a in agg},
+                                 "_fuente": "cartera"})
+        if sect and sec_hist:
+            serie = (d.get("cuantitativo", {}) or {}).get("serie_aum") or []
+            per_act = str(serie[-1].get("periodo", "actual"))[:7] if serie else "actual"
+            if per_act not in {g["periodo"] for g in sec_hist}:
+                sec_hist.append({"periodo": per_act, "sectores": {a["sector"]: a["peso_pct"] for a in sect}, "_fuente": "cartera"})
+        dedup_s = {}
+        for g in sec_hist:
+            dedup_s[g["periodo"]] = g
+        sec_hist = sorted(dedup_s.values(), key=lambda g: g["periodo"])
+        if len(sec_hist) >= 2:
+            out["sector_history"] = sec_hist
+    except Exception:
+        pass
     return out
 
 
@@ -246,9 +288,29 @@ def apply_to_output(isin: str, bd: dict, overwrite: bool = False) -> list:
         written.append("analisis_cuantitativo.sectores")
     # Geografía: escribir si está vacía, O mejorar la que YO mismo escribí antes
     # (_fuente="cartera"); en overwrite SIEMPRE refresca (año nuevo → posiciones nuevas).
+    def _sin_duplicados_de_docs(nuevo, cur):
+        """La serie de cartera (año completo, zonas con Nórdicos) manda: se quitan las entradas de documentos
+        (AR/aportados, periodo 'YYYY-MM') del mismo año, que duplicaban el punto con otras zonas (29-sep-2026)."""
+        anios = {str(e.get("periodo"))[:4] for e in nuevo}
+        resto = [e for e in (cur or []) if isinstance(e, dict) and e.get("_fuente") != "cartera"
+                 and str(e.get("periodo"))[:4] not in anios]
+        return sorted(nuevo + resto, key=lambda e: str(e.get("periodo")))
+
+    # Sectores por año (fill-if-empty; en overwrite refresca)
+    if bd.get("sector_history"):
+        cur_s = d.get("sector_allocation_history") or []
+        es_mia_s = cur_s and all(isinstance(e, dict) and e.get("_fuente") == "cartera" for e in cur_s)
+        if overwrite or not cur_s or es_mia_s:
+            d["sector_allocation_history"] = _sin_duplicados_de_docs(bd["sector_history"], cur_s)
+            written.append("sector_allocation_history")
+
     if bd.get("geo_history"):
         cur = d.get("geographic_allocation_history") or []
         es_mia = cur and all(isinstance(e, dict) and e.get("_fuente") == "cartera" for e in cur)
+        if not (overwrite or not cur or es_mia):
+            # mezcla cartera + documentos: la cartera manda por año (sin duplicar el punto)
+            d["geographic_allocation_history"] = _sin_duplicados_de_docs(bd["geo_history"], cur)
+            written.append("geographic_allocation_history")
         if overwrite or not cur or es_mia:
             d["geographic_allocation_history"] = bd["geo_history"]
             written.append("geographic_allocation_history")
