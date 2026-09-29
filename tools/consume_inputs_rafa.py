@@ -174,6 +174,11 @@ def consume(dry_run: bool = False, full: bool = False) -> dict:
             disparar()   # avisos de la agenda cuya fecha ha llegado → tarea en el portal
         except Exception as _e:  # noqa: BLE001
             _log(f"[WARN] seguimiento_fondos: {str(_e)[:100]}")
+        try:   # feedback de Rafa pendiente → mejora del sistema (solo con la cola de análisis parada)
+            from tools.feedback_sistema import procesar_si_toca
+            procesar_si_toca()
+        except Exception as _e:  # noqa: BLE001
+            _log(f"[WARN] feedback_sistema: {str(_e)[:100]}")
     _log(f"recibido: {len(rows)} rows · {len(brokers)} brokers")
 
     # ── Alta automática (2026-09-23, Rafa): un fondo nuevo en el portal entra en el catálogo solo,

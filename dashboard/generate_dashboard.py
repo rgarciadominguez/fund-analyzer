@@ -7755,7 +7755,7 @@ window.switchClass=async function(isin){{
 # GENERATE
 # ═══════════════════════════════════════════════════════════════
 
-def build_feedback_widget(data):
+def _build_feedback_widget_legacy(data):
     """T3.3 + T3.10 (2026-05-28): widget de feedback humano en el dashboard
     del fondo. Incluye:
       - Botón flotante "📝 Mejorar este análisis"
@@ -8169,6 +8169,34 @@ def build_feedback_widget(data):
 </script>
 """
 
+
+
+def build_feedback_widget(data):
+    """'Dar feedback' (29-sep-2026): el feedback de Rafa no parchea este análisis, MEJORA EL SISTEMA. Se
+    escribe en el Copiloto del portal (widget flotante en todas sus páginas, también en la del análisis): el
+    Copiloto lo guarda (tools.feedback_sistema) y el servidor lo procesa con Fable cuando la cola está
+    parada — busca la causa, la arregla para todos los fondos y relanza este si hace falta. Este botón solo
+    prepara el texto con el fondo identificado y lo copia."""
+    import html as _h
+    isin = str((data or {}).get("isin") or "")
+    nombre = str((data or {}).get("nombre") or isin)
+    pref = f"Feedback sobre el análisis de {nombre} ({isin}): "
+    pref_js = pref.replace("\\", "\\\\").replace("'", "\\'")
+    return f"""
+<div id="fb2" style="position:fixed;right:18px;bottom:18px;z-index:50;font-family:inherit;">
+  <button onclick="document.getElementById('fb2-box').style.display=document.getElementById('fb2-box').style.display==='block'?'none':'block'"
+    style="background:var(--navy,#1f2d4d);color:#fff;border:0;border-radius:20px;padding:9px 16px;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);">
+    &#9998; Dar feedback</button>
+  <div id="fb2-box" style="display:none;position:absolute;right:0;bottom:46px;width:330px;background:#fff;border:1px solid #d8dde6;border-radius:10px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.18);">
+    <div style="font-size:13px;font-weight:600;color:#1f2d4d;margin-bottom:6px;">Tu feedback mejora el sistema</div>
+    <div style="font-size:12.5px;color:#444;line-height:1.5;margin-bottom:10px;">Escríbelo en el <b>Copiloto</b> del portal. El sistema busca por qué pasó, lo corrige para todos los fondos y, si hace falta, rehace este análisis. Te llega una tarea con lo que se ha cambiado.</div>
+    <textarea id="fb2-txt" rows="4" style="width:100%;box-sizing:border-box;font-size:12.5px;border:1px solid #d8dde6;border-radius:6px;padding:6px;" placeholder="Qué no te convence y qué esperabas ver…"></textarea>
+    <button onclick="(function(){{var t='{pref_js}'+document.getElementById('fb2-txt').value;try{{navigator.clipboard.writeText(t);}}catch(e){{}}var b=document.getElementById('fb2-ok');b.style.display='block';}})()"
+      style="margin-top:8px;background:#1f2d4d;color:#fff;border:0;border-radius:6px;padding:7px 12px;font-size:12.5px;cursor:pointer;">Copiar para el Copiloto</button>
+    <div id="fb2-ok" style="display:none;margin-top:8px;font-size:12px;color:#2e7d32;">Copiado. Pégalo en el Copiloto (abajo a la derecha del portal) y envíalo.</div>
+    <div style="margin-top:8px;font-size:11px;color:#888;">{_h.escape(nombre)} · {_h.escape(isin)}</div>
+  </div>
+</div>"""
 
 def generate():
     data = load_data()
