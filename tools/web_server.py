@@ -439,13 +439,23 @@ def make_app(cold_start: bool = True) -> Flask:
             if _modo_cfg == "annual_update":
                 annual = True
 
-        # Cold-start: mover carpeta del fondo a .bak si existe
+        # Cold-start: mover carpeta del fondo a .bak si existe… salvo los DOCS APORTADOS por Rafa
+        # (raw/aportados + aportados.json), que vuelven al fund_dir nuevo (29-sep-2026: un análisis desde cero
+        # debe usarlos como fuente prioritaria; solo la rama de fallback los conservaba).
         if fund_dir.exists() and force_cold:
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup = DATA_DIR / "funds" / f"{isin}.bak_pre_web_{ts}"
             try:
                 fund_dir.rename(backup)
                 print(f"[ANALYZE {isin}] backup: {backup.name}")
+                import shutil
+                if (backup / "raw" / "aportados").exists():
+                    (fund_dir / "raw").mkdir(parents=True, exist_ok=True)
+                    shutil.copytree(backup / "raw" / "aportados", fund_dir / "raw" / "aportados")
+                    for extra in ("aportados.json",):
+                        if (backup / extra).exists():
+                            shutil.copy2(backup / extra, fund_dir / extra)
+                    print(f"[ANALYZE {isin}] docs aportados conservados en el cold-start (rama normal)")
             except Exception as e:
                 return {"error": f"no se pudo mover backup: {e}"}, 500
 
