@@ -354,6 +354,15 @@ def _sync_fund_impl(
 
     # Supabase restringido/caído (29-sep-2026): NO es un fallo del análisis. Se aplaza el sync (reintento
     # automático cada hora), se reconcilia el portal con lo que no depende de Supabase y se sale con 0.
+    # Fecha del próximo análisis en LOCAL siempre, antes de depender de Supabase (29-sep-2026).
+    if not dry_run:
+        try:
+            from tools.next_analysis_date import compute as _nad_c0, apply_to_output as _nad_a0
+            _nad0 = _nad_c0(isin)
+            if _nad0.get("fecha_proximo_analisis") and _nad_a0(isin, _nad0):
+                log(f"[SYNC] próximo análisis (local): {_nad0['fecha_proximo_analisis']}")
+        except Exception as _e:
+            log(f"[SYNC] next_analysis_date local falló (no crítico): {str(_e)[:80]}")
     if not dry_run:
         try:
             from tools.supabase_client import probe as _probe

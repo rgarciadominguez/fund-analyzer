@@ -46,7 +46,7 @@ def build() -> dict:
     while True:
         b = c.table("funds").select(
             "isin,nombre_clase,fund_group_id,divisa,ter_pct,comision_gestion_pct,"
-            "fecha_creacion_clase,importe_minimo_eur,distribucion,broker_disponible,kid").range(off, off + 999).execute().data
+            "fecha_creacion_clase,importe_minimo_eur,distribucion,broker_disponible,kid,clasificacion_user").range(off, off + 999).execute().data
         if not b:
             break
         funds += b
@@ -69,6 +69,14 @@ def build() -> dict:
             by_group[gid].add(i)
         if g.get("fecha_proximo_analisis"):
             prox_por_grupo[gid] = g["fecha_proximo_analisis"]
+
+    # Solo fondos TOP/BUENO llevan fecha al portal (Rafa 29-sep-2026: seguimiento de AR/cartas solo de esos);
+    # el portal genera tareas de re-análisis solo con fecha y auto-resuelve las de grupos que la pierden.
+    _seg = set()
+    for f in funds:
+        if str(f.get("clasificacion_user") or "").strip().lower() in ("top", "bueno") and f.get("fund_group_id"):
+            _seg.add(str(f["fund_group_id"]))
+    prox_por_grupo = {g: v for g, v in prox_por_grupo.items() if g in _seg}
 
     # es_primario desde el export (ya lo computa el contrato)
     primario = {}
