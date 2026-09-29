@@ -3280,7 +3280,7 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
         dq = DashboardQualityAgent(isin)
         dq_report = dq.run()
         if isinstance(dq_report, dict):
-            score = dq_report.get("score", 0)
+            score = dq_report.get("score_display", "?")
             n_fallos = len(dq_report.get("fallos") or [])
             log("QUALITY", "OK",
                 f"Dashboard quality (sin loop): score={score}/103, fallos={n_fallos}")

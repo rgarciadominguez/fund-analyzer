@@ -559,6 +559,19 @@ REM habia un analisis previo bueno, restaurarlo. Asi un fallo (p.ej. cuota cowor
 REM nunca destruye el analisis local que ya existia. Se ejecuta ANTES del sync.
 call python -m tools.analysis_safeguard --restore-if-broken %ISIN%
 
+REM Paso 6.9: FRENO DE CALIDAD (29-sep-2026). Errores graves (identidad, analisis vacio o inventado,
+REM texto de prueba, patrimonio imposible) -> NO se sincroniza ni se publica: sigue visible el analisis
+REM anterior y se crea una tarea en el portal. Las dudas se anotan en la pestana "Novedades y revision".
+echo === Paso 6.9: Freno de calidad antes de publicar ===
+set QUALITY_BLOCK=
+call python -m tools.quality_gate %ISIN%
+if errorlevel 3 (
+    set QUALITY_BLOCK=1
+    set FAILED_STEPS=!FAILED_STEPS! calidad-bloqueado
+    echo [BLOQUEADO] errores graves de calidad: no se publica. Ver data\funds\%ISIN%\quality_gate.json
+)
+echo.
+
 REM Paso 7: Sync a Supabase (Storage + tablas). NO bloquea el bat si falla.
 REM Requiere .env con SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY y bucket 'funds-data'.
 echo === Paso 7/7: Sync a Supabase ^(Storage + fund_groups + funds^) ===
@@ -567,6 +580,7 @@ REM output.json aun conserva la sintesis VIEJA de un run anterior y el sync la
 REM republicaria como si fuera fresca. Saltar el sync -> no se publican datos viejos.
 set DO_SYNC=1
 echo !FAILED_STEPS! | findstr /C:"consume-all-cowork" >nul && set DO_SYNC=
+if defined QUALITY_BLOCK set DO_SYNC=
 if not defined DO_SYNC (
     echo [SKIP] Sync OMITIDO: consume-all-cowork fallo -- no se publican datos viejos/parciales
     set FAILED_STEPS=!FAILED_STEPS! sync-skipped
@@ -608,10 +622,14 @@ set GCM_INTERACTIVE=never
 REM Publicacion UNICA y verificada (2026-09-22): sello de build + commit explicito comprobado +
 REM push con reintentos + Supabase Storage + sondeo del Worker hasta que sirve el sello. Falla en
 REM voz alta si algun destino no coincide (antes: commit sin codigo y Storage desactualizado, en silencio).
-python -m tools.publish_dashboard --isin %ISIN% --wait 420
-if errorlevel 1 (
-    echo [WARN] publicacion incompleta - ver motivo arriba; el guardian reintenta el push
-    set FAILED_STEPS=!FAILED_STEPS! auto-git-push
+if defined QUALITY_BLOCK (
+    echo [BLOQUEADO] no se publica el dashboard por errores graves de calidad
+) else (
+    python -m tools.publish_dashboard --isin %ISIN% --wait 420
+    if errorlevel 1 (
+        echo [WARN] publicacion incompleta - ver motivo arriba; el guardian reintenta el push
+        set FAILED_STEPS=!FAILED_STEPS! auto-git-push
+    )
 )
 echo.
 
@@ -651,6 +669,7 @@ if not exist "data\funds\%ISIN%\output.json" (
 )
 echo !FAILED_STEPS! | findstr /C:"consume-all-cowork" >nul && set CRITICAL_FAILS=!CRITICAL_FAILS! consume-all-cowork
 echo !FAILED_STEPS! | findstr /C:"sync-supabase" >nul && set CRITICAL_FAILS=!CRITICAL_FAILS! sync-supabase
+if defined QUALITY_BLOCK set CRITICAL_FAILS=!CRITICAL_FAILS! calidad-bloqueado
 
 if defined CRITICAL_FAILS (
     echo === FAIL critico -- !CRITICAL_FAILS!  ^(otros fallos: !FAILED_STEPS!^) ===

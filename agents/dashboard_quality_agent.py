@@ -1385,17 +1385,26 @@ class DashboardQualityAgent:
         data = json.loads(output_path.read_text(encoding="utf-8"))
         fallos = []
 
+        _sin_implementar = []
         for rule in self.rules.get("rules", []):
             if not _rule_applies(rule, data):
                 continue
             check_type = rule.get("check_type")
             checker = CHECK_REGISTRY.get(check_type)
             if not checker:
-                console.print(f"[yellow]WARN: check_type desconocido: {check_type} (regla {rule.get('id')})[/yellow]")
+                _sin_implementar.append(rule.get("id"))
                 continue
 
             try:
                 ok, ctx = checker(rule, data)
+                # El dato puede vivir en su ubicación NUEVA (p.ej. clases de los documentos, comisión de
+                # éxito explicada): la regla se cumple si alguna ruta alternativa lo satisface (29-sep-2026).
+                if not ok:
+                    for _alt in rule.get("field_path_alt") or []:
+                        _ok2, _ = checker({**rule, "field_path": _alt}, data)
+                        if _ok2:
+                            ok = True
+                            break
             except Exception as exc:
                 console.print(f"[red]ERROR ejecutando regla {rule.get('id')}: {exc}[/red]")
                 continue
@@ -1416,6 +1425,9 @@ class DashboardQualityAgent:
                     "agente_responsable": rule.get("agente_responsable", "analyst_agent"),
                     "accion": accion,
                 })
+
+        if _sin_implementar:
+            console.print(f"[dim]{len(_sin_implementar)} reglas declaradas sin comprobación implementada (no evaluadas)[/dim]")
 
         # Compute scoring metrics
         total_reglas = len([r for r in self.rules.get("rules", []) if _rule_applies(r, data)])

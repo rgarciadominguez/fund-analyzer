@@ -3170,7 +3170,7 @@ def build_header(data):
     <button class="tb" onclick="goTab(5,this)">Cartera</button>
     <button class="tb" onclick="goTab(6,this)">Fuentes externas</button>
     <button class="tb" onclick="goTab(7,this)">Documentos</button>
-    {'<button class="tb" onclick="goTab(10,this)" style="color:var(--gold,#b48020);font-weight:600;">&#9679; Novedades</button>' if (data.get('revision_pendiente') or any((data.get('novedades_resumen') or {}).get(k) for k in ('veredicto','hallazgos','huecos_de_fondo','puntos','texto'))) else ''}
+    {'<button class="tb" onclick="goTab(10,this)" style="color:var(--gold,#b48020);font-weight:600;">&#9679; Novedades y revisión</button>' if (data.get('revision_pendiente') or any((data.get('novedades_resumen') or {}).get(k) for k in ('veredicto','hallazgos','huecos_de_fondo','puntos','texto'))) else ''}
     {'<button class="tb" onclick="goTab(11,this)">Anexo gráficos</button>' if any(isinstance(g, dict) and g.get('labels') and not g.get('en_cuerpo', True) for g in (data.get('graficos_documento') or [])) else ''}
     {'<button class="tb" onclick="goTab(9,this)">Glosario</button>' if ((data.get('analyst_synthesis') or {}).get('glosario')) else ''}
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
@@ -6305,6 +6305,24 @@ def build_tab_novedades(data):
                         f'<div style="border:1px solid var(--rule-light);border-left:3px solid var(--navy);border-radius:6px;padding:6px 16px 14px;background:var(--card,#fff);">{cuerpo}</div>'
                         f'</div>')
 
+    # ── Bloque 1b: dudas de la auditoría de calidad (tools/quality_gate, 29-sep-2026) ──
+    # Lo que el análisis no pudo verificar del todo o no cuadra con los datos: para leerlo al validar.
+    _dudas = [x for x in (pendientes or []) if isinstance(x, dict) and x.get("fuente") == "auditoría de calidad"]
+    pendientes = [x for x in (pendientes or []) if not (isinstance(x, dict) and x.get("fuente") == "auditoría de calidad")]
+    tiene_pend = bool(pendientes)
+    if _dudas:
+        _cd = ""
+        for it in _dudas:
+            _cd += (f'<div style="border:1px solid var(--rule-light);border-left:3px solid #c0392b;'
+                    f'border-radius:6px;padding:10px 14px;margin-bottom:8px;background:var(--card,#fff);">'
+                    f'<div style="font-size:13px;font-weight:600;color:var(--ink-1);margin-bottom:3px;">{_e(it.get("titulo", ""))}</div>'
+                    f'<div style="font-size:12.5px;color:var(--ink-2);line-height:1.5;">{_e(it.get("detalle", ""))}</div></div>')
+        bloques += ('<details open style="margin-top:10px;"><summary style="cursor:pointer;font-size:12px;text-transform:uppercase;'
+                    f'letter-spacing:0.5px;color:#c0392b;font-weight:600;">Revisar al validar: {len(_dudas)} duda(s) de la auditoría de calidad</summary>'
+                    '<div style="font-size:12px;color:var(--ink-3);margin:10px 0 12px;">Lo que el análisis no ha podido verificar del todo, '
+                    'los supuestos que ha hecho y las cifras que no cuadran con los datos. No bloquean la publicación.</div>'
+                    f'{_cd}</details>')
+
     # ── Bloque 2: a reconciliar (solo aporte) ────────────────────────────
     if tiene_pend:
         cards = ""
@@ -6329,7 +6347,7 @@ def build_tab_novedades(data):
 
     return f"""
 <section class="pane" id="p10">
-  <div class="pane-header"><h1 class="pane-h1">Novedades</h1>
+  <div class="pane-header"><h1 class="pane-h1">Novedades y revisión</h1>
     <span class="pane-dl">Lectura rápida: ¿se sostenía el análisis anterior, qué le faltaba y qué hay de nuevo que importe?</span></div>
   <div class="mb24">{bloques}</div>
 </section>"""
