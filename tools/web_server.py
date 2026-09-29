@@ -100,28 +100,14 @@ TOKEN_EXHAUSTION_PATTERNS = (
 
 
 def _avisar_cola(resumen: str, ok: bool = True) -> None:
-    """Aviso de la cola a Rafa (29-sep-2026): pausa por límite de tokens y reanudación. Va al portal como tarea
-    'fa-cola' (panel técnico; sin vigilancia de silencio) y a data/_avisos_cola.jsonl. Best-effort."""
+    """Registro de pausas/reanudaciones por límite de tokens en data/_avisos_cola.jsonl (29-sep-2026).
+    El aviso a Rafa llega al CHAT que sigue cada fondo vía tools/seguir_run.py (el panel del portal no aportaba)."""
     try:
         (ROOT / "data" / "_avisos_cola.jsonl").open("a", encoding="utf-8").write(
             json.dumps({"ts": datetime.now(timezone.utc).isoformat(), "ok": ok, "resumen": resumen},
                        ensure_ascii=False) + "\n")
     except Exception:
         pass
-    try:
-        import base64
-        import urllib.request
-        cfg = json.load(open(os.path.expanduser("~/.horizonte-portal.json"), encoding="utf-8"))
-        body = json.dumps({"nombre": "fa-cola", "ok": ok, "silencio": True, "max_horas": 0,
-                           "resumen": "[" + os.environ.get("COMPUTERNAME", "?") + "] " + resumen}, ensure_ascii=False).encode("utf-8")
-        req = urllib.request.Request(cfg["base_url"].rstrip("/") + "/wp-json/horizonte/v1/admin/servidor/tarea",
-                                     data=body, method="POST",
-                                     headers={"Content-Type": "application/json; charset=utf-8",
-                                              "Authorization": "Basic " + base64.b64encode(
-                                                  f"{cfg['usuario']}:{cfg['app_password']}".encode()).decode()})
-        urllib.request.urlopen(req, timeout=20).read()
-    except Exception as e:  # noqa: BLE001
-        print(f"[QUEUE] aviso al portal no enviado: {str(e)[:80]}")
 
 
 def load_persisted_runs():
