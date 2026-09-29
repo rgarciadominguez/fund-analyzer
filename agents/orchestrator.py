@@ -531,8 +531,8 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
                 # cowork emite la task 'cnmv_enrichment_sectores' a pending_extraction: extract-pdfs clasifica
                 # los emisores y consume-extracted vuelca los sectores. Antes nadie invocaba este paso.
                 try:
-                    from agents.cnmv_enrichment import CNMVEnrichment
-                    _enr = CNMVEnrichment(isin)
+                    from agents.cnmv_enrichment import CNMVEnricher
+                    _enr = CNMVEnricher(isin)
                     _cd = _enr._load_cnmv()
                     if _cd and _enr._enrich_sectores(_cd):
                         _enr._save_cnmv(_cd)
