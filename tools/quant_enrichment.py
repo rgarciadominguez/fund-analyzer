@@ -436,6 +436,29 @@ def is_fixed_income(data: dict) -> bool:
             return False
     except Exception:
         pass
+    # Mix CNMV/AR (renta_fija_pct / rf_pct) y, si no, las posiciones tipadas como bonos (29-sep-2026:
+    # Gamma, 84% bonos, se comparaba con el MSCI World por llamarse "Global").
+    try:
+        mix = ((data or {}).get("cuantitativo") or {}).get("mix_activos_historico") or []
+        last = mix[-1] if mix and isinstance(mix[-1], dict) else {}
+        rf = float(last.get("renta_fija_pct") or last.get("rf_pct") or 0)
+        rv = float(last.get("renta_variable_pct") or last.get("rv_pct") or 0)
+        if rf >= 55 or (rf >= 40 and rf > rv * 2):
+            return True
+        if rv >= 60:
+            return False
+    except Exception:
+        pass
+    try:
+        pos = ((data or {}).get("posiciones") or {}).get("actuales") or []
+        tot = sum(float(x.get("peso_pct") or 0) for x in pos if isinstance(x, dict))
+        rfw = sum(float(x.get("peso_pct") or 0) for x in pos if isinstance(x, dict)
+                  and (str(x.get("tipo") or "").upper() in ("BONOS", "BONO", "BOND", "BONDS", "RF", "OBLIGACIONES", "PAGARES")
+                       or x.get("cupon") is not None or x.get("vencimiento")))
+        if tot > 0 and rfw / tot >= 0.55:
+            return True
+    except Exception:
+        pass
     k = (data or {}).get("kpis") or {}
     t = f" {(data or {}).get('nombre', '')} {k.get('clasificacion', '')} {k.get('benchmark', '')} ".lower()
     return any(w in t for w in _RF_WORDS)

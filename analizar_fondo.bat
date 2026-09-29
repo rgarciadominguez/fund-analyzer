@@ -429,6 +429,8 @@ if defined RESUME_MODE (
 REM annual_update: forzar letters (ar-sourcing pudo traer cartas nuevas del ultimo ano).
 REM aporte NO: sus analisis externos entran como readings, no como cartas del fondo.
 if /I "%FUND_SCOPE_MODE%"=="annual_update" set SKIP_LETTERS=
+REM aporte (29-sep-2026): la skill es incremental (solo cartas sin K15); saltarla dejaba cartas sin extraer.
+if /I "%FUND_SCOPE_MODE%"=="aporte" set SKIP_LETTERS=
 if defined SKIP_LETTERS (
     echo === Paso 4/6: [RESUME-SKIP] letters-extract-cowork ya hecho ===
     echo.

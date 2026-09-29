@@ -76,7 +76,10 @@ narrativa (estrategia/cartera/gestores/evolución):
    quién controla al gestor (órgano de control: comité de riesgos, depositario, consejo, límites del folleto) y skin-in-the-game.
 3. **Geografía**: mix geográfico y cómo cambia; por qué; y si el mandato permite cambiarlo.
 4. **Filosofía y equipo**: filosofía y estrategia de inversión + expertise real del equipo (años, especialidad, track record previo).
-Sin datos para un eje: dilo explícitamente ("no consta en los informes") en vez de rellenar. Nada genérico: cada eje con cifras,
+Para activos y geografía usa `fund_data.historico_exposicion` (serie por año calculada de las carteras): di
+DESDE CUÁNDO es así y si es estable o una tendencia (p.ej. "nórdicos 13 % en 2021 → 40 % en 2022 → 73 % hoy:
+tendencia desde 2022, no algo puntual"). Sin datos para un eje: dilo explícitamente ("no consta en los
+informes") en vez de rellenar. Nada genérico: cada eje con cifras,
 años o nombres concretos cuando existan.
 
 **R7 · FONDOS DE DEUDA (Rafa, 2026-09-28) — cuando la renta fija domina la cartera (≥55 % del mix).** Un análisis

@@ -527,6 +527,18 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
                 agent = CNMVAgent(isin, config)
                 results["cnmv"] = await agent.run()
                 log("CNMV", "OK", f"cnmv_data.json generado")
+                # Sector por emisor (29-sep-2026, Rafa: faltaba el gráfico de sectores en Gamma). En modo
+                # cowork emite la task 'cnmv_enrichment_sectores' a pending_extraction: extract-pdfs clasifica
+                # los emisores y consume-extracted vuelca los sectores. Antes nadie invocaba este paso.
+                try:
+                    from agents.cnmv_enrichment import CNMVEnrichment
+                    _enr = CNMVEnrichment(isin)
+                    _cd = _enr._load_cnmv()
+                    if _cd and _enr._enrich_sectores(_cd):
+                        _enr._save_cnmv(_cd)
+                    log("CNMV", "OK", "sectores por emisor: task emitida si faltaban")
+                except Exception as _exc:
+                    log("CNMV", "WARN", f"sectores por emisor: {_exc}")
             else:
                 # F6 extension: si fund_group cache copió intl_data.json, reutilizar.
                 if "intl_data.json" in fg_cache_hits:

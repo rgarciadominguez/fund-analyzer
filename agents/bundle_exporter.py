@@ -458,6 +458,12 @@ def _fill_quant(fund_dir: Path, fund_data_path: Path) -> None:
                                                  "volatilidad", "volatilidad_3a", "volatilidad_5a", "max_drawdown")},
         }
         fd["cuantitativo_comparable"] = comp
+        # Historico de exposicion por año (geo/activos/sectores/rating) calculado por el pipeline: el analista
+        # tiene que decir DESDE CUÁNDO y si el mix es estable (Rafa 29-sep: "¿el HY nórdico es puntual?").
+        hist = {k: out.get(k) for k in ("geographic_allocation_history", "asset_allocation_history",
+                                        "sector_allocation_history", "rating_allocation_history") if out.get(k)}
+        if hist:
+            fd["historico_exposicion"] = hist
         fund_data_path.write_text(json.dumps(fd, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception:
         pass

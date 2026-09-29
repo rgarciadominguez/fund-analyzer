@@ -4351,6 +4351,101 @@ def _es_renta_fija_dominante(data: dict) -> bool:
     return tot > 0 and rf_w / tot >= 0.55
 
 
+
+def _rf_distribuciones(data: dict) -> list:
+    """Desgloses de una cartera de deuda (Rafa 29-sep-2026): vencimientos, cupón (con flotantes), divisa,
+    tipo de instrumento y emisores agregados. Devuelve [(título, html)] con lo que se puede calcular."""
+    import datetime as _dt
+    pos = [p for p in ((data.get("posiciones") or {}).get("actuales") or []) if isinstance(p, dict)]
+    bonos = [p for p in pos if _infer_asset_type(p)[0] == "RF" and isinstance(p.get("peso_pct"), (int, float))]
+    if not bonos:
+        return []
+    w_tot = sum(p["peso_pct"] for p in bonos) or 1.0
+    hoy = _dt.date.today()
+
+    def _bars(items, total, nota=""):
+        mx = max([v for _k, v in items] + [1e-9])
+        rows = ""
+        for k, v in items:
+            pct = v / total * 100
+            rows += (f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'
+                     f'<span class="pr" style="width:132px;font-size:10.5px;color:var(--ink-2);">{k}</span>'
+                     f'<div style="flex:1;height:10px;background:#eef1f5;border-radius:3px;">'
+                     f'<div style="width:{max(2, v / mx * 100):.0f}%;height:10px;background:var(--navy);border-radius:3px;opacity:.85;"></div></div>'
+                     f'<strong style="font-size:10.5px;color:var(--ink);width:42px;text-align:right;">{pct:.0f}%</strong></div>')
+        if nota:
+            rows += f'<div class="pr" style="font-size:9.5px;color:var(--ink-4);margin-top:6px;border-top:1px solid var(--rule);padding-top:5px;">{nota}</div>'
+        return rows
+
+    out = []
+    # vencimientos
+    ladder = {"hasta 1 año": 0.0, "1-3 años": 0.0, "3-5 años": 0.0, "más de 5 años": 0.0, "perpetuo / sin fecha": 0.0}
+    for p in bonos:
+        v = str(p.get("vencimiento") or "")[:10]
+        nm = str(p.get("nombre") or "").upper()
+        if "PERP" in nm and not v:
+            ladder["perpetuo / sin fecha"] += p["peso_pct"]; continue
+        try:
+            d = _dt.date.fromisoformat(v)
+        except ValueError:
+            ladder["perpetuo / sin fecha"] += p["peso_pct"]; continue
+        yrs = (d - hoy).days / 365.25
+        k = "hasta 1 año" if yrs < 1 else "1-3 años" if yrs < 3 else "3-5 años" if yrs < 5 else "más de 5 años"
+        ladder[k] += p["peso_pct"]
+    if sum(ladder.values()) > 0:
+        out.append(("Vencimientos (% de la deuda)", _bars([(k, v) for k, v in ladder.items() if v > 0], w_tot,
+                    "Un vencimiento lejano con duración corta suele indicar cupón flotante o amortización anticipada (call).")))
+    # cupón
+    cup = {"< 3%": 0.0, "3-5%": 0.0, "5-7%": 0.0, "7-9%": 0.0, "> 9%": 0.0, "sin dato": 0.0}
+    flot = 0.0
+    for p in bonos:
+        c = p.get("cupon")
+        if not isinstance(c, (int, float)) or c <= 0:
+            cup["sin dato"] += p["peso_pct"]; continue
+        # cupón con 3 decimales (2,176) = margen sobre un tipo flotante, muy habitual en el HY nórdico
+        if round(c, 2) != round(c, 3):
+            flot += p["peso_pct"]
+        k = "< 3%" if c < 3 else "3-5%" if c < 5 else "5-7%" if c < 7 else "7-9%" if c < 9 else "> 9%"
+        cup[k] += p["peso_pct"]
+    nota = f"Posible cupón flotante (margen sobre índice): {flot / w_tot * 100:.0f}% de la deuda." if flot else ""
+    out.append(("Cupón (% de la deuda)", _bars([(k, v) for k, v in cup.items() if v > 0], w_tot, nota)))
+    # divisa
+    div = {}
+    for p in bonos:
+        div[p.get("divisa") or "?"] = div.get(p.get("divisa") or "?", 0) + p["peso_pct"]
+    out.append(("Divisa de emisión (% de la deuda)", _bars(sorted(div.items(), key=lambda x: -x[1])[:6], w_tot,
+                "La cobertura de divisa, si la hay, la explica el análisis (no se deduce de la emisión).")))
+    # tipo de instrumento
+    tipos = {}
+    for p in bonos:
+        nm = str(p.get("nombre") or "").upper()
+        if "PERP" in nm or "AT1" in nm:
+            k = "perpetuo / AT1"
+        elif "SUB" in nm or "SUBORD" in nm or "TIER" in nm or "T2" in nm.split():
+            k = "subordinado"
+        elif "CONV" in nm or "CV " in nm:
+            k = "convertible"
+        elif "PAGARE" in nm or "PAGARÉ" in nm or "LETRA" in nm or "T-BILL" in nm or "BILL" in nm.split():
+            k = "pagaré / letra"
+        elif "GOV" in nm or "BONOS DEL ESTADO" in nm or "TREASURY" in nm or "BUND" in nm or "OAT" in nm.split():
+            k = "deuda pública"
+        else:
+            k = "corporativo senior (por defecto)"
+        tipos[k] = tipos.get(k, 0) + p["peso_pct"]
+    out.append(("Tipo de instrumento (% de la deuda)", _bars(sorted(tipos.items(), key=lambda x: -x[1]), w_tot,
+                "Clasificación por el nombre de la emisión: orientativa.")))
+    # emisores agregados
+    emis = {}
+    for p in bonos:
+        nm = _re.sub(r"\s+(\d+([.,]\d+)?%?|\d{2,4}|PERP.*|FRN.*|SUB.*|\d+/\d+/\d+)$", "", str(p.get("nombre") or "").strip().upper())
+        nm = nm[:28]
+        emis[nm] = emis.get(nm, 0) + p["peso_pct"]
+    top = sorted(emis.items(), key=lambda x: -x[1])[:6]
+    out.append(("Mayores emisores (% del patrimonio, emisiones agregadas)",
+                _bars(top, 100.0, f"{len(emis)} emisores distintos en {len(bonos)} emisiones. La concentración real es por emisor, no por emisión.")))
+    return out
+
+
 def _rf_card_body(data: dict, ms_rf: dict) -> str:
     """Tarjeta de renta fija: calidad crediticia y vencimiento efectivo (Morningstar) + lo que se puede
     calcular de las posiciones (divisas, escalera de vencimientos, cupón medio). '' si no hay nada."""
@@ -4548,8 +4643,11 @@ def build_quant_panel(data):
             + '</div>')
         cards.append(_card("Rating Morningstar", body))
 
-    # 2) Valoración (Fondo vs Índice) + capitalización media
-    if vf or vi or ms_val:
+    # 2) Valoración (Fondo vs Índice) + capitalización media — solo tiene sentido en renta variable
+    if rf_dom:
+        for _t, _b in _rf_distribuciones(data):
+            cards.append(_card(_t, _b))
+    if (vf or vi or ms_val) and not rf_dom:
         # Fallback Morningstar para el lado Fondo si Yahoo no trajo P/E o P/B.
         if ms_val.get("per") is not None and vf.get("per") is None:
             vf = {**vf, "per": ms_val["per"]}
@@ -4665,34 +4763,25 @@ def build_quant_panel(data):
                  f'baja rotación = enfoque a largo plazo.</div>')
         cards.append(_card("Rotación de cartera", rbars + rfoot))
 
-    # 3c) Captura a 5 años (alcista/bajista) — gráfico de capture ratio
-    up_c = cr.get("upside_pct"); dn_c = cr.get("downside_pct")
-    if up_c is not None or dn_c is not None:
-        cmax = max([v for v in (up_c, dn_c, 100) if v is not None]) or 100
-
-        def _cbar(lbl, v, good_high):
-            if v is None:
-                return ""
-            w = v / cmax * 100
-            # alcista: navy si capta >100%; bajista: verde si <100% (cae menos)
-            if good_high:
-                color = "var(--navy)" if v >= 100 else "#9aa6b4"
-            else:
-                color = "var(--pos,#2e7d32)" if v < 100 else "#c0552e"
-            ref = 100 / cmax * 100   # línea de referencia 100%
-            return (
-                f'<div style="margin-bottom:11px;">'
-                f'<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-bottom:3px;">'
-                f'<span>{lbl}</span><strong style="color:var(--ink);">{v:.0f}%</strong></div>'
-                f'<div style="height:15px;background:#f4f6f8;border-radius:3px;position:relative;">'
-                f'<div style="width:{w:.0f}%;height:15px;background:{color};border-radius:3px;"></div>'
-                f'<div style="position:absolute;left:{ref:.0f}%;top:-2px;height:19px;border-left:1px dashed #8893a2;"></div>'
-                f'</div></div>')
-        body = (_cbar("Captura alcista", up_c, True) + _cbar("Captura bajista", dn_c, False)
-                + '<div class="pr" style="font-size:9px;color:var(--ink-4);margin-top:4px;'
-                  'border-top:1px solid var(--rule);padding-top:6px;">Línea = 100% del índice. '
-                  'Ideal: alcista alta, bajista baja (cae menos). Ventana 5 años.</div>')
-        cards.append(_card("Captura (5 años)", body))
+    # 3c) Cómo se comporta frente al índice, en palabras (Rafa 29-sep: las barras de captura no se entendían)
+    rr = cr.get("rendimiento_regimen") or {}
+    _sub, _baj = rr.get("subidas") or {}, rr.get("caidas") or {}
+    if _sub or _baj:
+        def _pct(v):
+            return f"{v:+.1f}%" if isinstance(v, (int, float)) else "—"
+        lbl_idx = q.get("benchmark_label") or "el índice"
+        n_up, n_dn = cr.get("n_up"), cr.get("n_down")
+        body = (
+            f'<div class="pr" style="font-size:12px;color:var(--ink);line-height:1.5;">'
+            f'<p style="margin:0 0 8px;">En los meses en que <strong>{lbl_idx}</strong> sube'
+            f'{f" ({n_up} meses)" if n_up else ""}: el fondo hace de media <strong>{_pct(_sub.get("fondo"))}</strong> '
+            f'y el índice <strong>{_pct(_sub.get("indice"))}</strong>.</p>'
+            f'<p style="margin:0 0 8px;">En los meses en que baja{f" ({n_dn} meses)" if n_dn else ""}: el fondo '
+            f'<strong>{_pct(_baj.get("fondo"))}</strong>, el índice <strong>{_pct(_baj.get("indice"))}</strong>.</p>'
+            + (f'<p style="margin:0;color:var(--ink-2);">Lectura: {cr.get("perfil")}.</p>' if cr.get("perfil") else "")
+            + f'<div class="pr" style="font-size:9.5px;color:var(--ink-4);margin-top:8px;border-top:1px solid var(--rule);padding-top:5px;">'
+              f'Medias mensuales sobre {cr.get("n_meses") or "—"} meses. Índice de referencia: {lbl_idx}.</div></div>')
+        cards.append(_card("Comportamiento cuando el índice sube o baja", body))
 
     # 4) Exposición sectorial — fondo vs benchmark si hay sectores del índice
     if secs:
@@ -4858,13 +4947,18 @@ def build_tab_estrategia(data):
     if pr and (pr.get("tipo_activo_principal") or pr.get("riesgos_especificos")):
         tipo_ap = pr.get("tipo_activo_principal", "") or ""
         riesgos = pr.get("riesgos_especificos", []) or []
-        escen = pr.get("escenarios_adversos", "") or ""
-        prot = pr.get("protecciones", "") or ""
-        liq = pr.get("liquidez_estructura", "") or ""
+        def _as_text(v):
+            # lista (schema R7 de fondos de deuda) o texto: se renderiza igual
+            if isinstance(v, (list, tuple)):
+                return " ".join(f"• {str(x).strip()}" for x in v if str(x).strip())
+            return str(v or "")
+        escen = _as_text(pr.get("escenarios_adversos"))
+        prot = _as_text(pr.get("protecciones"))
+        liq = _as_text(pr.get("liquidez_estructura"))
         riesgos_html = ""
         for r in riesgos:
             if not r: continue
-            r_fmt = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', r)
+            r_fmt = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', str(r))
             riesgos_html += f'<li style="margin-bottom:4px;">{r_fmt}</li>'
         escen_fmt = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', escen)
         prot_fmt = _re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', prot)
@@ -5431,7 +5525,26 @@ def build_tab_cartera(data):
     sorted_pos = sorted(pos_actual, key=lambda x: x.get("peso_pct",0) or 0, reverse=True)
 
     # Fondo de deuda: si hay bonos, la tabla muestra Cupón + Vencimiento (datos clave del bono).
-    _has_bonds = any(isinstance(p, dict) and p.get("tipo") == "RF" for p in sorted_pos)
+    _has_bonds = any(isinstance(p, dict) and _infer_asset_type(p)[0] == "RF" for p in sorted_pos)
+
+    # b. Antigüedad de cada posición (Rafa 29-sep): primer periodo en cartera y peso inicial, a partir de
+    # posiciones.historicas[].todas (o top10). Núcleo = presente en 3 o más periodos.
+    _tenure = {}
+    try:
+        _hist_sorted = sorted([h for h in (pos_hist or []) if isinstance(h, dict) and h.get("periodo")],
+                              key=lambda h: str(h.get("periodo")))
+        for h in _hist_sorted:
+            for q in (h.get("todas") or h.get("top10") or h.get("posiciones") or []):
+                if not isinstance(q, dict):
+                    continue
+                key = _re.sub(r"[^a-z0-9]", "", str(q.get("nombre") or "").lower())[:24]
+                if not key:
+                    continue
+                t = _tenure.setdefault(key, {"desde": str(h.get("periodo")), "peso_ini": q.get("peso_pct"), "n": 0})
+                t["n"] += 1
+    except Exception:
+        _tenure = {}
+    _has_tenure = bool(_tenure)
 
     def _bond_cells(p):
         if not _has_bonds:
@@ -5445,6 +5558,25 @@ def build_tab_cartera(data):
 
     _bond_headers = ('<th style="text-align:center;">Cupón</th>'
                      '<th style="text-align:center;">Venc.</th>') if _has_bonds else ""
+    _tenure_headers = ('<th style="text-align:center;" title="Primer periodo en que aparece en cartera">Desde</th>'
+                       '<th style="text-align:center;" title="Peso en ese primer periodo">Peso ini.</th>') if _has_tenure else ""
+
+    def _tenure_cells(p, w_now):
+        if not _has_tenure:
+            return ""
+        key = _re.sub(r"[^a-z0-9]", "", str(p.get("nombre") or "").lower())[:24]
+        t = _tenure.get(key)
+        if not t:
+            return '<td style="text-align:center;color:var(--ink-5);">—</td><td style="text-align:center;color:var(--ink-5);">—</td>'
+        nucleo = ' <span title="En cartera 3 periodos o más" style="color:#c8a23c;">●</span>' if t.get("n", 0) >= 3 else ""
+        pi = t.get("peso_ini")
+        try:
+            arrow = "" if pi is None or w_now is None else (" ↑" if float(w_now) > float(pi) + 0.3 else (" ↓" if float(w_now) < float(pi) - 0.3 else " ="))
+            pi_s = f"{float(pi):.1f}%"
+        except (TypeError, ValueError):
+            arrow, pi_s = "", "—"
+        return (f'<td style="text-align:center;font-size:11px;">{t.get("desde")}{nucleo}</td>'
+                f'<td style="text-align:center;font-size:11px;color:var(--ink-3);">{pi_s}{arrow}</td>')
 
     # Inferir tipos de activo que faltan y calcular tipos dominantes
     tipos_weights = {}
@@ -5547,6 +5679,7 @@ def build_tab_cartera(data):
   <td style="font-family:'Source Sans 3';font-size:11px;">{_canon_pais(pos.get('pais'))}</td>
   <td>{pos.get('divisa','—')}</td>
   {_bond_cells(pos)}
+  {_tenure_cells(pos, w)}
   <td><div class="wbar"><div class="wfill" style="width:{bar_w}px;background:#0c2340;"></div>{f(w,1)}%</div></td>
   <td style="font-size:10px;color:var(--ink-4);"><div class="wbar"><div class="wfill" style="width:{cum_bar_w}px;background:var(--ink-3);"></div>{f(cum,0)}%</div></td>
   <td>{delta_html}</td>
@@ -5732,7 +5865,7 @@ def build_tab_cartera(data):
   <div class="sr">Todas las posiciones ({len(sorted_pos)})</div>
   <div class="pt-wrap">
     <table class="pt">
-      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th>{_bond_headers}<th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
+      <thead><tr><th>Activo</th><th style="text-align:center;">Tipo</th><th>Sector</th><th>País</th><th>Divisa</th>{_bond_headers}{_tenure_headers}<th>Peso %</th><th>Peso acum.</th><th>Var.</th></tr></thead>
       <tbody>{rows}</tbody>
     </table>
   </div>
