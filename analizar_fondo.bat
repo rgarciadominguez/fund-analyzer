@@ -177,12 +177,15 @@ if "%_APORTE_EARLY%"=="1" (
 
 REM N5 resume: skip prep si los 4 outputs principales ya estan
 set SKIP_PREP=
+REM 29-sep-2026: exigia cnmv_data Y intl_data, y en fondos ES intl_data no existe nunca -> la prep se
+REM repetia en cada reanudacion tras limite de tokens. Ahora basta con UNA de las dos (+ profile + letters).
+set _PREP_DATA=
+if exist "data\funds\%ISIN%\cnmv_data.json" set _PREP_DATA=1
+if exist "data\funds\%ISIN%\intl_data.json" set _PREP_DATA=1
 if defined RESUME_MODE (
-    if exist "data\funds\%ISIN%\cnmv_data.json" (
-        if exist "data\funds\%ISIN%\intl_data.json" (
-            if exist "data\funds\%ISIN%\manager_profile.json" (
-                if exist "data\funds\%ISIN%\letters_data.json" set SKIP_PREP=1
-            )
+    if defined _PREP_DATA (
+        if exist "data\funds\%ISIN%\manager_profile.json" (
+            if exist "data\funds\%ISIN%\letters_data.json" set SKIP_PREP=1
         )
     )
 )
@@ -294,8 +297,17 @@ REM Paso 1.65: Skill letters-sourcing-cowork (Claude Max) - cartas/comentarios d
 REM anios desde el lanzamiento, navegando la web de la gestora (25-sep-2026, Rafa: 'en las webs suelen
 REM estar, incluidas las historicas'). Todos los fondos (ES e INT); full y annual_update. En APORTE se salta.
 REM Despues, tools.letters_recollect reconstruye letters_data.json con lo nuevo (la prep ya habia corrido).
+REM 29-sep-2026: en --resume/--relaunch (reanudacion tras limite de tokens o corte) NO repetir el sourcing
+REM (30-40 min) si este run ya lo hizo: marcador .paso_1_65_hecho (se borra al terminar el bat normalmente;
+REM un annual_update nuevo llega sin flags y siempre lo ejecuta; un cold-start no tiene marcador).
+set SKIP_1_65=
+if defined RESUME_MODE if exist "data\funds\%ISIN%\.paso_1_65_hecho" set SKIP_1_65=1
+if defined RELAUNCH_MODE if exist "data\funds\%ISIN%\.paso_1_65_hecho" set SKIP_1_65=1
 if /I "%FUND_SCOPE_MODE%"=="aporte" (
     echo [MODO aporte] Paso 1.65 letters-sourcing SALTADO ^(sin sourcing web^)
+    echo.
+) else if defined SKIP_1_65 (
+    echo === Paso 1.65: [RESUME-SKIP] letters-sourcing ya hecho en este run ^(marcador presente^) ===
     echo.
 ) else (
     echo === Paso 1.65: Skill letters-sourcing-cowork ^(Claude Max^) - cartas del gestor multi-anio ===
@@ -308,6 +320,7 @@ if /I "%FUND_SCOPE_MODE%"=="aporte" (
         echo [OK] Skill letters-sourcing OK. Ver logs\skill_letters_sourcing_%ISIN%.log
     )
     call python -m tools.letters_recollect %ISIN%
+    echo hecho> "data\funds\%ISIN%\.paso_1_65_hecho"
     echo.
 )
 
@@ -653,5 +666,6 @@ if defined CRITICAL_FAILS (
 )
 echo Dashboard: dashboard\fund-%ISIN%.html
 echo Backup pre-consume: data\funds\%ISIN%\output.json.pre_consume_bak (puedes borrar si todo OK)
+if exist "data\funds\%ISIN%\.paso_1_65_hecho" del /q "data\funds\%ISIN%\.paso_1_65_hecho"
 echo Exit code: !EXIT_CODE!
 endlocal & exit /b %EXIT_CODE%
