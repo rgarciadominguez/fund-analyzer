@@ -375,6 +375,12 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
     # Obtener config
     config = get_config(isin, auto)
     log("ORCHESTRATOR", "OK", f"Config: {config}")
+    # Modo APORTE = prep ligera (29-sep-2026): solo complementa con los documentos aportados, así que no
+    # tiene sentido volver a recolectar cartas, lecturas y perfil de gestores ni buscar en la web (minutos
+    # perdidos y riesgo de tocar lo que ya está bien). CNMV sí se refresca (barato, por si hay informe nuevo).
+    if (config or {}).get("modo") == "aporte" and os.environ.get("FUND_LEAN") != "1":
+        os.environ["FUND_LEAN"] = "1"
+        log("ORCHESTRATOR", "INFO", "modo aporte → prep ligera: CNMV sí; cartas, lecturas, gestores y discovery web se reutilizan")
 
     prefix = isin[:2].upper()
     is_es = prefix == "ES"
