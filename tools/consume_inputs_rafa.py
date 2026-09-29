@@ -166,12 +166,12 @@ def consume(dry_run: bool = False, full: bool = False) -> dict:
     rows = payload.get("rows") or []
     brokers = _brokers_by_isin(payload)
     if not dry_run:
-        # Vigilante diario de los fondos TOP/BUENO: update anual (AR nuevo) y cartas nuevas → tareas en el
-        # portal con el enlace (Rafa 29-sep-2026). Necesita todas las clasificaciones: si esta pasada es
-        # incremental (since), usa la caché de la última lectura completa.
+        # Seguimiento Top/Bueno (29-sep-2026): si cambia la clasificación de un fondo analizado, se
+        # re-planifican sus avisos (update anual y cartas) en el portal. Sin revisión diaria.
         try:
-            from tools.seguimiento_fondos import revisar_si_toca
-            revisar_si_toca(rows=rows if full or not since else None)
+            from tools.seguimiento_fondos import clasificacion_cambiada, disparar
+            clasificacion_cambiada(rows)
+            disparar()   # avisos de la agenda cuya fecha ha llegado → tarea en el portal
         except Exception as _e:  # noqa: BLE001
             _log(f"[WARN] seguimiento_fondos: {str(_e)[:100]}")
     _log(f"recibido: {len(rows)} rows · {len(brokers)} brokers")

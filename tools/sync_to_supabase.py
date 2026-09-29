@@ -363,6 +363,13 @@ def _sync_fund_impl(
                 log(f"[SYNC] próximo análisis (local): {_nad0['fecha_proximo_analisis']}")
         except Exception as _e:
             log(f"[SYNC] next_analysis_date local falló (no crítico): {str(_e)[:80]}")
+        try:   # agenda de avisos Top/Bueno (update anual + cartas) como tareas futuras del portal
+            from tools.seguimiento_fondos import planificar as _plan_seg
+            _r = _plan_seg(isin)
+            if _r.get("clasificacion"):
+                log(f"[SYNC] seguimiento ({_r['clasificacion']}): {_r}")
+        except Exception as _e:
+            log(f"[SYNC] seguimiento_fondos falló (no crítico): {str(_e)[:80]}")
     if not dry_run:
         try:
             from tools.supabase_client import probe as _probe
