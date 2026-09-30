@@ -94,7 +94,7 @@ def _anotar_dudas(isin: str, dudas: list[dict]) -> bool:
     prev = [x for x in (out.get("revision_pendiente") or []) if isinstance(x, dict)]
     otras = [x for x in prev if x.get("fuente") != FUENTE]
     nuevas = otras + dudas
-    if [(x.get("titulo"), x.get("detalle")) for x in prev] == [(x.get("titulo"), x.get("detalle")) for x in nuevas]:
+    if [(x.get("titulo"), x.get("detalle"), x.get("id")) for x in prev] == [(x.get("titulo"), x.get("detalle"), x.get("id")) for x in nuevas]:
         return False
     out["revision_pendiente"] = nuevas
     tmp = p.with_suffix(".json.tmp")
