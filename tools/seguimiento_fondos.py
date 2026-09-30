@@ -5,7 +5,8 @@ report o carta, de cara a mandarme aviso para leer o lanzar la actualización an
 
 Cómo funciona (sin procesos diarios): en CADA análisis o re-análisis de un fondo se PLANIFICAN sus avisos y
 se AGENDAN (data/_seguimiento_fondos.json) y cada tarea se crea en el portal el día que toca
-(disparar(), en la pasada horaria de consume_inputs_rafa; POST /admin/tarea, lo mismo que usa el Copiloto):
+(disparar(), en la pasada horaria de consume_inputs_rafa) llega su fecha y se BUSCAN las novedades
+(tools.novedades), que aparecen en la pantalla "Seguimiento de fondos" del portal:
   · UPDATE ANUAL — fecha_proximo_analisis (tools.next_analysis_date: cierre fiscal del último AR + 1 año +
     plazo de publicación + 30 d de margen → el AR nuevo ya está publicado seguro). Tarea "Re-analizar fondo:
     … — lanzar update anual: …". El título empieza por "Re-analizar fondo:" + ISIN para que el portal no
@@ -245,17 +246,15 @@ def planificar(isin: str, dry: bool = False, clasif: dict | None = None, hoy: da
     # (disparar()); así la lista de tareas de Rafa no se llena de avisos de dentro de meses.
     for k, a in nuevo.items():
         p = prev.get(k)
-        if p and p.get("id") and p["id"] > 0:
-            guardado[k] = p                     # ya avisado: la tarea es de Rafa, no se toca
+        if p and (p.get("hecho") or p.get("buscando")):
+            guardado[k] = p                     # ya buscado (o buscándose): se conserva
         else:
             if not p or p.get("fecha") != a["fecha"] or p.get("titulo") != a["titulo"]:
                 res["creadas" if not p else "editadas"] += 1
             guardado[k] = {**a, "id": None}
     for k, p in prev.items():
-        if k not in nuevo and not (p.get("id") and p["id"] > 0):
+        if k not in nuevo and not p.get("hecho"):
             res["cerradas"] += 1                # aviso agendado que ya no toca: se quita de la agenda
-        elif k not in nuevo:
-            guardado.setdefault(k, p)           # ya avisado y sin hacer: se respeta
     if not dry:
         st = _load(STATE, {})
         if guardado:
@@ -270,26 +269,63 @@ def planificar(isin: str, dry: bool = False, clasif: dict | None = None, hoy: da
 
 
 def disparar(dry: bool = False, hoy: date | None = None) -> int:
-    """Crea en el portal las tareas de la agenda cuya fecha ha llegado. Barato (solo lee un JSON); se llama
-    en cada pasada horaria de consume_inputs_rafa."""
+    """Cuando llega la fecha de un aviso, BUSCA las novedades del fondo (tools.novedades: annual/semiannual,
+    cartas, análisis externos, entrevistas, noticias desde el último análisis), las guarda y las manda a la
+    pantalla "Seguimiento de fondos" del portal. Una búsqueda por pasada, en segundo plano y solo con la cola
+    de análisis parada. Si aún no ha salido nada, reintenta cada semana hasta 6 semanas después de la fecha."""
     hoy = hoy or date.today()
     st = _load(STATE, {})
-    n = 0
+    due = []
     for isin, avs in st.items():
         for k, a in avs.items():
             f = _parse_d(a.get("fecha"))
-            if a.get("id") or not f or f > hoy:
+            prox = _parse_d(a.get("proximo_intento"))
+            if a.get("hecho") or a.get("buscando") or not f or f > hoy or (prox and prox > hoy):
                 continue
-            try:
-                a["id"] = _tarea({"titulo": a["titulo"], "fecha": f.isoformat()}, dry)
-                a["avisado"] = hoy.isoformat()
-                n += 1
-                _log(f"aviso: {a['titulo'][:120]}")
-            except Exception as e:  # noqa: BLE001
-                _log(f"[WARN] {isin} {k}: {str(e)[:100]}")
-    if n and not dry:
-        _save(STATE, st)
-    return n
+            due.append((f, isin, k))
+    if not due:
+        return 0
+    q = _load(ROOT / "data" / "queue_state.json", {}) or {}
+    if any(i.get("status") in ("running", "queued", "paused_waiting_tokens") for i in q.get("items") or []):
+        return 0
+    if any(a.get("buscando") and (date.today() - (_parse_d(a.get("buscando")) or date.today())).days < 1
+           for avs in st.values() for a in avs.values()):
+        return 0                                    # ya hay una búsqueda en marcha
+    _, isin, k = sorted(due)[0]
+    if dry:
+        _log(f"(dry) buscaría novedades de {isin} por {k}")
+        return 1
+    st[isin][k]["buscando"] = hoy.isoformat()
+    _save(STATE, st)
+    flags = (0x00000008 | 0x00000200 | 0x08000000) if os.name == "nt" else 0
+    import subprocess
+    exe = Path(sys.executable)
+    pyw = exe.with_name("pythonw.exe")
+    subprocess.Popen([str(pyw if pyw.exists() else exe), "-m", "tools.seguimiento_fondos", "--buscar", isin, "--clave", k],
+                     cwd=str(ROOT), creationflags=flags, close_fds=True,
+                     stdout=open(ROOT / "logs" / "seguimiento_fondos.log", "a", encoding="utf-8"), stderr=subprocess.STDOUT)
+    _log(f"{isin}: buscando novedades ({k})")
+    return 1
+
+
+def buscar_y_registrar(isin: str, clave: str) -> None:
+    from tools.novedades import buscar
+    r = buscar(isin, clave)
+    st = _load(STATE, {})
+    a = (st.get(isin) or {}).get(clave)
+    if a is None:
+        return
+    a.pop("buscando", None)
+    hoy = date.today()
+    f = _parse_d(a.get("fecha")) or hoy
+    n = int(r.get("n") or 0)
+    if r.get("ok") and n > 0:
+        a["hecho"] = hoy.isoformat(); a["n_docs"] = n
+    elif (hoy - f).days >= 42:
+        a["hecho"] = hoy.isoformat(); a["n_docs"] = 0     # el portal ya muestra qué no se encontró
+    else:
+        a["proximo_intento"] = (hoy + timedelta(days=7)).isoformat()
+    _save(STATE, st)
 
 
 def _norm(n: str) -> str:
@@ -338,6 +374,8 @@ if __name__ == "__main__":
     ap.add_argument("--todos", action="store_true")
     ap.add_argument("--ver", action="store_true")
     ap.add_argument("--disparar", action="store_true")
+    ap.add_argument("--buscar")
+    ap.add_argument("--clave", default="update_anual")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     if a.ver:
@@ -345,6 +383,8 @@ if __name__ == "__main__":
             for k, x in sorted(avs.items(), key=lambda kv: kv[1].get("fecha", "")):
                 print(x.get("fecha"), i, k, "·", x.get("titulo", "")[:90])
         sys.exit(0)
+    if a.buscar:
+        buscar_y_registrar(a.buscar.upper(), a.clave); sys.exit(0)
     if a.disparar:
         print(disparar(dry=a.dry_run)); sys.exit(0)
     if a.todos:

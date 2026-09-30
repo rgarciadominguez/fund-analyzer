@@ -5,6 +5,11 @@ description: Extrae datos K15 estructurados (tesis del gestor, decisiones de car
 
 # letters-extract-cowork v1.0
 
+## Lecciones aprendidas (antes de empezar)
+
+Ejecuta `python -m tools.aprendizaje lecciones {ISIN} --etapa cartas` y aplica lo que salga. Son casuísticas aprendidas de análisis anteriores y del feedback de Rafa (tools/aprendizaje.py): qué comprobar o evitar en fondos como este.
+
+
 Sustituto de `letters_deep_agent.py`. Extrae K15 estructurado de cartas trimestrales/semestrales del gestor. Diseñada para correr bajo Claude Max sin coste API.
 
 **Reemplaza**: la extracción K15 (tesis_gestora, decisiones_tomadas, contexto_mercado, citas_textuales, posiciones_mencionadas, outlook, resultado_real) de cartas en `letters_deep_agent`.

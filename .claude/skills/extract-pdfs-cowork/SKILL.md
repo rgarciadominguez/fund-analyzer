@@ -5,6 +5,11 @@ description: Extrae contenido cualitativo y estructurado de PDFs descargados por
 
 # extract-pdfs-cowork v1.1
 
+## Lecciones aprendidas (antes de empezar)
+
+Ejecuta `python -m tools.aprendizaje lecciones {ISIN} --etapa fuentes` y aplica lo que salga. Son casuísticas aprendidas de análisis anteriores y del feedback de Rafa (tools/aprendizaje.py): qué comprobar o evitar en fondos como este.
+
+
 Sustituto de las llamadas Gemini Pro/Flash a `gemini_wrapper.py` para extracción de PDFs locales. Diseñada para correr bajo Claude Max sin coste API.
 
 **Reemplaza**:

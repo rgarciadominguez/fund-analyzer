@@ -5,15 +5,16 @@ quede claro al revisarlo".
 
   · GRAVES (bloquean la publicación: ni Supabase ni dashboard público): los de error seguro que ya usaba el
     guard de Supabase — identidad (nombre/gestora inválidos, deriva de identidad), texto de prueba, análisis
-    vacío o con contenido fabricado, patrimonio imposible. El análisis anterior sigue publicado; se crea una
-    tarea en el portal para revisarlo y relanzarlo.
+    vacío o con contenido fabricado, patrimonio imposible. El análisis anterior sigue publicado y la pantalla
+    de análisis del portal lo muestra como "No publicado" con el motivo (tools.revision).
   · DUDAS (no bloquean): se anotan en `revision_pendiente` → pestaña "Novedades" del dashboard, bloque "a
     reconciliar", con fuente "auditoría de calidad". Vienen de: reglas de contenido/datos de la auditoría
     del dashboard (cifras que no cuadran con los datos, etc.), avisos del análisis (secciones flojas) y las
     dudas que el propio analista declara (anti-invención, supuestos).
 El formato (nº de subtítulos, etc.) NO es duda: Rafa quiere síntesis ejecutiva sin topes ni reglas.
 
-CLI:  python -m tools.quality_gate ISIN        → exit 0 publicable · exit 3 bloqueado (graves)
+CLI:  python -m tools.quality_gate ISIN   → exit 0 limpio (publicar) · 4 con dudas (borrador pendiente de
+      validar, tools.revision) · 3 graves (no publicar; el bat intenta corregir una vez antes)
 Escribe data/funds/{ISIN}/quality_gate.json y regenera el dashboard si cambian las dudas.
 """
 from __future__ import annotations
@@ -78,8 +79,10 @@ def evaluar(isin: str) -> dict:
     for x in meta.get("supuestos") or []:
         dudas.append({"titulo": "Supuesto del analista", "detalle": str(x if isinstance(x, str) else json.dumps(x, ensure_ascii=False)),
                       "regla": "supuesto"})
+    import hashlib
     for d in dudas:
         d.update({"fuente": FUENTE, "fecha": hoy})
+        d["id"] = hashlib.sha1((d.get("titulo", "") + "|" + d.get("detalle", "")).encode("utf-8")).hexdigest()[:10]
     return {"graves": graves, "dudas": dudas}
 
 
@@ -130,8 +133,10 @@ def main(isin: str) -> int:
         for g in r["graves"]:
             _log(f"  GRAVE: {g}")
         _log("BLOQUEADO: no se publica; sigue visible el análisis anterior")
-        _avisar_bloqueo(isin, out.get("nombre") or isin, r["graves"])
         return 3
+    if r["dudas"]:
+        _log("publicable como BORRADOR: pendiente de que Rafa valide las dudas")
+        return 4
     _log("publicable")
     return 0
 

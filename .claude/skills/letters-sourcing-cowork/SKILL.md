@@ -5,6 +5,11 @@ description: Encuentra en la web de la gestora (y en las plataformas donde la ge
 
 # letters-sourcing-cowork v1 (25-sep-2026)
 
+## Lecciones aprendidas (antes de empezar)
+
+Ejecuta `python -m tools.aprendizaje lecciones {ISIN} --etapa cartas` y aplica lo que salga. Son casuísticas aprendidas de análisis anteriores y del feedback de Rafa (tools/aprendizaje.py): qué comprobar o evitar en fondos como este.
+
+
 ## Para qué
 
 Rafa (asesor financiero) necesita, para cada fondo, **la voz del gestor a lo largo del tiempo**: qué decía, qué

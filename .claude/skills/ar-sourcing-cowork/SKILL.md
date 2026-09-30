@@ -5,6 +5,11 @@ description: Fuerza el sourcing MÁXIMO de documentos multi-año de un fondo —
 
 # ar-sourcing-cowork v1
 
+## Lecciones aprendidas (antes de empezar)
+
+Ejecuta `python -m tools.aprendizaje lecciones {ISIN} --etapa fuentes` y aplica lo que salga. Son casuísticas aprendidas de análisis anteriores y del feedback de Rafa (tools/aprendizaje.py): qué comprobar o evitar en fondos como este.
+
+
 Corre bajo Claude Max (WebSearch/WebFetch, sin coste API). Objetivo de Rafa: que TODOS los fondos salgan
 como Carmignac — con AR y SAR de varios años → histórico de cartera/geo/sector año a año. **Intentarlo al
 MÁXIMO**: cuantos más años reales encontremos, mejor el análisis de evolución y consistencia.

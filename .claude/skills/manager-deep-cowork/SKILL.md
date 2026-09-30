@@ -5,6 +5,11 @@ description: Identifica al equipo gestor (lead/co + biografía inicial) Y enriqu
 
 # manager-deep-cowork v1.1
 
+## Lecciones aprendidas (antes de empezar)
+
+Ejecuta `python -m tools.aprendizaje lecciones {ISIN} --etapa gestores` y aplica lo que salga. Son casuísticas aprendidas de análisis anteriores y del feedback de Rafa (tools/aprendizaje.py): qué comprobar o evitar en fondos como este.
+
+
 Sustituto de `manager_deep_agent.py` (Gemini Flash) Y `manager_profiler._enrich_with_opus()` (Anthropic). Diseñada para correr bajo Claude Max sin coste API.
 
 **Reemplaza**:

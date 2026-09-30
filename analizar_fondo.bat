@@ -559,17 +559,29 @@ REM habia un analisis previo bueno, restaurarlo. Asi un fallo (p.ej. cuota cowor
 REM nunca destruye el analisis local que ya existia. Se ejecuta ANTES del sync.
 call python -m tools.analysis_safeguard --restore-if-broken %ISIN%
 
-REM Paso 6.9: FRENO DE CALIDAD (29-sep-2026). Errores graves (identidad, analisis vacio o inventado,
-REM texto de prueba, patrimonio imposible) -> NO se sincroniza ni se publica: sigue visible el analisis
-REM anterior y se crea una tarea en el portal. Las dudas se anotan en la pestana "Novedades y revision".
+REM Paso 6.9: FRENO DE CALIDAD (29/30-sep-2026). Codigos de tools.quality_gate: 0 limpio, 4 con dudas,
+REM 3 grave. Grave -> se reintenta UNA vez rehaciendo la sintesis; si sigue grave, NO se publica y el portal
+REM lo muestra como "No publicado" con el motivo (tools.revision). Dudas -> se publica solo como BORRADOR
+REM pendiente de que Rafa valide (sigue visible la version anterior); sync y publicacion al validar.
 echo === Paso 6.9: Freno de calidad antes de publicar ===
 set QUALITY_BLOCK=
+set QUALITY_BORRADOR=
 call python -m tools.quality_gate %ISIN%
-if errorlevel 3 (
+set QG_RC=!errorlevel!
+if "!QG_RC!"=="3" (
+    echo [CALIDAD] errores graves: se intenta corregir una vez rehaciendo la sintesis
+    call python -m tools.claude_cowork "logs\skill_analyst_%ISIN%_reintento.log" "analyst cowork %ISIN%" --model %MODEL_ANALYST% --effort %EFFORT_ANALYST% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep"
+    call python -m agents.orchestrator --isin %ISIN% --consume-all-cowork %ALLOW_FALLBACK% %APPLY_FEEDBACK%
+    call python -m tools.quality_gate %ISIN%
+    set QG_RC=!errorlevel!
+)
+if "!QG_RC!"=="3" (
     set QUALITY_BLOCK=1
     set FAILED_STEPS=!FAILED_STEPS! calidad-bloqueado
-    echo [BLOQUEADO] errores graves de calidad: no se publica. Ver data\funds\%ISIN%\quality_gate.json
+    echo [BLOQUEADO] errores graves de calidad tras el reintento: no se publica
+    call python -m tools.revision no-publicado %ISIN%
 )
+if "!QG_RC!"=="4" set QUALITY_BORRADOR=1
 echo.
 
 REM Paso 7: Sync a Supabase (Storage + tablas). NO bloquea el bat si falla.
@@ -581,7 +593,9 @@ REM republicaria como si fuera fresca. Saltar el sync -> no se publican datos vi
 set DO_SYNC=1
 echo !FAILED_STEPS! | findstr /C:"consume-all-cowork" >nul && set DO_SYNC=
 if defined QUALITY_BLOCK set DO_SYNC=
-if not defined DO_SYNC (
+if defined QUALITY_BORRADOR (
+    echo [BORRADOR] Sync a Supabase aplazado: se hace cuando Rafa valide las dudas del borrador
+) else if not defined DO_SYNC (
     echo [SKIP] Sync OMITIDO: consume-all-cowork fallo -- no se publican datos viejos/parciales
     set FAILED_STEPS=!FAILED_STEPS! sync-skipped
 ) else (
@@ -624,12 +638,16 @@ REM push con reintentos + Supabase Storage + sondeo del Worker hasta que sirve e
 REM voz alta si algun destino no coincide (antes: commit sin codigo y Storage desactualizado, en silencio).
 if defined QUALITY_BLOCK (
     echo [BLOQUEADO] no se publica el dashboard por errores graves de calidad
+) else if defined QUALITY_BORRADOR (
+    echo [BORRADOR] se publica solo el borrador pendiente de validar; sigue visible la version anterior
+    call python -m tools.revision borrador %ISIN%
 ) else (
     python -m tools.publish_dashboard --isin %ISIN% --wait 420
     if errorlevel 1 (
         echo [WARN] publicacion incompleta - ver motivo arriba; el guardian reintenta el push
         set FAILED_STEPS=!FAILED_STEPS! auto-git-push
     )
+    call python -m tools.revision publicado %ISIN%
 )
 echo.
 

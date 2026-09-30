@@ -655,6 +655,15 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
     # (complementar SIN discovery), AUNQUE el portal etiquete scope=annual_update. Subir un
     # doc = aporte y GANA sobre annual — si no, el annual dispararía discovery focalizada e
     # ignoraría el doc como aporte. El annual "puro" es solo cuando NO hay material aportado.
+    # 'publicar' (30-sep-2026): Rafa pulsó "Validar y publicar" en el borrador de un análisis con dudas.
+    # No es un análisis: aplica sus veredictos (corrige ese fondo si marcó algo como incorrecto, o publica
+    # la versión definitiva) y entrega lo que dijo al agente de aprendizaje. Ver tools/revision.py.
+    if scope == "publicar":
+        log(f"── Validación de {isin}: publicar / corregir según los veredictos de Rafa")
+        if dry:
+            return True
+        from tools.revision import publicar as _rev_publicar
+        return bool(_rev_publicar(isin))
     es_aporte = bool(docs_aportados or analisis_externos)
     es_annual = (scope == "annual_update") and not es_aporte
     log(f"── Procesando {isin} {('· ' + name) if name else ''} "
@@ -664,6 +673,15 @@ def procesar(isin: str, *, dry: bool, do_push: bool, metrics_only: bool, name: s
         _cfg = _au_prepare(isin)
         if _cfg.get("modo") == "annual_update":
             log(f"  modo update anual · solo delta desde {_cfg.get('since_date')}")
+            # Novedades ya encontradas en su fecha de seguimiento (tools/novedades.py, 30-sep-2026): entran
+            # como material prioritario, así el update no vuelve a buscar lo que ya está encontrado.
+            try:
+                from tools.novedades import integrar as _nov_integrar
+                _n = _nov_integrar(isin)
+                if _n:
+                    log(f"  {_n} novedades ya encontradas integradas como fuente prioritaria")
+            except Exception as _e:  # noqa: BLE001
+                log(f"  [WARN] novedades: {str(_e)[:100]}")
         else:
             es_annual = False
             log(f"  {_cfg.get('motivo', 'sin análisis previo')} → análisis completo")

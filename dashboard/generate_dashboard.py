@@ -6313,11 +6313,11 @@ def build_tab_novedades(data):
     if _dudas:
         _cd = ""
         for it in _dudas:
-            _cd += (f'<div style="border:1px solid var(--rule-light);border-left:3px solid #c0392b;'
+            _cd += (f'<div class="hf-duda" data-duda="{_e(str(it.get("id", "")))}" style="border:1px solid var(--rule-light);border-left:3px solid #c0392b;'
                     f'border-radius:6px;padding:10px 14px;margin-bottom:8px;background:var(--card,#fff);">'
                     f'<div style="font-size:13px;font-weight:600;color:var(--ink-1);margin-bottom:3px;">{_e(it.get("titulo", ""))}</div>'
                     f'<div style="font-size:12.5px;color:var(--ink-2);line-height:1.5;">{_e(it.get("detalle", ""))}</div></div>')
-        bloques += ('<details open style="margin-top:10px;"><summary style="cursor:pointer;font-size:12px;text-transform:uppercase;'
+        bloques += ('<details open id="hf-revision" style="margin-top:10px;"><summary style="cursor:pointer;font-size:12px;text-transform:uppercase;'
                     f'letter-spacing:0.5px;color:#c0392b;font-weight:600;">Revisar al validar: {len(_dudas)} duda(s) de la auditoría de calidad</summary>'
                     '<div style="font-size:12px;color:var(--ink-3);margin:10px 0 12px;">Lo que el análisis no ha podido verificar del todo, '
                     'los supuestos que ha hecho y las cifras que no cuadran con los datos. No bloquean la publicación.</div>'
@@ -8172,11 +8172,9 @@ def _build_feedback_widget_legacy(data):
 
 
 def build_feedback_widget(data):
-    """'Dar feedback' (29-sep-2026): el feedback de Rafa no parchea este análisis, MEJORA EL SISTEMA. Se
-    escribe en el Copiloto del portal (widget flotante en todas sus páginas, también en la del análisis): el
-    Copiloto lo guarda (tools.feedback_sistema) y el servidor lo procesa con Fable cuando la cola está
-    parada — busca la causa, la arregla para todos los fondos y relanza este si hace falta. Este botón solo
-    prepara el texto con el fondo identificado y lo copia."""
+    """'Dar feedback' (30-sep-2026): se escribe en el Copiloto del portal (widget flotante en todas sus páginas,
+    también en la del análisis), que lo guarda en tools.aprendizaje. El agente de aprendizaje corrige ESTE fondo
+    si hace falta y destila lecciones para los análisis futuros. Este botón solo prepara el texto y lo copia."""
     import html as _h
     isin = str((data or {}).get("isin") or "")
     nombre = str((data or {}).get("nombre") or isin)
@@ -8188,8 +8186,8 @@ def build_feedback_widget(data):
     style="background:var(--navy,#1f2d4d);color:#fff;border:0;border-radius:20px;padding:9px 16px;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);">
     &#9998; Dar feedback</button>
   <div id="fb2-box" style="display:none;position:absolute;right:0;bottom:46px;width:330px;background:#fff;border:1px solid #d8dde6;border-radius:10px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.18);">
-    <div style="font-size:13px;font-weight:600;color:#1f2d4d;margin-bottom:6px;">Tu feedback mejora el sistema</div>
-    <div style="font-size:12.5px;color:#444;line-height:1.5;margin-bottom:10px;">Escríbelo en el <b>Copiloto</b> del portal. El sistema busca por qué pasó, lo corrige para todos los fondos y, si hace falta, rehace este análisis. Te llega una tarea con lo que se ha cambiado.</div>
+    <div style="font-size:13px;font-weight:600;color:#1f2d4d;margin-bottom:6px;">Tu feedback enseña al sistema</div>
+    <div style="font-size:12.5px;color:#444;line-height:1.5;margin-bottom:10px;">Escríbelo en el <b>Copiloto</b> del portal. Si señala un error de este análisis, se corrige este fondo; y el agente de aprendizaje lo convierte en una lección que aplican los análisis siguientes.</div>
     <textarea id="fb2-txt" rows="4" style="width:100%;box-sizing:border-box;font-size:12.5px;border:1px solid #d8dde6;border-radius:6px;padding:6px;" placeholder="Qué no te convence y qué esperabas ver…"></textarea>
     <button onclick="(function(){{var t='{pref_js}'+document.getElementById('fb2-txt').value;try{{navigator.clipboard.writeText(t);}}catch(e){{}}var b=document.getElementById('fb2-ok');b.style.display='block';}})()"
       style="margin-top:8px;background:#1f2d4d;color:#fff;border:0;border-radius:6px;padding:7px 12px;font-size:12.5px;cursor:pointer;">Copiar para el Copiloto</button>

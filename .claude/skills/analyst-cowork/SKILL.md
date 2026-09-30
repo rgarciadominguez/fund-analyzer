@@ -5,6 +5,11 @@ description: Genera el bloque `analyst_synthesis.*` (8 secciones narrativas + es
 
 # analyst-cowork v3.0
 
+## Lecciones aprendidas (antes de empezar)
+
+Ejecuta `python -m tools.aprendizaje lecciones {ISIN}` y aplica lo que salga. Son casuísticas aprendidas de análisis anteriores y del feedback de Rafa (tools/aprendizaje.py): qué comprobar o evitar en fondos como este. En la síntesis aplica todas las etapas: si una lección de cartas, gestores o cartera no se cumplió en los datos que te llegan, corrígelo en lo que escribes y dilo en `supuestos`.
+
+
 Sustituto del `agents/analyst_agent.py` del proyecto fund-analyzer. Genera el bloque `analyst_synthesis.*` con 8 secciones siguiendo el **schema EXACTO** que espera el dashboard renderer (`dashboard/generate_dashboard.py`). Diseñada para correr bajo Claude Max y eliminar el coste API de Anthropic.
 
 **v2 (2026-05-04)**: corrige 3 schema mismatches críticos descubiertos en smoke test Avantage. Ahora usa exactamente los nombres de campo que el dashboard renderiza. Audit pass obligatorio.
