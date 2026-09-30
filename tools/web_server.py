@@ -1404,17 +1404,17 @@ def make_app(cold_start: bool = True) -> Flask:
                     _reset = _parse_reset_time_utc(isin)
                     if _reset:
                         QUEUE_TOKENS_BLOCKED_UNTIL = _reset
-                    try:
-                        _hh = _reset[11:16] + " UTC" if _reset else "la próxima comprobación"
-                        _avisar_cola(f"⏸ {isin}: en PAUSA por límite de tokens de Claude; se reanuda solo hacia {_hh} "
-                                     f"(run {next_item.get('run_id') or '?'}; retoma donde se quedó).")
-                    except Exception:
-                        pass
                         print(f"[QUEUE] {isin}: límite de sesión → reanudar a {_reset} "
                               f"(hora de reset +5min, Madrid)")
                     else:
                         QUEUE_TOKENS_BLOCKED_UNTIL = (datetime.now(timezone.utc) +
                                                       timedelta(hours=QUEUE_TOKENS_BLOCKED_UNTIL_HRS)).isoformat()
+                    try:
+                        _avisar_cola(f"⏸ {isin}: en PAUSA por límite de tokens de Claude; se reanuda solo hacia "
+                                     f"{str(QUEUE_TOKENS_BLOCKED_UNTIL)[11:16]} UTC "
+                                     f"(run {next_item.get('run_id') or '?'}; retoma donde se quedó).")
+                    except Exception:
+                        pass
                     _save_queue_state()
                     # Arrancar monitor que decidirá cuándo reanudar
                     _start_tokens_monitor()
@@ -1441,17 +1441,16 @@ def make_app(cold_start: bool = True) -> Flask:
                                 _reset = _parse_reset_time_utc(isin)
                                 if _reset:
                                     QUEUE_TOKENS_BLOCKED_UNTIL = _reset
-                                try:
-                                    _hh = _reset[11:16] + " UTC" if _reset else "la próxima comprobación"
-                                    _avisar_cola(f"⏸ {isin}: en PAUSA por límite de tokens de Claude (detectado al terminar el paso); "
-                                                 f"se reanuda solo hacia {_hh}.")
-                                except Exception:
-                                    pass
                                     print(f"[QUEUE] {isin}: límite de sesión (post-mortem) → "
                                           f"reanudar a {_reset} (+5min, Madrid)")
                                 else:
                                     QUEUE_TOKENS_BLOCKED_UNTIL = (datetime.now(timezone.utc) +
                                                                   timedelta(hours=QUEUE_TOKENS_DEFAULT_WAIT_HOURS)).isoformat()
+                                try:
+                                    _avisar_cola(f"⏸ {isin}: en PAUSA por límite de tokens de Claude (detectado al terminar el paso); "
+                                                 f"se reanuda solo hacia {str(QUEUE_TOKENS_BLOCKED_UNTIL)[11:16]} UTC.")
+                                except Exception:
+                                    pass
                                 _start_tokens_monitor()
                         except Exception:
                             pass
