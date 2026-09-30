@@ -361,6 +361,20 @@ Si existe ese fichero, lo ha escrito el control de calidad tras el primer pase (
 Regenera **SOLO esas secciones, COMPLETAS y corrigiendo de raíz los motivos listados** (cifras concretas, ejes de diferenciación,
 equipo con nombres y expertise), y emítelas en `analyst_synthesis`; el consumidor preserva verbatim el resto. Es una única pasada:
 no habrá una segunda. No toques `novedades_resumen` salvo que esté entre las secciones.
+Si un motivo dice que una cifra del texto **no cuadra con los datos** (rentabilidades, KPIs, % de hitos), la cifra correcta es la
+de los datos del bundle (serie de rentabilidad, Morningstar, CNMV): corrígela con esa o quítala; nunca la mantengas ni la
+justifiques. Estos errores tienen que quedar resueltos: Rafa no debe verlos como dudas.
+
+### R11. Contradicciones cualitativas para Rafa (`_meta.contradicciones`) — 30-sep-2026
+
+Rafa valida cada análisis antes de publicarlo y solo quiere ver lo que de verdad necesita su criterio: una lista **corta**.
+En `_meta.contradicciones` pon únicamente **contradicciones de fondo entre fuentes sobre temas cualitativos** que afectan a
+cómo se entiende el fondo, y cómo las has resuelto. Ejemplos: la carta dice que el fondo reduce riesgo y la cartera del
+informe muestra más duración y más high yield; el folleto habla de gestión global y 3 años de carteras son 90 % Europa;
+una fuente atribuye el fondo a un gestor y otra a otro; el gestor dice que no usa derivados y el annual report los muestra.
+Formato: `[{"tema": "…", "que_dicen": "fuente A dice X; fuente B dice Y", "como_lo_he_resuelto": "…", "seccion": "…"}]`.
+**No** pongas: lo que no has podido verificar, los supuestos menores, cifras cuantitativas (Morningstar y CNMV mandan y ya
+están alineadas), ni errores tuyos (corrígelos). Si no hay contradicciones de ese calibre, deja la lista vacía: es lo normal.
 
 ### Regeneración selectiva (2026-06-06) — IMPORTANTE
 
@@ -478,6 +492,7 @@ Producir un único fichero JSON: `data/funds/{ISIN}/analyst_synthesis_cowork.jso
     "audit_pass_done": true,
     "audit_iterations": 1,
     "anti_invencion_flagged": [],
+    "contradicciones": [],
     "input_files_hash": {...},
     "feedback_outcomes": []
   },

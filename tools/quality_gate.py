@@ -55,30 +55,30 @@ def evaluar(isin: str) -> dict:
     except Exception as e:  # noqa: BLE001
         _log(f"[WARN] validación de identidad no disponible: {str(e)[:80]}")
 
+    # Rafa 30-sep-2026: los errores detectables se CORRIGEN en el análisis (tools/quality_regen, una pasada en el
+    # consume); aquí solo llega a Rafa una lista CORTA: las contradicciones CUALITATIVAS que declara el analista
+    # (R11) y, si algún error no se pudo corregir, UNA línea que lo diga. Nada de "no pude verificar", supuestos
+    # menores ni avisos cuantitativos (Morningstar/CNMV mandan).
     dudas: list[dict] = []
     hoy = date.today().isoformat()
+    meta = (_load(fd / "analyst_synthesis_cowork.json", {}) or {}).get("_meta") or {}
+    for c in meta.get("contradicciones") or []:
+        if isinstance(c, dict) and c.get("tema"):
+            dudas.append({"titulo": str(c["tema"])[:160],
+                          "detalle": (str(c.get("que_dicen") or "") + (" Cómo se ha resuelto: " + str(c["como_lo_he_resuelto"])
+                                      if c.get("como_lo_he_resuelto") else "")).strip(),
+                          "seccion": c.get("seccion"), "regla": "contradiccion"})
     try:
+        from tools.quality_regen import REGLAS_FONDO
         from agents.dashboard_quality_agent import DashboardQualityAgent
         rep = DashboardQualityAgent(isin).run() or {}
-        for f in rep.get("fallos") or []:
-            if f.get("fail_type") in TIPOS_DUDA or f.get("regla_id") in REGLAS_DUDA_EXTRA:
-                dudas.append({"titulo": f"Comprobar: {str(f.get('problema') or '')[:140]}",
-                              "detalle": str(f.get("accion") or ""), "seccion": f.get("seccion"),
-                              "regla": f.get("regla_id")})
+        pend = [f for f in rep.get("fallos") or [] if f.get("regla_id") in REGLAS_FONDO]
+        if pend:
+            dudas.append({"titulo": f"{len(pend)} error(es) que el análisis no ha podido corregir solo",
+                          "detalle": " · ".join(str(f.get("problema") or f.get("regla_id"))[:160] for f in pend),
+                          "regla": "no_corregido"})
     except Exception as e:  # noqa: BLE001
         _log(f"[WARN] auditoría del dashboard no disponible: {str(e)[:80]}")
-    try:
-        from tools.analysis_quality import assess_analysis_quality
-        for w in assess_analysis_quality(out).get("warnings") or []:
-            dudas.append({"titulo": f"Análisis incompleto: {w}", "detalle": "", "regla": "analysis_quality"})
-    except Exception:
-        pass
-    meta = (_load(fd / "analyst_synthesis_cowork.json", {}) or {}).get("_meta") or {}
-    for x in meta.get("anti_invencion_flagged") or []:
-        dudas.append({"titulo": "El analista no pudo verificarlo del todo", "detalle": str(x), "regla": "anti_invencion"})
-    for x in meta.get("supuestos") or []:
-        dudas.append({"titulo": "Supuesto del analista", "detalle": str(x if isinstance(x, str) else json.dumps(x, ensure_ascii=False)),
-                      "regla": "supuesto"})
     import hashlib
     for d in dudas:
         d.update({"fuente": FUENTE, "fecha": hoy})

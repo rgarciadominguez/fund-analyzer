@@ -690,6 +690,10 @@ def _check_drawdown_con_fecha(rule: dict, data: dict) -> tuple[bool, dict]:
     evol = data.get("analyst_synthesis", {}).get("evolucion", {}) or {}
     graficos = evol.get("datos_graficos", {}) or {}
     drawdown = graficos.get("drawdown") or evol.get("drawdown") or {}
+    if isinstance(drawdown, list):                 # serie de drawdown: vale si trae al menos un punto con valor
+        drawdown = next((x for x in drawdown if isinstance(x, dict)), {}) if drawdown else {}
+        if drawdown and not any(k in drawdown for k in ("valor_pct", "max_pct", "maximo_pct", "peak_to_trough_pct")):
+            return True, {"actual": "serie de drawdown presente"}
 
     required = ["valor_pct", "fecha_min", "duracion"]
     # Variants posibles
@@ -707,6 +711,37 @@ def _check_drawdown_con_fecha(rule: dict, data: dict) -> tuple[bool, dict]:
         return False, {"reason": "datos_drawdown_incompletos",
                        "actual": f"Faltan: {missing}"}
     return True, {"actual": "drawdown completo"}
+
+
+
+# Contexto de un % en el texto: ¿se presenta como la rentabilidad ANUAL del fondo? (30-sep-2026)
+_RX_NO_RENT = re.compile(
+    r"(part[ií]cipe|peso|posici[oó]n|60/40|[íi]ndice|bonos?\b|acciones|renta variable|renta fija|\btir\b|yield|"
+    r"duraci[oó]n|volatil|ca[íi]da m[áa]xima|drawdown|comisi[oó]n|trimestr|\b[1-4]\s?t\b|semestr|\bmes(es)?\b|"
+    r"cup[oó]n|liquidez|patrimonio|exposici[oó]n|cartera|benchmark|referencia|categor[íi]a|sector|emisor|"
+    r"inflaci[oó]n|tipos?\b|euribor|comparable|competidor|\bmedia\b|frente a|\bvs\.?\b|respecto|evita|\bal\s*$|"
+    r"hasta\s*$|m[áa]s de\s*$|menos de\s*$)",
+    re.IGNORECASE)
+_RX_SI_RENT = re.compile(
+    r"(rentabilidad|rinde|rindi[óo]|gan[aó]|gana\b|sub[eió]|cerr[óo]|cierra|termin[óo]|termina|acab[óo]|"
+    r"resultado|en el a[ñn]o|el a[ñn]o|anual\b|[+-]\s*$)", re.IGNORECASE)
+
+
+def _es_rentabilidad_anual(texto: str, ini: int, fin: int) -> bool:
+    antes = texto[max(0, ini - 70):ini]
+    # recortar a la propia cláusula (tras el último punto, punto y coma, dos puntos o paréntesis)
+    for sep in (". ", "; ", ": ", "(", "\n"):
+        k = antes.rfind(sep)
+        if k >= 0:
+            antes = antes[k + len(sep):]
+    despues = texto[fin:fin + 40].lower()
+    if re.match(r"\s*(en el|del|de|por)\s+(primer|segundo|tercer|cuarto|trimestre|semestre|mes|\d\s?t)", despues):
+        return False
+    if "anualizad" in despues[:20] or "anualizad" in antes[-25:].lower():
+        return False
+    if _RX_NO_RENT.search(antes[-45:]):
+        return False
+    return bool(_RX_SI_RENT.search(antes[-60:]) or re.match(r"\s*en\s+(el\s+)?(a[ñn]o|20\d{2})", despues))
 
 
 def _check_hitos_percentages_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
@@ -749,10 +784,11 @@ def _check_hitos_percentages_match_data(rule: dict, data: dict) -> tuple[bool, d
         if not anio or anio not in real_returns:
             continue
         # Buscar % en evento
-        pcts = re.findall(r"([+-]?\d{1,3}[,.]?\d{0,2})\s*%", evento)
-        for pct_str in pcts:
+        for _m in re.finditer(r"([+-]?\d{1,3}[,.]?\d{0,2})\s*%", evento):
+            if not _es_rentabilidad_anual(evento, _m.start(), _m.end()):
+                continue
             try:
-                claimed = float(pct_str.replace(",", "."))
+                claimed = float(_m.group(1).replace(",", "."))
             except ValueError:
                 continue
             # Skip valores muy pequeños (probablemente volatilidad, no rentabilidad)
@@ -931,10 +967,12 @@ def _check_text_returns_match_data(rule: dict, data: dict) -> tuple[bool, dict]:
     mentions = []
     for m in pattern1.finditer(text):
         pct, year = m.group(1), m.group(2)
-        mentions.append((year, pct.replace(",", ".")))
+        if _es_rentabilidad_anual(text, m.start(1), m.end(1)):
+            mentions.append((year, pct.replace(",", ".")))
     for m in pattern2.finditer(text):
         year, pct = m.group(1), m.group(2)
-        mentions.append((year, pct.replace(",", ".")))
+        if _es_rentabilidad_anual(text, m.start(2), m.end(2)):
+            mentions.append((year, pct.replace(",", ".")))
 
     if not mentions:
         return True, {"actual": "no_mentions"}
@@ -1116,11 +1154,17 @@ def _check_perfil_riesgo_complete(rule: dict, data: dict) -> tuple[bool, dict]:
     pr = _get_nested(data, rule["field_path"]) or {}
     if not isinstance(pr, dict) or not pr:
         return False, {"actual": "vacío", "missing": "todo (perfil_riesgo no existe)"}
+    def _txt(v):   # el analista puede emitir texto o lista de puntos (29-sep-2026)
+        if isinstance(v, list):
+            return " ".join(str(x.get("texto") if isinstance(x, dict) else x) for x in v if x)
+        return str(v or "")
+    pr = {k: (_txt(v) if k in ("tipo_activo_principal", "escenarios_adversos", "protecciones", "liquidez_estructura") else v)
+          for k, v in pr.items()}
     missing = []
     if not (pr.get("tipo_activo_principal") or "").strip():
         missing.append("tipo_activo_principal")
     riesgos = pr.get("riesgos_especificos") or []
-    if not isinstance(riesgos, list) or len([r for r in riesgos if r and isinstance(r, str)]) < 3:
+    if not isinstance(riesgos, list) or len([r for r in riesgos if r and isinstance(r, (str, dict))]) < 3:
         missing.append("≥3 riesgos_especificos")
     if not (pr.get("escenarios_adversos") or "").strip():
         missing.append("escenarios_adversos")

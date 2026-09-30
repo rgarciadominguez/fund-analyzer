@@ -36,6 +36,20 @@ REGLAS_FONDO = {
     "gestores_equipo_no_generico": "gestores",
     "cartera_has_cifras": "cartera",
     "historia_has_cifras": "historia",
+    # Errores detectables que deben quedar CORREGIDOS antes de terminar (Rafa 30-sep-2026): el texto tiene
+    # que cuadrar con los datos que muestra el dashboard (Morningstar/CNMV mandan en lo cuantitativo).
+    "resumen_returns_match_data": "resumen",
+    "resumen_kpis_match_data": "resumen",
+    "historia_returns_match_data": "historia",
+    "historia_kpis_match_data": "historia",
+    "estrategia_returns_match_data": "estrategia",
+    "hitos_historia_percentages_verifiable": "historia",
+    "hitos_estrategia_have_driver": "estrategia",
+    "resumen_fortalezas_no_contradict_riesgos": "resumen",
+    "resumen_mentions_fund_name": "resumen",
+    "gestor_no_invented_facts": "gestores",
+    "gestores_anteriores_when_recent_change": "gestores",
+    "gestor_info_richness": "gestores",
 }
 MODEL = os.environ.get("MODEL_ANALYST", "claude-opus-4-8")
 EFFORT = os.environ.get("EFFORT_ANALYST", "high")
@@ -61,10 +75,13 @@ def decide(isin: str) -> dict:
     secciones: dict[str, list[str]] = {}
     for f in rep.get("fallos") or []:
         rid = f.get("regla_id")
-        if f.get("fail_type") not in ("content", "completitud") or rid not in REGLAS_FONDO:
+        if rid not in REGLAS_FONDO:
             continue
         sec = REGLAS_FONDO[rid]
-        secciones.setdefault(sec, []).append(str(f.get("problema") or rid))
+        motivo = str(f.get("problema") or rid)
+        if f.get("accion"):
+            motivo += " → " + str(f["accion"])
+        secciones.setdefault(sec, []).append(motivo)
     return {"secciones": sorted(secciones), "motivos": secciones}
 
 
