@@ -42,7 +42,9 @@ CACHE_PATH = ROOT / "data" / "company_sectors.json"
 CANONICAL_SECTORS = [
     "Tecnología", "Servicios financieros", "Salud", "Consumo cíclico",
     "Consumo defensivo", "Industria", "Energía", "Materiales",
-    "Servicios públicos", "Inmobiliario", "Comunicación", "Otros",
+    "Servicios públicos", "Inmobiliario", "Comunicación",
+    "Gobierno", "Supranacional",          # deuda soberana / de agencias públicas y de organismos supranacionales (1-oct-2026)
+    "Otros",
 ]
 # Sinónimos/idiomas → canónico (para validar lo que clasifique Claude/CNMV)
 _SECTOR_SYNONYMS = {
@@ -77,6 +79,13 @@ _SECTOR_SYNONYMS = {
     "telecom": "Comunicación", "telecommunications": "Comunicación", "comunicacion": "Comunicación",
     "comunicación": "Comunicación", "media": "Comunicación",
     "other": "Otros", "others": "Otros", "otros": "Otros",
+    "government": "Gobierno", "governments": "Gobierno", "sovereign": "Gobierno", "sovereigns": "Gobierno",
+    "treasury": "Gobierno", "treasuries": "Gobierno", "govt": "Gobierno", "gobierno": "Gobierno",
+    "soberano": "Gobierno", "deuda pública": "Gobierno", "deuda publica": "Gobierno", "agency": "Gobierno",
+    "agencies": "Gobierno", "municipal": "Gobierno", "public sector": "Gobierno",
+    "supranational": "Supranacional", "supranationals": "Supranacional", "supranacional": "Supranacional",
+    "supra": "Supranacional",
+    "cash": "Otros", "liquidez": "Otros", "funds": "Otros", "fondos": "Otros",
 }
 
 # Sufijos societarios / ruido a quitar del nombre para la clave de caché
@@ -94,6 +103,13 @@ _SUFFIX_RE = re.compile(r"\b(" + "|".join(_SUFFIXES) + r")\b", re.IGNORECASE)
 def _norm_company(name: str) -> str:
     """Clave de caché: minúsculas, sin sufijos societarios/clase, sin puntuación."""
     s = (name or "").lower().strip()
+    # Bonos (1-oct-2026): la clave es el EMISOR → fuera cupón, vencimiento y etiquetas del instrumento
+    # ("Grifols SA 'REGS' 3.875% 15-Oct-2028" → "grifols"), así todos sus bonos comparten sector.
+    s = re.sub(r"\d+(?:[.,]\d+)?\s*%", " ", s)
+    s = re.sub(r"\b\d{1,2}[-/ ](?:[a-z]{3}|\d{1,2})[-/ ]\d{2,4}\b", " ", s)
+    s = re.sub(r"\b(?:19|20)\d{2}\b", " ", s)
+    s = re.sub(r"\b(?:regs|reg s|144a|frn|perp|perpetual|var|float(?:ing)?|fixed|sr|snr|sub|unsec|secured|notes?|bonds?|"
+               r"debentures?|mtn|emtn|callable|step[- ]?up|zero|coupon|due|finco|bidco|topco|midco|opco|issuer|gmb h|gmbh)\b", " ", s)
     s = re.sub(r"['\".,()/&]", " ", s)
     s = _SUFFIX_RE.sub(" ", s)
     s = re.sub(r"\b[a-z]\b", " ", s)            # letras sueltas (clases 'A','B')
@@ -261,12 +277,96 @@ def _all_positions(isin: str) -> list:
         return []
 
 
+def _posiciones_todas(o: dict) -> list:
+    """Posiciones de la cartera actual y de los años anteriores (para la evolución por sector)."""
+    pos = list(((o.get("posiciones") or {}).get("actuales")) or [])
+    for h in ((o.get("posiciones") or {}).get("historicas")) or []:
+        if isinstance(h, dict):
+            pos += list(h.get("todas") or h.get("top10") or h.get("posiciones") or [])
+    return [x for x in pos if isinstance(x, dict) and x.get("nombre")]
+
+
+def classify_auto(isin: str, model: str | None = None, log=print) -> dict:
+    """Clasifica con Claude los emisores sin sector del fondo, cachea y aplica. Idempotente y barato
+    (solo los que no están en la caché global)."""
+    import os as _os
+    import subprocess as _sp
+    isin = isin.strip().upper()
+    fd = FUNDS_DIR / isin
+    op = fd / "output.json"
+    if not op.exists():
+        return {"ok": False, "motivo": "sin output.json"}
+    o = json.loads(op.read_text(encoding="utf-8"))
+    pos = _posiciones_todas(o)
+    for x in pos:
+        clean_positions([x])
+    cache = load_cache()
+    unk = unknown_companies(pos, cache, only_relevant=False)
+    res = {"ok": True, "pendientes": len(unk), "clasificados": 0}
+    if unk:
+        pend = fd / "_sectores_pendientes.json"
+        outf = fd / "_sectores_clasificados.json"
+        outf.unlink(missing_ok=True)
+        pend.write_text(json.dumps({"isin": isin, "fondo": o.get("nombre"), "emisores": unk,
+                                    "sectores": CANONICAL_SECTORS}, ensure_ascii=False, indent=1), encoding="utf-8")
+        prompt = (
+            f"Clasificación de sectores para un análisis de fondo. Lee el fichero data/funds/{isin}/_sectores_pendientes.json: "
+            "trae 'emisores' (nombres de posiciones de la cartera: acciones o bonos) y la lista cerrada 'sectores'. "
+            "Para CADA emisor decide el sector de la empresa u organismo (en un bono, el de la entidad que lo emite; "
+            "quita del nombre cupones, vencimientos y tipo de instrumento). Bonos de estados, tesoros, agencias públicas "
+            "y administraciones regionales o municipales → 'Gobierno'. Organismos multilaterales (BEI/EIB, Banco Mundial/IBRD, "
+            "KfW solo si es supranacional, ESM, BAD, AIIB…) → 'Supranacional'. Fondos, ETFs, liquidez, repos, depósitos y "
+            "derivados → 'Otros'. Usa tu conocimiento de la empresa; si de verdad no la reconoces, 'Otros'. "
+            f"Escribe SOLO un JSON en data/funds/{isin}/_sectores_clasificados.json con la forma "
+            "{\"nombre exacto del emisor\": \"sector de la lista\"} con TODOS los emisores. No escribas nada más ni preguntes."
+        ).replace('\\"', '"')
+        logf = ROOT / "logs" / f"skill_sectores_{isin}.log"
+        rc = _sp.call([sys.executable, "-m", "tools.claude_cowork", str(logf), prompt,
+                       "--model", model or _os.environ.get("MODEL_EXTRACT", "claude-sonnet-5"),
+                       "--allowedTools", "Read,Write"], cwd=str(ROOT))
+        try:
+            mapping = json.loads(outf.read_text(encoding="utf-8"))
+        except Exception:
+            mapping = {}
+            log(f"[SECTORES] {isin}: sin resultado de la clasificación (rc={rc}); ver {logf.name}")
+        res["clasificados"] = add_classifications(mapping) if isinstance(mapping, dict) else 0
+        pend.unlink(missing_ok=True)
+        outf.unlink(missing_ok=True)
+        cache = load_cache()
+    # aplicar a output.json (cartera actual + años anteriores)
+    act = ((o.get("posiciones") or {}).get("actuales")) or []
+    n_set, n_unk = apply_sectors(act, cache)
+    for h in ((o.get("posiciones") or {}).get("historicas")) or []:
+        if isinstance(h, dict):
+            apply_sectors(h.get("todas") or h.get("top10") or [], cache)
+    tmp = op.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(o, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(op)
+    res.update({"con_sector": n_set, "sin_sector": n_unk})
+    try:
+        from tools.build_cartera_breakdowns import build_for, apply_to_output
+        apply_to_output(isin, build_for(isin), overwrite=True)
+    except Exception as e:  # noqa: BLE001
+        log(f"[SECTORES] {isin}: desgloses de cartera no rehechos: {str(e)[:100]}")
+    try:
+        _sp.run([sys.executable, str(ROOT / "dashboard" / "generate_dashboard.py"), isin], cwd=str(ROOT),
+                capture_output=True, text=True, timeout=300)
+    except Exception:
+        pass
+    log(f"[SECTORES] {isin}: {res}")
+    return res
+
+
 def main(argv=None) -> int:
     import argparse
     ap = argparse.ArgumentParser(description="Clasificador de sectores (caché global)")
     ap.add_argument("--report", action="store_true", help="cobertura del caché en todo el catálogo")
     ap.add_argument("--unknowns", help="lista empresas sin clasificar de un ISIN")
+    ap.add_argument("--auto", help="clasifica con Claude los emisores sin sector del ISIN, cachea y aplica")
     args = ap.parse_args(argv)
+    if args.auto:
+        r = classify_auto(args.auto)
+        return 0 if r.get("ok") else 1
     cache = load_cache()
     if args.unknowns:
         unk = unknown_companies(_all_positions(args.unknowns.strip().upper()), cache)

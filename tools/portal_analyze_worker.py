@@ -331,7 +331,33 @@ def push_meta(isin: str, dry: bool = False, do_push: bool = True) -> bool:
         r = httpx.post(url, headers=h, content=json.dumps({"metas": [meta]}), timeout=40)
         return r.status_code == 200
     except Exception as e:  # noqa: BLE001
-        log(f"  [WARN] push_meta {isin}: {e}")
+        log(f"  [WARN] push_meta {isin} desde Supabase: {str(e)[:120]} → uso el análisis local")
+        return _push_meta_local(isin)
+
+
+def _push_meta_local(isin: str) -> bool:
+    """Plan B sin Supabase (1-oct-2026): la fecha del último análisis y lo básico salen de output.json.
+    Con Supabase caído (402 desde el 28-sep) el portal seguía mostrando la fecha del último sync (Gamma: 25-sep
+    pese a re-analizarse el 29). sync-meta solo actualiza los campos que recibe: no vacía nada."""
+    try:
+        p = ROOT / "data" / "funds" / isin / "output.json"
+        if not p.exists():
+            return False
+        o = json.loads(p.read_text(encoding="utf-8"))
+        k = o.get("kpis") or {}
+        fecha = str(o.get("ultima_actualizacion") or "").replace("T", " ")[:19] or None
+        meta = {"isin": isin.upper(), "nombre": o.get("nombre") or "", "fecha_ultimo_analisis": fecha,
+                "has_qualitative_analysis": 1, "aum_meur": k.get("aum_actual_meur")}
+        meta.update(_doc_dates(isin))
+        meta = {kk: v for kk, v in meta.items() if v not in (None, "")}
+        base, user, pwd = _cfg()
+        h = _auth_header(user, pwd); h["Content-Type"] = "application/json"
+        r = httpx.post(f"{base}/wp-json/horizonte/v1/admin/assets/sync-meta", headers=h,
+                       content=json.dumps({"metas": [meta]}), timeout=40)
+        log(f"  meta local → portal ({fecha}): HTTP {r.status_code}")
+        return r.status_code == 200
+    except Exception as e:  # noqa: BLE001
+        log(f"  [WARN] push_meta local {isin}: {str(e)[:120]}")
         return False
 
 

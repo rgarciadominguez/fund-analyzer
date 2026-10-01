@@ -553,6 +553,12 @@ if errorlevel 1 (
 )
 echo.
 
+REM Sectores por emisor (1-oct-2026): los emisores sin sector de la cartera actual y de anos anteriores se
+REM clasifican con Claude Sonnet (empresa u organismo emisor, incluidos Gobierno y Supranacional), se guardan
+REM en la cache global data\company_sectors.json y se rehacen los graficos de sectores. No bloquea.
+call python -m tools.sector_classifier --auto %ISIN%
+echo.
+
 REM ----------------------------------------------------------------------
 REM SALVAGUARDA anti-wipe: si el re-analisis acabo ROTO (0 posiciones + sin sintesis) y
 REM habia un analisis previo bueno, restaurarlo. Asi un fallo (p.ej. cuota cowork agotada)
