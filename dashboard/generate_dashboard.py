@@ -3173,11 +3173,10 @@ def build_header(data):
     {'<button class="tb" onclick="goTab(10,this)" style="color:var(--gold,#b48020);font-weight:600;">&#9679; Novedades y revisión</button>' if (data.get('revision_pendiente') or any((data.get('novedades_resumen') or {}).get(k) for k in ('veredicto','hallazgos','huecos_de_fondo','puntos','texto'))) else ''}
     {'<button class="tb" onclick="goTab(11,this)">Anexo gráficos</button>' if any(isinstance(g, dict) and g.get('labels') and not g.get('en_cuerpo', True) for g in (data.get('graficos_documento') or [])) else ''}
     {'<button class="tb" onclick="goTab(9,this)">Glosario</button>' if ((data.get('analyst_synthesis') or {}).get('glosario')) else ''}
-    <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
     <span>{_linea_version(data)}</span>
-    <button onclick="alert('Para actualizar, ejecutar:\\npython -m agents.orchestrator --isin {data.get('isin','')} --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
+    <button onclick="(function(){{if(window.parent&&window.parent!==window){{window.parent.postMessage({{hf:'aporte',isin:'{data.get('isin','')}'}},'*');}}else{{alert('Abre el análisis desde el portal para añadir documentos y lanzar la mejora.');}}}})()" title="Sube documentos nuevos (cartas, informes, análisis) y lanza la mejora del análisis con ellos" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;">+ Añadir documentos y mejorar</button>
   </div>
 </header>"""
 
@@ -3684,12 +3683,14 @@ def build_tab_historia(data):
   // Historia: rellenar KPIs y VL chart desde datos Morningstar daily cuando fetchMST resuelva
   window.__HIST_AUM_HEADER__ = {aum_header_meur if aum_header_meur else 'null'};
   </script>
+  <div class="mb24" style="margin-top:12px;">{historia_narr}</div>
+
+  <details class="mb24" style="margin-top:8px;">
+    <summary class="pr" style="cursor:pointer;font-size:12.5px;color:var(--navy);font-weight:600;">Ver la cronología del fondo</summary>
+    <div style="margin-top:10px;">
   {cronologia_block}
   {hechos_block}
-
-  <details class="mb24" style="margin-top:12px;">
-    <summary class="pr" style="cursor:pointer;font-size:12.5px;color:var(--navy);font-weight:600;">Leer la historia completa</summary>
-    <div style="margin-top:10px;">{historia_narr}</div>
+    </div>
   </details>
 </section>"""
 
@@ -6376,6 +6377,11 @@ def build_tab_anexo_graficos(data):
 
 def build_tab_documentos(data):
     s = get_documentos(data) if _ACCESSOR_AVAILABLE else data.get("analyst_synthesis", {}).get("documentos", {})
+    try:   # 1-oct-2026: completar con las fuentes reales del análisis (BNY salía sin documentos)
+        from tools.documentos_fondo import fusionar as _fus_docs
+        s = _fus_docs(s if isinstance(s, dict) else {}, data.get("isin", ""))
+    except Exception:
+        pass
     pdfs = s.get("informes_pdf", [])
     cartas = sorted(s.get("cartas_urls", []), reverse=True)
     xmls = s.get("xmls_cnmv", [])
@@ -8200,11 +8206,12 @@ def build_feedback_widget(data):
     &#9998; Dar feedback</button>
   <div id="fb2-box" style="display:none;position:absolute;right:0;bottom:46px;width:330px;background:#fff;border:1px solid #d8dde6;border-radius:10px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.18);">
     <div style="font-size:13px;font-weight:600;color:#1f2d4d;margin-bottom:6px;">Tu feedback enseña al sistema</div>
-    <div style="font-size:12.5px;color:#444;line-height:1.5;margin-bottom:10px;">Escríbelo en el <b>Copiloto</b> del portal. Si señala un error de este análisis, se corrige este fondo; y el agente de aprendizaje lo convierte en una lección que aplican los análisis siguientes.</div>
+    <div style="font-size:12.5px;color:#444;line-height:1.5;margin-bottom:10px;">Escríbelo aquí y pulsa Enviar: le llega al <b>Copiloto</b>. Si señala un error de este análisis, se corrige este fondo; y el agente de aprendizaje lo convierte en una lección para los análisis siguientes.</div>
     <textarea id="fb2-txt" rows="4" style="width:100%;box-sizing:border-box;font-size:12.5px;border:1px solid #d8dde6;border-radius:6px;padding:6px;" placeholder="Qué no te convence y qué esperabas ver…"></textarea>
-    <button onclick="(function(){{var t='{pref_js}'+document.getElementById('fb2-txt').value;try{{navigator.clipboard.writeText(t);}}catch(e){{}}var b=document.getElementById('fb2-ok');b.style.display='block';}})()"
-      style="margin-top:8px;background:#1f2d4d;color:#fff;border:0;border-radius:6px;padding:7px 12px;font-size:12.5px;cursor:pointer;">Copiar para el Copiloto</button>
-    <div id="fb2-ok" style="display:none;margin-top:8px;font-size:12px;color:#2e7d32;">Copiado. Pégalo en el Copiloto (abajo a la derecha del portal) y envíalo.</div>
+    <button id="fb2-send" onclick="(function(){{var v=document.getElementById('fb2-txt').value.trim();var ok=document.getElementById('fb2-ok');if(!v){{ok.style.display='block';ok.style.color='#b45309';ok.textContent='Escribe tu feedback primero.';return;}}if(!(window.parent&&window.parent!==window)){{ok.style.display='block';ok.style.color='#b45309';ok.textContent='Abre el análisis desde el portal para enviar el feedback.';return;}}window.parent.postMessage({{hf:'feedback',isin:'{_h.escape(isin)}',nombre:'{pref_js}',texto:v}},'*');ok.style.display='block';ok.style.color='#1f2d4d';ok.textContent='Enviando…';}})()"
+      style="margin-top:8px;background:#1f2d4d;color:#fff;border:0;border-radius:6px;padding:7px 12px;font-size:12.5px;cursor:pointer;">Enviar</button>
+    <div id="fb2-ok" style="display:none;margin-top:8px;font-size:12px;"></div>
+    <script>window.addEventListener('message',function(e){{if(!e.data||e.data.hf!=='feedback-ok')return;var ok=document.getElementById('fb2-ok');ok.style.display='block';ok.style.color=e.data.ok?'#2e7d32':'#b91c1c';ok.textContent=e.data.texto||(e.data.ok?'Enviado.':'No se pudo enviar.');if(e.data.ok)document.getElementById('fb2-txt').value='';}});</script>
     <div style="margin-top:8px;font-size:11px;color:#888;">{_h.escape(nombre)} · {_h.escape(isin)}</div>
   </div>
 </div>"""
@@ -8248,7 +8255,7 @@ def generate():
 {build_tab_novedades(data)}
 {build_tab_anexo_graficos(data)}
 {build_tab_glosario(data)}
-{build_tab_chat(data)}
+
 </main>
 {build_feedback_widget(data)}
 {build_scripts(data)}

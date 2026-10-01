@@ -64,7 +64,15 @@ def _date_from_filename(fname: str) -> date | None:
 
 
 def _date_from_periodo(periodo: str) -> date | None:
-    """Convierte '2025-Q4', '2024-S2', '2023', '2025-04' a date."""
+    """Convierte '2025-Q4', '2024-S2', '2023', '2025-04' a date. Nunca devuelve una fecha FUTURA (1-oct-2026,
+    BNY: una carta fechada solo '2026' salía como 31-dic-2026 → "última carta dic-26"): se acota a hoy."""
+    d = _date_from_periodo_raw(periodo)
+    if d and _RE_PERIODO_YEAR.match(str(periodo or "")) and d.year >= date.today().year:
+        return None                  # solo el año en curso, sin mes ni trimestre: fecha desconocida (no se inventa)
+    return min(d, date.today()) if d else None
+
+
+def _date_from_periodo_raw(periodo: str) -> date | None:
     if not periodo:
         return None
     m = _RE_PERIODO_QUARTER.match(periodo)
@@ -147,7 +155,7 @@ def _next_expected(last_date: date, frequency: str, typical_months: list[int]) -
 
 _RE_PDF_FULL_DATE = re.compile(r"(20\d{2})[_-]?(\d{2})[_-]?(\d{2})", re.I)
 _RE_PDF_ANNUAL_REPORT_KEYWORD = re.compile(
-    r"(?:annual\s*report|rapport[_\s-]*financier[_\s-]*annuel|rapport[_\s-]*annuel|"
+    r"(?:annual[_\s-]*report|rapport[_\s-]*financier[_\s-]*annuel|rapport[_\s-]*annuel|"
     r"rechenschaft|jahres(?:bericht)?|annual[_\s-]*account|memoria[_\s-]*anual|"
     r"financial[_\s-]*statement|investment[_\s-]*report)",
     re.I,
@@ -271,27 +279,157 @@ def _build_for_letters(fund_dir: Path) -> dict | None:
     }
 
 
+# ── Fecha REAL leída del PDF (portada) — robusta ante nombres sin fecha y cierres no-diciembre ────
+_MONTHS = {
+    'january': 1, 'february': 2, 'march': 3, 'april': 4, 'may': 5, 'june': 6, 'july': 7,
+    'august': 8, 'september': 9, 'october': 10, 'november': 11, 'december': 12,
+    'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4, 'mayo': 5, 'junio': 6, 'julio': 7,
+    'agosto': 8, 'septiembre': 9, 'setiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12,
+}
+_RE_DMY = re.compile(r'\b(\d{1,2})\s+(?:de\s+)?([A-Za-zñáéíóú]+)\s+(?:de\s+)?(\d{4})\b')   # 30 June 2025 / 31 de diciembre de 2024
+_RE_MDY = re.compile(r'\b([A-Za-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b')            # December 31, 2024
+_RE_PERIOD_CTX = re.compile(r'(year|period|semi[\s-]?annual|half[\s-]?year|ended|ending|as\s+(?:at|of)|cerrad|finaliz|a\s+\d{1,2}\s+de)', re.I)
+
+
+def _mnum(word: str):
+    return _MONTHS.get(word.strip('.,').lower())
+
+
+def _date_from_pdf_content(path: Path) -> date | None:
+    """Lee la fecha de CIERRE del periodo de la PORTADA del informe (p.ej. "for the year ended
+    30 June 2025", "December 31, 2024", "a 31 de diciembre de 2024"). Es la fuente AUTORITATIVA:
+    no depende del nombre del fichero ni asume cierre en diciembre. Devuelve None si no la encuentra."""
+    try:
+        import pdfplumber
+        txt = ''
+        with pdfplumber.open(str(path)) as pdf:
+            for pg in pdf.pages[:3]:
+                txt += '\n' + (pg.extract_text() or '')
+                if len(txt) > 8000:
+                    break
+    except Exception:  # noqa: BLE001
+        return None
+    if not txt:
+        return None
+    hoy = date.today()
+    cands = []   # (date, tiene_contexto_de_periodo)
+    for rx, order in ((_RE_DMY, 'dmy'), (_RE_MDY, 'mdy')):
+        for m in rx.finditer(txt):
+            if order == 'dmy':
+                day, mon, yr = m.group(1), _mnum(m.group(2)), m.group(3)
+            else:
+                mon, day, yr = _mnum(m.group(1)), m.group(2), m.group(3)
+            if not mon:
+                continue
+            try:
+                d = date(int(yr), mon, int(day))
+            except ValueError:
+                continue
+            if not (date(2000, 1, 1) <= d <= hoy):
+                continue
+            ctx = bool(_RE_PERIOD_CTX.search(txt[max(0, m.start() - 45):m.start()]))
+            cands.append((d, ctx))
+    if not cands:
+        return None
+    # Preferimos la fecha con contexto de "periodo/ended/as at"; entre esas, la más reciente. Si ninguna
+    # tiene contexto, la más reciente del bloque de portada (el cierre del periodo suele ser la mayor).
+    con_ctx = [d for d, c in cands if c]
+    return max(con_ctx) if con_ctx else max(d for d, _ in cands)
+
+
 # ── API pública ──────────────────────────────────────────────────────────────
 
+def _reports_by_doctype(fund_dir: Path) -> dict:
+    """Clasifica los informes por TIPO real (no por frecuencia agregada) → {key: [dates]}.
+    Fuentes, por orden de autoridad:
+      1. intl_discovery_data.json (INT): usa el `doc_type` que ya clasificó discovery.
+      2. raw/reports/ (ES/CNMV semestrales): H2 (dic)=cuentas anuales, H1 (jun)=semianual.
+      3. raw/discovery/ por nombre (fallback si no hay intl_discovery_data).
+    Así AR y SAR quedan SEPARADOS (antes se agrupaban en una sola clave por frecuencia)."""
+    from collections import defaultdict
+    by: dict = defaultdict(list)
+
+    dd = fund_dir / "intl_discovery_data.json"
+    had_disc = False
+    if dd.exists():
+        try:
+            for doc in json.loads(dd.read_text(encoding="utf-8")).get("documents", []):
+                dt = doc.get("doc_type")
+                dparsed = _date_from_periodo(str(doc.get("periodo") or ""))
+                if not dparsed:
+                    continue
+                if dt == "annual_report":
+                    by["annual_report"].append(dparsed); had_disc = True
+                elif dt == "semi_annual_report":
+                    by["semiannual_report"].append(dparsed); had_disc = True
+        except Exception:
+            pass
+
+    reports_dir = fund_dir / "raw" / "reports"
+    if reports_dir.exists():
+        for f in sorted(reports_dir.glob("*.pdf")):
+            d = _date_from_filename(f.name)
+            if not d:
+                continue
+            # CNMV: cierre de año (dic) = informe anual; junio = semianual (H1)
+            (by["annual_report"] if d.month == 12 else by["semiannual_report"]).append(d)
+
+    # SIEMPRE se escanea raw/discovery y se FUSIONA con lo de intl_discovery_data.json (antes solo si
+    # NO había datos de discovery → un intl_discovery viejo tapaba PDFs nuevos ya descargados en la
+    # carpeta, p.ej. Robeco con annual_report_2025.pdf pero calendario clavado en 2021). Al acumular en
+    # `by` y coger max() por tipo, gana la fecha más reciente venga de donde venga. `had_disc` solo
+    # indica que ya hubo aportación del JSON, no bloquea el escaneo.
+    _ = had_disc
+    disc = fund_dir / "raw" / "discovery"
+    if disc.exists():
+        for f in sorted(disc.glob("*.pdf")):
+            nl = f.name.lower()
+            is_semi = any(k in nl for k in ("semi", "semestr", "interim", "halbjahr", "sar"))
+            is_ar = (not is_semi) and ("annual" in nl or bool(_RE_PDF_ANNUAL_REPORT_KEYWORD.search(f.name)))
+            if not (is_semi or is_ar):
+                continue
+            # Fecha AUTORITATIVA del CONTENIDO del PDF (portada); si no se puede leer, cae al nombre.
+            # Así funciona con ficheros sin fecha en el nombre (JPMorgan) y con cierres no-diciembre.
+            d = _date_from_pdf_content(f) or _date_from_filename_int(f.name)
+            if not d:
+                continue
+            by["semiannual_report" if is_semi else "annual_report"].append(d)
+    # Un informe no puede tener fecha FUTURA (docs mal clasificados / periodo="2026" en
+    # discovery inflan la última fecha a un año que aún no ha cerrado). Se descartan.
+    hoy = date.today()
+    by = {k: [d for d in v if d <= hoy] for k, v in by.items()}
+    return {k: v for k, v in by.items() if v}
+
+
 def build_publication_calendar(isin: str) -> dict:
-    """Construye el calendar completo para un fondo."""
+    """Construye el calendar completo, con entradas SEPARADAS por tipo de documento
+    (annual_report, semiannual_report, quarterly_letters). Cada una con su última fecha
+    y su próxima esperada — así el SAR se trackea aunque exista también el AR."""
     fund_dir = FUNDS_DIR / isin
     if not fund_dir.exists():
         return {}
     cal = {}
-    reports = _build_for_reports(fund_dir)
-    if reports:
-        # Etiqueta según frecuencia detectada
-        key = {
-            "annual": "annual_report",
-            "semiannual": "semiannual_report",
-            "quarterly": "quarterly_report",
-            "monthly": "monthly_report",
-        }.get(reports["frequency"], "report")
-        cal[key] = reports
+    by = _reports_by_doctype(fund_dir)
+    for key, dates in by.items():
+        if not dates:
+            continue
+        freq, months, conf = _detect_frequency(dates)
+        last = max(dates)
+        cal[key] = {
+            "frequency": freq,
+            "publication_months_typical": months,
+            "last_known_date": last.isoformat(),
+            "next_expected_date": _next_expected(last, freq, months).isoformat(),
+            "source": f"{len(dates)} {key} (discovery/raw)",
+            "confidence": conf,
+        }
     letters = _build_for_letters(fund_dir)
     if letters:
         cal["quarterly_letters"] = letters
+    hoy = date.today().isoformat()
+    for v in cal.values():          # ninguna "última fecha conocida" en el futuro
+        if isinstance(v, dict) and str(v.get("last_known_date") or "") > hoy:
+            v["last_known_date"] = hoy
     return cal
 
 

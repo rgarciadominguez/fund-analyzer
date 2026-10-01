@@ -359,6 +359,19 @@ def _push_meta_local(isin: str) -> bool:
             meta.update(_pv(isin))
         except Exception:
             pass
+        try:   # documentos del fondo (pestaña Documentos del portal) desde las fuentes reales del análisis
+            from tools.documentos_fondo import build as _docs
+            _d = _docs(isin)
+            _tp = {"annual_report": "annual_report", "semi_annual_report": "semiannual_report",
+                   "prospectus": "folleto", "kid": "kid", "factsheet": "factsheet"}
+            _lst = [{"tipo": _tp.get(x["tipo"], x["tipo"]), "periodo": x.get("periodo"), "nombre": x["nombre"],
+                     "url": x["url"], "url_original": x["url"]} for x in _d.get("informes_pdf") or []]
+            _lst += [{"tipo": "carta_gestor", "nombre": "Carta / comentario del gestor", "url": u, "url_original": u}
+                     for u in _d.get("cartas_urls") or []]
+            if _lst:
+                meta["documentos"] = _lst
+        except Exception:
+            pass
         meta = {kk: v for kk, v in meta.items() if v not in (None, "")}
         base, user, pwd = _cfg()
         h = _auth_header(user, pwd); h["Content-Type"] = "application/json"

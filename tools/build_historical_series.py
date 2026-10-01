@@ -353,6 +353,13 @@ def build(isin: str) -> dict:
         # miraba statistics.aum_meur, que suele venir vacío → pestaña Evolución sin patrimonio (Baillie).
         _k = data.get("kpis") or {}
         _aum = _k.get("aum_actual_meur")
+        # 1-oct-2026 (BNY Short-Dated HY): el AR puede dar el patrimonio solo en unidades absolutas de su divisa
+        # base (aum_actual_nativo = 2.042.024.679 USD) con aum_actual_meur vacío → se pasa a millones y se
+        # convierte abajo a EUR con el tipo de la fecha del dato.
+        if not (isinstance(_aum, (int, float)) and _aum > 0):
+            _nat = _k.get("aum_actual_nativo")
+            if isinstance(_nat, (int, float)) and _nat > 0:
+                _aum = _nat / 1e6 if _nat > 1e5 else _nat
         if isinstance(_aum, (int, float)) and _aum > 0:
             _fa = str(_k.get("fecha_aum") or "")
             _akey_aum = _fa[:7] if re.match(r"^\d{4}-\d{2}", _fa) else akey
@@ -473,6 +480,14 @@ def _apply_to_file(p: Path, isin: str, built: dict, log=print) -> dict:
                 cuant[key] = _upsert_by_periodo(cuant.get(key), built[src],
                                                 extra_key="clase" if key == "serie_rentabilidad" else None)
             changed.append(f"{key}={len(cuant[key])}")
+    # Patrimonio actual vacío (fondos INT cuyo AR solo da el dato en divisa base) → último punto de la serie.
+    _kp = d.setdefault("kpis", {})
+    if not _kp.get("aum_actual_meur") and cuant.get("serie_aum"):
+        _ult = max((e for e in cuant["serie_aum"] if isinstance(e, dict) and e.get("valor_meur")),
+                   key=lambda e: str(e.get("periodo") or ""), default=None)
+        if _ult:
+            _kp["aum_actual_meur"] = _ult["valor_meur"]
+            changed.append(f"kpis.aum_actual_meur={_ult['valor_meur']} ({_ult.get('periodo')})")
     # Claves top-level que consume el dashboard para los gráficos de evolución de exposición.
     for key in ("geographic_allocation_history", "sector_allocation_history",
                 "asset_allocation_history", "rating_allocation_history"):
