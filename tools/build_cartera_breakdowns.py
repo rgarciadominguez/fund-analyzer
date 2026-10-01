@@ -109,6 +109,9 @@ def _region_from_isin(pos: dict):
     return None
 
 
+_DERIVADOS = {"future", "futuro", "option", "opcion", "opción", "swap", "forward", "derivado", "derivados", "cfd"}
+
+
 def _agg(pos: list, key: str) -> list:
     """Agrega posiciones por `key` (sector/pais) ponderando por peso_pct. Devuelve
     [{key, peso_pct}] ordenado desc. Ignora posiciones sin ese campo."""
@@ -116,6 +119,8 @@ def _agg(pos: list, key: str) -> list:
     for p in pos:
         if not isinstance(p, dict):
             continue
+        if key == "sector" and str(p.get("tipo") or "").lower() in _DERIVADOS:
+            continue                      # nocional de derivados: no es exposición sectorial
         k = (p.get(key) or "").strip()
         w = p.get("peso_pct")
         if not k or not isinstance(w, (int, float)):
@@ -139,7 +144,15 @@ def _zonas_from_positions(pos: list) -> dict:
         w = p.get("peso_pct")
         if not isinstance(w, (int, float)) or w <= 0:
             continue
-        pais = (p.get("pais") or "").strip()
+        if str(p.get("tipo") or "").lower() in _DERIVADOS:
+            continue
+        if str(p.get("tipo") or "").lower() in ("fondo", "liquidez", "cash") or \
+                p.get("sector") in ("Liquidez y monetarios", "Fondos"):
+            reg["Liquidez y fondos"] += w      # un monetario no es riesgo de un país (BNY: salía 'Supranational')
+            geoloc += w
+            continue
+        # país de RIESGO (grupo) antes que el domicilio del vehículo emisor (SPV en Luxemburgo/Holanda)
+        pais = (p.get("pais_riesgo") or p.get("pais") or "").strip()
         if pais and pais.lower() not in _PAIS_GENERICO:
             reg[_region(pais)] += w
             geoloc += w
@@ -195,7 +208,7 @@ def build_for(isin: str) -> dict:
     geo = []
     for entry in posw.get("historicas") or []:
         per = entry.get("periodo")
-        top = entry.get("todas") or entry.get("top10") or entry.get("posiciones") or []
+        top = entry.get("todas") or entry.get("holdings") or entry.get("top10") or entry.get("posiciones") or []
         if not per or not top:
             continue
         zonas = _zonas_from_positions(top)
@@ -230,7 +243,7 @@ def build_for(isin: str) -> dict:
         sec_hist = []
         for entry in posw.get("historicas") or []:
             per = entry.get("periodo")
-            top = entry.get("todas") or entry.get("top10") or entry.get("posiciones") or []
+            top = entry.get("todas") or entry.get("holdings") or entry.get("top10") or entry.get("posiciones") or []
             if not per or not top:
                 continue
             rows = [dict(q) for q in top if isinstance(q, dict)]
@@ -273,7 +286,7 @@ def build_for(isin: str) -> dict:
             return t in ("BONOS", "BONO", "BOND", "BONDS", "RF", "OBLIGACIONES", "PAGARES", "PAGARÉS", "LETRAS") \
                 or q.get("cupon") is not None or bool(q.get("vencimiento"))
         venc_h, cup_h, div_h = [], [], []
-        periodos = [(e.get("periodo"), e.get("todas") or e.get("posiciones") or []) for e in (posw.get("historicas") or [])]
+        periodos = [(e.get("periodo"), e.get("todas") or e.get("holdings") or e.get("posiciones") or []) for e in (posw.get("historicas") or [])]
         serie = (d.get("cuantitativo", {}) or {}).get("serie_aum") or []
         per_act = str(serie[-1].get("periodo", ""))[:7] if serie else ""
         if per_act and per_act not in {str(pp)[:7] for pp, _ in periodos}:

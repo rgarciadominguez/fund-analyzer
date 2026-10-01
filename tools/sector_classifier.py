@@ -37,6 +37,7 @@ except Exception:
 ROOT = Path(__file__).resolve().parent.parent
 FUNDS_DIR = ROOT / "data" / "funds"
 CACHE_PATH = ROOT / "data" / "company_sectors.json"
+COUNTRY_CACHE_PATH = ROOT / "data" / "company_countries.json"   # país de RIESGO por emisor (1-oct-2026)
 
 # Taxonomía CANÓNICA (11 + Otros). NADA fuera de aquí.
 CANONICAL_SECTORS = [
@@ -44,6 +45,8 @@ CANONICAL_SECTORS = [
     "Consumo defensivo", "Industria", "Energía", "Materiales",
     "Servicios públicos", "Inmobiliario", "Comunicación",
     "Gobierno", "Supranacional",          # deuda soberana / de agencias públicas y de organismos supranacionales (1-oct-2026)
+    "Titulizaciones",                     # ABS / MBS / CLO / RMBS / CMBS (renta fija sin sector de empresa)
+    "Liquidez y monetarios", "Fondos",    # liquidez, repos, fondos monetarios / otros fondos y ETFs en cartera
     "Otros",
 ]
 # Sinónimos/idiomas → canónico (para validar lo que clasifique Claude/CNMV)
@@ -85,7 +88,12 @@ _SECTOR_SYNONYMS = {
     "agencies": "Gobierno", "municipal": "Gobierno", "public sector": "Gobierno",
     "supranational": "Supranacional", "supranationals": "Supranacional", "supranacional": "Supranacional",
     "supra": "Supranacional",
-    "cash": "Otros", "liquidez": "Otros", "funds": "Otros", "fondos": "Otros",
+    "cash": "Liquidez y monetarios", "liquidez": "Liquidez y monetarios", "money market": "Liquidez y monetarios",
+    "monetario": "Liquidez y monetarios", "liquidez y monetarios": "Liquidez y monetarios",
+    "funds": "Fondos", "fondos": "Fondos", "fund": "Fondos", "etf": "Fondos", "etfs": "Fondos",
+    "abs": "Titulizaciones", "mbs": "Titulizaciones", "clo": "Titulizaciones", "rmbs": "Titulizaciones",
+    "cmbs": "Titulizaciones", "securitized": "Titulizaciones", "securitised": "Titulizaciones",
+    "titulizaciones": "Titulizaciones", "titulización": "Titulizaciones", "titulizacion": "Titulizaciones",
 }
 
 # Sufijos societarios / ruido a quitar del nombre para la clave de caché
@@ -277,12 +285,44 @@ def _all_positions(isin: str) -> list:
         return []
 
 
+def _load_json(p) -> dict:
+    try:
+        return json.loads(Path(p).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _guardar_resultado(mapping) -> int:
+    """{nombre: sector} o {nombre: {sector, pais_riesgo}} → cachés de sector y de país de riesgo."""
+    if not isinstance(mapping, dict):
+        return 0
+    sect, ctry = {}, _load_json(COUNTRY_CACHE_PATH)
+    for nm, v in mapping.items():
+        if isinstance(v, dict):
+            if v.get("sector"):
+                sect[nm] = v["sector"]
+            if v.get("pais_riesgo") and _norm_company(nm):
+                ctry[_norm_company(nm)] = str(v["pais_riesgo"]).strip()
+        elif isinstance(v, str):
+            sect[nm] = v
+    COUNTRY_CACHE_PATH.write_text(json.dumps(ctry, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
+    return add_classifications(sect)
+
+
+def _apply_countries(positions: list, ccache: dict) -> None:
+    for p in positions or []:
+        if isinstance(p, dict) and not p.get("pais_riesgo"):
+            c = ccache.get(_norm_company(p.get("nombre", "")))
+            if c:
+                p["pais_riesgo"] = c
+
+
 def _posiciones_todas(o: dict) -> list:
     """Posiciones de la cartera actual y de los años anteriores (para la evolución por sector)."""
     pos = list(((o.get("posiciones") or {}).get("actuales")) or [])
     for h in ((o.get("posiciones") or {}).get("historicas")) or []:
         if isinstance(h, dict):
-            pos += list(h.get("todas") or h.get("top10") or h.get("posiciones") or [])
+            pos += list(h.get("todas") or h.get("holdings") or h.get("top10") or h.get("posiciones") or [])
     return [x for x in pos if isinstance(x, dict) and x.get("nombre")]
 
 
@@ -301,7 +341,13 @@ def classify_auto(isin: str, model: str | None = None, log=print) -> dict:
     for x in pos:
         clean_positions([x])
     cache = load_cache()
+    ccache = _load_json(COUNTRY_CACHE_PATH)
     unk = unknown_companies(pos, cache, only_relevant=False)
+    vistos = {_norm_company(u) for u in unk}
+    for x in pos:            # también los que tienen sector pero aún no país de riesgo
+        k = _norm_company(x.get("nombre", ""))
+        if k and k not in ccache and k not in vistos:
+            vistos.add(k); unk.append(x["nombre"])
     res = {"ok": True, "pendientes": len(unk), "clasificados": 0}
     if unk:
         pend = fd / "_sectores_pendientes.json"
@@ -312,13 +358,17 @@ def classify_auto(isin: str, model: str | None = None, log=print) -> dict:
         prompt = (
             f"Clasificación de sectores para un análisis de fondo. Lee el fichero data/funds/{isin}/_sectores_pendientes.json: "
             "trae 'emisores' (nombres de posiciones de la cartera: acciones o bonos) y la lista cerrada 'sectores'. "
-            "Para CADA emisor decide el sector de la empresa u organismo (en un bono, el de la entidad que lo emite; "
-            "quita del nombre cupones, vencimientos y tipo de instrumento). Bonos de estados, tesoros, agencias públicas "
-            "y administraciones regionales o municipales → 'Gobierno'. Organismos multilaterales (BEI/EIB, Banco Mundial/IBRD, "
-            "KfW solo si es supranacional, ESM, BAD, AIIB…) → 'Supranacional'. Fondos, ETFs, liquidez, repos, depósitos y "
-            "derivados → 'Otros'. Usa tu conocimiento de la empresa; si de verdad no la reconoces, 'Otros'. "
+            "Para CADA emisor decide (1) el sector de la empresa u organismo (en un bono, el del GRUPO que lo emite: un "
+            "vehículo 'Bidco', 'Finco', 'Topco', 'Lux Sarl' o 'BV' se clasifica por el negocio del grupo al que pertenece; "
+            "quita del nombre cupones, vencimientos y tipo de instrumento) y (2) su país de RIESGO: el país donde está el "
+            "negocio o la sede del grupo, NO el domicilio del vehículo emisor. Bonos de estados, tesoros, agencias públicas y "
+            "administraciones regionales o municipales → 'Gobierno' (país = ese estado). Organismos multilaterales (BEI/EIB, "
+            "Banco Mundial/IBRD, ESM, BAD, AIIB…) → 'Supranacional' (país 'Supranacional'). ABS/MBS/CLO → 'Titulizaciones'. "
+            "Liquidez, repos, depósitos y fondos monetarios → 'Liquidez y monetarios'; otros fondos y ETFs → 'Fondos' "
+            "(país 'Liquidez y fondos'). Derivados → 'Otros'. Si de verdad no reconoces la empresa, 'Otros'. "
             f"Escribe SOLO un JSON en data/funds/{isin}/_sectores_clasificados.json con la forma "
-            "{\"nombre exacto del emisor\": \"sector de la lista\"} con TODOS los emisores. No escribas nada más ni preguntes."
+            "{\"nombre exacto\": {\"sector\": \"sector de la lista\", \"pais_riesgo\": \"país en español\"}} con TODOS los "
+            "emisores. No escribas nada más ni preguntes."
         ).replace('\\"', '"')
         logf = ROOT / "logs" / f"skill_sectores_{isin}.log"
         rc = _sp.call([sys.executable, "-m", "tools.claude_cowork", str(logf), prompt,
@@ -329,16 +379,45 @@ def classify_auto(isin: str, model: str | None = None, log=print) -> dict:
         except Exception:
             mapping = {}
             log(f"[SECTORES] {isin}: sin resultado de la clasificación (rc={rc}); ver {logf.name}")
-        res["clasificados"] = add_classifications(mapping) if isinstance(mapping, dict) else 0
+        res["clasificados"] = _guardar_resultado(mapping)
         pend.unlink(missing_ok=True)
         outf.unlink(missing_ok=True)
         cache = load_cache()
+        ccache = _load_json(COUNTRY_CACHE_PATH)
+        # 2ª pasada CON WEB para lo que siga en 'Otros' con peso relevante (vehículos opacos)
+        opacos = []
+        for x in pos:
+            k = _norm_company(x.get("nombre", ""))
+            if cache.get(k) == "Otros" and (x.get("peso_pct") or 0) >= 0.3 and \
+                    str(x.get("tipo") or "").lower() not in ("fondo", "liquidez", "cash", "future", "swap", "forward", "option") \
+                    and x["nombre"] not in opacos:
+                opacos.append(x["nombre"])
+        if opacos:
+            pend.write_text(json.dumps({"isin": isin, "fondo": o.get("nombre"), "emisores": opacos,
+                                        "sectores": CANONICAL_SECTORS}, ensure_ascii=False, indent=1), encoding="utf-8")
+            prompt2 = (prompt + " Estos emisores no se pudieron identificar sin buscar: usa la búsqueda web para averiguar "
+                       "a qué grupo pertenece cada vehículo y a qué se dedica. Si tras buscar sigues sin saberlo, 'Otros'.")
+            _sp.call([sys.executable, "-m", "tools.claude_cowork", str(logf).replace(".log", "_web.log"), prompt2,
+                      "--model", model or _os.environ.get("MODEL_EXTRACT", "claude-sonnet-5"),
+                      "--allowedTools", "Read,Write,WebSearch,WebFetch"], cwd=str(ROOT))
+            try:
+                res["identificados_web"] = _guardar_resultado(json.loads(outf.read_text(encoding="utf-8")))
+            except Exception:
+                res["identificados_web"] = 0
+            pend.unlink(missing_ok=True)
+            outf.unlink(missing_ok=True)
+            cache = load_cache()
+            ccache = _load_json(COUNTRY_CACHE_PATH)
     # aplicar a output.json (cartera actual + años anteriores)
     act = ((o.get("posiciones") or {}).get("actuales")) or []
     n_set, n_unk = apply_sectors(act, cache)
+    ccache = _load_json(COUNTRY_CACHE_PATH)
+    _apply_countries(act, ccache)
     for h in ((o.get("posiciones") or {}).get("historicas")) or []:
         if isinstance(h, dict):
-            apply_sectors(h.get("todas") or h.get("top10") or [], cache)
+            _rows = h.get("todas") or h.get("holdings") or h.get("top10") or []
+            apply_sectors(_rows, cache)
+            _apply_countries(_rows, ccache)
     tmp = op.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(o, ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(op)

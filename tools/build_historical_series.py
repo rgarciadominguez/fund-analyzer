@@ -213,13 +213,15 @@ def _sector_from_holdings(holdings: list) -> dict:
     return {k: round(v, 2) for k, v in raw.items()}
 
 
-def _compact_holdings(pos: list, limit: int = 200) -> list:
-    """Holdings compactos para comparación año-a-año (nombre + peso + sector + país)."""
+def _compact_holdings(pos: list, limit: int = 2000) -> list:
+    """Cartera COMPLETA de cada año para la evolución (1-oct-2026: antes solo nombre/peso/sector/país y
+    cortada en 200 → sin cupón ni vencimiento no había evolución de la deuda en fondos internacionales)."""
     out = []
     for p in (pos or [])[:limit]:
         if not isinstance(p, dict) or not p.get("nombre"):
             continue
-        out.append({k: p.get(k) for k in ("nombre", "peso_pct", "sector", "pais", "tipo")
+        out.append({k: p.get(k) for k in ("nombre", "peso_pct", "sector", "pais", "tipo", "emisor", "rating",
+                                          "cupon", "vencimiento", "divisa", "es_flotante", "es_perpetuo", "isin", "ticker")
                     if p.get(k) is not None})
     return out
 
