@@ -231,18 +231,58 @@ def record_myinvestor(found, missing) -> None:
                                 "updated": datetime.now(timezone.utc).isoformat()}, indent=1), encoding="utf-8")
 
 
-def group_isins(isin: str) -> list[str]:
-    """Todas las clases del grupo del ISIN (primario + hermanas) según dashboard/_class_map.json."""
+_ISIN_RX = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
+
+
+def _clases_portal(isin: str) -> list[str]:
+    """Clases del fondo según el catálogo del portal (/admin/catalogo: grupo → clases[].isin). Es la lista
+    más completa (≈1.100 clases) y existe aunque el fondo no tenga aún análisis ni mapa de clases."""
+    try:
+        import httpx
+        from tools.portal_analyze_worker import _cfg, _auth_header
+        base, user, pwd = _cfg()
+        d = httpx.get(f"{base}/wp-json/horizonte/v1/admin/catalogo", headers=_auth_header(user, pwd), timeout=60).json()
+        filas = d if isinstance(d, list) else next((v for v in d.values() if isinstance(v, list)), []) if isinstance(d, dict) else []
+        for f in filas:
+            if not isinstance(f, dict):
+                continue
+            cl = [str(c.get("isin") or "").upper() for c in (f.get("clases") or []) if isinstance(c, dict)]
+            if isin == str(f.get("isin") or "").upper() or isin in cl:
+                return [str(f.get("isin") or "").upper()] + cl
+    except Exception:
+        pass
+    return []
+
+
+def group_isins(isin: str, portal: bool = True) -> list[str]:
+    """Todas las clases del fondo (primario + hermanas). Une, sin duplicar: dashboard/_class_map.json,
+    output.json (clases[].isin), intl_data.json y el catálogo del portal. Antes solo el mapa de clases:
+    un fondo nuevo (sin mapa todavía) se comprobaba con una sola clase (BNY, 30-sep-2026)."""
     isin = (isin or "").upper()
+    out = [isin]
+
+    def _add(xs):
+        for x in xs or []:
+            x = str(x or "").upper().strip()
+            if _ISIN_RX.match(x) and x not in out:
+                out.append(x)
     try:
         m = json.loads((ROOT / "dashboard" / "_class_map.json").read_text(encoding="utf-8"))
         prim = isin if isin in m.get("groups", {}) else (m.get("aliases") or {}).get(isin)
         if prim and prim in m.get("groups", {}):
-            out = [c["isin"].upper() for c in m["groups"][prim].get("classes", [])]
-            return out if isin in out else [isin] + out
+            _add([prim] + [c.get("isin") for c in m["groups"][prim].get("classes", [])])
     except Exception:
         pass
-    return [isin]
+    fd = FUNDS_DIR / isin
+    for fn in ("output.json", "intl_data.json"):
+        try:
+            d = json.loads((fd / fn).read_text(encoding="utf-8"))
+            _add([c.get("isin") for c in (d.get("clases") or d.get("share_classes") or []) if isinstance(c, dict)])
+        except Exception:
+            pass
+    if portal:
+        _add(_clases_portal(isin))
+    return out
 
 
 def _renta4_universe() -> set[str]:
@@ -547,6 +587,11 @@ def _cli() -> None:
     args = sys.argv[1:]
     if not args:
         print(__doc__)
+        return
+
+    if "--clases" in args:   # lista de clases del fondo (la usa la skill myinvestor-enrich)
+        i = args.index("--clases")
+        print(json.dumps(group_isins(args[i + 1]) if i + 1 < len(args) else []))
         return
 
     if "--sync-catalog" in args:

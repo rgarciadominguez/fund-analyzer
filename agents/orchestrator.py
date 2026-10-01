@@ -3376,6 +3376,15 @@ async def consume_all_cowork_pipeline(isin: str, log_path: Path) -> dict:
     except Exception as exc:
         log("LINEAGE", "WARN", f"apply_lineage: {exc}")
 
+    # BROKERS (1-oct-2026): en qué broker está ALGUNA clase del fondo (Mundo Asesoramiento Mapfre por su lista,
+    # MyInvestor por el conector, Renta4). Antes solo corría en analyze_fund (modo prep, sin output.json todavía).
+    try:
+        from tools.broker_availability import apply_to_output as _brokers_auto
+        _bi = _brokers_auto(isin)
+        log("BROKERS", "OK", f"disponible en: {', '.join(_bi.get('detected') or []) or '(ninguno detectado)'}")
+    except Exception as exc:
+        log("BROKERS", "WARN", f"broker_disponible_auto: {exc}")
+
     try:
         from tools.publication_calendar import update_output_with_calendar
         if update_output_with_calendar(isin):

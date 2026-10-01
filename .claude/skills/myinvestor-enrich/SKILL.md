@@ -16,7 +16,7 @@ MyInvestor cubre ~2.300 fondos (el universo "recomendable"). Para los que están
 ## Pasos
 
 1. **Reúne TODOS los ISINs de clase del fondo y consúltalos por ISIN exacto** (verificado 2026-09-22: `get_funds` acepta ISINs y devuelve `missing` para los que no están; es la vía fiable — `search_funds` por nombre/gestora es solo respaldo):
-   - Lee de `output.json`: `nombre`, `gestora` y `clases[].isin`; y sobre todo `dashboard/_class_map.json` → `groups[<primario>].classes[].isin` (o `aliases[ISIN]` → primario) para tener TODAS las clases del grupo. Conjunto candidato = ISIN objetivo + todas las clases.
+   - Saca TODAS las clases con `python -m tools.broker_availability --clases {ISIN}` (une mapa de clases, output.json, intl_data y el catálogo del portal; funciona aunque el fondo sea nuevo y aún no tenga output.json). Conjunto candidato = esa lista entera. Nombre y gestora: de `output.json` si existe; si no, de `intl_data.json` / `cnmv_data.json`.
    - Llama `mcp__claude_ai_MyInvestor__get_funds` con `isins` en lotes de ≤10. Las que vuelven en `funds` ESTÁN en MyInvestor → `clases_en_myinvestor` (lista completa). Si TODAS salen en `missing`, prueba una vez `search_funds` con `query` = gestora (`limit` 10) y acepta solo resultados cuyo `isin` esté en el conjunto candidato. NUNCA aceptes un fondo cuyo ISIN no esté en nuestra lista.
    - Para los datos ricos (`matched_isin`) usa la ficha del ISIN objetivo si está; si no, la de cualquier clase encontrada.
 

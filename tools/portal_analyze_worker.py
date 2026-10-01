@@ -354,6 +354,12 @@ def _push_meta_local(isin: str) -> bool:
         meta = {"isin": isin.upper(), "nombre": o.get("nombre") or "", "fecha_ultimo_analisis": fecha,
                 "has_qualitative_analysis": 1, "aum_meur": k.get("aum_actual_meur")}
         meta.update(_doc_dates(isin))
+        try:   # brokers detectados (el portal solo rellena si está vacío: nunca pisa lo marcado a mano)
+            _bd = (o.get("broker_disponible_auto") or {}).get("detected") or []
+            if _bd:
+                meta["broker"] = ",".join(_bd)
+        except Exception:
+            pass
         try:
             from tools.versiones import para_portal as _pv
             meta.update(_pv(isin))
