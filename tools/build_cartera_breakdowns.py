@@ -317,7 +317,8 @@ def build_for(isin: str) -> dict:
             pct = lambda m: {k: round(v / w * 100, 2) for k, v in m.items() if v > 0}
             venc_h.append({"periodo": str(per)[:7], "tramos": pct(ladder), "_fuente": "cartera"})
             cup_h.append({"periodo": str(per)[:7], "tramos": pct(cup), "_fuente": "cartera"})
-            div_h.append({"periodo": str(per)[:7], "tramos": pct(div), "_fuente": "cartera"})
+            if div.get("?", 0) < 0.5 * w:      # sin divisa en la extracción (AR anteriores a 1-oct-2026): no pintar un 100 % '?'
+                div_h.append({"periodo": str(per)[:7], "tramos": pct(div), "_fuente": "cartera"})
         for key, lst in (("rf_vencimiento_history", venc_h), ("rf_cupon_history", cup_h), ("rf_divisa_history", div_h)):
             dd = {}
             for g in lst:

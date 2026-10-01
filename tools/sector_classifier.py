@@ -408,8 +408,16 @@ def classify_auto(isin: str, model: str | None = None, log=print) -> dict:
             outf.unlink(missing_ok=True)
             cache = load_cache()
             ccache = _load_json(COUNTRY_CACHE_PATH)
-    # aplicar a output.json (cartera actual + años anteriores)
+    # aplicar a output.json (cartera actual + años anteriores). La caché MANDA sobre un sector puesto por una
+    # pasada anterior (una reclasificación —p.ej. 'Otros' identificado con web— tiene que llegar a la cartera).
     act = ((o.get("posiciones") or {}).get("actuales")) or []
+    for _rows in [act] + [(h.get("todas") or h.get("holdings") or h.get("top10") or [])
+                          for h in ((o.get("posiciones") or {}).get("historicas")) or [] if isinstance(h, dict)]:
+        for _p in _rows:
+            if isinstance(_p, dict):
+                _c = cache.get(_norm_company(_p.get("nombre", "")))
+                if _c:
+                    _p["sector"] = _c
     n_set, n_unk = apply_sectors(act, cache)
     ccache = _load_json(COUNTRY_CACHE_PATH)
     _apply_countries(act, ccache)
