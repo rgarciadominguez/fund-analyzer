@@ -260,6 +260,9 @@ if "%_HAS_APORTE%"=="1" (
     )
 )
 echo [MODO] scope de analisis = %FUND_SCOPE_MODE%
+REM Tipo de VERSION publicada (1-oct-2026, tools/versiones): full / annual_update / aporte / mejora_feedback.
+set VERSION_TIPO=%FUND_SCOPE_MODE%
+if defined APPLY_FEEDBACK set VERSION_TIPO=mejora_feedback
 REM En aporte/annual (--resume) hay que RE-EJECUTAR extract (docs nuevos/aportados; el extract es
 REM INCREMENTAL: solo procesa tasks sin output previo) y analyst (re-sintesis/complemento), aunque
 REM existan de un analisis previo. Sin esto el --resume normal los saltaria y el aporte no se usaria.
@@ -646,14 +649,14 @@ if defined QUALITY_BLOCK (
     echo [BLOQUEADO] no se publica el dashboard por errores graves de calidad
 ) else if defined QUALITY_BORRADOR (
     echo [BORRADOR] se publica solo el borrador pendiente de validar; sigue visible la version anterior
-    call python -m tools.revision borrador %ISIN%
+    call python -m tools.revision borrador %ISIN% %VERSION_TIPO%
 ) else (
+    call python -m tools.revision publicado %ISIN% %VERSION_TIPO%
     python -m tools.publish_dashboard --isin %ISIN% --wait 420
     if errorlevel 1 (
         echo [WARN] publicacion incompleta - ver motivo arriba; el guardian reintenta el push
         set FAILED_STEPS=!FAILED_STEPS! auto-git-push
     )
-    call python -m tools.revision publicado %ISIN%
 )
 echo.
 

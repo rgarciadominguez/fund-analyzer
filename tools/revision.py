@@ -154,8 +154,29 @@ def _html_borrador(isin: str, html: str) -> str:
     return html.replace("</body>", script + "\n</body>", 1) if "</body>" in html else html + script
 
 
-def publicar_borrador(isin: str, wait: int = 420) -> bool:
+def _version_y_meta(isin: str, tipo: str | None, regenerar: bool = True) -> None:
+    """Registra la versión publicada (tools.versiones), regenera el dashboard con su cabecera y envía al
+    portal la fecha/tipo/historial (push_meta usa Supabase si responde y, si no, el análisis local)."""
+    try:
+        from tools.versiones import registrar
+        v = registrar(isin, tipo)
+        _log(f"{isin}: versión registrada → {v.get('etiqueta')} {v.get('fecha')}")
+    except Exception as e:  # noqa: BLE001
+        _log(f"[WARN] versión no registrada: {str(e)[:100]}")
+    if regenerar:
+        subprocess.run([sys.executable, str(DASH / "generate_dashboard.py"), isin], cwd=str(ROOT),
+                       capture_output=True, text=True, timeout=300)
+    try:
+        from tools.portal_analyze_worker import push_meta
+        push_meta(isin)
+    except Exception as e:  # noqa: BLE001
+        _log(f"[WARN] meta al portal: {str(e)[:100]}")
+
+
+def publicar_borrador(isin: str, wait: int = 420, tipo: str | None = None) -> bool:
     isin = isin.upper()
+    if tipo:
+        (ROOT / "data" / "funds" / isin / "_version_tipo.txt").write_text(tipo, encoding="utf-8")
     gate = _load(ROOT / "data" / "funds" / isin / "quality_gate.json", {}) or {}
     live = DASH / f"fund-{isin}.html"
     if not live.exists():
@@ -247,9 +268,10 @@ def publicar(isin: str) -> bool:
             _log(f"[WARN] no pude encolar la corrección: {str(e)[:100]}")
         estado_portal(isin, "corrigiendo", f"{len(malas)} duda(s) marcadas como incorrectas: se corrige este análisis y vuelve a revisión")
         return True
-    # Publicación definitiva
-    subprocess.run([sys.executable, str(DASH / "generate_dashboard.py"), isin], cwd=str(ROOT),
-                   capture_output=True, text=True, timeout=300)
+    # Publicación definitiva: versión (tipo guardado al crear el borrador) + dashboard con su cabecera
+    _tp = fd / "_version_tipo.txt"
+    _version_y_meta(isin, _tp.read_text(encoding="utf-8").strip() if _tp.exists() else None, regenerar=True)
+    _tp.unlink(missing_ok=True)
     rc = subprocess.call([sys.executable, "-m", "tools.publish_dashboard", "--isin", isin, "--wait", "420"], cwd=str(ROOT))
     subprocess.call([sys.executable, "-m", "tools.sync_to_supabase", isin], cwd=str(ROOT))
     b = DASH / f"fund-{isin}-borrador.html"
@@ -272,12 +294,14 @@ if __name__ == "__main__":
         print(__doc__); sys.exit(2)
     acc, isin = sys.argv[1], sys.argv[2].upper()
     if acc == "borrador":
-        sys.exit(0 if publicar_borrador(isin) else 1)
+        sys.exit(0 if publicar_borrador(isin, tipo=sys.argv[3] if len(sys.argv) > 3 else None) else 1)
     if acc == "no-publicado":
         no_publicado(isin, sys.argv[3] if len(sys.argv) > 3 else ""); sys.exit(0)
     if acc == "publicar":
         sys.exit(0 if publicar(isin) else 1)
     if acc == "publicado":
+        # antes de publish_dashboard: versión + dashboard regenerado con su cabecera + meta al portal
+        _version_y_meta(isin, sys.argv[3] if len(sys.argv) > 3 else None, regenerar=True)
         estado_portal(isin, "publicado"); sys.exit(0)
     if acc == "estado":
         print(json.dumps(_load(ROOT / "data" / "funds" / isin / "revision.json", {}), ensure_ascii=False, indent=2)); sys.exit(0)

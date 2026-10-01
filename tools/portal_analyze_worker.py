@@ -321,6 +321,11 @@ def push_meta(isin: str, dry: bool = False, do_push: bool = True) -> bool:
             "has_qualitative_analysis": 1,
         }
         meta.update(_doc_dates(isin))   # fechas de documentos (annual/semianual/carta) para la pantalla de update anual
+        try:   # versión publicada (1-oct-2026): fecha de la última versión + tipo + historial
+            from tools.versiones import para_portal as _pv
+            meta.update(_pv(isin))
+        except Exception:
+            pass
         docs = _doc_list(g, g.get("nombre_base") or "")   # lista completa de documentos (pestaña Documentos del portal)
         if docs:
             meta["documentos"] = docs
@@ -349,6 +354,11 @@ def _push_meta_local(isin: str) -> bool:
         meta = {"isin": isin.upper(), "nombre": o.get("nombre") or "", "fecha_ultimo_analisis": fecha,
                 "has_qualitative_analysis": 1, "aum_meur": k.get("aum_actual_meur")}
         meta.update(_doc_dates(isin))
+        try:
+            from tools.versiones import para_portal as _pv
+            meta.update(_pv(isin))
+        except Exception:
+            pass
         meta = {kk: v for kk, v in meta.items() if v not in (None, "")}
         base, user, pwd = _cfg()
         h = _auth_header(user, pwd); h["Content-Type"] = "application/json"

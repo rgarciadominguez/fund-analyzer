@@ -3176,7 +3176,7 @@ def build_header(data):
     <button class="tb" onclick="goTab(8,this)" style="margin-left:auto;border:1px solid rgba(255,255,255,0.15);border-radius:4px;">Chat</button>
   </nav>
   <div class="data-banner" style="background:var(--navy-pale);padding:6px 28px;font-size:11px;color:var(--ink-4);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule-light);">
-    <span>Datos actualizados a: <strong style="color:var(--ink-3);">{data.get('ultima_actualizacion','Fecha no disponible')[:10]}</strong></span>
+    <span>{_linea_version(data)}</span>
     <button onclick="alert('Para actualizar, ejecutar:\\npython -m agents.orchestrator --isin {data.get('isin','')} --auto --force-refresh')" style="background:var(--navy);color:#fff;border:none;padding:4px 14px;font-family:'Source Sans 3';font-size:10px;cursor:pointer;border-radius:3px;letter-spacing:0.3px;">Actualizar an&aacute;lisis</button>
   </div>
 </header>"""
@@ -8169,6 +8169,19 @@ def _build_feedback_widget_legacy(data):
 </script>
 """
 
+
+
+def _linea_version(data: dict) -> str:
+    """Cabecera (1-oct-2026): última versión publicada (fecha + tipo) y fechas de las anteriores."""
+    import html as _h
+    hist = [x for x in (data.get("historial_versiones") or []) if isinstance(x, dict)]
+    if not hist:
+        return ("Datos actualizados a: <strong style=\"color:var(--ink-3);\">"
+                + _h.escape(str(data.get("ultima_actualizacion") or "Fecha no disponible")[:10]) + "</strong>")
+    u = hist[-1]
+    prev = ", ".join(f"{x.get('fecha', '')[:10]} ({x.get('etiqueta', '')})" for x in reversed(hist[:-1]))
+    return (f"Versión: <strong style=\"color:var(--ink-3);\">{_h.escape(u.get('etiqueta', ''))} · {_h.escape(u.get('fecha', '')[:10])}</strong>"
+            + (f" <span style=\"color:var(--ink-4);\" title=\"{_h.escape(prev)}\">· {len(hist) - 1} versión(es) anterior(es)</span>" if prev else ""))
 
 
 def build_feedback_widget(data):
