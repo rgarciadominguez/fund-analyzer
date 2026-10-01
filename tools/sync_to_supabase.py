@@ -354,6 +354,14 @@ def _sync_fund_impl(
 
     # Supabase restringido/caído (29-sep-2026): NO es un fallo del análisis. Se aplaza el sync (reintento
     # automático cada hora), se reconcilia el portal con lo que no depende de Supabase y se sale con 0.
+    # Documentos ARCHIVADOS siempre (1-oct-2026): el archivo vive en R2, no en Supabase. Antes este paso iba
+    # detrás del aplazamiento por Supabase caído → desde el 28-sep ningún fondo archivaba sus documentos.
+    if not dry_run:
+        try:
+            from tools.archive_docs import archive as _archive_r2
+            _archive_r2(isin, client=None, log=lambda m: log(f"[SYNC] {m}"))
+        except Exception as _e:
+            log(f"[SYNC] archivado de documentos falló (no crítico): {str(_e)[:80]}")
     # Fecha del próximo análisis en LOCAL siempre, antes de depender de Supabase (29-sep-2026).
     if not dry_run:
         try:

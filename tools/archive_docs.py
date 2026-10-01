@@ -76,20 +76,36 @@ def _year_from_pdf(path) -> str:
     return ""
 
 
+def _resolver(lp, fd: Path) -> Path | None:
+    """La ruta absoluta guardada es del equipo que descargó (servidor C:\\Users\\Usuario\\…); en otro equipo se
+    busca el mismo fichero por nombre dentro de las carpetas del fondo (OneDrive sincroniza la carpeta)."""
+    if not lp:
+        return None
+    p = Path(lp)
+    if p.exists():
+        return p
+    for sub in ("discovery", "letters", "reports", "aportados", "manual"):
+        q = fd / "raw" / sub / Path(str(lp).replace("\\", "/")).name
+        if q.exists():
+            return q
+    return None
+
+
 def _collect(isin: str) -> list[dict]:
-    """Candidatos {doc_type, periodo, fecha, local_path, url} desde discovery (INT) y
-    raw/reports (ES/CNMV)."""
+    """Candidatos {doc_type, periodo, fecha, local_path, url} desde discovery (INT), raw/letters (cartas),
+    KID/folleto de raw/discovery y raw/reports (ES/CNMV)."""
     fd = ROOT / "data" / "funds" / isin
     cands = []
     dd = fd / "intl_discovery_data.json"
     if dd.exists():
         try:
             for d in json.loads(dd.read_text(encoding="utf-8")).get("documents", []):
-                lp = d.get("local_path")
-                if lp and Path(lp).exists() and d.get("doc_type"):
+                lp = _resolver(d.get("local_path"), fd)
+                # solo PDFs: un artículo web o la transcripción de un vídeo (.txt) se enlaza en su web original
+                if lp and d.get("doc_type") and lp.suffix.lower() == ".pdf":
                     cands.append({"doc_type": d["doc_type"], "periodo": d.get("periodo"),
                                   "fecha": d.get("fecha_publicacion") or _periodo_key(d.get("periodo")),
-                                  "local_path": lp, "url": d.get("url") or ""})
+                                  "local_path": str(lp), "url": d.get("url") or ""})
         except Exception:
             pass
     # INT: AR/SAR multi-año que fetch_annual_report/Finect dejan en raw/discovery con el
@@ -116,6 +132,32 @@ def _collect(isin: str) -> list[dict]:
             cands.append({"doc_type": dt, "periodo": per, "fecha": per,
                           "local_path": str(f), "url": ""})
             _seen.add((dt, _periodo_key(per)))
+    # KID / folleto descargados (1-oct-2026: no se archivaban si el discovery_data traía otra ruta)
+    if disc.exists():
+        for f in sorted(disc.glob("*.pdf")):
+            low = f.name.lower()
+            dt = "kid" if any(k in low for k in ("kid", "kiid", "dici", "priip")) else \
+                 "prospectus" if any(k in low for k in ("prospect", "folleto")) else None
+            if dt and not any(Path(c["local_path"]).name == f.name for c in cands):
+                m = re.search(r"(20\d{2})(\d{2})?(\d{2})?", f.name)
+                cands.append({"doc_type": dt, "periodo": m.group(1) if m else "latest", "fecha": None,
+                              "local_path": str(f), "url": ""})
+    # Cartas del gestor descargadas (raw/letters/*.pdf), con su URL original si consta en letters_data
+    let = fd / "raw" / "letters"
+    if let.exists():
+        _urls = {}
+        try:
+            for c in json.loads((fd / "letters_data.json").read_text(encoding="utf-8")).get("cartas") or []:
+                if isinstance(c, dict) and c.get("archivo"):
+                    _urls[Path(str(c["archivo"]).replace("\\", "/")).name] = c.get("url") or c.get("url_fuente") or ""
+        except Exception:
+            pass
+        for f in sorted(let.glob("*.pdf")):
+            if any(Path(c["local_path"]).name == f.name for c in cands):
+                continue
+            m = re.search(r"(20\d{2}(?:-(?:Q[1-4]|H[12]|\d{2}))?)", f.name)
+            cands.append({"doc_type": "quarterly_letter", "periodo": m.group(1) if m else "latest",
+                          "fecha": m.group(1) if m else None, "local_path": str(f), "url": _urls.get(f.name, "")})
     # ES/CNMV: raw/reports (semestrales). H2(dic)=anual, H1(jun)=semianual.
     rep = fd / "raw" / "reports"
     if rep.exists():
@@ -185,10 +227,43 @@ def _select(cands: list[dict]) -> list[dict]:
     return sel
 
 
+def _archivar_en_r2(fichero: Path, isin: str) -> str | None:
+    """Archiva un documento y devuelve su DIRECCIÓN PÚBLICA, o None si no se pudo.
+
+    POR QUÉ ASÍ (25-sep-2026). Antes esto subía cada documento a Supabase con una ruta por fondo
+    (`docs/<ISIN>/<tipo>/<nombre>`). Como el mismo informe lo comparten hasta 6 fondos de una
+    misma gestora, el archivo acabó con **el 54% de duplicados**: 2,34 GB de los que 1,27 GB eran
+    copias del mismo fichero. Supabase (1 GB en su plan gratuito) avisó de corte.
+
+    Ahora se archiva **por contenido**: la clave es el sha256, así que el informe paraguas se
+    guarda UNA vez por muchos fondos que lo compartan. Es exactamente lo que `doc_archive.py`
+    dejó diseñado en junio y nunca llegó a aplicarse en esta vía.
+
+    Dos destinos, a propósito:
+      · el bucket PRIVADO es el archivo de verdad (y donde vive todo lo sensible);
+      · el bucket PÚBLICO es solo un espejo de los documentos de fondos, porque el dashboard
+        los enlaza y esos enlaces tienen que abrirse sin credenciales. Se copia de uno a otro
+        DENTRO de Cloudflare: no se vuelve a subir el fichero.
+    """
+    from tools.doc_archive import archive_file
+    from tools.r2_client import R2
+
+    sha = archive_file(fichero, isin, fichero.name)
+    if not sha:
+        return None
+    r2 = R2()
+    if not r2.bucket_publico or not r2.url_publica:
+        return None
+    pub = R2(bucket=r2.bucket_publico)
+    destino = f"docs/{sha}.pdf"
+    if pub.existe(destino) is None:
+        pub.copiar_desde(r2.bucket, f"fondos-docs/{sha}.pdf", destino)
+    return f"{r2.url_publica}/{destino}"
+
+
 def archive(isin: str, client=None, log=print) -> list[dict]:
     """Sube los docs clave y devuelve el manifiesto. Escribe el manifiesto en
     fund_groups.portfolio_metrics_jsonb.documentos si hay client."""
-    from tools.sync_to_supabase import _upload_file_to_storage
     isin = isin.upper()
     sel = _select(_collect(isin))
     # GUARD anti re-contaminación: nunca archivar ficheros en la blocklist del fondo (contaminación
@@ -206,16 +281,18 @@ def archive(isin: str, client=None, log=print) -> list[dict]:
         f = Path(c["local_path"])
         if not f.exists() or f.stat().st_size == 0:
             continue
-        dest = f"docs/{isin}/{c['doc_type']}/{_slug(f.name)}"
-        if _upload_file_to_storage(client, BUCKET, dest, f, "application/pdf"):
+        url = _archivar_en_r2(f, isin)
+        if url:
             manifest.append({
                 "tipo": c["doc_type"],
                 "periodo": _periodo_key(c["periodo"]),        # periodo que cubre el doc (fiable)
                 "fecha_publicacion": c.get("fecha") or None,  # cuándo se publicó (si se conoce)
                 "nombre": f.name,
-                "url": f"{base}/storage/v1/object/public/{BUCKET}/{dest}",
+                "url": url,
                 "url_original": c["url"],
             })
+        else:
+            log(f"[DOCS] no se pudo archivar {f.name[:50]}")
     if client is not None and manifest:
         try:
             g = client.table("funds").select("fund_group_id").eq("isin", isin).execute().data
@@ -238,6 +315,11 @@ def archive(isin: str, client=None, log=print) -> list[dict]:
         _merge_into_output_documentos(isin, manifest, log=log)
     except Exception as e:
         log(f"[DOCS] no volcado a output.json: {str(e)[:70]}")
+    try:   # manifiesto local (1-oct-2026): enlaza cada original con nuestra copia (lo usa tools.documentos_fondo)
+        (ROOT / "data" / "funds" / isin / "documentos_archivados.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+    except Exception:
+        pass
     log(f"[DOCS] {isin}: {len(manifest)} docs clave archivados")
     return manifest
 
