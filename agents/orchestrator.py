@@ -540,9 +540,14 @@ async def analyze_fund(isin: str, auto: bool = False, prep_only: bool = False) -
                     from agents.cnmv_enrichment import CNMVEnricher
                     _enr = CNMVEnricher(isin)
                     _cd = _enr._load_cnmv()
+                    # Rentabilidad anual desde el VL de la CNMV (2-oct-2026: Cartesio Y salió con 0 años de
+                    # rentabilidad; antes la calculaba el enriquecedor completo, que el pipeline cowork ya no llama).
+                    _ch = bool(_cd) and _enr._enrich_serie_rentabilidad(_cd)
                     if _cd and _enr._enrich_sectores(_cd):
+                        _ch = True
+                    if _ch:
                         _enr._save_cnmv(_cd)
-                    log("CNMV", "OK", "sectores por emisor: task emitida si faltaban")
+                    log("CNMV", "OK", "rentabilidad anual desde VL + sectores por emisor (si faltaban)")
                 except Exception as _exc:
                     log("CNMV", "WARN", f"sectores por emisor: {_exc}")
             else:

@@ -661,7 +661,9 @@ def make_app(cold_start: bool = True) -> Flask:
         return items
 
     # B3: Persistencia de la cola en disco (sobrevive reinicios).
-    QUEUE_STATE_FILE = DATA_DIR / "queue_state.json"
+    # FA_QUEUE_STATE (1-oct-2026, modo emergencia en la Surface): cola propia de esa máquina, para que dos
+    # web_server (servidor + Surface) no se pisen el mismo fichero sincronizado por OneDrive.
+    QUEUE_STATE_FILE = DATA_DIR / (os.environ.get("FA_QUEUE_STATE") or "queue_state.json")
 
     def _save_queue_state():
         """Vuelca QUEUE + metadata global a data/queue_state.json (atómico)."""
