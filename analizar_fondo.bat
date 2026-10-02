@@ -389,6 +389,14 @@ if defined SKIP_EXTRACT (
     ) else (
         echo [OK] Skill extract-pdfs-cowork OK. Output en logs\skill_extract_pdfs_%ISIN%.log
     )
+    REM 2-oct-2026: si algun PDF aportado quedo sin extraer ^(subagentes cortados^), repetir el extract una vez
+    call python -m tools.aportados --isin %ISIN% --faltan
+    if errorlevel 1 (
+        echo [WARN] Docs aportados sin extraer: se repite extract-pdfs una vez
+        call python -m tools.claude_cowork "logs\skill_extract_pdfs_%ISIN%_2.log" "extract pdfs cowork %ISIN%" --model %MODEL_EXTRACT% --allowedTools "Read,Write,Bash,Edit,Agent,Glob,Grep"
+        call python -m tools.aportados --isin %ISIN% --faltan
+        if errorlevel 1 echo [WARN] Siguen docs aportados sin extraer tras el reintento
+    )
     echo.
 )
 

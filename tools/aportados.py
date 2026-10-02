@@ -406,7 +406,16 @@ def main():
     ap.add_argument("--externo", action="append", default=[], help="URL de un análisis externo")
     ap.add_argument("--reconcile", action="store_true",
                     help="registra en pending_extraction los PDFs de raw/aportados/ que falten (blindaje)")
+    ap.add_argument("--faltan", action="store_true",
+                    help="exit 1 si algún PDF de raw/aportados/ no tiene su extracto (para repetir el extract)")
     a = ap.parse_args()
+    if a.faltan:
+        fd = _fund_dir(a.isin.upper())
+        falt = [f.name for f in sorted((fd / "raw" / "aportados").glob("*.pdf"))
+                if not (fd / "extracted" / f"{task_id_for(f.name)}.json").exists()] \
+            if (fd / "raw" / "aportados").exists() else []
+        print(json.dumps({"faltan": falt}, ensure_ascii=False))
+        sys.exit(1 if falt else 0)
     if a.reconcile:
         n = register_from_folder(a.isin)
         print(json.dumps({"ok": True, "reconciled": n}, ensure_ascii=False))

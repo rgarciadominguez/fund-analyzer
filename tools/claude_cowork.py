@@ -55,6 +55,10 @@ def _env_login() -> dict:
     import os as _os
     env = dict(_os.environ)
     env.pop("CLAUDE_CODE_OAUTH_TOKEN", None)
+    # 2-oct-2026: `claude -p` mata a los 600 s los subagentes que la skill deja en segundo plano. En R-Co
+    # Valor el extract lanzó 2 agentes para los PDFs aportados, se cortaron y 2 de 3 docs no se leyeron.
+    # 0 = esperar a que terminen (el propio paso ya tiene su timeout/vigilante).
+    env.setdefault("CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS", "0")
     return env
 
 
