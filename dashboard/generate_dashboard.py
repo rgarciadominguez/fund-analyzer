@@ -3185,6 +3185,23 @@ def build_header(data):
 # TAB 1: RESUMEN
 # ═══════════════════════════════════════════════════════════════
 
+def _hallazgos_clave_html(s) -> str:
+    """Tarjetas 'Hallazgos clave' (3-oct-2026): contradicciones que el análisis resolvió pero que cambian lo que se
+    le diría a un cliente (resumen.hallazgos_clave)."""
+    import html as _hh
+    items = [h for h in ((s or {}).get("hallazgos_clave") or []) if isinstance(h, dict) and h.get("titulo")][:3]
+    if not items:
+        return ""
+    cards = "".join(
+        f'<div style="flex:1 1 240px;border-left:3px solid var(--gold,#b48020);background:var(--paper-2,#faf7f0);'
+        f'padding:10px 12px;border-radius:4px;"><div style="font-weight:700;font-size:13px;color:var(--navy);'
+        f'margin-bottom:4px;">{_hh.escape(str(h["titulo"]))}</div><div style="font-size:12.5px;line-height:1.5;'
+        f'color:var(--ink-2,#333);">{_hh.escape(str(h.get("detalle") or ""))}</div></div>' for h in items)
+    return ('<div class="mb24"><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;'
+            'color:var(--ink-3);margin-bottom:8px;">Hallazgos clave</div>'
+            f'<div style="display:flex;flex-wrap:wrap;gap:10px;">{cards}</div></div>')
+
+
 def build_tab_resumen(data):
     # Lectura via accessor (Fase C)
     if _ACCESSOR_AVAILABLE:
@@ -3282,6 +3299,7 @@ def build_tab_resumen(data):
 <section class="pane on" id="p0">
   <div class="pane-header"><h1 class="pane-h1">Resumen ejecutivo</h1><span class="pane-dl">Informe analítico</span></div>
 
+  {_hallazgos_clave_html(s)}
   <div class="mb24">
     {narrative_html}
   </div>

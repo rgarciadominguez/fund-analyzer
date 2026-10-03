@@ -95,19 +95,9 @@ CLARIFYING_QUESTIONS = [
 DEFAULT_CONFIG = {q["id"]: q["default"] for q in CLARIFYING_QUESTIONS}
 
 # Metadatos conocidos por ISIN para --auto (evita buscar en web si ya conocemos el fondo)
-KNOWN_FUND_METADATA: dict[str, dict] = {
-    "LU1694789451": {
-        "nombre": "DNCA INVEST - ALPHA BONDS",
-        "gestora": "DNCA Investments",
-        "horizonte_historico": "4",  # solo último año disponible — sin PDFs automáticos
-    },
-    "ES0112231008": {"nombre": "Avantage Fund FI", "gestora": "Avantage Capital SGIIC"},
-    "LU0840158819": {
-        "nombre": "",
-        "gestora": "",
-        "horizonte_historico": "4",
-    },
-}
+# 3-oct-2026: vacío. Eran datos de prueba de abril (Avantage "Avantage Capital SGIIC", horizonte "solo último año"
+# para DNCA) que se colaban en config.json de análisis reales y sesgaban la síntesis (duda falsa en Avantage).
+KNOWN_FUND_METADATA: dict[str, dict] = {}
 
 
 # ── F6: fund_group shared cache (manager_profile, intl_discovery, readings) ─

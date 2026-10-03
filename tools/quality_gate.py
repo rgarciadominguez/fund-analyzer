@@ -63,7 +63,11 @@ def evaluar(isin: str) -> dict:
     hoy = date.today().isoformat()
     meta = (_load(fd / "analyst_synthesis_cowork.json", {}) or {}).get("_meta") or {}
     for c in meta.get("contradicciones") or []:
-        if isinstance(c, dict) and c.get("tema"):
+        # 3-oct-2026: solo retienen la publicación las que el análisis NO pudo resolver con las fuentes. Las
+        # resueltas quedan explicadas en el texto (y las relevantes, como hallazgo clave en el Resumen).
+        _bloquea = c.get("necesita_a_rafa") if isinstance(c, dict) and "necesita_a_rafa" in c \
+            else not (isinstance(c, dict) and c.get("como_lo_he_resuelto"))
+        if isinstance(c, dict) and c.get("tema") and _bloquea:
             dudas.append({"titulo": str(c["tema"])[:160],
                           "detalle": (str(c.get("que_dicen") or "") + (" Cómo se ha resuelto: " + str(c["como_lo_he_resuelto"])
                                       if c.get("como_lo_he_resuelto") else "")).strip(),

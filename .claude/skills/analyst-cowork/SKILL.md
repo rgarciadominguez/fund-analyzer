@@ -372,7 +372,21 @@ En `_meta.contradicciones` pon únicamente **contradicciones de fondo entre fuen
 cómo se entiende el fondo, y cómo las has resuelto. Ejemplos: la carta dice que el fondo reduce riesgo y la cartera del
 informe muestra más duración y más high yield; el folleto habla de gestión global y 3 años de carteras son 90 % Europa;
 una fuente atribuye el fondo a un gestor y otra a otro; el gestor dice que no usa derivados y el annual report los muestra.
-Formato: `[{"tema": "…", "que_dicen": "fuente A dice X; fuente B dice Y", "como_lo_he_resuelto": "…", "seccion": "…"}]`.
+Formato: `[{"tema": "…", "que_dicen": "fuente A dice X; fuente B dice Y", "como_lo_he_resuelto": "…", "seccion": "…",
+"necesita_a_rafa": false, "hallazgo_clave": false}]`.
+
+**Cuándo bloquea (3-oct-2026, Rafa).** Casi todas se resuelven con la jerarquía de fuentes (informes oficiales >
+material comercial > prensa; lo más reciente manda; un desfase de fechas no es conflicto; una lectura aproximada de un
+gráfico cede ante la tabla). Si la has resuelto así, `necesita_a_rafa: false`: queda explicada en el texto y **no**
+retiene la publicación. Pon `necesita_a_rafa: true` solo si NO puedes resolverla con lo que tienes (falta el dato, o
+hay dos lecturas igual de defendibles que cambian la conclusión). Es raro: en 4 fondos seguidos fueron 0 de 10.
+
+**Hallazgo clave.** `hallazgo_clave: true` si pasa la prueba de relevancia: *¿cambia lo que Rafa le diría a un cliente
+o cómo encaja el fondo en una cartera?* Ejemplos reales: el historial largo lo hizo otro equipo con otro mandato; la
+imagen pública ("small caps españolas") no es la cartera real (global, 26 % Argentina); la "flexibilidad 0-100 %" no
+protegió en las crisis (-41 % en 2008). Cada hallazgo clave va TAMBIÉN en `resumen.hallazgos_clave`:
+`[{"titulo": "≤8 palabras", "detalle": "≤200 caracteres: el hecho y su implicación para quien invierte"}]` (máx. 3).
+No son hallazgos: desfases de fechas, números de emisores, lecturas de gráficos, quién es la gestora legal.
 **No** pongas: lo que no has podido verificar, los supuestos menores, cifras cuantitativas (Morningstar y CNMV mandan y ya
 están alineadas), ni errores tuyos (corrígelos). Si no hay contradicciones de ese calibre, deja la lista vacía: es lo normal.
 
