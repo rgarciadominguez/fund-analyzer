@@ -152,6 +152,10 @@ def publish(isin: str, do_git: bool = True, do_storage: bool = True, wait: int =
                 return 1
 
     res = verify(isin, sello, wait=wait if do_git else 0, log=log)
+    # 3-oct-2026: con --no-git (reintento de Storage tras caída de Supabase) el Worker no es cosa de esta llamada:
+    # exigirle el sello dejaba el reintento en DESAJUSTE para siempre. Basta con que Storage quede al día.
+    if not do_git and do_storage and res.get("storage") == sello:
+        res["ok"] = True
     # Supabase restringido (29-sep-2026): si el Worker ya sirve el sello, el análisis ESTÁ publicado para el
     # portal (el iframe lee del Worker). Storage queda aplazado y se reintenta solo.
     if res.get("worker") == sello and res.get("storage") != sello:
